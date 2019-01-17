@@ -76,9 +76,11 @@ One awesome feature of Morestachio is that with a minor alteration in the mustac
 
 We think the model inference feature is compelling, because it allows for error detection, and faster debugging iterations when developing templates, which justifies this minor change to 'vanilla' mustache syntax.
 
-**Template partials** are a great feature for large scale template development. However, they introduce the risk of _infinite recursion_ if used improperly (especially since Morestachio allows for one to navigate 'up' a model with `../`).
+**Template partials** ARE a great feature for large scale template development.
 
-Including partials would complicate the general process of creating the templates, and allow unknown users to create potentially unbound processing requirements on our servers. It is possible to detect these cycles while parsing templates, so, if this is important to the broader OSS community, partial template support may be added to Morestachio in the future.
+You can create a Partial with the `{{#declare NAME}}Partial{{/declare}}` syntax. You can navigate up inside this partials. Partials can also be nested but are currently restricted to a maximum recursion of 255 depth. The programmer has the choice to define a behavior that ether throws an Exception or does nothing and ignores any deeper recusions. 
+
+A Partial must be declared before its usage with `{{#include NAME}}` but you can use a partial to create hirarical templates. 
 
 ###### Infos about new features
  
