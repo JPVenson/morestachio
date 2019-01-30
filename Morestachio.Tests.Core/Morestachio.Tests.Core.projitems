@@ -9,6 +9,7 @@
     <Import_RootNamespace>Morestachio.Tests.Core</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)DocumentTreeFixture.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ParserCancellationional.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ParserCollectionFixture.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ParserFixture.cs" />

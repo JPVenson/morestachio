@@ -142,7 +142,7 @@ namespace Morestachio.Formatter.Framework
 					{
 						options.Formatters.Write(() => $"{nameof(MorestachioFormatterService)} | Parameter at index {index} named {parameterInfo.Name} is not assignable from '{paramVal}'");
 						abort = true;
-						continue;
+						break;
 					}
 				}
 

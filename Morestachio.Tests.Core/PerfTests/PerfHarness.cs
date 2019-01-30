@@ -10,8 +10,6 @@ namespace Morestachio.Tests.PerfTests
 	[TestFixture]
 	public class PerfHarness
 	{
-		
-
 		[Test()]
 		[Explicit]
 		//[Theory(Skip = "Explicit Performance testing only")]

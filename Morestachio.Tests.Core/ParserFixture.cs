@@ -57,8 +57,7 @@ namespace Morestachio.Tests
 		[TestCase("{{data(}}")]
 		public void ParserThrowsAnExceptionWhenFormatIsMismatched(string invalidTemplate)
 		{
-			Assert.Throws(typeof(AggregateException),
-				() => Parser.ParseWithOptions(new ParserOptions(invalidTemplate)));
+			Assert.That(Parser.ParseWithOptions(new ParserOptions(invalidTemplate)).Errors, Is.Not.Empty.And.Count.EqualTo(1));
 		}
 
 		[Test]
@@ -67,8 +66,7 @@ namespace Morestachio.Tests
 		[TestCase("{{/each}}")]
 		public void ParserThrowsAnExceptionWhenEachIsMismatched(string invalidTemplate)
 		{
-			Assert.Throws(typeof(AggregateException),
-				() => Parser.ParseWithOptions(new ParserOptions(invalidTemplate)));
+			Assert.That(Parser.ParseWithOptions(new ParserOptions(invalidTemplate)).Errors, Is.Not.Empty);
 		}
 
 		[Test]
@@ -93,8 +91,7 @@ namespace Morestachio.Tests
 		[TestCase("{{^element}}{{name}}")]
 		public void ParserThrowsParserExceptionForUnclosedGroups(string invalidTemplate)
 		{
-			Assert.Throws(typeof(AggregateException),
-				() => Parser.ParseWithOptions(new ParserOptions(invalidTemplate)));
+			Assert.That(Parser.ParseWithOptions(new ParserOptions(invalidTemplate)).Errors, Is.Not.Empty.And.Count.EqualTo(1));
 		}
 
 
@@ -115,7 +112,7 @@ namespace Morestachio.Tests
 		[TestCase("{{%}}")]
 		public void ParserShouldThrowForInvalidPaths(string template)
 		{
-			Assert.Throws(typeof(AggregateException), () => Parser.ParseWithOptions(new ParserOptions(template)));
+			Assert.That(Parser.ParseWithOptions(new ParserOptions(template)).Errors, Is.Not.Empty.And.Count.EqualTo(1));
 		}
 
 		[Test]
@@ -137,18 +134,7 @@ namespace Morestachio.Tests
 		[TestCase("a{{name}}dd\ndd{{/each}}dd", 1)]
 		public void ParserShouldThrowWithCharacterLocationInformation(string template, int expectedErrorCount)
 		{
-			var didThrow = false;
-			try
-			{
-				Parser.ParseWithOptions(new ParserOptions(template));
-			}
-			catch (AggregateException ex)
-			{
-				didThrow = true;
-				Assert.That(ex.InnerExceptions.Count, Is.EqualTo(expectedErrorCount));
-			}
-
-			Assert.True(didThrow);
+			Assert.That(Parser.ParseWithOptions(new ParserOptions(template)).Errors, Is.Not.Empty.And.Count.EqualTo(expectedErrorCount));
 		}
 
 		[Test]
@@ -978,22 +964,19 @@ namespace Morestachio.Tests
 		[Test]
 		public void ParserThrowsParserExceptionForEachWithoutPath()
 		{
-			Assert.Throws(typeof(AggregateException),
-				() => Parser.ParseWithOptions(new ParserOptions("{{#eachs}}{{name}}{{/each}}")));
+			Assert.That(Parser.ParseWithOptions(new ParserOptions("{{#eachs}}{{name}}{{/each}}")).Errors, Is.Not.Empty);
 		}
 
 		[Test]
 		public void ParserThrowsParserExceptionForEmptyEach()
 		{
-			Assert.Throws(typeof(AggregateException), () => Parser.ParseWithOptions(new ParserOptions("{{#each}}")));
+			Assert.That(Parser.ParseWithOptions(new ParserOptions("{{#each}}")).Errors, Is.Not.Empty);
 		}
 
 		[Test]
 		public void ParsingThrowsAnExceptionWhenConditionalGroupsAreMismatched()
 		{
-			Assert.Throws(typeof(AggregateException),
-				() => Parser.ParseWithOptions(
-					new ParserOptions("{{#Collection}}Collection has elements{{/AnotherCollection}}")));
+			Assert.That(Parser.ParseWithOptions(new ParserOptions("{{#Collection}}Collection has elements{{/AnotherCollection}}")).Errors, Is.Not.Empty.And.Count.EqualTo(2));
 		}
 
 		[Test]

@@ -10,7 +10,7 @@ namespace Morestachio.Framework
 	///     Reads in a mustache template and lexes it into tokens.
 	/// </summary>
 	/// <exception cref="IndexedParseException"></exception>
-	internal class Tokenizer
+	public class Tokenizer
 	{
 		private static readonly Regex TokenFinder = new Regex("([{]{2}[^{}]+?[}]{2})|([{]{3}[^{}]+?[}]{3})",
 			RegexOptions.Compiled);
@@ -99,7 +99,7 @@ namespace Morestachio.Framework
 		}
 
 		private static IEnumerable<TokenPair> TokenizeFormattables(string token, string templateString, Capture m,
-			List<int> lines, List<IndexedParseException> parseErrors)
+			List<int> lines, ICollection<IMorestachioError> parseErrors)
 		{
 			var tokesHandeld = 0;
 			foreach (Match tokenFormats in FormatFinder.Matches(token))
@@ -137,7 +137,7 @@ namespace Morestachio.Framework
 			}
 		}
 
-		public static IEnumerable<TokenPair> Tokenize(ParserOptions parserOptions)
+		internal static IEnumerable<TokenPair> Tokenize(ParserOptions parserOptions, ICollection<IMorestachioError> parseErrors)
 		{
 			var templateString = parserOptions.Template;
 			var matches = TokenFinder.Matches(templateString);
@@ -145,7 +145,6 @@ namespace Morestachio.Framework
 
 			var idx = 0;
 
-			var parseErrors = new List<IndexedParseException>();
 			var lines = new List<int>();
 			var partialsNames = new List<string>();
 
@@ -163,9 +162,7 @@ namespace Morestachio.Framework
 					var token = m.Value.TrimStart('{').TrimEnd('}').TrimStart('#').Trim().Substring("declare".Length);
 					if (string.IsNullOrWhiteSpace(token))
 					{
-						var location = HumanizeCharacterLocation(templateString, m.Index, lines);
-						parseErrors.Add(new IndexedParseException(location,
-							@"The syntax to open the 'declare' block should be: '{{{{#declare name}}}}'. Missing the Name."));
+						parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(templateString, m.Index, lines), "open", "declare", "{{#declare name}}", " Missing the Name."));
 					}
 					else
 					{
@@ -177,9 +174,7 @@ namespace Morestachio.Framework
 				{
 					if (m.Value != "{{/declare}}")
 					{
-						var location = HumanizeCharacterLocation(templateString, m.Index, lines);
-						parseErrors.Add(new IndexedParseException(location,
-							@"The syntax to close the 'declare' block should be: '{{{{/declare}}}}'."));
+						parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(templateString, m.Index, lines), "close", "declare", "{{/declare}}"));
 					}
 					else if (scopestack.Any() && scopestack.Peek().Item1.StartsWith("{{#declare"))
 					{
@@ -189,9 +184,7 @@ namespace Morestachio.Framework
 					}
 					else
 					{
-						var location = HumanizeCharacterLocation(templateString, m.Index, lines);
-						parseErrors.Add(new IndexedParseException(location,
-							@"An 'declare' block is being closed, but no corresponding opening element ('{{{{#declare <name>}}}}') was detected."));
+						parseErrors.Add(new MorestachioUnopendScopeError(HumanizeCharacterLocation(templateString, m.Index, lines), "declare", "{{#declare name}}"));
 					}
 				}
 				else if (m.Value.StartsWith("{{#include"))
@@ -199,11 +192,12 @@ namespace Morestachio.Framework
 					var token = m.Value.TrimStart('{').TrimEnd('}').TrimStart('#').Trim().Substring("include".Length);
 					if (string.IsNullOrWhiteSpace(token) || !partialsNames.Contains(token))
 					{
-						var location = HumanizeCharacterLocation(templateString, m.Index, lines);
-						parseErrors.Add(new IndexedParseException(location,
-							@"The syntax to use the 'include' statement should be: '{{{{/include name}}}}'.
-There is no Partial declared '{0}'.
-Partial names are case sensitive and must be declared before an include.", token));
+						parseErrors.Add(new MorestachioSyntaxError(
+							HumanizeCharacterLocation(templateString, m.Index, lines),
+							"use",
+							"include",
+							"{{#include name}}",
+							$" There is no Partial declared '{token}'. Partial names are case sensitive and must be declared before an include."));
 					}
 					else
 					{
@@ -236,18 +230,14 @@ Partial names are case sensitive and must be declared before an include.", token
 					}
 					else
 					{
-						var location = HumanizeCharacterLocation(templateString, m.Index, lines);
-						parseErrors.Add(new IndexedParseException(location,
-							@"The 'each' block being opened requires a model path to be specified in the form '{{{{#each <name>}}}}'."));
+						parseErrors.Add(new InvalidPathSyntaxError(HumanizeCharacterLocation(templateString, m.Index, lines), ""));
 					}
 				}
 				else if (m.Value.StartsWith("{{/each"))
 				{
 					if (m.Value != "{{/each}}")
 					{
-						var location = HumanizeCharacterLocation(templateString, m.Index, lines);
-						parseErrors.Add(new IndexedParseException(location,
-							@"The syntax to close the 'each' block should be: '{{{{/each}}}}'."));
+						parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(templateString, m.Index, lines), "close", "each", "{{/each}}"));
 					}
 					else if (scopestack.Any() && scopestack.Peek().Item1.StartsWith("{{#each"))
 					{
@@ -256,9 +246,7 @@ Partial names are case sensitive and must be declared before an include.", token
 					}
 					else
 					{
-						var location = HumanizeCharacterLocation(templateString, m.Index, lines);
-						parseErrors.Add(new IndexedParseException(location,
-							@"An 'each' block is being closed, but no corresponding opening element ('{{{{#each <name>}}}}') was detected."));
+						parseErrors.Add(new MorestachioUnopendScopeError(HumanizeCharacterLocation(templateString, m.Index, lines), "each", "{{#each name}}"));
 					}
 				}
 				else if (m.Value.StartsWith("{{#"))
@@ -333,9 +321,7 @@ Partial names are case sensitive and must be declared before an include.", token
 					}
 					else
 					{
-						var location = HumanizeCharacterLocation(templateString, m.Index, lines);
-						parseErrors.Add(new IndexedParseException(location,
-							"It appears that open and closing elements are mismatched."));
+						parseErrors.Add(new MorestachioUnopendScopeError(HumanizeCharacterLocation(templateString, m.Index, lines), "/", "{{#path}}", " There are more closing elements then open."));
 					}
 				}
 				else if (m.Value.StartsWith("{{{") | m.Value.StartsWith("{{&"))
@@ -383,41 +369,41 @@ Partial names are case sensitive and must be declared before an include.", token
 
 			if (scopestack.Any())
 			{
-				var scopes = scopestack.Select(k =>
+				foreach (var unclosedScope in scopestack.Select(k =>
+				{
+					var value = k.Item1.Trim('{', '#', '}');
+					if (value.StartsWith("each "))
 					{
-						var value = k.Item1.Trim('{', '#', '}');
-						if (value.StartsWith("each "))
-						{
-							value = value.Substring(5);
-						}
+						value = value.Substring(5);
+					}
 
-						return new
-						{
-							scope = value,
-							location = HumanizeCharacterLocation(templateString, k.Item2, lines)
-						};
-					}).Reverse()
-					.ToArray();
-
-				parseErrors.AddRange(scopes.Select(unclosedScope => new IndexedParseException(unclosedScope.location,
-					"A scope block to the following path was opened but not closed: '{0}', please close it using the appropriate syntax.",
-					unclosedScope.scope)));
+					return new
+					{
+						scope = value,
+						location = HumanizeCharacterLocation(templateString, k.Item2, lines)
+					};
+				}).Reverse())
+				{
+					parseErrors.Add(new MorestachioUnopendScopeError(unclosedScope.location, unclosedScope.scope, ""));
+				}
 			}
+
+			yield break;
 
 			#endregion
 
-			//We want to throw an aggregate template exception, but in due time.
-			if (!parseErrors.Any())
-			{
-				yield break;
-			}
+			////We want to throw an aggregate template exception, but in due time.
+			//if (!parseErrors.Any())
+			//{
+			//	yield break;
+			//}
 
-			var innerExceptions = parseErrors.OrderBy(k => k.LineNumber).ThenBy(k => k.CharacterOnLine).ToArray();
-			throw new AggregateException(innerExceptions);
+			//var innerExceptions = parseErrors.OrderBy(k => k.LineNumber).ThenBy(k => k.CharacterOnLine).ToArray();
+			//throw new AggregateException(innerExceptions);
 		}
 
 		private static string Validated(string token, string content, int index, List<int> lines,
-			List<IndexedParseException> exceptions)
+			ICollection<IMorestachioError> exceptions)
 		{
 			token = token.Trim();
 
@@ -426,15 +412,13 @@ Partial names are case sensitive and must be declared before an include.", token
 				return token;
 			}
 
-			var location = HumanizeCharacterLocation(content, index, lines);
-			exceptions.Add(new IndexedParseException(location,
-				"The path '{0}' on line:char '{1}:{2}' is not valid. Please see documentation for examples of valid paths.", token, location.Line, location.Character));
+			exceptions.Add(new InvalidPathSyntaxError(HumanizeCharacterLocation(content, index, lines), token));
 
 			return token;
 		}
 
 		private static string ValidateArgumentHead(string token, string argument, string content,
-			int index, List<int> lines, List<IndexedParseException> exceptions)
+			int index, List<int> lines, ICollection<IMorestachioError> exceptions)
 		{
 			token = token.Trim();
 
@@ -450,7 +434,7 @@ Partial names are case sensitive and must be declared before an include.", token
 			return token;
 		}
 
-		internal class CharacterLocation
+		public class CharacterLocation
 		{
 			public int Line { get; set; }
 			public int Character { get; set; }

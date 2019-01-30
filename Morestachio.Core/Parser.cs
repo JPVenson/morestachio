@@ -36,11 +36,10 @@ namespace Morestachio
 			{
 				throw new ArgumentNullException(nameof(parsingOptions), "The given Stream is null");
 			}
-
-			var tokens = new Queue<TokenPair>(Tokenizer.Tokenize(parsingOptions));
-			var extendedParseInformation = new MorestachioDocumentInfo(parsingOptions, tokens);
-			extendedParseInformation.Document = Parse(tokens, parsingOptions);
-			return extendedParseInformation;
+			var errors = new List<IMorestachioError>();
+			var tokens = new Queue<TokenPair>(Tokenizer.Tokenize(parsingOptions, errors));
+			var documentInfo = new MorestachioDocumentInfo(parsingOptions, errors.Any() ? null : Parse(tokens, parsingOptions), errors);
+			return documentInfo;
 		}
 
 		/// <summary>
@@ -51,7 +50,8 @@ namespace Morestachio
 		/// <returns></returns>
 		internal static IDocumentItem Parse(Queue<TokenPair> tokens, ParserOptions options)
 		{
-			var buildStack = new Stack<IDocumentItem>(); //instead of recursive calling the parse function we stack the current document 
+			var buildStack = new Stack<IDocumentItem>(); 
+			//instead of recursive calling the parse function we stack the current document 
 			buildStack.Push(new MorestachioDocument()); 
 
 			var inFormat = false;
