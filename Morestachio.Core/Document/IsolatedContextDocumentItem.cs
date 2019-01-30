@@ -5,7 +5,7 @@ using Morestachio.Framework;
 namespace Morestachio
 {
 	/// <summary>
-	///		Executes the childs with a cloned Context
+	///		Executes the children with a cloned Context
 	/// </summary>
 	public class IsolatedContextDocumentItem : DocumentItemBase
 	{
@@ -18,8 +18,6 @@ namespace Morestachio
 			await Task.CompletedTask;
 			context = context.Clone();
 			return Children.WithScope(context);
-			//await MorestachioDocument.ProcessItemsAndChilds(Childs, outputStream, context, scopeData);
-			//return new DocumentItemExecution[0];
 		}
 	}
 }

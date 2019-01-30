@@ -10,7 +10,7 @@ namespace Morestachio
 	public abstract class DocumentItemBase : IDocumentItem
 	{
 		/// <inheritdoc />
-		public DocumentItemBase()
+		protected DocumentItemBase()
 		{
 			Children = new List<IDocumentItem>();
 		}
@@ -28,15 +28,12 @@ namespace Morestachio
 		/// <summary>
 		///		Can be called to check if any stop is requested. If return true no stop is requested
 		/// </summary>
-		protected static bool StopOrAbortBuilding(IByteCounterStream builder, ContextObject context)
+		protected static bool ContinueBuilding(IByteCounterStream builder, ContextObject context)
 		{
 			return !context.AbortGeneration && !context.CancellationToken.IsCancellationRequested && !builder.ReachedLimit;
 		}
 
-		/// <summary>
-		/// Adds the specified childs.
-		/// </summary>
-		/// <param name="documentChildren">The childs.</param>
+		/// <inheritdoc />
 		public void Add(params IDocumentItem[] documentChildren)
 		{
 			foreach (var documentItem in documentChildren)

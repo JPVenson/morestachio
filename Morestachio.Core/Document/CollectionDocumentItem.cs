@@ -22,7 +22,7 @@ namespace Morestachio
 		/// <summary>
 		///		Defines the expression from which the collection should be taken
 		/// </summary>
-		public string Value { get; private set; }
+		public string Value { get; }
 
 		/// <inheritdoc />
 		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
@@ -30,45 +30,43 @@ namespace Morestachio
 			//if we're in the same scope, just negating, then we want to use the same object
 			var c = await context.GetContextForPath(Value, scopeData);
 
-			//"falsey" values by Javascript standards...
 			if (!await c.Exists())
 			{
 				return new DocumentItemExecution[0];
 			}
 
-			var value = c.Value as IEnumerable;
-			if (value != null && !(value is string) && !(value is IDictionary<string, object>))
+			if (!(c.Value is IEnumerable value) || value is string || value is IDictionary<string, object>)
 			{
-				var scopes = new List<DocumentItemExecution>();
-
-				//Use this "lookahead" enumeration to allow the $last keyword
-				var index = 0;
-				var enumumerator = value.GetEnumerator();
-				if (!enumumerator.MoveNext())
-				{
-					return new DocumentItemExecution[0];
-				}
-
-				var current = enumumerator.Current;
-				do
-				{
-					var next = enumumerator.MoveNext() ? enumumerator.Current : null;
-					var innerContext = new ContextCollection(index, next == null, context.Options, $"[{index}]")
-					{
-						Value = current,
-						Parent = c
-					};
-					scopes.AddRange(Children.WithScope(innerContext));
-					index++;
-					current = next;
-				} while (current != null && StopOrAbortBuilding(outputStream, context));
-
-				return scopes;
+				throw new IndexedParseException(
+					"'{0}' is used like an array by the template, but is a scalar value or object in your model.",
+					Value);
 			}
 
-			throw new IndexedParseException(
-				"'{0}' is used like an array by the template, but is a scalar value or object in your model.",
-				Value);
+			var scopes = new List<DocumentItemExecution>();
+
+			//Use this "lookahead" enumeration to allow the $last keyword
+			var index = 0;
+			var enumerator = value.GetEnumerator();
+			if (!enumerator.MoveNext())
+			{
+				return new DocumentItemExecution[0];
+			}
+
+			var current = enumerator.Current;
+			do
+			{
+				var next = enumerator.MoveNext() ? enumerator.Current : null;
+				var innerContext = new ContextCollection(index, next == null, context.Options, $"[{index}]")
+				{
+					Value = current,
+					Parent = c
+				};
+				scopes.AddRange(Children.WithScope(innerContext));
+				index++;
+				current = next;
+			} while (current != null && ContinueBuilding(outputStream, context));
+
+			return scopes;
 		}
 	}
 }

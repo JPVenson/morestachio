@@ -21,13 +21,12 @@ namespace Morestachio
 		/// <summary>
 		///		The expression for the value that should be scoped
 		/// </summary>
-		public string Value { get; private set; }
+		public string Value { get; }
 
 		/// <inheritdoc />
 		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
 			var c = await context.GetContextForPath(Value, scopeData);
-			//"falsey" values by Javascript standards...
 			if (await c.Exists())
 			{
 				return Children.WithScope(c);

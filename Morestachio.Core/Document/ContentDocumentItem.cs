@@ -44,6 +44,7 @@ namespace Morestachio
 				builder.ReachedLimit = true;
 				return;
 			}
+
 			//TODO this is a performance critical operation. As we might deal with variable-length encodings this cannot be compute initial
 			var cl = context.Options.Encoding.GetByteCount(content);
 
@@ -67,6 +68,6 @@ namespace Morestachio
 		/// <summary>
 		///		The content that should be rendered
 		/// </summary>
-		public string Content { get; private set; }
+		public string Content { get; }
 	}
 }

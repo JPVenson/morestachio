@@ -28,6 +28,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Document\RenderPartialDoneDocumentItem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Framework\IByteCounterStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Framework\ParserErrors\IMorestachioError.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Framework\ParserErrors\InvalidPathSyntaxError.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Framework\ParserErrors\MorestachioSyntaxError.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Framework\ParserErrors\MorestachioUnopendScopeError.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MorestachioDocumentInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FormatTemplateElement.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Formatter\DisabledFormatterMatcher.cs" />
@@ -58,8 +61,5 @@
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)morestachioKey.snk" />
     <None Include="$(MSBuildThisFileDirectory)packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Framework\ParserErrors\" />
   </ItemGroup>
 </Project>

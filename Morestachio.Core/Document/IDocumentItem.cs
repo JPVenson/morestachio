@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Morestachio.Framework;
 
 namespace Morestachio
@@ -22,6 +23,7 @@ namespace Morestachio
 		/// <summary>
 		///		Gets the Kind of this Document item
 		/// </summary>
+		[PublicAPI]
 		string Kind { get; }
 
 		/// <summary>

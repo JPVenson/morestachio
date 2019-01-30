@@ -24,12 +24,12 @@ namespace Morestachio
 		/// <summary>
 		///		Gets the parsed list of arguments for <see cref="Value"/>
 		/// </summary>
-		public FormatterPart[] FormatString { get; private set; }
+		public FormatterPart[] FormatString { get; }
 
 		/// <summary>
 		///		The expression that defines the Value that should be formatted
 		/// </summary>
-		public string Value { get; private set; }
+		public string Value { get; }
 
 		/// <inheritdoc />
 		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
@@ -48,8 +48,8 @@ namespace Morestachio
 				{
 					//if pre and suffixed by a $ its a reference to another field.
 					//walk the path in the $ and use the value in the formatter
-					var trimmedArg = formatterArgument.Argument.Trim();
-					if (trimmedArg.StartsWith("$") &&
+					var trimmedArg = formatterArgument.Argument?.Trim();
+					if (trimmedArg != null && trimmedArg.StartsWith("$") &&
 					    trimmedArg.EndsWith("$"))
 					{
 						var formatContext = await context.GetContextForPath(trimmedArg.Trim('$'), scopeData);

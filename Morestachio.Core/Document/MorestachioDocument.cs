@@ -37,10 +37,10 @@ namespace Morestachio
 
 			var processStack = new Stack<DocumentItemExecution>(); //deep search. create a stack to go deeper into the tree without loosing work left on other branches
 
-			foreach (var documentItem in documentItems.TakeWhile(e => StopOrAbortBuilding(outputStream, context))) //abort as soon as the cancellation is requested OR the template size is reached
+			foreach (var documentItem in documentItems.TakeWhile(e => ContinueBuilding(outputStream, context))) //abort as soon as the cancellation is requested OR the template size is reached
 			{
 				processStack.Push(new DocumentItemExecution(documentItem, context));
-				while (processStack.Any() && StopOrAbortBuilding(outputStream, context))
+				while (processStack.Any() && ContinueBuilding(outputStream, context))
 				{
 					var currentDocumentItem = processStack.Pop();//take the current branch
 					var next = await currentDocumentItem.DocumentItem.Render(outputStream, currentDocumentItem.ContextObject, scopeData);
