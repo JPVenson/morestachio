@@ -68,13 +68,11 @@ Morestachio contains a few modifications to the core Mustache language that are 
 
 1. `each` blocks are recommended for handling arrays of values.
 2. Complex paths are supported, for example `{{ this.is.a.valid.path }}` and `{{ ../this.goes.up.one.level }}`
-3. Template partials (`{{> secondary_template }}`) are not supported. But you could write a Extention that supports this in a basic way. (see wiki)
+3. Template partials (`{{#include secondary_template }}`) are supported.
  
 ###### A little more about the differences:
 
-One awesome feature of Morestachio is that with a minor alteration in the mustache syntax, we can infer what model will be required to completely fill out a template. By using the `each` keyword when interating over an array, our parser can infer whether an array or object (or scalar) should be expected when the template is used. Normal mustache syntax would prevent us from determining this.
-
-We think the model inference feature is compelling, because it allows for error detection, and faster debugging iterations when developing templates, which justifies this minor change to 'vanilla' mustache syntax.
+In difference to _mustachio_ morstachio is creating a document tree of the Template. This serves the purpose of serilizing the parsed template for both storage and evaluation of used models. The document tree is generated when calling the `Parser.Parse` method and retuns a `MorestachioDocumentInfo` object that contains a `Document` property. This property can be serilized and also recreated. As it serves as the structure for the formatter it has no performance penelties. 
 
 **Template partials** ARE a great feature for large scale template development.
 
