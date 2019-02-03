@@ -3,7 +3,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Morestachio.Formatter;
 
-namespace Morestachio
+namespace Morestachio.Formatter
 {
 	/// <summary>
 	///     Encapsulates a Format function

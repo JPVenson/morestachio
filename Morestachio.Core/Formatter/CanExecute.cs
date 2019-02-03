@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Morestachio
+namespace Morestachio.Formatter
 {
 	/// <summary>
 	///     Delegate for the Can Execute method on a FormatTemplateElement

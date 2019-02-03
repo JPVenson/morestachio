@@ -38,6 +38,7 @@ namespace Morestachio
 			}
 			var errors = new List<IMorestachioError>();
 			var tokens = new Queue<TokenPair>(Tokenizer.Tokenize(parsingOptions, errors));
+			//if there are any errors do not parse the template
 			var documentInfo = new MorestachioDocumentInfo(parsingOptions, errors.Any() ? null : Parse(tokens, parsingOptions), errors);
 			return documentInfo;
 		}
