@@ -68,17 +68,17 @@ Morestachio contains a few modifications to the core Mustache language that are 
 
 1. `each` blocks are recommended for handling arrays of values.
 2. Complex paths are supported, for example `{{ this.is.a.valid.path }}` and `{{ ../this.goes.up.one.level }}`
-3. Template partials (`{{> secondary_template }}`) are not supported. But you could write a Extention that supports this in a basic way. (see wiki)
+3. Template partials (`{{#include secondary_template }}`) are supported.
  
 ###### A little more about the differences:
 
-One awesome feature of Morestachio is that with a minor alteration in the mustache syntax, we can infer what model will be required to completely fill out a template. By using the `each` keyword when interating over an array, our parser can infer whether an array or object (or scalar) should be expected when the template is used. Normal mustache syntax would prevent us from determining this.
+In difference to _mustachio_ morstachio is creating a document tree of the Template. This serves the purpose of serilizing the parsed template for both storage and evaluation of used models. The document tree is generated when calling the `Parser.Parse` method and retuns a `MorestachioDocumentInfo` object that contains a `Document` property. This property can be serilized and also recreated. As it serves as the structure for the formatter it has no performance penelties. 
 
-We think the model inference feature is compelling, because it allows for error detection, and faster debugging iterations when developing templates, which justifies this minor change to 'vanilla' mustache syntax.
+**Template partials** ARE a great feature for large scale template development.
 
-**Template partials** are a great feature for large scale template development. However, they introduce the risk of _infinite recursion_ if used improperly (especially since Morestachio allows for one to navigate 'up' a model with `../`).
+You can create a Partial with the `{{#declare NAME}}Partial{{/declare}}` syntax. You can navigate up inside this partials. Partials can also be nested but are currently restricted to a maximum recursion of 255 depth. The programmer has the choice to define a behavior that ether throws an Exception or does nothing and ignores any deeper recusions. 
 
-Including partials would complicate the general process of creating the templates, and allow unknown users to create potentially unbound processing requirements on our servers. It is possible to detect these cycles while parsing templates, so, if this is important to the broader OSS community, partial template support may be added to Morestachio in the future.
+A Partial must be declared before its usage with `{{#include NAME}}` but you can use a partial to create hirarical templates. 
 
 ###### Infos about new features
  
