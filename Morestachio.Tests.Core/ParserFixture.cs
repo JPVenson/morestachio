@@ -477,7 +477,7 @@ namespace Morestachio.Tests
 		public void ParserCanInferCollection()
 		{
 			var results = Parser.ParseWithOptions(new ParserOptions(
-				"{{#Person}}{{Name}}{{#each ../Person.FavoriteColors}}{{.}}{{/each}}{{/Person}}", null, null, 0, false,
+				@"{{#Person}}{{Name}}{{#each ../Person.FavoriteColors}}{{.}}{{/each}}{{/Person}}", null, null, 0, false,
 				true));
 
 			var expected = @"{
@@ -510,7 +510,7 @@ namespace Morestachio.Tests
   ]
 }".EliminateWhitespace();
 
-			var serializeObject = JsonConvert.SerializeObject(results.Document).EliminateWhitespace();
+			var serializeObject = JsonConvert.SerializeObject(results.Document);
 			
 			Assert.That(serializeObject, Is.EqualTo(expected));
 		}

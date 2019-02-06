@@ -25,6 +25,9 @@ namespace Morestachio
 		/// <inheritdoc />
 		public IList<IDocumentItem> Children { get; }
 
+		/// <inheritdoc />
+		public Tokenizer.CharacterLocation ExpressionStart { get; set; }
+
 		/// <summary>
 		///		Can be called to check if any stop is requested. If return true no stop is requested
 		/// </summary>

@@ -35,5 +35,10 @@ namespace Morestachio
 		///		Adds the specified childs.
 		/// </summary>
 		void Add(params IDocumentItem[] documentChildren);
+
+		/// <summary>
+		///		If this is a Natural Document item this defines the Position within the Template where the DocumentItem is parsed from
+		/// </summary>
+		Tokenizer.CharacterLocation ExpressionStart { get; set; }
 	}
 }

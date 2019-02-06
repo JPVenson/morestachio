@@ -24,7 +24,7 @@ namespace Morestachio.Framework
 			Location = location;
 			Token = token;
 			HelpText =
-				$"The path '{Token}' on line:char '{Location.Line}:{Location.Character}' is not valid. Please see documentation for examples of valid paths.";
+				$"line:char '{Location.Line}:{Location.Character}' - The path '{Token}' is not valid. Please see documentation for examples of valid paths.";
 		}
 		
 		/// <inheritdoc />

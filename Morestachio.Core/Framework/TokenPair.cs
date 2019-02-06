@@ -22,9 +22,9 @@ namespace Morestachio.Framework
 				_pair = pair;
 			}
 
-			public TokenType Type
+			public string Type
 			{
-				get { return _pair.Type; }
+				get { return _pair.Type.ToString(); }
 			}
 
 			public FormatterPart[] FormatString
@@ -47,10 +47,11 @@ namespace Morestachio.Framework
 			}
 		}
 
-		public TokenPair(TokenType type, string value)
+		public TokenPair(TokenType type, string value, Tokenizer.CharacterLocation tokenLocation)
 		{
 			Type = type;
 			Value = value;
+			TokenLocation = tokenLocation;
 		}
 
 		public TokenType Type { get; set; }
@@ -60,5 +61,7 @@ namespace Morestachio.Framework
 		
 		[CanBeNull]
 		public string Value { get; set; }
+
+		public Tokenizer.CharacterLocation TokenLocation { get; set; }
 	}
 }

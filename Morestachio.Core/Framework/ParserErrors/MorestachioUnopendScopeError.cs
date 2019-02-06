@@ -14,7 +14,7 @@ namespace Morestachio.Framework
 		public MorestachioUnopendScopeError(Tokenizer.CharacterLocation location, string tokenOccured, string syntaxExpected, string extra = null)
 		{
 			Location = location;
-			HelpText = $"An '{tokenOccured}' block is being closed, but no corresponding opening element '{syntaxExpected}' was detected.{extra}";
+			HelpText = $"line:char '{Location.Line}:{Location.Character}' - An '{tokenOccured}' block is being closed, but no corresponding opening element '{syntaxExpected}' was detected.{extra}";
 		}
 		
 		/// <inheritdoc />

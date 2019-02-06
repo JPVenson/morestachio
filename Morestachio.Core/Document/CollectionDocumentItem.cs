@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Morestachio.Framework;
 
@@ -15,7 +17,7 @@ namespace Morestachio
 		{
 			Value = value;
 		}
-		
+
 		/// <inheritdoc />
 		public override string Kind { get; } = "OpenCollection";
 
@@ -24,6 +26,7 @@ namespace Morestachio
 		/// </summary>
 		public string Value { get; }
 
+		/// <exception cref="IndexedParseException"></exception>
 		/// <inheritdoc />
 		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
@@ -37,9 +40,17 @@ namespace Morestachio
 
 			if (!(c.Value is IEnumerable value) || value is string || value is IDictionary<string, object>)
 			{
+				var path = new Stack<string>();
+				var parent = context.Parent;
+				while (parent != null)
+				{
+					path.Push(parent.Key);
+					parent = parent.Parent;
+				}
+
 				throw new IndexedParseException(
-					"'{0}' is used like an array by the template, but is a scalar value or object in your model.",
-					Value);
+					"{1}'{0}' is used like an array by the template, but is a scalar value or object in your model." + " Complete Expression until Error:{2}",
+					Value, base.ExpressionStart, (path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f)));
 			}
 
 			var scopes = new List<DocumentItemExecution>();

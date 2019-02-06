@@ -14,7 +14,7 @@ namespace Morestachio.Framework
 		public MorestachioSyntaxError(Tokenizer.CharacterLocation location, string operation, string tokenOccured, string syntaxExpected, string extra = null)
 		{
 			Location = location;
-			HelpText = $"The syntax to {operation} the '{tokenOccured}' block should be: '{syntaxExpected}'.{extra}";
+			HelpText = $"line:char '{Location.Line}:{Location.Character}' - The syntax to {operation} the '{tokenOccured}' block should be: '{syntaxExpected}'.{extra}";
 		}
 		
 		/// <inheritdoc />

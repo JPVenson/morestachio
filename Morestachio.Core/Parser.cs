@@ -8,6 +8,8 @@ using Morestachio.Framework;
 
 #endregion
 
+using FormattingScope = System.Tuple<Morestachio.IDocumentItem, System.Boolean>;
+
 namespace Morestachio
 {
 	/// <summary>
@@ -51,11 +53,9 @@ namespace Morestachio
 		/// <returns></returns>
 		internal static IDocumentItem Parse(Queue<TokenPair> tokens, ParserOptions options)
 		{
-			var buildStack = new Stack<IDocumentItem>(); 
+			var buildStack = new Stack<FormattingScope>();
 			//instead of recursive calling the parse function we stack the current document 
-			buildStack.Push(new MorestachioDocument()); 
-
-			var inFormat = false;
+			buildStack.Push(new FormattingScope(new MorestachioDocument(), false));
 
 			while (tokens.Any())
 			{
@@ -68,59 +68,56 @@ namespace Morestachio
 				}
 				else if (currentToken.Type == TokenType.Content)
 				{
-					currentDocumentItem.Add(new ContentDocumentItem(currentToken.Value));
+					currentDocumentItem.Item1.Add(new ContentDocumentItem(currentToken.Value) { ExpressionStart = currentToken.TokenLocation });
 				}
 				else if (currentToken.Type == TokenType.CollectionOpen)
 				{
-					var nestedDocument = new CollectionDocumentItem(currentToken.Value);
-					buildStack.Push(nestedDocument);
-					currentDocumentItem.Add(nestedDocument);
+					var nestedDocument = new CollectionDocumentItem(currentToken.Value) { ExpressionStart = currentToken.TokenLocation };
+					buildStack.Push(new FormattingScope(nestedDocument, false));
+					currentDocumentItem.Item1.Add(nestedDocument);
 				}
 				else if (currentToken.Type == TokenType.ElementOpen)
 				{
-					var nestedDocument = new ExpressionScopeDocumentItem(currentToken.Value);
-					buildStack.Push(nestedDocument);
-					currentDocumentItem.Add(nestedDocument);
+					var nestedDocument = new ExpressionScopeDocumentItem(currentToken.Value) { ExpressionStart = currentToken.TokenLocation };
+					buildStack.Push(new FormattingScope(nestedDocument, false));
+					currentDocumentItem.Item1.Add(nestedDocument);
 				}
 				else if (currentToken.Type == TokenType.InvertedElementOpen)
 				{
-					var invertedScope = new InvertedExpressionScopeDocumentItem(currentToken.Value);
-					buildStack.Push(invertedScope);
-					currentDocumentItem.Add(invertedScope);
+					var invertedScope = new InvertedExpressionScopeDocumentItem(currentToken.Value) { ExpressionStart = currentToken.TokenLocation };
+					buildStack.Push(new FormattingScope(invertedScope, false));
+					currentDocumentItem.Item1.Add(invertedScope);
 				}
 				else if (currentToken.Type == TokenType.CollectionClose || currentToken.Type == TokenType.ElementClose)
 				{
 					// remove the last document from the stack and go back to the parents
 					buildStack.Pop();
-					if (inFormat && (buildStack.Peek() is IsolatedContextDocumentItem))
+					if (buildStack.Peek().Item2) //is the remaining scope a formatting one. If it is pop it and return to its parent
 					{
 						buildStack.Pop();
-						inFormat = false;
 					}
 				}
 				else if (currentToken.Type == TokenType.PrintFormatted)
 				{
-					currentDocumentItem.Add(new PrintFormattedItem());
+					currentDocumentItem.Item1.Add(new PrintFormattedItem());
 					buildStack.Pop(); //Print formatted can only be followed by a Format and if not the parser should have not emited it
-					inFormat = false;
 				}
 				else if (currentToken.Type == TokenType.Format)
 				{
-					if (inFormat && (buildStack.Peek() is IsolatedContextDocumentItem))
+					if (buildStack.Peek().Item2)
 					{
 						buildStack.Pop();
 					}
-					inFormat = true;
-					var formatterItem = new IsolatedContextDocumentItem();
-					buildStack.Push(formatterItem);
+					var formatterItem = new IsolatedContextDocumentItem() { ExpressionStart = currentToken.TokenLocation };
+					buildStack.Push(new FormattingScope(formatterItem, true));
 					formatterItem.Add(new CallFormatterDocumentItem(currentToken.FormatString, currentToken.Value));
-					currentDocumentItem.Add(formatterItem);
+					currentDocumentItem.Item1.Add(formatterItem);
 				}
 				else if (currentToken.Type == TokenType.EscapedSingleValue ||
 						 currentToken.Type == TokenType.UnescapedSingleValue)
 				{
-					currentDocumentItem.Add(new PathDocumentItem(currentToken.Value,
-						currentToken.Type == TokenType.EscapedSingleValue));
+					currentDocumentItem.Item1.Add(new PathDocumentItem(currentToken.Value,
+						currentToken.Type == TokenType.EscapedSingleValue) { ExpressionStart = currentToken.TokenLocation });
 				}
 				else if (currentToken.Type == TokenType.PartialDeclarationOpen)
 				{
@@ -128,21 +125,28 @@ namespace Morestachio
 					// to allow recursive calls of partials we first have to declare the partial and then load it as we would parse
 					// -the partial as a whole and then add it to the list would lead to unknown calls of partials inside the partial
 					var nestedDocument = new MorestachioDocument();
-					buildStack.Push(nestedDocument);
-					currentDocumentItem.Add(new PartialDocumentItem(currentToken.Value, nestedDocument));
+					buildStack.Push(new FormattingScope(nestedDocument, false));
+					currentDocumentItem.Item1.Add(new PartialDocumentItem(currentToken.Value, nestedDocument) { ExpressionStart = currentToken.TokenLocation });
 				}
 				else if (currentToken.Type == TokenType.PartialDeclarationClose)
 				{
-					currentDocumentItem.Add(new RenderPartialDoneDocumentItem(currentToken.Value));
+					currentDocumentItem.Item1.Add(new RenderPartialDoneDocumentItem(currentToken.Value) { ExpressionStart = currentToken.TokenLocation });
 					buildStack.Pop();
 				}
 				else if (currentToken.Type == TokenType.RenderPartial)
 				{
-					currentDocumentItem.Add(new RenderPartialDocumentItem(currentToken.Value));
+					currentDocumentItem.Item1.Add(new RenderPartialDocumentItem(currentToken.Value) { ExpressionStart = currentToken.TokenLocation });
 				}
 			}
 
-			return buildStack.Pop();
+			if (buildStack.Count != 1)
+			{
+				//var invalidScopedElements = buildStack
+				//throw new MorestachioSyntaxError(new Tokenizer.CharacterLocation(){Character = }, );
+				throw new InvalidOperationException("There is an Error with the Parser. The Parser still contains unscoped builds: " + buildStack.Select(e => e.Item1.Kind).Aggregate((e, f) => e + ", " + f));
+			}
+
+			return buildStack.Pop().Item1;
 		}
 	}
 }
