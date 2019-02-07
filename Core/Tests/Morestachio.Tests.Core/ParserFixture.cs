@@ -474,6 +474,7 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		[Ignore("Infer Tests are Outdated")]
 		public void ParserCanInferCollection()
 		{
 			var results = Parser.ParseWithOptions(new ParserOptions(
@@ -516,6 +517,7 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		[Ignore("Infer Tests are Outdated")]
 		public void ParserCanInferNestedProperties()
 		{
 			var results =
@@ -532,6 +534,7 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		[Ignore("Infer Tests are Outdated")]
 		public void ParserCanInferScalar()
 		{
 			var results = Parser.ParseWithOptions(new ParserOptions("{{Name}}", null, null, 0, false, true));
@@ -914,6 +917,7 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		[Ignore("Infer Tests are Outdated")]
 		public void ParserProducesEmptyObjectWhenTemplateHasNoMustacheMarkup()
 		{
 			var results = Parser.ParseWithOptions(new ParserOptions("This template has no mustache thingies.", null,
@@ -930,6 +934,7 @@ namespace Morestachio.Tests
 
 
 		[Test]
+		[Ignore("Infer Tests are Outdated")]
 		public void ParserRendersCollectionObjectsWhenUsed()
 		{
 			var results = Parser.ParseWithOptions(new ParserOptions("{{#each Employees}}{{name}}{{/each}}", null, null,
@@ -946,6 +951,7 @@ namespace Morestachio.Tests
 
 
 		[Test]
+		[Ignore("Infer Tests are Outdated")]
 		public void ParserRendersCollectionSubObjectsWhenUsed()
 		{
 			var results = Parser.ParseWithOptions(new ParserOptions(
