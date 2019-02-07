@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Morestachio.NetCore</id>
+    <version>1.0.0</version>
+    <title>Morestachio the Template Engine</title>
+    <authors>Jean-Pierre Bachmann</authors>
+    <owners>Jean-Pierre Bachmann</owners>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <licenseUrl>https://raw.githubusercontent.com/JPVenson/morestachio/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/JPVenson/morestachio</projectUrl>
+    <description>A Lightweight, powerful, flavorful, templating engine for C# and other .net-based languages. Its a fork of Mustachio.</description>
+    <summary>A Lightweight, powerful, flavorful, templating engine for C# and other .net-based languages. Its a fork of Mustachio.</summary>
+  </metadata>
+  <files>
+    <file src="lib\netcoreapp2.1\Morestachio.Formatter.Framework.NetCore.2.1.dll" target="lib\netcoreapp2.1\Morestachio.Formatter.Framework.NetCore.2.1.dll" />
+    <file src="lib\netcoreapp2.1\Morestachio.Formatter.Framework.NetCore.2.1.pdb" target="lib\netcoreapp2.1\Morestachio.Formatter.Framework.NetCore.2.1.pdb" />
+    <file src="lib\netcoreapp2.1\Morestachio.Formatter.Linq.NetCore.2.1.deps.json" target="lib\netcoreapp2.1\Morestachio.Formatter.Linq.NetCore.2.1.deps.json" />
+    <file src="lib\netcoreapp2.1\Morestachio.Formatter.Linq.NetCore.2.1.dll" target="lib\netcoreapp2.1\Morestachio.Formatter.Linq.NetCore.2.1.dll" />
+    <file src="lib\netcoreapp2.1\Morestachio.Formatter.Linq.NetCore.2.1.pdb" target="lib\netcoreapp2.1\Morestachio.Formatter.Linq.NetCore.2.1.pdb" />
+    <file src="lib\netcoreapp2.1\Morestachio.NetCore.2.1.dll" target="lib\netcoreapp2.1\Morestachio.NetCore.2.1.dll" />
+    <file src="lib\netcoreapp2.1\Morestachio.NetCore.2.1.Formatter.Framework.dll" target="lib\netcoreapp2.1\Morestachio.NetCore.2.1.Formatter.Framework.dll" />
+    <file src="lib\netcoreapp2.1\Morestachio.NetCore.2.1.Formatter.Framework.pdb" target="lib\netcoreapp2.1\Morestachio.NetCore.2.1.Formatter.Framework.pdb" />
+    <file src="lib\netcoreapp2.1\Morestachio.NetCore.2.1.Formatter.Linq.deps.json" target="lib\netcoreapp2.1\Morestachio.NetCore.2.1.Formatter.Linq.deps.json" />
+    <file src="lib\netcoreapp2.1\Morestachio.NetCore.2.1.Formatter.Linq.dll" target="lib\netcoreapp2.1\Morestachio.NetCore.2.1.Formatter.Linq.dll" />
+    <file src="lib\netcoreapp2.1\Morestachio.NetCore.2.1.Formatter.Linq.pdb" target="lib\netcoreapp2.1\Morestachio.NetCore.2.1.Formatter.Linq.pdb" />
+    <file src="lib\netcoreapp2.1\Morestachio.NetCore.2.1.pdb" target="lib\netcoreapp2.1\Morestachio.NetCore.2.1.pdb" />
+  </files>
+</package>

@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Morestachio.NetFramework</id>
+    <version>1.0.0</version>
+    <title>Morestachio the Template Engine</title>
+    <authors>Jean-Pierre Bachmann</authors>
+    <owners>Jean-Pierre Bachmann</owners>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <licenseUrl>https://raw.githubusercontent.com/JPVenson/morestachio/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/JPVenson/morestachio</projectUrl>
+    <description>A Lightweight, powerful, flavorful, templating engine for C# and other .net-based languages. Its a fork of Mustachio.</description>
+    <summary>A Lightweight, powerful, flavorful, templating engine for C# and other .net-based languages. Its a fork of Mustachio.</summary>
+  </metadata>
+</package>
