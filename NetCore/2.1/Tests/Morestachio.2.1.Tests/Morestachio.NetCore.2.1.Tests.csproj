@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
 	<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+	<AssemblyName>Morestachio.NetCore.2.1.Tests</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
