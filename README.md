@@ -1,4 +1,6 @@
 # Morestachio
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FJPVenson%2Fmorestachio.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FJPVenson%2Fmorestachio?ref=badge_shield)
+
 A Lightweight, powerful, flavorful, templating engine for C# and other .net-based languages. Its a fork of Mustachio.
 
 #### What's this for?
@@ -128,3 +130,7 @@ Parser.CreateAndStringify(parserOptions); // Friday, September 21, 2018 ish
 ###### Enumerating IDictionarys
 Any instance of IDictionary<string,object> is viewed as an object. You cannot enumerate then with #each but you could write a formatter that accepts an Instance of IDictionary and return a List of KeyValuePair and enumerate this new List. 
 
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FJPVenson%2Fmorestachio.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FJPVenson%2Fmorestachio?ref=badge_large)
