@@ -27,7 +27,7 @@ namespace Morestachio.Framework
 				get { return _pair.Type.ToString(); }
 			}
 
-			public FormatterPart[] FormatString
+			public FormatterToken[] FormatString
 			{
 				get { return _pair.FormatString; }
 			}
@@ -57,7 +57,7 @@ namespace Morestachio.Framework
 		public TokenType Type { get; set; }
 
 		[CanBeNull]
-		public FormatterPart[] FormatString { get; set; }
+		public FormatterToken[] FormatString { get; set; }
 		
 		[CanBeNull]
 		public string Value { get; set; }

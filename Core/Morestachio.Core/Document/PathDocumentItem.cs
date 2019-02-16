@@ -8,7 +8,7 @@ namespace Morestachio
 	/// <summary>
 	///		An single Value expression
 	/// </summary>
-	public class PathDocumentItem : DocumentItemBase
+	public class PathDocumentItem : DocumentItemBase, IValueDocumentItem
 	{
 		/// <inheritdoc />
 		public PathDocumentItem(string value, bool escapeValue)
@@ -57,6 +57,12 @@ namespace Morestachio
 			}
 			
 			return Children.WithScope(contextObject);
+		}
+
+		public async Task<ContextObject> GetValue(ContextObject context, ScopeData scopeData)
+		{
+			await Task.CompletedTask;
+			return await context.GetContextForPath(Value, scopeData);
 		}
 	}
 }

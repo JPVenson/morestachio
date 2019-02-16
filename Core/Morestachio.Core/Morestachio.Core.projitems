@@ -12,6 +12,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\FormatterArgumentNameAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\RestParameterAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\SourceObjectAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Formatter\IFormatterArgumentType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Framework\ByteCounterStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Formatter\CanExecute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Document\CallFormatterDocumentItem.cs" />
@@ -36,7 +37,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Formatter\DisabledFormatterMatcher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Formatter\FormatterMatcher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Formatter\FormatterMatcherExtensions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Formatter\FormatterPart.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Formatter\FormatterToken.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Formatter\IFormatterMatcher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Formatter\MultiFormatterInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Framework\ContextCollection.cs" />

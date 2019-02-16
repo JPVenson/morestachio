@@ -374,7 +374,7 @@ namespace Morestachio.Framework
 			var contextClone = new ContextObject(Options, Key)
 			{
 				CancellationToken = CancellationToken,
-				Parent = Parent,
+				Parent = this,
 				AbortGeneration = AbortGeneration,
 				Value = Value
 			};

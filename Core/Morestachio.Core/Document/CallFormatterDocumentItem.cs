@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Morestachio.Formatter;
@@ -9,10 +10,10 @@ namespace Morestachio
 	/// <summary>
 	///		Calls a formatter on the current context value
 	/// </summary>
-	public class CallFormatterDocumentItem : DocumentItemBase
+	public class CallFormatterDocumentItem : DocumentItemBase, IValueDocumentItem
 	{
 		/// <inheritdoc />
-		public CallFormatterDocumentItem(FormatterPart[] formatString, string value)
+		public CallFormatterDocumentItem(List<Tuple<string, Stack<IValueDocumentItem>>> formatString, string value)
 		{
 			FormatString = formatString;
 			Value = value;
@@ -24,7 +25,7 @@ namespace Morestachio
 		/// <summary>
 		///		Gets the parsed list of arguments for <see cref="Value"/>
 		/// </summary>
-		public FormatterPart[] FormatString { get; }
+		public List<Tuple<string, Stack<IValueDocumentItem>>> FormatString { get; }
 
 		/// <summary>
 		///		The expression that defines the Value that should be formatted
@@ -38,6 +39,14 @@ namespace Morestachio
 			{
 				return new DocumentItemExecution[0];
 			}
+
+			context = await GetValue(context, scopeData);
+			return Children.WithScope(context);
+		}
+
+		public async Task<ContextObject> GetValue(ContextObject context, ScopeData scopeData)
+		{
+			await Task.CompletedTask;
 			var c = await context.GetContextForPath(Value, scopeData);
 
 			if (FormatString != null && FormatString.Any())
@@ -46,20 +55,40 @@ namespace Morestachio
 
 				foreach (var formatterArgument in FormatString)
 				{
-					//if pre and suffixed by a $ its a reference to another field.
-					//walk the path in the $ and use the value in the formatter
-					var trimmedArg = formatterArgument.Argument?.Trim();
-					if (trimmedArg != null && trimmedArg.StartsWith("$") &&
-					    trimmedArg.EndsWith("$"))
+					var value = context.Clone();
+					foreach (var valueDocumentItem in formatterArgument.Item2)
 					{
-						var formatContext = await context.GetContextForPath(trimmedArg.Trim('$'), scopeData);
-						await formatContext.EnsureValue();
-						argList.Add(new KeyValuePair<string, object>(formatterArgument.Name, formatContext.Value));
+						if (value == null)
+						{
+							break;
+						}
+						value = await valueDocumentItem.GetValue(value, scopeData);
+					}
+
+					if (value == null)
+					{
+						argList.Add(new KeyValuePair<string, object>(formatterArgument.Item1, null));
 					}
 					else
 					{
-						argList.Add(new KeyValuePair<string, object>(formatterArgument.Name, formatterArgument.Argument));
+						await value.EnsureValue();
+						argList.Add(new KeyValuePair<string, object>(formatterArgument.Item1, value.Value));
 					}
+					
+
+					////if pre and suffixed by a $ its a reference to another field.
+					////walk the path in the $ and use the value in the formatter
+					//var trimmedArg = formatterArgument.Argument;
+					//if (trimmedArg != null && trimmedArg.StartsWith("$") &&
+					//    trimmedArg.EndsWith("$"))
+					//{
+					//	var formatContext = await context.GetContextForPath(trimmedArg.Trim('$'), scopeData);
+					//	await formatContext.EnsureValue();
+					//	argList.Add(new KeyValuePair<string, object>(formatterArgument.Name, formatContext.Value));
+					//}
+					//else
+					//{
+					//}
 				}
 				//we do NOT await the task here. We await the task only if we need the value
 				context.Value = c.Format(argList.ToArray());
@@ -68,7 +97,8 @@ namespace Morestachio
 			{
 				context.Value = c.Format(new KeyValuePair<string, object>[0]);
 			}
-			return Children.WithScope(context);
+
+			return context;
 		}
 	}
 }
