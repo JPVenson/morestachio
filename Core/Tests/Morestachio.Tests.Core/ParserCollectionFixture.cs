@@ -80,7 +80,7 @@ namespace Morestachio.Tests
 		[Test]
 		public void TestCanExecuteAsyncFormatter()
 		{
-			var options = new ParserOptions("{{#each data(order)}}{{.}},{{/each}}", null,
+			var options = new ParserOptions("{{#each data('order')}}{{.}},{{/each}}", null,
 				ParserFixture.DefaultEncoding);
 			var collection = new[] { 0, 1, 2, 3, 5, 4, 6, 7 };
 			AddAsyncCollectionTypeFormatter(options);

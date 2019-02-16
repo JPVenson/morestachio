@@ -1,4 +1,8 @@
-﻿#region
+﻿
+
+using Morestachio.Formatter;
+
+#region
 
 using System;
 using System.Collections.Generic;
@@ -162,7 +166,7 @@ namespace Morestachio
 					buildStack.Push(new FormattingScope(formatterItem, true));
 
 					var argumentMap = new List<Tuple<string, Stack<IValueDocumentItem>>>();
-					foreach (var formatterPart in currentToken.FormatString)
+					foreach (var formatterPart in currentToken.FormatString ?? new FormatterToken[0])
 					{
 						var tokenExpression = formatterPart.Argument.ParsedArguments.GetValue();
 

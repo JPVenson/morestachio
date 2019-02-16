@@ -170,7 +170,7 @@ namespace Morestachio.Tests
 		public void ParserCanChainFormat()
 		{
 			var data = DateTime.UtcNow;
-			var parsingOptions = new ParserOptions("{{#data}}{{.(d).()}}{{/data}}", null, DefaultEncoding);
+			var parsingOptions = new ParserOptions("{{#data}}{{.('d').()}}{{/data}}", null, DefaultEncoding);
 			parsingOptions.Formatters.AddFormatter<string>(new Func<string, string>(s => "TEST"));
 			var results = Parser.ParseWithOptions(parsingOptions);
 			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
@@ -181,7 +181,7 @@ namespace Morestachio.Tests
 		public void ParserCanTransferChains()
 		{
 			var data = "d";
-			var parsingOptions = new ParserOptions("{{#data}}{{.((d(a)))}}{{/data}}", null, DefaultEncoding);
+			var parsingOptions = new ParserOptions("{{#data}}{{.('(d(a))')}}{{/data}}", null, DefaultEncoding);
 			parsingOptions.Formatters.AddFormatter<string>(new Func<string, string, string>((s, s1) => s1));
 
 			var results = Parser.ParseWithOptions(parsingOptions);
@@ -196,7 +196,7 @@ namespace Morestachio.Tests
 			var formatterResult = "";
 			var parsingOptions =
 				new ParserOptions(
-					"{{#data}}{{.(test, arg, 'arg, arg', ' spaced ', ' spaced with quote \\\" ' , $.$ )}}{{/data}}",
+					"{{#data}}{{.('test', 'arg', 'arg, arg', ' spaced ', ' spaced with quote \\\" ' , . )}}{{/data}}",
 					null, DefaultEncoding);
 
 			parsingOptions.Formatters.AddFormatter<int>(new Action<int, string[]>(
@@ -223,7 +223,7 @@ namespace Morestachio.Tests
 			var data = 123123123;
 			var parsingOptions =
 				new ParserOptions(
-					"{{#data}}{{.(test, arg, 'arg, arg', ' spaced ', ' spaced with quote \\\" ' , $.$ )}}{{/data}}",
+					"{{#data}}{{.('test', 'arg', 'arg, arg', ' spaced ', ' spaced with quote \\\" ' , .)}}{{/data}}",
 					null, DefaultEncoding);
 
 
@@ -247,7 +247,7 @@ namespace Morestachio.Tests
 			var data = 123123123;
 			var parsingOptions =
 				new ParserOptions(
-					"{{#data}}{{.( arg, 'arg, arg', ' spaced ', [testArgument]test, ' spaced with quote \\\" ' , $.$)}}{{/data}}",
+					"{{#data}}{{.( 'arg', 'arg, arg', ' spaced ', [testArgument]'test', ' spaced with quote \\\" ' , .)}}{{/data}}",
 					null, DefaultEncoding);
 			parsingOptions.Formatters.AddFormatter<int>(
 				new Func<int, string, object[], string>(UnnamedParamsFormatter));
@@ -268,7 +268,7 @@ namespace Morestachio.Tests
 			var data = 123123123;
 			var parsingOptions =
 				new ParserOptions(
-					"{{#data}}{{.([refSelf] $.$, arg,[Fob]test, [twoArgs]'arg, arg', [anySpaceArg]' spaced ')}}{{/data}}",
+					"{{#data}}{{.([refSelf] ., 'arg',[Fob]'test', [twoArgs]'arg, arg', [anySpaceArg]' spaced ')}}{{/data}}",
 					null, DefaultEncoding);
 			parsingOptions.Formatters.AddFormatter<int>(
 				new Func<int, string, string, string, string, int, string>(NamedFormatter));
@@ -288,7 +288,7 @@ namespace Morestachio.Tests
 		public void ParserCanCheckCanFormat()
 		{
 			var data = "d";
-			var parsingOptions = new ParserOptions("{{#data}}{{.((d(a)))}}{{/data}}", null, DefaultEncoding);
+			var parsingOptions = new ParserOptions("{{#data}}{{.('(d(a))')}}{{/data}}", null, DefaultEncoding);
 			parsingOptions.Formatters.AddFormatter<string>(
 				new Func<string, string, string, string>((s, inv, inva) => throw new Exception("A")));
 
@@ -321,7 +321,7 @@ namespace Morestachio.Tests
 		{
 			var data = DateTime.UtcNow;
 			var results =
-				Parser.ParseWithOptions(new ParserOptions("{{data(d).Year}},{{data}}", null, DefaultEncoding));
+				Parser.ParseWithOptions(new ParserOptions("{{data('d').Year}},{{data}}", null, DefaultEncoding));
 			//this should compile as its valid but not work as the Default
 			//settings for DateTime are ToString(Arg) so it should return a string and not an object
 			Assert.That(results
@@ -334,7 +334,7 @@ namespace Morestachio.Tests
 		{
 			var dt = DateTime.Now;
 			var extendedParseInformation =
-				Parser.ParseWithOptions(new ParserOptions("{{data($testFormat$)}}", null, DefaultEncoding));
+				Parser.ParseWithOptions(new ParserOptions("{{data(testFormat)}}", null, DefaultEncoding));
 
 			var format = "yyyy.mm";
 			var andStringify = extendedParseInformation.CreateAndStringify(new Dictionary<string, object>
@@ -351,7 +351,7 @@ namespace Morestachio.Tests
 		{
 			var dt = DateTime.Now;
 			var extendedParseInformation =
-				Parser.ParseWithOptions(new ParserOptions("{{data($testFormat.inner$)}}", null, DefaultEncoding));
+				Parser.ParseWithOptions(new ParserOptions("{{data(testFormat.inner)}}", null, DefaultEncoding));
 
 			var format = new Dictionary<string, object>()
 			{
