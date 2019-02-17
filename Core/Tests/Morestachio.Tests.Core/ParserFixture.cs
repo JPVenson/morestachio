@@ -426,7 +426,7 @@ namespace Morestachio.Tests
 				{"testFormat", 19191919},
 				{"by", 10}
 			};
-			var parsingOptions = new ParserOptions("{{data(testFormat('d'), \"test\").('pad-left', by)}}", null, DefaultEncoding);
+			var parsingOptions = new ParserOptions("{{data(testFormat('d'), \"test\").('pad-left', by())}}", null, DefaultEncoding);
 			var format = "yyyy.mm";
 			var formatterCalled = false;
 			var formatter2Called = false;

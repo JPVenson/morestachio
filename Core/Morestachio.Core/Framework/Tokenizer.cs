@@ -81,6 +81,7 @@ namespace Morestachio.Framework
 					var name = NameFinder.Match(formatterArgument); //find the optional [Name] attribute on the formatters argument
 					preMatch = indexOfEndMatch;
 					var argument = formatterArgument.Remove(name.Index, name.Value.Length)
+						.Trim()
 						//trim all commas from the formatter
 						.Trim(',')
 						//then trim all spaces that the user might have written
@@ -156,7 +157,10 @@ namespace Morestachio.Framework
 				}
 				else
 				{
-					var formatExpression = formatterArgument.TrimStart('(').TrimEnd(')');
+					//trim only the last ) not each as there is maybe an expression as last argument
+					var formatExpression = formatterArgument.Substring(1, formatterArgument.Length - 2);
+
+
 					var formatHeader = TokenizeFormatterHeader(formatExpression, parseErrors);
 
 					yield return new TokenPair(TokenType.Format,
