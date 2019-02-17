@@ -17,7 +17,7 @@ namespace Morestachio.Framework
 			RegexOptions.Compiled);
 
 		private static readonly Regex FormatFinder
-			= new Regex(@"(?:([\w.|$]+)*)+(\((?>\((?<c>)|[^()]+|\)(?<-c>))*(?(c)(?!))\))"
+			= new Regex(@"(?:([\w.\s|$]+)*)+(\((?>\((?<c>)|[^()]+|\)(?<-c>))*(?(c)(?!))\))"
 				, RegexOptions.Compiled);
 
 		private static readonly Regex FormatInExpressionFinder
@@ -141,6 +141,7 @@ namespace Morestachio.Framework
 						'\r',
 						'\n',
 						'\t',
+						' ',
 					};
 					tokensHandled += tokensInBetween.Count(f => lineSeperators.Contains(f));
 				}

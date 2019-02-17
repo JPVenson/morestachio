@@ -40,7 +40,7 @@ namespace Morestachio.Formatter.Framework.Tests
 			var formatterService = new MorestachioFormatterService();
 			formatterService.AddFromType(typeof(StringFormatter));
 
-			var options = new ParserOptions("{{data([Name]reverse)}}", null, DefaultEncoding);
+			var options = new ParserOptions("{{data([Name]'reverse')}}", null, DefaultEncoding);
 			formatterService.AddFormatterToMorestachio(options);
 			var template = Parser.ParseWithOptions(options);
 
@@ -54,7 +54,7 @@ namespace Morestachio.Formatter.Framework.Tests
 			var formatterService = new MorestachioFormatterService();
 			formatterService.AddFromType(typeof(StringFormatter));
 
-			var options = new ParserOptions("{{data([Name]reverse-arg, TEST)}}", null, DefaultEncoding);
+			var options = new ParserOptions("{{data([Name]'reverse-arg', 'TEST')}}", null, DefaultEncoding);
 			formatterService.AddFormatterToMorestachio(options);
 			var template = Parser.ParseWithOptions(options);
 
@@ -69,7 +69,7 @@ namespace Morestachio.Formatter.Framework.Tests
 			formatterService.AddFromType(typeof(StringFormatter));
 			formatterService.AddFromType(typeof(ListFormatter));
 
-			var options = new ParserOptions("{{data([Name]fod)}}", null, DefaultEncoding);
+			var options = new ParserOptions("{{data([Name]'fod')}}", null, DefaultEncoding);
 			formatterService.AddFormatterToMorestachio(options);
 			var template = Parser.ParseWithOptions(options);
 

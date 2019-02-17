@@ -181,8 +181,10 @@ namespace Morestachio.Tests
 		public void ParserCanChainFormatWithLineBreak()
 		{
 			var data = DateTime.UtcNow;
-			var parsingOptions = new ParserOptions(@"{{#data}}{{.('d')
-	.()}}{{/data}}", null, DefaultEncoding);
+			var parsingOptions = new ParserOptions(@"{{#data}}{{
+	.  (   'd'  )
+																.()
+}}{{/data}}", null, DefaultEncoding);
 			parsingOptions.Formatters.AddFormatter<string>(new Func<string, string>(s => "TEST"));
 			var results = Parser.ParseWithOptions(parsingOptions);
 			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
