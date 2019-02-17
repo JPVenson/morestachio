@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Morestachio.Formatter;
@@ -113,7 +114,9 @@ namespace Morestachio.Framework
 		private static IEnumerable<TokenPair> TokenizeFormattables(string token, string templateString,
 			List<int> lines, int tokenIndex, ICollection<IMorestachioError> parseErrors)
 		{
-			var tokesHandeld = 0;
+			var tokensHandled = 0;
+			var lastPosition = 0;
+
 			foreach (Match tokenFormats in FormatFinder.Matches(token))
 			{
 				var tokenArgIndex = tokenFormats.Index + tokenIndex;
@@ -126,7 +129,24 @@ namespace Morestachio.Framework
 					continue;
 				}
 
-				tokesHandeld += found.Trim().Length;
+				tokensHandled += found.Length;
+				if (lastPosition != 0)
+				{
+					//this is for handling /r/n/t between arguments like
+					//path.
+					//(test)
+					var tokensInBetween = token.Substring(lastPosition, tokenFormats.Index - lastPosition);
+					var lineSeperators = new char[]
+					{
+						'\r',
+						'\n',
+						'\t',
+					};
+					tokensHandled += tokensInBetween.Count(f => lineSeperators.Contains(f));
+				}
+
+				lastPosition = tokenFormats.Index + tokenFormats.Length;
+
 				if (string.IsNullOrWhiteSpace(formatterArgument))
 				{
 					yield return new TokenPair(TokenType.Format,
@@ -147,10 +167,10 @@ namespace Morestachio.Framework
 				}
 			}
 
-			if (tokesHandeld != token.Length)
+			if (tokensHandled != token.Length)
 			{
 				yield return new TokenPair(TokenType.Format,
-					Validated(token.Substring(tokesHandeld), templateString, tokenIndex, lines, parseErrors),
+					Validated(token.Substring(tokensHandled), templateString, tokenIndex, lines, parseErrors),
 					HumanizeCharacterLocation(templateString, tokenIndex, lines));
 			}
 		}

@@ -110,6 +110,23 @@ namespace Morestachio.Framework
 		{
 			Options = options;
 			Key = key;
+			IsNaturalContext = true;
+		}
+
+		/// <summary>
+		///		Gets a value indicating whether this instance is natural context.
+		///		A Natural context is a context outside an Isolated scope
+		/// </summary>
+		internal bool IsNaturalContext { get; private set; }
+
+		internal ContextObject FindNextNaturalContextObject()
+		{
+			if (IsNaturalContext)
+			{
+				return this;
+			}
+
+			return Parent?.FindNextNaturalContextObject();
 		}
 
 		/// <summary>
@@ -376,7 +393,8 @@ namespace Morestachio.Framework
 				CancellationToken = CancellationToken,
 				Parent = this,
 				AbortGeneration = AbortGeneration,
-				Value = Value
+				Value = Value,
+				IsNaturalContext = false
 			};
 
 			return contextClone;

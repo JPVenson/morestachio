@@ -178,6 +178,18 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		public void ParserCanChainFormatWithLineBreak()
+		{
+			var data = DateTime.UtcNow;
+			var parsingOptions = new ParserOptions(@"{{#data}}{{.('d')
+	.()}}{{/data}}", null, DefaultEncoding);
+			parsingOptions.Formatters.AddFormatter<string>(new Func<string, string>(s => "TEST"));
+			var results = Parser.ParseWithOptions(parsingOptions);
+			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
+			Assert.That(result, Is.EqualTo("TEST"));
+		}
+
+		[Test]
 		public void ParserCanTransferChains()
 		{
 			var data = "d";
@@ -399,6 +411,55 @@ namespace Morestachio.Tests
 			Assert.That(formatterCalled, Is.True, "The  formatter was not called");
 			Assert.That(formatter2Called, Is.True, "The Date formatter was not called");
 			Assert.That(andStringify, Is.EqualTo(dt.ToString(format)));
+		}
+
+		[Test]
+		public void ParserCanFormatArgumentWithSubExpressionMultiple()
+		{
+
+			var dt = DateTime.Now;
+			var dictionary = new Dictionary<string, object>
+			{
+				{"data", dt},
+				{"testFormat", 19191919},
+				{"by", 10}
+			};
+			var parsingOptions = new ParserOptions("{{data(testFormat('d'), \"test\").('pad-left', by)}}", null, DefaultEncoding);
+			var format = "yyyy.mm";
+			var formatterCalled = false;
+			var formatter2Called = false;
+			var formatter3Called = false;
+			parsingOptions.Formatters.AddFormatter<int, string, string>((sourceValue, testString) =>
+			{
+				Assert.That(testString, Is.EqualTo("d"));
+				formatterCalled = true;
+				return format;
+			});
+			parsingOptions.Formatters.AddFormatter<DateTime>(new Func<DateTime, string, string, string>((sourceValue, testString2, shouldBed) =>
+			{
+				Assert.That(shouldBed, Is.EqualTo("test"));
+				Assert.That(testString2, Is.EqualTo(format));
+				formatter2Called = true;
+				return sourceValue.ToString(testString2);
+			}));
+			parsingOptions.Formatters.AddFormatter<string>(new Func<string, string, int, string>(
+				(sourceValue, name, number) =>
+			{
+				Assert.That(sourceValue, Is.EqualTo(dt.ToString(format)));
+				Assert.That(name, Is.EqualTo("pad-left"));
+				Assert.That(number, Is.EqualTo(dictionary["by"]));
+
+				formatter3Called = true;
+				return sourceValue.PadLeft(number);
+			}));
+
+			var extendedParseInformation =
+				Parser.ParseWithOptions(parsingOptions);
+			var andStringify = extendedParseInformation.CreateAndStringify(dictionary);
+			Assert.That(formatterCalled, Is.True, "The formatter was not called");
+			Assert.That(formatter2Called, Is.True, "The Date formatter was not called");
+			Assert.That(formatter3Called, Is.True, "The Pad formatter was not called");
+			Assert.That(andStringify, Is.EqualTo(dt.ToString(format).PadLeft(Int32.Parse(dictionary["by"].ToString()))));
 		}
 
 		[Test]

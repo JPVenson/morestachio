@@ -79,10 +79,4 @@ namespace Morestachio
 			};
 		}
 	}
-
-	public interface IValueDocumentItem
-	{
-		Task<ContextObject> GetValue(ContextObject context,
-			ScopeData scopeData);
-	}
 }

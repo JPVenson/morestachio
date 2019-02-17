@@ -1,5 +1,6 @@
 ﻿
 
+using System.Runtime.CompilerServices;
 using Morestachio.Formatter;
 
 #region
@@ -52,9 +53,10 @@ namespace Morestachio
 			return documentInfo;
 		}
 
-		internal static Stack<IValueDocumentItem> ParseAsPath(Queue<TokenPair> tokens, ParserOptions options)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		internal static ICollection<IValueDocumentItem> ParseAsPath(Queue<TokenPair> tokens)
 		{
-			var buildStack = new Stack<IValueDocumentItem>();
+			var buildStack = new List<IValueDocumentItem>();
 
 			while (tokens.Any())
 			{
@@ -62,35 +64,46 @@ namespace Morestachio
 
 				if (currentToken.Type == TokenType.Content)
 				{
-					buildStack.Push(new ContentDocumentItem(currentToken.Value)
+					buildStack.Add(new ContentDocumentItem(currentToken.Value)
 						{ExpressionStart = currentToken.TokenLocation});
 				}
 				else if (currentToken.Type == TokenType.PrintFormatted)
 				{
-					buildStack.Push(new PrintFormattedItem());
+					buildStack.Add(new PrintFormattedItem());
 				}
 				else if (currentToken.Type == TokenType.Format)
 				{
-					var argumentMap = new List<Tuple<string, Stack<IValueDocumentItem>>>();
-					foreach (var formatterPart in currentToken.FormatString)
-					{
-						var tokenExpression = formatterPart.Argument.ParsedArguments.GetValue();
-
-						argumentMap.Add(new Tuple<string, Stack<IValueDocumentItem>>(formatterPart.Name,
-							ParseAsPath(new Queue<TokenPair>(tokenExpression), options)));
-					}
-					buildStack.Push(new CallFormatterDocumentItem(argumentMap, currentToken.Value));
+					buildStack.Add(new CallFormatterDocumentItem(ParseArgumentHeader(currentToken), currentToken.Value));
 				}
 				else if (currentToken.Type == TokenType.EscapedSingleValue ||
 				         currentToken.Type == TokenType.UnescapedSingleValue)
 				{
-					buildStack.Push(new PathDocumentItem(currentToken.Value,
+					buildStack.Add(new PathDocumentItem(currentToken.Value,
 							currentToken.Type == TokenType.EscapedSingleValue)
 						{ExpressionStart = currentToken.TokenLocation});
+				}
+				else
+				{
+					throw new InvalidPathSyntaxError(currentToken.TokenLocation, currentToken.Value).GetException();
 				}
 			}
 
 			return buildStack;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private static List<Tuple<string, ICollection<IValueDocumentItem>>> ParseArgumentHeader(TokenPair currentToken)
+		{
+			var argumentMap = new List<Tuple<string, ICollection<IValueDocumentItem>>>();
+			foreach (var formatterPart in currentToken.FormatString ?? new FormatterToken[0])
+			{
+				var tokenExpression = formatterPart.Argument.ParsedArguments.GetValue();
+
+				argumentMap.Add(new Tuple<string, ICollection<IValueDocumentItem>>(formatterPart.Name,
+					ParseAsPath(new Queue<TokenPair>(tokenExpression))));
+			}
+
+			return argumentMap;
 		}
 
 		/// <summary>
@@ -164,16 +177,7 @@ namespace Morestachio
 
 					var formatterItem = new IsolatedContextDocumentItem {ExpressionStart = currentToken.TokenLocation};
 					buildStack.Push(new FormattingScope(formatterItem, true));
-
-					var argumentMap = new List<Tuple<string, Stack<IValueDocumentItem>>>();
-					foreach (var formatterPart in currentToken.FormatString ?? new FormatterToken[0])
-					{
-						var tokenExpression = formatterPart.Argument.ParsedArguments.GetValue();
-
-						argumentMap.Add(new Tuple<string, Stack<IValueDocumentItem>>(formatterPart.Name,
-							ParseAsPath(new Queue<TokenPair>(tokenExpression), options)));
-					}
-					formatterItem.Add(new CallFormatterDocumentItem(argumentMap, currentToken.Value));
+					formatterItem.Add(new CallFormatterDocumentItem(ParseArgumentHeader(currentToken), currentToken.Value));
 
 					currentDocumentItem.Item1.Add(formatterItem);
 				}

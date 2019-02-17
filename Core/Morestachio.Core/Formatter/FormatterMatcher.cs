@@ -213,8 +213,10 @@ namespace Morestachio.Formatter
 			var values = new Dictionary<MultiFormatterInfo, object>();
 			var matched = new Dictionary<MultiFormatterInfo, KeyValuePair<string, object>>();
 
+			var argumentIndex = 0;
 			foreach (var multiFormatterInfo in formatter.MetaData.Where(e => !e.IsRestObject))
 			{
+				argumentIndex++;
 				Log(() => $"Match parameter '{multiFormatterInfo.Type}' [{multiFormatterInfo.Name}]");
 				object givenValue;
 				//set ether the source object or the value from the given arguments
@@ -245,7 +247,7 @@ namespace Morestachio.Formatter
 					//check for matching types
 					if (!multiFormatterInfo.Type.GetTypeInfo().IsInstanceOfType(match.Value))
 					{
-						Log(() => "Skip: Match is Invalid because types from Template and Formatter mismatch. Abort.");
+						Log(() => $"Skip: Match is Invalid because type at {argumentIndex} of '{multiFormatterInfo.Type.Name}' was not expected. Abort.");
 						//The type in the template and the type defined in the formatter do not match. Abort
 						return null;
 					}

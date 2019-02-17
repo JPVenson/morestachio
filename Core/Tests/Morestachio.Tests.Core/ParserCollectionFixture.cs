@@ -171,7 +171,7 @@ namespace Morestachio.Tests
 		[Test]
 		public void TestCollectionSpecialKeyFormatting()
 		{
-			var options = new ParserOptions("{{#each data}}{{$index([Name]plus one)}},{{/each}}", null,
+			var options = new ParserOptions("{{#each data}}{{$index([Name]'plus one')}},{{/each}}", null,
 				ParserFixture.DefaultEncoding);
 			var collection = new[] { 10, 11, 12, 14 };
 			options.Formatters.AddFormatter(new Func<long, long>((value) => value + 1));
@@ -190,7 +190,7 @@ namespace Morestachio.Tests
 		[Test]
 		public void TestCollectionFormatting()
 		{
-			var options = new ParserOptions("{{#each data(order)}}{{.}},{{/each}}", null,
+			var options = new ParserOptions("{{#each data('order')}}{{.}},{{/each}}", null,
 				ParserFixture.DefaultEncoding);
 			var collection = new[] { 0, 1, 2, 3, 5, 4, 6, 7 };
 			AddCollectionTypeFormatter(options);
@@ -208,7 +208,7 @@ namespace Morestachio.Tests
 		[Test]
 		public void TestCollectionFormattingScope()
 		{
-			var options = new ParserOptions("{{#each data(order)}}{{.}},{{/each}}|{{#each data}}{{.}},{{/each}}", null,
+			var options = new ParserOptions("{{#each data('order')}}{{.}},{{/each}}|{{#each data}}{{.}},{{/each}}", null,
 				ParserFixture.DefaultEncoding);
 			var collection = new[] { 0, 1, 2, 3, 5, 4, 6, 7 };
 			AddCollectionTypeFormatter(options);

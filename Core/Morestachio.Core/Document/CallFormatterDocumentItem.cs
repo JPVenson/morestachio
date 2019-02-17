@@ -13,7 +13,7 @@ namespace Morestachio
 	public class CallFormatterDocumentItem : DocumentItemBase, IValueDocumentItem
 	{
 		/// <inheritdoc />
-		public CallFormatterDocumentItem(List<Tuple<string, Stack<IValueDocumentItem>>> formatString, string value)
+		public CallFormatterDocumentItem(List<Tuple<string, ICollection<IValueDocumentItem>>> formatString, string value)
 		{
 			FormatString = formatString;
 			Value = value;
@@ -25,7 +25,7 @@ namespace Morestachio
 		/// <summary>
 		///		Gets the parsed list of arguments for <see cref="Value"/>
 		/// </summary>
-		public List<Tuple<string, Stack<IValueDocumentItem>>> FormatString { get; }
+		public List<Tuple<string, ICollection<IValueDocumentItem>>> FormatString { get; }
 
 		/// <summary>
 		///		The expression that defines the Value that should be formatted
@@ -55,7 +55,7 @@ namespace Morestachio
 
 				foreach (var formatterArgument in FormatString)
 				{
-					var value = context.Clone();
+					var value = context.FindNextNaturalContextObject().Clone();
 					foreach (var valueDocumentItem in formatterArgument.Item2)
 					{
 						if (value == null)
@@ -74,21 +74,6 @@ namespace Morestachio
 						await value.EnsureValue();
 						argList.Add(new KeyValuePair<string, object>(formatterArgument.Item1, value.Value));
 					}
-					
-
-					////if pre and suffixed by a $ its a reference to another field.
-					////walk the path in the $ and use the value in the formatter
-					//var trimmedArg = formatterArgument.Argument;
-					//if (trimmedArg != null && trimmedArg.StartsWith("$") &&
-					//    trimmedArg.EndsWith("$"))
-					//{
-					//	var formatContext = await context.GetContextForPath(trimmedArg.Trim('$'), scopeData);
-					//	await formatContext.EnsureValue();
-					//	argList.Add(new KeyValuePair<string, object>(formatterArgument.Name, formatContext.Value));
-					//}
-					//else
-					//{
-					//}
 				}
 				//we do NOT await the task here. We await the task only if we need the value
 				context.Value = c.Format(argList.ToArray());
