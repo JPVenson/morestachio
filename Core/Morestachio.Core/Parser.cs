@@ -54,56 +54,69 @@ namespace Morestachio
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static ICollection<IValueDocumentItem> ParseAsPath(Queue<TokenPair> tokens)
+		internal static IValueDocumentItem ParseAsPath(Tokenizer.HeaderTokenMatch token)
 		{
-			var buildStack = new List<IValueDocumentItem>();
-
-			while (tokens.Any())
+			switch (token.TokenType)
 			{
-				var currentToken = tokens.Dequeue();
-
-				if (currentToken.Type == TokenType.Content)
-				{
-					buildStack.Add(new ContentDocumentItem(currentToken.Value)
-						{ExpressionStart = currentToken.TokenLocation});
-				}
-				else if (currentToken.Type == TokenType.PrintFormatted)
-				{
-					buildStack.Add(new PrintFormattedItem());
-				}
-				else if (currentToken.Type == TokenType.Format)
-				{
-					buildStack.Add(new CallFormatterDocumentItem(ParseArgumentHeader(currentToken), currentToken.Value));
-				}
-				else if (currentToken.Type == TokenType.EscapedSingleValue ||
-				         currentToken.Type == TokenType.UnescapedSingleValue)
-				{
-					buildStack.Add(new PathDocumentItem(currentToken.Value,
-							currentToken.Type == TokenType.EscapedSingleValue)
-						{ExpressionStart = currentToken.TokenLocation});
-				}
-				else
-				{
-					throw new InvalidPathSyntaxError(currentToken.TokenLocation, currentToken.Value).GetException();
-				}
+				case Tokenizer.HeaderArgumentType.String:
+					return new ContentDocumentItem(token.Value)
+					{
+						ExpressionStart = token.TokenLocation
+					};
+				case Tokenizer.HeaderArgumentType.Expression:
+					return new CallFormatterDocumentItem(token
+						.Arguments
+						.Select(e => new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>(e, ParseAsPath(e)))
+						.ToArray(), token.Value);
+				default:
+					throw new ArgumentOutOfRangeException();
 			}
 
-			return buildStack;
+
+			
+
+			//while (tokens.Any())
+			//{
+			//	var currentToken = tokens.Dequeue();
+
+			//	if (currentToken.Type == TokenType.Content)
+			//	{
+			//	}
+			//	else if (currentToken.Type == TokenType.Print)
+			//	{
+			//		buildStack.Add(new PrintContextValue());
+			//	}
+			//	else if (currentToken.Type == TokenType.Format)
+			//	{
+			//		buildStack.Add(new CallFormatterDocumentItem(ParseArgumentHeader(currentToken), currentToken.Value));
+			//	}
+			//	else if (currentToken.Type == TokenType.EscapedSingleValue ||
+			//	         currentToken.Type == TokenType.UnescapedSingleValue)
+			//	{
+			//		buildStack.Add(new PathDocumentItem(currentToken.Value,
+			//				currentToken.Type == TokenType.EscapedSingleValue)
+			//			{ExpressionStart = currentToken.TokenLocation});
+			//	}
+			//	else
+			//	{
+			//		throw new InvalidPathSyntaxError(currentToken.TokenLocation, currentToken.Value).GetException();
+			//	}
+			//}
+
+			//return buildStack;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static List<Tuple<string, ICollection<IValueDocumentItem>>> ParseArgumentHeader(TokenPair currentToken)
+		private static Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>[] ParseArgumentHeader(TokenPair currentToken)
 		{
-			var argumentMap = new List<Tuple<string, ICollection<IValueDocumentItem>>>();
-			foreach (var formatterPart in currentToken.FormatString ?? new FormatterToken[0])
+			var argumentMap = new List<Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>>();
+			foreach (var formatterPart in currentToken.FormatString ?? new Tokenizer.HeaderTokenMatch[0])
 			{
-				var tokenExpression = formatterPart.Argument.ParsedArguments.GetValue();
-
-				argumentMap.Add(new Tuple<string, ICollection<IValueDocumentItem>>(formatterPart.Name,
-					ParseAsPath(new Queue<TokenPair>(tokenExpression))));
+				argumentMap.Add(new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>(formatterPart,
+					ParseAsPath(formatterPart)));
 			}
 
-			return argumentMap;
+			return argumentMap.ToArray();
 		}
 
 		/// <summary>
@@ -163,9 +176,9 @@ namespace Morestachio
 						buildStack.Pop();
 					}
 				}
-				else if (currentToken.Type == TokenType.PrintFormatted)
+				else if (currentToken.Type == TokenType.Print)
 				{
-					currentDocumentItem.Item1.Add(new PrintFormattedItem());
+					currentDocumentItem.Item1.Add(new PrintContextValue());
 					buildStack.Pop(); //Print formatted can only be followed by a Format and if not the parser should have not emited it
 				}
 				else if (currentToken.Type == TokenType.Format)

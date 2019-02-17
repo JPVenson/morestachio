@@ -23,7 +23,7 @@
 		/// <summary>
 		///     Is used to "print" the current formatted value to the output
 		/// </summary>
-		PrintFormatted,
+		Print,
 
 		/// <summary>
 		///		A Partial that is inserted into the one or multiple places in the Template

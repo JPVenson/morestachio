@@ -68,48 +68,261 @@ namespace Morestachio.Framework
 			return retval;
 		}
 
-		private static FormatterToken[] TokenizeFormatterHeader(string formatString, ICollection<IMorestachioError> error)
+		/// <summary>
+		///		Defines a Match of Arguments for a Formatter
+		/// </summary>
+		public class HeaderTokenMatch
 		{
-			var preMatch = 0;
-			return FindSplitterRegEx
-				.Matches(formatString)
-				.OfType<Match>()
-				.Select(e =>
-				{
-					var indexOfEndMatch = e.Groups[0].Captures[0].Index + e.Groups[0].Captures[0].Length; //get everything from the index of the regex to its end
-					var formatterArgument = formatString.Substring(preMatch, indexOfEndMatch - preMatch);
-					var name = NameFinder.Match(formatterArgument); //find the optional [Name] attribute on the formatters argument
-					preMatch = indexOfEndMatch;
-					var argument = formatterArgument.Remove(name.Index, name.Value.Length)
-						.Trim()
-						//trim all commas from the formatter
-						.Trim(',')
-						//then trim all spaces that the user might have written
-						.Trim();
-					return new FormatterToken(name.Value.Trim('[', ']'), new FormatExpression()
-					{
-						OrigialString = argument,
-						ParsedArguments = TokenizeFormatterArgument(argument, error),
-					});
-				})
-				.Where(e => !string.IsNullOrWhiteSpace(e.Argument.OrigialString))
-				.ToArray();
-		}
-
-		private static IFormatterArgumentType TokenizeFormatterArgument(string argument,
-			ICollection<IMorestachioError> parseErrors)
-		{
-			argument = argument.Trim();
-
-			if ((argument.StartsWith("\"") && argument.EndsWith("\"")) || (argument.StartsWith("'") && argument.EndsWith("'")))
+			/// <summary>
+			/// Initializes a new instance of the <see cref="HeaderTokenMatch"/> class.
+			/// </summary>
+			public HeaderTokenMatch()
 			{
-				//the argument starts and ends with an " or ' so it must be constant expression.
-				return new ConstFormatterArgumentValue(argument.Trim('"', '\''));
+				Arguments = new List<HeaderTokenMatch>();
 			}
 
-			//the argument does not start with a string keyword so thread them as expression
+			/// <summary>
+			///		The Parsed Argument Name as in [Name]'arg'
+			/// </summary>
+			public string ArgumentName { get; set; }
 
-			return new PathFormatterArgumentValue(TokenizePath(parseErrors, argument, "", new List<int>(), 0).ToArray());
+			/// <summary>
+			///		Ether the argument constant string or the expression unparsed
+			/// </summary>
+			public string Value { get; set; }
+
+			/// <summary>
+			///		If value is an Expression the parsed arguments of that expression
+			/// </summary>
+			public List<HeaderTokenMatch> Arguments { get; set; }
+
+			/// <summary>
+			/// Gets or sets the type of the token.
+			/// </summary>
+			/// <value>
+			/// The type of the token.
+			/// </value>
+			public HeaderArgumentType TokenType { get; set; }
+			
+			/// <summary>
+			///		The location within the Template of the Argument
+			/// </summary>
+			public CharacterLocation TokenLocation { get; set; }
+			internal TokenState State { get; set; }
+			internal int BracketsCounter { get; set; }
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public enum HeaderArgumentType
+		{
+			/// <summary>
+			///		Defines the Value of the <see cref="HeaderTokenMatch"/> to be the content argument
+			/// </summary>
+			String,
+
+			/// <summary>
+			///		Defines the Value of the <see cref="HeaderTokenMatch"/> to be an expression
+			/// </summary>
+			Expression
+		}
+
+		internal enum TokenState
+		{
+			None,
+			InString,
+			EscapedString,
+			Expression,
+			ArgumentName,
+			DecideArgumentType,
+			ArgumentStart
+		}
+
+		private static bool IsStringDelimiter(char formatChar)
+		{
+			return formatChar == '\'' || formatChar == '\"';
+		}
+
+		private static bool IsWhiteSpaceDelimiter(char formatChar)
+		{
+			return formatChar == '\r' || formatChar == '\r' || formatChar == '\t' || formatChar == ' ';
+		}
+
+		private static bool IsExpressionChar(char formatChar)
+		{
+			return formatChar == '.' 
+			       || formatChar == '$' 
+			       || formatChar == '~' 
+			       || new Regex("\\w").IsMatch(formatChar.ToString());
+		}
+
+		private static HeaderTokenMatch[] TokenizeFormatterHeader(string formatString,
+			ICollection<IMorestachioError> error,
+			List<int> linesOfTemplate,
+			int startOfArgumentPosition)
+		{
+			//this COULD be made with regexes, i have made it and rejected it as it was no longer readable in any way.
+			var tokenScopes = new Stack<HeaderTokenMatch>();
+			tokenScopes.Push(new HeaderTokenMatch()
+			{
+				State = TokenState.None
+			});
+			char strChar = ' ';
+			for (var index = 0; index < formatString.Length; index++)
+			{
+				var currentScope = tokenScopes.Peek();
+				var formatChar = formatString[index];
+				var state = currentScope.State;
+				switch (state)
+				{
+					case TokenState.None:
+						//we are at the start of an argument
+						if (IsWhiteSpaceDelimiter(formatChar))
+						{
+							//skip any non content chars
+							continue;
+						}
+
+						var argumentScope = new HeaderTokenMatch();
+						currentScope.Arguments.Add(argumentScope);
+						tokenScopes.Push(argumentScope);
+						index--;
+						argumentScope.State = TokenState.ArgumentStart;
+
+						break;
+					case TokenState.ArgumentStart:
+						//we are at the start of an argument
+						if (IsWhiteSpaceDelimiter(formatChar) || formatChar == ',')
+						{
+							//skip any non content chars
+							continue;
+						}
+
+						if (formatChar == '[')
+						{
+							//this is an arguments name
+							currentScope.State = TokenState.ArgumentName;
+						}
+						else
+						{
+							index--; //reprocess the char
+							currentScope.State = TokenState.DecideArgumentType;
+						}
+						break;
+					case TokenState.ArgumentName:
+						if (formatChar != ']')
+						{
+							currentScope.ArgumentName += formatChar;
+						}
+						else
+						{
+							currentScope.State = TokenState.DecideArgumentType;
+						}
+
+						break;
+					case TokenState.DecideArgumentType:
+						//we are at the start of an argument
+						if (IsWhiteSpaceDelimiter(formatChar))
+						{
+							//skip any non content chars
+							continue;
+						}
+
+						if (IsStringDelimiter(formatChar))
+						{
+							strChar = formatChar;
+							currentScope.State = TokenState.InString;
+						}
+						else if(IsExpressionChar(formatChar))
+						{
+							currentScope.State = TokenState.Expression;
+							index--;
+						}
+						else
+						{
+							error.Add(new InvalidPathSyntaxError(HumanizeCharacterLocation(currentScope.Value, currentScope.Value.Length, linesOfTemplate), currentScope.Value));
+							//it is nether an expression that starts with ".", "$" or any word char
+							throw new Exception();
+						}
+						currentScope.TokenType = currentScope.State == TokenState.InString ? HeaderArgumentType.String : HeaderArgumentType.Expression;
+						break;
+					case TokenState.EscapedString:
+						currentScope.Value += formatChar;
+						if (formatChar != '\\') // if the user has written \\ and the first \ is omitted 
+						{
+							// the char was escaped return to capture everything else
+							currentScope.State = TokenState.InString;
+						}
+						break;
+					case TokenState.InString:
+						if (formatChar == '\\')
+						{
+							currentScope.State = TokenState.EscapedString;
+							break;
+						}
+						else if (formatChar == strChar)
+						{
+							tokenScopes.Pop();
+							break;
+						}
+						currentScope.Value += formatChar;
+
+						break;
+					case TokenState.Expression:
+						if (formatChar == '(')
+						{
+							var argument = new HeaderTokenMatch();
+							argument.State = TokenState.ArgumentStart;
+							currentScope.Arguments.Add(argument);
+							tokenScopes.Push(argument);
+							currentScope.BracketsCounter++;
+							break;
+						}
+
+						if (formatChar == ')')
+						{
+							currentScope.BracketsCounter--;
+							if (index + 1 == formatString.Length)
+							{
+								tokenScopes.Pop();
+							}
+
+							break;
+						}
+
+						if (currentScope.BracketsCounter == 0)
+						{
+							if (formatChar == ',' || index + 1 == formatString.Length)
+							{
+								if (formatChar != ',' && !IsWhiteSpaceDelimiter(formatChar))
+								{
+									currentScope.Value += formatChar;
+								}
+
+								tokenScopes.Pop();
+								var parent = tokenScopes.Peek();
+								currentScope.State = TokenState.None;
+								break;
+							}
+							if (!IsWhiteSpaceDelimiter(formatChar))
+							{
+								currentScope.Value += formatChar;
+							}
+						}
+						else
+						{
+							index--; //reprocess
+							var argument = new HeaderTokenMatch();
+							argument.State = TokenState.ArgumentStart;
+							currentScope.Arguments.Add(argument);
+							tokenScopes.Push(argument);
+						}
+						break;
+				}
+			}
+
+			return tokenScopes.Peek().Arguments.ToArray();
 		}
 
 		private static IEnumerable<TokenPair> TokenizeFormattables(string token, string templateString,
@@ -161,7 +374,7 @@ namespace Morestachio.Framework
 					var formatExpression = formatterArgument.Substring(1, formatterArgument.Length - 2);
 
 
-					var formatHeader = TokenizeFormatterHeader(formatExpression, parseErrors);
+					var formatHeader = TokenizeFormatterHeader(formatExpression, parseErrors, lines, tokenArgIndex);
 
 					yield return new TokenPair(TokenType.Format,
 						ValidateArgumentHead(scalarValue, formatterArgument, templateString,
@@ -455,7 +668,7 @@ namespace Morestachio.Framework
 					yield return tokenizeFormattable;
 				}
 
-				yield return new TokenPair(TokenType.PrintFormatted, ".",
+				yield return new TokenPair(TokenType.Print, ".",
 					HumanizeCharacterLocation(templateString, tokenIndex, lines));
 			}
 			else

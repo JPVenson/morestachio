@@ -25,7 +25,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Document\IsolatedContextDocumentItem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Document\InvertedExpressionScopeDocumentItem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Document\PathDocumentItem.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Document\PrintFormattedItem.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Document\PrintContextValue.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Document\RenderPartialDoneDocumentItem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Framework\IByteCounterStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Framework\ParserErrors\IMorestachioError.cs" />

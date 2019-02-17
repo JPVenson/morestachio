@@ -13,7 +13,7 @@ namespace Morestachio
 	public class CallFormatterDocumentItem : DocumentItemBase, IValueDocumentItem
 	{
 		/// <inheritdoc />
-		public CallFormatterDocumentItem(List<Tuple<string, ICollection<IValueDocumentItem>>> formatString, string value)
+		public CallFormatterDocumentItem(Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>[] formatString, string value)
 		{
 			FormatString = formatString;
 			Value = value;
@@ -25,7 +25,7 @@ namespace Morestachio
 		/// <summary>
 		///		Gets the parsed list of arguments for <see cref="Value"/>
 		/// </summary>
-		public List<Tuple<string, ICollection<IValueDocumentItem>>> FormatString { get; }
+		public Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>[] FormatString { get; }
 
 		/// <summary>
 		///		The expression that defines the Value that should be formatted
@@ -56,23 +56,16 @@ namespace Morestachio
 				foreach (var formatterArgument in FormatString)
 				{
 					var value = context.FindNextNaturalContextObject().Clone();
-					foreach (var valueDocumentItem in formatterArgument.Item2)
-					{
-						if (value == null)
-						{
-							break;
-						}
-						value = await valueDocumentItem.GetValue(value, scopeData);
-					}
+					value = await formatterArgument.Item2.GetValue(value, scopeData);
 
 					if (value == null)
 					{
-						argList.Add(new KeyValuePair<string, object>(formatterArgument.Item1, null));
+						argList.Add(new KeyValuePair<string, object>(formatterArgument.Item1.ArgumentName, null));
 					}
 					else
 					{
 						await value.EnsureValue();
-						argList.Add(new KeyValuePair<string, object>(formatterArgument.Item1, value.Value));
+						argList.Add(new KeyValuePair<string, object>(formatterArgument.Item1.ArgumentName, value.Value));
 					}
 				}
 				//we do NOT await the task here. We await the task only if we need the value

@@ -7,7 +7,7 @@ namespace Morestachio
 	/// <summary>
 	///		If a formatter ends without using its value it is printed
 	/// </summary>
-	public class PrintFormattedItem : DocumentItemBase, IValueDocumentItem
+	public class PrintContextValue : DocumentItemBase, IValueDocumentItem
 	{
 		/// <inheritdoc />
 		public override string Kind { get; } = "PrintExpression";
