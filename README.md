@@ -49,33 +49,24 @@ Install-Package Morestachio.Formatter.Linq
 ```
 I am currently working on the CI process to seperate the builds.
 
-##### Key differences between Morestachio and [mustachio](https://github.com/wildbit/mustachio)
-
+##### Key Features
 Morestachio is build upon Mustachio and extends the mustachio syntax in a few ways.
 
 1. each value can be formatted by adding formatter the the morestachio
 2. Templates will be parsed as streams and will create a new stream. This is better when creating larger templates and best for web as you can also limit the length of the "to be" created template to a certain size
-3. Morestachio accepts any object besides the Dictionary<string,object> from mustachio.
-4. Root paths are supported, for examle `{{#this.is.a.object}} {{~this.is.from.root}} {{/this.is.a.object}}`
-5. Cancellation of Template generation is supported
-6. Async calls are supported
-7. No Reference to Newtonsoft ( this has proven problematic with other versions of the lib )
-8. No Reference to System.Web ( Rewritten to WebUtility as `HttpUtility.HtmlEncode` just calls `WebUtility.HtmlEncode` )
-9. Using of JetBrains Annotations for R# user ( if you are not a R# user just ignore this point )
-10. Supports user Encoding of the result template
-
-##### Key differences between Morestachio and [Mustache](https://mustache.github.io/)
-
-Morestachio contains a few modifications to the core Mustache language that are important.
-
-1. `each` blocks are recommended for handling arrays of values.
-2. Complex paths are supported, for example `{{ this.is.a.valid.path }}` and `{{ ../this.goes.up.one.level }}`
-3. Template partials (`{{#include secondary_template }}`) are supported.
+3. Morestachio accepts any object as source
+4. Cancellation of Template generation is supported
+5. Async calls are supported
+6. Minimal Reference count
+7. NetFramework and NetCore are supported
+8. Using of JetBrains Annotations for R# user ( if you are not a R# user just ignore this point )
+9. Supports user Encoding of the result template
+10. Supports Template Partials `{{#include secondary_template }}`
+11. Complex paths are supported `{{ this.is.a.valid.path }}` and `{{ ../this.goes.up.one.level }}` and `{{ ~.this.goes.up.one.level }}`
+12. Loops with `#each`
+13. Formatters can be declared in C# and be called from the template to provide you with a maximum of freedom
+14. The Parser produces a Serilizable Document Tree that can be send to clients to provide a rich user edit experience 
  
-###### A little more about the differences:
-
-In difference to _mustachio_ morstachio is creating a document tree of the Template. This serves the purpose of serilizing the parsed template for both storage and evaluation of used models. The document tree is generated when calling the `Parser.Parse` method and retuns a `MorestachioDocumentInfo` object that contains a `Document` property. This property can be serilized and also recreated. As it serves as the structure for the formatter it has no performance penelties. 
-
 **Template partials** ARE a great feature for large scale template development.
 
 You can create a Partial with the `{{#declare NAME}}Partial{{/declare}}` syntax. You can navigate up inside this partials. Partials can also be nested but are currently restricted to a maximum recursion of 255 depth. The programmer has the choice to define a behavior that ether throws an Exception or does nothing and ignores any deeper recusions. 
