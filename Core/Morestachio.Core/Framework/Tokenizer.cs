@@ -43,7 +43,7 @@ namespace Morestachio.Framework
 			new Regex(@"([.]{4,})|([^\w./_$?]+)|((?<![.]{2})[/])|([.]{2,}($|[^/]))",
 				RegexOptions.Singleline | RegexOptions.Compiled);
 
-		private static CharacterLocation HumanizeCharacterLocation(string content, int characterIndex, List<int> lines)
+		private static CharacterLocation HumanizeCharacterLocation(int characterIndex, List<int> lines)
 		{
 			var line = Array.BinarySearch(lines.ToArray(), characterIndex);
 			line = line < 0 ? ~line : line;
@@ -234,16 +234,17 @@ namespace Morestachio.Framework
 							strChar = formatChar;
 							currentScope.State = TokenState.InString;
 						}
-						else if(IsExpressionChar(formatChar))
+						else if (IsExpressionChar(formatChar))
 						{
 							currentScope.State = TokenState.Expression;
 							index--;
 						}
 						else
 						{
-							error.Add(new InvalidPathSyntaxError(HumanizeCharacterLocation(currentScope.Value, currentScope.Value.Length, linesOfTemplate), currentScope.Value));
-							//it is nether an expression that starts with ".", "$" or any word char
-							throw new Exception();
+							//this is not the start of an expression and not a string
+							error.Add(new InvalidPathSyntaxError(
+								HumanizeCharacterLocation(startOfArgumentPosition + currentScope.Value.Length, linesOfTemplate), currentScope.Value));
+							return new HeaderTokenMatch[0];
 						}
 						currentScope.TokenType = currentScope.State == TokenState.InString ? HeaderArgumentType.String : HeaderArgumentType.Expression;
 						break;
@@ -322,6 +323,12 @@ namespace Morestachio.Framework
 				}
 			}
 
+			if (tokenScopes.Count != 1)
+			{
+				error.Add(new InvalidPathSyntaxError(
+					HumanizeCharacterLocation(startOfArgumentPosition + formatString.Length, linesOfTemplate), formatString));
+			}
+
 			return tokenScopes.Peek().Arguments.ToArray();
 		}
 
@@ -366,7 +373,7 @@ namespace Morestachio.Framework
 				{
 					yield return new TokenPair(TokenType.Format,
 						Validated(scalarValue, templateString, tokenArgIndex, lines, parseErrors),
-						HumanizeCharacterLocation(templateString, tokenArgIndex, lines));
+						HumanizeCharacterLocation(tokenArgIndex, lines));
 				}
 				else
 				{
@@ -378,7 +385,7 @@ namespace Morestachio.Framework
 
 					yield return new TokenPair(TokenType.Format,
 						ValidateArgumentHead(scalarValue, formatterArgument, templateString,
-							tokenArgIndex, lines, parseErrors), HumanizeCharacterLocation(templateString, tokenArgIndex, lines))
+							tokenArgIndex, lines, parseErrors), HumanizeCharacterLocation(tokenArgIndex, lines))
 					{
 						FormatString = formatHeader
 					};
@@ -389,7 +396,7 @@ namespace Morestachio.Framework
 			{
 				yield return new TokenPair(TokenType.Format,
 					Validated(token.Substring(tokensHandled), templateString, tokenIndex, lines, parseErrors),
-					HumanizeCharacterLocation(templateString, tokenIndex, lines));
+					HumanizeCharacterLocation(tokenIndex, lines));
 			}
 		}
 
@@ -419,7 +426,7 @@ namespace Morestachio.Framework
 				//yield front content.
 				if (m.Index > idx)
 				{
-					yield return new TokenPair(TokenType.Content, templateString.Substring(idx, m.Index - idx), HumanizeCharacterLocation(templateString, tokenIndex, lines));
+					yield return new TokenPair(TokenType.Content, templateString.Substring(idx, m.Index - idx), HumanizeCharacterLocation(tokenIndex, lines));
 				}
 
 				if (m.Value.StartsWith("{{#declare"))
@@ -428,29 +435,29 @@ namespace Morestachio.Framework
 					var token = m.Value.TrimStart('{').TrimEnd('}').TrimStart('#').Trim().Substring("declare".Length);
 					if (string.IsNullOrWhiteSpace(token))
 					{
-						parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(templateString, m.Index, lines), "open", "declare", "{{#declare name}}", " Missing the Name."));
+						parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(m.Index, lines), "open", "declare", "{{#declare name}}", " Missing the Name."));
 					}
 					else
 					{
 						partialsNames.Add(token);
-						yield return new TokenPair(TokenType.PartialDeclarationOpen, token, HumanizeCharacterLocation(templateString, tokenIndex, lines));
+						yield return new TokenPair(TokenType.PartialDeclarationOpen, token, HumanizeCharacterLocation(tokenIndex, lines));
 					}
 				}
 				else if (m.Value.StartsWith("{{/declare"))
 				{
 					if (m.Value != "{{/declare}}")
 					{
-						parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(templateString, m.Index, lines), "close", "declare", "{{/declare}}"));
+						parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(m.Index, lines), "close", "declare", "{{/declare}}"));
 					}
 					else if (scopestack.Any() && scopestack.Peek().Item1.StartsWith("{{#declare"))
 					{
 						var token = scopestack.Pop().Item1.TrimStart('{').TrimEnd('}').TrimStart('#').Trim()
 							.Substring("declare".Length);
-						yield return new TokenPair(TokenType.PartialDeclarationClose, token, HumanizeCharacterLocation(templateString, tokenIndex, lines));
+						yield return new TokenPair(TokenType.PartialDeclarationClose, token, HumanizeCharacterLocation(tokenIndex, lines));
 					}
 					else
 					{
-						parseErrors.Add(new MorestachioUnopendScopeError(HumanizeCharacterLocation(templateString, m.Index, lines), "declare", "{{#declare name}}"));
+						parseErrors.Add(new MorestachioUnopendScopeError(HumanizeCharacterLocation(m.Index, lines), "declare", "{{#declare name}}"));
 					}
 				}
 				else if (m.Value.StartsWith("{{#include"))
@@ -459,7 +466,7 @@ namespace Morestachio.Framework
 					if (string.IsNullOrWhiteSpace(token) || !partialsNames.Contains(token))
 					{
 						parseErrors.Add(new MorestachioSyntaxError(
-							HumanizeCharacterLocation(templateString, m.Index, lines),
+							HumanizeCharacterLocation(m.Index, lines),
 							"use",
 							"include",
 							"{{#include name}}",
@@ -467,7 +474,7 @@ namespace Morestachio.Framework
 					}
 					else
 					{
-						yield return new TokenPair(TokenType.RenderPartial, token, HumanizeCharacterLocation(templateString, tokenIndex, lines));
+						yield return new TokenPair(TokenType.RenderPartial, token, HumanizeCharacterLocation(tokenIndex, lines));
 					}
 				}
 				else if (m.Value.StartsWith("{{#each"))
@@ -486,33 +493,33 @@ namespace Morestachio.Framework
 								yield return tokenizeFormattable;
 							}
 
-							yield return new TokenPair(TokenType.CollectionOpen, ".", HumanizeCharacterLocation(templateString, tokenIndex, lines));
+							yield return new TokenPair(TokenType.CollectionOpen, ".", HumanizeCharacterLocation(tokenIndex, lines));
 						}
 						else
 						{
 							yield return new TokenPair(TokenType.CollectionOpen,
-								Validated(token, templateString, m.Index, lines, parseErrors).Trim(), HumanizeCharacterLocation(templateString, tokenIndex, lines));
+								Validated(token, templateString, m.Index, lines, parseErrors).Trim(), HumanizeCharacterLocation(tokenIndex, lines));
 						}
 					}
 					else
 					{
-						parseErrors.Add(new InvalidPathSyntaxError(HumanizeCharacterLocation(templateString, m.Index, lines), ""));
+						parseErrors.Add(new InvalidPathSyntaxError(HumanizeCharacterLocation(m.Index, lines), ""));
 					}
 				}
 				else if (m.Value.StartsWith("{{/each"))
 				{
 					if (m.Value != "{{/each}}")
 					{
-						parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(templateString, m.Index, lines), "close", "each", "{{/each}}"));
+						parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(m.Index, lines), "close", "each", "{{/each}}"));
 					}
 					else if (scopestack.Any() && scopestack.Peek().Item1.StartsWith("{{#each"))
 					{
 						var token = scopestack.Pop().Item1;
-						yield return new TokenPair(TokenType.CollectionClose, token, HumanizeCharacterLocation(templateString, tokenIndex, lines));
+						yield return new TokenPair(TokenType.CollectionClose, token, HumanizeCharacterLocation(tokenIndex, lines));
 					}
 					else
 					{
-						parseErrors.Add(new MorestachioUnopendScopeError(HumanizeCharacterLocation(templateString, m.Index, lines), "each", "{{#each name}}"));
+						parseErrors.Add(new MorestachioUnopendScopeError(HumanizeCharacterLocation(m.Index, lines), "each", "{{#each name}}"));
 					}
 				}
 				else if (m.Value.StartsWith("{{#"))
@@ -522,7 +529,7 @@ namespace Morestachio.Framework
 					if (scopestack.Any() && scopestack.Peek().Item1 == token)
 					{
 						yield return new TokenPair(TokenType.ElementClose,
-							Validated(token, templateString, m.Index, lines, parseErrors), HumanizeCharacterLocation(templateString, tokenIndex, lines));
+							Validated(token, templateString, m.Index, lines, parseErrors), HumanizeCharacterLocation(tokenIndex, lines));
 					}
 					else
 					{
@@ -537,12 +544,12 @@ namespace Morestachio.Framework
 							yield return tokenizeFormattable;
 						}
 
-						yield return new TokenPair(TokenType.ElementOpen, ".", HumanizeCharacterLocation(templateString, tokenIndex, lines));
+						yield return new TokenPair(TokenType.ElementOpen, ".", HumanizeCharacterLocation(tokenIndex, lines));
 					}
 					else
 					{
 						yield return new TokenPair(TokenType.ElementOpen,
-							Validated(token, templateString, m.Index, lines, parseErrors), HumanizeCharacterLocation(templateString, tokenIndex, lines));
+							Validated(token, templateString, m.Index, lines, parseErrors), HumanizeCharacterLocation(tokenIndex, lines));
 					}
 				}
 				else if (m.Value.StartsWith("{{^"))
@@ -553,7 +560,7 @@ namespace Morestachio.Framework
 					if (scopestack.Any() && scopestack.Peek().Item1 == token)
 					{
 						yield return new TokenPair(TokenType.ElementClose,
-							Validated(token, templateString, m.Index, lines, parseErrors), HumanizeCharacterLocation(templateString, tokenIndex, lines));
+							Validated(token, templateString, m.Index, lines, parseErrors), HumanizeCharacterLocation(tokenIndex, lines));
 					}
 					else
 					{
@@ -568,12 +575,12 @@ namespace Morestachio.Framework
 							yield return tokenizeFormattable;
 						}
 
-						yield return new TokenPair(TokenType.InvertedElementOpen, ".", HumanizeCharacterLocation(templateString, tokenIndex, lines));
+						yield return new TokenPair(TokenType.InvertedElementOpen, ".", HumanizeCharacterLocation(tokenIndex, lines));
 					}
 					else
 					{
 						yield return new TokenPair(TokenType.InvertedElementOpen,
-							Validated(token, templateString, m.Index, lines, parseErrors), HumanizeCharacterLocation(templateString, tokenIndex, lines));
+							Validated(token, templateString, m.Index, lines, parseErrors), HumanizeCharacterLocation(tokenIndex, lines));
 					}
 				}
 				else if (m.Value.StartsWith("{{/"))
@@ -583,11 +590,11 @@ namespace Morestachio.Framework
 					if (scopestack.Any() && scopestack.Peek().Item1 == token)
 					{
 						scopestack.Pop();
-						yield return new TokenPair(TokenType.ElementClose, token, HumanizeCharacterLocation(templateString, tokenIndex, lines));
+						yield return new TokenPair(TokenType.ElementClose, token, HumanizeCharacterLocation(tokenIndex, lines));
 					}
 					else
 					{
-						parseErrors.Add(new MorestachioUnopendScopeError(HumanizeCharacterLocation(templateString, m.Index, lines), "/", "{{#path}}", " There are more closing elements then open."));
+						parseErrors.Add(new MorestachioUnopendScopeError(HumanizeCharacterLocation(m.Index, lines), "/", "{{#path}}", " There are more closing elements then open."));
 					}
 				}
 				else if (m.Value.StartsWith("{{{") | m.Value.StartsWith("{{&"))
@@ -595,7 +602,7 @@ namespace Morestachio.Framework
 					//escaped single element
 					var token = m.Value.TrimStart('{').TrimEnd('}').TrimStart('&').Trim();
 					yield return new TokenPair(TokenType.UnescapedSingleValue,
-						Validated(token, templateString, m.Index, lines, parseErrors), HumanizeCharacterLocation(templateString, tokenIndex, lines));
+						Validated(token, templateString, m.Index, lines, parseErrors), HumanizeCharacterLocation(tokenIndex, lines));
 				}
 				else if (m.Value.StartsWith("{{!"))
 				{
@@ -615,7 +622,7 @@ namespace Morestachio.Framework
 
 			if (idx < templateString.Length)
 			{
-				yield return new TokenPair(TokenType.Content, templateString.Substring(idx), HumanizeCharacterLocation(templateString, idx, lines));
+				yield return new TokenPair(TokenType.Content, templateString.Substring(idx), HumanizeCharacterLocation(idx, lines));
 			}
 
 			#region Assert that any scopes opened must be closed.
@@ -633,7 +640,7 @@ namespace Morestachio.Framework
 					return new
 					{
 						scope = value,
-						location = HumanizeCharacterLocation(templateString, k.Item2, lines)
+						location = HumanizeCharacterLocation(k.Item2, lines)
 					};
 				}).Reverse())
 				{
@@ -669,13 +676,13 @@ namespace Morestachio.Framework
 				}
 
 				yield return new TokenPair(TokenType.Print, ".",
-					HumanizeCharacterLocation(templateString, tokenIndex, lines));
+					HumanizeCharacterLocation(tokenIndex, lines));
 			}
 			else
 			{
 				yield return new TokenPair(TokenType.EscapedSingleValue,
 					Validated(token, templateString, tokenIndex, lines, parseErrors),
-					HumanizeCharacterLocation(templateString, tokenIndex, lines));
+					HumanizeCharacterLocation(tokenIndex, lines));
 			}
 		}
 
@@ -689,7 +696,7 @@ namespace Morestachio.Framework
 				return token;
 			}
 
-			exceptions.Add(new InvalidPathSyntaxError(HumanizeCharacterLocation(content, index, lines), token));
+			exceptions.Add(new InvalidPathSyntaxError(HumanizeCharacterLocation(index, lines), token));
 
 			return token;
 		}
