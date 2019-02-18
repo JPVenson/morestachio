@@ -93,24 +93,25 @@ One mayor component is the usage of Streams in morestachio. You can declare a Fa
 ###### Formatter
 Use the `ContextObject.DefaultFormatter` collection to create own formatter for all your types or add one to the `ParserOptions.Formatters` object for just one call. To invoke them in your template use the new Function syntax:
 ```csharp
-{{Just.One.Formattable(AnyString).Thing}}
+{{Just.One.Formattable("AnyString").Thing}}
 ```
 
 The formatter CAN return a new object on wich you can call new Propertys or it can return a string.
 There are formatter prepaired for all Primitve types. That means per default you can call on an object hat contains a DateTime:
 ```csharp
-{{MyObject.DateTime(D)}}
+{{MyObject.DateTime("D")}}
 ```
 that will call the `IFormattable` interface on the DateTime. 
 
-**Formatter References** can be used to reference another property/key in the template and then use it in a Formatter.
+**Formatter References** 
+Can be used to reference another property/key in the template and then use it in a Formatter. Everything that is not a string (ether prefixed and suffixed with " or ') will be threaded as an expression that also can contain formatter calls
 ```csharp
-{{MyObject.Value($Key$)}}
+{{MyObject.Value(Key)}}
 ```
 This will call a formatter that is resposible for the type that `Value` has and will give it whats in `Key`. Example:
 ```csharp
 //create the template
-var template = "{{Value($Key$)}}";
+var template = "{{Value(Key)}}";
 //create the model
 var model = new Dictionary<string, object>();
 model["Value"] = DateTime.Now; 
@@ -128,7 +129,7 @@ Parser.CreateAndStringify(parserOptions); // Friday, September 21, 2018 ish
 
 ```
 ###### Enumerating IDictionarys
-Any instance of IDictionary<string,object> is viewed as an object. You cannot enumerate then with #each but you could write a formatter that accepts an Instance of IDictionary and return a List of KeyValuePair and enumerate this new List. 
+Any instance of IDictionary<string,object> is viewed as an object. You cannot enumerate then with #each but you could write a formatter that accepts an Instance of IDictionary and return a List of KeyValuePair and enumerate this new List or enumerate it as every other object with the ? operator like this `{{#each Data.Dictionary.?}} {{/each}}`. 
 
 
 
