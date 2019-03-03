@@ -11,7 +11,6 @@ namespace Morestachio.Tests.PerfTests
 	public class PerfHarness
 	{
 		[Test()]
-		[Explicit]
 		//[Theory(Skip = "Explicit Performance testing only")]
 		[Category("Explicit")]
 		[TestCase("Model Depth", 5, 30000, 10, 5000)]

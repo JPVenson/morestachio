@@ -73,7 +73,7 @@ namespace Morestachio
 		public async Task<ContextObject> GetValue(ContextObject context, ScopeData scopeData)
 		{
 			await Task.CompletedTask;
-			return new ContextObject(context.Options, ".")
+			return new ContextObject(context.Options, ".", context)
 			{
 				Value = Content
 			};

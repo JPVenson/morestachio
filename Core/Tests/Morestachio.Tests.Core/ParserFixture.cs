@@ -57,7 +57,8 @@ namespace Morestachio.Tests
 		[TestCase("{{data(}}")]
 		public void ParserThrowsAnExceptionWhenFormatIsMismatched(string invalidTemplate)
 		{
-			Assert.That(Parser.ParseWithOptions(new ParserOptions(invalidTemplate)).Errors, Is.Not.Empty.And.Count.EqualTo(1));
+			Assert.That(Parser.ParseWithOptions(new ParserOptions(invalidTemplate)).Errors,
+				Is.Not.Empty.And.Count.EqualTo(1));
 		}
 
 		[Test]
@@ -91,7 +92,8 @@ namespace Morestachio.Tests
 		[TestCase("{{^element}}{{name}}")]
 		public void ParserThrowsParserExceptionForUnclosedGroups(string invalidTemplate)
 		{
-			Assert.That(Parser.ParseWithOptions(new ParserOptions(invalidTemplate)).Errors, Is.Not.Empty.And.Count.EqualTo(1));
+			Assert.That(Parser.ParseWithOptions(new ParserOptions(invalidTemplate)).Errors,
+				Is.Not.Empty.And.Count.EqualTo(1));
 		}
 
 
@@ -134,7 +136,8 @@ namespace Morestachio.Tests
 		[TestCase("a{{name}}dd\ndd{{/each}}dd", 1)]
 		public void ParserShouldThrowWithCharacterLocationInformation(string template, int expectedErrorCount)
 		{
-			Assert.That(Parser.ParseWithOptions(new ParserOptions(template)).Errors, Is.Not.Empty.And.Count.EqualTo(expectedErrorCount));
+			Assert.That(Parser.ParseWithOptions(new ParserOptions(template)).Errors,
+				Is.Not.Empty.And.Count.EqualTo(expectedErrorCount));
 		}
 
 		[Test]
@@ -175,6 +178,62 @@ namespace Morestachio.Tests
 			var results = Parser.ParseWithOptions(parsingOptions);
 			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
 			Assert.That(result, Is.EqualTo("TEST"));
+		}
+
+		[Test]
+		public void ParserCanChainFormatSubExpression()
+		{
+			var data = new
+			{
+				field = "field value",
+				reference = new
+				{
+					data = "reference data value"
+				}
+			};
+			var parsingOptions = new ParserOptions("{{#data}}{{.('template value').('template value', reference.data)}}{{/data}}", null, DefaultEncoding);
+			parsingOptions.Formatters.AddFormatter<object>(
+				new Func<object, object, object, object>((source, tempValue, reference) => reference));	
+			
+			parsingOptions.Formatters.AddFormatter<object>(
+				new Func<object, object, object>((source, tempValue) => source));
+			var results = Parser.ParseWithOptions(parsingOptions);
+			var result = results.CreateAndStringify(new Dictionary<string, object>
+			{
+				{"data", data},
+			});
+			Assert.That(result, Is.EqualTo(data.reference.data));
+		}
+
+		[Test]
+		public void ParserCanChainFormatSubExpressionFromEach()
+		{
+			var data = new
+			{
+				field = "field value",
+				reference = new List<dynamic>()
+				{
+					{
+						new
+						{
+							displayValue = "display data value",
+							formatterValue = "formatter data value",
+						}
+					},
+				}
+			};
+			var parsingOptions = new ParserOptions("{{#each data.reference}}{{displayValue('template value').('template value', formatterValue)}}{{/each}}", null, DefaultEncoding);
+			parsingOptions.Formatters.AddFormatter<object>(
+				new Func<object, object, object, object>((source, tempValue, reference) => reference));	
+			
+			parsingOptions.Formatters.AddFormatter<object>(
+				new Func<object, object, object>((source, tempValue) => source));
+			var results = Parser.ParseWithOptions(parsingOptions);
+			var result = results.CreateAndStringify(new Dictionary<string, object>
+			{
+				{"data", data},
+			});
+			Assert.That(result, Is.EqualTo(data.reference[0].formatterValue));
 		}
 
 		[Test]
@@ -367,7 +426,7 @@ namespace Morestachio.Tests
 			var extendedParseInformation =
 				Parser.ParseWithOptions(new ParserOptions("{{data(testFormat.inner)}}", null, DefaultEncoding));
 
-			var format = new Dictionary<string, object>()
+			var format = new Dictionary<string, object>
 			{
 				{"inner", "yyyy.mm"}
 			};
@@ -394,13 +453,14 @@ namespace Morestachio.Tests
 				formatterCalled = true;
 				return format;
 			});
-			parsingOptions.Formatters.AddFormatter<DateTime>(new Func<DateTime, string, string, string>((sourceValue, testString2, shouldBed) =>
-			{
-				Assert.That(shouldBed, Is.EqualTo("test"));
-				Assert.That(testString2, Is.EqualTo(format));
-				formatter2Called = true;
-				return sourceValue.ToString(testString2);
-			}));
+			parsingOptions.Formatters.AddFormatter<DateTime>(new Func<DateTime, string, string, string>(
+				(sourceValue, testString2, shouldBed) =>
+				{
+					Assert.That(shouldBed, Is.EqualTo("test"));
+					Assert.That(testString2, Is.EqualTo(format));
+					formatter2Called = true;
+					return sourceValue.ToString(testString2);
+				}));
 
 			var extendedParseInformation =
 				Parser.ParseWithOptions(parsingOptions);
@@ -418,7 +478,6 @@ namespace Morestachio.Tests
 		[Test]
 		public void ParserCanFormatArgumentWithSubExpressionMultiple()
 		{
-
 			var dt = DateTime.Now;
 			var dictionary = new Dictionary<string, object>
 			{
@@ -426,7 +485,8 @@ namespace Morestachio.Tests
 				{"testFormat", 19191919},
 				{"by", 10L}
 			};
-			var parsingOptions = new ParserOptions("{{data(testFormat('d'), \"test\").('pad-left', by(by, 'f'))}}", null, DefaultEncoding);
+			var parsingOptions = new ParserOptions("{{data(testFormat('d'), \"test\").('pad-left', by(by, 'f'))}}",
+				null, DefaultEncoding);
 			var format = "yyyy.mm";
 			var formatterCalled = false;
 			var formatter2Called = false;
@@ -437,30 +497,32 @@ namespace Morestachio.Tests
 				formatterCalled = true;
 				return format;
 			});
-			parsingOptions.Formatters.AddFormatter<long>(new Func<long, long, string, int>((sourceValue, testString, f) =>
-			{
-				Assert.That(testString, Is.EqualTo(sourceValue));
-				Assert.That(f, Is.EqualTo("f"));
-				formatterCalled = true;
-				return (int)sourceValue;
-			}));
-			parsingOptions.Formatters.AddFormatter<DateTime>(new Func<DateTime, string, string, string>((sourceValue, testString2, shouldBed) =>
-			{
-				Assert.That(shouldBed, Is.EqualTo("test"));
-				Assert.That(testString2, Is.EqualTo(format));
-				formatter2Called = true;
-				return sourceValue.ToString(testString2);
-			}));
+			parsingOptions.Formatters.AddFormatter<long>(new Func<long, long, string, int>(
+				(sourceValue, testString, f) =>
+				{
+					Assert.That(testString, Is.EqualTo(sourceValue));
+					Assert.That(f, Is.EqualTo("f"));
+					formatterCalled = true;
+					return (int)sourceValue;
+				}));
+			parsingOptions.Formatters.AddFormatter<DateTime>(new Func<DateTime, string, string, string>(
+				(sourceValue, testString2, shouldBed) =>
+				{
+					Assert.That(shouldBed, Is.EqualTo("test"));
+					Assert.That(testString2, Is.EqualTo(format));
+					formatter2Called = true;
+					return sourceValue.ToString(testString2);
+				}));
 			parsingOptions.Formatters.AddFormatter<string>(new Func<string, string, int, string>(
 				(sourceValue, name, number) =>
-			{
-				Assert.That(sourceValue, Is.EqualTo(dt.ToString(format)));
-				Assert.That(name, Is.EqualTo("pad-left"));
-				Assert.That(number, Is.EqualTo(dictionary["by"]));
+				{
+					Assert.That(sourceValue, Is.EqualTo(dt.ToString(format)));
+					Assert.That(name, Is.EqualTo("pad-left"));
+					Assert.That(number, Is.EqualTo(dictionary["by"]));
 
-				formatter3Called = true;
-				return sourceValue.PadLeft(number);
-			}));
+					formatter3Called = true;
+					return sourceValue.PadLeft(number);
+				}));
 
 			var extendedParseInformation =
 				Parser.ParseWithOptions(parsingOptions);
@@ -468,7 +530,7 @@ namespace Morestachio.Tests
 			Assert.That(formatterCalled, Is.True, "The formatter was not called");
 			Assert.That(formatter2Called, Is.True, "The Date formatter was not called");
 			Assert.That(formatter3Called, Is.True, "The Pad formatter was not called");
-			Assert.That(andStringify, Is.EqualTo(dt.ToString(format).PadLeft(Int32.Parse(dictionary["by"].ToString()))));
+			Assert.That(andStringify, Is.EqualTo(dt.ToString(format).PadLeft(int.Parse(dictionary["by"].ToString()))));
 		}
 
 		[Test]
@@ -649,7 +711,9 @@ namespace Morestachio.Tests
 				Parser.ParseWithOptions(new ParserOptions("{{#Person}}{{Name}}{{/Person}}", null, null, 0, false,
 					true));
 
-			var expected = @"{""Kind"":""Document"",""Children"":[{""Kind"":""ExpressionScope"",""Value"":""Person"",""Children"":[{""Kind"":""Expression"",""Value"":""Name"",""EscapeValue"":true,""Children"":[]}]}]}".EliminateWhitespace();
+			var expected =
+				@"{""Kind"":""Document"",""Children"":[{""Kind"":""ExpressionScope"",""Value"":""Person"",""Children"":[{""Kind"":""Expression"",""Value"":""Name"",""EscapeValue"":true,""Children"":[]}]}]}"
+					.EliminateWhitespace();
 
 			var serializeObject = JsonConvert.SerializeObject(results.Document);
 
@@ -663,7 +727,9 @@ namespace Morestachio.Tests
 		public void ParserCanInferScalar()
 		{
 			var results = Parser.ParseWithOptions(new ParserOptions("{{Name}}", null, null, 0, false, true));
-			var expected = @"{""Kind"":""Document"",""Children"":[{""Kind"":""Expression"",""Value"":""Name"",""EscapeValue"":true,""Children"":[]}]}".EliminateWhitespace();
+			var expected =
+				@"{""Kind"":""Document"",""Children"":[{""Kind"":""Expression"",""Value"":""Name"",""EscapeValue"":true,""Children"":[]}]}"
+					.EliminateWhitespace();
 
 
 			var serializeObject = JsonConvert.SerializeObject(results.Document);
@@ -1048,7 +1114,8 @@ namespace Morestachio.Tests
 			var results = Parser.ParseWithOptions(new ParserOptions("This template has no mustache thingies.", null,
 				null, 0, false, true));
 
-			var expected = @"{""Kind"":""Document"",""Children"":[{""Kind"":""Content"",""Content"":""This template has no mustache thingies."",""Children"":[]}]}";
+			var expected =
+				@"{""Kind"":""Document"",""Children"":[{""Kind"":""Content"",""Content"":""This template has no mustache thingies."",""Children"":[]}]}";
 
 			var serializeObject = JsonConvert.SerializeObject(results.Document);
 
@@ -1065,7 +1132,8 @@ namespace Morestachio.Tests
 			var results = Parser.ParseWithOptions(new ParserOptions("{{#each Employees}}{{name}}{{/each}}", null, null,
 				0, false, true));
 
-			var expected = @"{""Kind"":""Document"",""Children"":[{""Kind"":""OpenCollection"",""Value"":""Employees"",""Children"":[{""Kind"":""Expression"",""Value"":""name"",""EscapeValue"":true,""Children"":[]}]}]}";
+			var expected =
+				@"{""Kind"":""Document"",""Children"":[{""Kind"":""OpenCollection"",""Value"":""Employees"",""Children"":[{""Kind"":""Expression"",""Value"":""name"",""EscapeValue"":true,""Children"":[]}]}]}";
 
 			var serializeObject = JsonConvert.SerializeObject(results.Document);
 
@@ -1083,7 +1151,9 @@ namespace Morestachio.Tests
 				"{{#each Employees}}{{person.name}}{{#each favoriteColors}}{{hue}}{{/each}}{{#each workplaces}}{{.}}{{/each}}{{/each}}",
 				null, null, 0, false, true));
 
-			var expected = @"{""Kind"":""Document"",""Children"":[{""Kind"":""OpenCollection"",""Value"":""Employees"",""Children"":[{""Kind"":""Expression"",""Value"":""person.name"",""EscapeValue"":true,""Children"":[]},{""Kind"":""OpenCollection"",""Value"":""favoriteColors"",""Children"":[{""Kind"":""Expression"",""Value"":""hue"",""EscapeValue"":true,""Children"":[]}]},{""Kind"":""OpenCollection"",""Value"":""workplaces"",""Children"":[{""Kind"":""Expression"",""Value"":""."",""EscapeValue"":true,""Children"":[]}]}]}]}".EliminateWhitespace();
+			var expected =
+				@"{""Kind"":""Document"",""Children"":[{""Kind"":""OpenCollection"",""Value"":""Employees"",""Children"":[{""Kind"":""Expression"",""Value"":""person.name"",""EscapeValue"":true,""Children"":[]},{""Kind"":""OpenCollection"",""Value"":""favoriteColors"",""Children"":[{""Kind"":""Expression"",""Value"":""hue"",""EscapeValue"":true,""Children"":[]}]},{""Kind"":""OpenCollection"",""Value"":""workplaces"",""Children"":[{""Kind"":""Expression"",""Value"":""."",""EscapeValue"":true,""Children"":[]}]}]}]}"
+					.EliminateWhitespace();
 
 			var serializeObject = JsonConvert.SerializeObject(results.Document);
 
@@ -1107,7 +1177,10 @@ namespace Morestachio.Tests
 		[Test]
 		public void ParsingThrowsAnExceptionWhenConditionalGroupsAreMismatched()
 		{
-			Assert.That(Parser.ParseWithOptions(new ParserOptions("{{#Collection}}Collection has elements{{/AnotherCollection}}")).Errors, Is.Not.Empty.And.Count.EqualTo(2));
+			Assert.That(
+				Parser.ParseWithOptions(
+					new ParserOptions("{{#Collection}}Collection has elements{{/AnotherCollection}}")).Errors,
+				Is.Not.Empty.And.Count.EqualTo(2));
 		}
 
 		[Test]
