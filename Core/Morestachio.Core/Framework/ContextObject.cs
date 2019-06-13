@@ -106,10 +106,28 @@ namespace Morestachio.Framework
 		/// </summary>
 		/// <param name="options">The options.</param>
 		/// <param name="key">The key as seen in the Template</param>
-		public ContextObject([NotNull]ParserOptions options, [NotNull]string key)
+		public ContextObject([NotNull]ParserOptions options, [NotNull]string key, [CanBeNull]ContextObject parent)
 		{
 			Options = options;
 			Key = key;
+			Parent = parent;
+			IsNaturalContext = Parent?.IsNaturalContext ?? true;
+		}
+
+		/// <summary>
+		///		Gets a value indicating whether this instance is natural context.
+		///		A Natural context is a context outside an Isolated scope
+		/// </summary>
+		protected bool IsNaturalContext { get; set; }
+
+		internal ContextObject FindNextNaturalContextObject()
+		{
+			if (IsNaturalContext)
+			{
+				return this;
+			}
+
+			return Parent?.FindNextNaturalContextObject();
 		}
 
 		/// <summary>
@@ -124,7 +142,7 @@ namespace Morestachio.Framework
 		///     The parent of the current context or null if its the root context
 		/// </summary>
 		[CanBeNull]
-		public ContextObject Parent { get; set; }
+		public ContextObject Parent { get; private set; }
 
 		/// <summary>
 		///     The evaluated value of the expression
@@ -207,9 +225,8 @@ namespace Morestachio.Framework
 				}
 				else if (path.Equals("$recursion")) //go the root object
 				{
-					retval = new ContextObject(Options, path)
+					retval = new ContextObject(Options, path, this)
 					{
-						Parent = this,
 						Value = scopeData.PartialDepth.Count
 					};
 				}
@@ -235,10 +252,7 @@ namespace Morestachio.Framework
 				else if (path.StartsWith("?")) //enumerate ether an IDictionary, an cs object or an IEnumerable to a KeyValuePair array
 				{
 					//ALWAYS return the context, even if the value is null.
-					var innerContext = new ContextObject(Options, path)
-					{
-						Parent = this
-					};
+					var innerContext = new ContextObject(Options, path, this);
 					await EnsureValue();
 					switch (Value)
 					{
@@ -271,10 +285,7 @@ namespace Morestachio.Framework
 				else
 				{
 					//ALWAYS return the context, even if the value is null.
-					var innerContext = new ContextObject(Options, path)
-					{
-						Parent = this
-					};
+					var innerContext = new ContextObject(Options, path, this);
 					await EnsureValue();
 					if (Value is IDictionary<string, object> ctx)
 					{
@@ -371,12 +382,12 @@ namespace Morestachio.Framework
 		/// <returns></returns>
 		public virtual ContextObject Clone()
 		{
-			var contextClone = new ContextObject(Options, Key)
+			var contextClone = new ContextObject(Options, Key, this) //note: Parent must be the original context so we can traverse up to an unmodified context
 			{
 				CancellationToken = CancellationToken,
-				Parent = Parent,
 				AbortGeneration = AbortGeneration,
-				Value = Value
+				Value = Value,
+				IsNaturalContext = false
 			};
 
 			return contextClone;

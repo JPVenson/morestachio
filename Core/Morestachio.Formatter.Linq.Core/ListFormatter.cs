@@ -146,12 +146,28 @@ namespace Morestachio.Formatter.Linq
 			{
 				return colQuery.Cast<int>().Sum();
 			}
+
+			if (typeof(long).IsAssignableFrom(colQuery.ElementType))
+			{
+				return colQuery.Cast<long>().Sum();
+			}
+
 			if (typeof(decimal).IsAssignableFrom(colQuery.ElementType))
 			{
 				return colQuery.Cast<decimal>().Sum();
 			}
 
-			return sourceCollection;
+			if (typeof(double).IsAssignableFrom(colQuery.ElementType))
+			{
+				return colQuery.Cast<double>().Sum();
+			}
+
+			if (typeof(float).IsAssignableFrom(colQuery.ElementType))
+			{
+				return colQuery.Cast<float>().Sum();
+			}
+
+			return FormatterMatcher.FormatterFlow.Skip;
 		}
 
 		[MorestachioFormatter("sum", "Aggreates the property in the argument and returns it")]

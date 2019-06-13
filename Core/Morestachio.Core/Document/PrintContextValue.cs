@@ -7,9 +7,8 @@ namespace Morestachio
 	/// <summary>
 	///		If a formatter ends without using its value it is printed
 	/// </summary>
-	public class PrintFormattedItem : DocumentItemBase
+	public class PrintContextValue : DocumentItemBase, IValueDocumentItem
 	{
-
 		/// <inheritdoc />
 		public override string Kind { get; } = "PrintExpression";
 
@@ -29,6 +28,12 @@ namespace Morestachio
 			}
 			
 			return Children.WithScope(context);
+		}
+
+		public async Task<ContextObject> GetValue(ContextObject context, ScopeData scopeData)
+		{
+			await Task.CompletedTask;
+			return context;
 		}
 	}
 }

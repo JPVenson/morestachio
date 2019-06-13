@@ -67,10 +67,9 @@ namespace Morestachio
 			do
 			{
 				var next = enumerator.MoveNext() ? enumerator.Current : null;
-				var innerContext = new ContextCollection(index, next == null, context.Options, $"[{index}]")
+				var innerContext = new ContextCollection(index, next == null, context.Options, $"[{index}]", c)
 				{
-					Value = current,
-					Parent = c
+					Value = current
 				};
 				scopes.AddRange(Children.WithScope(innerContext));
 				index++;

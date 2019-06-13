@@ -7,7 +7,7 @@ namespace Morestachio
 	/// <summary>
 	///		Defines a area that has no morestachio keywords and can be rendered as is
 	/// </summary>
-	public class ContentDocumentItem : DocumentItemBase
+	public class ContentDocumentItem : DocumentItemBase, IValueDocumentItem
 	{
 		/// <inheritdoc />
 		public ContentDocumentItem(string content)
@@ -69,5 +69,14 @@ namespace Morestachio
 		///		The content that should be rendered
 		/// </summary>
 		public string Content { get; }
+
+		public async Task<ContextObject> GetValue(ContextObject context, ScopeData scopeData)
+		{
+			await Task.CompletedTask;
+			return new ContextObject(context.Options, ".", context)
+			{
+				Value = Content
+			};
+		}
 	}
 }

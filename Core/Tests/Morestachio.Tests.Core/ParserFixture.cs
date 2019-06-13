@@ -30,7 +30,7 @@ namespace Morestachio.Tests
 			var results =
 				Parser.ParseWithOptions(new ParserOptions("{{data(\"" + dtFormat + "\")}},{{data}}", null,
 					DefaultEncoding));
-			var result = results.CreateAndStringify(new Dictionary<string, object> {{"data", data}});
+			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
 			Assert.That(result, Is.EqualTo(data.ToString(dtFormat) + "," + data));
 		}
 
@@ -46,7 +46,7 @@ namespace Morestachio.Tests
 			var results = Parser.ParseWithOptions(new ParserOptions(
 				"{{#data}}{{.(\"" + dtFormat + "\")}}{{/data}},{{data}}",
 				null, DefaultEncoding));
-			var result = results.CreateAndStringify(new Dictionary<string, object> {{"data", data}});
+			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
 			Assert.That(result, Is.EqualTo(data.ToString(dtFormat) + "," + data));
 		}
 
@@ -57,7 +57,8 @@ namespace Morestachio.Tests
 		[TestCase("{{data(}}")]
 		public void ParserThrowsAnExceptionWhenFormatIsMismatched(string invalidTemplate)
 		{
-			Assert.That(Parser.ParseWithOptions(new ParserOptions(invalidTemplate)).Errors, Is.Not.Empty.And.Count.EqualTo(1));
+			Assert.That(Parser.ParseWithOptions(new ParserOptions(invalidTemplate)).Errors,
+				Is.Not.Empty.And.Count.EqualTo(1));
 		}
 
 		[Test]
@@ -91,7 +92,8 @@ namespace Morestachio.Tests
 		[TestCase("{{^element}}{{name}}")]
 		public void ParserThrowsParserExceptionForUnclosedGroups(string invalidTemplate)
 		{
-			Assert.That(Parser.ParseWithOptions(new ParserOptions(invalidTemplate)).Errors, Is.Not.Empty.And.Count.EqualTo(1));
+			Assert.That(Parser.ParseWithOptions(new ParserOptions(invalidTemplate)).Errors,
+				Is.Not.Empty.And.Count.EqualTo(1));
 		}
 
 
@@ -134,7 +136,8 @@ namespace Morestachio.Tests
 		[TestCase("a{{name}}dd\ndd{{/each}}dd", 1)]
 		public void ParserShouldThrowWithCharacterLocationInformation(string template, int expectedErrorCount)
 		{
-			Assert.That(Parser.ParseWithOptions(new ParserOptions(template)).Errors, Is.Not.Empty.And.Count.EqualTo(expectedErrorCount));
+			Assert.That(Parser.ParseWithOptions(new ParserOptions(template)).Errors,
+				Is.Not.Empty.And.Count.EqualTo(expectedErrorCount));
 		}
 
 		[Test]
@@ -170,10 +173,80 @@ namespace Morestachio.Tests
 		public void ParserCanChainFormat()
 		{
 			var data = DateTime.UtcNow;
-			var parsingOptions = new ParserOptions("{{#data}}{{.(d).()}}{{/data}}", null, DefaultEncoding);
+			var parsingOptions = new ParserOptions("{{#data}}{{.('d').()}}{{/data}}", null, DefaultEncoding);
 			parsingOptions.Formatters.AddFormatter<string>(new Func<string, string>(s => "TEST"));
 			var results = Parser.ParseWithOptions(parsingOptions);
-			var result = results.CreateAndStringify(new Dictionary<string, object> {{"data", data}});
+			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
+			Assert.That(result, Is.EqualTo("TEST"));
+		}
+
+		[Test]
+		public void ParserCanChainFormatSubExpression()
+		{
+			var data = new
+			{
+				field = "field value",
+				reference = new
+				{
+					data = "reference data value"
+				}
+			};
+			var parsingOptions = new ParserOptions("{{#data}}{{.('template value').('template value', reference.data)}}{{/data}}", null, DefaultEncoding);
+			parsingOptions.Formatters.AddFormatter<object>(
+				new Func<object, object, object, object>((source, tempValue, reference) => reference));	
+			
+			parsingOptions.Formatters.AddFormatter<object>(
+				new Func<object, object, object>((source, tempValue) => source));
+			var results = Parser.ParseWithOptions(parsingOptions);
+			var result = results.CreateAndStringify(new Dictionary<string, object>
+			{
+				{"data", data},
+			});
+			Assert.That(result, Is.EqualTo(data.reference.data));
+		}
+
+		[Test]
+		public void ParserCanChainFormatSubExpressionFromEach()
+		{
+			var data = new
+			{
+				field = "field value",
+				reference = new List<dynamic>()
+				{
+					{
+						new
+						{
+							displayValue = "display data value",
+							formatterValue = "formatter data value",
+						}
+					},
+				}
+			};
+			var parsingOptions = new ParserOptions("{{#each data.reference}}{{displayValue('template value').('template value', formatterValue)}}{{/each}}", null, DefaultEncoding);
+			parsingOptions.Formatters.AddFormatter<object>(
+				new Func<object, object, object, object>((source, tempValue, reference) => reference));	
+			
+			parsingOptions.Formatters.AddFormatter<object>(
+				new Func<object, object, object>((source, tempValue) => source));
+			var results = Parser.ParseWithOptions(parsingOptions);
+			var result = results.CreateAndStringify(new Dictionary<string, object>
+			{
+				{"data", data},
+			});
+			Assert.That(result, Is.EqualTo(data.reference[0].formatterValue));
+		}
+
+		[Test]
+		public void ParserCanChainFormatWithLineBreak()
+		{
+			var data = DateTime.UtcNow;
+			var parsingOptions = new ParserOptions(@"{{#data}}{{
+	.  (   'd'  )
+																.()
+}}{{/data}}", null, DefaultEncoding);
+			parsingOptions.Formatters.AddFormatter<string>(new Func<string, string>(s => "TEST"));
+			var results = Parser.ParseWithOptions(parsingOptions);
+			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
 			Assert.That(result, Is.EqualTo("TEST"));
 		}
 
@@ -181,11 +254,11 @@ namespace Morestachio.Tests
 		public void ParserCanTransferChains()
 		{
 			var data = "d";
-			var parsingOptions = new ParserOptions("{{#data}}{{.((d(a)))}}{{/data}}", null, DefaultEncoding);
+			var parsingOptions = new ParserOptions("{{#data}}{{.('(d(a))')}}{{/data}}", null, DefaultEncoding);
 			parsingOptions.Formatters.AddFormatter<string>(new Func<string, string, string>((s, s1) => s1));
 
 			var results = Parser.ParseWithOptions(parsingOptions);
-			var result = results.CreateAndStringify(new Dictionary<string, object> {{"data", data}});
+			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
 			Assert.That(result, Is.EqualTo("(d(a))"));
 		}
 
@@ -196,7 +269,7 @@ namespace Morestachio.Tests
 			var formatterResult = "";
 			var parsingOptions =
 				new ParserOptions(
-					"{{#data}}{{.(test, arg, 'arg, arg', ' spaced ', ' spaced with quote \\\" ' , $.$ )}}{{/data}}",
+					"{{#data}}{{.('test', 'arg', 'arg, arg', ' spaced ', ' spaced with quote \\' ' , . )}}{{/data}}",
 					null, DefaultEncoding);
 
 			parsingOptions.Formatters.AddFormatter<int>(new Action<int, string[]>(
@@ -211,10 +284,10 @@ namespace Morestachio.Tests
 				}));
 
 			var results = Parser.ParseWithOptions(parsingOptions);
-			var result = results.CreateAndStringify(new Dictionary<string, object> {{"data", data}});
+			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
 			Assert.That(result, Is.Empty);
 			Assert.That(formatterResult,
-				Is.EqualTo("123123123|test|arg|arg, arg| spaced | spaced with quote \\\" |123123123"));
+				Is.EqualTo(@"123123123|test|arg|arg, arg| spaced | spaced with quote ' |123123123"));
 		}
 
 		[Test]
@@ -223,7 +296,7 @@ namespace Morestachio.Tests
 			var data = 123123123;
 			var parsingOptions =
 				new ParserOptions(
-					"{{#data}}{{.(test, arg, 'arg, arg', ' spaced ', ' spaced with quote \\\" ' , $.$ )}}{{/data}}",
+					"{{#data}}{{.('test', 'arg', 'arg, arg', ' spaced ', ' spaced with quote \\' ' , .)}}{{/data}}",
 					null, DefaultEncoding);
 
 
@@ -237,8 +310,8 @@ namespace Morestachio.Tests
 					}));
 
 			var results = Parser.ParseWithOptions(parsingOptions);
-			var result = results.CreateAndStringify(new Dictionary<string, object> {{"data", data}});
-			Assert.That(result, Is.EqualTo("123123123|test|arg|arg, arg| spaced | spaced with quote \\\" |123123123"));
+			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
+			Assert.That(result, Is.EqualTo("123123123|test|arg|arg, arg| spaced | spaced with quote ' |123123123"));
 		}
 
 		[Test]
@@ -247,14 +320,14 @@ namespace Morestachio.Tests
 			var data = 123123123;
 			var parsingOptions =
 				new ParserOptions(
-					"{{#data}}{{.( arg, 'arg, arg', ' spaced ', [testArgument]test, ' spaced with quote \\\" ' , $.$)}}{{/data}}",
+					"{{#data}}{{.( 'arg', 'arg, arg', ' spaced ', [testArgument]'test', ' spaced with quote \\' ' , .)}}{{/data}}",
 					null, DefaultEncoding);
 			parsingOptions.Formatters.AddFormatter<int>(
 				new Func<int, string, object[], string>(UnnamedParamsFormatter));
 
 			var results = Parser.ParseWithOptions(parsingOptions);
-			var result = results.CreateAndStringify(new Dictionary<string, object> {{"data", data}});
-			Assert.That(result, Is.EqualTo("123123123|test|arg|arg, arg| spaced | spaced with quote \\\" |123123123"));
+			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
+			Assert.That(result, Is.EqualTo("123123123|test|arg|arg, arg| spaced | spaced with quote ' |123123123"));
 		}
 
 		private string UnnamedParamsFormatter(int self, string testArgument, params object[] other)
@@ -268,13 +341,13 @@ namespace Morestachio.Tests
 			var data = 123123123;
 			var parsingOptions =
 				new ParserOptions(
-					"{{#data}}{{.([refSelf] $.$, arg,[Fob]test, [twoArgs]'arg, arg', [anySpaceArg]' spaced ')}}{{/data}}",
+					"{{#data}}{{.([refSelf] ., 'arg',[Fob]'test', [twoArgs]'arg, arg', [anySpaceArg]' spaced ')}}{{/data}}",
 					null, DefaultEncoding);
 			parsingOptions.Formatters.AddFormatter<int>(
 				new Func<int, string, string, string, string, int, string>(NamedFormatter));
 
 			var results = Parser.ParseWithOptions(parsingOptions);
-			var result = results.CreateAndStringify(new Dictionary<string, object> {{"data", data}});
+			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
 			Assert.That(result, Is.EqualTo("123123123|test|arg|arg, arg| spaced |123123123"));
 		}
 
@@ -288,7 +361,7 @@ namespace Morestachio.Tests
 		public void ParserCanCheckCanFormat()
 		{
 			var data = "d";
-			var parsingOptions = new ParserOptions("{{#data}}{{.((d(a)))}}{{/data}}", null, DefaultEncoding);
+			var parsingOptions = new ParserOptions("{{#data}}{{.('(d(a))')}}{{/data}}", null, DefaultEncoding);
 			parsingOptions.Formatters.AddFormatter<string>(
 				new Func<string, string, string, string>((s, inv, inva) => throw new Exception("A")));
 
@@ -299,7 +372,7 @@ namespace Morestachio.Tests
 			parsingOptions.Formatters.AddFormatter<string>(new Func<string, string, string>((s, inv) => inv));
 
 			var results = Parser.ParseWithOptions(parsingOptions);
-			var result = results.CreateAndStringify(new Dictionary<string, object> {{"data", data}});
+			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
 			Assert.That(result, Is.EqualTo("(d(a))"));
 		}
 
@@ -312,7 +385,7 @@ namespace Morestachio.Tests
 			parsingOptions.Formatters.AddFormatter<DateTime, DateTime>(s => s);
 			parsingOptions.Formatters.AddFormatter<long, TimeSpan>(s => new TimeSpan(s));
 			var results = Parser.ParseWithOptions(parsingOptions);
-			var result = results.CreateAndStringify(new Dictionary<string, object> {{"data", data}});
+			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
 			Assert.That(result, Is.EqualTo(new TimeSpan(data.TimeOfDay.Ticks).ToString()));
 		}
 
@@ -321,11 +394,11 @@ namespace Morestachio.Tests
 		{
 			var data = DateTime.UtcNow;
 			var results =
-				Parser.ParseWithOptions(new ParserOptions("{{data(d).Year}},{{data}}", null, DefaultEncoding));
+				Parser.ParseWithOptions(new ParserOptions("{{data('d').Year}},{{data}}", null, DefaultEncoding));
 			//this should compile as its valid but not work as the Default
 			//settings for DateTime are ToString(Arg) so it should return a string and not an object
 			Assert.That(results
-					.CreateAndStringify(new Dictionary<string, object> {{"data", data}}),
+					.CreateAndStringify(new Dictionary<string, object> { { "data", data } }),
 				Is.EqualTo(string.Empty + "," + data));
 		}
 
@@ -334,7 +407,7 @@ namespace Morestachio.Tests
 		{
 			var dt = DateTime.Now;
 			var extendedParseInformation =
-				Parser.ParseWithOptions(new ParserOptions("{{data($testFormat$)}}", null, DefaultEncoding));
+				Parser.ParseWithOptions(new ParserOptions("{{data(testFormat)}}", null, DefaultEncoding));
 
 			var format = "yyyy.mm";
 			var andStringify = extendedParseInformation.CreateAndStringify(new Dictionary<string, object>
@@ -344,6 +417,120 @@ namespace Morestachio.Tests
 			});
 
 			Assert.That(andStringify, Is.EqualTo(dt.ToString(format)));
+		}
+
+		[Test]
+		public void ParserCanFormatArgumentWithNestedExpression()
+		{
+			var dt = DateTime.Now;
+			var extendedParseInformation =
+				Parser.ParseWithOptions(new ParserOptions("{{data(testFormat.inner)}}", null, DefaultEncoding));
+
+			var format = new Dictionary<string, object>
+			{
+				{"inner", "yyyy.mm"}
+			};
+			var andStringify = extendedParseInformation.CreateAndStringify(new Dictionary<string, object>
+			{
+				{"data", dt},
+				{"testFormat", format}
+			});
+
+			Assert.That(andStringify, Is.EqualTo(dt.ToString(format["inner"].ToString())));
+		}
+
+		[Test]
+		public void ParserCanFormatArgumentWithSubExpression()
+		{
+			var dt = DateTime.Now;
+			var parsingOptions = new ParserOptions("{{data(testFormat('d'), \"test\")}}", null, DefaultEncoding);
+			var format = "yyyy.mm";
+			var formatterCalled = false;
+			var formatter2Called = false;
+			parsingOptions.Formatters.AddFormatter<int, string, string>((sourceValue, testString) =>
+			{
+				Assert.That(testString, Is.EqualTo("d"));
+				formatterCalled = true;
+				return format;
+			});
+			parsingOptions.Formatters.AddFormatter<DateTime>(new Func<DateTime, string, string, string>(
+				(sourceValue, testString2, shouldBed) =>
+				{
+					Assert.That(shouldBed, Is.EqualTo("test"));
+					Assert.That(testString2, Is.EqualTo(format));
+					formatter2Called = true;
+					return sourceValue.ToString(testString2);
+				}));
+
+			var extendedParseInformation =
+				Parser.ParseWithOptions(parsingOptions);
+
+			var andStringify = extendedParseInformation.CreateAndStringify(new Dictionary<string, object>
+			{
+				{"data", dt},
+				{"testFormat", 19191919}
+			});
+			Assert.That(formatterCalled, Is.True, "The  formatter was not called");
+			Assert.That(formatter2Called, Is.True, "The Date formatter was not called");
+			Assert.That(andStringify, Is.EqualTo(dt.ToString(format)));
+		}
+
+		[Test]
+		public void ParserCanFormatArgumentWithSubExpressionMultiple()
+		{
+			var dt = DateTime.Now;
+			var dictionary = new Dictionary<string, object>
+			{
+				{"data", dt},
+				{"testFormat", 19191919},
+				{"by", 10L}
+			};
+			var parsingOptions = new ParserOptions("{{data(testFormat('d'), \"test\").('pad-left', by(by, 'f'))}}",
+				null, DefaultEncoding);
+			var format = "yyyy.mm";
+			var formatterCalled = false;
+			var formatter2Called = false;
+			var formatter3Called = false;
+			parsingOptions.Formatters.AddFormatter<int, string, string>((sourceValue, testString) =>
+			{
+				Assert.That(testString, Is.EqualTo("d"));
+				formatterCalled = true;
+				return format;
+			});
+			parsingOptions.Formatters.AddFormatter<long>(new Func<long, long, string, int>(
+				(sourceValue, testString, f) =>
+				{
+					Assert.That(testString, Is.EqualTo(sourceValue));
+					Assert.That(f, Is.EqualTo("f"));
+					formatterCalled = true;
+					return (int)sourceValue;
+				}));
+			parsingOptions.Formatters.AddFormatter<DateTime>(new Func<DateTime, string, string, string>(
+				(sourceValue, testString2, shouldBed) =>
+				{
+					Assert.That(shouldBed, Is.EqualTo("test"));
+					Assert.That(testString2, Is.EqualTo(format));
+					formatter2Called = true;
+					return sourceValue.ToString(testString2);
+				}));
+			parsingOptions.Formatters.AddFormatter<string>(new Func<string, string, int, string>(
+				(sourceValue, name, number) =>
+				{
+					Assert.That(sourceValue, Is.EqualTo(dt.ToString(format)));
+					Assert.That(name, Is.EqualTo("pad-left"));
+					Assert.That(number, Is.EqualTo(dictionary["by"]));
+
+					formatter3Called = true;
+					return sourceValue.PadLeft(number);
+				}));
+
+			var extendedParseInformation =
+				Parser.ParseWithOptions(parsingOptions);
+			var andStringify = extendedParseInformation.CreateAndStringify(dictionary);
+			Assert.That(formatterCalled, Is.True, "The formatter was not called");
+			Assert.That(formatter2Called, Is.True, "The Date formatter was not called");
+			Assert.That(formatter3Called, Is.True, "The Pad formatter was not called");
+			Assert.That(andStringify, Is.EqualTo(dt.ToString(format).PadLeft(int.Parse(dictionary["by"].ToString()))));
 		}
 
 		[Test]
@@ -512,7 +699,7 @@ namespace Morestachio.Tests
 }".EliminateWhitespace();
 
 			var serializeObject = JsonConvert.SerializeObject(results.Document);
-			
+
 			Assert.That(serializeObject, Is.EqualTo(expected));
 		}
 
@@ -524,8 +711,10 @@ namespace Morestachio.Tests
 				Parser.ParseWithOptions(new ParserOptions("{{#Person}}{{Name}}{{/Person}}", null, null, 0, false,
 					true));
 
-			var expected = @"{""Kind"":""Document"",""Children"":[{""Kind"":""ExpressionScope"",""Value"":""Person"",""Children"":[{""Kind"":""Expression"",""Value"":""Name"",""EscapeValue"":true,""Children"":[]}]}]}".EliminateWhitespace();
-			
+			var expected =
+				@"{""Kind"":""Document"",""Children"":[{""Kind"":""ExpressionScope"",""Value"":""Person"",""Children"":[{""Kind"":""Expression"",""Value"":""Name"",""EscapeValue"":true,""Children"":[]}]}]}"
+					.EliminateWhitespace();
+
 			var serializeObject = JsonConvert.SerializeObject(results.Document);
 
 			//var actual = JsonConvert.SerializeObject(results.InferredModel?.RepresentedContext()).EliminateWhitespace();
@@ -538,7 +727,9 @@ namespace Morestachio.Tests
 		public void ParserCanInferScalar()
 		{
 			var results = Parser.ParseWithOptions(new ParserOptions("{{Name}}", null, null, 0, false, true));
-			var expected = @"{""Kind"":""Document"",""Children"":[{""Kind"":""Expression"",""Value"":""Name"",""EscapeValue"":true,""Children"":[]}]}".EliminateWhitespace();
+			var expected =
+				@"{""Kind"":""Document"",""Children"":[{""Kind"":""Expression"",""Value"":""Name"",""EscapeValue"":true,""Children"":[]}]}"
+					.EliminateWhitespace();
 
 
 			var serializeObject = JsonConvert.SerializeObject(results.Document);
@@ -923,8 +1114,9 @@ namespace Morestachio.Tests
 			var results = Parser.ParseWithOptions(new ParserOptions("This template has no mustache thingies.", null,
 				null, 0, false, true));
 
-			var expected = @"{""Kind"":""Document"",""Children"":[{""Kind"":""Content"",""Content"":""This template has no mustache thingies."",""Children"":[]}]}";
-			
+			var expected =
+				@"{""Kind"":""Document"",""Children"":[{""Kind"":""Content"",""Content"":""This template has no mustache thingies."",""Children"":[]}]}";
+
 			var serializeObject = JsonConvert.SerializeObject(results.Document);
 
 			//var actual = JsonConvert.SerializeObject(results.InferredModel?.RepresentedContext()).EliminateWhitespace();
@@ -940,7 +1132,8 @@ namespace Morestachio.Tests
 			var results = Parser.ParseWithOptions(new ParserOptions("{{#each Employees}}{{name}}{{/each}}", null, null,
 				0, false, true));
 
-			var expected = @"{""Kind"":""Document"",""Children"":[{""Kind"":""OpenCollection"",""Value"":""Employees"",""Children"":[{""Kind"":""Expression"",""Value"":""name"",""EscapeValue"":true,""Children"":[]}]}]}";
+			var expected =
+				@"{""Kind"":""Document"",""Children"":[{""Kind"":""OpenCollection"",""Value"":""Employees"",""Children"":[{""Kind"":""Expression"",""Value"":""name"",""EscapeValue"":true,""Children"":[]}]}]}";
 
 			var serializeObject = JsonConvert.SerializeObject(results.Document);
 
@@ -958,7 +1151,9 @@ namespace Morestachio.Tests
 				"{{#each Employees}}{{person.name}}{{#each favoriteColors}}{{hue}}{{/each}}{{#each workplaces}}{{.}}{{/each}}{{/each}}",
 				null, null, 0, false, true));
 
-			var expected = @"{""Kind"":""Document"",""Children"":[{""Kind"":""OpenCollection"",""Value"":""Employees"",""Children"":[{""Kind"":""Expression"",""Value"":""person.name"",""EscapeValue"":true,""Children"":[]},{""Kind"":""OpenCollection"",""Value"":""favoriteColors"",""Children"":[{""Kind"":""Expression"",""Value"":""hue"",""EscapeValue"":true,""Children"":[]}]},{""Kind"":""OpenCollection"",""Value"":""workplaces"",""Children"":[{""Kind"":""Expression"",""Value"":""."",""EscapeValue"":true,""Children"":[]}]}]}]}".EliminateWhitespace();
+			var expected =
+				@"{""Kind"":""Document"",""Children"":[{""Kind"":""OpenCollection"",""Value"":""Employees"",""Children"":[{""Kind"":""Expression"",""Value"":""person.name"",""EscapeValue"":true,""Children"":[]},{""Kind"":""OpenCollection"",""Value"":""favoriteColors"",""Children"":[{""Kind"":""Expression"",""Value"":""hue"",""EscapeValue"":true,""Children"":[]}]},{""Kind"":""OpenCollection"",""Value"":""workplaces"",""Children"":[{""Kind"":""Expression"",""Value"":""."",""EscapeValue"":true,""Children"":[]}]}]}]}"
+					.EliminateWhitespace();
 
 			var serializeObject = JsonConvert.SerializeObject(results.Document);
 
@@ -982,7 +1177,10 @@ namespace Morestachio.Tests
 		[Test]
 		public void ParsingThrowsAnExceptionWhenConditionalGroupsAreMismatched()
 		{
-			Assert.That(Parser.ParseWithOptions(new ParserOptions("{{#Collection}}Collection has elements{{/AnotherCollection}}")).Errors, Is.Not.Empty.And.Count.EqualTo(2));
+			Assert.That(
+				Parser.ParseWithOptions(
+					new ParserOptions("{{#Collection}}Collection has elements{{/AnotherCollection}}")).Errors,
+				Is.Not.Empty.And.Count.EqualTo(2));
 		}
 
 		[Test]
@@ -1036,7 +1234,7 @@ namespace Morestachio.Tests
 			};
 
 			var parsedTemplate = Parser.ParseWithOptions(new ParserOptions(template, null, DefaultEncoding));
-			var genTemplate = parsedTemplate.CreateAndStringify(new Dictionary<string, object> {{"data", elementdata}});
+			var genTemplate = parsedTemplate.CreateAndStringify(new Dictionary<string, object> { { "data", elementdata } });
 			var realData = elementdata.Select(e => e.ToString()).Aggregate((e, f) => e + f);
 			Assert.That(genTemplate, Is.EqualTo(realData));
 		}

@@ -15,7 +15,8 @@ namespace Morestachio.Framework
 		/// <param name="last">true if its the last item</param>
 		/// <param name="options"></param>
 		/// <param name="key"></param>
-		public ContextCollection(long index, bool last, [NotNull] ParserOptions options, string key) : base(options, key)
+		public ContextCollection(long index, bool last, [NotNull] ParserOptions options, string key, [CanBeNull]ContextObject parent) 
+			: base(options, key, parent)
 		{
 			Index = index;
 			Last = last;
@@ -34,8 +35,7 @@ namespace Morestachio.Framework
 		/// <inheritdoc />
 		protected override ContextObject HandlePathContext(Queue<string> elements, string path)
 		{
-			var innerContext = new ContextObject(Options, path);
-			innerContext.Parent = this;
+			var innerContext = new ContextObject(Options, path, this);
 
 			object value = null;
 
@@ -71,12 +71,12 @@ namespace Morestachio.Framework
 		/// <inheritdoc />
 		public override ContextObject Clone()
 		{
-			var contextClone = new ContextCollection(Index, Last, Options, Key)
+			var contextClone = new ContextCollection(Index, Last, Options, Key, this)
 			{
 				CancellationToken = CancellationToken,
-				Parent = Parent,
 				AbortGeneration = AbortGeneration,
-				Value = Value
+				Value = Value,
+				IsNaturalContext = false
 			};
 
 			return contextClone;

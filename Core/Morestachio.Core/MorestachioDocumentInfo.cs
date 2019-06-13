@@ -91,7 +91,7 @@ namespace Morestachio
 				using (var byteCounterStream = new ByteCounterStream(sourceStream,
 					ParserOptions.Encoding, BufferSize, true))
 				{
-					var context = new ContextObject(ParserOptions, "")
+					var context = new ContextObject(ParserOptions, "", null)
 					{
 						Value = data,
 						CancellationToken = token
@@ -107,7 +107,7 @@ namespace Morestachio
 					throw new TimeoutException($"The requested timeout of '{ParserOptions.Timeout:g}' for report generation was reached.");
 				}
 			}
-			catch
+			catch(Exception ex)
 			{
 				//If there is any exception while generating the template we must dispose any data written to the stream as it will never returned and might 
 				//create a memory leak with this. This is also true for a timeout
