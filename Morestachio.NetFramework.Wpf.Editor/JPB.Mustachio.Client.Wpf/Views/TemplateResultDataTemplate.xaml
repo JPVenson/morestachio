@@ -1,0 +1,38 @@
+﻿<ResourceDictionary x:Class="JPB.Mustachio.Client.Wpf.Views.TemplateResultDataTemplate"
+			 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:local="clr-namespace:JPB.Mustachio.Client.Wpf.Views"
+			 xmlns:viewModels="clr-namespace:JPB.Mustachio.Client.Wpf.ViewModels"
+			 xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
+			 xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+			 xmlns:common="clr-namespace:JPB.Mustachio.Clinet.Wpf.Common;assembly=JPB.Mustachio.Clinet.Wpf.Common"
+			 xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit">
+	<DataTemplate DataType="{x:Type viewModels:TemplateResultViewModel}">
+		<DockPanel>
+			<DockPanel DockPanel.Dock="Bottom">
+				<GroupBox Header="Errors">
+					<ListBox MaxHeight="250" 
+					         ItemsSource="{Binding GeneratedTemplate.Errors}">
+						<ListBox.ItemTemplate>
+							<DataTemplate>
+								<StackPanel Orientation="Horizontal">
+									<Label Content="{Binding Location}"/>
+									<Label Content="{Binding HelpText}"/>
+								</StackPanel>
+							</DataTemplate>
+						</ListBox.ItemTemplate>
+					</ListBox>
+				</GroupBox>
+			</DockPanel>
+			<xctk:BusyIndicator IsBusy="{Binding IsWorking}">
+				<avalonedit:TextEditor Background="Transparent" IsReadOnly="True">
+					<i:Interaction.Behaviors>
+						<common:AvalonEditBehaviour Text="{Binding GeneratedTemplate.Result}" />
+					</i:Interaction.Behaviors>
+				</avalonedit:TextEditor>
+			</xctk:BusyIndicator>
+		</DockPanel>
+	</DataTemplate>
+</ResourceDictionary>

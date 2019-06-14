@@ -20,7 +20,8 @@ namespace Morestachio
 		public override string Kind { get; } = "Include";
 		
 		/// <inheritdoc />
-		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context,
+		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, 
+			ContextObject context,
 			ScopeData scopeData)
 		{
 			await Task.CompletedTask;

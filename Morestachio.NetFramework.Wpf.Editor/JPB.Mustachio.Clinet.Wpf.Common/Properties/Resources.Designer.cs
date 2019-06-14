@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Morestachio.NetFramework.Wpf.Editor.Properties {
+namespace JPB.Mustachio.Clinet.Wpf.Common.Properties {
     
     
     /// <summary>
@@ -38,7 +38,7 @@ namespace Morestachio.NetFramework.Wpf.Editor.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if ((resourceMan == null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Morestachio.NetFramework.Wpf.Editor.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("JPB.Mustachio.Clinet.Wpf.Common.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

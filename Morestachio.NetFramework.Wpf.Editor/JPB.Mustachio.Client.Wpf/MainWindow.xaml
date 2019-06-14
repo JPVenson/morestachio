@@ -1,0 +1,81 @@
+﻿<Window x:Class="JPB.Mustachio.Client.Wpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:JPB.Mustachio.Client.Wpf"
+        xmlns:viewModels="clr-namespace:JPB.Mustachio.Client.Wpf.ViewModels"
+        mc:Ignorable="d"
+        Title="Mustachio Editor" Height="350" Width="525"
+        d:DataContext="{d:DesignInstance viewModels:MainWindowViewModel}">
+	<Window.Style>
+		<Style TargetType="Window">
+			<Setter Property="Background" Value="Wheat" />
+		</Style>
+	</Window.Style>
+	<Window.Resources>
+		<Style TargetType="GridSplitter">
+			<Setter Property="Background" Value="Black" />
+		</Style>
+	</Window.Resources>
+	<Window.DataContext>
+		<viewModels:MainWindowViewModel />
+	</Window.DataContext>
+	<DockPanel>
+		<DockPanel DockPanel.Dock="Top">
+			<Menu>
+				<MenuItem Header="Refresh" Command="{Binding TemplateEditorViewModel.TemplateChangedCommand}" />
+				<MenuItem Header="Save" Command="{Binding SaveStoreDataCommand}" />
+				<MenuItem Header="Load" ItemsSource="{Binding StoreData}">
+					<MenuItem.ItemContainerStyle>
+						<Style>
+							<Setter Property="MenuItem.Header" Value="{Binding Name}"/>
+							<Setter Property="MenuItem.Command" Value="{Binding DataContext.LoadStoreDataCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"/>
+							<Setter Property="MenuItem.CommandParameter" Value="{Binding}"/>
+						</Style>
+					</MenuItem.ItemContainerStyle>
+				</MenuItem>
+			</Menu>
+		</DockPanel>
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="*" />
+				<RowDefinition Height="5" />
+				<RowDefinition Height="*" />
+			</Grid.RowDefinitions>
+			<Grid Column="0" Row="0">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*" />
+					<ColumnDefinition Width="5" />
+					<ColumnDefinition Width="*" />
+				</Grid.ColumnDefinitions>
+				<GridSplitter Grid.Column="1" Width="5"
+				              HorizontalAlignment="Stretch"
+				              VerticalAlignment="Stretch"
+				              ResizeBehavior="PreviousAndNext"
+				              ResizeDirection="Columns" />
+				<GroupBox Header="Template" Grid.Column="0">
+					<ContentControl Content="{Binding TemplateEditorViewModel}" />
+				</GroupBox>
+				<TabControl Grid.Column="2">
+					<TabItem Header="Data Editor">
+						<ContentControl Content="{Binding DataEditorViewModel}" />
+					</TabItem>
+					<TabItem Header="Formatter Editor">
+						<ContentControl Content="{Binding FormatterEditorViewModel}" />
+					</TabItem>
+				</TabControl>
+			</Grid>
+
+			<GridSplitter Grid.Row="1" Height="5"
+			              HorizontalAlignment="Stretch"
+			              VerticalAlignment="Stretch"
+			              ResizeBehavior="PreviousAndNext"
+			              ResizeDirection="Rows" />
+
+			<GroupBox Header="Result" Grid.Row="2">
+				<ContentControl Content="{Binding TemplateResultViewModel}" />
+			</GroupBox>
+		</Grid>
+	</DockPanel>
+</Window>

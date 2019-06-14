@@ -92,6 +92,11 @@ namespace Morestachio
 		{
 		}
 
+		///// <summary>
+		/////		See <see cref="IPartialTemplateProvider"/>
+		///// </summary>
+		//public IPartialTemplateProvider PartialTemplateProvider { get; set; }
+
 		/// <summary>
 		///     Adds an Formatter overwrite or new Formatter for an Type
 		/// </summary>
@@ -111,7 +116,8 @@ namespace Morestachio
 		public uint PartialStackSize { get; set; }
 
 		/// <summary>
-		///		Defines how the Parser should behave when encountering a the PartialStackSize to be exceeded 
+		///		Defines how the Parser should behave when encountering a the PartialStackSize to be exceeded.
+		///		Default is <see cref="PartialStackOverflowBehavior.FailWithException"/>
 		/// </summary>
 		public PartialStackOverflowBehavior StackOverflowBehavior { get; set; }
 
@@ -182,5 +188,16 @@ namespace Morestachio
 		/// </summary>
 		[NotNull]
 		public string Null { get; set; }
+
+		internal ParserOptions WithPartial(string partialTemplateTemplate)
+		{
+			return new ParserOptions(partialTemplateTemplate, SourceFactory, Encoding, DisableContentEscaping, WithModelInference)
+			{
+				Null = Null,
+				StackOverflowBehavior = StackOverflowBehavior,
+				Formatters = Formatters,
+				Timeout = Timeout
+			};
+		}
 	}
 }

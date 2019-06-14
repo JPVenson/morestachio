@@ -13,16 +13,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Morestachio.NetFramework.Wpf.Editor
+namespace JPB.Mustachio.Client.Wpf.Views
 {
-    /// <summary>
-    /// Interaction logic for UserControl1.xaml
-    /// </summary>
-    public partial class UserControl1 : UserControl
-    {
-        public UserControl1()
-        {
-            InitializeComponent();
-        }
-    }
+	/// <summary>
+	/// Interaction logic for DataEditorDataTemplate.xaml
+	/// </summary>
+	public partial class DataEditorDataTemplate
+	{
+		public DataEditorDataTemplate()
+		{
+			InitializeComponent();
+		}
+	}
 }

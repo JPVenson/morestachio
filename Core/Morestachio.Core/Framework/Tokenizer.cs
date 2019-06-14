@@ -17,7 +17,7 @@ namespace Morestachio.Framework
 			RegexOptions.Compiled);
 
 		private static readonly Regex FormatFinder
-			= new Regex(@"(?:([\w.\s|$]+)*)+(\((?>\((?<c>)|[^()]+|\)(?<-c>))*(?(c)(?!))\))"
+			= new Regex(@"(?:([\w.\s|$|/|~]+)*)+(\((?>\((?<c>)|[^()]+|\)(?<-c>))*(?(c)(?!))\))"
 				, RegexOptions.Compiled);
 
 		private static readonly Regex FormatInExpressionFinder
@@ -40,7 +40,7 @@ namespace Morestachio.Framework
 		///     Specifies combinations of paths that don't work.
 		/// </summary>
 		private static readonly Regex NegativePathSpec =
-			new Regex(@"([.]{4,})|([^\w./_$?]+)|((?<![.]{2})[/])|([.]{2,}($|[^/]))",
+			new Regex(@"([.]{4,})|([^\w./_$?~]+)|((?<![.]{2})[/])|([.]{2,}($|[^/]))",
 				RegexOptions.Singleline | RegexOptions.Compiled);
 
 		private static CharacterLocation HumanizeCharacterLocation(int characterIndex, List<int> lines)
@@ -402,7 +402,7 @@ namespace Morestachio.Framework
 
 		internal static IEnumerable<TokenPair> Tokenize(ParserOptions parserOptions, ICollection<IMorestachioError> parseErrors)
 		{
-			return TokenizeString(parserOptions.Template, parseErrors);
+			return TokenizeString(parserOptions.Template, parseErrors).ToArray();
 		}
 
 		internal static IEnumerable<TokenPair> TokenizeString(string partial,

@@ -110,7 +110,6 @@ namespace Morestachio.Tests
 		[TestCase("{{]}}")]
 		[TestCase("{{)}}")]
 		[TestCase("{{(}}")]
-		[TestCase("{{~}}")]
 		[TestCase("{{%}}")]
 		public void ParserShouldThrowForInvalidPaths(string template)
 		{
@@ -193,8 +192,8 @@ namespace Morestachio.Tests
 			};
 			var parsingOptions = new ParserOptions("{{#data}}{{.('template value').('template value', reference.data)}}{{/data}}", null, DefaultEncoding);
 			parsingOptions.Formatters.AddFormatter<object>(
-				new Func<object, object, object, object>((source, tempValue, reference) => reference));	
-			
+				new Func<object, object, object, object>((source, tempValue, reference) => reference));
+
 			parsingOptions.Formatters.AddFormatter<object>(
 				new Func<object, object, object>((source, tempValue) => source));
 			var results = Parser.ParseWithOptions(parsingOptions);
@@ -224,8 +223,8 @@ namespace Morestachio.Tests
 			};
 			var parsingOptions = new ParserOptions("{{#each data.reference}}{{displayValue('template value').('template value', formatterValue)}}{{/each}}", null, DefaultEncoding);
 			parsingOptions.Formatters.AddFormatter<object>(
-				new Func<object, object, object, object>((source, tempValue, reference) => reference));	
-			
+				new Func<object, object, object, object>((source, tempValue, reference) => reference));
+
 			parsingOptions.Formatters.AddFormatter<object>(
 				new Func<object, object, object>((source, tempValue) => source));
 			var results = Parser.ParseWithOptions(parsingOptions);
@@ -1028,6 +1027,17 @@ namespace Morestachio.Tests
 			Assert.That(() =>
 					Parser.ParseWithOptions(new ParserOptions("{{#content}}Hello {{../Person.Name}}!{{/content}}")),
 				Throws.Nothing);
+		}
+
+		[Test]
+		public void ParserCanProcessComplexFormattedValuePath()
+		{
+			var morestachioDocumentInfo = Parser.ParseWithOptions(
+				new ParserOptions("{{../Data.Data(\"e\")}}"));
+			Assert.That(morestachioDocumentInfo.Errors, Is.Empty, () => morestachioDocumentInfo.Errors.Select(e => e.HelpText).Aggregate((e, f) => e + f));
+			morestachioDocumentInfo = Parser.ParseWithOptions(
+				new ParserOptions("{{~Data.Data(\"e\")}}"));
+			Assert.That(morestachioDocumentInfo.Errors, Is.Empty, () => morestachioDocumentInfo.Errors.Select(e => e.HelpText).Aggregate((e, f) => e + f));
 		}
 
 		//[Test]

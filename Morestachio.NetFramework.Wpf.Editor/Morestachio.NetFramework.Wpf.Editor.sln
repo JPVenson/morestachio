@@ -1,32 +1,72 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.329
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29009.5
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morestachio.NetFramework.Wpf.Editor", "Morestachio.NetFramework.Wpf.Editor\Morestachio.NetFramework.Wpf.Editor.csproj", "{6FDB10B9-414F-4A51-B272-4BB02C707CA9}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morestachio.Net.47", "..\NetFramework\Morestachio.NetFramework\Morestachio.Net.47.csproj", "{4504C65B-A0EC-4601-82EF-D2542414BC86}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morestachio.Net.47.Formatter.Framework", "..\NetFramework\Morestachio.NetFramework.Formatter.Framework\Morestachio.Net.47.Formatter.Framework.csproj", "{454B0162-E2EB-4C15-85EE-0B4558750F7B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morestachio.Net.47.Formatter.Linq", "..\NetFramework\Morestachio.NetFramework.Formatter.Linq\Morestachio.Net.47.Formatter.Linq.csproj", "{18A2D5ED-CE5F-4914-B780-0BC8779501A5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WpfClient", "WpfClient", "{E760507E-76C1-4AC9-B937-35309B9DA2BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JPB.Mustachio.Client.Wpf", "JPB.Mustachio.Client.Wpf\JPB.Mustachio.Client.Wpf.csproj", "{FB69534B-90EA-494D-8D46-8468122C6024}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JPB.Mustachio.Client.Contacts", "JPB.Mustachio.Client.Contacts\JPB.Mustachio.Client.Contacts.csproj", "{9083F2B8-FAC7-4A8F-8A4C-6704BFD91BB9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JPB.Mustachio.Client.Data.CSharp", "JPB.Mustachio.Client.Data.CSharp\JPB.Mustachio.Client.Data.CSharp.csproj", "{A1381519-C1D0-42AC-9BEE-F70D725263AF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JPB.Mustachio.Clinet.Wpf.Common", "JPB.Mustachio.Clinet.Wpf.Common\JPB.Mustachio.Clinet.Wpf.Common.csproj", "{3CA852D8-0479-4F51-BF70-A7789BECCC9C}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\Core\Morestachio.Formatter.Linq.Core\Morestachio.Formatter.Linq.Core.projitems*{18a2d5ed-ce5f-4914-b780-0bc8779501a5}*SharedItemsImports = 4
 		..\Core\Morestachio.Core\Morestachio.Core.projitems*{4504c65b-a0ec-4601-82ef-d2542414bc86}*SharedItemsImports = 4
+		..\Core\Morestachio.Formatter.Framework.Core\Morestachio.Formatter.Framework.Core.projitems*{454b0162-e2eb-4c15-85ee-0b4558750f7b}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6FDB10B9-414F-4A51-B272-4BB02C707CA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6FDB10B9-414F-4A51-B272-4BB02C707CA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6FDB10B9-414F-4A51-B272-4BB02C707CA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6FDB10B9-414F-4A51-B272-4BB02C707CA9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4504C65B-A0EC-4601-82EF-D2542414BC86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4504C65B-A0EC-4601-82EF-D2542414BC86}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4504C65B-A0EC-4601-82EF-D2542414BC86}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4504C65B-A0EC-4601-82EF-D2542414BC86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{454B0162-E2EB-4C15-85EE-0B4558750F7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{454B0162-E2EB-4C15-85EE-0B4558750F7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{454B0162-E2EB-4C15-85EE-0B4558750F7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{454B0162-E2EB-4C15-85EE-0B4558750F7B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18A2D5ED-CE5F-4914-B780-0BC8779501A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18A2D5ED-CE5F-4914-B780-0BC8779501A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18A2D5ED-CE5F-4914-B780-0BC8779501A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18A2D5ED-CE5F-4914-B780-0BC8779501A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB69534B-90EA-494D-8D46-8468122C6024}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB69534B-90EA-494D-8D46-8468122C6024}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB69534B-90EA-494D-8D46-8468122C6024}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB69534B-90EA-494D-8D46-8468122C6024}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9083F2B8-FAC7-4A8F-8A4C-6704BFD91BB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9083F2B8-FAC7-4A8F-8A4C-6704BFD91BB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9083F2B8-FAC7-4A8F-8A4C-6704BFD91BB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9083F2B8-FAC7-4A8F-8A4C-6704BFD91BB9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1381519-C1D0-42AC-9BEE-F70D725263AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1381519-C1D0-42AC-9BEE-F70D725263AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1381519-C1D0-42AC-9BEE-F70D725263AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1381519-C1D0-42AC-9BEE-F70D725263AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CA852D8-0479-4F51-BF70-A7789BECCC9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CA852D8-0479-4F51-BF70-A7789BECCC9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CA852D8-0479-4F51-BF70-A7789BECCC9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CA852D8-0479-4F51-BF70-A7789BECCC9C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{FB69534B-90EA-494D-8D46-8468122C6024} = {E760507E-76C1-4AC9-B937-35309B9DA2BE}
+		{9083F2B8-FAC7-4A8F-8A4C-6704BFD91BB9} = {E760507E-76C1-4AC9-B937-35309B9DA2BE}
+		{A1381519-C1D0-42AC-9BEE-F70D725263AF} = {E760507E-76C1-4AC9-B937-35309B9DA2BE}
+		{3CA852D8-0479-4F51-BF70-A7789BECCC9C} = {E760507E-76C1-4AC9-B937-35309B9DA2BE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6135CF20-9E43-4F35-B500-7DF3F03A9C9E}
