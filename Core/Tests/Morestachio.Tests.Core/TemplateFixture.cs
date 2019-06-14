@@ -184,7 +184,7 @@ namespace Morestachio.Tests
 
 
 		[Test]
-		public void TemplateRendersWithComplextEachPath()
+		public void TemplateRendersWithComplexEachPath()
 		{
 			var template =
 				@"{{#each Company.ceo.products}}<li>{{ name }} and {{version}} and has a CEO: {{../../last_name}}</li>{{/each}}";
@@ -216,6 +216,153 @@ namespace Morestachio.Tests
 			Assert.AreEqual("<li>name 0 and version 0 and has a CEO: Smith</li>" +
 						 "<li>name 1 and version 1 and has a CEO: Smith</li>" +
 						 "<li>name 2 and version 2 and has a CEO: Smith</li>", result);
+		}
+
+		[Test]
+		public void TemplateRendersWithComplexScopePath()
+		{
+			var template =
+				@"{{#Company.ceo}}{{#each products}}<li>{{ name }} and {{version}} and has a CEO: {{../../last_name}}</li>{{/each}}{{/Company.ceo}}";
+
+			var parsedTemplate =
+				Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding));
+
+			var model = new Dictionary<string, object>();
+
+			var company = new Dictionary<string, object>();
+			model["Company"] = company;
+
+			var ceo = new Dictionary<string, object>();
+			company["ceo"] = ceo;
+			ceo["last_name"] = "Smith";
+
+			var products = Enumerable.Range(0, 3).Select(k =>
+			{
+				var r = new Dictionary<string, object>();
+				r["name"] = "name " + k;
+				r["version"] = "version " + k;
+				return r;
+			}).ToArray();
+
+			ceo["products"] = products;
+
+			var result = parsedTemplate.Create(model).Stringify(true, ParserFixture.DefaultEncoding);
+
+			Assert.AreEqual("<li>name 0 and version 0 and has a CEO: Smith</li>" +
+						 "<li>name 1 and version 1 and has a CEO: Smith</li>" +
+						 "<li>name 2 and version 2 and has a CEO: Smith</li>", result);
+		}
+
+		[Test]
+		public void TemplateRendersWithComplexRootScopePath()
+		{
+			var template =
+				@"{{#data}}{{~root}}{{/data}}";
+
+			var parsedTemplate =
+				Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding));
+
+			var model = new Dictionary<string, object>()
+			{
+				{"data", "test" },
+				{"root", "tset" }
+			};
+
+			var result = parsedTemplate.Create(model).Stringify(true, ParserFixture.DefaultEncoding);
+
+			Assert.AreEqual(model["root"], result);
+		}
+
+		[Test]
+		public void TemplateRendersWithComplexUpScopePath()
+		{
+			var template =
+				@"{{#Data1.Data2.NullableInit}}{{../../../root}}{{/Data1.Data2.NullableInit}}";
+
+			var parsedTemplate =
+				Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding));
+
+			var model = new Dictionary<string, object>()
+			{
+				{
+					"Data1", new Dictionary<string, object>()
+					{
+						{
+							"Data2", new Dictionary<string, object>()
+							{
+								{"NullableInit", (int?) 1}
+							}
+						}
+					}
+				},
+				{"root", "tset"}
+			};
+
+			var result = parsedTemplate.Create(model).Stringify(true, ParserFixture.DefaultEncoding);
+
+			Assert.AreEqual(model["root"], result);
+		}
+
+		[Test]
+		public void TemplateRendersWithComplexRootScopePathWithFormatting()
+		{
+			var template =
+				@"{{#Data1.Data2.NullableInit}}{{~root}}{{/Data1.Data2.NullableInit}}";
+
+			var parsedTemplate =
+				Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding));
+
+			var model = new Dictionary<string, object>()
+			{
+				{
+					"Data1", new Dictionary<string, object>()
+					{
+						{
+							"Data2", new Dictionary<string, object>()
+							{
+								{"NullableInit", (int?) 1}
+							}
+						}
+					}
+				},
+				{"root", "tset"}
+			};
+
+			//1.ToString("E")
+
+			var result = parsedTemplate.Create(model).Stringify(true, ParserFixture.DefaultEncoding);
+
+			Assert.AreEqual(model["root"], result);
+		}
+
+		[Test]
+		public void TemplateRendersWithComplexUpScopePathWithFormatting()
+		{
+			var template =
+				@"{{#Data1.Data2.NullableInit}}{{../../../root('c')}}{{/Data1.Data2.NullableInit}}";
+
+			var parsedTemplate =
+				Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding));
+
+			var model = new Dictionary<string, object>()
+			{
+				{
+					"Data1", new Dictionary<string, object>()
+					{
+						{
+							"Data2", new Dictionary<string, object>()
+							{
+								{"NullableInit", (int?) 1}
+							}
+						}
+					}
+				},
+				{"root", "tset"}
+			};
+
+			var result = parsedTemplate.Create(model).Stringify(true, ParserFixture.DefaultEncoding);
+
+			Assert.AreEqual(model["root"], result);
 		}
 
 		[Test]

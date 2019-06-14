@@ -69,7 +69,7 @@ namespace Morestachio.Framework
 			}
 		}
 
-		internal static readonly Regex PathFinder = new Regex("(\\.\\.[\\\\/]{1})|([^.]+)",
+		internal static readonly Regex PathFinder = new Regex("[~]{1}|(\\.\\.[\\\\/]{1})|([^.]+)",
 			RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
 		/// <summary>
@@ -234,7 +234,7 @@ namespace Morestachio.Framework
 				{
 					if (Parent != null)
 					{
-						var parentsRetVal = (await Parent.GetContextForPath(elements, scopeData));
+						var parentsRetVal = (await (FindNextNaturalContextObject()?.Parent?.GetContextForPath(elements, scopeData) ?? Task.FromResult((ContextObject)null)));
 						if (parentsRetVal != null)
 						{
 							retval = parentsRetVal;
