@@ -99,6 +99,62 @@ namespace Morestachio.Formatter.Framework
 			AddFormatterToMorestachio(GlobalFormatterModels, options);
 		}
 
+		/// <summary>
+		///		Checks if the provided MethodInfo can be called with the set of parameters
+		///		Support for null -> class
+		///		Support for optional
+		///		Support for default value
+		/// </summary>
+		/// <param name="methodInfo"></param>
+		/// <param name="parameter"></param>
+		/// <returns></returns>
+		public static object[] CanMethodCalledWith(MethodInfo methodInfo, object[] parameter)
+		{
+			var testParameterValueList = new List<object>();
+			ParameterInfo[] parameters = methodInfo.GetParameters();
+			for (var index = 0; index < parameters.Length; index++)
+			{
+				var parameterInfo = parameters[index];
+
+				//check if the current parameter is optional
+				if ((parameterInfo.IsOptional || parameterInfo.HasDefaultValue))
+				{
+					//its optional
+					//if there is no value its fine
+					if (parameter.Length <= index)
+					{
+						if (parameterInfo.HasDefaultValue)
+						{
+							testParameterValueList.Add(parameterInfo.DefaultValue);
+						}
+						else if (parameterInfo.IsOptional)
+						{
+							testParameterValueList.Add(Activator.CreateInstance(parameterInfo.ParameterType));
+						}
+
+						continue;
+					}
+				}
+				else
+				{
+					//there must be a value for this parameter
+					if (parameter.Length > index)
+					{
+						return null;
+					}
+				}
+				//check the value to be used for this parameter
+				var value = parameter[index];
+				if (!parameterInfo.ParameterType.IsInstanceOfType(value))
+				{
+					return null;
+				}
+				testParameterValueList.Add(value);
+			}
+
+			return testParameterValueList.ToArray();
+		}
+
 		private object FormatConditonal(object sourceObject, string name, object[] arguments,
 			IEnumerable<MorestachioFormatterModel> formatterGroup, ParserOptions options)
 		{
@@ -139,32 +195,12 @@ namespace Morestachio.Formatter.Framework
 					$"{nameof(MorestachioFormatterService)} | Test {morestachioFormatterModel.Name}");
 
 				var target = morestachioFormatterModel.Function;
-				var parameterInfos = target.GetParameters().Skip(1).ToArray();
 
-				if (parameterInfos.Count(e => !e.IsOptional) != arguments.Length)
+				var canInvokeFormatter = CanMethodCalledWith(target, arguments);
+				if (canInvokeFormatter == null)
 				{
 					options.Formatters.Write(
-						() => $"{nameof(MorestachioFormatterService)} | Invalid count of parameter");
-					continue;
-				}
-
-				var abort = false;
-
-				for (var index = 0; index < parameterInfos.Length; index++)
-				{
-					var parameterInfo = parameterInfos[index];
-					var paramVal = arguments[index];
-					if (!parameterInfo.ParameterType.IsInstanceOfType(paramVal))
-					{
-						options.Formatters.Write(() =>
-							$"{nameof(MorestachioFormatterService)} | Parameter at index {index} named {parameterInfo.Name} is not assignable from '{paramVal}'");
-						abort = true;
-						break;
-					}
-				}
-
-				if (abort)
-				{
+						() => $"{nameof(MorestachioFormatterService)} | Invalid usage of parameter");
 					continue;
 				}
 
@@ -177,7 +213,7 @@ namespace Morestachio.Formatter.Framework
 					{
 						if (type.IsArray)
 						{
-							templateGen = new[] {type.GetElementType()};
+							templateGen = new[] { type.GetElementType() };
 						}
 						else
 						{
@@ -217,17 +253,17 @@ namespace Morestachio.Formatter.Framework
 				try
 				{
 					options.Formatters.Write(() => $"{nameof(MorestachioFormatterService)}| Execute");
-
-					originalObject = target
-						.Invoke(null, new[] {originalObject}.Concat(arguments).Take(parameterInfos.Length + 1)
-							.ToArray());
+					originalObject = target.Invoke(null, canInvokeFormatter);
 
 					options.Formatters.Write(() =>
 						$"{nameof(MorestachioFormatterService)}| Formatter created '{originalObject}'");
 					return originalObject;
 				}
-				catch (Exception)
+				catch (Exception ex)
 				{
+					options.Formatters.Write(() =>
+						$"{nameof(MorestachioFormatterService)}| calling of formatter has thrown a exception: '{ex}'");
+					continue;
 				}
 			}
 

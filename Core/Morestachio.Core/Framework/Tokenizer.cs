@@ -402,7 +402,7 @@ namespace Morestachio.Framework
 
 		internal static IEnumerable<TokenPair> Tokenize(ParserOptions parserOptions, ICollection<IMorestachioError> parseErrors)
 		{
-			return TokenizeString(parserOptions.Template, parseErrors).ToArray();
+			return TokenizeString(parserOptions.Template, parseErrors);
 		}
 
 		internal static IEnumerable<TokenPair> TokenizeString(string partial,
@@ -718,9 +718,19 @@ namespace Morestachio.Framework
 			return token;
 		}
 
+		/// <summary>
+		///		Describes an Position within the Template
+		/// </summary>
 		public class CharacterLocation
 		{
+			/// <summary>
+			///		The line of the Template
+			/// </summary>
 			public int Line { get; set; }
+
+			/// <summary>
+			///		The Character at the <see cref="Line"/>
+			/// </summary>
 			public int Character { get; set; }
 
 			public override string ToString()

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ICSharpCode.AvalonEdit.Utils;
 using JPB.Mustachio.Client.Wpf.Services;
+using JPB.Mustachio.Client.Wpf.ViewModels.Formatting;
 using JPB.WPFBase.MVVM.DelegateCommand;
 using JPB.WPFBase.MVVM.ViewModel;
 using Newtonsoft.Json;

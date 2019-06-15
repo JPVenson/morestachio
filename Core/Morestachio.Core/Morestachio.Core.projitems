@@ -32,6 +32,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Framework\ParserErrors\InvalidPathSyntaxError.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Framework\ParserErrors\MorestachioSyntaxError.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Framework\ParserErrors\MorestachioUnopendScopeError.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IValueResolver.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MorestachioDocumentInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Formatter\FormatTemplateElement.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Formatter\DisabledFormatterMatcher.cs" />

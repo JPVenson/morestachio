@@ -10,5 +10,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)FormatterTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StringFormatter.cs" />
   </ItemGroup>
 </Project>

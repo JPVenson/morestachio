@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using JPB.Mustachio.Client.Contacts.Contracts;
@@ -48,8 +49,7 @@ namespace JPB.Mustachio.Client.Data.CSharp.DataSourceProvider
 					"System.Collections.Generic",
 					"System.Linq",
 					"System.Text",
-					"System.Collections")
-					.WithReferences(typeof(Enumerable).Assembly));
+					"System.Collections"));
 			}
 			catch (Exception e)
 			{

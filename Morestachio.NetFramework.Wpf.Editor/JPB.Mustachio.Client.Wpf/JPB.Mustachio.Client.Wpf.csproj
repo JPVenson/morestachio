@@ -114,11 +114,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ClientDataProvider\JsonDataProvider.cs" />
     <Compile Include="Services\TemplateServiceProvider.cs" />
     <Compile Include="ViewModels\DataEditorViewModel.cs" />
     <Compile Include="ViewModels\Formatting\ExternalFormatterViewModel.cs" />
     <Compile Include="ViewModels\Formatting\FormatterArgument.cs" />
     <Compile Include="ViewModels\Formatting\FormatterEditorViewModel.cs" />
+    <Compile Include="ViewModels\Formatting\FormatterGroup.cs" />
     <Compile Include="ViewModels\Formatting\FormatterViewModel.cs" />
     <Compile Include="ViewModels\GeneratedTemplateInfos.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />

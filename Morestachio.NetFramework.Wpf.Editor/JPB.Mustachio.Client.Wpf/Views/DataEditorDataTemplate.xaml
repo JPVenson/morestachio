@@ -1,20 +1,32 @@
 ﻿<ResourceDictionary x:Class="JPB.Mustachio.Client.Wpf.Views.DataEditorDataTemplate"
                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:viewModels="clr-namespace:JPB.Mustachio.Client.Wpf.ViewModels">
-	<DataTemplate DataType="{x:Type viewModels:DataEditorViewModel}" >
-		<DockPanel>
-			<DockPanel LastChildFill="True">
-				<ComboBox ItemsSource="{Binding DataSourceProviders}"
+                    xmlns:viewModels="clr-namespace:JPB.Mustachio.Client.Wpf.ViewModels"
+                    xmlns:clientDataProvider="clr-namespace:JPB.Mustachio.Client.Wpf.ClientDataProvider"
+                    xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
+                    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+                    xmlns:common="clr-namespace:JPB.Mustachio.Clinet.Wpf.Common;assembly=JPB.Mustachio.Clinet.Wpf.Common">
+    <DataTemplate DataType="{x:Type clientDataProvider:JsonDataProvider}">
+        <avalonedit:TextEditor Background="Transparent" SyntaxHighlighting="{Binding JsonSyntax}">
+            <i:Interaction.Behaviors>
+                <common:AvalonEditBehaviour Text="{Binding JsonText}" />
+            </i:Interaction.Behaviors>
+        </avalonedit:TextEditor>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type viewModels:DataEditorViewModel}" >
+        <DockPanel>
+            <DockPanel LastChildFill="True">
+                <ComboBox ItemsSource="{Binding DataSourceProviders}"
 				          SelectedItem="{Binding SelectedDataSourceProvider}"
 				          DisplayMemberPath="Name"
 				          DockPanel.Dock="Top">
-				</ComboBox>
+                </ComboBox>
 
-				<DockPanel Dock="Top">
-					<ContentControl Content="{Binding SelectedDataSourceProvider}"/>
-				</DockPanel>
-			</DockPanel>
-		</DockPanel>
-	</DataTemplate>
+                <DockPanel Dock="Top">
+                    <ContentControl Content="{Binding SelectedDataSourceProvider}"/>
+                </DockPanel>
+            </DockPanel>
+        </DockPanel>
+    </DataTemplate>
 </ResourceDictionary>

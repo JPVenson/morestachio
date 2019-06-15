@@ -2,7 +2,7 @@
 using System.Reflection;
 using JPB.Mustachio.Client.Wpf.Services;
 
-namespace JPB.Mustachio.Client.Wpf.ViewModels
+namespace JPB.Mustachio.Client.Wpf.ViewModels.Formatting
 {
 	public class ExternalFormatterViewModel : FormatterViewModel, IDisposable
 	{

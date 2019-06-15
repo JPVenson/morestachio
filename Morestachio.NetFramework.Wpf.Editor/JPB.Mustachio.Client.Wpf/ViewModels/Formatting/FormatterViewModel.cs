@@ -7,7 +7,7 @@ using JPB.WPFBase.MVVM.ViewModel;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Morestachio.Formatter.Framework;
 
-namespace JPB.Mustachio.Client.Wpf.ViewModels
+namespace JPB.Mustachio.Client.Wpf.ViewModels.Formatting
 {
 	public class FormatterViewModel : AsyncViewModelBase, IDisposable
 	{

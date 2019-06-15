@@ -14,6 +14,7 @@ using Morestachio;
 using Morestachio.Formatter.Framework;
 using Morestachio.Framework;
 using Morestachio.Helper;
+using Newtonsoft.Json.Linq;
 
 namespace JPB.Mustachio.Client.Wpf.ViewModels
 {
@@ -82,6 +83,19 @@ namespace JPB.Mustachio.Client.Wpf.ViewModels
 			});
 		}
 
+		public class JObjectResolver : IValueResolver
+		{
+			public object Resolve(Type type, object value, string path, ContextObject context)
+			{
+				return (value as JObject)[path];
+			}
+
+			public bool CanResolve(Type type, object value, string path, ContextObject context)
+			{
+				return type == typeof(JObject);
+			}
+		}
+
 		public async Task<GeneratedTemplateInfos> GenerateTemplateExecute(string template, IDataSourceProvider dataSourceProvider)
 		{
 			if (template == null)
@@ -93,6 +107,8 @@ namespace JPB.Mustachio.Client.Wpf.ViewModels
 				() => new MemoryStream(),
 				Encoding.Default, false, true);
 
+			parsingOptions.ValueResolver = new JObjectResolver();
+
 			var formatterService = new MorestachioFormatterService();
 			var formatters = _templateServiceProvider.ObtainFormatters();
 
@@ -100,6 +116,8 @@ namespace JPB.Mustachio.Client.Wpf.ViewModels
 			{
 				formatterService.GlobalFormatterModels.Add(formatter.CreateFormatter());
 			}
+
+			formatterService.AddFormatterToMorestachio(parsingOptions);
 			MorestachioDocumentInfo extendedParseInformation;
 
 			try

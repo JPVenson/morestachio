@@ -249,59 +249,65 @@ namespace Morestachio.Framework
 						retval = await GetContextForPath(elements, scopeData);
 					}
 				}
-				else if (path.StartsWith("?")) //enumerate ether an IDictionary, an cs object or an IEnumerable to a KeyValuePair array
-				{
-					//ALWAYS return the context, even if the value is null.
-					var innerContext = new ContextObject(Options, path, this);
-					await EnsureValue();
-					switch (Value)
-					{
-						case IDictionary<string, object> dictList:
-							innerContext.Value = dictList.Select(e => e);
-							break;
-						//This is a draft that i have discarded as its more likely to enumerate a single IEnumerable with #each alone
-						//case IEnumerable ctx:
-						//	innerContext.Value = ctx.OfType<object>().Select((item, index) => new KeyValuePair<string, object>(index.ToString(), item));
-						//	break;
-						default:
-							{
-								if (Value != null)
-								{
-									innerContext.Value = Value
-										.GetType()
-										.GetTypeInfo()
-										.GetProperties(BindingFlags.Instance | BindingFlags.Public)
-										.Where(e => !e.IsSpecialName && !e.GetIndexParameters().Any())
-										.Select(e => new KeyValuePair<string, object>(e.Name, e.GetValue(Value)));
-								}
-
-								break;
-							}
-					}
-
-					retval = await innerContext.GetContextForPath(elements, scopeData);
-				}
-				//TODO: handle array accessors and maybe "special" keys.
 				else
 				{
-					//ALWAYS return the context, even if the value is null.
-					var innerContext = new ContextObject(Options, path, this);
 					await EnsureValue();
-					if (Value is IDictionary<string, object> ctx)
+					var type = Value?.GetType();
+					if (path.StartsWith("?")) //enumerate ether an IDictionary, an cs object or an IEnumerable to a KeyValuePair array
 					{
-						ctx.TryGetValue(path, out var o);
-						innerContext.Value = o;
-					}
-					else if (Value != null)
-					{
-						var propertyInfo = Value.GetType().GetTypeInfo().GetProperty(path);
-						if (propertyInfo != null)
+						//ALWAYS return the context, even if the value is null.
+						var innerContext = new ContextObject(Options, path, this);
+						switch (Value)
 						{
-							innerContext.Value = propertyInfo.GetValue(Value);
-						}
-					}
+							case IDictionary<string, object> dictList:
+								innerContext.Value = dictList.Select(e => e);
+								break;
+							//This is a draft that i have discarded as its more likely to enumerate a single IEnumerable with #each alone
+							//case IEnumerable ctx:
+							//	innerContext.Value = ctx.OfType<object>().Select((item, index) => new KeyValuePair<string, object>(index.ToString(), item));
+							//	break;
+							default:
+								{
+									if (Value != null)
+									{
+										innerContext.Value = type
+											.GetTypeInfo()
+											.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+											.Where(e => !e.IsSpecialName && !e.GetIndexParameters().Any())
+											.Select(e => new KeyValuePair<string, object>(e.Name, e.GetValue(Value)));
+									}
 
-					retval = await innerContext.GetContextForPath(elements, scopeData);
+									break;
+								}
+						}
+
+						retval = await innerContext.GetContextForPath(elements, scopeData);
+					}
+					//TODO: handle array accessors and maybe "special" keys.
+					else
+					{
+						//ALWAYS return the context, even if the value is null.
+						var innerContext = new ContextObject(Options, path, this);
+						if (Options.ValueResolver?.CanResolve(type, Value, path, innerContext) == true)
+						{
+							innerContext.Value = Options.ValueResolver.Resolve(type, Value, path, innerContext);
+						}
+						else if (Value is IDictionary<string, object> ctx)
+						{
+							ctx.TryGetValue(path, out var o);
+							innerContext.Value = o;
+						}
+						else if (Value != null)
+						{
+							var propertyInfo = type.GetTypeInfo().GetProperty(path);
+							if (propertyInfo != null)
+							{
+								innerContext.Value = propertyInfo.GetValue(Value);
+							}
+						}
+
+						retval = await innerContext.GetContextForPath(elements, scopeData);
+					}
 				}
 			}
 

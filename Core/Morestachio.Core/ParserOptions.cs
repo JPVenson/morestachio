@@ -92,6 +92,11 @@ namespace Morestachio
 		{
 		}
 
+		/// <summary>
+		///		Can be used to resolve values from custom objects
+		/// </summary>
+		public IValueResolver ValueResolver { get; set; }
+
 		///// <summary>
 		/////		See <see cref="IPartialTemplateProvider"/>
 		///// </summary>
@@ -109,7 +114,7 @@ namespace Morestachio
 				_formatters = value ?? throw new InvalidOperationException("You must set the Formatters matcher");
 			}
 		}
-		
+
 		/// <summary>
 		///		Gets or sets the max Stack size for nested Partials in execution. Recommended to be not exceeding 2000. Defaults to 255.
 		/// </summary>
@@ -144,7 +149,7 @@ namespace Morestachio
 		/// The timeout.
 		/// </value>
 		public TimeSpan Timeout { get; set; }
-		
+
 		/// <summary>
 		///     The template content to parse.
 		/// </summary>

@@ -1,7 +1,7 @@
 ﻿using System;
 using JPB.WPFBase.MVVM.ViewModel;
 
-namespace JPB.Mustachio.Client.Wpf.ViewModels
+namespace JPB.Mustachio.Client.Wpf.ViewModels.Formatting
 {
 	public class FormatterArgument : AsyncViewModelBase
 	{
