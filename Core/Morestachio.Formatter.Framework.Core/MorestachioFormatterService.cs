@@ -138,7 +138,7 @@ namespace Morestachio.Formatter.Framework
 				else
 				{
 					//there must be a value for this parameter
-					if (parameter.Length > index)
+					if (parameter.Length <= index)
 					{
 						return null;
 					}
@@ -172,6 +172,7 @@ namespace Morestachio.Formatter.Framework
 			}
 
 			var directMatch = formatterGroup.Where(e => name.ToString().Equals(e.Name)).ToArray();
+			arguments = new object[]{sourceObject}.Concat(arguments).ToArray();
 
 			var type = sourceObject.GetType();
 			var originalObject = sourceObject;
@@ -195,14 +196,6 @@ namespace Morestachio.Formatter.Framework
 					$"{nameof(MorestachioFormatterService)} | Test {morestachioFormatterModel.Name}");
 
 				var target = morestachioFormatterModel.Function;
-
-				var canInvokeFormatter = CanMethodCalledWith(target, arguments);
-				if (canInvokeFormatter == null)
-				{
-					options.Formatters.Write(
-						() => $"{nameof(MorestachioFormatterService)} | Invalid usage of parameter");
-					continue;
-				}
 
 				var localGen = morestachioFormatterModel.InputType.GetGenericArguments();
 				var templateGen = type.GetGenericArguments();
@@ -252,6 +245,14 @@ namespace Morestachio.Formatter.Framework
 
 				try
 				{
+
+					var canInvokeFormatter = CanMethodCalledWith(target, arguments);
+					if (canInvokeFormatter == null)
+					{
+						options.Formatters.Write(
+							() => $"{nameof(MorestachioFormatterService)} | Invalid usage of parameter");
+						continue;
+					}
 					options.Formatters.Write(() => $"{nameof(MorestachioFormatterService)}| Execute");
 					originalObject = target.Invoke(null, canInvokeFormatter);
 
