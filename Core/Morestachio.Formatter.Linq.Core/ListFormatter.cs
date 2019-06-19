@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic;
@@ -140,41 +141,60 @@ namespace Morestachio.Formatter.Linq
 		[MorestachioFormatter("aggregate", "Aggreates the elements and returns it")]
 		public static object Aggregate(IEnumerable sourceCollection)
 		{
+			return Sum(sourceCollection);
+		}
+
+		[MorestachioFormatter("sum", "Aggreates the elements and returns it")]
+		public static object Sum(IEnumerable sourceCollection)
+		{
 			var colQuery = sourceCollection.AsQueryable();
 
 			if (typeof(int).IsAssignableFrom(colQuery.ElementType))
 			{
 				return colQuery.Cast<int>().Sum();
 			}
-
-			if (typeof(long).IsAssignableFrom(colQuery.ElementType))
+			else if (typeof(long).IsAssignableFrom(colQuery.ElementType))
 			{
 				return colQuery.Cast<long>().Sum();
 			}
-
-			if (typeof(decimal).IsAssignableFrom(colQuery.ElementType))
+			else if (typeof(decimal).IsAssignableFrom(colQuery.ElementType))
 			{
 				return colQuery.Cast<decimal>().Sum();
 			}
-
-			if (typeof(double).IsAssignableFrom(colQuery.ElementType))
+			else if (typeof(double).IsAssignableFrom(colQuery.ElementType))
 			{
 				return colQuery.Cast<double>().Sum();
 			}
-
-			if (typeof(float).IsAssignableFrom(colQuery.ElementType))
+			else if (typeof(float).IsAssignableFrom(colQuery.ElementType))
 			{
 				return colQuery.Cast<float>().Sum();
 			}
 
-			return FormatterMatcher.FormatterFlow.Skip;
-		}
+			if (Nullable.GetUnderlyingType(colQuery.ElementType) != null)
+			{
+				if (typeof(int?).IsAssignableFrom(colQuery.ElementType))
+				{
+					return colQuery.Cast<int?>().Sum();
+				}
+				else if (typeof(long?).IsAssignableFrom(colQuery.ElementType))
+				{
+					return colQuery.Cast<long?>().Sum();
+				}
+				else if (typeof(decimal?).IsAssignableFrom(colQuery.ElementType))
+				{
+					return colQuery.Cast<decimal?>().Sum();
+				}
+				else if (typeof(double?).IsAssignableFrom(colQuery.ElementType))
+				{
+					return colQuery.Cast<double?>().Sum();
+				}
+				else if (typeof(float?).IsAssignableFrom(colQuery.ElementType))
+				{
+					return colQuery.Cast<float?>().Sum();
+				}
+			}
 
-		[MorestachioFormatter("sum", "Aggreates the property in the argument and returns it")]
-		public static decimal Sum(IEnumerable sourceCollection)
-		{
-			var colQuery = sourceCollection.Cast<decimal>();
-			return colQuery.Sum();
+			return FormatterMatcher.FormatterFlow.Skip;
 		}
 
 		[MorestachioFormatter("sum", "Aggreates the property in the argument and returns it")]

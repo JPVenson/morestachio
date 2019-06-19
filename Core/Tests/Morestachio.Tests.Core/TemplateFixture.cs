@@ -274,6 +274,26 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		public void TemplateRendersWithScopeWithAliasPath()
+		{
+			var template =
+				@"{{#data AS test}}{{root}}{{/test}}";
+
+			var parsedTemplate =
+				Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding));
+
+			var model = new Dictionary<string, object>()
+			{
+				{"data", "test" },
+				{"root", "tset" }
+			};
+
+			var result = parsedTemplate.Create(model).Stringify(true, ParserFixture.DefaultEncoding);
+
+			Assert.AreEqual(model["root"], result);
+		}
+
+		[Test]
 		public void TemplateRendersWithComplexUpScopePath()
 		{
 			var template =

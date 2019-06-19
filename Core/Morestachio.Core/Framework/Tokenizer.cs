@@ -27,14 +27,17 @@ namespace Morestachio.Framework
 		private static readonly Regex NewlineFinder
 			= new Regex("\n", RegexOptions.Compiled);
 
-		private static readonly Regex FindSplitterRegEx
-			= new Regex(
-				@"(?!\s*$)\s*(?:'([^'\\]*(?:\\[\S\s][^'\\]*)*)'|""([^""\\]*(?:\\[\S\s][^""\\]*)*)""|([^,'""\s\\]*(?:\s+[^,'""\s\\]+)*))\s*(?:,|$)",
-				RegexOptions.Compiled);
+		private static readonly Regex ExpressionAliasFinder
+			= new Regex(".*(?: AS|as )(.+)", RegexOptions.Compiled);
 
-		private static readonly Regex NameFinder
-			= new Regex(@"(\[[\w]*\])",
-				RegexOptions.Compiled);
+		//private static readonly Regex FindSplitterRegEx
+		//	= new Regex(
+		//		@"(?!\s*$)\s*(?:'([^'\\]*(?:\\[\S\s][^'\\]*)*)'|""([^""\\]*(?:\\[\S\s][^""\\]*)*)""|([^,'""\s\\]*(?:\s+[^,'""\s\\]+)*))\s*(?:,|$)",
+		//		RegexOptions.Compiled);
+
+		//private static readonly Regex NameFinder
+		//	= new Regex(@"(\[[\w]*\])",
+		//		RegexOptions.Compiled);
 
 		/// <summary>
 		///     Specifies combinations of paths that don't work.
@@ -405,6 +408,18 @@ namespace Morestachio.Framework
 			return TokenizeString(parserOptions.Template, parseErrors);
 		}
 
+		internal static Tuple<string, string> EvaluateNameFromToken(string token)
+		{
+			var match = ExpressionAliasFinder.Match(token);
+			var name = match.Groups[1].Value;
+			if (!string.IsNullOrWhiteSpace(name))
+			{
+				return new Tuple<string, string>(token.Substring(token.Length - ("AS " + name).Length), name);
+			}
+
+			return new Tuple<string, string>(token, token);
+		}
+
 		internal static IEnumerable<TokenPair> TokenizeString(string partial,
 			ICollection<IMorestachioError> parseErrors)
 		{
@@ -479,8 +494,12 @@ namespace Morestachio.Framework
 				}
 				else if (m.Value.StartsWith("{{#each"))
 				{
-					scopestack.Push(Tuple.Create(m.Value, m.Index));
 					var token = m.Value.TrimStart('{').TrimEnd('}').TrimStart('#').Trim().Substring("each".Length);
+					var eval = EvaluateNameFromToken(token);
+					token = eval.Item1;
+					var alias = eval.Item2;
+
+					scopestack.Push(Tuple.Create("#each" + alias, m.Index));
 
 					if (token.StartsWith(" ") && token.Trim() != "")
 					{
@@ -512,7 +531,7 @@ namespace Morestachio.Framework
 					{
 						parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(m.Index, lines), "close", "each", "{{/each}}"));
 					}
-					else if (scopestack.Any() && scopestack.Peek().Item1.StartsWith("{{#each"))
+					else if (scopestack.Any() && scopestack.Peek().Item1.StartsWith("#each"))
 					{
 						var token = scopestack.Pop().Item1;
 						yield return new TokenPair(TokenType.CollectionClose, token, HumanizeCharacterLocation(tokenIndex, lines));
@@ -526,6 +545,11 @@ namespace Morestachio.Framework
 				{
 					//open group
 					var token = m.Value.TrimStart('{').TrimEnd('}').TrimStart('#').Trim();
+
+					var eval = EvaluateNameFromToken(token);
+					token = eval.Item1;
+					var alias = eval.Item2;
+
 					if (scopestack.Any() && scopestack.Peek().Item1 == token)
 					{
 						yield return new TokenPair(TokenType.ElementClose,
@@ -533,7 +557,7 @@ namespace Morestachio.Framework
 					}
 					else
 					{
-						scopestack.Push(Tuple.Create(token, m.Index));
+						scopestack.Push(Tuple.Create(alias, m.Index));
 					}
 
 					if (FormatInExpressionFinder.IsMatch(token))
@@ -556,6 +580,9 @@ namespace Morestachio.Framework
 				{
 					//open inverted group
 					var token = m.Value.TrimStart('{').TrimEnd('}').TrimStart('^').Trim();
+					var eval = EvaluateNameFromToken(token);
+					token = eval.Item1;
+					var alias = eval.Item2;
 
 					if (scopestack.Any() && scopestack.Peek().Item1 == token)
 					{
@@ -564,7 +591,7 @@ namespace Morestachio.Framework
 					}
 					else
 					{
-						scopestack.Push(Tuple.Create(token, m.Index));
+						scopestack.Push(Tuple.Create(alias, m.Index));
 					}
 
 					if (FormatInExpressionFinder.IsMatch(token))
