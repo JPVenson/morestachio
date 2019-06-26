@@ -294,7 +294,10 @@ namespace Morestachio.Framework
 						}
 						else if (Value is IDictionary<string, object> ctx)
 						{
-							ctx.TryGetValue(path, out var o);
+							if (!ctx.TryGetValue(path, out var o))
+							{
+								Options.OnUnresolvedPath(path, type);
+							}
 							innerContext.Value = o;
 						}
 						else if (Value != null)
@@ -303,6 +306,10 @@ namespace Morestachio.Framework
 							if (propertyInfo != null)
 							{
 								innerContext.Value = propertyInfo.GetValue(Value);
+							}
+							else
+							{
+								Options.OnUnresolvedPath(path, type);
 							}
 						}
 

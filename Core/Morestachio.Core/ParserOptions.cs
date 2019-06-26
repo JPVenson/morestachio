@@ -13,6 +13,13 @@ using Morestachio.Framework;
 namespace Morestachio
 {
 	/// <summary>
+	///		Delegate for the Event Handler in <see cref="ParserOptions.UnresolvedPath"/>
+	/// </summary>
+	/// <param name="path"></param>
+	/// <param name="type"></param>
+	public delegate void InvalidPath(string path, [CanBeNull]Type type);
+
+	/// <summary>
 	///     Options for Parsing run
 	/// </summary>
 	[PublicAPI]
@@ -96,6 +103,11 @@ namespace Morestachio
 		///		Can be used to resolve values from custom objects
 		/// </summary>
 		public IValueResolver ValueResolver { get; set; }
+
+		/// <summary>
+		///		Can be used to observe unresolved paths
+		/// </summary>
+		public event InvalidPath UnresolvedPath;
 
 		///// <summary>
 		/////		See <see cref="IPartialTemplateProvider"/>
@@ -203,6 +215,11 @@ namespace Morestachio
 				Formatters = Formatters,
 				Timeout = Timeout
 			};
+		}
+
+		internal void OnUnresolvedPath(string path, Type type)
+		{
+			UnresolvedPath?.Invoke(path, type);
 		}
 	}
 }
