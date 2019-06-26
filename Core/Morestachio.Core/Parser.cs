@@ -13,10 +13,37 @@ using Morestachio.Framework;
 
 #endregion
 
-using FormattingScope = System.Tuple<Morestachio.IDocumentItem, bool>;
-
 namespace Morestachio
 {
+	internal struct DocumentScope
+	{
+		public DocumentScope(IDocumentItem document)
+		{
+			Document = document;
+			IsFormattingScope = false;
+			HasAlias = false;
+			AliasName = null;
+		}
+		public DocumentScope(IDocumentItem document, bool isFormattingScope)
+		{
+			Document = document;
+			IsFormattingScope = isFormattingScope;
+			HasAlias = false;
+			AliasName = null;
+		}
+		public DocumentScope(IDocumentItem document, string aliasName)
+		{
+			Document = document;
+			IsFormattingScope = false;
+			HasAlias = true;
+			AliasName = aliasName;
+		}
+
+		public IDocumentItem Document { get; private set; }
+		public bool IsFormattingScope { get; private set; }
+		public bool HasAlias { get; private set; }
+		public string AliasName { get; private set; }
+	}
 
 	/// <summary>
 	///     The main entry point for this library. Use the static "Parse" methods to create template functions.
@@ -49,7 +76,7 @@ namespace Morestachio
 			var tokens = new Queue<TokenPair>(Tokenizer.Tokenize(parsingOptions, errors));
 			//if there are any errors do not parse the template
 			var documentInfo = new MorestachioDocumentInfo(parsingOptions,
-				errors.Any() ? null : Parse(tokens, parsingOptions), errors);
+				errors.Any() ? null : Parse(tokens), errors);
 			return documentInfo;
 		}
 
@@ -90,13 +117,12 @@ namespace Morestachio
 		///     Parses the Tokens into a Document.
 		/// </summary>
 		/// <param name="tokens">The tokens.</param>
-		/// <param name="options">The options.</param>
 		/// <returns></returns>
-		internal static IDocumentItem Parse(Queue<TokenPair> tokens, ParserOptions options)
+		internal static IDocumentItem Parse(Queue<TokenPair> tokens)
 		{
-			var buildStack = new Stack<FormattingScope>();
+			var buildStack = new Stack<DocumentScope>();
 			//instead of recursive calling the parse function we stack the current document 
-			buildStack.Push(new FormattingScope(new MorestachioDocument(), false));
+			buildStack.Push(new DocumentScope(new MorestachioDocument()));
 
 			while (tokens.Any())
 			{
@@ -109,35 +135,42 @@ namespace Morestachio
 				}
 				else if (currentToken.Type == TokenType.Content)
 				{
-					currentDocumentItem.Item1.Add(new ContentDocumentItem(currentToken.Value)
+					currentDocumentItem.Document.Add(new ContentDocumentItem(currentToken.Value)
 						{ExpressionStart = currentToken.TokenLocation});
 				}
 				else if (currentToken.Type == TokenType.CollectionOpen)
 				{
 					var nestedDocument = new CollectionDocumentItem(currentToken.Value)
 						{ExpressionStart = currentToken.TokenLocation};
-					buildStack.Push(new FormattingScope(nestedDocument, false));
-					currentDocumentItem.Item1.Add(nestedDocument);
+					buildStack.Push(new DocumentScope(nestedDocument));
+					currentDocumentItem.Document.Add(nestedDocument);
 				}
 				else if (currentToken.Type == TokenType.ElementOpen)
 				{
 					var nestedDocument = new ExpressionScopeDocumentItem(currentToken.Value)
 						{ExpressionStart = currentToken.TokenLocation};
-					buildStack.Push(new FormattingScope(nestedDocument, false));
-					currentDocumentItem.Item1.Add(nestedDocument);
+					buildStack.Push(new DocumentScope(nestedDocument));
+					currentDocumentItem.Document.Add(nestedDocument);
 				}
 				else if (currentToken.Type == TokenType.InvertedElementOpen)
 				{
 					var invertedScope = new InvertedExpressionScopeDocumentItem(currentToken.Value)
 						{ExpressionStart = currentToken.TokenLocation};
-					buildStack.Push(new FormattingScope(invertedScope, false));
-					currentDocumentItem.Item1.Add(invertedScope);
+					buildStack.Push(new DocumentScope(invertedScope));
+					currentDocumentItem.Document.Add(invertedScope);
 				}
 				else if (currentToken.Type == TokenType.CollectionClose || currentToken.Type == TokenType.ElementClose)
 				{
+					if (buildStack.Peek().HasAlias
+					) //are we in a alias then remove it
+					{
+						currentDocumentItem.Document.Add(new RemoveAliasDocumentItem(buildStack.Peek().AliasName));
+						buildStack.Pop();
+					}
 					// remove the last document from the stack and go back to the parents
 					buildStack.Pop();
-					if (buildStack.Peek().Item2
+					
+					if (buildStack.Peek().IsFormattingScope
 					) //is the remaining scope a formatting one. If it is pop it and return to its parent
 					{
 						buildStack.Pop();
@@ -145,26 +178,26 @@ namespace Morestachio
 				}
 				else if (currentToken.Type == TokenType.Print)
 				{
-					currentDocumentItem.Item1.Add(new PrintContextValue());
+					currentDocumentItem.Document.Add(new PrintContextValue());
 					buildStack.Pop(); //Print formatted can only be followed by a Format and if not the parser should have not emited it
 				}
 				else if (currentToken.Type == TokenType.Format)
 				{
-					if (buildStack.Peek().Item2)
+					if (buildStack.Peek().IsFormattingScope)
 					{
 						buildStack.Pop();
 					}
 
 					var formatterItem = new IsolatedContextDocumentItem {ExpressionStart = currentToken.TokenLocation};
-					buildStack.Push(new FormattingScope(formatterItem, true));
+					buildStack.Push(new DocumentScope(formatterItem, true));
 					formatterItem.Add(new CallFormatterDocumentItem(ParseArgumentHeader(currentToken), currentToken.Value));
 
-					currentDocumentItem.Item1.Add(formatterItem);
+					currentDocumentItem.Document.Add(formatterItem);
 				}
 				else if (currentToken.Type == TokenType.EscapedSingleValue ||
 				         currentToken.Type == TokenType.UnescapedSingleValue)
 				{
-					currentDocumentItem.Item1.Add(new PathDocumentItem(currentToken.Value,
+					currentDocumentItem.Document.Add(new PathDocumentItem(currentToken.Value,
 							currentToken.Type == TokenType.EscapedSingleValue)
 						{ExpressionStart = currentToken.TokenLocation});
 				}
@@ -174,25 +207,27 @@ namespace Morestachio
 					// to allow recursive calls of partials we first have to declare the partial and then load it as we would parse
 					// -the partial as a whole and then add it to the list would lead to unknown calls of partials inside the partial
 					var nestedDocument = new MorestachioDocument();
-					buildStack.Push(new FormattingScope(nestedDocument, false));
-					currentDocumentItem.Item1.Add(new PartialDocumentItem(currentToken.Value, nestedDocument)
+					buildStack.Push(new DocumentScope(nestedDocument));
+					currentDocumentItem.Document.Add(new PartialDocumentItem(currentToken.Value, nestedDocument)
 						{ExpressionStart = currentToken.TokenLocation});
 				}
 				else if (currentToken.Type == TokenType.PartialDeclarationClose)
 				{
-					currentDocumentItem.Item1.Add(new RenderPartialDoneDocumentItem(currentToken.Value)
+					currentDocumentItem.Document.Add(new RenderPartialDoneDocumentItem(currentToken.Value)
 						{ExpressionStart = currentToken.TokenLocation});
 					buildStack.Pop();
 				}
 				else if (currentToken.Type == TokenType.RenderPartial)
 				{
-					currentDocumentItem.Item1.Add(new RenderPartialDocumentItem(currentToken.Value)
+					currentDocumentItem.Document.Add(new RenderPartialDocumentItem(currentToken.Value)
 						{ExpressionStart = currentToken.TokenLocation});
 				}
 				else if (currentToken.Type == TokenType.Alias)
 				{
-					currentDocumentItem.Item1.Add(new AliasDocumentItem(currentToken.Value)
-						{ExpressionStart = currentToken.TokenLocation});
+					var aliasDocumentItem = new AliasDocumentItem(currentToken.Value)
+						{ExpressionStart = currentToken.TokenLocation};
+					currentDocumentItem.Document.Add(aliasDocumentItem);
+					buildStack.Push(new DocumentScope(aliasDocumentItem, currentToken.Value));
 				}
 			}
 
@@ -202,10 +237,10 @@ namespace Morestachio
 				//throw new MorestachioSyntaxError(new Tokenizer.CharacterLocation(){Character = }, );
 				throw new InvalidOperationException(
 					"There is an Error with the Parser. The Parser still contains unscoped builds: " +
-					buildStack.Select(e => e.Item1.Kind).Aggregate((e, f) => e + ", " + f));
+					buildStack.Select(e => e.Document.Kind).Aggregate((e, f) => e + ", " + f));
 			}
 
-			return buildStack.Pop().Item1;
+			return buildStack.Pop().Document;
 		}
 	}
 }

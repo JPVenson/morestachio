@@ -277,7 +277,7 @@ namespace Morestachio.Tests
 		public void TemplateRendersWithScopeWithAliasPath()
 		{
 			var template =
-				@"{{#data AS test}}{{#~root AS rootTest}}{{test}},{{rootTest}}{{/rootTest}}{{/test}}";
+				@"{{#data AS test}}{{#~root AS rootTest}}{{test}},{{rootTest}}{{/rootTest}}{{rootTest}}{{/test}}{{test}}";
 
 			var parsedTemplate =
 				Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding));
