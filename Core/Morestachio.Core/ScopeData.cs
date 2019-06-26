@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Morestachio.Framework;
 
 namespace Morestachio
 {
@@ -15,6 +16,7 @@ namespace Morestachio
 		{
 			Partials = new Dictionary<string, IDocumentItem>();
 			PartialDepth = new Stack<string>();
+			Alias = new Dictionary<string, ContextObject>();
 		}
 
 		/// <summary>
@@ -26,5 +28,10 @@ namespace Morestachio
 		///		The Depth of current Partial usage
 		/// </summary>
 		public Stack<string> PartialDepth { get; private set; }
+
+		/// <summary>
+		///		Lists all Alias objects
+		/// </summary>
+		public IDictionary<string, ContextObject> Alias { get; set; }
 	}
 }

@@ -38,6 +38,11 @@
 		/// <summary>
 		///		Defines the place for rendering a single partial
 		/// </summary>
-		RenderPartial
+		RenderPartial,
+
+		/// <summary>
+		///		Defines the current Context as the be accessed by an alias
+		/// </summary>
+		Alias,
 	}
 }

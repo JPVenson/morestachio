@@ -277,7 +277,7 @@ namespace Morestachio.Tests
 		public void TemplateRendersWithScopeWithAliasPath()
 		{
 			var template =
-				@"{{#data AS test}}{{root}}{{/test}}";
+				@"{{#data AS test}}{{#~root AS rootTest}}{{test}},{{rootTest}}{{/rootTest}}{{/test}}";
 
 			var parsedTemplate =
 				Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding));
@@ -290,7 +290,7 @@ namespace Morestachio.Tests
 
 			var result = parsedTemplate.Create(model).Stringify(true, ParserFixture.DefaultEncoding);
 
-			Assert.AreEqual(model["root"], result);
+			Assert.AreEqual(model["data"] + "," + model["root"], result);
 		}
 
 		[Test]

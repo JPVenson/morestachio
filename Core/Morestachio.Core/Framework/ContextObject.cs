@@ -335,6 +335,14 @@ namespace Morestachio.Framework
 				elements.Enqueue(m.Value);
 			}
 
+			//look at the first element if its an alias switch to that alias
+			var maybeAlias = elements.Peek();
+			if (scopeData.Alias.TryGetValue(maybeAlias, out var alias))
+			{
+				elements.Dequeue();
+				return await alias.GetContextForPath(elements, scopeData);
+			}
+
 			return await GetContextForPath(elements, scopeData);
 		}
 

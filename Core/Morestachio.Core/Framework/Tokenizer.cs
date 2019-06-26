@@ -414,7 +414,7 @@ namespace Morestachio.Framework
 			var name = match.Groups[1].Value;
 			if (!string.IsNullOrWhiteSpace(name))
 			{
-				return new Tuple<string, string>(token.Substring(token.Length - ("AS " + name).Length), name);
+				return new Tuple<string, string>(token.Substring(0, token.Length - (" AS" + name).Length), name.Trim());
 			}
 
 			return new Tuple<string, string>(token, token);
@@ -499,7 +499,7 @@ namespace Morestachio.Framework
 					token = eval.Item1;
 					var alias = eval.Item2;
 
-					scopestack.Push(Tuple.Create("#each" + alias, m.Index));
+					scopestack.Push(Tuple.Create($"#each{alias}", m.Index));
 
 					if (token.StartsWith(" ") && token.Trim() != "")
 					{
@@ -523,6 +523,11 @@ namespace Morestachio.Framework
 					else
 					{
 						parseErrors.Add(new InvalidPathSyntaxError(HumanizeCharacterLocation(m.Index, lines), ""));
+					}
+
+					if (!string.IsNullOrWhiteSpace(alias))
+					{
+						yield return new TokenPair(TokenType.Alias, alias, HumanizeCharacterLocation(m.Index + $"#each{alias}".Length, lines));
 					}
 				}
 				else if (m.Value.StartsWith("{{/each"))
@@ -575,6 +580,11 @@ namespace Morestachio.Framework
 						yield return new TokenPair(TokenType.ElementOpen,
 							Validated(token, templateString, m.Index, lines, parseErrors), HumanizeCharacterLocation(tokenIndex, lines));
 					}
+
+					if (!string.IsNullOrWhiteSpace(alias))
+					{
+						yield return new TokenPair(TokenType.Alias, alias, HumanizeCharacterLocation(m.Index + token.Length, lines));
+					}
 				}
 				else if (m.Value.StartsWith("{{^"))
 				{
@@ -608,6 +618,12 @@ namespace Morestachio.Framework
 					{
 						yield return new TokenPair(TokenType.InvertedElementOpen,
 							Validated(token, templateString, m.Index, lines, parseErrors), HumanizeCharacterLocation(tokenIndex, lines));
+					}
+
+					if (!string.IsNullOrWhiteSpace(alias))
+					{
+						yield return new TokenPair(TokenType.Alias, alias, 
+							HumanizeCharacterLocation(m.Index + $"#each{alias}".Length, lines));
 					}
 				}
 				else if (m.Value.StartsWith("{{/"))

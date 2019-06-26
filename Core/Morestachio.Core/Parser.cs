@@ -71,39 +71,6 @@ namespace Morestachio
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
-
-
-			
-
-			//while (tokens.Any())
-			//{
-			//	var currentToken = tokens.Dequeue();
-
-			//	if (currentToken.Type == TokenType.Content)
-			//	{
-			//	}
-			//	else if (currentToken.Type == TokenType.Print)
-			//	{
-			//		buildStack.Add(new PrintContextValue());
-			//	}
-			//	else if (currentToken.Type == TokenType.Format)
-			//	{
-			//		buildStack.Add(new CallFormatterDocumentItem(ParseArgumentHeader(currentToken), currentToken.Value));
-			//	}
-			//	else if (currentToken.Type == TokenType.EscapedSingleValue ||
-			//	         currentToken.Type == TokenType.UnescapedSingleValue)
-			//	{
-			//		buildStack.Add(new PathDocumentItem(currentToken.Value,
-			//				currentToken.Type == TokenType.EscapedSingleValue)
-			//			{ExpressionStart = currentToken.TokenLocation});
-			//	}
-			//	else
-			//	{
-			//		throw new InvalidPathSyntaxError(currentToken.TokenLocation, currentToken.Value).GetException();
-			//	}
-			//}
-
-			//return buildStack;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -220,6 +187,11 @@ namespace Morestachio
 				else if (currentToken.Type == TokenType.RenderPartial)
 				{
 					currentDocumentItem.Item1.Add(new RenderPartialDocumentItem(currentToken.Value)
+						{ExpressionStart = currentToken.TokenLocation});
+				}
+				else if (currentToken.Type == TokenType.Alias)
+				{
+					currentDocumentItem.Item1.Add(new AliasDocumentItem(currentToken.Value)
 						{ExpressionStart = currentToken.TokenLocation});
 				}
 			}

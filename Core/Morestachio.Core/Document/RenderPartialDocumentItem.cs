@@ -6,6 +6,35 @@ using Morestachio.Framework;
 namespace Morestachio
 {
 	/// <summary>
+	///		Creates an alias 
+	/// </summary>
+	public class AliasDocumentItem : DocumentItemBase
+	{
+		private readonly string _aliasName;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="aliasName"></param>
+		public AliasDocumentItem(string aliasName)
+		{
+			_aliasName = aliasName;
+		}
+
+		/// <inheritdoc />
+		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+		{
+			scopeData.Alias[_aliasName] = context.Clone();
+
+			await Task.CompletedTask;
+			return new DocumentItemExecution[0];
+		}
+
+		/// <inheritdoc />
+		public override string Kind { get; } = "Alias";
+	}
+
+	/// <summary>
 	///		Prints a partial
 	/// </summary>
 	public class RenderPartialDocumentItem : DocumentItemBase
