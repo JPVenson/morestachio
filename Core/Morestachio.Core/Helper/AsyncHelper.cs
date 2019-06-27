@@ -155,10 +155,6 @@ namespace Morestachio.Helper
 				{
 					_currentContext.BeginMessageLoop();
 				}
-				catch (Exception e)
-				{
-					throw e;
-				}
 				finally
 				{
 					SynchronizationContext
@@ -265,7 +261,6 @@ namespace Morestachio.Helper
 						if (InnerException != null) // method threw an exeption
 						{
 							InnerException.Throw();
-
 						}
 					}
 					else
