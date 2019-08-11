@@ -1,5 +1,7 @@
-# Morestachio
+# Morestachio 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FJPVenson%2Fmorestachio.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FJPVenson%2Fmorestachio?ref=badge_shield)
+
+![Icon](https://github.com/JPVenson/morestachio/blob/master/Morestachio/Morestachio%20248x248.png?raw=true)
 
 A Lightweight, powerful, flavorful, templating engine for C# and other .net-based languages. Its a fork of Mustachio.
 
