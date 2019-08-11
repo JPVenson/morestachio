@@ -10,9 +10,11 @@ A Lightweight, powerful, flavorful, templating engine for C# and other .net-base
 #### How to use Morestachio:
 
 ```csharp
-// Parse the template:
+// Your Template
 var sourceTemplate = "Dear {{name}}, this is definitely a personalized note to you. Very truly yours, {{sender}}"
-var template = Morestachio.Parser.ParseWithOptions(new Morstachio.ParserOptions(sourceTemplate));
+
+// Parse the Template into the Document Tree. 
+var document = Morestachio.Parser.ParseWithOptions(new Morstachio.ParserOptions(sourceTemplate));
 
 // Create the values for the template model:
 dynamic model = new ExpandoObject();
@@ -26,7 +28,7 @@ model["sender"] = "Sally";
 var model = new {name= "John", sender= "Sally"}
 
 // Combine the model with the template to get content:
-Stream content = template.Create(model);
+Stream content = document.Create(model);
 content.Stringify(Encoding.Default); // Dear John, this is definitely a personalized note to you. Very truly yours, Sally
 ```
 
@@ -53,11 +55,11 @@ I am currently working on the CI process to seperate the builds.
 Morestachio is build upon Mustachio and extends the mustachio syntax in a few ways.
 
 1. each value can be formatted by adding formatter the the morestachio
-2. Templates will be parsed as streams and will create a new stream. This is better when creating larger templates and best for web as you can also limit the length of the "to be" created template to a certain size
+2. Templates will be parsed as streams and will create a new stream for its output. This is better when creating larger templates and best for web as you can also limit the length of the "to be" created template to a certain size and write the result ether directly to an output stream or the Disc.
 3. Morestachio accepts any object as source
 4. Cancellation of Template generation is supported
-5. Async calls are supported
-6. Minimal Reference count
+5. Async calls are supported (For Formatters)
+6. Minimal Reference count (For .Net only Mirosoft.CSharp.dll & System.dll. Reference to JetBrains.Annotations.dll is optional)
 7. NetFramework and NetCore are supported
 8. Using of JetBrains Annotations for R# user ( if you are not a R# user just ignore this point )
 9. Supports user Encoding of the result template
