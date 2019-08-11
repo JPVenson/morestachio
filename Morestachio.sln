@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27428.2005
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29102.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{A77DD285-5579-4D79-BEE3-659AA9C4927C}"
 	ProjectSection(SolutionItems) = preProject
@@ -14,110 +14,30 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NetFramework", "NetFramewor
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NetCore", "NetCore", "{0AA33DD3-54C6-43BA-B850-22B3DC45EB2F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NetFramework", "NetFramework", "{006EB76E-E262-4DFD-9C1B-DC570193276D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morestachio", "Morestachio\Morestachio.csproj", "{C11094C0-2764-4234-99AB-0159039E1904}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{9B29488F-2C26-466F-B0E7-CC24D5541365}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morestachio.Tests", "Morestachio.Tests\Morestachio.Tests.csproj", "{96FBE2A9-FFCA-43F8-B0DA-9EECCEA6986B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NetCore", "NetCore", "{8162F6BA-F589-4DF6-BBE5-CADEDE97C14F}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "47", "47", "{22BB7753-CC0C-4035-B4F4-0D916FC94F3E}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "21", "21", "{990D8E2D-079B-400A-9E8C-621E6D7319AD}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Morestachio.Core", "Core\Morestachio.Core\Morestachio.Core.shproj", "{B27DF4CC-167C-4246-8BD7-FE82E863A7CC}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Morestachio.Formatter.Framework.Core", "Core\Morestachio.Formatter.Framework.Core\Morestachio.Formatter.Framework.Core.shproj", "{0B30548C-B890-49F6-A9FA-E1D0A7ABCE7B}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Morestachio.Formatter.Linq.Core", "Core\Morestachio.Formatter.Linq.Core\Morestachio.Formatter.Linq.Core.shproj", "{7EE52949-CEC3-484C-B692-AED82F56F43C}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{91C61A67-6E81-44BE-B275-26DDB8BAFF19}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morestachio.Net.47", "NetFramework\Morestachio.NetFramework\Morestachio.Net.47.csproj", "{4504C65B-A0EC-4601-82EF-D2542414BC86}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morestachio.Net.47.Formatter.Framework", "NetFramework\Morestachio.NetFramework.Formatter.Framework\Morestachio.Net.47.Formatter.Framework.csproj", "{454B0162-E2EB-4C15-85EE-0B4558750F7B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morestachio.Net.47.Formatter.Linq", "NetFramework\Morestachio.NetFramework.Formatter.Linq\Morestachio.Net.47.Formatter.Linq.csproj", "{18A2D5ED-CE5F-4914-B780-0BC8779501A5}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morestachio.Net.47.Formatter.Framework.Tests", "NetFramework\Tests\Morestachio.NetFramework.Formatter.Framework.Tests\Morestachio.Net.47.Formatter.Framework.Tests.csproj", "{E3BC2585-06DF-49DC-A775-EEC7EFE846FB}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morestachio.Net.47.Tests", "NetFramework\Tests\Morestachio.NetFramework.Tests\Morestachio.Net.47.Tests.csproj", "{29EB8E0D-5490-4886-857E-31695DE45B1B}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{61BD15DA-C662-4FC4-A294-C47AE5ADC105}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.NetCore.2.1.Formatter.Framework", "NetCore\2.1\Morestachio.2.1.Formatter.Framework\Morestachio.NetCore.2.1.Formatter.Framework.csproj", "{A6A2987F-3894-416C-8827-228ED58894BF}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.NetCore.2.1.Formatter.Linq", "NetCore\2.1\Morestachio.2.1.Formatter.Framework.Linq\Morestachio.NetCore.2.1.Formatter.Linq.csproj", "{7C94E801-1BFB-4DB8-ABCC-B0BBC777CCDE}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.NetCore.2.1.Tests", "NetCore\2.1\Tests\Morestachio.2.1.Tests\Morestachio.NetCore.2.1.Tests.csproj", "{9E7281CE-F6F6-4EAB-AAB1-936F4B763D05}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{F859591B-C032-4521-A980-F3D630631607}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Morestachio.Tests.Core", "Core\Tests\Morestachio.Tests.Core\Morestachio.Tests.Core.shproj", "{882BEB6E-050A-4A86-8BC3-78C270522E4D}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Morestachio.Formatter.Framework.Test.Core", "Core\Tests\Morestachio.Formatter.Framework.Test.Core\Morestachio.Formatter.Framework.Test.Core.shproj", "{179EA6DF-0EB7-4FB1-97CE-5BB2F5BD4937}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.NetCore.2.1.Formatter.Framework.Tests", "NetCore\2.1\Tests\Morestachio.2.1.Formatter.Framework.Tests\Morestachio.NetCore.2.1.Formatter.Framework.Tests.csproj", "{F798107D-CFDA-4E5D-A92E-BC778DC38BA9}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.NetCore.2.1", "NetCore\2.1\Morestachio.2.1\Morestachio.NetCore.2.1.csproj", "{03AD2E90-7EEE-4828-9896-85C0E1F48B05}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morestachio.Linq", "Morestachio.Linq\Morestachio.Linq.csproj", "{58A6BE54-5436-4F00-BCE4-127176B4948A}"
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Core\Morestachio.Formatter.Framework.Core\Morestachio.Formatter.Framework.Core.projitems*{0b30548c-b890-49f6-a9fa-e1d0a7abce7b}*SharedItemsImports = 13
-		Core\Tests\Morestachio.Formatter.Framework.Test.Core\Morestachio.Formatter.Framework.Test.Core.projitems*{179ea6df-0eb7-4fb1-97ce-5bb2f5bd4937}*SharedItemsImports = 13
-		Core\Morestachio.Formatter.Linq.Core\Morestachio.Formatter.Linq.Core.projitems*{18a2d5ed-ce5f-4914-b780-0bc8779501a5}*SharedItemsImports = 4
-		Core\Tests\Morestachio.Tests.Core\Morestachio.Tests.Core.projitems*{29eb8e0d-5490-4886-857e-31695de45b1b}*SharedItemsImports = 4
-		Core\Morestachio.Core\Morestachio.Core.projitems*{4504c65b-a0ec-4601-82ef-d2542414bc86}*SharedItemsImports = 4
-		Core\Morestachio.Formatter.Framework.Core\Morestachio.Formatter.Framework.Core.projitems*{454b0162-e2eb-4c15-85ee-0b4558750f7b}*SharedItemsImports = 4
-		Core\Morestachio.Formatter.Linq.Core\Morestachio.Formatter.Linq.Core.projitems*{7ee52949-cec3-484c-b692-aed82f56f43c}*SharedItemsImports = 13
-		Core\Tests\Morestachio.Tests.Core\Morestachio.Tests.Core.projitems*{882beb6e-050a-4a86-8bc3-78c270522e4d}*SharedItemsImports = 13
-		Core\Morestachio.Core\Morestachio.Core.projitems*{b27df4cc-167c-4246-8bd7-fe82e863a7cc}*SharedItemsImports = 13
-		Core\Tests\Morestachio.Formatter.Framework.Test.Core\Morestachio.Formatter.Framework.Test.Core.projitems*{e3bc2585-06df-49dc-a775-eec7efe846fb}*SharedItemsImports = 4
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{4504C65B-A0EC-4601-82EF-D2542414BC86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4504C65B-A0EC-4601-82EF-D2542414BC86}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4504C65B-A0EC-4601-82EF-D2542414BC86}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4504C65B-A0EC-4601-82EF-D2542414BC86}.Release|Any CPU.Build.0 = Release|Any CPU
-		{454B0162-E2EB-4C15-85EE-0B4558750F7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{454B0162-E2EB-4C15-85EE-0B4558750F7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{454B0162-E2EB-4C15-85EE-0B4558750F7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{454B0162-E2EB-4C15-85EE-0B4558750F7B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{18A2D5ED-CE5F-4914-B780-0BC8779501A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{18A2D5ED-CE5F-4914-B780-0BC8779501A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{18A2D5ED-CE5F-4914-B780-0BC8779501A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{18A2D5ED-CE5F-4914-B780-0BC8779501A5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E3BC2585-06DF-49DC-A775-EEC7EFE846FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E3BC2585-06DF-49DC-A775-EEC7EFE846FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E3BC2585-06DF-49DC-A775-EEC7EFE846FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E3BC2585-06DF-49DC-A775-EEC7EFE846FB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{29EB8E0D-5490-4886-857E-31695DE45B1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{29EB8E0D-5490-4886-857E-31695DE45B1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{29EB8E0D-5490-4886-857E-31695DE45B1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{29EB8E0D-5490-4886-857E-31695DE45B1B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A6A2987F-3894-416C-8827-228ED58894BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A6A2987F-3894-416C-8827-228ED58894BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A6A2987F-3894-416C-8827-228ED58894BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A6A2987F-3894-416C-8827-228ED58894BF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7C94E801-1BFB-4DB8-ABCC-B0BBC777CCDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7C94E801-1BFB-4DB8-ABCC-B0BBC777CCDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7C94E801-1BFB-4DB8-ABCC-B0BBC777CCDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7C94E801-1BFB-4DB8-ABCC-B0BBC777CCDE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9E7281CE-F6F6-4EAB-AAB1-936F4B763D05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9E7281CE-F6F6-4EAB-AAB1-936F4B763D05}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9E7281CE-F6F6-4EAB-AAB1-936F4B763D05}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9E7281CE-F6F6-4EAB-AAB1-936F4B763D05}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F798107D-CFDA-4E5D-A92E-BC778DC38BA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F798107D-CFDA-4E5D-A92E-BC778DC38BA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F798107D-CFDA-4E5D-A92E-BC778DC38BA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F798107D-CFDA-4E5D-A92E-BC778DC38BA9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{03AD2E90-7EEE-4828-9896-85C0E1F48B05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{03AD2E90-7EEE-4828-9896-85C0E1F48B05}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{03AD2E90-7EEE-4828-9896-85C0E1F48B05}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{03AD2E90-7EEE-4828-9896-85C0E1F48B05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C11094C0-2764-4234-99AB-0159039E1904}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C11094C0-2764-4234-99AB-0159039E1904}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C11094C0-2764-4234-99AB-0159039E1904}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C11094C0-2764-4234-99AB-0159039E1904}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96FBE2A9-FFCA-43F8-B0DA-9EECCEA6986B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96FBE2A9-FFCA-43F8-B0DA-9EECCEA6986B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96FBE2A9-FFCA-43F8-B0DA-9EECCEA6986B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96FBE2A9-FFCA-43F8-B0DA-9EECCEA6986B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58A6BE54-5436-4F00-BCE4-127176B4948A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58A6BE54-5436-4F00-BCE4-127176B4948A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58A6BE54-5436-4F00-BCE4-127176B4948A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58A6BE54-5436-4F00-BCE4-127176B4948A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -125,26 +45,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{3AF283FC-E76D-4D39-9DA5-A04E4717F81A} = {A77DD285-5579-4D79-BEE3-659AA9C4927C}
 		{0AA33DD3-54C6-43BA-B850-22B3DC45EB2F} = {A77DD285-5579-4D79-BEE3-659AA9C4927C}
-		{22BB7753-CC0C-4035-B4F4-0D916FC94F3E} = {006EB76E-E262-4DFD-9C1B-DC570193276D}
-		{990D8E2D-079B-400A-9E8C-621E6D7319AD} = {8162F6BA-F589-4DF6-BBE5-CADEDE97C14F}
-		{B27DF4CC-167C-4246-8BD7-FE82E863A7CC} = {9B29488F-2C26-466F-B0E7-CC24D5541365}
-		{0B30548C-B890-49F6-A9FA-E1D0A7ABCE7B} = {9B29488F-2C26-466F-B0E7-CC24D5541365}
-		{7EE52949-CEC3-484C-B692-AED82F56F43C} = {9B29488F-2C26-466F-B0E7-CC24D5541365}
-		{91C61A67-6E81-44BE-B275-26DDB8BAFF19} = {22BB7753-CC0C-4035-B4F4-0D916FC94F3E}
-		{4504C65B-A0EC-4601-82EF-D2542414BC86} = {22BB7753-CC0C-4035-B4F4-0D916FC94F3E}
-		{454B0162-E2EB-4C15-85EE-0B4558750F7B} = {22BB7753-CC0C-4035-B4F4-0D916FC94F3E}
-		{18A2D5ED-CE5F-4914-B780-0BC8779501A5} = {22BB7753-CC0C-4035-B4F4-0D916FC94F3E}
-		{E3BC2585-06DF-49DC-A775-EEC7EFE846FB} = {91C61A67-6E81-44BE-B275-26DDB8BAFF19}
-		{29EB8E0D-5490-4886-857E-31695DE45B1B} = {91C61A67-6E81-44BE-B275-26DDB8BAFF19}
-		{61BD15DA-C662-4FC4-A294-C47AE5ADC105} = {990D8E2D-079B-400A-9E8C-621E6D7319AD}
-		{A6A2987F-3894-416C-8827-228ED58894BF} = {990D8E2D-079B-400A-9E8C-621E6D7319AD}
-		{7C94E801-1BFB-4DB8-ABCC-B0BBC777CCDE} = {990D8E2D-079B-400A-9E8C-621E6D7319AD}
-		{9E7281CE-F6F6-4EAB-AAB1-936F4B763D05} = {61BD15DA-C662-4FC4-A294-C47AE5ADC105}
-		{F859591B-C032-4521-A980-F3D630631607} = {9B29488F-2C26-466F-B0E7-CC24D5541365}
-		{882BEB6E-050A-4A86-8BC3-78C270522E4D} = {F859591B-C032-4521-A980-F3D630631607}
-		{179EA6DF-0EB7-4FB1-97CE-5BB2F5BD4937} = {F859591B-C032-4521-A980-F3D630631607}
-		{F798107D-CFDA-4E5D-A92E-BC778DC38BA9} = {61BD15DA-C662-4FC4-A294-C47AE5ADC105}
-		{03AD2E90-7EEE-4828-9896-85C0E1F48B05} = {990D8E2D-079B-400A-9E8C-621E6D7319AD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {96AB97D9-9D65-41D3-8164-800A5C9CE961}

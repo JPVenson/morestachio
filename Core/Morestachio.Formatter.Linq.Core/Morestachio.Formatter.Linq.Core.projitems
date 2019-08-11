@@ -9,6 +9,8 @@
     <Import_RootNamespace>Morestachio.Formatter.Linq.Core</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)EquallityFormatter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ListFormatter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NumberFormatter.cs" />
   </ItemGroup>
 </Project>
