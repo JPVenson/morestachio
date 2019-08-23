@@ -41,16 +41,10 @@ Morestachio can be installed via [NuGet](https://www.nuget.org/packages/Morestac
 ```bash
 Install-Package Morestachio
 ```
+(The Formatter Service comes bundeld with the Morestachio Package)
 
-To get the Extended Formatter Service please install *ether* the 
-```bash
-Install-Package Morestachio.Formatter.Framework
-```
-or 
 
-```bash
-Install-Package Morestachio.Formatter.Linq
-```
+
 I am currently working on the CI process to seperate the builds.
 
 ##### Key Features
