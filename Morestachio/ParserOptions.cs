@@ -100,6 +100,11 @@ namespace Morestachio
 		}
 
 		/// <summary>
+		///		If set to True morestachio will profile the execution and report the result in both <seealso cref="MorestachioDocumentInfo"/> and <seealso cref=""/>
+		/// </summary>
+		public bool ProfileExecution { get; set; }
+
+		/// <summary>
 		///		Can be used to resolve values from custom objects
 		/// </summary>
 		public IValueResolver ValueResolver { get; set; }

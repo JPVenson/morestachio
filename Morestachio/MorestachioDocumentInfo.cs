@@ -11,6 +11,17 @@ using Morestachio.Helper;
 namespace Morestachio
 {
 	/// <summary>
+	///		The Compiled template
+	/// </summary>
+	public class MorestachioDocumentResult
+	{
+		/// <summary>
+		///		The Result of the CreateAsync call
+		/// </summary>
+		public Stream Stream { get; set; }
+	}
+
+	/// <summary>
 	///     Provided when parsing a template and getting information about the embedded variables.
 	/// </summary>
 	public class MorestachioDocumentInfo
@@ -51,6 +62,8 @@ namespace Morestachio
 		[NotNull]
 		public IEnumerable<IMorestachioError> Errors { get; private set; }
 
+		internal PerformanceProfiler Profiler { get; set; }
+
 		private const int BufferSize = 2024;
 
 		/// <summary>
@@ -61,7 +74,7 @@ namespace Morestachio
 		/// <returns></returns>
 		[MustUseReturnValue("The Stream contains the template. Use CreateAndStringify() to get the string of it")]
 		[NotNull]
-		public async Task<Stream> CreateAsync([NotNull]object data, CancellationToken token)
+		public async Task<MorestachioDocumentResult> CreateAsync([NotNull]object data, CancellationToken token)
 		{
 			if (Errors.Any())
 			{
@@ -114,7 +127,10 @@ namespace Morestachio
 				sourceStream?.Dispose();
 				throw;
 			}
-			return sourceStream;
+			return new MorestachioDocumentResult()
+			{
+				Stream = sourceStream
+			};
 		}
 
 		/// <summary>
@@ -124,7 +140,7 @@ namespace Morestachio
 		/// <returns></returns>
 		[MustUseReturnValue("The Stream contains the template. Use CreateAndStringify() to get the string of it")]
 		[NotNull]
-		public async Task<Stream> CreateAsync([NotNull]object data)
+		public async Task<MorestachioDocumentResult> CreateAsync([NotNull]object data)
 		{
 			return await CreateAsync(data, CancellationToken.None);
 		}
@@ -149,7 +165,7 @@ namespace Morestachio
 		[NotNull]
 		public async Task<string> CreateAndStringifyAsync([NotNull]object source, CancellationToken token)
 		{
-			return (await CreateAsync(source, token)).Stringify(true, ParserOptions.Encoding);
+			return (await CreateAsync(source, token)).Stream.Stringify(true, ParserOptions.Encoding);
 		}
 
 		/// <summary>
@@ -160,9 +176,9 @@ namespace Morestachio
 		/// <returns></returns>
 		[MustUseReturnValue("The Stream contains the template. Use CreateAndStringify() to get the string of it")]
 		[NotNull]
-		public Stream Create([NotNull]object source, CancellationToken token)
+		public MorestachioDocumentResult Create([NotNull]object source, CancellationToken token)
 		{
-			Stream result = null;
+			MorestachioDocumentResult result = null;
 			using (var async = AsyncHelper.Wait)
 			{
 				async.Run(CreateAsync(source, token), e => result = e);
@@ -178,7 +194,7 @@ namespace Morestachio
 		/// <returns></returns>
 		[MustUseReturnValue("The Stream contains the template. Use CreateAndStringify() to get the string of it")]
 		[NotNull]
-		public Stream Create([NotNull]object source)
+		public MorestachioDocumentResult Create([NotNull]object source)
 		{
 			return Create(source, CancellationToken.None);
 		}
@@ -203,7 +219,7 @@ namespace Morestachio
 		[NotNull]
 		public string CreateAndStringify([NotNull]object source, CancellationToken token)
 		{
-			return Create(source, token).Stringify(true, ParserOptions.Encoding);
+			return Create(source, token).Stream.Stringify(true, ParserOptions.Encoding);
 		}
 	}
 }

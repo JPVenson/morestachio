@@ -1,5 +1,6 @@
 ﻿
 
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Morestachio.Formatter;
 
@@ -15,6 +16,52 @@ using Morestachio.Framework;
 
 namespace Morestachio
 {
+	internal class PerformanceProfiler
+	{
+		public PerformanceProfiler(bool isEnabled)
+		{
+			IsEnabled = isEnabled;
+		}
+
+		public bool IsEnabled { get; private set; }
+
+		public HashSet<PerformanceKey> PerformanceKeys { get; private set; }
+
+		public IDisposable Begin(string name)
+		{
+			return new PerformanceKey(null, name).Start();
+		}
+
+		public class PerformanceKey : IDisposable
+		{
+			public PerformanceKey(string key, string name)
+			{
+				Key = key;
+				Name = name;
+				Time = TimeSpan.Zero;
+				_stopwatch = new Stopwatch();
+			}
+
+			public string Key { get; }
+			public string Name { get; }
+
+			public TimeSpan Time { get; private set; }
+			private Stopwatch _stopwatch;
+
+			public PerformanceKey Start()
+			{
+				_stopwatch.Start();
+				return this;
+			}
+
+			public void Dispose()
+			{
+				_stopwatch.Stop();
+				Time = _stopwatch.Elapsed;
+			}
+		}
+	}
+
 	internal struct DocumentScope
 	{
 		public DocumentScope(IDocumentItem document)
@@ -73,10 +120,17 @@ namespace Morestachio
 			}
 
 			var errors = new List<IMorestachioError>();
-			var tokens = new Queue<TokenPair>(Tokenizer.Tokenize(parsingOptions, errors));
+			var profiler = new PerformanceProfiler(parsingOptions.ProfileExecution);
+			Queue<TokenPair> tokens;
+			using (profiler.Begin("Tokenize"))
+			{
+				tokens = new Queue<TokenPair>(Tokenizer.Tokenize(parsingOptions, errors, profiler));
+			}
+
 			//if there are any errors do not parse the template
 			var documentInfo = new MorestachioDocumentInfo(parsingOptions,
 				errors.Any() ? null : Parse(tokens), errors);
+			documentInfo.Profiler = profiler;
 			return documentInfo;
 		}
 

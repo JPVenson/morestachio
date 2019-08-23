@@ -403,9 +403,11 @@ namespace Morestachio.Framework
 			}
 		}
 
-		internal static IEnumerable<TokenPair> Tokenize(ParserOptions parserOptions, ICollection<IMorestachioError> parseErrors)
+		internal static IEnumerable<TokenPair> Tokenize(ParserOptions parserOptions,
+			ICollection<IMorestachioError> parseErrors, 
+			PerformanceProfiler profiler)
 		{
-			return TokenizeString(parserOptions.Template, parseErrors);
+			return TokenizeString(parserOptions.Template, parseErrors, profiler);
 		}
 
 		internal static Tuple<string, string> EvaluateNameFromToken(string token)
@@ -421,10 +423,16 @@ namespace Morestachio.Framework
 		}
 
 		internal static IEnumerable<TokenPair> TokenizeString(string partial,
-			ICollection<IMorestachioError> parseErrors)
+			ICollection<IMorestachioError> parseErrors, 
+			PerformanceProfiler profiler)
 		{
 			var templateString = partial;
-			var matches = TokenFinder.Matches(templateString);
+			MatchCollection matches;
+			using (profiler.Begin("Find Tokens"))
+			{
+				matches = TokenFinder.Matches(templateString);
+			}
+			
 			var scopestack = new Stack<Tuple<string, int>>();
 
 			var idx = 0;
