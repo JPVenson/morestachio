@@ -192,6 +192,13 @@ namespace Morestachio
 					currentDocumentItem.Document.Add(new ContentDocumentItem(currentToken.Value)
 						{ExpressionStart = currentToken.TokenLocation});
 				}
+				else if (currentToken.Type == TokenType.If)
+				{
+					var nestedDocument = new IfExpressionScopeDocumentItem(currentToken.Value)
+						{ExpressionStart = currentToken.TokenLocation};
+					buildStack.Push(new DocumentScope(nestedDocument));
+					currentDocumentItem.Document.Add(nestedDocument);
+				}
 				else if (currentToken.Type == TokenType.CollectionOpen)
 				{
 					var nestedDocument = new CollectionDocumentItem(currentToken.Value)
@@ -213,10 +220,11 @@ namespace Morestachio
 					buildStack.Push(new DocumentScope(invertedScope));
 					currentDocumentItem.Document.Add(invertedScope);
 				}
-				else if (currentToken.Type == TokenType.CollectionClose || currentToken.Type == TokenType.ElementClose)
+				else if (currentToken.Type == TokenType.CollectionClose 
+				         || currentToken.Type == TokenType.ElementClose
+				         || currentToken.Type == TokenType.IfClose)
 				{
-					if (buildStack.Peek().HasAlias
-					) //are we in a alias then remove it
+					if (buildStack.Peek().HasAlias) //are we in a alias then remove it
 					{
 						currentDocumentItem.Document.Add(new RemoveAliasDocumentItem(buildStack.Peek().AliasName));
 						buildStack.Pop();

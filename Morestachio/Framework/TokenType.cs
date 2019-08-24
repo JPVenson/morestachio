@@ -8,7 +8,13 @@
 		EscapedSingleValue,
 		UnescapedSingleValue,
 		InvertedElementOpen,
+		/// <summary>
+		///		Defines the start of a scope
+		/// </summary>
 		ElementOpen,
+		/// <summary>
+		///		Defines the end of a scope
+		/// </summary>
 		ElementClose,
 		Comment,
 		Content,
@@ -44,5 +50,14 @@
 		///		Defines the current Context as the be accessed by an alias
 		/// </summary>
 		Alias,
+
+		/// <summary>
+		///		Defines an if. It Works the same as the "#" keyword but does not scope its body to it.
+		/// </summary>
+		If,
+		/// <summary>
+		///		Defines the end of a if-scope
+		/// </summary>
+		IfClose,
 	}
 }

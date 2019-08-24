@@ -258,10 +258,7 @@ namespace Morestachio.Helper
 					if (task != null)
 					{
 						task.Item1(task.Item2);
-						if (InnerException != null) // method threw an exeption
-						{
-							InnerException.Throw();
-						}
+						InnerException?.Throw();
 					}
 					else
 					{

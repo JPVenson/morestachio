@@ -64,6 +64,7 @@ namespace Morestachio.Tests
 		[Test]
 		[TestCase("{{#ACollection}}{{.}}{{/each}}")]
 		[TestCase("{{#ACollection}}{{.}}{{/ACollection}}{{/each}}")]
+		[TestCase("{{#IF ACollection}}{{.}}{{/IF}}{{/each}}")]
 		[TestCase("{{/each}}")]
 		public void ParserThrowsAnExceptionWhenEachIsMismatched(string invalidTemplate)
 		{
@@ -90,6 +91,7 @@ namespace Morestachio.Tests
 		[TestCase("{{#each element}}{{name}}")]
 		[TestCase("{{#element}}{{name}}")]
 		[TestCase("{{^element}}{{name}}")]
+		[TestCase("{{#IF element}}{{name}}")]
 		public void ParserThrowsParserExceptionForUnclosedGroups(string invalidTemplate)
 		{
 			Assert.That(Parser.ParseWithOptions(new ParserOptions(invalidTemplate)).Errors,

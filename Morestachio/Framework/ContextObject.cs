@@ -45,8 +45,13 @@ namespace Morestachio.Framework
 		}
 
 		/// <summary>
-		///		Gets the Default Definition of false.
-		///		This is ether Null, boolean false, 0 double or int, string.Empty or if collection not Any().
+		///		<para>Gets the Default Definition of false.</para>
+		///		This is ether:
+		///		<para>- Null</para>
+		///		<para>- boolean false</para>
+		///		<para>- 0 double or int</para>
+		///		<para>- string.Empty (whitespaces are allowed)</para>
+		///		<para>- collection not Any().</para>
 		///		This field can be used to define your own <see cref="DefinitionOfFalse"/> and then fallback to the default logic
 		/// </summary>
 		public static readonly Func<object, bool> DefaultDefinitionOfFalse;
