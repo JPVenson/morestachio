@@ -536,7 +536,7 @@ namespace Morestachio.Framework
 						tokens.Add(new TokenPair(TokenType.Alias, alias, HumanizeCharacterLocation(m.Index + $"#each{alias}".Length, lines)));
 					}
 				}
-				else if (m.Value.StartsWith("{{#if", true, CultureInfo.InvariantCulture))
+				else if (m.Value.StartsWith("{{#if ", true, CultureInfo.InvariantCulture))
 				{
 					var token = m.Value.TrimStart('{').TrimEnd('}').TrimStart('#').Trim().Substring("if".Length);
 					var eval = EvaluateNameFromToken(token);
@@ -569,6 +569,41 @@ namespace Morestachio.Framework
 					if (!string.IsNullOrWhiteSpace(alias))
 					{
 						tokens.Add(new TokenPair(TokenType.Alias, alias, HumanizeCharacterLocation(m.Index + $"#if{alias}".Length, lines)));
+					}
+				}
+				else if (m.Value.StartsWith("{{^if ", true, CultureInfo.InvariantCulture))
+				{
+					var token = m.Value.TrimStart('{').TrimEnd('}').TrimStart('^').Trim().Substring("if".Length);
+					var eval = EvaluateNameFromToken(token);
+					token = eval.Item1;
+					var alias = eval.Item2;
+
+					scopestack.Push(Tuple.Create($"^if{alias}", m.Index));
+
+					if (token.StartsWith(" ") && token.Trim() != "")
+					{
+						token = token.Trim();
+						if (FormatInExpressionFinder.IsMatch(token))
+						{
+							tokens.AddRange(TokenizeFormattables(token, templateString, lines,
+								tokenIndex, parseErrors));
+
+							tokens.Add(new TokenPair(TokenType.IfNot, ".", HumanizeCharacterLocation(tokenIndex, lines)));
+						}
+						else
+						{
+							tokens.Add(new TokenPair(TokenType.IfNot,
+								Validated(token, templateString, m.Index, lines, parseErrors).Trim(), HumanizeCharacterLocation(tokenIndex, lines)));
+						}
+					}
+					else
+					{
+						parseErrors.Add(new InvalidPathSyntaxError(HumanizeCharacterLocation(m.Index, lines), ""));
+					}
+
+					if (!string.IsNullOrWhiteSpace(alias))
+					{
+						tokens.Add(new TokenPair(TokenType.Alias, alias, HumanizeCharacterLocation(m.Index + $"^if{alias}".Length, lines)));
 					}
 				}
 				else if (m.Value.StartsWith("{{/if", true, CultureInfo.InvariantCulture))

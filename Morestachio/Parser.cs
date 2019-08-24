@@ -199,6 +199,13 @@ namespace Morestachio
 					buildStack.Push(new DocumentScope(nestedDocument));
 					currentDocumentItem.Document.Add(nestedDocument);
 				}
+				else if (currentToken.Type == TokenType.IfNot)
+				{
+					var nestedDocument = new IfNotExpressionScopeDocumentItem(currentToken.Value)
+						{ExpressionStart = currentToken.TokenLocation};
+					buildStack.Push(new DocumentScope(nestedDocument));
+					currentDocumentItem.Document.Add(nestedDocument);
+				}
 				else if (currentToken.Type == TokenType.CollectionOpen)
 				{
 					var nestedDocument = new CollectionDocumentItem(currentToken.Value)

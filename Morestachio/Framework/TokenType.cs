@@ -59,5 +59,6 @@
 		///		Defines the end of a if-scope
 		/// </summary>
 		IfClose,
+		IfNot
 	}
 }
