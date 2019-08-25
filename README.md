@@ -30,8 +30,7 @@ model["sender"] = "Sally";
 var model = new {name= "John", sender= "Sally"}
 
 // Combine the model with the template to get content:
-Stream content = document.Create(model);
-content.Stringify(Encoding.Default); // Dear John, this is definitely a personalized note to you. Very truly yours, Sally
+var content = document.CreateAndStringify(model); // Dear John, this is definitely a personalized note to you. Very truly yours, Sally
 ```
 
 #### Installing Morestachio:
