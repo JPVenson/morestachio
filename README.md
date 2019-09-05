@@ -30,8 +30,7 @@ model["sender"] = "Sally";
 var model = new {name= "John", sender= "Sally"}
 
 // Combine the model with the template to get content:
-Stream content = document.Create(model);
-content.Stringify(Encoding.Default); // Dear John, this is definitely a personalized note to you. Very truly yours, Sally
+var content = document.CreateAndStringify(model); // Dear John, this is definitely a personalized note to you. Very truly yours, Sally
 ```
 
 #### Installing Morestachio:
@@ -50,20 +49,21 @@ I am currently working on the CI process to seperate the builds.
 ##### Key Features
 Morestachio is build upon Mustachio and extends the mustachio syntax in a few ways.
 
-1. each value can be formatted by adding formatter the the morestachio
+1. each object can be formatted by adding formatter the the morestachio
 2. Templates will be parsed as streams and will create a new stream for its output. This is better when creating larger templates and best for web as you can also limit the length of the "to be" created template to a certain size and write the result ether directly to an output stream or the Disc.
 3. Morestachio accepts any object as source
 4. Cancellation of Template generation is supported
 5. Async calls are supported (For Formatters)
 6. Minimal Reference count (For .Net only Mirosoft.CSharp.dll & System.dll. Reference to JetBrains.Annotations.dll is optional)
-7. NetFramework and NetCore are supported
+7. NetFramework, NetCore & NetStandard are supported
 8. Using of JetBrains Annotations for R# user ( if you are not a R# user just ignore this point )
 9. Supports user Encoding of the result template
 10. Supports Template Partials `{{#include secondary_template }}`
-11. Complex paths are supported `{{ this.is.a.valid.path }}` and `{{ ../this.goes.up.one.level }}` and `{{ ~.this.goes.up.one.level }}`
+11. Complex paths are supported `{{ this.is.a.valid.path }}` and `{{ ../this.goes.up.one.level }}` and `{{ ~.this.goes.up.to.Root }}`
 12. Loops with `#each`
-13. Formatters can be declared in C# and be called from the template to provide you with a maximum of freedom
-14. The Parser produces a Serilizable Document Tree that can be send to clients to provide a rich user edit experience 
+13. Object Enumeration with `#each data.?`
+14. Formatters can be declared in C# and be called from the template to provide you with a maximum of freedom
+15. The Parser produces a Serilizable Document Tree that can be send to clients to provide a rich user edit experience 
  
 **Template partials** ARE a great feature for large scale template development.
 
