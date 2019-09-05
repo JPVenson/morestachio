@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace Morestachio.Formatter.Framework.Tests
 {
@@ -9,6 +10,13 @@ namespace Morestachio.Formatter.Framework.Tests
 		[MorestachioFormatter("reverse", "XXX")]
 		public static string Reverse(string originalObject)
 		{
+			return originalObject.Reverse().Select(e => e.ToString()).Aggregate((e, f) => e + f);
+		}
+
+		[MorestachioFormatter("reverseAsync", "XXX")]
+		public static async Task<string> ReverseAsync(string originalObject)
+		{
+			await Task.Delay(500);
 			return originalObject.Reverse().Select(e => e.ToString()).Aggregate((e, f) => e + f);
 		}
 

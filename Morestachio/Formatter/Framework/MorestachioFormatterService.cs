@@ -62,7 +62,10 @@ namespace Morestachio.Formatter.Framework
 		public void AddFormatterToMorestachio(IEnumerable<MorestachioFormatterModel> listOfFormatter,
 			ParserOptions options)
 		{
-			foreach (var formatterGroup in listOfFormatter.GroupBy(e => e.InputType.Name).ToArray())
+			foreach (var formatterGroup in listOfFormatter
+				.GroupBy(e => e.InputType.Name)
+				.OrderBy(e => e.Key == typeof(object).Name)
+				.ToArray())
 			{
 				//if the object has a generic argument like lists, make it late bound
 				FormatTemplateElement formatter;

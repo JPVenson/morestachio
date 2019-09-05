@@ -14,6 +14,7 @@
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
     <TargetFrameworkProfile />
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -198,17 +199,9 @@
     <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\NetFramework\Morestachio.NetFramework.Formatter.Framework\Morestachio.Net.47.Formatter.Framework.csproj">
-      <Project>{454b0162-e2eb-4c15-85ee-0b4558750f7b}</Project>
-      <Name>Morestachio.Net.47.Formatter.Framework</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\NetFramework\Morestachio.NetFramework.Formatter.Linq\Morestachio.Net.47.Formatter.Linq.csproj">
-      <Project>{18a2d5ed-ce5f-4914-b780-0bc8779501a5}</Project>
-      <Name>Morestachio.Net.47.Formatter.Linq</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\NetFramework\Morestachio.NetFramework\Morestachio.Net.47.csproj">
-      <Project>{4504c65b-a0ec-4601-82ef-d2542414bc86}</Project>
-      <Name>Morestachio.Net.47</Name>
+    <ProjectReference Include="..\..\Morestachio\Morestachio.csproj">
+      <Project>{f7726cd9-1c15-4049-810e-46541537863a}</Project>
+      <Name>Morestachio</Name>
     </ProjectReference>
     <ProjectReference Include="..\JPB.Mustachio.Client.Contacts\JPB.Mustachio.Client.Contacts.csproj">
       <Project>{9083f2b8-fac7-4a8f-8a4c-6704bfd91bb9}</Project>

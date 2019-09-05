@@ -13,6 +13,7 @@ namespace Morestachio.Framework
 	/// <exception cref="IndexedParseException"></exception>
 	public class Tokenizer
 	{
+
 		private static readonly Regex TokenFinder = new Regex("([{]{2}[^{}]+?[}]{2})|([{]{3}[^{}]+?[}]{3})",
 			RegexOptions.Compiled);
 
@@ -106,7 +107,7 @@ namespace Morestachio.Framework
 			/// The type of the token.
 			/// </value>
 			public HeaderArgumentType TokenType { get; set; }
-			
+
 			/// <summary>
 			///		The location within the Template of the Argument
 			/// </summary>
@@ -152,18 +153,30 @@ namespace Morestachio.Framework
 			return formatChar == '\r' || formatChar == '\r' || formatChar == '\t' || formatChar == ' ';
 		}
 
+		private static Regex _isCharRegex = new Regex("\\w", RegexOptions.Compiled);
+
 		private static bool IsExpressionChar(char formatChar)
 		{
-			return formatChar == '.' 
-			       || formatChar == '$' 
-			       || formatChar == '~' 
-			       || new Regex("\\w").IsMatch(formatChar.ToString());
+			return formatChar == '.'
+				   || formatChar == '$'
+				   || formatChar == '~'
+				   || _isCharRegex.IsMatch(formatChar.ToString());
 		}
 
+		class FormatMatch
+		{
+			public string Path { get; set; }
+			public HeaderTokenMatch[] Format { get; set; }
+		}
+
+		private static readonly Regex AllowedPathChars
+			= new Regex(@"([\w.\s|$|/|~]+)", RegexOptions.Compiled);
+
+
 		private static HeaderTokenMatch[] TokenizeFormatterHeader(string formatString,
-			ICollection<IMorestachioError> error,
-			List<int> linesOfTemplate,
-			int startOfArgumentPosition)
+					ICollection<IMorestachioError> error,
+					List<int> linesOfTemplate,
+					int startOfArgumentPosition)
 		{
 			//this COULD be made with regexes, i have made it and rejected it as it was no longer readable in any way.
 			var tokenScopes = new Stack<HeaderTokenMatch>();
@@ -382,10 +395,7 @@ namespace Morestachio.Framework
 				{
 					//trim only the last ) not each as there is maybe an expression as last argument
 					var formatExpression = formatterArgument.Substring(1, formatterArgument.Length - 2);
-
-
 					var formatHeader = TokenizeFormatterHeader(formatExpression, parseErrors, lines, tokenArgIndex);
-
 					yield return new TokenPair(TokenType.Format,
 						ValidateArgumentHead(scalarValue, formatterArgument, templateString,
 							tokenArgIndex, lines, parseErrors), HumanizeCharacterLocation(tokenArgIndex, lines))
@@ -404,7 +414,7 @@ namespace Morestachio.Framework
 		}
 
 		internal static IEnumerable<TokenPair> Tokenize(ParserOptions parserOptions,
-			ICollection<IMorestachioError> parseErrors, 
+			ICollection<IMorestachioError> parseErrors,
 			PerformanceProfiler profiler)
 		{
 			return TokenizeString(parserOptions.Template, parseErrors, profiler);
@@ -423,7 +433,7 @@ namespace Morestachio.Framework
 		}
 
 		internal static IEnumerable<TokenPair> TokenizeString(string partial,
-			ICollection<IMorestachioError> parseErrors, 
+			ICollection<IMorestachioError> parseErrors,
 			PerformanceProfiler profiler)
 		{
 			var templateString = partial;
@@ -432,7 +442,7 @@ namespace Morestachio.Framework
 			{
 				matches = TokenFinder.Matches(templateString);
 			}
-			
+
 			var scopestack = new Stack<Tuple<string, int>>();
 
 			var idx = 0;
@@ -708,7 +718,7 @@ namespace Morestachio.Framework
 
 					if (!string.IsNullOrWhiteSpace(alias))
 					{
-						tokens.Add(new TokenPair(TokenType.Alias, alias, 
+						tokens.Add(new TokenPair(TokenType.Alias, alias,
 							HumanizeCharacterLocation(m.Index + $"#each{alias}".Length, lines)));
 					}
 				}

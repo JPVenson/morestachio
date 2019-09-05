@@ -1,0 +1,95 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+
+<# 
+
+var unsignedNumbers = new [] {
+    typeof(ushort), typeof(uint), typeof(ulong),
+};
+
+var floatingPointNumbers = new []{
+	typeof(decimal), typeof(double)
+};
+
+var wholeNumbers = new[] {
+    typeof(short), typeof(int), typeof(long),
+    };
+#>
+
+using System;
+using Morestachio.Attributes;
+using Morestachio.Formatter.Framework;
+
+namespace Morestachio.Formatter.Predefined
+{
+	public static class NumberFormatter
+	{
+	 <# 
+	 foreach (var type in wholeNumbers) 
+	 { 
+		foreach (var otherType in wholeNumbers) 
+		{ 
+			WriteLine(GetBoolFunction("BiggerAs", ">", ">", type, otherType, "Returns if ether the value is bigger as the other"));
+			WriteLine(GetBoolFunction("SmallerAs", "<", "<", type, otherType, "Returns if ether the value is smaller as the other"));
+			WriteLine(GetBoolFunction("BiggerOrEqualAs", ">=", ">=", type, otherType, "Returns if ether the value is bigger or equal as the other"));
+			WriteLine(GetBoolFunction("SmallerOrEqualAs", "<=", "<=", type, otherType, "Returns if ether the value is smaller or equal as the other"));
+		}
+		foreach (var otherType in floatingPointNumbers) 
+		{ 
+			WriteLine(GetBoolFunction("BiggerAs", ">", ">", type, otherType, "Returns if ether the value is bigger as the other"));
+			WriteLine(GetBoolFunction("SmallerAs", "<", "<", type, otherType, "Returns if ether the value is smaller as the other"));
+			WriteLine(GetBoolFunction("BiggerOrEqualAs", ">=", ">=", type, otherType, "Returns if ether the value is bigger or equal as the other"));
+			WriteLine(GetBoolFunction("SmallerOrEqualAs", "<=", "<=", type, otherType, "Returns if ether the value is smaller or equal as the other"));
+		}
+	} 
+	foreach (var type in floatingPointNumbers) 
+	{ 
+		WriteLine(GetBoolFunction("BiggerAs", ">", ">", type, type, "Returns if ether the value is bigger as the other"));
+		WriteLine(GetBoolFunction("SmallerAs", "<", "<", type, type, "Returns if ether the value is smaller as the other"));
+		WriteLine(GetBoolFunction("BiggerOrEqualAs", ">=", ">=", type, type, "Returns if ether the value is bigger or equal as the other"));
+		WriteLine(GetBoolFunction("SmallerOrEqualAs", "<=", "<=", type, type, "Returns if ether the value is smaller or equal as the other"));
+
+		foreach (var otherType in wholeNumbers) 
+		{ 
+			WriteLine(GetBoolFunction("BiggerAs", ">", ">", type, otherType, "Returns if ether the value is bigger as the other"));
+			WriteLine(GetBoolFunction("SmallerAs", "<", "<", type, otherType, "Returns if ether the value is smaller as the other"));
+			WriteLine(GetBoolFunction("BiggerOrEqualAs", ">=", ">=", type, otherType, "Returns if ether the value is bigger or equal as the other"));
+			WriteLine(GetBoolFunction("SmallerOrEqualAs", "<=", "<=", type, otherType, "Returns if ether the value is smaller or equal as the other"));
+		}
+	} 
+	foreach (var type in unsignedNumbers) 
+	{ 
+		foreach (var otherType in unsignedNumbers) 
+		{ 
+			WriteLine(GetBoolFunction("BiggerAs", ">", ">", type, otherType, "Returns if ether the value is bigger as the other"));
+			WriteLine(GetBoolFunction("SmallerAs", "<", "<", type, otherType, "Returns if ether the value is smaller as the other"));
+			WriteLine(GetBoolFunction("BiggerOrEqualAs", ">=", ">=", type, otherType, "Returns if ether the value is bigger or equal as the other"));
+			WriteLine(GetBoolFunction("SmallerOrEqualAs", "<=", "<=", type, otherType, "Returns if ether the value is smaller or equal as the other"));
+		}
+	} 
+	#>
+	}
+}
+<#+
+public string GetBoolFunction(string name, string op, string operation, Type left, Type right, string text)
+{
+	return GetFunction(name, op, operation, typeof(bool), left, right, text);
+}
+public string GetFunction<T>(string name, string op, string operation, Type left, Type right, string text)
+{
+	return GetFunction(name, op, operation, typeof(T), left, right, text);
+}
+public string GetFunction(string name, string op, string operation, Type result, Type left, Type right, string text)
+{
+	var opText = $@"
+		[MorestachioFormatter(""{op}"", ""{text}"")]
+		public static {result.Name} {name}([SourceObject]{left.Name} val1, {right.Name} val2) {{
+			return val1 {operation} val2;
+		}}";
+	return opText;
+}
+#>

@@ -27,6 +27,20 @@ namespace Morestachio.Formatter.Framework.Tests
 		}
 
 		[Test]
+		public void TestAsync()
+		{
+			var formatterService = new MorestachioFormatterService();
+			formatterService.AddFromType(typeof(StringFormatter));
+
+			var options = new ParserOptions("{{data([Name]'reverseAsync')}}", null, DefaultEncoding);
+			formatterService.AddFormatterToMorestachio(options);
+			var template = Parser.ParseWithOptions(options);
+
+			var andStringify = template.CreateAndStringify(new Dictionary<string, object>() { { "data", "Test" } });
+			Assert.That(andStringify, Is.EqualTo("tseT"));
+		}
+
+		[Test]
 		public void TestOptionalArgument()
 		{
 			var formatterService = new MorestachioFormatterService();

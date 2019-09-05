@@ -152,7 +152,7 @@ namespace JPB.Mustachio.Client.Wpf.ViewModels
 			
 			return new GeneratedTemplateInfos()
 			{
-				Result = extendedParseInformation.Create(result).Stringify(true, Encoding.Default),
+				Result = extendedParseInformation.Create(result).Stream.Stringify(true, Encoding.Default),
 				InferredTemplateModel = extendedParseInformation.Document
 			};
 		}

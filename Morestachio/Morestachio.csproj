@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netcoreapp2.0;netcoreapp2.1;netcoreapp2.2;net46;net461;net462;net47;net471;net472;</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.3.3.0</Version>
+    <Version>2.3.3.1</Version>
     <Authors>Jean-Pierre Bachmann</Authors>
     <PackageProjectUrl>https://github.com/JPVenson/morestachio</PackageProjectUrl>
     <PackageIconUrl>https://github.com/JPVenson/morestachio/raw/master/Morestachio/Morestachio%20248x248.png?raw=true</PackageIconUrl>
@@ -11,7 +11,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>Formatter, C#, Engine, NetStandard</PackageTags>
     <Description>A powerfull c# infused templating engine.</Description>
-    <PackageReleaseNotes>Added #If keyword</PackageReleaseNotes>
+    <PackageReleaseNotes>Fixed Formatter in Formatter service are not properly sorted and in a rare occurence an object formatter can take predecende over an stronger typed formatter</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,6 +22,25 @@
     <Reference Include="Microsoft.CSharp">
       <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7\Microsoft.CSharp.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Formatter\Predefined\NumberFormatter.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>NumberFormatter.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Formatter\Predefined\NumberFormatter.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>NumberFormatter.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
 
 </Project>
