@@ -13,6 +13,25 @@ namespace Morestachio.Formatter.Framework.Tests
 		public static Encoding DefaultEncoding { get; set; } = new UnicodeEncoding(true, false, false);
 
 		[Test]
+		public void FormatterCanFormatObjectTwice()
+		{
+			var formatterService = new MorestachioFormatterService();
+			formatterService.AddFromType(typeof(StringFormatter));
+
+			var options = new ParserOptions("{{.('Plus', NumberB, NumberB)}}", null, DefaultEncoding);
+			formatterService.AddFormatterToMorestachio(options);
+			var template = Parser.ParseWithOptions(options);
+
+			var andStringify = template.CreateAndStringify(new Dictionary<string, object>()
+			{
+				{ "NumberA", 5 },
+				{ "NumberB", 6 }
+			});
+			Assert.That(andStringify, Is.EqualTo("12"));
+		}
+
+
+		[Test]
 		public void TestSingleNamed()
 		{
 			var formatterService = new MorestachioFormatterService();

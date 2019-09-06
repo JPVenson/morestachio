@@ -181,6 +181,8 @@ namespace Morestachio.Tests
 			Assert.That(result, Is.EqualTo("TEST"));
 		}
 
+		
+
 		[Test]
 		public void ParserCanChainFormatSubExpression()
 		{

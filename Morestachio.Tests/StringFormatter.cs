@@ -7,6 +7,12 @@ namespace Morestachio.Formatter.Framework.Tests
 {
 	public static class StringFormatter
 	{
+		[MorestachioFormatter("Plus", "XXX")]
+		public static int Reverse(object any, int right, int additional)
+		{
+			return right + additional;
+		}
+
 		[MorestachioFormatter("reverse", "XXX")]
 		public static string Reverse(string originalObject)
 		{

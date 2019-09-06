@@ -91,7 +91,7 @@ namespace Morestachio.Formatter
 
 			//if there is no declared SourceObject then check if the first object is of type what we are formatting and use this one.
 			if (!arguments.Any(e => e.IsSourceObject) && arguments.Any() &&
-			    arguments[0].Type.GetTypeInfo().IsAssignableFrom(forType))
+				arguments[0].Type.GetTypeInfo().IsAssignableFrom(forType))
 			{
 				arguments[0].IsSourceObject = true;
 			}
@@ -235,7 +235,7 @@ namespace Morestachio.Formatter
 				Log(() => $"Test filter: '{formatter.InputTypes} : {formatter.Format.GetMethodInfo().Name}'");
 
 				if (formatTemplateElement.InputTypes != typeToFormat &&
-				    !formatTemplateElement.InputTypes.GetTypeInfo().IsAssignableFrom(typeToFormat))
+					!formatTemplateElement.InputTypes.GetTypeInfo().IsAssignableFrom(typeToFormat))
 				{
 					var typeToFormatGenerics = typeToFormat.GetTypeInfo().GetGenericArguments();
 
@@ -243,7 +243,7 @@ namespace Morestachio.Formatter
 					if (typeToFormat.HasElementType)
 					{
 						var elementType = typeToFormat.GetElementType();
-						typeToFormatGenerics = typeToFormatGenerics.Concat(new[] {elementType}).ToArray();
+						typeToFormatGenerics = typeToFormatGenerics.Concat(new[] { elementType }).ToArray();
 					}
 
 					//the type check has maybe failed because of generic parameter. Check if both the formatter and the typ have generic arguments
@@ -251,7 +251,7 @@ namespace Morestachio.Formatter
 					var formatterGenerics = formatTemplateElement.InputTypes.GetTypeInfo().GetGenericArguments();
 
 					if (typeToFormatGenerics.Length <= 0 || formatterGenerics.Length <= 0 ||
-					    typeToFormatGenerics.Length != formatterGenerics.Length)
+						typeToFormatGenerics.Length != formatterGenerics.Length)
 					{
 						Log(() =>
 							$"Exclude because formatter accepts '{formatTemplateElement.InputTypes}' is not assignable from '{typeToFormat}'");
@@ -263,7 +263,7 @@ namespace Morestachio.Formatter
 				var mandatoryArguments = formatter.MetaData
 					.Where(e => !e.IsRestObject && !e.IsOptional && !e.IsSourceObject).ToArray();
 				if (mandatoryArguments.Length > arguments.Length)
-					//if there are less arguments excluding rest then parameters
+				//if there are less arguments excluding rest then parameters
 				{
 					Log(() =>
 						"Exclude because formatter has " +
@@ -277,12 +277,12 @@ namespace Morestachio.Formatter
 
 				ulong score = 1L;
 				if (formatter.Format.GetMethodInfo().ReturnParameter == null ||
-				    formatter.Format.GetMethodInfo().ReturnParameter?.ParameterType == typeof(void))
+					formatter.Format.GetMethodInfo().ReturnParameter?.ParameterType == typeof(void))
 				{
 					score++;
 				}
 
-				score += (ulong) (arguments.Length - mandatoryArguments.Length);
+				score += (ulong)(arguments.Length - mandatoryArguments.Length);
 				Log(() => $"Take filter: '{formatter.InputTypes} : {formatter.Format}' Score {score}");
 				filteredSourceList.Add(new KeyValuePair<FormatTemplateElement, ulong>(formatter, score));
 			}
@@ -301,12 +301,15 @@ namespace Morestachio.Formatter
 		/// <param name="templateArguments">The template arguments.</param>
 		/// <returns></returns>
 		public virtual IDictionary<MultiFormatterInfo, object> ComposeValues([NotNull] FormatTemplateElement formatter,
-			[CanBeNull] object sourceObject, [NotNull] params KeyValuePair<string, object>[] templateArguments)
+			[CanBeNull] object sourceObject,
+			[NotNull] params KeyValuePair<string, object>[] templateArguments)
 		{
 			Log(() =>
 				$"Compose values for object '{sourceObject}' with formatter '{formatter.InputTypes}' targets '{formatter.Format.GetMethodInfo().Name}'");
 			var values = new Dictionary<MultiFormatterInfo, object>();
-			var matched = new Dictionary<MultiFormatterInfo, KeyValuePair<string, object>>();
+			var matched = new Dictionary<MultiFormatterInfo, Tuple<string, object>>();
+
+			var templateArgumentsQueue = templateArguments.Select(e => Tuple.Create(e.Key, e.Value)).ToList();
 
 			var argumentIndex = 0;
 			foreach (var multiFormatterInfo in formatter.MetaData.Where(e => !e.IsRestObject))
@@ -323,24 +326,30 @@ namespace Morestachio.Formatter
 				else
 				{
 					//match by index or name
-					Log(() => "Match by Name");
+					Log(() => "Try Match by Name");
 					//match by name
-					var match = templateArguments.FirstOrDefault(e =>
-						!string.IsNullOrWhiteSpace(e.Key) && e.Key.Equals(multiFormatterInfo.Name));
+					var match = templateArgumentsQueue.FirstOrDefault(e =>
+						!string.IsNullOrWhiteSpace(e.Item1) && e.Item1.Equals(multiFormatterInfo.Name));
 
-					if (default(KeyValuePair<string, object>).Equals(match))
+					if (match == null)
 					{
-						Log(() => "Match by Index");
+						Log(() => "Try Match by Index");
 						//match by index
 						var index = 0;
-						match = templateArguments.FirstOrDefault(g => index++ == multiFormatterInfo.Index);
+						match = templateArgumentsQueue.FirstOrDefault(g => index++ == multiFormatterInfo.Index);
 					}
 
-					givenValue = match.Value;
-					Log(() => $"Matched '{match.Key}': '{match.Value}' by Name/Index");
+					if (match == null)
+					{
+						Log(() => $"Skip: Could not match the parameter at index '{multiFormatterInfo.Index}' nether by name nor by index");
+						return null;
+					}
+					
+					givenValue = match.Item2;
+					Log(() => $"Matched '{match.Item1}': '{match.Item2}' by Name/Index");
 
 					//check for matching types
-					if (!multiFormatterInfo.Type.GetTypeInfo().IsInstanceOfType(match.Value))
+					if (!multiFormatterInfo.Type.GetTypeInfo().IsInstanceOfType(match.Item2))
 					{
 						Log(() =>
 							$"Skip: Match is Invalid because type at {argumentIndex} of '{multiFormatterInfo.Type.Name}' was not expected. Abort.");
@@ -372,20 +381,22 @@ namespace Morestachio.Formatter
 				return values;
 			}
 
+
+			templateArgumentsQueue.RemoveAll(e => matched.Values.Contains(e));
+
 			Log(() => $"Match Rest argument '{hasRest.Type}'");
 
+			//{{"test", Buffer.X, "1"}}
 			//only use the values that are not matched.
-			var restValues = templateArguments.Except(matched.Values);
-
 			if (typeof(KeyValuePair<string, object>[]) == hasRest.Type)
 			{
 				//keep the name value pairs
-				values.Add(hasRest, restValues);
+				values.Add(hasRest, templateArgumentsQueue);
 			}
 			else if (typeof(object[]).GetTypeInfo().IsAssignableFrom(hasRest.Type))
 			{
 				//its requested to transform the rest values and truncate the names from it.
-				values.Add(hasRest, restValues.Select(e => e.Value).ToArray());
+				values.Add(hasRest, templateArgumentsQueue.Select(e => e.Item2).ToArray());
 			}
 			else
 			{
