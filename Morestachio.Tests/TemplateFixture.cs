@@ -313,6 +313,33 @@ namespace Morestachio.Tests
 			Assert.AreEqual(model["data"] + "," + model["root"], result);
 		}
 
+
+
+		[Test]
+		public void TemplateRendersWithEachWithAliasPath()
+		{
+			var template =
+				@"{{#each data AS dd}}{{dd}}{{/each}}";
+
+			var parsedTemplate =
+				Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding));
+
+			var value = new List<int>()
+			{
+				1,2,3,4,5
+			};
+			var model = new Dictionary<string, object>()
+			{
+				{
+					"data", value
+				},
+			};
+
+			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+
+			Assert.AreEqual(value.Select(e => e.ToString()).Aggregate((e,f) => e + "" + f), result);
+		}
+
 		[Test]
 		public void TemplateRendersWithComplexUpScopePath()
 		{

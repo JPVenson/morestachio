@@ -35,7 +35,8 @@ namespace Morestachio
 		/// </summary>
 		/// <param name="template"></param>
 		/// <param name="sourceStream">The factory that is used for each template generation</param>
-		public ParserOptions([NotNull]string template, Func<Stream> sourceStream)
+		public ParserOptions([NotNull]string template, 
+			[CanBeNull]Func<Stream> sourceStream)
 			: this(template, sourceStream, null)
 		{
 		}
@@ -46,7 +47,9 @@ namespace Morestachio
 		/// <param name="template">The template.</param>
 		/// <param name="sourceStream">The source stream.</param>
 		/// <param name="encoding">The encoding.</param>
-		public ParserOptions([CanBeNull]string template, Func<Stream> sourceStream, Encoding encoding)
+		public ParserOptions([NotNull]string template,
+			[CanBeNull]Func<Stream> sourceStream,
+			[CanBeNull]Encoding encoding)
 		{
 			Template = template ?? "";
 			SourceFactory = sourceStream ?? (() => new MemoryStream());
@@ -69,8 +72,12 @@ namespace Morestachio
 		/// <param name="maxSize">The maximum size.</param>
 		/// <param name="disableContentEscaping">if set to <c>true</c> [disable content escaping].</param>
 		/// <param name="withModelInference">if set to <c>true</c> [with model inference].</param>
-		public ParserOptions([NotNull]string template, Func<Stream> sourceStream, Encoding encoding, long maxSize,
-			bool disableContentEscaping = false, bool withModelInference = false)
+		public ParserOptions([NotNull]string template, 
+			[CanBeNull]Func<Stream> sourceStream,
+			[CanBeNull]Encoding encoding, 
+			long maxSize,
+			bool disableContentEscaping = false, 
+			bool withModelInference = false)
 			: this(template, sourceStream, encoding)
 		{
 			MaxSize = maxSize;
@@ -86,7 +93,9 @@ namespace Morestachio
 		/// <param name="encoding">The encoding.</param>
 		/// <param name="disableContentEscaping">if set to <c>true</c> [disable content escaping].</param>
 		/// <param name="withModelInference">if set to <c>true</c> [with model inference].</param>
-		public ParserOptions([NotNull]string template, Func<Stream> sourceStream, Encoding encoding,
+		public ParserOptions([NotNull]string template,
+			[CanBeNull]Func<Stream> sourceStream,
+			[CanBeNull]Encoding encoding,
 			bool disableContentEscaping = false, bool withModelInference = false)
 			: this(template, sourceStream, encoding, 0, disableContentEscaping, withModelInference)
 		{
@@ -153,7 +162,7 @@ namespace Morestachio
 
 		/// <summary>
 		///		Gets or sets the timeout. After the timeout is reached and the Template has not finished Processing and Exception is thrown.
-		///		For no timeout use <code>TimeSpan.</code>
+		///		For no timeout use <code>TimeSpan.Zero</code>
 		/// </summary>
 		/// <value>
 		/// The timeout.
@@ -168,13 +177,13 @@ namespace Morestachio
 
 		/// <summary>
 		///     In some cases, content should not be escaped (such as when rendering text bodies and subjects in emails).
-		///     By default, we use no content escaping, but this parameter allows it to be enabled.
+		///     By default, we use no content escaping, but this parameter allows it to be enabled. Default is False
 		/// </summary>
 		public bool DisableContentEscaping { get; }
 
 		/// <summary>
 		///     Parse the template, and capture paths used in the template to determine a suitable structure for the required
-		///     model.
+		///     model. Default is False
 		/// </summary>
 		public bool WithModelInference { get; }
 
