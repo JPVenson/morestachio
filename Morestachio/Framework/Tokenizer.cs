@@ -19,11 +19,11 @@ namespace Morestachio.Framework
 
 		private static readonly Regex FormatFinder
 			= new Regex(@"(?:([\w.\s|$|/|~]+)*)+(\((?>\((?<c>)|[^()]+|\)(?<-c>))*(?(c)(?!))\))"
-				, RegexOptions.Compiled);
+				, RegexOptions.Compiled, TimeSpan.FromSeconds(10));
 
 		private static readonly Regex FormatInExpressionFinder
 			= new Regex(@"(\((?>\((?<c>)|[^()]+|\)(?<-c>))*(?(c)(?!))\))"
-				, RegexOptions.Compiled);
+				, RegexOptions.Compiled, TimeSpan.FromSeconds(10));
 
 		private static readonly Regex NewlineFinder
 			= new Regex("\n", RegexOptions.Compiled);
