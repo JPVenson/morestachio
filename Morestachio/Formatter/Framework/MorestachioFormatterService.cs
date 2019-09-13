@@ -3,32 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Morestachio.Attributes;
 
 namespace Morestachio.Formatter.Framework
 {
-	internal static class FormatterLogExtentions
-	{
-		public static void Write(this IFormatterMatcher matcher, Func<string> log)
-		{
-			if (matcher is FormatterMatcher defaultMatcher)
-			{
-				defaultMatcher.Log(log);
-			}
-		}
-	}
-
-	/// <summary>
-	///     Delegate for mapping formatter function of the Morestachio framework to the params argument
-	/// </summary>
-	/// <param name="originalObject">The original object.</param>
-	/// <param name="name">The name.</param>
-	/// <param name="arguments">The arguments.</param>
-	/// <returns></returns>
-	public delegate object MorstachioFormatter([SourceObject] object originalObject,
-		[FormatterArgumentName("Name")] string name,
-		[RestParameter] params object[] arguments);
-
 	/// <summary>
 	///     The Formatter service that can be used to interpret the Native C# formatter.
 	///     To use this kind of formatter you must create a public static class where all formatting functions are located.

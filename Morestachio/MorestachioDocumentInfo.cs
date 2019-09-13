@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,17 +9,6 @@ using Morestachio.Helper;
 
 namespace Morestachio
 {
-	/// <summary>
-	///		The Compiled template
-	/// </summary>
-	public class MorestachioDocumentResult
-	{
-		/// <summary>
-		///		The Result of the CreateAsync call
-		/// </summary>
-		public Stream Stream { get; set; }
-	}
-
 	/// <summary>
 	///     Provided when parsing a template and getting information about the embedded variables.
 	/// </summary>

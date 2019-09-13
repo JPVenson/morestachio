@@ -7,16 +7,16 @@ namespace Morestachio
 	/// <summary>
 	///		Defines the start of a Scope
 	/// </summary>
-	public class ExpressionScopeDocumentItem : DocumentItemBase
+	public class IfExpressionScopeDocumentItem : DocumentItemBase
 	{
 		/// <inheritdoc />
-		public ExpressionScopeDocumentItem(string value)
+		public IfExpressionScopeDocumentItem(string value)
 		{
 			Value = value;
 		}
 
 		/// <inheritdoc />
-		public override string Kind { get; } = "ExpressionScope";
+		public override string Kind { get; } = "IFExpressionScope";
 
 		/// <summary>
 		///		The expression for the value that should be scoped
@@ -24,12 +24,14 @@ namespace Morestachio
 		public string Value { get; }
 
 		/// <inheritdoc />
-		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, 
+			ContextObject context, 
+			ScopeData scopeData)
 		{
 			var c = await context.GetContextForPath(Value, scopeData);
 			if (await c.Exists())
 			{
-				return Children.WithScope(c);
+				return Children.WithScope(context);
 			}
 			return new DocumentItemExecution[0];
 		}

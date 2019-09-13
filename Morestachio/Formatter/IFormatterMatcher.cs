@@ -6,34 +6,6 @@ using JetBrains.Annotations;
 namespace Morestachio.Formatter
 {
 	/// <summary>
-	///		Can be used to Preprovide Partials in Templates. A template here will always be overwritten by a partial provided in the template
-	/// </summary>
-	public interface IPartialTemplateProvider
-	{
-		/// <summary>
-		///		Obtains the Template from the store
-		/// </summary>
-		/// <returns></returns>
-		ExternalPartialDeclaration[] GetTemplates();
-	}
-
-	/// <summary>
-	///		Defines the contents of a Predifined Partial
-	/// </summary>
-	public class ExternalPartialDeclaration
-	{
-		/// <summary>
-		///		The name of that partial
-		/// </summary>
-		public string Name { get; set; }
-
-		/// <summary>
-		///		The Template Contents
-		/// </summary>
-		public string Template { get; set; }
-	}
-
-	/// <summary>
 	///		Defines the Tools for Enumerating formatter based on the input type
 	/// </summary>
 	public interface IFormatterMatcher

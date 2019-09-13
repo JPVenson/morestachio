@@ -1,7 +1,4 @@
-﻿
-
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using Morestachio.Formatter;
 
 #region
@@ -16,82 +13,6 @@ using Morestachio.Framework;
 
 namespace Morestachio
 {
-	internal class PerformanceProfiler
-	{
-		public PerformanceProfiler(bool isEnabled)
-		{
-			IsEnabled = isEnabled;
-		}
-
-		public bool IsEnabled { get; private set; }
-
-		public HashSet<PerformanceKey> PerformanceKeys { get; private set; }
-
-		public IDisposable Begin(string name)
-		{
-			return new PerformanceKey(null, name).Start();
-		}
-
-		public class PerformanceKey : IDisposable
-		{
-			public PerformanceKey(string key, string name)
-			{
-				Key = key;
-				Name = name;
-				Time = TimeSpan.Zero;
-				_stopwatch = new Stopwatch();
-			}
-
-			public string Key { get; }
-			public string Name { get; }
-
-			public TimeSpan Time { get; private set; }
-			private Stopwatch _stopwatch;
-
-			public PerformanceKey Start()
-			{
-				_stopwatch.Start();
-				return this;
-			}
-
-			public void Dispose()
-			{
-				_stopwatch.Stop();
-				Time = _stopwatch.Elapsed;
-			}
-		}
-	}
-
-	internal struct DocumentScope
-	{
-		public DocumentScope(IDocumentItem document)
-		{
-			Document = document;
-			IsFormattingScope = false;
-			HasAlias = false;
-			AliasName = null;
-		}
-		public DocumentScope(IDocumentItem document, bool isFormattingScope)
-		{
-			Document = document;
-			IsFormattingScope = isFormattingScope;
-			HasAlias = false;
-			AliasName = null;
-		}
-		public DocumentScope(IDocumentItem document, string aliasName)
-		{
-			Document = document;
-			IsFormattingScope = false;
-			HasAlias = true;
-			AliasName = aliasName;
-		}
-
-		public IDocumentItem Document { get; private set; }
-		public bool IsFormattingScope { get; private set; }
-		public bool HasAlias { get; private set; }
-		public string AliasName { get; private set; }
-	}
-
 	/// <summary>
 	///     The main entry point for this library. Use the static "Parse" methods to create template functions.
 	///     Functions are safe for reuse, so you may parse and cache the resulting function.
