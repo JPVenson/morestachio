@@ -16,10 +16,11 @@
 	<Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <!--<ResourceDictionary Source="pack://application:,,,/JPB.Mustachio.Client.Wpf;component/Views/DataEditorDataTemplate.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/JPB.Mustachio.Client.Data.CSharp;component/Resources/DataTemplates.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/JPB.Mustachio.Client.Wpf;component/Views/DataEditorDataTemplate.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/JPB.Mustachio.Client.Wpf;component/Views/TemplateEditorDataTemplate.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/JPB.Mustachio.Client.Wpf;component/Views/TemplateResultDataTemplate.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/JPB.Mustachio.Client.Wpf;component/Views/TemplateFormatterDataTemplate.xaml"/>-->
+                <ResourceDictionary Source="pack://application:,,,/JPB.Mustachio.Client.Wpf;component/Views/TemplateFormatterDataTemplate.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <Style TargetType="GridSplitter">

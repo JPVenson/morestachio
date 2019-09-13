@@ -144,9 +144,6 @@
   <ItemGroup>
     <Compile Include="DataSourceProvider\CSharpCompilerViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Resources\DataTemplates.xaml.cs">
-      <DependentUpon>DataTemplates.xaml</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

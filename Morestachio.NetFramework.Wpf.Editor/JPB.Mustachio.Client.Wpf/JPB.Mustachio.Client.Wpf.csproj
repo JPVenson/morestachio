@@ -129,15 +129,6 @@
     <Compile Include="ViewModels\StoreModel.cs" />
     <Compile Include="ViewModels\TemplateEditorViewModel.cs" />
     <Compile Include="ViewModels\TemplateResultViewModel.cs" />
-    <Compile Include="Views\DataEditorDataTemplate.xaml.cs">
-      <DependentUpon>DataEditorDataTemplate.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\TemplateEditorDataTemplate.xaml.cs">
-      <DependentUpon>TemplateEditorDataTemplate.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\TemplateResultDataTemplate.xaml.cs">
-      <DependentUpon>TemplateResultDataTemplate.xaml</DependentUpon>
-    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

@@ -137,7 +137,7 @@ namespace JPB.Mustachio.Clinet.Wpf.Common
 				var editor = behavior.AssociatedObject;
 				if (editor.Document != null)
 				{
-					SetText(dependencyPropertyChangedEventArgs.NewValue.ToString(), editor);
+					SetText(dependencyPropertyChangedEventArgs.NewValue?.ToString(), editor);
 				}
 			}
 		}

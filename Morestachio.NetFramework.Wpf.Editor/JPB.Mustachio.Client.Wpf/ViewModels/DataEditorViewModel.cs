@@ -24,17 +24,17 @@ namespace JPB.Mustachio.Client.Wpf.ViewModels
 			foreach (var dataSourceProvider in DataSourceProviders)
 			{
 				var typeName = dataSourceProvider.GetType().Assembly.GetName().Name;
-				try
-				{
-					App.Current.Resources.MergedDictionaries.Add(new ResourceDictionary()
-					{
-						Source = new Uri($"pack://application:,,,/{typeName};component/Resources/DataTemplates.xaml")
-					});
-				}
-				catch (Exception e)
-				{
+				//try
+				//{
+				//	App.Current.Resources.MergedDictionaries.Add(new ResourceDictionary()
+				//	{
+				//		Source = new Uri($"pack://application:,,,/{typeName};component/Resources/DataTemplates.xaml")
+				//	});
+				//}
+				//catch (Exception e)
+				//{
 					
-				}
+				//}
 			}
 
 			SelectedDataSourceProvider = DataSourceProviders.First();
