@@ -50,7 +50,16 @@ namespace Morestachio.Document.Contracts
 		/// </summary>
 		Tokenizer.CharacterLocation ExpressionStart { get; set; }
 
+		/// <summary>
+		///		Can be used to allow custom data to be serialized for XML serialization
+		/// </summary>
+		/// <param name="writer"></param>
 		void SerializeXmlCore(XmlWriter writer);
+
+		/// <summary>
+		///		Can be used to allow custom data to be deserialized for XML serialization
+		/// </summary>
+		/// <param name="writer"></param>
 		void DeSerializeXmlCore(XmlReader writer);
 	}
 }

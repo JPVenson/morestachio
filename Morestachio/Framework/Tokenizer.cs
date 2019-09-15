@@ -552,9 +552,13 @@ namespace Morestachio.Framework
 					var token = match.Value.TrimStart('{').TrimEnd('}').TrimStart('#').Trim().Substring("if".Length);
 					var eval = EvaluateNameFromToken(token);
 					token = eval.Item1;
-					var alias = eval.Item2;
+					if (eval.Item2 != null)
+					{
+						parseErrors.Add(new MorestachioSyntaxError(
+							HumanizeCharacterLocation(tokenIndex, lines), "^if", "AS", "No Alias"));
+					}
 
-					scopestack.Push(Tuple.Create($"#if{alias ?? token}", match.Index));
+					scopestack.Push(Tuple.Create($"#if{token}", match.Index));
 
 					if (token.StartsWith(" ") && token.Trim() != "")
 					{
@@ -576,20 +580,19 @@ namespace Morestachio.Framework
 					{
 						parseErrors.Add(new InvalidPathSyntaxError(HumanizeCharacterLocation(match.Index, lines), ""));
 					}
-
-					if (!string.IsNullOrWhiteSpace(alias))
-					{
-						tokens.Add(new TokenPair(TokenType.Alias, alias, HumanizeCharacterLocation(match.Index + $"#if{alias}".Length, lines)));
-					}
 				}
 				else if (match.Value.StartsWith("{{^if ", true, CultureInfo.InvariantCulture))
 				{
 					var token = match.Value.TrimStart('{').TrimEnd('}').TrimStart('^').Trim().Substring("if".Length);
 					var eval = EvaluateNameFromToken(token);
 					token = eval.Item1;
-					var alias = eval.Item2;
+					if (eval.Item2 != null)
+					{
+						parseErrors.Add(new MorestachioSyntaxError(
+							HumanizeCharacterLocation(tokenIndex, lines), "^if", "AS", "No Alias"));
+					}
 
-					scopestack.Push(Tuple.Create($"^if{alias ?? token}", match.Index));
+					scopestack.Push(Tuple.Create($"^if{token}", match.Index));
 
 					if (token.StartsWith(" ") && token.Trim() != "")
 					{
@@ -611,11 +614,6 @@ namespace Morestachio.Framework
 					{
 						parseErrors.Add(new InvalidPathSyntaxError(HumanizeCharacterLocation(match.Index, lines), ""));
 					}
-
-					if (!string.IsNullOrWhiteSpace(alias))
-					{
-						tokens.Add(new TokenPair(TokenType.Alias, alias, HumanizeCharacterLocation(match.Index + $"^if{alias}".Length, lines)));
-					}
 				}
 				else if (match.Value.StartsWith("{{/if", true, CultureInfo.InvariantCulture))
 				{
@@ -623,7 +621,7 @@ namespace Morestachio.Framework
 					{
 						parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(match.Index, lines), "close", "if", "{{/if}}"));
 					}
-					else if (scopestack.Any() && scopestack.Peek().Item1.StartsWith("#if"))
+					else if (scopestack.Any() && (scopestack.Peek().Item1.StartsWith("#if") || scopestack.Peek().Item1.StartsWith("^if")))
 					{
 						var token = scopestack.Pop().Item1;
 						tokens.Add(new TokenPair(TokenType.IfClose, token, HumanizeCharacterLocation(tokenIndex, lines)));

@@ -5,7 +5,6 @@ namespace Morestachio.Tests.DocTree
 {
 	[TestFixture (typeof(DocumentSerializerXmlStrategy))]
 	[TestFixture (typeof(DocumentSerializerJsonNetStrategy))]
-	[TestFixture (typeof(DocumentSerializerBinaryStrategy))]
 	public class DocumentTreeFixture
 	{
 		public IDocumentSerializerStrategy DocumentSerializerStrategy { get; private set; }
@@ -49,6 +48,17 @@ namespace Morestachio.Tests.DocTree
 			var text = DocumentSerializerStrategy.SerializeToText(morestachioDocumentInfo.Document);
 			var deserialized = DocumentSerializerStrategy.DeSerializeToText(text);
 
+			var deserializedText = DocumentSerializerStrategy.SerializeToText(deserialized);
+			Assert.That(deserializedText, Is.EqualTo(text));
+		}
+
+		[Test]
+		public void TestIsIfNotIfSerializable()
+		{
+			var template = "I am <Text> {{#IF data}} {{/If}} {{^IF data}} {{/If}}";
+			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
+			var text = DocumentSerializerStrategy.SerializeToText(morestachioDocumentInfo.Document);
+			var deserialized = DocumentSerializerStrategy.DeSerializeToText(text);
 			var deserializedText = DocumentSerializerStrategy.SerializeToText(deserialized);
 			Assert.That(deserializedText, Is.EqualTo(text));
 		}
