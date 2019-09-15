@@ -9,6 +9,7 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using JetBrains.Annotations;
+using Morestachio.Document.Contracts;
 using Morestachio.Framework;
 
 namespace Morestachio.Document
@@ -17,7 +18,7 @@ namespace Morestachio.Document
 	///		Base class for Document items
 	/// </summary>
 	[Serializable]
-	public abstract class DocumentItemBase : IDocumentItem
+	public abstract class DocumentItemBase : IMorestachioDocument
 	{
 		/// <inheritdoc />
 		protected DocumentItemBase()
@@ -42,9 +43,6 @@ namespace Morestachio.Document
 			ScopeData scopeData);
 
 		/// <inheritdoc />
-		[IgnoreDataMember]
-		[XmlIgnore]
-		[SoapIgnore]
 		public abstract string Kind { get; }
 
 		/// <inheritdoc />
@@ -131,18 +129,10 @@ namespace Morestachio.Document
 			if (!reader.IsEmptyElement)
 			{
 				DeSerializeXml(reader);
-				if (reader.NodeType == XmlNodeType.EndElement && reader.Name.Equals(GetType().Name))
+				
+				if (reader.ReadToFollowing(nameof(Children)))
 				{
-					//there are no children and we have reached the end of the document
-					reader.ReadEndElement();//GetType().Name
-					return;
-				}
-
-				reader.ReadStartElement(); //nameof(Children)
-				if (reader.Name.Equals(nameof(Children), StringComparison.InvariantCultureIgnoreCase)
-				    && !reader.IsEmptyElement)
-				{
-					reader.ReadStartElement(); //AnyChild
+					reader.ReadStartElement(); //nameof(Children)
 					while (!reader.Name.Equals(nameof(Children)) && reader.NodeType != XmlNodeType.EndElement)
 					{
 						var child = DocumentExtenstions.CreateDocumentItemInstance(reader.Name);
@@ -153,9 +143,14 @@ namespace Morestachio.Document
 						reader.Skip();
 						Children.Add(child);
 					}
+					reader.ReadEndElement();//nameof(Children)
 				}
-				reader.ReadEndElement();//nameof(Children)
-				reader.ReadEndElement();//GetType().Name
+
+				if (reader.NodeType == XmlNodeType.EndElement && reader.Name.Equals(GetType().Name))
+				{
+					//there are no children and we have reached the end of the document
+					reader.ReadEndElement();//GetType().Name
+				}
 			}
 		}
 
@@ -174,7 +169,13 @@ namespace Morestachio.Document
 
 		void IXmlSerializable.ReadXml(XmlReader reader)
 		{
-			((IDocumentItem) this).DeSerializeXmlCore(reader);
+			var xmlReaderSettings = reader.Settings?.Clone() ?? new XmlReaderSettings();
+			xmlReaderSettings.IgnoreWhitespace = true;
+			xmlReaderSettings.IgnoreComments = true;
+			xmlReaderSettings.IgnoreProcessingInstructions = true;
+			var xmlReader = XmlReader.Create(reader, xmlReaderSettings);
+			xmlReader.Read();
+			((IDocumentItem) this).DeSerializeXmlCore(xmlReader);
 		}
 
 		void IXmlSerializable.WriteXml(XmlWriter writer)

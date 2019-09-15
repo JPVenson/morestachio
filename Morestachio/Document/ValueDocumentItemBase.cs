@@ -31,6 +31,7 @@ namespace Morestachio.Document
 				return;
 			}
 			writer.WriteStartElement(nameof(Value));
+			writer.WriteAttributeString("xml", "space", null, "preserve");
 			writer.WriteString(Value);
 			writer.WriteEndElement();
 		}
@@ -42,8 +43,8 @@ namespace Morestachio.Document
 				return;
 			}
 
-			reader.ReadStartElement();
-			Value = reader.ReadElementContentAsString();
+			reader.ReadToFollowing(nameof(Value));
+			Value = reader.ReadString();
 		}
 	}
 }

@@ -6,12 +6,17 @@ using System.Xml.Serialization;
 using JetBrains.Annotations;
 using Morestachio.Framework;
 
-namespace Morestachio.Document
+namespace Morestachio.Document.Contracts
 {
+	internal interface IMorestachioDocument : IDocumentItem, IXmlSerializable, ISerializable
+	{
+
+	}
+
 	/// <summary>
 	///		Defines a Part in the Template that can be processed
 	/// </summary>
-	public interface IDocumentItem : IXmlSerializable, ISerializable
+	public interface IDocumentItem
 	{
 		/// <summary>
 		///		Renders its Value into the <see cref="outputStream"/>.

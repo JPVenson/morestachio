@@ -2,6 +2,7 @@
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Morestachio.Document.Contracts;
 using Morestachio.Framework;
 
 namespace Morestachio.Document

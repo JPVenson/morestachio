@@ -1,15 +1,19 @@
 ﻿using System.IO;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using Morestachio.Document;
+using Morestachio.Document.Contracts;
 
 namespace Morestachio.Tests.DocTree
 {
-	public class DocumentSerializerBinaryJsonStrategy : IDocumentSerializerStrategy
+	public class DocumentSerializerBinaryStrategy : IDocumentSerializerStrategy
 	{
-		public DocumentSerializerBinaryJsonStrategy()
+		public DocumentSerializerBinaryStrategy()
 		{
 			BinarySerializer = new BinaryFormatter();
+			BinarySerializer.TypeFormat = FormatterTypeStyle.TypesWhenNeeded;
 		}
 
 		public BinaryFormatter BinarySerializer { get; private set; }

@@ -1,4 +1,5 @@
 ﻿using Morestachio.Document;
+using Morestachio.Document.Contracts;
 
 namespace Morestachio
 {

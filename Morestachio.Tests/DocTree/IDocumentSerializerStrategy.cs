@@ -1,6 +1,7 @@
 ﻿using System.Runtime.Serialization.Json;
 using System.Xml.Serialization;
 using Morestachio.Document;
+using Morestachio.Document.Contracts;
 
 namespace Morestachio.Tests.DocTree
 {

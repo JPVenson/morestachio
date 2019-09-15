@@ -429,7 +429,7 @@ namespace Morestachio.Framework
 				return new Tuple<string, string>(token.Substring(0, token.Length - (" AS" + name).Length), name.Trim());
 			}
 
-			return new Tuple<string, string>(token, token);
+			return new Tuple<string, string>(token, null);
 		}
 
 		internal static IEnumerable<TokenPair> TokenizeString(string partial,
@@ -460,7 +460,8 @@ namespace Morestachio.Framework
 				//yield front content.
 				if (match.Index > idx)
 				{
-					tokens.Add(new TokenPair(TokenType.Content, templateString.Substring(idx, match.Index - idx), HumanizeCharacterLocation(tokenIndex, lines)));
+					tokens.Add(new TokenPair(TokenType.Content, templateString.Substring(idx, match.Index - idx), 
+						HumanizeCharacterLocation(tokenIndex, lines)));
 				}
 
 				if (match.Value.StartsWith("{{#declare", true, CultureInfo.InvariantCulture))
@@ -518,7 +519,7 @@ namespace Morestachio.Framework
 					token = eval.Item1;
 					var alias = eval.Item2;
 
-					scopestack.Push(Tuple.Create($"#each{alias}", match.Index));
+					scopestack.Push(Tuple.Create($"#each{alias ?? token}", match.Index));
 
 					if (token.StartsWith(" ") && token.Trim() != "")
 					{
@@ -553,7 +554,7 @@ namespace Morestachio.Framework
 					token = eval.Item1;
 					var alias = eval.Item2;
 
-					scopestack.Push(Tuple.Create($"#if{alias}", match.Index));
+					scopestack.Push(Tuple.Create($"#if{alias ?? token}", match.Index));
 
 					if (token.StartsWith(" ") && token.Trim() != "")
 					{
@@ -588,7 +589,7 @@ namespace Morestachio.Framework
 					token = eval.Item1;
 					var alias = eval.Item2;
 
-					scopestack.Push(Tuple.Create($"^if{alias}", match.Index));
+					scopestack.Push(Tuple.Create($"^if{alias ?? token}", match.Index));
 
 					if (token.StartsWith(" ") && token.Trim() != "")
 					{
@@ -664,7 +665,7 @@ namespace Morestachio.Framework
 					}
 					else
 					{
-						scopestack.Push(Tuple.Create(alias, match.Index));
+						scopestack.Push(Tuple.Create(alias ?? token, match.Index));
 					}
 
 					if (FormatInExpressionFinder.IsMatch(token))
@@ -700,7 +701,7 @@ namespace Morestachio.Framework
 					}
 					else
 					{
-						scopestack.Push(Tuple.Create(alias, match.Index));
+						scopestack.Push(Tuple.Create(alias ?? token, match.Index));
 					}
 
 					if (FormatInExpressionFinder.IsMatch(token))

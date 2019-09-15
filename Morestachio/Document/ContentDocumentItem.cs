@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using System.Xml;
 using JetBrains.Annotations;
+using Morestachio.Document.Contracts;
 using Morestachio.Framework;
 
 namespace Morestachio.Document
@@ -29,6 +31,16 @@ namespace Morestachio.Document
 		[UsedImplicitly]
 		protected ContentDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
+		}
+
+		protected override void DeSerializeXml(XmlReader reader)
+		{
+			base.DeSerializeXml(reader);
+		}
+
+		protected override void SerializeXml(XmlWriter writer)
+		{
+			base.SerializeXml(writer);
 		}
 
 		/// <inheritdoc />

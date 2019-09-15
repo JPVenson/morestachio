@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Morestachio.Document;
+using Morestachio.Document.Contracts;
 using Morestachio.Framework;
 using Morestachio.Helper;
 

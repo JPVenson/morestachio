@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Morestachio.Framework;
 
-namespace Morestachio.Document
+namespace Morestachio.Document.Contracts
 {
 	/// <summary>
 	///		Helper Functions for Document creation

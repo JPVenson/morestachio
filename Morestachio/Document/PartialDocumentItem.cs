@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Xml;
 using JetBrains.Annotations;
+using Morestachio.Document.Contracts;
 using Morestachio.Framework;
 
 namespace Morestachio.Document
@@ -57,13 +58,15 @@ namespace Morestachio.Document
 		protected override void DeSerializeXml(XmlReader reader)
 		{
 			base.DeSerializeXml(reader);
+			AssertElement(reader, nameof(Value));
+			reader.ReadEndElement();
+			AssertElement(reader, nameof(Partial));
 			reader.ReadStartElement();
 			var child = DocumentExtenstions.CreateDocumentItemInstance(reader.Name);
 			var childTree = reader.ReadSubtree();
 			childTree.Read();
 			child.DeSerializeXmlCore(childTree);
 			reader.Skip();
-			reader.ReadEndElement();
 			Partial = child;
 		}
 

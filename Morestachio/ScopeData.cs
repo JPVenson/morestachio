@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Morestachio.Document;
+using Morestachio.Document.Contracts;
 using Morestachio.Framework;
 
 namespace Morestachio

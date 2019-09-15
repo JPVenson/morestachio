@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Xml;
 using JetBrains.Annotations;
+using Morestachio.Document.Contracts;
 using Morestachio.Framework;
 
 namespace Morestachio.Document
@@ -48,26 +49,31 @@ namespace Morestachio.Document
 		protected override void DeSerializeXml(XmlReader reader)
 		{
 			base.DeSerializeXml(reader);
-			if (reader.NodeType == XmlNodeType.EndElement)
+			reader.ReadEndElement();
+			if (reader.NodeType == XmlNodeType.EndElement && reader.Name.Equals(GetType().Name))
 			{
+				FormatString = new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>[0];
 				return;
 			}
+
 			AssertElement(reader, nameof(FormatString));
 			var formatString = new List<Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>>();
+			reader.ReadStartElement(); //Argument
 			while (reader.NodeType != XmlNodeType.EndElement || !reader.Name.Equals(nameof(FormatString)))
 			{
+				AssertElement(reader, "Argument");
 				var formatStr = new Tokenizer.HeaderTokenMatch();
 				formatStr.ArgumentName = reader.GetAttribute("Name");
-				reader.ReadStartElement();
+				reader.ReadStartElement(); //Content
 
 				var child = DocumentExtenstions.CreateDocumentValueItemInstance(reader.Name);
 				var childTree = reader.ReadSubtree();
 				childTree.Read();
 				child.ReadXml(childTree);
 				reader.Skip();
+				reader.ReadEndElement();//Argument
 				formatString.Add(new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>(formatStr, child));
 			}
-			reader.ReadEndElement();//nameof(FormatString)
 
 			FormatString = formatString.ToArray();
 		}
@@ -80,10 +86,15 @@ namespace Morestachio.Document
 				writer.WriteStartElement(nameof(FormatString));
 				foreach (var formatStr in FormatString)
 				{
-					writer.WriteAttributeString("Name", formatStr.Item1.ArgumentName);
+					writer.WriteStartElement("Argument");
+					if (!string.IsNullOrWhiteSpace(formatStr.Item1.ArgumentName))
+					{
+						writer.WriteAttributeString("Name", formatStr.Item1.ArgumentName);
+					}
 					writer.WriteStartElement(formatStr.Item2.GetType().Name);
 					formatStr.Item2.WriteXml(writer);
-					writer.WriteEndElement();
+					writer.WriteEndElement();//formatStr.Item2.GetType().Name
+					writer.WriteEndElement();//Argument
 
 				}
 				writer.WriteEndElement(); //nameof(FormatString)

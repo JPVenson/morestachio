@@ -1,4 +1,5 @@
 ﻿using Morestachio.Document;
+using Morestachio.Document.Contracts;
 using Newtonsoft.Json;
 
 namespace Morestachio.Tests.DocTree
