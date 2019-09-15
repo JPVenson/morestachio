@@ -9,6 +9,7 @@ namespace Morestachio.Document
 	/// <summary>
 	///		Defines the start of a Scope
 	/// </summary>
+	[System.Serializable]
 	public class IfNotExpressionScopeDocumentItem : ValueDocumentItemBase
 	{
 		/// <summary>
@@ -23,6 +24,11 @@ namespace Morestachio.Document
 		public IfNotExpressionScopeDocumentItem(string value)
 		{
 			Value = value;
+		}
+
+		[UsedImplicitly]
+		protected IfNotExpressionScopeDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
+		{
 		}
 
 		/// <inheritdoc />

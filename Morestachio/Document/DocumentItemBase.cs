@@ -25,13 +25,16 @@ namespace Morestachio.Document
 			Children = new List<IDocumentItem>();
 		}
 
+		[SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
 		protected DocumentItemBase(SerializationInfo info, StreamingContext c)
 		{
 			var documentItemBases = info.GetValue(nameof(Children), typeof(IDocumentItem[])) as IDocumentItem[];
 			Children = new List<IDocumentItem>(documentItemBases);
-			ExpressionStart =
-				info.GetValue(nameof(ExpressionStart), typeof(Tokenizer.CharacterLocation)) as
-					Tokenizer.CharacterLocation;
+			var expStartLocation = info.GetString(nameof(ExpressionStart));
+			if (!string.IsNullOrWhiteSpace(expStartLocation))
+			{
+				ExpressionStart = Tokenizer.CharacterLocation.FromFormatString(expStartLocation);
+			}
 		}
 
 		/// <inheritdoc />
@@ -69,11 +72,12 @@ namespace Morestachio.Document
 		}
 
 		/// <inheritdoc />
-		[SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter = true)]
-		void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
+		[SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
+		public void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			info.AddValue(nameof(Kind), Kind);
-			info.AddValue(nameof(ExpressionStart), ExpressionStart, typeof(Tokenizer.CharacterLocation));
+			info.AddValue(nameof(ExpressionStart), ExpressionStart?.ToFormatString());
+			SerializeBinaryCore(info, context);
 			info.AddValue(nameof(Children), Children.ToArray(), typeof(IDocumentItem[]));
 		}
 
@@ -141,15 +145,7 @@ namespace Morestachio.Document
 					reader.ReadStartElement(); //AnyChild
 					while (!reader.Name.Equals(nameof(Children)) && reader.NodeType != XmlNodeType.EndElement)
 					{
-						var type = Type.GetType(GetType().Namespace + "." + reader.Name)
-						           ?? throw new InvalidOperationException($"The specified type '{reader.Name}' does not exist");
-
-						if (!(type.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance,
-								null, Type.EmptyTypes, null)
-							?.Invoke(null) is IDocumentItem child))
-						{
-							throw new InvalidOperationException($"The specified type '{reader.Name}' does not exist");
-						}
+						var child = DocumentExtenstions.CreateDocumentItemInstance(reader.Name);
 
 						var childTree = reader.ReadSubtree();
 						childTree.Read();

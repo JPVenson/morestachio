@@ -9,6 +9,7 @@ namespace Morestachio.Document
 	/// <summary>
 	///		Defines the start of a Scope
 	/// </summary>
+	[System.Serializable]
 	public class ExpressionScopeDocumentItem : ValueDocumentItemBase
 	{
 		/// <summary>
@@ -24,7 +25,12 @@ namespace Morestachio.Document
 		{
 			Value = value;
 		}
-		
+
+		[UsedImplicitly]
+		protected ExpressionScopeDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
+		{
+		}
+
 		/// <inheritdoc />
 		public override string Kind { get; } = "ExpressionScope";
 

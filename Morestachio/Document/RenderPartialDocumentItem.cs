@@ -10,6 +10,7 @@ namespace Morestachio.Document
 	/// <summary>
 	///		Prints a partial
 	/// </summary>
+	[System.Serializable]
 	public class RenderPartialDocumentItem : ValueDocumentItemBase
 	{
 		/// <summary>
@@ -24,6 +25,11 @@ namespace Morestachio.Document
 		public RenderPartialDocumentItem(string value)
 		{
 			Value = value;
+		}
+
+		[UsedImplicitly]
+		protected RenderPartialDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
+		{
 		}
 
 		/// <inheritdoc />

@@ -10,6 +10,7 @@ namespace Morestachio.Document
 	/// <summary>
 	///		An single Value expression
 	/// </summary>
+	[System.Serializable]
 	public class PathDocumentItem : ValueDocumentItemBase, IValueDocumentItem
 	{
 		/// <summary>

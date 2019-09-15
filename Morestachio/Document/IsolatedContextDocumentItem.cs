@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Morestachio.Framework;
 
 namespace Morestachio.Document
@@ -7,6 +9,7 @@ namespace Morestachio.Document
 	/// <summary>
 	///		Executes the children with a cloned Context
 	/// </summary>
+	[System.Serializable]
 	public class IsolatedContextDocumentItem : DocumentItemBase
 	{
 		/// <summary>
@@ -15,6 +18,11 @@ namespace Morestachio.Document
 		internal IsolatedContextDocumentItem()
 		{
 
+		}
+
+		[UsedImplicitly]
+		protected IsolatedContextDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
+		{
 		}
 
 		/// <inheritdoc />

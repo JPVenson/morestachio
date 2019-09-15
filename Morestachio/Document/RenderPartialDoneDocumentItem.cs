@@ -9,6 +9,7 @@ namespace Morestachio.Document
 	/// <summary>
 	///		The end of a Partial declaration
 	/// </summary>
+	[System.Serializable]
 	public class RenderPartialDoneDocumentItem : ValueDocumentItemBase
 	{
 		/// <summary>
@@ -23,6 +24,11 @@ namespace Morestachio.Document
 		public RenderPartialDoneDocumentItem(string partialName)
 		{
 			Value = partialName;
+		}
+
+		[UsedImplicitly]
+		protected RenderPartialDoneDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
+		{
 		}
 
 		/// <inheritdoc />

@@ -3,6 +3,7 @@ using System.Xml;
 
 namespace Morestachio.Document
 {
+	[System.Serializable]
 	public abstract class ValueDocumentItemBase : DocumentItemBase
 	{
 		protected ValueDocumentItemBase()

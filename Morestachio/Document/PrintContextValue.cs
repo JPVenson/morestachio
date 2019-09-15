@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Morestachio.Framework;
 
 namespace Morestachio.Document
@@ -7,6 +9,7 @@ namespace Morestachio.Document
 	/// <summary>
 	///		If a formatter ends without using its value it is printed
 	/// </summary>
+	[System.Serializable]
 	public class PrintContextValue : DocumentItemBase, IValueDocumentItem
 	{
 		/// <summary>
@@ -15,6 +18,11 @@ namespace Morestachio.Document
 		internal PrintContextValue()
 		{
 
+		}
+
+		[UsedImplicitly]
+		protected PrintContextValue(SerializationInfo info, StreamingContext c) : base(info, c)
+		{
 		}
 
 		/// <inheritdoc />

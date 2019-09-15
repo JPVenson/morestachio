@@ -9,6 +9,7 @@ namespace Morestachio.Document
 	/// <summary>
 	///		Creates an alias 
 	/// </summary>
+	[System.Serializable]
 	public class AliasDocumentItem : ValueDocumentItemBase
 	{
 		/// <summary>

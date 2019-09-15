@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Morestachio.Framework;
 
 namespace Morestachio.Document
@@ -8,6 +11,7 @@ namespace Morestachio.Document
 	/// <summary>
 	///		Defines a document that can be rendered. Does only store its Children
 	/// </summary>
+	[System.Serializable]
 	public class MorestachioDocument : DocumentItemBase
 	{
 		/// <summary>
@@ -16,6 +20,11 @@ namespace Morestachio.Document
 		internal MorestachioDocument()
 		{
 
+		}
+
+		[UsedImplicitly]
+		protected MorestachioDocument(SerializationInfo info, StreamingContext c) : base(info, c)
+		{
 		}
 
 		/// <inheritdoc />

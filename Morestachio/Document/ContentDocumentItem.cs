@@ -9,6 +9,7 @@ namespace Morestachio.Document
 	/// <summary>
 	///		Defines a area that has no morestachio keywords and can be rendered as is
 	/// </summary>
+	[System.Serializable]
 	public class ContentDocumentItem : ValueDocumentItemBase, IValueDocumentItem
 	{
 		/// <summary>
@@ -23,6 +24,11 @@ namespace Morestachio.Document
 		public ContentDocumentItem(string content)
 		{
 			Value = content;
+		}
+
+		[UsedImplicitly]
+		protected ContentDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
+		{
 		}
 
 		/// <inheritdoc />

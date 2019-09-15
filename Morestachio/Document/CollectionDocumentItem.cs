@@ -11,6 +11,7 @@ namespace Morestachio.Document
 	/// <summary>
 	///		Emits N items that are in the <see cref="Value"/>
 	/// </summary>
+	[System.Serializable]
 	public class CollectionDocumentItem : ValueDocumentItemBase
 	{
 		/// <summary>
@@ -25,6 +26,11 @@ namespace Morestachio.Document
 		public CollectionDocumentItem(string value)
 		{
 			Value = value;
+		}
+
+		[UsedImplicitly]
+		protected CollectionDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
+		{
 		}
 
 		/// <inheritdoc />

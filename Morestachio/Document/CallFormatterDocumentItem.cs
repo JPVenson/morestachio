@@ -13,6 +13,7 @@ namespace Morestachio.Document
 	/// <summary>
 	///		Calls a formatter on the current context value
 	/// </summary>
+	[System.Serializable]
 	public class CallFormatterDocumentItem : ValueDocumentItemBase, IValueDocumentItem
 	{
 		/// <summary>
@@ -59,15 +60,7 @@ namespace Morestachio.Document
 				formatStr.ArgumentName = reader.GetAttribute("Name");
 				reader.ReadStartElement();
 
-				var type = Type.GetType(GetType().Namespace + "." + reader.Name)
-				           ?? throw new InvalidOperationException($"The specified type '{reader.Name}' does not exist");
-
-				if (!(type.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance,
-						null, Type.EmptyTypes, null)
-					?.Invoke(null) is IValueDocumentItem child))
-				{
-					throw new InvalidOperationException($"The specified type '{reader.Name}' does not exist");
-				}
+				var child = DocumentExtenstions.CreateDocumentValueItemInstance(reader.Name);
 				var childTree = reader.ReadSubtree();
 				childTree.Read();
 				child.ReadXml(childTree);

@@ -9,6 +9,7 @@ namespace Morestachio.Document
 	/// <summary>
 	///		Removes the alias from the scope
 	/// </summary>
+	[System.Serializable]
 	public class RemoveAliasDocumentItem : ValueDocumentItemBase
 	{
 		/// <summary>
@@ -17,6 +18,11 @@ namespace Morestachio.Document
 		internal RemoveAliasDocumentItem()
 		{
 
+		}
+
+		[UsedImplicitly]
+		protected RemoveAliasDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
+		{
 		}
 
 		/// <summary>

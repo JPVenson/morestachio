@@ -10,6 +10,7 @@ namespace Morestachio.Document
 	///		Defines an inverted scope
 	/// </summary>
 	/// <seealso cref="ExpressionScopeDocumentItem"/>
+	[System.Serializable]
 	public class InvertedExpressionScopeDocumentItem : ValueDocumentItemBase
 	{
 		/// <summary>
@@ -24,6 +25,11 @@ namespace Morestachio.Document
 		public InvertedExpressionScopeDocumentItem(string value)
 		{
 			Value = value;
+		}
+
+		[UsedImplicitly]
+		protected InvertedExpressionScopeDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
+		{
 		}
 
 		/// <inheritdoc />
