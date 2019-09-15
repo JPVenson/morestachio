@@ -1,14 +1,17 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Serialization;
 using JetBrains.Annotations;
 using Morestachio.Framework;
 
-namespace Morestachio
+namespace Morestachio.Document
 {
 	/// <summary>
 	///		Defines a Part in the Template that can be processed
 	/// </summary>
-	public interface IDocumentItem
+	public interface IDocumentItem : IXmlSerializable, ISerializable
 	{
 		/// <summary>
 		///		Renders its Value into the <see cref="outputStream"/>.
@@ -18,7 +21,8 @@ namespace Morestachio
 		/// <param name="context">The context.</param>
 		/// <param name="scopeData">The scope data.</param>
 		/// <returns></returns>
-		Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData);
+		Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context,
+			ScopeData scopeData);
 
 		/// <summary>
 		///		Gets the Kind of this Document item
@@ -40,5 +44,8 @@ namespace Morestachio
 		///		If this is a Natural Document item this defines the Position within the Template where the DocumentItem is parsed from
 		/// </summary>
 		Tokenizer.CharacterLocation ExpressionStart { get; set; }
+
+		void SerializeXmlCore(XmlWriter writer);
+		void DeSerializeXmlCore(XmlReader writer);
 	}
 }

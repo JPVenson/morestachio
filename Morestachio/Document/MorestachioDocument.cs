@@ -1,16 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Morestachio.Framework;
 
-namespace Morestachio
+namespace Morestachio.Document
 {
 	/// <summary>
 	///		Defines a document that can be rendered. Does only store its Children
 	/// </summary>
 	public class MorestachioDocument : DocumentItemBase
 	{
+		/// <summary>
+		///		Used for XML Serialization
+		/// </summary>
+		internal MorestachioDocument()
+		{
+
+		}
+
 		/// <inheritdoc />
 		public override string Kind { get; } = "Document";
 

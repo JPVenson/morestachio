@@ -1,20 +1,30 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Morestachio.Framework;
 
-namespace Morestachio
+namespace Morestachio.Document
 {
 	/// <summary>
 	///		Defines a area that has no morestachio keywords and can be rendered as is
 	/// </summary>
-	public class ContentDocumentItem : DocumentItemBase, IValueDocumentItem
+	public class ContentDocumentItem : ValueDocumentItemBase, IValueDocumentItem
 	{
+		/// <summary>
+		///		Used for XML Serialization
+		/// </summary>
+		internal ContentDocumentItem()
+		{
+
+		}
+
 		/// <inheritdoc />
 		public ContentDocumentItem(string content)
 		{
-			Content = content;
+			Value = content;
 		}
-		
+
 		/// <inheritdoc />
 		public override string Kind { get; } = "Content";
 
@@ -22,7 +32,7 @@ namespace Morestachio
 		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context,
 			ScopeData scopeData)
 		{
-			WriteContent(outputStream, Content, context);
+			WriteContent(outputStream, Value, context);
 			await Task.CompletedTask;
 			return Children.WithScope(context);
 		}
@@ -65,17 +75,12 @@ namespace Morestachio
 			}
 		}
 
-		/// <summary>
-		///		The content that should be rendered
-		/// </summary>
-		public string Content { get; }
-
 		public async Task<ContextObject> GetValue(ContextObject context, ScopeData scopeData)
 		{
 			await Task.CompletedTask;
 			return new ContextObject(context.Options, ".", context)
 			{
-				Value = Content
+				Value = Value
 			};
 		}
 	}

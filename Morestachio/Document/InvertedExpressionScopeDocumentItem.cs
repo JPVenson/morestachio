@@ -1,15 +1,25 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Morestachio.Framework;
 
-namespace Morestachio
+namespace Morestachio.Document
 {
 	/// <summary>
 	///		Defines an inverted scope
 	/// </summary>
 	/// <seealso cref="ExpressionScopeDocumentItem"/>
-	public class InvertedExpressionScopeDocumentItem : DocumentItemBase
+	public class InvertedExpressionScopeDocumentItem : ValueDocumentItemBase
 	{
+		/// <summary>
+		///		Used for XML Serialization
+		/// </summary>
+		internal InvertedExpressionScopeDocumentItem()
+		{
+
+		}
+
 		/// <inheritdoc />
 		public InvertedExpressionScopeDocumentItem(string value)
 		{
@@ -19,10 +29,6 @@ namespace Morestachio
 		/// <inheritdoc />
 		public override string Kind { get; } = "InvertedExpressionScope";
 
-		/// <summary>
-		///		The expression for the value that should be scoped
-		/// </summary>
-		public string Value { get; }
 		
 		/// <inheritdoc />
 		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Morestachio.Framework;
 
-namespace Morestachio
+namespace Morestachio.Document
 {
 	/// <summary>
 	///		Helper Functions for Document creation

@@ -1,15 +1,23 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Morestachio.Framework;
 
-namespace Morestachio
+namespace Morestachio.Document
 {
 	/// <summary>
 	///		Removes the alias from the scope
 	/// </summary>
-	public class RemoveAliasDocumentItem : DocumentItemBase
+	public class RemoveAliasDocumentItem : ValueDocumentItemBase
 	{
-		private readonly string _aliasName;
+		/// <summary>
+		///		Used for XML Serialization
+		/// </summary>
+		internal RemoveAliasDocumentItem()
+		{
+
+		}
 
 		/// <summary>
 		/// 
@@ -17,12 +25,13 @@ namespace Morestachio
 		/// <param name="aliasName"></param>
 		public RemoveAliasDocumentItem(string aliasName)
 		{
-			_aliasName = aliasName;
+			Value = aliasName;
 		}
+
 		/// <inheritdoc />
 		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
-			scopeData.Alias.Remove(_aliasName);
+			scopeData.Alias.Remove(Value);
 			await Task.CompletedTask;
 			return new DocumentItemExecution[0];
 		}

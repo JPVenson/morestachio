@@ -1,17 +1,26 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Morestachio.Framework;
 
-namespace Morestachio
+namespace Morestachio.Document
 {
 	/// <summary>
 	///		Emits N items that are in the <see cref="Value"/>
 	/// </summary>
-	public class CollectionDocumentItem : DocumentItemBase
+	public class CollectionDocumentItem : ValueDocumentItemBase
 	{
+		/// <summary>
+		///		Used for XML Serialization
+		/// </summary>
+		internal CollectionDocumentItem()
+		{
+
+		}
+
 		/// <inheritdoc />
 		public CollectionDocumentItem(string value)
 		{
@@ -20,11 +29,6 @@ namespace Morestachio
 
 		/// <inheritdoc />
 		public override string Kind { get; } = "OpenCollection";
-
-		/// <summary>
-		///		Defines the expression from which the collection should be taken
-		/// </summary>
-		public string Value { get; }
 
 		/// <exception cref="IndexedParseException"></exception>
 		/// <inheritdoc />

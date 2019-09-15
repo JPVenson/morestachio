@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Morestachio.Document;
 using Morestachio.Framework;
 
 namespace Morestachio

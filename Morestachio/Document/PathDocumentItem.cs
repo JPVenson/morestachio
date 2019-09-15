@@ -1,15 +1,25 @@
 ﻿using System.Collections.Generic;
 using System.Net;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Morestachio.Framework;
 
-namespace Morestachio
+namespace Morestachio.Document
 {
 	/// <summary>
 	///		An single Value expression
 	/// </summary>
-	public class PathDocumentItem : DocumentItemBase, IValueDocumentItem
+	public class PathDocumentItem : ValueDocumentItemBase, IValueDocumentItem
 	{
+		/// <summary>
+		///		Used for XML Serialization
+		/// </summary>
+		internal PathDocumentItem()
+		{
+
+		}
+
 		/// <inheritdoc />
 		public PathDocumentItem(string value, bool escapeValue)
 		{
@@ -17,13 +27,20 @@ namespace Morestachio
 			EscapeValue = escapeValue;
 		}
 
+		[UsedImplicitly]
+		protected PathDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
+		{
+			EscapeValue = info.GetBoolean(nameof(EscapeValue));
+		}
+
+		protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
+		{
+			base.SerializeBinaryCore(info, context);
+			info.AddValue(nameof(EscapeValue), EscapeValue);
+		}
+
 		/// <inheritdoc />
 		public override string Kind { get; } = "Expression";
-
-		/// <summary>
-		///		The Path of the Expression
-		/// </summary>
-		public string Value { get; private set; }
 
 		/// <summary>
 		/// Gets a value indicating whether [escape value].

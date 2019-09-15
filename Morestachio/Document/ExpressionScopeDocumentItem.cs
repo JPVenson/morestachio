@@ -1,27 +1,32 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Morestachio.Framework;
 
-namespace Morestachio
+namespace Morestachio.Document
 {
 	/// <summary>
 	///		Defines the start of a Scope
 	/// </summary>
-	public class ExpressionScopeDocumentItem : DocumentItemBase
+	public class ExpressionScopeDocumentItem : ValueDocumentItemBase
 	{
+		/// <summary>
+		///		Used for XML Serialization
+		/// </summary>
+		internal ExpressionScopeDocumentItem()
+		{
+
+		}
+
 		/// <inheritdoc />
 		public ExpressionScopeDocumentItem(string value)
 		{
 			Value = value;
 		}
-
+		
 		/// <inheritdoc />
 		public override string Kind { get; } = "ExpressionScope";
-
-		/// <summary>
-		///		The expression for the value that should be scoped
-		/// </summary>
-		public string Value { get; }
 
 		/// <inheritdoc />
 		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)

@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Morestachio.Document;
 using Morestachio.Formatter;
 
 #region

@@ -1,6 +1,6 @@
 ﻿using Morestachio.Framework;
 
-namespace Morestachio
+namespace Morestachio.Document
 {
 	/// <summary>
 	///		Combines a Document info that should be rendered with a <see cref="ContextObject"/>

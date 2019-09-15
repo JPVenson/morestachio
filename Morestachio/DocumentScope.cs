@@ -1,4 +1,6 @@
-﻿namespace Morestachio
+﻿using Morestachio.Document;
+
+namespace Morestachio
 {
 	internal struct DocumentScope
 	{

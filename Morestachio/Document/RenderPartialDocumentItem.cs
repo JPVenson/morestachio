@@ -1,44 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Morestachio.Framework;
 
-namespace Morestachio
+namespace Morestachio.Document
 {
-	/// <summary>
-	///		Creates an alias 
-	/// </summary>
-	public class AliasDocumentItem : DocumentItemBase
-	{
-		private readonly string _aliasName;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="aliasName"></param>
-		public AliasDocumentItem(string aliasName)
-		{
-			_aliasName = aliasName;
-		}
-
-		/// <inheritdoc />
-		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
-		{
-			scopeData.Alias[_aliasName] = context.Clone();
-
-			await Task.CompletedTask;
-			return Children.WithScope(context);
-		}
-
-		/// <inheritdoc />
-		public override string Kind { get; } = "Alias";
-	}
-
 	/// <summary>
 	///		Prints a partial
 	/// </summary>
-	public class RenderPartialDocumentItem : DocumentItemBase
+	public class RenderPartialDocumentItem : ValueDocumentItemBase
 	{
+		/// <summary>
+		///		Used for XML Serialization
+		/// </summary>
+		internal RenderPartialDocumentItem()
+		{
+
+		}
+
 		/// <inheritdoc />
 		public RenderPartialDocumentItem(string value)
 		{

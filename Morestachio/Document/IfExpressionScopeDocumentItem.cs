@@ -1,14 +1,24 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Morestachio.Framework;
 
-namespace Morestachio
+namespace Morestachio.Document
 {
 	/// <summary>
 	///		Defines the start of a Scope
 	/// </summary>
-	public class IfExpressionScopeDocumentItem : DocumentItemBase
+	public class IfExpressionScopeDocumentItem : ValueDocumentItemBase
 	{
+		/// <summary>
+		///		Used for XML Serialization
+		/// </summary>
+		internal IfExpressionScopeDocumentItem()
+		{
+
+		}
+
 		/// <inheritdoc />
 		public IfExpressionScopeDocumentItem(string value)
 		{
@@ -17,11 +27,6 @@ namespace Morestachio
 
 		/// <inheritdoc />
 		public override string Kind { get; } = "IFExpressionScope";
-
-		/// <summary>
-		///		The expression for the value that should be scoped
-		/// </summary>
-		public string Value { get; }
 
 		/// <inheritdoc />
 		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, 

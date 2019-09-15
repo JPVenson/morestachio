@@ -2,13 +2,21 @@
 using System.Threading.Tasks;
 using Morestachio.Framework;
 
-namespace Morestachio
+namespace Morestachio.Document
 {
 	/// <summary>
 	///		If a formatter ends without using its value it is printed
 	/// </summary>
 	public class PrintContextValue : DocumentItemBase, IValueDocumentItem
 	{
+		/// <summary>
+		///		Used for XML Serialization
+		/// </summary>
+		internal PrintContextValue()
+		{
+
+		}
+
 		/// <inheritdoc />
 		public override string Kind { get; } = "PrintExpression";
 

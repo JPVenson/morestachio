@@ -1,14 +1,24 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Morestachio.Framework;
 
-namespace Morestachio
+namespace Morestachio.Document
 {
 	/// <summary>
 	///		The end of a Partial declaration
 	/// </summary>
-	public class RenderPartialDoneDocumentItem : DocumentItemBase
+	public class RenderPartialDoneDocumentItem : ValueDocumentItemBase
 	{
+		/// <summary>
+		///		Used for XML Serialization
+		/// </summary>
+		internal RenderPartialDoneDocumentItem()
+		{
+
+		}
+
 		/// <inheritdoc />
 		public RenderPartialDoneDocumentItem(string partialName)
 		{
@@ -17,11 +27,6 @@ namespace Morestachio
 
 		/// <inheritdoc />
 		public override string Kind { get; } = "EndPartial";
-
-		/// <summary>
-		///		The name of the Partial
-		/// </summary>
-		public string Value { get; private set; }
 		
 		/// <inheritdoc />
 		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
