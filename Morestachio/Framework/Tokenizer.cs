@@ -461,7 +461,7 @@ namespace Morestachio.Framework
 				if (match.Index > idx)
 				{
 					tokens.Add(new TokenPair(TokenType.Content, templateString.Substring(idx, match.Index - idx), 
-						HumanizeCharacterLocation(tokenIndex, lines)));
+						HumanizeCharacterLocation(idx, lines)));
 				}
 
 				if (match.Value.StartsWith("{{#declare", true, CultureInfo.InvariantCulture))
