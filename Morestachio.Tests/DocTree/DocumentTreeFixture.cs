@@ -17,7 +17,7 @@ namespace Morestachio.Tests.DocTree
 		[Test]
 		public void TestIsContentWithPathAndFormatterSerializable()
 		{
-			var template = "I am <Text> {{Data.data('test')}}";
+			var template = "I am <Text> {{Data.data('test').('next', arg).(last)}}";
 			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
 			var text = DocumentSerializerStrategy.SerializeToText(morestachioDocumentInfo.Document);
 			var deserialized = DocumentSerializerStrategy.DeSerializeToText(text);

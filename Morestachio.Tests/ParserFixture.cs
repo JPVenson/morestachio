@@ -51,14 +51,20 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
-		[TestCase("{{data(d))}}")]
-		[TestCase("{{data((d)}}")]
-		[TestCase("{{data)}}")]
-		[TestCase("{{data(}}")]
-		public void ParserThrowsAnExceptionWhenFormatIsMismatched(string invalidTemplate)
+		[TestCase("{{data(d))}}", 2)]
+		[TestCase("{{data((d)}}", 2)]
+		[TestCase("{{data)}}", 2)]
+		[TestCase("{{data(}}", 2)]
+		[TestCase("{{data(arg}}", 2)]
+		[TestCase("{{data(arg, 'test'}}", 2)]
+		[TestCase("{{data(arg, 'test)}}", 3)]
+		[TestCase("{{data(arg, )}}", 1)]
+		public void ParserThrowsAnExceptionWhenFormatIsMismatched(string invalidTemplate, int expectedNoOfExceptions)
 		{
-			Assert.That(Parser.ParseWithOptions(new ParserOptions(invalidTemplate)).Errors,
-				Is.Not.Empty.And.Count.EqualTo(1));
+			IEnumerable<IMorestachioError> errors;
+			Assert.That(errors = Parser.ParseWithOptions(new ParserOptions(invalidTemplate)).Errors,
+				Is.Not.Empty.And.Count.EqualTo(expectedNoOfExceptions),
+				() => errors.Select(e => e.HelpText).Aggregate((e, f) => e + Environment.NewLine + f));
 		}
 
 		[Test]
@@ -110,12 +116,12 @@ namespace Morestachio.Tests
 		[TestCase("{{@}}")]
 		[TestCase("{{[}}")]
 		[TestCase("{{]}}")]
-		[TestCase("{{)}}")]
-		[TestCase("{{(}}")]
+		[TestCase("{{)}}", 2)]
+		[TestCase("{{(}}", 2)]
 		[TestCase("{{%}}")]
-		public void ParserShouldThrowForInvalidPaths(string template)
+		public void ParserShouldThrowForInvalidPaths(string template, int noOfErrors = 1)
 		{
-			Assert.That(Parser.ParseWithOptions(new ParserOptions(template)).Errors, Is.Not.Empty.And.Count.EqualTo(1));
+			Assert.That(Parser.ParseWithOptions(new ParserOptions(template)).Errors, Is.Not.Empty.And.Count.EqualTo(noOfErrors));
 		}
 
 		[Test]
@@ -181,7 +187,7 @@ namespace Morestachio.Tests
 			Assert.That(result, Is.EqualTo("TEST"));
 		}
 
-		
+
 
 		[Test]
 		public void ParserCanChainFormatSubExpression()
@@ -446,7 +452,7 @@ namespace Morestachio.Tests
 		public void ParserCanFormatArgumentWithSubExpression()
 		{
 			var dt = DateTime.Now;
-			var parsingOptions = new ParserOptions("{{data(testFormat('d'), \"test\")}}", null, DefaultEncoding);
+			var parsingOptions = new ParserOptions("{{data(tt('d'), \"test\")}}", null, DefaultEncoding);
 			var format = "yyyy.mm";
 			var formatterCalled = false;
 			var formatter2Called = false;
@@ -471,7 +477,7 @@ namespace Morestachio.Tests
 			var andStringify = extendedParseInformation.CreateAndStringify(new Dictionary<string, object>
 			{
 				{"data", dt},
-				{"testFormat", 19191919}
+				{"tt", 19191919}
 			});
 			Assert.That(formatterCalled, Is.True, "The  formatter was not called");
 			Assert.That(formatter2Called, Is.True, "The Date formatter was not called");

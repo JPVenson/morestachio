@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
-using Morestachio.Formatter;
 
 namespace Morestachio.Framework
 {
@@ -16,14 +16,6 @@ namespace Morestachio.Framework
 
 		private static readonly Regex TokenFinder = new Regex("([{]{2}[^{}]+?[}]{2})|([{]{3}[^{}]+?[}]{3})",
 			RegexOptions.Compiled);
-
-		private static readonly Regex FormatFinder
-			= new Regex(@"(?:([\w.\s|$|/|~]+)*)+(\((?>\((?<c>)|[^()]+|\)(?<-c>))*(?(c)(?!))\))"
-				, RegexOptions.Compiled, TimeSpan.FromSeconds(10));
-
-		private static readonly Regex FormatInExpressionFinder
-			= new Regex(@"(\((?>\((?<c>)|[^()]+|\)(?<-c>))*(?(c)(?!))\))"
-				, RegexOptions.Compiled, TimeSpan.FromSeconds(10));
 
 		private static readonly Regex NewlineFinder
 			= new Regex("\n", RegexOptions.Compiled);
@@ -63,13 +55,13 @@ namespace Morestachio.Framework
 				charIdx = characterIndex - (lines.LastOrDefault() + 1);
 			}
 
-			var retval = new CharacterLocation
+			var textLocation = new CharacterLocation
 			{
 				//Humans count from 1, so let's do that, too (hence the "+1" on these).
 				Line = line + 1,
 				Character = charIdx + 1
 			};
-			return retval;
+			return textLocation;
 		}
 
 		/// <summary>
@@ -153,26 +145,16 @@ namespace Morestachio.Framework
 			return formatChar == '\r' || formatChar == '\r' || formatChar == '\t' || formatChar == ' ';
 		}
 
-		private static Regex _isCharRegex = new Regex("\\w", RegexOptions.Compiled);
+		private static readonly Regex IsCharRegex = new Regex("\\w", RegexOptions.Compiled);
 
 		private static bool IsExpressionChar(char formatChar)
 		{
 			return formatChar == '.'
 				   || formatChar == '$'
 				   || formatChar == '~'
-				   || _isCharRegex.IsMatch(formatChar.ToString());
+				   || IsCharRegex.IsMatch(formatChar.ToString());
 		}
-
-		class FormatMatch
-		{
-			public string Path { get; set; }
-			public HeaderTokenMatch[] Format { get; set; }
-		}
-
-		private static readonly Regex AllowedPathChars
-			= new Regex(@"([\w.\s|$|/|~]+)", RegexOptions.Compiled);
-
-
+		
 		private static HeaderTokenMatch[] TokenizeFormatterHeader(string formatString,
 					ICollection<IMorestachioError> error,
 					List<int> linesOfTemplate,
@@ -185,6 +167,8 @@ namespace Morestachio.Framework
 				State = TokenState.None
 			});
 			char strChar = ' ';
+			var argumentExpected = false;
+
 			for (var index = 0; index < formatString.Length; index++)
 			{
 				var currentScope = tokenScopes.Peek();
@@ -249,10 +233,12 @@ namespace Morestachio.Framework
 						{
 							strChar = formatChar;
 							currentScope.State = TokenState.InString;
+							argumentExpected = false;
 						}
 						else if (IsExpressionChar(formatChar))
 						{
 							currentScope.State = TokenState.Expression;
+							argumentExpected = false;
 							index--;
 						}
 						else
@@ -318,8 +304,10 @@ namespace Morestachio.Framework
 								}
 
 								tokenScopes.Pop();
-								var parent = tokenScopes.Peek();
-								currentScope.State = TokenState.None;
+								if (formatChar == ',')
+								{
+									argumentExpected = true;
+								}
 								break;
 							}
 							if (!IsWhiteSpaceDelimiter(formatChar))
@@ -338,28 +326,153 @@ namespace Morestachio.Framework
 						break;
 				}
 			}
-
 			if (tokenScopes.Count != 1)
 			{
 				error.Add(new InvalidPathSyntaxError(
 					HumanizeCharacterLocation(startOfArgumentPosition + formatString.Length, linesOfTemplate), formatString));
 			}
+			if (argumentExpected)
+			{
+				error.Add(new MorestachioSyntaxError(
+					HumanizeCharacterLocation(startOfArgumentPosition + formatString.Length, linesOfTemplate), formatString,
+					formatString[formatString.Length - 1].ToString(),
+					")", "Expected closing bracket"));
+			}
 
 			return tokenScopes.Peek().Arguments.ToArray();
 		}
+		
+		private class FormatMatch
+		{
+			public FormatMatch()
+			{
+				Scalar = new StringBuilder();
+				Arguments = new StringBuilder();
+			}
 
-		private static IEnumerable<TokenPair> TokenizeFormattables(string token, string templateString,
+			public int Index { get; set; }
+			public string Path { get; set; }
+			public StringBuilder Scalar { get; set; }
+			public StringBuilder Arguments { get; set; }
+		}
+
+		private static FormatMatch[] EnumerateFormats(string input,
 			List<int> lines, int tokenIndex, ICollection<IMorestachioError> parseErrors)
+		{
+			char? isInString = null;
+			var isEscapedString = false;
+			var format = new FormatMatch();
+			var formats = new List<FormatMatch>();
+			var bracketCounter = 0;
+			for (int i = 0; i < input.Length; i++)
+			{
+				var inputChar = input[i];
+				format.Path += inputChar;
+				if (format.Arguments.Length == 0)
+				{
+					//currently no argument
+					if (inputChar == '(')
+					{
+						bracketCounter++;
+						format.Arguments.Append(inputChar);
+					}
+					else if (inputChar == ')')
+					{
+						bracketCounter--;
+						format.Arguments.Append(inputChar);
+					}
+					else
+					{
+						//still a scalar value
+						format.Scalar.Append(inputChar);
+					}
+				}
+				else
+				{
+					//we are in an argument
+					format.Arguments.Append(inputChar);
+					if (inputChar == ')' && !isInString.HasValue)
+					{
+						bracketCounter--;
+						if (bracketCounter == 0)
+						{
+							//this is the end of the argument
+							formats.Add(format);
+							format = new FormatMatch();
+							format.Index = i + 1;
+						}
+						else if (bracketCounter < 0)
+						{
+							parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(tokenIndex + i, lines),
+								"Format", input, "", "Unmatched closing bracket"));
+						}
+					}
+					if (inputChar == '(' && !isInString.HasValue)
+					{
+						bracketCounter++;
+					}
+					else if (IsStringDelimiter(inputChar))
+					{
+						if (!isInString.HasValue)
+						{
+							//we are currently not in an string
+							isInString = inputChar;
+						}
+						else if (!isEscapedString && inputChar == isInString.Value)
+						{
+							//this is no escaped string so it must be the end delimiter
+							isInString = null;
+						}
+						else if (isEscapedString)
+						{
+							isEscapedString = false;
+						}
+					}
+					else if (inputChar == '\\')
+					{
+						isEscapedString = true;
+					}
+				}
+			}
+
+			if (isInString.HasValue)
+			{
+				parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(tokenIndex + input.Length, lines),
+					input, input[input.Length - 1].ToString(), isInString.Value.ToString(), "Unescaped argument"));
+			}
+
+			if (bracketCounter != 0)
+			{
+				parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(tokenIndex + input.Length, lines),
+					"Format", ")", "", "Unmatched opening bracket"));
+			}
+
+			return formats.ToArray();
+		}
+
+		private static IEnumerable<TokenPair> TokenizeFormattables(
+			FormatMatch[] formattables,
+			string token,
+			string templateString,
+			List<int> lines,
+			int tokenIndex,
+			ICollection<IMorestachioError> parseErrors)
 		{
 			var tokensHandled = 0;
 			var lastPosition = 0;
 
-			foreach (Match tokenFormats in FormatFinder.Matches(token))
+			//foreach (Match tokenFormats in FormatFinder.Matches(token))
+			//FormatMatch[] enumerateFormats = EnumerateFormats(token, templateString, lines, tokenIndex, parseErrors);
+			foreach (var tokenFormats in formattables)
 			{
 				var tokenArgIndex = tokenFormats.Index + tokenIndex;
-				var found = tokenFormats.Groups[0].Value;
-				var scalarValue = tokenFormats.Groups[1].Value;
-				var formatterArgument = tokenFormats.Groups[2].Value;
+				//var found = tokenFormats.Groups[0].Value;
+				//var scalarValue = tokenFormats.Groups[1].Value;
+				//var formatterArgument = tokenFormats.Groups[2].Value;
+
+				var found = tokenFormats.Path;
+				var scalarValue = tokenFormats.Scalar.ToString();
+				var formatterArgument = tokenFormats.Arguments.ToString();
 
 				if (string.IsNullOrEmpty(scalarValue))
 				{
@@ -373,7 +486,7 @@ namespace Morestachio.Framework
 					//path.
 					//(test)
 					var tokensInBetween = token.Substring(lastPosition, tokenFormats.Index - lastPosition);
-					var lineSeperators = new char[]
+					var lineSeperators = new[]
 					{
 						'\r',
 						'\n',
@@ -383,12 +496,12 @@ namespace Morestachio.Framework
 					tokensHandled += tokensInBetween.Count(f => lineSeperators.Contains(f));
 				}
 
-				lastPosition = tokenFormats.Index + tokenFormats.Length;
+				lastPosition = tokenFormats.Index + tokenFormats.Path.Length;
 
 				if (string.IsNullOrWhiteSpace(formatterArgument))
 				{
 					yield return new TokenPair(TokenType.Format,
-						Validated(scalarValue, templateString, tokenArgIndex, lines, parseErrors),
+						Validated(scalarValue, tokenArgIndex, lines, parseErrors),
 						HumanizeCharacterLocation(tokenArgIndex, lines));
 				}
 				else
@@ -408,7 +521,7 @@ namespace Morestachio.Framework
 			if (tokensHandled != token.Length)
 			{
 				yield return new TokenPair(TokenType.Format,
-					Validated(token.Substring(tokensHandled), templateString, tokenIndex, lines, parseErrors),
+					Validated(token.Substring(tokensHandled), tokenIndex, lines, parseErrors),
 					HumanizeCharacterLocation(tokenIndex, lines));
 			}
 		}
@@ -430,6 +543,34 @@ namespace Morestachio.Framework
 			}
 
 			return new Tuple<string, string>(token, null);
+		}
+
+		private static IEnumerable<TokenPair> TokenizeArgumentsIfNecessary(
+			string token, 
+			string templateString,
+			TokenType targetType,
+			List<int> lines, 
+			int tokenIndex, 
+			ICollection<IMorestachioError> parseErrors)
+		{
+			var formats = EnumerateFormats(token, lines, tokenIndex, parseErrors);
+			var tokens = new List<TokenPair>();
+			if (!formats.Any())
+			{
+				tokens.Add(new TokenPair(targetType,
+					Validated(token, 0, lines, parseErrors).Trim(),
+					HumanizeCharacterLocation(tokenIndex, lines)));
+			}
+			else
+			{
+				tokens.AddRange(TokenizeFormattables(formats, token, templateString, lines,
+					tokenIndex, parseErrors));
+
+				tokens.Add(new TokenPair(targetType, ".",
+					HumanizeCharacterLocation(tokenIndex, lines)));
+			}
+
+			return tokens;
 		}
 
 		internal static IEnumerable<TokenPair> TokenizeString(string partial,
@@ -460,7 +601,7 @@ namespace Morestachio.Framework
 				//yield front content.
 				if (match.Index > idx)
 				{
-					tokens.Add(new TokenPair(TokenType.Content, templateString.Substring(idx, match.Index - idx), 
+					tokens.Add(new TokenPair(TokenType.Content, templateString.Substring(idx, match.Index - idx),
 						HumanizeCharacterLocation(idx, lines)));
 				}
 
@@ -524,18 +665,7 @@ namespace Morestachio.Framework
 					if (token.StartsWith(" ") && token.Trim() != "")
 					{
 						token = token.Trim();
-						if (FormatInExpressionFinder.IsMatch(token))
-						{
-							tokens.AddRange(TokenizeFormattables(token, templateString, lines,
-								tokenIndex, parseErrors));
-
-							tokens.Add(new TokenPair(TokenType.CollectionOpen, ".", HumanizeCharacterLocation(tokenIndex, lines)));
-						}
-						else
-						{
-							tokens.Add(new TokenPair(TokenType.CollectionOpen,
-								Validated(token, templateString, match.Index, lines, parseErrors).Trim(), HumanizeCharacterLocation(tokenIndex, lines)));
-						}
+						tokens.AddRange(TokenizeArgumentsIfNecessary(token, templateString, TokenType.CollectionOpen, lines, tokenIndex, parseErrors));
 					}
 					else
 					{
@@ -563,18 +693,7 @@ namespace Morestachio.Framework
 					if (token.StartsWith(" ") && token.Trim() != "")
 					{
 						token = token.Trim();
-						if (FormatInExpressionFinder.IsMatch(token))
-						{
-							tokens.AddRange(TokenizeFormattables(token, templateString, lines,
-								tokenIndex, parseErrors));
-
-							tokens.Add(new TokenPair(TokenType.If, ".", HumanizeCharacterLocation(tokenIndex, lines)));
-						}
-						else
-						{
-							tokens.Add(new TokenPair(TokenType.If,
-								Validated(token, templateString, match.Index, lines, parseErrors).Trim(), HumanizeCharacterLocation(tokenIndex, lines)));
-						}
+						tokens.AddRange(TokenizeArgumentsIfNecessary(token, templateString, TokenType.If, lines, tokenIndex, parseErrors));
 					}
 					else
 					{
@@ -597,18 +716,7 @@ namespace Morestachio.Framework
 					if (token.StartsWith(" ") && token.Trim() != "")
 					{
 						token = token.Trim();
-						if (FormatInExpressionFinder.IsMatch(token))
-						{
-							tokens.AddRange(TokenizeFormattables(token, templateString, lines,
-								tokenIndex, parseErrors));
-
-							tokens.Add(new TokenPair(TokenType.IfNot, ".", HumanizeCharacterLocation(tokenIndex, lines)));
-						}
-						else
-						{
-							tokens.Add(new TokenPair(TokenType.IfNot,
-								Validated(token, templateString, match.Index, lines, parseErrors).Trim(), HumanizeCharacterLocation(tokenIndex, lines)));
-						}
+						tokens.AddRange(TokenizeArgumentsIfNecessary(token, templateString, TokenType.IfNot, lines, tokenIndex, parseErrors));
 					}
 					else
 					{
@@ -659,25 +767,14 @@ namespace Morestachio.Framework
 					if (scopestack.Any() && scopestack.Peek().Item1 == token)
 					{
 						tokens.Add(new TokenPair(TokenType.ElementClose,
-							Validated(token, templateString, match.Index, lines, parseErrors), HumanizeCharacterLocation(tokenIndex, lines)));
+							Validated(token, match.Index, lines, parseErrors), HumanizeCharacterLocation(tokenIndex, lines)));
 					}
 					else
 					{
 						scopestack.Push(Tuple.Create(alias ?? token, match.Index));
 					}
 
-					if (FormatInExpressionFinder.IsMatch(token))
-					{
-						tokens.AddRange(TokenizeFormattables(token, templateString, lines, tokenIndex,
-							parseErrors));
-
-						tokens.Add(new TokenPair(TokenType.ElementOpen, ".", HumanizeCharacterLocation(tokenIndex, lines)));
-					}
-					else
-					{
-						tokens.Add(new TokenPair(TokenType.ElementOpen,
-							Validated(token, templateString, match.Index, lines, parseErrors), HumanizeCharacterLocation(tokenIndex, lines)));
-					}
+					tokens.AddRange(TokenizeArgumentsIfNecessary(token, templateString, TokenType.ElementOpen, lines, tokenIndex, parseErrors));
 
 					if (!string.IsNullOrWhiteSpace(alias))
 					{
@@ -695,26 +792,15 @@ namespace Morestachio.Framework
 					if (scopestack.Any() && scopestack.Peek().Item1 == token)
 					{
 						tokens.Add(new TokenPair(TokenType.ElementClose,
-							Validated(token, templateString, match.Index, lines, parseErrors), HumanizeCharacterLocation(tokenIndex, lines)));
+							Validated(token, match.Index, lines, parseErrors), HumanizeCharacterLocation(tokenIndex, lines)));
 					}
 					else
 					{
 						scopestack.Push(Tuple.Create(alias ?? token, match.Index));
 					}
 
-					if (FormatInExpressionFinder.IsMatch(token))
-					{
-						tokens.AddRange(TokenizeFormattables(token, templateString, lines, tokenIndex,
-							parseErrors));
-
-						tokens.Add(new TokenPair(TokenType.InvertedElementOpen, ".", HumanizeCharacterLocation(tokenIndex, lines)));
-					}
-					else
-					{
-						tokens.Add(new TokenPair(TokenType.InvertedElementOpen,
-							Validated(token, templateString, match.Index, lines, parseErrors), HumanizeCharacterLocation(tokenIndex, lines)));
-					}
-
+					tokens.AddRange(TokenizeArgumentsIfNecessary(token, templateString, TokenType.InvertedElementOpen, lines, tokenIndex, parseErrors));
+					
 					if (!string.IsNullOrWhiteSpace(alias))
 					{
 						tokens.Add(new TokenPair(TokenType.Alias, alias,
@@ -740,7 +826,7 @@ namespace Morestachio.Framework
 					//escaped single element
 					var token = match.Value.TrimStart('{').TrimEnd('}').TrimStart('&').Trim();
 					tokens.Add(new TokenPair(TokenType.UnescapedSingleValue,
-						Validated(token, templateString, match.Index, lines, parseErrors), HumanizeCharacterLocation(tokenIndex, lines)));
+						Validated(token, match.Index, lines, parseErrors), HumanizeCharacterLocation(tokenIndex, lines)));
 				}
 				else if (match.Value.StartsWith("{{!"))
 				{
@@ -748,7 +834,41 @@ namespace Morestachio.Framework
 				}
 				else
 				{
-					tokens.AddRange(TokenizePath(parseErrors, match.Value, templateString, lines, tokenIndex));
+					//unsingle value.
+					var token = match.Value.TrimStart('{').TrimEnd('}').Trim();
+
+					var formats = EnumerateFormats(token, lines, tokenIndex, parseErrors);
+					if (!formats.Any())
+					{
+						tokens.Add(new TokenPair(TokenType.EscapedSingleValue,
+							Validated(token, 0, lines, parseErrors).Trim(),
+							HumanizeCharacterLocation(tokenIndex, lines)));
+					}
+					else
+					{
+						tokens.AddRange(TokenizeFormattables(formats, token, templateString, lines,
+							tokenIndex, parseErrors));
+
+						tokens.Add(new TokenPair(TokenType.Print, ".",
+							HumanizeCharacterLocation(tokenIndex, lines)));
+					}
+
+					//if (FormatInExpressionFinder.IsMatch(token))
+					//{
+					//	tokens.AddRange(TokenizeFormattables(token, templateString, lines, tokenIndex,
+					//		parseErrors).ToArray());
+
+					//	tokens.Add(new TokenPair(TokenType.Print, ".",
+					//		HumanizeCharacterLocation(tokenIndex, lines)));
+					//}
+					//else
+					//{
+					//	tokens.Add(new TokenPair(TokenType.EscapedSingleValue,
+					//		Validated(token, templateString, tokenIndex, lines, parseErrors),
+					//		HumanizeCharacterLocation(tokenIndex, lines)));
+					//}
+					
+					//tokens.AddRange(TokenizePath(parseErrors, match.Value, templateString, lines, tokenIndex));
 				}
 
 				//move forward in the string.
@@ -797,31 +917,7 @@ namespace Morestachio.Framework
 			//throw new AggregateException(innerExceptions);
 		}
 
-		private static IEnumerable<TokenPair> TokenizePath(ICollection<IMorestachioError> parseErrors, string path, string templateString, List<int> lines,
-			int tokenIndex)
-		{
-			//unsingle value.
-			var token = path.TrimStart('{').TrimEnd('}').Trim();
-			if (FormatInExpressionFinder.IsMatch(token))
-			{
-				foreach (var tokenizeFormattable in TokenizeFormattables(token, templateString, lines, tokenIndex,
-					parseErrors).ToArray())
-				{
-					yield return tokenizeFormattable;
-				}
-
-				yield return new TokenPair(TokenType.Print, ".",
-					HumanizeCharacterLocation(tokenIndex, lines));
-			}
-			else
-			{
-				yield return new TokenPair(TokenType.EscapedSingleValue,
-					Validated(token, templateString, tokenIndex, lines, parseErrors),
-					HumanizeCharacterLocation(tokenIndex, lines));
-			}
-		}
-
-		private static string Validated(string token, string content, int index, List<int> lines,
+		private static string Validated(string token, int index, List<int> lines,
 			ICollection<IMorestachioError> exceptions)
 		{
 			token = token.Trim();
@@ -841,7 +937,7 @@ namespace Morestachio.Framework
 		{
 			token = token.Trim();
 
-			Validated(token, content, index, lines, exceptions);
+			Validated(token, index, lines, exceptions);
 
 			//if (!PositiveArgumentSpec.Match(argument).Success)
 			//{
