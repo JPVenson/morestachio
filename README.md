@@ -7,7 +7,7 @@ A Lightweight, powerful, flavorful, templating engine for C# and other .net-base
 
 #### What's this for?
 
-*Morestachio* allows you to create simple text-based templates that are fast and safe to render. It is optimized for WebServers and high on customersation with its Formatter syntax.
+*Morestachio* allows you to create simple text-based templates that are fast and safe to render. It is optimized for WebServers and offers a high degree of customization with its Formatter syntax.
 
 #### How to use Morestachio:
 
