@@ -272,6 +272,26 @@ namespace Morestachio.Tests
 
 			Assert.AreEqual(model["root"], result);
 		}
+		
+		[Test]
+		public void TemplateRendersRootScopePath()
+		{
+			var template =
+				@"{{#IF ~data}}{{data}}{{/IF}}";
+
+			var parsedTemplate =
+				Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding));
+
+			var model = new Dictionary<string, object>()
+			{
+				{"data", "test" },
+				{"root", "tset" }
+			};
+
+			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+
+			Assert.AreEqual(model["data"], result);
+		}
 
 		[Test]
 		public void TemplateRendersWithComplexRootScopePathInIf()
