@@ -67,15 +67,10 @@ namespace Morestachio.Document
 			}
 
 			var scopeDataPartial = scopeData.Partials[partialName];
-			return new DocumentItemExecution[]
+			return new[]
 			{
 				new DocumentItemExecution(scopeDataPartial, context), 
 			};
 		}
-
-		/// <summary>
-		///		The name of the Partial to print
-		/// </summary>
-		public string Value { get; private set; }
 	}
 }
