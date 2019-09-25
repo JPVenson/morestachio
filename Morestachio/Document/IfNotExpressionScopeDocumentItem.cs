@@ -43,8 +43,11 @@ namespace Morestachio.Document
 			var c = await context.GetContextForPath(Value, scopeData);
 			if (!await c.Exists())
 			{
+				scopeData.ExecuteElse = false;
 				return Children.WithScope(context);
 			}
+
+			scopeData.ExecuteElse = true;
 			return new DocumentItemExecution[0];
 		}
 	}

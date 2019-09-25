@@ -59,6 +59,17 @@
 		///		Defines the end of a if-scope
 		/// </summary>
 		IfClose,
-		IfNot
+		/// <summary>
+		///		Defines an inverted If. Works the same as the "^" keyword but does not scope its body to it
+		/// </summary>
+		IfNot,
+		/// <summary>
+		///		Defines an Else. An else can only be used when an if is it predecessor and will only execute when the if will not
+		/// </summary>
+		Else,
+		/// <summary>
+		///		Defines the end of an else-scope
+		/// </summary>
+		ElseClose
 	}
 }

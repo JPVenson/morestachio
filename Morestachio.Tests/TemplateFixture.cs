@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Morestachio.Framework;
 using Morestachio.Helper;
 using NUnit.Framework;
 
@@ -272,7 +273,7 @@ namespace Morestachio.Tests
 
 			Assert.AreEqual(model["root"], result);
 		}
-		
+
 		[Test]
 		public void TemplateRendersRootScopePath()
 		{
@@ -291,6 +292,66 @@ namespace Morestachio.Tests
 			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
 
 			Assert.AreEqual(model["data"], result);
+		}
+
+		[Test]
+		public void TemplateIfElse()
+		{
+			var template =
+				@"{{#IF data}}{{data}}{{/IF}}{{#else}}{{root}}{{/else}}";
+
+			var parsedTemplate =
+				Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding));
+
+			var model = new Dictionary<string, object>()
+			{
+				{"data", "false" },
+				{"root", "true" }
+			};
+
+			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+
+			Assert.AreEqual(model["data"], result);
+		}
+
+		[Test]
+		public void TemplateInvertedIfElse()
+		{
+			var template =
+				@"{{^IF data}}{{data}}{{/IF}}{{#else}}{{root}}{{/else}}";
+
+			var parsedTemplate =
+				Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding));
+
+			var model = new Dictionary<string, object>()
+			{
+				{"data", "false" },
+				{"root", "true" }
+			};
+
+			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+
+			Assert.AreEqual(model["root"], result);
+		}
+
+		[Test]
+		public void TemplateInvalidContentBetweenIfAndElse()
+		{
+			var template =
+				@"{{^IF data}}{{data}}{{/IF}}{{data}}{{#else}}{{root}}{{/else}}";
+
+			var parsedTemplate =
+				Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding));
+
+			var model = new Dictionary<string, object>()
+			{
+				{"data", "false" },
+				{"root", "true" }
+			};
+
+			Assert.That(parsedTemplate.Errors
+				.OfType<MorestachioSyntaxError>()
+				.FirstOrDefault(e => e.Location.Equals(Tokenizer.CharacterLocation.FromFormatString("1:36"))), Is.Not.Null );
 		}
 
 		[Test]
@@ -332,9 +393,7 @@ namespace Morestachio.Tests
 
 			Assert.AreEqual(model["data"] + "," + model["root"], result);
 		}
-
-
-
+		
 		[Test]
 		public void TemplateRendersWithEachWithAliasPath()
 		{

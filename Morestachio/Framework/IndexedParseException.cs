@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Linq;
+using JetBrains.Annotations;
 
 namespace Morestachio.Framework
 {
@@ -7,6 +8,14 @@ namespace Morestachio.Framework
 	/// </summary>
 	public class IndexedParseException : MustachioException
 	{
+		[StringFormatMethod("message")]
+		internal IndexedParseException(Tokenizer.CharacterLocation location, string message)
+			: this(message)
+		{
+			LineNumber = location.Line;
+			CharacterOnLine = location.Character;
+		}
+
 		[StringFormatMethod("message")]
 		internal IndexedParseException(Tokenizer.CharacterLocation location, string message,
 			params object[] replacements)
@@ -23,7 +32,7 @@ namespace Morestachio.Framework
 		/// <param name="replacements"></param>
 		[StringFormatMethod("message")]
 		public IndexedParseException(string message, params object[] replacements)
-			: base(string.Format(message, replacements))
+			: base(replacements.Any() ? string.Format(message, replacements) : message)
 		{
 		}
 

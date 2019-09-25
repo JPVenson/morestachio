@@ -35,5 +35,10 @@ namespace Morestachio
 		///		Lists all Alias objects
 		/// </summary>
 		public IDictionary<string, ContextObject> Alias { get; set; }
+
+		/// <summary>
+		///		Will be set by any preceding If statement if the expression was not rendered to true
+		/// </summary>
+		public bool ExecuteElse { get; set; }
 	}
 }

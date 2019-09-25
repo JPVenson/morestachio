@@ -62,5 +62,16 @@ namespace Morestachio.Tests.DocTree
 			var deserializedText = DocumentSerializerStrategy.SerializeToText(deserialized);
 			Assert.That(deserializedText, Is.EqualTo(text));
 		}
+		
+		[Test]
+		public void TestIsIfElseIsSerializable()
+		{
+			var template = "I am <Text> {{#IF data}} {{/If}} {{#else}} {{/else}}";
+			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
+			var text = DocumentSerializerStrategy.SerializeToText(morestachioDocumentInfo.Document);
+			var deserialized = DocumentSerializerStrategy.DeSerializeToText(text);
+			var deserializedText = DocumentSerializerStrategy.SerializeToText(deserialized);
+			Assert.That(deserializedText, Is.EqualTo(text));
+		}
 	}
 }
