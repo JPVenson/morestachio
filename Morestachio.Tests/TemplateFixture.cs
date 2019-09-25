@@ -334,6 +334,48 @@ namespace Morestachio.Tests
 			Assert.AreEqual(model["root"], result);
 		}
 
+
+
+		[Test]
+		public void TemplateIfElseCombined()
+		{
+			var template =
+				@"{{#IF data}}{{data}}{{#ifelse}}{{root}}{{/else}}";
+
+			var parsedTemplate =
+				Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding));
+
+			var model = new Dictionary<string, object>()
+			{
+				{"data", "false" },
+				{"root", "true" }
+			};
+
+			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+
+			Assert.AreEqual(model["data"], result);
+		}
+
+		[Test]
+		public void TemplateInvertedIfElseCombined()
+		{
+			var template =
+				@"{{^IF data}}{{data}}{{#ifelse}}{{root}}{{/else}}";
+
+			var parsedTemplate =
+				Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding));
+
+			var model = new Dictionary<string, object>()
+			{
+				{"data", "false" },
+				{"root", "true" }
+			};
+
+			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+
+			Assert.AreEqual(model["root"], result);
+		}
+
 		[Test]
 		public void TemplateInvalidContentBetweenIfAndElse()
 		{

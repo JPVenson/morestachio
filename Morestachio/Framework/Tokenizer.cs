@@ -594,6 +594,60 @@ namespace Morestachio.Framework
 			var partialsNames = new List<string>();
 
 			var tokens = new List<TokenPair>();
+
+			void BeginElse(Match match1)
+			{
+				var firstNonContentToken = tokens
+					.AsReadOnly()
+					.Reverse()
+					.FirstOrDefault(e => e.Type != TokenType.Content);
+				if (firstNonContentToken == null || firstNonContentToken.Type != TokenType.IfClose)
+				{
+					parseErrors
+						.Add(new MorestachioSyntaxError(
+							HumanizeCharacterLocation(match1.Index, lines), "find if block for else",
+							firstNonContentToken?.Value, "{{/if}}", "Could not find an /if block for this else"));
+				}
+				else
+				{
+					scopestack.Push(Tuple.Create($"#else_{firstNonContentToken.Value}", match1.Index));
+					tokens.Add(new TokenPair(TokenType.Else, firstNonContentToken.Value,
+						HumanizeCharacterLocation(match1.Index, lines)));
+				}
+			}
+
+			void EndIf(Match match, string expected)
+			{
+				if (!string.Equals(match.Value, "{{" + expected + "}}", StringComparison.InvariantCultureIgnoreCase))
+				{
+					parseErrors
+						.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(match.Index, lines), "close", expected,
+							"{{" + expected + "}}"));
+				}
+				else
+				{
+					if (!scopestack.Any())
+					{
+						parseErrors.Add(new MorestachioUnopendScopeError(HumanizeCharacterLocation(match.Index, lines), "if",
+							"{{#if name}}"));
+					}
+					else
+					{
+						var item1 = scopestack.Peek().Item1;
+						if (item1.StartsWith("#if") || item1.StartsWith("^if"))
+						{
+							var token = scopestack.Pop().Item1;
+							tokens.Add(new TokenPair(TokenType.IfClose, token, HumanizeCharacterLocation(match.Index, lines)));
+						}
+						else
+						{
+							parseErrors.Add(new MorestachioUnopendScopeError(HumanizeCharacterLocation(match.Index, lines), "if",
+								"{{#if name}}"));
+						}
+					}
+				}
+			}
+
 			foreach (Match match in matches)
 			{
 				int tokenIndex = match.Index;
@@ -741,49 +795,16 @@ namespace Morestachio.Framework
 				}
 				else if (tokenValue.StartsWith("{{/if", true, CultureInfo.InvariantCulture))
 				{
-					if (!string.Equals(tokenValue, "{{/if}}", StringComparison.InvariantCultureIgnoreCase))
-					{
-						parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(match.Index, lines), "close", "if", "{{/if}}"));
-					}
-					else
-					{
-						if (!scopestack.Any())
-						{
-							parseErrors.Add(new MorestachioUnopendScopeError(HumanizeCharacterLocation(match.Index, lines), "if", "{{#if name}}"));
-						}
-						else
-						{
-							var item1 = scopestack.Peek().Item1;
-							if (item1.StartsWith("#if") || item1.StartsWith("^if"))
-							{
-								var token = scopestack.Pop().Item1;
-								tokens.Add(new TokenPair(TokenType.IfClose, token, HumanizeCharacterLocation(tokenIndex, lines)));
-							}
-							else
-							{
-								parseErrors.Add(new MorestachioUnopendScopeError(HumanizeCharacterLocation(match.Index, lines), "if", "{{#if name}}"));
-							}
-						}
-					}
+					EndIf(match, "/If");
+				}
+				else if (tokenValue.StartsWith("{{#ifelse", true, CultureInfo.InvariantCulture))
+				{
+					EndIf(match, "#ifelse");
+					BeginElse(match);
 				}
 				else if (tokenValue.Equals("{{#else}}", StringComparison.InvariantCultureIgnoreCase))
 				{
-					var firstNonContentToken = tokens
-						.AsReadOnly()
-						.Reverse()
-						.FirstOrDefault(e => e.Type != TokenType.Content);
-					if (firstNonContentToken == null || firstNonContentToken.Type != TokenType.IfClose)
-					{
-						parseErrors
-							.Add(new MorestachioSyntaxError(
-								HumanizeCharacterLocation(match.Index, lines), "find if block for else",
-								firstNonContentToken?.Value, "{{/if}}", "Could not find an /if block for this else"));
-					}
-					else
-					{
-						scopestack.Push(Tuple.Create($"#else_{firstNonContentToken.Value}", match.Index));
-						tokens.Add(new TokenPair(TokenType.Else, firstNonContentToken.Value, HumanizeCharacterLocation(match.Index, lines)));
-					}
+					BeginElse(match);
 				}
 				else if (tokenValue.Equals("{{/else}}", StringComparison.InvariantCultureIgnoreCase))
 				{
@@ -1074,7 +1095,7 @@ namespace Morestachio.Framework
 					return false;
 				}
 
-				return Equals((CharacterLocation) obj);
+				return Equals((CharacterLocation)obj);
 			}
 
 			public override int GetHashCode()
