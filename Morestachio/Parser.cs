@@ -67,9 +67,13 @@ namespace Morestachio
 						ExpressionStart = token.TokenLocation
 					};
 				case Tokenizer.HeaderArgumentType.Expression:
-					return new CallFormatterDocumentItem(token
-						.Arguments
-						.Select(e => new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>(e, ParseAsPath(e)))
+					var list = new List<Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>>();
+					foreach (var e in token.Arguments)
+					{
+						list.Add(new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>(e, ParseAsPath(e)));
+					}
+
+					return new CallFormatterDocumentItem(list
 						.ToArray(), token.Value);
 				default:
 					throw new ArgumentOutOfRangeException();

@@ -130,6 +130,7 @@ namespace Morestachio
 		/// <returns></returns>
 		[MustUseReturnValue("The Stream contains the template. Use CreateAndStringify() to get the string of it")]
 		[NotNull]
+		[PublicAPI]
 		public async Task<MorestachioDocumentResult> CreateAsync([NotNull]object data)
 		{
 			return await CreateAsync(data, CancellationToken.None);
@@ -141,6 +142,7 @@ namespace Morestachio
 		/// <param name="source"></param>
 		/// <returns></returns>
 		[NotNull]
+		[PublicAPI]
 		public async Task<string> CreateAndStringifyAsync([NotNull]object source)
 		{
 			return await CreateAndStringifyAsync(source, CancellationToken.None);
@@ -153,6 +155,7 @@ namespace Morestachio
 		/// <param name="token"></param>
 		/// <returns></returns>
 		[NotNull]
+		[PublicAPI]
 		public async Task<string> CreateAndStringifyAsync([NotNull]object source, CancellationToken token)
 		{
 			return (await CreateAsync(source, token)).Stream.Stringify(true, ParserOptions.Encoding);
@@ -166,6 +169,7 @@ namespace Morestachio
 		/// <returns></returns>
 		[MustUseReturnValue("The Stream contains the template. Use CreateAndStringify() to get the string of it")]
 		[NotNull]
+		[PublicAPI]
 		public MorestachioDocumentResult Create([NotNull]object source, CancellationToken token)
 		{
 			MorestachioDocumentResult result = null;
@@ -184,6 +188,7 @@ namespace Morestachio
 		/// <returns></returns>
 		[MustUseReturnValue("The Stream contains the template. Use CreateAndStringify() to get the string of it")]
 		[NotNull]
+		[PublicAPI]
 		public MorestachioDocumentResult Create([NotNull]object source)
 		{
 			return Create(source, CancellationToken.None);
@@ -195,6 +200,7 @@ namespace Morestachio
 		/// <param name="source"></param>
 		/// <returns></returns>
 		[NotNull]
+		[PublicAPI]
 		public string CreateAndStringify([NotNull]object source)
 		{
 			return CreateAndStringify(source, CancellationToken.None);
@@ -207,6 +213,7 @@ namespace Morestachio
 		/// <param name="token"></param>
 		/// <returns></returns>
 		[NotNull]
+		[PublicAPI]
 		public string CreateAndStringify([NotNull]object source, CancellationToken token)
 		{
 			return Create(source, token).Stream.Stringify(true, ParserOptions.Encoding);
