@@ -1,6 +1,7 @@
 ﻿using System;
+using Morestachio.Framework;
 
-namespace Morestachio.Framework
+namespace Morestachio.ParserErrors
 {
 	/// <summary>
 	///		Defines an Error on a position within the Template.
@@ -8,7 +9,7 @@ namespace Morestachio.Framework
 	public class InvalidPathSyntaxError : IMorestachioError
 	{
 		/// <inheritdoc />
-		public Tokenizer.CharacterLocation Location { get; }
+		public CharacterLocationExtended Location { get; }
 
 		/// <summary>
 		/// Gets the token.
@@ -19,7 +20,7 @@ namespace Morestachio.Framework
 		public string Token { get; }
 		
 		/// <inheritdoc />
-		public InvalidPathSyntaxError(Tokenizer.CharacterLocation location, string token)
+		public InvalidPathSyntaxError(CharacterLocationExtended location, string token)
 		{
 			Location = location;
 			Token = token;

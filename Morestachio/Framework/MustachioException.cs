@@ -11,9 +11,8 @@ namespace Morestachio.Framework
 		///     Ctor
 		/// </summary>
 		/// <param name="message"></param>
-		/// <param name="replacements"></param>
-		public MustachioException(string message, params object[] replacements) 
-			: base(string.Format(message, replacements))
+		public MustachioException(string message) 
+			: base(string.Format(message))
 		{
 		}
 	}

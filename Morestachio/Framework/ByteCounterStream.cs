@@ -2,7 +2,7 @@
 using System.Text;
 using JetBrains.Annotations;
 
-namespace Morestachio
+namespace Morestachio.Framework
 {
 	/// <summary>
 	///		Internal class to ensure that the given limit of bytes to write is never extended to ensure template quotas

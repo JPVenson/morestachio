@@ -2,6 +2,7 @@
 using System.Linq;
 using Morestachio.Framework;
 using Morestachio.Helper;
+using Morestachio.ParserErrors;
 using NUnit.Framework;
 
 namespace Morestachio.Tests
@@ -393,7 +394,7 @@ namespace Morestachio.Tests
 
 			Assert.That(parsedTemplate.Errors
 				.OfType<MorestachioSyntaxError>()
-				.FirstOrDefault(e => e.Location.Equals(Tokenizer.CharacterLocation.FromFormatString("1:36"))), Is.Not.Null );
+				.FirstOrDefault(e => e.Location.Equals(CharacterLocation.FromFormatString("1:36"))), Is.Not.Null );
 		}
 
 		[Test]

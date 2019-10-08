@@ -1,6 +1,7 @@
 ﻿using System;
+using Morestachio.Framework;
 
-namespace Morestachio.Framework
+namespace Morestachio.ParserErrors
 {
 	/// <summary>
 	///		Defines an error that occured when parsing the template that has an invalid token
@@ -11,7 +12,7 @@ namespace Morestachio.Framework
 		/// Initializes a new instance of the <see cref="MorestachioSyntaxError"/> class.
 		/// </summary>
 		/// <param name="location">The location.</param>
-		public MorestachioSyntaxError(Tokenizer.CharacterLocation location, string operation, string tokenOccured, string syntaxExpected, string extra = null)
+		public MorestachioSyntaxError(CharacterLocationExtended location, string operation, string tokenOccured, string syntaxExpected, string extra = null)
 		{
 			Location = location;
 			HelpText = $"line:char " +
@@ -23,7 +24,7 @@ namespace Morestachio.Framework
 		}
 		
 		/// <inheritdoc />
-		public Tokenizer.CharacterLocation Location { get; }
+		public CharacterLocationExtended Location { get; }
 
 		/// <inheritdoc />
 		public Exception GetException()

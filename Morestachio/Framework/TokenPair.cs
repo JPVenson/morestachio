@@ -47,7 +47,7 @@ namespace Morestachio.Framework
 			}
 		}
 
-		public TokenPair(TokenType type, string value, Tokenizer.CharacterLocation tokenLocation)
+		public TokenPair(TokenType type, string value, CharacterLocation tokenLocation)
 		{
 			Type = type;
 			Value = value;
@@ -62,6 +62,6 @@ namespace Morestachio.Framework
 		[CanBeNull]
 		public string Value { get; set; }
 
-		public Tokenizer.CharacterLocation TokenLocation { get; set; }
+		public CharacterLocation TokenLocation { get; set; }
 	}
 }

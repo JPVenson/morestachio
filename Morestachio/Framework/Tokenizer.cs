@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Morestachio.ParserErrors;
 
 namespace Morestachio.Framework
 {
@@ -60,6 +61,53 @@ namespace Morestachio.Framework
 				Line = line + 1,
 				Character = charIdx + 1
 			};
+			return textLocation;
+		}
+
+		/// <summary>
+		///		As storing the string and the associated position data can slow down the process, we only do it in the case of an error.
+		/// </summary>
+		/// <param name="characterIndex"></param>
+		/// <param name="lines"></param>
+		/// <param name="template"></param>
+		/// <returns></returns>
+		private static CharacterLocationExtended HumanizeCharacterLocationForErrorCase(int characterIndex,
+			List<int> lines,
+			string template)
+		{
+			var lineStart = Array.BinarySearch(lines.ToArray(), characterIndex);
+			lineStart = lineStart < 0 ? ~lineStart : lineStart;
+
+			var indexInLine = characterIndex;
+			var startOfLine = 0;
+			var endOfLine = 0;
+			//in both of these cases, we want to increment the char index by one to account for the '\n' that is skipped in the indexes.
+			if (lineStart < lines.Count && lineStart > 0)
+			{
+				indexInLine = characterIndex - ((startOfLine = lines[lineStart - 1]) + 1);
+			}
+			else if (lineStart > 0)
+			{
+				indexInLine = characterIndex - ((startOfLine = lines.LastOrDefault()) + 1);
+			}
+
+			var lineEnd = lineStart + 1;
+			if (lineEnd < lines.Count && lineEnd > 0)
+			{
+				endOfLine = lines[lineEnd - 1];
+			}
+			else if (lineEnd > 0)
+			{
+				endOfLine = lines.LastOrDefault();
+			}
+
+			var lengthOfWindow = Math.Min(template.Length, endOfLine);
+			var lineContent = template.Substring(startOfLine, lengthOfWindow);
+
+			//Humans count from 1, so let's do that, too (hence the "+ 1" on these).
+			var textLocation = new CharacterLocationExtended(lineStart + 1,
+				indexInLine + 1,
+				new CharacterSnippedLocation(1, indexInLine, lineContent));
 			return textLocation;
 		}
 
@@ -244,7 +292,11 @@ namespace Morestachio.Framework
 						{
 							//this is not the start of an expression and not a string
 							error.Add(new InvalidPathSyntaxError(
-								HumanizeCharacterLocation(startOfArgumentPosition + currentScope.Value.Length, linesOfTemplate), currentScope.Value));
+								HumanizeCharacterLocation(
+									startOfArgumentPosition + currentScope.Value.Length,
+									linesOfTemplate)
+									.AddWindow(new CharacterSnippedLocation(1, index, formatString)),
+								currentScope.Value));
 							return new HeaderTokenMatch[0];
 						}
 						currentScope.TokenType = currentScope.State == TokenState.InString ? HeaderArgumentType.String : HeaderArgumentType.Expression;
@@ -328,12 +380,16 @@ namespace Morestachio.Framework
 			if (tokenScopes.Count != 1)
 			{
 				error.Add(new InvalidPathSyntaxError(
-					HumanizeCharacterLocation(startOfArgumentPosition + formatString.Length, linesOfTemplate), formatString));
+					HumanizeCharacterLocation(startOfArgumentPosition + formatString.Length,
+						linesOfTemplate)
+						.AddWindow(new CharacterSnippedLocation(1, formatString.Length, formatString)), formatString));
 			}
 			if (argumentExpected)
 			{
 				error.Add(new MorestachioSyntaxError(
-					HumanizeCharacterLocation(startOfArgumentPosition + formatString.Length, linesOfTemplate), formatString,
+					HumanizeCharacterLocation(startOfArgumentPosition + formatString.Length,
+						linesOfTemplate)
+						.AddWindow(new CharacterSnippedLocation(1, formatString.Length, formatString)),
 					formatString[formatString.Length - 1].ToString(),
 					")", "Expected closing bracket"));
 			}
@@ -402,7 +458,8 @@ namespace Morestachio.Framework
 						}
 						else if (bracketCounter < 0)
 						{
-							parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(tokenIndex + i, lines),
+							parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(tokenIndex + i, lines)
+									.AddWindow(new CharacterSnippedLocation(1, i, input)),
 								"Format", input, "", "Unmatched closing bracket"));
 						}
 					}
@@ -436,13 +493,15 @@ namespace Morestachio.Framework
 
 			if (isInString.HasValue)
 			{
-				parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(tokenIndex + input.Length, lines),
+				parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(tokenIndex + input.Length, lines)
+					.AddWindow(new CharacterSnippedLocation(1, input.Length, input)),
 					input, input[input.Length - 1].ToString(), isInString.Value.ToString(), "Unescaped argument"));
 			}
 
 			if (bracketCounter != 0)
 			{
-				parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(tokenIndex + input.Length, lines),
+				parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(tokenIndex + input.Length, lines)
+					.AddWindow(new CharacterSnippedLocation(1, input.Length, input)),
 					"Format", ")", "", "Unmatched opening bracket"));
 			}
 
@@ -510,7 +569,8 @@ namespace Morestachio.Framework
 					var formatHeader = TokenizeFormatterHeader(formatExpression, parseErrors, lines, tokenArgIndex);
 					yield return new TokenPair(TokenType.Format,
 						ValidateArgumentHead(scalarValue, formatterArgument, templateString,
-							tokenArgIndex, lines, parseErrors), HumanizeCharacterLocation(tokenArgIndex, lines))
+							tokenArgIndex, lines, parseErrors),
+						HumanizeCharacterLocation(tokenArgIndex, lines))
 					{
 						FormatString = formatHeader
 					};
@@ -595,7 +655,7 @@ namespace Morestachio.Framework
 
 			var tokens = new List<TokenPair>();
 
-			void BeginElse(Match match1)
+			void BeginElse(Match match)
 			{
 				var firstNonContentToken = tokens
 					.AsReadOnly()
@@ -605,14 +665,15 @@ namespace Morestachio.Framework
 				{
 					parseErrors
 						.Add(new MorestachioSyntaxError(
-							HumanizeCharacterLocation(match1.Index, lines), "find if block for else",
+							HumanizeCharacterLocation(match.Index, lines)
+								.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "find if block for else",
 							firstNonContentToken?.Value, "{{/if}}", "Could not find an /if block for this else"));
 				}
 				else
 				{
-					scopestack.Push(Tuple.Create($"#else_{firstNonContentToken.Value}", match1.Index));
+					scopestack.Push(Tuple.Create($"#else_{firstNonContentToken.Value}", match.Index));
 					tokens.Add(new TokenPair(TokenType.Else, firstNonContentToken.Value,
-						HumanizeCharacterLocation(match1.Index, lines)));
+						HumanizeCharacterLocation(match.Index, lines)));
 				}
 			}
 
@@ -621,14 +682,19 @@ namespace Morestachio.Framework
 				if (!string.Equals(match.Value, "{{" + expected + "}}", StringComparison.InvariantCultureIgnoreCase))
 				{
 					parseErrors
-						.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(match.Index, lines), "close", expected,
+						.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(match.Index, lines)
+							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)),
+							"close",
+							expected,
 							"{{" + expected + "}}"));
 				}
 				else
 				{
 					if (!scopestack.Any())
 					{
-						parseErrors.Add(new MorestachioUnopendScopeError(HumanizeCharacterLocation(match.Index, lines), "if",
+						parseErrors.Add(new MorestachioUnopendScopeError(HumanizeCharacterLocation(match.Index, lines)
+								.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)),
+							"if",
 							"{{#if name}}"));
 					}
 					else
@@ -641,7 +707,9 @@ namespace Morestachio.Framework
 						}
 						else
 						{
-							parseErrors.Add(new MorestachioUnopendScopeError(HumanizeCharacterLocation(match.Index, lines), "if",
+							parseErrors.Add(new MorestachioUnopendScopeError(HumanizeCharacterLocation(match.Index, lines)
+									.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)),
+								"if",
 								"{{#if name}}"));
 						}
 					}
@@ -665,7 +733,8 @@ namespace Morestachio.Framework
 					var token = tokenValue.TrimStart('{').TrimEnd('}').TrimStart('#').Trim().Substring("declare".Length);
 					if (string.IsNullOrWhiteSpace(token))
 					{
-						parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(match.Index, lines), "open", "declare", "{{#declare name}}", " Missing the Name."));
+						parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(match.Index, lines)
+							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "open", "declare", "{{#declare name}}", " Missing the Name."));
 					}
 					else
 					{
@@ -677,7 +746,8 @@ namespace Morestachio.Framework
 				{
 					if (!string.Equals(tokenValue, "{{/declare}}", StringComparison.InvariantCultureIgnoreCase))
 					{
-						parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(match.Index, lines), "close", "declare", "{{/declare}}"));
+						parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(match.Index, lines)
+							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "close", "declare", "{{/declare}}"));
 					}
 					else if (scopestack.Any() && scopestack.Peek().Item1.StartsWith("{{#declare"))
 					{
@@ -687,7 +757,8 @@ namespace Morestachio.Framework
 					}
 					else
 					{
-						parseErrors.Add(new MorestachioUnopendScopeError(HumanizeCharacterLocation(match.Index, lines), "declare", "{{#declare name}}"));
+						parseErrors.Add(new MorestachioUnopendScopeError(HumanizeCharacterLocation(match.Index, lines)
+							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "declare", "{{#declare name}}"));
 					}
 				}
 				else if (tokenValue.StartsWith("{{#include", true, CultureInfo.InvariantCulture))
@@ -696,7 +767,8 @@ namespace Morestachio.Framework
 					if (string.IsNullOrWhiteSpace(token) || !partialsNames.Contains(token))
 					{
 						parseErrors.Add(new MorestachioSyntaxError(
-							HumanizeCharacterLocation(match.Index, lines),
+							HumanizeCharacterLocation(match.Index, lines)
+								.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)),
 							"use",
 							"include",
 							"{{#include name}}",
@@ -723,7 +795,8 @@ namespace Morestachio.Framework
 					}
 					else
 					{
-						parseErrors.Add(new InvalidPathSyntaxError(HumanizeCharacterLocation(match.Index, lines), ""));
+						parseErrors.Add(new InvalidPathSyntaxError(HumanizeCharacterLocation(match.Index, lines)
+							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), ""));
 					}
 
 					if (!string.IsNullOrWhiteSpace(alias))
@@ -735,7 +808,8 @@ namespace Morestachio.Framework
 				{
 					if (!string.Equals(tokenValue, "{{/each}}", StringComparison.InvariantCultureIgnoreCase))
 					{
-						parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(match.Index, lines), "close", "each", "{{/each}}"));
+						parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(match.Index, lines)
+							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "close", "each", "{{/each}}"));
 					}
 					else if (scopestack.Any() && scopestack.Peek().Item1.StartsWith("#each"))
 					{
@@ -744,7 +818,8 @@ namespace Morestachio.Framework
 					}
 					else
 					{
-						parseErrors.Add(new MorestachioUnopendScopeError(HumanizeCharacterLocation(match.Index, lines), "each", "{{#each name}}"));
+						parseErrors.Add(new MorestachioUnopendScopeError(HumanizeCharacterLocation(match.Index, lines)
+							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "each", "{{#each name}}"));
 					}
 				}
 				else if (tokenValue.StartsWith("{{#if ", true, CultureInfo.InvariantCulture))
@@ -755,7 +830,8 @@ namespace Morestachio.Framework
 					if (eval.Item2 != null)
 					{
 						parseErrors.Add(new MorestachioSyntaxError(
-							HumanizeCharacterLocation(tokenIndex, lines), "^if", "AS", "No Alias"));
+							HumanizeCharacterLocation(tokenIndex, lines)
+								.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "^if", "AS", "No Alias"));
 					}
 
 					scopestack.Push(Tuple.Create($"#if{token}", match.Index));
@@ -767,7 +843,8 @@ namespace Morestachio.Framework
 					}
 					else
 					{
-						parseErrors.Add(new InvalidPathSyntaxError(HumanizeCharacterLocation(match.Index, lines), ""));
+						parseErrors.Add(new InvalidPathSyntaxError(HumanizeCharacterLocation(match.Index, lines)
+							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), ""));
 					}
 				}
 				else if (tokenValue.StartsWith("{{^if ", true, CultureInfo.InvariantCulture))
@@ -778,7 +855,8 @@ namespace Morestachio.Framework
 					if (eval.Item2 != null)
 					{
 						parseErrors.Add(new MorestachioSyntaxError(
-							HumanizeCharacterLocation(tokenIndex, lines), "^if", "AS", "No Alias"));
+							HumanizeCharacterLocation(tokenIndex, lines)
+								.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "^if", "AS", "No Alias"));
 					}
 
 					scopestack.Push(Tuple.Create($"^if{token}", match.Index));
@@ -790,7 +868,8 @@ namespace Morestachio.Framework
 					}
 					else
 					{
-						parseErrors.Add(new InvalidPathSyntaxError(HumanizeCharacterLocation(match.Index, lines), ""));
+						parseErrors.Add(new InvalidPathSyntaxError(HumanizeCharacterLocation(match.Index, lines)
+							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), ""));
 					}
 				}
 				else if (tokenValue.StartsWith("{{/if", true, CultureInfo.InvariantCulture))
@@ -810,7 +889,8 @@ namespace Morestachio.Framework
 				{
 					if (!string.Equals(tokenValue, "{{/else}}", StringComparison.InvariantCultureIgnoreCase))
 					{
-						parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(match.Index, lines), "close", "else", "{{/else}}"));
+						parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(match.Index, lines)
+							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "close", "else", "{{/else}}"));
 					}
 					else
 					{
@@ -821,7 +901,8 @@ namespace Morestachio.Framework
 						}
 						else
 						{
-							parseErrors.Add(new MorestachioUnopendScopeError(HumanizeCharacterLocation(match.Index, lines), "else", "{{#else name}}"));
+							parseErrors.Add(new MorestachioUnopendScopeError(HumanizeCharacterLocation(match.Index, lines)
+								.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "else", "{{#else name}}"));
 						}
 					}
 				}
@@ -890,7 +971,8 @@ namespace Morestachio.Framework
 					}
 					else
 					{
-						parseErrors.Add(new MorestachioUnopendScopeError(HumanizeCharacterLocation(match.Index, lines), "/", "{{#path}}", " There are more closing elements then open."));
+						parseErrors.Add(new MorestachioUnopendScopeError(HumanizeCharacterLocation(match.Index, lines)
+							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "/", "{{#path}}", " There are more closing elements then open."));
 					}
 				}
 				else if (tokenValue.StartsWith("{{{") || tokenValue.StartsWith("{{&"))
@@ -921,7 +1003,8 @@ namespace Morestachio.Framework
 				else if (tokenValue.StartsWith("#") || tokenValue.StartsWith("/"))
 				{
 					//catch expression handler
-					parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(match.Index, lines),
+					parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(match.Index, lines)
+							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)),
 						$"Unexpected token. Expected an valid Expression but got '{tokenValue}'", tokenValue, ""));
 				}
 				else
@@ -974,7 +1057,8 @@ namespace Morestachio.Framework
 					};
 				}).Reverse())
 				{
-					parseErrors.Add(new MorestachioUnopendScopeError(unclosedScope.location, unclosedScope.scope, ""));
+					parseErrors.Add(new MorestachioUnopendScopeError(unclosedScope.location
+						.AddWindow(new CharacterSnippedLocation(1, -1, "")), unclosedScope.scope, ""));
 				}
 			}
 
@@ -1002,7 +1086,8 @@ namespace Morestachio.Framework
 				return token;
 			}
 
-			exceptions.Add(new InvalidPathSyntaxError(HumanizeCharacterLocation(index, lines), token));
+			exceptions.Add(new InvalidPathSyntaxError(HumanizeCharacterLocation(index, lines)
+				.AddWindow(new CharacterSnippedLocation(1, -1, token)), token));
 
 			return token;
 		}
@@ -1024,87 +1109,6 @@ namespace Morestachio.Framework
 			return token;
 		}
 
-		/// <summary>
-		///		Describes an Position within the Template
-		/// </summary>
-		public class CharacterLocation : IEquatable<CharacterLocation>
-		{
-			/// <summary>
-			///		The line of the Template
-			/// </summary>
-			public int Line { get; set; }
 
-			/// <summary>
-			///		The Character at the <see cref="Line"/>
-			/// </summary>
-			public int Character { get; set; }
-
-			public string ToFormatString()
-			{
-				return $"{Line}:{Character}";
-			}
-
-			public static CharacterLocation FromFormatString(string formatString)
-			{
-				if (!formatString.Contains(":"))
-				{
-					return null;
-				}
-
-				var parts = formatString.Split(':');
-				var charLoc = new CharacterLocation();
-				charLoc.Line = int.Parse(parts[0]);
-				charLoc.Character = int.Parse(parts[1]);
-				return charLoc;
-			}
-
-			public override string ToString()
-			{
-				return $"Line: {Line}, Column: {Character}";
-			}
-
-			public bool Equals(CharacterLocation other)
-			{
-				if (ReferenceEquals(null, other))
-				{
-					return false;
-				}
-
-				if (ReferenceEquals(this, other))
-				{
-					return true;
-				}
-
-				return Line == other.Line && Character == other.Character;
-			}
-
-			public override bool Equals(object obj)
-			{
-				if (ReferenceEquals(null, obj))
-				{
-					return false;
-				}
-
-				if (ReferenceEquals(this, obj))
-				{
-					return true;
-				}
-
-				if (obj.GetType() != this.GetType())
-				{
-					return false;
-				}
-
-				return Equals((CharacterLocation)obj);
-			}
-
-			public override int GetHashCode()
-			{
-				unchecked
-				{
-					return (Line * 397) ^ Character;
-				}
-			}
-		}
 	}
 }

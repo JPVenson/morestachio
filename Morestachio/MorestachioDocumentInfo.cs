@@ -8,6 +8,7 @@ using Morestachio.Document;
 using Morestachio.Document.Contracts;
 using Morestachio.Framework;
 using Morestachio.Helper;
+using Morestachio.ParserErrors;
 
 namespace Morestachio
 {

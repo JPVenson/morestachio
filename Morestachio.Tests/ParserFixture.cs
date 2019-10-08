@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Morestachio.Attributes;
 using Morestachio.Formatter;
 using Morestachio.Framework;
+using Morestachio.ParserErrors;
 using Newtonsoft.Json;
 using NUnit.Framework;
 

@@ -1,6 +1,7 @@
 ﻿using System;
+using Morestachio.Framework;
 
-namespace Morestachio.Framework
+namespace Morestachio.ParserErrors
 {
 	/// <summary>
 	///		Defines an error that occured when parsing the template that has an invalid token
@@ -11,14 +12,14 @@ namespace Morestachio.Framework
 		/// Initializes a new instance of the <see cref="MorestachioSyntaxError"/> class.
 		/// </summary>
 		/// <param name="location">The location.</param>
-		public MorestachioUnopendScopeError(Tokenizer.CharacterLocation location, string tokenOccured, string syntaxExpected, string extra = null)
+		public MorestachioUnopendScopeError(CharacterLocationExtended location, string tokenOccured, string syntaxExpected, string extra = null)
 		{
 			Location = location;
 			HelpText = $"line:char '{Location.Line}:{Location.Character}' - An '{tokenOccured}' block is being closed, but no corresponding opening element '{syntaxExpected}' was detected.{extra}";
 		}
 		
 		/// <inheritdoc />
-		public Tokenizer.CharacterLocation Location { get; }
+		public CharacterLocationExtended Location { get; }
 
 		/// <inheritdoc />
 		public Exception GetException()

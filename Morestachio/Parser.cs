@@ -2,6 +2,7 @@
 using Morestachio.Document;
 using Morestachio.Document.Contracts;
 using Morestachio.Formatter;
+using Morestachio.ParserErrors;
 
 #region
 

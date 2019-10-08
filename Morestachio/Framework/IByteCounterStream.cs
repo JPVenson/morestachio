@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Morestachio
+namespace Morestachio.Framework
 {
 	/// <summary>
 	///		Defines the output that can count on written bytes into a stream

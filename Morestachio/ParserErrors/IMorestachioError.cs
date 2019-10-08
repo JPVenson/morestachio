@@ -1,6 +1,7 @@
 ﻿using System;
+using Morestachio.Framework;
 
-namespace Morestachio.Framework
+namespace Morestachio.ParserErrors
 {
 	/// <summary>
 	///		Defines a Error while parsing a Template
@@ -10,7 +11,7 @@ namespace Morestachio.Framework
 		/// <summary>
 		///		The location within the Template where the error occured
 		/// </summary>
-		Tokenizer.CharacterLocation Location { get; }
+		CharacterLocationExtended Location { get; }
 
 		/// <summary>
 		/// Gets the exception.

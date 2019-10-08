@@ -7,6 +7,7 @@ using System.Xml;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Framework;
+using Morestachio.ParserErrors;
 
 namespace Morestachio.Document
 {
@@ -70,9 +71,9 @@ namespace Morestachio.Document
 					parent = parent.Parent;
 				}
 
-				throw new IndexedParseException(
-					"{1}'{0}' is used like an array by the template, but is a scalar value or object in your model." + " Complete Expression until Error:{2}",
-					Value, base.ExpressionStart, (path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f)));
+				throw new IndexedParseException(CharacterLocationExtended.Empty, 
+					string.Format("{1}'{0}' is used like an array by the template, but is a scalar value or object in your model." + " Complete Expression until Error:{2}",
+						Value, base.ExpressionStart, (path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 			}
 
 			var scopes = new List<DocumentItemExecution>();

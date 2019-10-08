@@ -10,7 +10,7 @@
 		/// </summary>
 		/// <param name="message"></param>
 		/// <param name="replacements"></param>
-		public MustachioStackOverflowException(string message, params object[] replacements) : base(message, replacements)
+		public MustachioStackOverflowException(string message) : base(message)
 		{
 		}
 	}

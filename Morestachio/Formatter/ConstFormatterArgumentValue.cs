@@ -14,7 +14,7 @@ namespace Morestachio.Formatter
 
 		public IEnumerable<TokenPair> GetValue()
 		{
-			yield return new TokenPair(TokenType.Content, _argument, new Tokenizer.CharacterLocation());
+			yield return new TokenPair(TokenType.Content, _argument, new CharacterLocation());
 		}
 	}
 }

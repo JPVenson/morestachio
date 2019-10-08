@@ -43,4 +43,8 @@
     </Compile>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Framework\ParserErrors\" />
+  </ItemGroup>
+
 </Project>

@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using JetBrains.Annotations;
+using Morestachio.ParserErrors;
 
 namespace Morestachio.Framework
 {
@@ -8,42 +10,19 @@ namespace Morestachio.Framework
 	/// </summary>
 	public class IndexedParseException : MustachioException
 	{
-		[StringFormatMethod("message")]
-		internal IndexedParseException(Tokenizer.CharacterLocation location, string message)
-			: this(message)
+		private static string FormatMessage(string message, CharacterLocationExtended location)
 		{
-			LineNumber = location.Line;
-			CharacterOnLine = location.Character;
+			return $"{location.Line}:{location.Character} {message}" +
+				   Environment.NewLine +
+					location.Render();
 		}
 
-		[StringFormatMethod("message")]
-		internal IndexedParseException(Tokenizer.CharacterLocation location, string message,
-			params object[] replacements)
-			: this(message, replacements)
+		internal IndexedParseException(CharacterLocationExtended location, string message)
+			: base(FormatMessage(message, location))
 		{
-			LineNumber = location.Line;
-			CharacterOnLine = location.Character;
+			Location = location;
 		}
 
-		/// <summary>
-		///     ctor
-		/// </summary>
-		/// <param name="message"></param>
-		/// <param name="replacements"></param>
-		[StringFormatMethod("message")]
-		public IndexedParseException(string message, params object[] replacements)
-			: base(replacements.Any() ? string.Format(message, replacements) : message)
-		{
-		}
-
-		/// <summary>
-		///     The line of the expression in the expression
-		/// </summary>
-		public int LineNumber { get; set; }
-
-		/// <summary>
-		///     The character from left in the line of the expression
-		/// </summary>
-		public int CharacterOnLine { get; set; }
+		public CharacterLocationExtended Location { get; set; }
 	}
 }

@@ -34,7 +34,7 @@ namespace Morestachio.Document
 			var expStartLocation = info.GetString(nameof(ExpressionStart));
 			if (!string.IsNullOrWhiteSpace(expStartLocation))
 			{
-				ExpressionStart = Tokenizer.CharacterLocation.FromFormatString(expStartLocation);
+				ExpressionStart = CharacterLocation.FromFormatString(expStartLocation);
 			}
 		}
 
@@ -49,7 +49,7 @@ namespace Morestachio.Document
 		public IList<IDocumentItem> Children { get; internal set; }
 
 		/// <inheritdoc />
-		public Tokenizer.CharacterLocation ExpressionStart { get; set; }
+		public CharacterLocation ExpressionStart { get; set; }
 
 		/// <summary>
 		///		Can be called to check if any stop is requested. If return true no stop is requested
@@ -123,7 +123,7 @@ namespace Morestachio.Document
 			var charLoc = reader.GetAttribute(nameof(ExpressionStart));
 			if (charLoc != null)
 			{
-				ExpressionStart = Tokenizer.CharacterLocation.FromFormatString(charLoc);
+				ExpressionStart = CharacterLocation.FromFormatString(charLoc);
 			}
 
 			if (!reader.IsEmptyElement)

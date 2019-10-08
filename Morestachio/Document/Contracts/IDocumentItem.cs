@@ -48,7 +48,7 @@ namespace Morestachio.Document.Contracts
 		/// <summary>
 		///		If this is a Natural Document item this defines the Position within the Template where the DocumentItem is parsed from
 		/// </summary>
-		Tokenizer.CharacterLocation ExpressionStart { get; set; }
+		CharacterLocation ExpressionStart { get; set; }
 
 		/// <summary>
 		///		Can be used to allow custom data to be serialized for XML serialization
