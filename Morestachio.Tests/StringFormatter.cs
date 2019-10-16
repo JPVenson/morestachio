@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Morestachio.Attributes;
 
 namespace Morestachio.Formatter.Framework.Tests
 {
@@ -30,6 +31,12 @@ namespace Morestachio.Formatter.Framework.Tests
 		public static string Optional(string originalObject, [Optional]int optional)
 		{
 			return "OPTIONAL " + originalObject;
+		}
+
+		[MorestachioFormatter("rest", "XXX")]
+		public static string Rest(string originalObject, string fix, [RestParameter]object[] rest)
+		{
+			return "ORIGINAL: " + originalObject + " REST:" + rest.Select(f => f.ToString()).Aggregate((e, f) => e + f);
 		}
 
 		[MorestachioFormatter("defaultValue", "XXX")]

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Morestachio.Attributes;
 
 namespace Morestachio.Formatter.Framework
 {
@@ -115,6 +116,14 @@ namespace Morestachio.Formatter.Framework
 						continue;
 					}
 				}
+				else if (parameterInfo.GetCustomAttribute<RestParameterAttribute>() != null)
+				{
+					if (index + 1 < parameters.Length)
+					{
+						return null;
+					}
+					testParameterValueList.Add(parameter.Skip(index).ToArray());
+				}
 				else
 				{
 					//there must be a value for this parameter
@@ -122,14 +131,14 @@ namespace Morestachio.Formatter.Framework
 					{
 						return null;
 					}
+					//check the value to be used for this parameter
+					var value = parameter[index];
+					if (!parameterInfo.ParameterType.IsInstanceOfType(value))
+					{
+						return null;
+					}
+					testParameterValueList.Add(value);
 				}
-				//check the value to be used for this parameter
-				var value = parameter[index];
-				if (!parameterInfo.ParameterType.IsInstanceOfType(value))
-				{
-					return null;
-				}
-				testParameterValueList.Add(value);
 			}
 
 			return testParameterValueList.ToArray();
