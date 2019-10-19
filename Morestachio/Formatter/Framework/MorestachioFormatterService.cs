@@ -160,7 +160,7 @@ namespace Morestachio.Formatter.Framework
 				return FormatterMatcher.FormatterFlow.Skip;
 			}
 
-			var directMatch = formatterGroup.Where(e => name.ToString().Equals(e.Name)).ToArray();
+			var directMatch = formatterGroup.Where(e => name.Equals(e.Name)).ToArray();
 			arguments = new object[]{sourceObject}.Concat(arguments).ToArray();
 
 			var type = sourceObject.GetType();
