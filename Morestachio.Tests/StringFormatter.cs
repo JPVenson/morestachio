@@ -8,6 +8,12 @@ namespace Morestachio.Formatter.Framework.Tests
 {
 	public static class StringFormatter
 	{
+		[MorestachioFormatter("ExpectInt", "XXX")]
+		public static string ExpectInt(int expected)
+		{
+			return expected.ToString("X2");
+		}
+
 		[MorestachioFormatter("Plus", "XXX")]
 		public static int Reverse(object any, int right, int additional)
 		{

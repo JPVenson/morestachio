@@ -14,6 +14,10 @@
     <PackageReleaseNotes>Fixed Formatter in Formatter service are not properly sorted and in a rare occurence an object formatter can take predecende over an stronger typed formatter</PackageReleaseNotes>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+    <DocumentationFile>H:\Code\morestachio\Morestachio\Morestachio.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2018.3.0" />
   </ItemGroup>

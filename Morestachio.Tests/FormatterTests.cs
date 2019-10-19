@@ -13,6 +13,20 @@ namespace Morestachio.Formatter.Framework.Tests
 		public static Encoding DefaultEncoding { get; set; } = new UnicodeEncoding(true, false, false);
 
 		[Test]
+		public void TestStringConversion()
+		{
+			var formatterService = new MorestachioFormatterService();
+			formatterService.AddFromType(typeof(StringFormatter));
+
+			var options = new ParserOptions("{{data('ExpectInt')}}", null, DefaultEncoding);
+			formatterService.AddFormatterToMorestachio(options);
+			var template = Parser.ParseWithOptions(options);
+
+			var andStringify = template.CreateAndStringify(new Dictionary<string, object>() { { "data", 123 } });
+			Assert.That(andStringify, Is.EqualTo(123.ToString("X2")));
+		}
+
+		[Test]
 		public void FormatterCanFormatObjectTwice()
 		{
 			var formatterService = new MorestachioFormatterService();

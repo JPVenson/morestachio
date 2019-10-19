@@ -1,0 +1,2187 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Morestachio</name>
+    </assembly>
+    <members>
+        <member name="T:Morestachio.Attributes.FormatterArgumentNameAttribute">
+            <summary>
+            	Sets the name for a Formatter named Argument
+            </summary>
+            <seealso cref="T:System.Attribute" />
+        </member>
+        <member name="M:Morestachio.Attributes.FormatterArgumentNameAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Morestachio.Attributes.FormatterArgumentNameAttribute"/> class.
+            </summary>
+            <param name="name">The name.</param>
+        </member>
+        <member name="P:Morestachio.Attributes.FormatterArgumentNameAttribute.Name">
+            <summary>
+            Gets the name.
+            </summary>
+            <value>
+            The name.
+            </value>
+        </member>
+        <member name="T:Morestachio.Attributes.RestParameterAttribute">
+            <summary>
+            	Marks the Parameter as an Rest parameter. All non specify parameter will given here. 
+            </summary>
+            <seealso cref="T:System.Attribute" />
+        </member>
+        <member name="T:Morestachio.Attributes.FormatterValueConverter">
+            <summary>
+            	Defines one or more Value Converter for this parameter
+            </summary>
+        </member>
+        <member name="M:Morestachio.Attributes.FormatterValueConverter.#ctor(System.Type)">
+            <summary>
+            	
+            </summary>
+            <param name="converterType">Must implement <see cref="T:Morestachio.Formatter.Framework.Converter.IFormatterValueConverter"/></param>
+        </member>
+        <member name="P:Morestachio.Attributes.FormatterValueConverter.ConverterType">
+            <summary>
+            	The Formatter for this parameter
+            </summary>
+        </member>
+        <member name="T:Morestachio.Attributes.SourceObjectAttribute">
+            <summary>
+            	Marks an Parameter as the source object. That object is the source from where the formatter was called.
+            </summary>
+            <seealso cref="T:System.Attribute" />
+        </member>
+        <member name="T:Morestachio.Document.AliasDocumentItem">
+            <summary>
+            	Creates an alias 
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.AliasDocumentItem.#ctor(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="value"></param>
+        </member>
+        <member name="M:Morestachio.Document.AliasDocumentItem.#ctor">
+            <summary>
+            	Used for XML Serialization
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.AliasDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.Document.AliasDocumentItem.Kind">
+            <inheritdoc />
+        </member>
+        <member name="T:Morestachio.Document.CallFormatterDocumentItem">
+            <summary>
+            	Calls a formatter on the current context value
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.CallFormatterDocumentItem.#ctor">
+            <summary>
+            	Used for XML Serialization
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.CallFormatterDocumentItem.#ctor(System.Tuple{Morestachio.Framework.Tokenizer.HeaderTokenMatch,Morestachio.Document.IValueDocumentItem}[],System.String)">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.Document.CallFormatterDocumentItem.Kind">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.Document.CallFormatterDocumentItem.FormatString">
+            <summary>
+            	Gets the parsed list of arguments for <see cref="!:Value"/>
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.CallFormatterDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="T:Morestachio.Document.CollectionDocumentItem">
+            <summary>
+            	Emits N items that are in the <see cref="!:Value"/>
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.CollectionDocumentItem.#ctor">
+            <summary>
+            	Used for XML Serialization
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.CollectionDocumentItem.#ctor(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.Document.CollectionDocumentItem.Kind">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.CollectionDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <exception cref="T:Morestachio.Framework.IndexedParseException"></exception>
+            <inheritdoc />
+        </member>
+        <member name="T:Morestachio.Document.ContentDocumentItem">
+            <summary>
+            	Defines a area that has no morestachio keywords and can be rendered as is
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.ContentDocumentItem.#ctor">
+            <summary>
+            	Used for XML Serialization
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.ContentDocumentItem.#ctor(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.Document.ContentDocumentItem.Kind">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.ContentDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="T:Morestachio.Document.Contracts.DocumentExtenstions">
+            <summary>
+            	Helper Functions for Document creation
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.Contracts.DocumentExtenstions.WithScope(System.Collections.Generic.IEnumerable{Morestachio.Document.Contracts.IDocumentItem},Morestachio.Framework.ContextObject)">
+            <summary>
+            	
+            </summary>
+        </member>
+        <member name="T:Morestachio.Document.Contracts.DocumentItemExecution">
+            <summary>
+            	Combines a Document info that should be rendered with a <see cref="P:Morestachio.Document.Contracts.DocumentItemExecution.ContextObject"/>
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.Contracts.DocumentItemExecution.#ctor(Morestachio.Document.Contracts.IDocumentItem,Morestachio.Framework.ContextObject)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Morestachio.Document.Contracts.DocumentItemExecution"/> struct.
+            </summary>
+            <param name="documentItem">The document item.</param>
+            <param name="contextObject">The context object.</param>
+        </member>
+        <member name="P:Morestachio.Document.Contracts.DocumentItemExecution.DocumentItem">
+            <summary>
+            Gets the document item.
+            </summary>
+            <value>
+            The document item.
+            </value>
+        </member>
+        <member name="P:Morestachio.Document.Contracts.DocumentItemExecution.ContextObject">
+            <summary>
+            Gets the context object.
+            </summary>
+            <value>
+            The context object.
+            </value>
+        </member>
+        <member name="T:Morestachio.Document.Contracts.IDocumentItem">
+            <summary>
+            	Defines a Part in the Template that can be processed
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.Contracts.IDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <summary>
+            	Renders its Value into the <see cref="!:outputStream"/>.
+            	If there are any Document items that should be executed directly after they should be returned		
+            </summary>
+            <param name="outputStream">The output stream.</param>
+            <param name="context">The context.</param>
+            <param name="scopeData">The scope data.</param>
+            <returns></returns>
+        </member>
+        <member name="P:Morestachio.Document.Contracts.IDocumentItem.Kind">
+            <summary>
+            	Gets the Kind of this Document item
+            </summary>
+        </member>
+        <member name="P:Morestachio.Document.Contracts.IDocumentItem.Children">
+            <summary>
+            	The list of Children that are children of this Document item
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.Contracts.IDocumentItem.Add(Morestachio.Document.Contracts.IDocumentItem[])">
+            <summary>
+            	Adds the specified childs.
+            </summary>
+        </member>
+        <member name="P:Morestachio.Document.Contracts.IDocumentItem.ExpressionStart">
+            <summary>
+            	If this is a Natural Document item this defines the Position within the Template where the DocumentItem is parsed from
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.Contracts.IDocumentItem.SerializeXmlCore(System.Xml.XmlWriter)">
+            <summary>
+            	Can be used to allow custom data to be serialized for XML serialization
+            </summary>
+            <param name="writer"></param>
+        </member>
+        <member name="M:Morestachio.Document.Contracts.IDocumentItem.DeSerializeXmlCore(System.Xml.XmlReader)">
+            <summary>
+            	Can be used to allow custom data to be deserialized for XML serialization
+            </summary>
+            <param name="writer"></param>
+        </member>
+        <member name="T:Morestachio.Document.DocumentItemBase">
+            <summary>
+            	Base class for Document items
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.DocumentItemBase.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.DocumentItemBase.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.Document.DocumentItemBase.Kind">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.Document.DocumentItemBase.Children">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.Document.DocumentItemBase.ExpressionStart">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.DocumentItemBase.ContinueBuilding(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject)">
+            <summary>
+            	Can be called to check if any stop is requested. If return true no stop is requested
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.DocumentItemBase.Add(Morestachio.Document.Contracts.IDocumentItem[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.DocumentItemBase.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <inheritdoc />
+        </member>
+        <member name="T:Morestachio.Document.ElseExpressionScopeDocumentItem">
+            <summary>
+            	Defines an else Expression. This expression MUST come ether directly or only separated by <see cref="T:Morestachio.Document.ContentDocumentItem"/> after an <see cref="T:Morestachio.Document.IfExpressionScopeDocumentItem"/> or an <see cref="T:Morestachio.Document.InvertedExpressionScopeDocumentItem"/>
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.ElseExpressionScopeDocumentItem.#ctor">
+            <summary>
+            	Used for XML Serialization
+            </summary>
+        </member>
+        <member name="T:Morestachio.Document.ExpressionScopeDocumentItem">
+            <summary>
+            	Defines the start of a Scope
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.ExpressionScopeDocumentItem.#ctor">
+            <summary>
+            	Used for XML Serialization
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.ExpressionScopeDocumentItem.#ctor(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.Document.ExpressionScopeDocumentItem.Kind">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.ExpressionScopeDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="T:Morestachio.Document.IfExpressionScopeDocumentItem">
+            <summary>
+            	Defines the start of a Scope
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.IfExpressionScopeDocumentItem.#ctor">
+            <summary>
+            	Used for XML Serialization
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.IfExpressionScopeDocumentItem.#ctor(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.Document.IfExpressionScopeDocumentItem.Kind">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.IfExpressionScopeDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="T:Morestachio.Document.IfNotExpressionScopeDocumentItem">
+            <summary>
+            	Defines the start of a Scope
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.IfNotExpressionScopeDocumentItem.#ctor">
+            <summary>
+            	Used for XML Serialization
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.IfNotExpressionScopeDocumentItem.#ctor(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.Document.IfNotExpressionScopeDocumentItem.Kind">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.IfNotExpressionScopeDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="T:Morestachio.Document.InvertedExpressionScopeDocumentItem">
+            <summary>
+            	Defines an inverted scope
+            </summary>
+            <seealso cref="T:Morestachio.Document.ExpressionScopeDocumentItem"/>
+        </member>
+        <member name="M:Morestachio.Document.InvertedExpressionScopeDocumentItem.#ctor">
+            <summary>
+            	Used for XML Serialization
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.InvertedExpressionScopeDocumentItem.#ctor(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.Document.InvertedExpressionScopeDocumentItem.Kind">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.InvertedExpressionScopeDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="T:Morestachio.Document.IsolatedContextDocumentItem">
+            <summary>
+            	Executes the children with a cloned Context
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.IsolatedContextDocumentItem.#ctor">
+            <summary>
+            	Used for XML Serialization
+            </summary>
+        </member>
+        <member name="P:Morestachio.Document.IsolatedContextDocumentItem.Kind">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.IsolatedContextDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="T:Morestachio.Document.IValueDocumentItem">
+            <summary>
+            	Defines a Part in the Template that provides a direct access to 
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.IValueDocumentItem.GetValue(Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <summary>
+            	Traverses the path down
+            </summary>
+        </member>
+        <member name="T:Morestachio.Document.MorestachioDocument">
+            <summary>
+            	Defines a document that can be rendered. Does only store its Children
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.MorestachioDocument.#ctor">
+            <summary>
+            	Used for XML Serialization
+            </summary>
+        </member>
+        <member name="P:Morestachio.Document.MorestachioDocument.Kind">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.MorestachioDocument.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.MorestachioDocument.ProcessItemsAndChildren(System.Collections.Generic.IEnumerable{Morestachio.Document.Contracts.IDocumentItem},Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <summary>
+            Processes the items and children.
+            </summary>
+            <param name="documentItems">The document items.</param>
+            <param name="outputStream">The output stream.</param>
+            <param name="context">The context.</param>
+            <param name="scopeData">The scope data.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Morestachio.Document.PartialDocumentItem">
+            <summary>
+            	Contains the Declaration of a Partial item
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.PartialDocumentItem.#ctor">
+            <summary>
+            	Used for XML Serialization
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.PartialDocumentItem.#ctor(System.String,Morestachio.Document.Contracts.IDocumentItem)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Morestachio.Document.PartialDocumentItem"/> class.
+            </summary>
+            <param name="partialName">The partial name.</param>
+            <param name="partial">The partial.</param>
+        </member>
+        <member name="P:Morestachio.Document.PartialDocumentItem.Kind">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.Document.PartialDocumentItem.Partial">
+            <summary>
+            	The partial Document
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.PartialDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="T:Morestachio.Document.PathDocumentItem">
+            <summary>
+            	An single Value expression
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.PathDocumentItem.#ctor">
+            <summary>
+            	Used for XML Serialization
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.PathDocumentItem.#ctor(System.String,System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.Document.PathDocumentItem.Kind">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.Document.PathDocumentItem.EscapeValue">
+            <summary>
+            Gets a value indicating whether [escape value].
+            </summary>
+            <value>
+              <c>true</c> if [escape value]; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="M:Morestachio.Document.PathDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="T:Morestachio.Document.PrintContextValue">
+            <summary>
+            	If a formatter ends without using its value it is printed
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.PrintContextValue.#ctor">
+            <summary>
+            	Used for XML Serialization
+            </summary>
+        </member>
+        <member name="P:Morestachio.Document.PrintContextValue.Kind">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.PrintContextValue.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="T:Morestachio.Document.RemoveAliasDocumentItem">
+            <summary>
+            	Removes the alias from the scope
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.RemoveAliasDocumentItem.#ctor">
+            <summary>
+            	Used for XML Serialization
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.RemoveAliasDocumentItem.#ctor(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="aliasName"></param>
+        </member>
+        <member name="M:Morestachio.Document.RemoveAliasDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.Document.RemoveAliasDocumentItem.Kind">
+            <inheritdoc />
+        </member>
+        <member name="T:Morestachio.Document.RenderPartialDocumentItem">
+            <summary>
+            	Prints a partial
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.RenderPartialDocumentItem.#ctor">
+            <summary>
+            	Used for XML Serialization
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.RenderPartialDocumentItem.#ctor(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.Document.RenderPartialDocumentItem.Kind">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.RenderPartialDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="T:Morestachio.Document.RenderPartialDoneDocumentItem">
+            <summary>
+            	The end of a Partial declaration
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.RenderPartialDoneDocumentItem.#ctor">
+            <summary>
+            	Used for XML Serialization
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.RenderPartialDoneDocumentItem.#ctor(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.Document.RenderPartialDoneDocumentItem.Kind">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.RenderPartialDoneDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="T:Morestachio.Formatter.CanExecute">
+            <summary>
+                Delegate for the Can Execute method on a FormatTemplateElement
+            </summary>
+            <param name="sourceObject">The source object.</param>
+            <param name="parameter">
+                The parameters from template matched to the formatters
+                <seealso cref="P:Morestachio.Formatter.FormatTemplateElement.Format" />.
+            </param>
+            <returns></returns>
+        </member>
+        <member name="T:Morestachio.Formatter.DisabledFormatterMatcher">
+            <summary>
+            	This is the Dummy formatter matcher that can be used to completely disable the Formatter syntax
+            </summary>
+            <seealso cref="T:Morestachio.Formatter.IFormatterMatcher" />
+        </member>
+        <member name="M:Morestachio.Formatter.DisabledFormatterMatcher.AddFormatter``1(System.Delegate)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Formatter.DisabledFormatterMatcher.AddFormatter(Morestachio.Formatter.FormatTemplateElement)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Formatter.DisabledFormatterMatcher.AddFormatter(System.Type,System.Delegate)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Formatter.DisabledFormatterMatcher.Execute(Morestachio.Formatter.FormatTemplateElement,System.Object,System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Formatter.DisabledFormatterMatcher.GetMostMatchingFormatter(System.Type,System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Formatter.DisabledFormatterMatcher.CallMostMatchingFormatter(System.Type,System.Collections.Generic.KeyValuePair{System.String,System.Object}[],System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="T:Morestachio.Formatter.ExternalPartialDeclaration">
+            <summary>
+            	Defines the contents of a Predifined Partial
+            </summary>
+        </member>
+        <member name="P:Morestachio.Formatter.ExternalPartialDeclaration.Name">
+            <summary>
+            	The name of that partial
+            </summary>
+        </member>
+        <member name="P:Morestachio.Formatter.ExternalPartialDeclaration.Template">
+            <summary>
+            	The Template Contents
+            </summary>
+        </member>
+        <member name="T:Morestachio.Formatter.FormatTemplateElement">
+            <summary>
+                Encapsulates a Format function
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.FormatTemplateElement.#ctor(System.Delegate,System.Type,System.Type,Morestachio.Formatter.MultiFormatterInfo[])">
+            <summary>
+                Ctor
+            </summary>
+            <param name="formatTemplate"></param>
+            <param name="inputTypes"></param>
+            <param name="outputType"></param>
+            <param name="argumentMeta"></param>
+        </member>
+        <member name="M:Morestachio.Formatter.FormatTemplateElement.#ctor(System.Func{System.Object,System.Object,System.Object},System.Type,System.Type,Morestachio.Formatter.MultiFormatterInfo[])">
+            <summary>
+                Ctor
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.FormatTemplateElement.#ctor(System.Func{System.Object,System.Object[],System.Object},System.Type,System.Type,Morestachio.Formatter.MultiFormatterInfo[])">
+            <summary>
+                Ctor
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.FormatTemplateElement.#ctor(System.Action{System.Object,System.Object[]},System.Type,System.Type,Morestachio.Formatter.MultiFormatterInfo[])">
+            <summary>
+                Ctor
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.FormatTemplateElement.#ctor(System.Action{System.Object,System.Object},System.Type,System.Type,Morestachio.Formatter.MultiFormatterInfo[])">
+            <summary>
+                Ctor
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.FormatTemplateElement.#ctor(System.Delegate,Morestachio.Formatter.CanExecute,System.Type,System.Type,Morestachio.Formatter.MultiFormatterInfo[])">
+            <summary>
+                Ctor
+            </summary>
+            <param name="formatTemplate">The Delegate that will be invoked when the formatters type is matched by the <see cref="T:Morestachio.Formatter.FormatterMatcher"/></param>
+            <param name="canFormat">An optional Delegate of type <see cref="T:Morestachio.Formatter.CanExecute"/> that will be invoked when the match was successfull, all arguments of the FormatTemplate are provided</param>
+            <param name="inputTypes">The type that this formatter is attached to</param>
+            <param name="outputType">The type of object this formatter returns</param>
+            <param name="argumentMeta">Meta informations of the Formatters Delegate</param>
+        </member>
+        <member name="M:Morestachio.Formatter.FormatTemplateElement.#ctor(System.Func{System.Object,System.Object,System.Object},Morestachio.Formatter.CanExecute,System.Type,System.Type,Morestachio.Formatter.MultiFormatterInfo[])">
+            <summary>
+                Ctor
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.FormatTemplateElement.#ctor(System.Func{System.Object,System.Object[],System.Object},Morestachio.Formatter.CanExecute,System.Type,System.Type,Morestachio.Formatter.MultiFormatterInfo[])">
+            <summary>
+                Ctor
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.FormatTemplateElement.#ctor(System.Action{System.Object,System.Object[]},Morestachio.Formatter.CanExecute,System.Type,System.Type,Morestachio.Formatter.MultiFormatterInfo[])">
+            <summary>
+                Ctor
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.FormatTemplateElement.#ctor(System.Action{System.Object,System.Object},Morestachio.Formatter.CanExecute,System.Type,System.Type,Morestachio.Formatter.MultiFormatterInfo[])">
+            <summary>
+                Ctor
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.FormatTemplateElement.SetCanFormat(Morestachio.Formatter.CanExecute)">
+            <summary>
+            Sets the can format delegate.
+            </summary>
+            <param name="canFormat">The can format.</param>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException">This object is Frozen</exception>
+        </member>
+        <member name="P:Morestachio.Formatter.FormatTemplateElement.CanFormat">
+            <summary>
+                Delegate for custom check if this formatter can handle the values
+            </summary>
+        </member>
+        <member name="P:Morestachio.Formatter.FormatTemplateElement.Format">
+            <summary>
+                delegate for formatting template pars
+            </summary>
+        </member>
+        <member name="P:Morestachio.Formatter.FormatTemplateElement.MetaData">
+            <summary>
+                Gets the Meta data for the Arguments
+            </summary>
+        </member>
+        <member name="P:Morestachio.Formatter.FormatTemplateElement.InputTypes">
+            <summary>
+                The type of input the Formatter is able to accept. Can be null.
+            </summary>
+        </member>
+        <member name="P:Morestachio.Formatter.FormatTemplateElement.OutputType">
+            <summary>
+                The type that the formatter will return. Can be null.
+            </summary>
+        </member>
+        <member name="T:Morestachio.Formatter.FormatterMatcher">
+            <summary>
+                Matches the Arguments from the Template to a Function from .net
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.FormatterMatcher.#ctor">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:Morestachio.Formatter.FormatterMatcher.ReplaceExisting">
+            <summary>
+                If set to <code>true</code> this Formatter will search for existing formatter for the given type and if found any,
+                replace
+                them with the new one.
+                Default: <code>False</code>
+            </summary>
+        </member>
+        <member name="P:Morestachio.Formatter.FormatterMatcher.FormatterLog">
+            <summary>
+                If set writes the Formatters log.
+            </summary>
+        </member>
+        <member name="P:Morestachio.Formatter.FormatterMatcher.Formatter">
+            <summary>
+                The Enumeration of all formatter
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.FormatterMatcher.AddFormatter``1(System.Delegate)">
+            <summary>
+                Adds the formatter.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="formatterDelegate">The formatter delegate.</param>
+        </member>
+        <member name="M:Morestachio.Formatter.FormatterMatcher.AddFormatter(Morestachio.Formatter.FormatTemplateElement)">
+            <summary>
+                Adds the formatter.
+            </summary>
+            <param name="formatter">The formatter.</param>
+        </member>
+        <member name="M:Morestachio.Formatter.FormatterMatcher.AddFormatter(System.Type,System.Delegate)">
+            <summary>
+                Adds the formatter.
+            </summary>
+            <param name="forType">For type.</param>
+            <param name="formatterDelegate">The formatter delegate.</param>
+        </member>
+        <member name="M:Morestachio.Formatter.FormatterMatcher.Execute(Morestachio.Formatter.FormatTemplateElement,System.Object,System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
+            <summary>
+                Executes the specified formatter.
+            </summary>
+            <param name="formatter">The formatter.</param>
+            <param name="sourceObject">The source object.</param>
+            <param name="templateArguments">The template arguments.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.Formatter.FormatterMatcher.GetMostMatchingFormatter(System.Type,System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
+            <summary>
+                Gets the Formatter that matches the type or is assignable to that type. If null it will search for a object
+                formatter
+            </summary>
+            <param name="type"></param>
+            <param name="arguments"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.Formatter.FormatterMatcher.CallMostMatchingFormatter(System.Type,System.Collections.Generic.KeyValuePair{System.String,System.Object}[],System.Object)">
+            <summary>
+                Searches for the first formatter does not reject the value.
+            </summary>
+            <param name="type">The type.</param>
+            <param name="arguments">The arguments.</param>
+            <param name="value">The value.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.Formatter.FormatterMatcher.Log(System.Func{System.String})">
+            <summary>
+                Writes the specified log.
+            </summary>
+            <param name="log">The log.</param>
+        </member>
+        <member name="M:Morestachio.Formatter.FormatterMatcher.GetMatchingFormatter(System.Type,System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
+            <summary>
+                Gets the matching formatter.
+            </summary>
+            <param name="typeToFormat">The type to format.</param>
+            <param name="arguments"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.Formatter.FormatterMatcher.ComposeValues(Morestachio.Formatter.FormatTemplateElement,System.Object,System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
+            <summary>
+                Composes the values into a Dictionary for each formatter. If returns null, the formatter will not be called.
+            </summary>
+            <param name="formatter">The formatter.</param>
+            <param name="sourceObject">The source object.</param>
+            <param name="templateArguments">The template arguments.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Morestachio.Formatter.FormatterMatcher.FormatterFlow">
+            <summary>
+                Can be returned by a Formatter to control what formatter should be used
+            </summary>
+        </member>
+        <member name="P:Morestachio.Formatter.FormatterMatcher.FormatterFlow.Skip">
+            <summary>
+                Return code for all formatters to skip the execution of the current formatter and try another one that could also
+                match
+            </summary>
+        </member>
+        <member name="T:Morestachio.Formatter.FormatterMatcherExtensions">
+            <summary>
+            	Common used extensions to the Formatter Matcher
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.FormatterMatcherExtensions.AddFormatter``1(Morestachio.Formatter.IFormatterMatcher,System.Func{``0})">
+            <summary>
+                Adds the formatter.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="matcher">The instance of FormatterMatcher</param>
+            <param name="formatterDelegate">The formatter delegate.</param>
+        </member>
+        <member name="M:Morestachio.Formatter.FormatterMatcherExtensions.AddFormatter``2(Morestachio.Formatter.IFormatterMatcher,System.Func{``0,``1})">
+            <summary>
+                Adds the formatter.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <typeparam name="TResult"></typeparam>
+            <param name="matcher">The instance of FormatterMatcher</param>
+            <param name="formatterDelegate">The formatter delegate.</param>
+        </member>
+        <member name="M:Morestachio.Formatter.FormatterMatcherExtensions.AddFormatter``3(Morestachio.Formatter.IFormatterMatcher,System.Func{``0,``1,``2})">
+            <summary>
+                Adds the formatter.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <typeparam name="TResult"></typeparam>
+            <typeparam name="TArgument"></typeparam>
+            <param name="matcher">The instance of FormatterMatcher</param>
+            <param name="formatterDelegate">The formatter delegate.</param>
+        </member>
+        <member name="T:Morestachio.Formatter.FormatterToken">
+            <summary>
+            	An Argument for a Formatter
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.FormatterToken.#ctor(System.String,Morestachio.Formatter.FormatExpression)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Morestachio.Formatter.FormatterToken"/> class.
+            </summary>
+            <param name="name">The name.</param>
+            <param name="argument">The argument.</param>
+        </member>
+        <member name="P:Morestachio.Formatter.FormatterToken.Name">
+            <summary>
+            	Ether the Name of the Argument or Null
+            </summary>
+        </member>
+        <member name="P:Morestachio.Formatter.FormatterToken.Argument">
+            <summary>
+            	The value of the Argument
+            </summary>
+        </member>
+        <member name="T:Morestachio.Formatter.Framework.Converter.IFormatterValueConverter">
+            <summary>
+            	Can be used to Convert formatter parameters
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.Framework.Converter.IFormatterValueConverter.CanConvert(System.Object,System.Type)">
+             <summary>
+            		Used to check if this type can be converted
+             </summary>
+             <param name="value"></param>
+             <param name="requestedType"></param>
+             <returns></returns>
+        </member>
+        <member name="M:Morestachio.Formatter.Framework.Converter.IFormatterValueConverter.Convert(System.Object,System.Type)">
+             <summary>
+            		Should convert the given value to the requestedType
+             </summary>
+             <param name="value"></param>
+             <param name="requestedType"></param>
+             <returns></returns>
+        </member>
+        <member name="T:Morestachio.Formatter.Framework.InputDescription">
+            <summary>
+            	Wrapper class for the input of an formatter function
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.Framework.InputDescription.#ctor(System.String,System.Type,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Morestachio.Formatter.Framework.InputDescription"/> class.
+            </summary>
+            <param name="description">The description.</param>
+            <param name="outputType">Type of the output.</param>
+            <param name="example">The example.</param>
+        </member>
+        <member name="P:Morestachio.Formatter.Framework.InputDescription.Description">
+            <summary>
+            Gets the description.
+            </summary>
+            <value>
+            The description.
+            </value>
+        </member>
+        <member name="P:Morestachio.Formatter.Framework.InputDescription.Example">
+            <summary>
+            Gets the example.
+            </summary>
+            <value>
+            The example.
+            </value>
+        </member>
+        <member name="P:Morestachio.Formatter.Framework.InputDescription.OutputType">
+            <summary>
+            Gets the type of the output if its not the same as the function returns.
+            </summary>
+            <value>
+            The type of the output.
+            </value>
+        </member>
+        <member name="T:Morestachio.Formatter.Framework.MorestachioFormatterAttribute">
+            <summary>
+            	When decorated by a function, it can be used to format in morestachio
+            </summary>
+            <seealso cref="T:System.Attribute" />
+        </member>
+        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterAttribute.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Morestachio.Formatter.Framework.MorestachioFormatterAttribute"/> class.
+            </summary>
+            <param name="name">The name.</param>
+            <param name="description">The description.</param>
+        </member>
+        <member name="P:Morestachio.Formatter.Framework.MorestachioFormatterAttribute.Name">
+            <summary>
+            	What is the "header" of the function in morestachio.
+            </summary>
+        </member>
+        <member name="P:Morestachio.Formatter.Framework.MorestachioFormatterAttribute.Description">
+            <summary>
+            Gets the description.
+            </summary>
+            <value>
+            The description.
+            </value>
+        </member>
+        <member name="P:Morestachio.Formatter.Framework.MorestachioFormatterAttribute.ReturnHint">
+            <summary>
+            Gets or sets the return hint.
+            </summary>
+            <value>
+            The return hint.
+            </value>
+        </member>
+        <member name="P:Morestachio.Formatter.Framework.MorestachioFormatterAttribute.OutputType">
+            <summary>
+            Gets or sets the type of the output.
+            </summary>
+            <value>
+            The type of the output.
+            </value>
+        </member>
+        <member name="T:Morestachio.Formatter.Framework.MorestachioFormatterInputAttribute">
+            <summary>
+            	Declares the input syntax of any formatter.
+            </summary>
+            <seealso cref="T:System.Attribute" />
+        </member>
+        <member name="P:Morestachio.Formatter.Framework.MorestachioFormatterInputAttribute.Description">
+            <summary>
+            	Shortly describes of what the input argument consists
+            </summary>
+        </member>
+        <member name="P:Morestachio.Formatter.Framework.MorestachioFormatterInputAttribute.Example">
+            <summary>
+            Gets or sets the example.
+            </summary>
+            <value>
+            The example.
+            </value>
+        </member>
+        <member name="P:Morestachio.Formatter.Framework.MorestachioFormatterInputAttribute.OutputType">
+             <summary>
+            		If used will the input return any subtype of the used type by the formatter.
+             <example>
+            if the formatter returns object in its function header, but when this input is used it will return int
+             </example>
+             </summary>
+        </member>
+        <member name="P:Morestachio.Formatter.Framework.MorestachioFormatterInputAttribute.Output">
+            <summary>
+            	More description of how the output is formatted. Freetext
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterInputAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Morestachio.Formatter.Framework.MorestachioFormatterInputAttribute"/> class.
+            </summary>
+            <param name="description">The description.</param>
+        </member>
+        <member name="T:Morestachio.Formatter.Framework.MorestachioFormatterModel">
+            <summary>
+            	Wrapper class for a function call
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterModel.#ctor(System.String,System.String,System.Type,Morestachio.Formatter.Framework.InputDescription[],System.String,System.Reflection.MethodInfo)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Morestachio.Formatter.Framework.MorestachioFormatterModel"/> class.
+            </summary>
+            <param name="name">The name.</param>
+            <param name="description">The description.</param>
+            <param name="inputType">Type of the input.</param>
+            <param name="inputDescription">The input description.</param>
+            <param name="output">The output.</param>
+            <param name="function">The function.</param>
+        </member>
+        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterModel.#ctor(System.String,System.String,System.Type,System.Type,Morestachio.Formatter.Framework.InputDescription[],System.String,System.Reflection.MethodInfo)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Morestachio.Formatter.Framework.MorestachioFormatterModel"/> class.
+            </summary>
+            <param name="name">The name.</param>
+            <param name="description">The description.</param>
+            <param name="inputType">Type of the input.</param>
+            <param name="outputType">Type of the output.</param>
+            <param name="inputDescription">The input description.</param>
+            <param name="output">The output.</param>
+            <param name="function">The function.</param>
+        </member>
+        <member name="P:Morestachio.Formatter.Framework.MorestachioFormatterModel.Name">
+            <summary>
+            Gets the name.
+            </summary>
+            <value>
+            The name.
+            </value>
+        </member>
+        <member name="P:Morestachio.Formatter.Framework.MorestachioFormatterModel.Description">
+            <summary>
+            Gets the description.
+            </summary>
+            <value>
+            The description.
+            </value>
+        </member>
+        <member name="P:Morestachio.Formatter.Framework.MorestachioFormatterModel.InputDescription">
+            <summary>
+            Gets the input description.
+            </summary>
+            <value>
+            The input description.
+            </value>
+        </member>
+        <member name="P:Morestachio.Formatter.Framework.MorestachioFormatterModel.InputType">
+            <summary>
+            Gets the type of the input.
+            </summary>
+            <value>
+            The type of the input.
+            </value>
+        </member>
+        <member name="P:Morestachio.Formatter.Framework.MorestachioFormatterModel.Output">
+            <summary>
+            Gets the output.
+            </summary>
+            <value>
+            The output.
+            </value>
+        </member>
+        <member name="P:Morestachio.Formatter.Framework.MorestachioFormatterModel.OutputType">
+            <summary>
+            Gets the type of the output.
+            </summary>
+            <value>
+            The type of the output.
+            </value>
+        </member>
+        <member name="P:Morestachio.Formatter.Framework.MorestachioFormatterModel.Function">
+            <summary>
+            Gets the function.
+            </summary>
+            <value>
+            The function.
+            </value>
+        </member>
+        <member name="T:Morestachio.Formatter.Framework.MorestachioFormatterService">
+            <summary>
+                The Formatter service that can be used to interpret the Native C# formatter.
+                To use this kind of formatter you must create a public static class where all formatting functions are located.
+                Then create a public static function that accepts n arguments of the type you want to format. For Example:
+                If the formatter should be only used for int formatting and the argument will always be a string you have to create
+                a function that has this header.
+                It must not return a value.
+                The function must have the MorestachioFormatter attribute
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterService.#ctor">
+            <summary>
+                Initializes a new instance of the <see cref="T:Morestachio.Formatter.Framework.MorestachioFormatterService" /> class.
+            </summary>
+        </member>
+        <member name="P:Morestachio.Formatter.Framework.MorestachioFormatterService.GlobalFormatterModels">
+            <summary>
+                Gets the gloabl formatter that are used always for any formatting run.
+            </summary>
+        </member>
+        <member name="P:Morestachio.Formatter.Framework.MorestachioFormatterService.ValueConverter">
+            <summary>
+            	List of all Value Converters that can be used to convert formatter arguments
+            </summary>
+        </member>
+        <member name="P:Morestachio.Formatter.Framework.MorestachioFormatterService.DefaultConverter">
+            <summary>
+            	The fallback Converter that should convert all known mscore lib types
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterService.AddFormatterToMorestachio(System.Collections.Generic.IEnumerable{Morestachio.Formatter.Framework.MorestachioFormatterModel},Morestachio.ParserOptions)">
+            <summary>
+                Add all formatter into the given options object
+            </summary>
+            <param name="listOfFormatter">The list of formatter.</param>
+            <param name="options">The options.</param>
+        </member>
+        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterService.AddFormatterToMorestachio(Morestachio.ParserOptions)">
+            <summary>
+                Add all formatter into the given options object
+            </summary>
+            <param name="options">The options.</param>
+        </member>
+        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterService.CanMethodCalledWith(System.Reflection.MethodInfo,System.Object[])">
+            <summary>
+            	Checks if the provided MethodInfo can be called with the set of parameters
+            	Support for null -> class
+            	Support for optional
+            	Support for default value
+            </summary>
+            <param name="methodInfo"></param>
+            <param name="parameter"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterService.AddFromType(System.Type)">
+            <summary>
+                Adds all formatter that are decorated with the <see cref="T:Morestachio.Formatter.Framework.MorestachioFormatterAttribute" />
+            </summary>
+            <param name="type">The type.</param>
+        </member>
+        <member name="T:Morestachio.Formatter.Framework.MorstachioFormatter">
+            <summary>
+                Delegate for mapping formatter function of the Morestachio framework to the params argument
+            </summary>
+            <param name="originalObject">The original object.</param>
+            <param name="name">The name.</param>
+            <param name="arguments">The arguments.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Morestachio.Formatter.IFormatterMatcher">
+            <summary>
+            	Defines the Tools for Enumerating formatter based on the input type
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.IFormatterMatcher.AddFormatter``1(System.Delegate)">
+            <summary>
+                Adds the formatter.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="formatterDelegate">The formatter delegate.</param>
+        </member>
+        <member name="M:Morestachio.Formatter.IFormatterMatcher.AddFormatter(Morestachio.Formatter.FormatTemplateElement)">
+            <summary>
+                Adds the formatter.
+            </summary>
+            <param name="formatter">The formatter.</param>
+        </member>
+        <member name="M:Morestachio.Formatter.IFormatterMatcher.AddFormatter(System.Type,System.Delegate)">
+            <summary>
+                Adds the formatter.
+            </summary>
+            <param name="forType">For type.</param>
+            <param name="formatterDelegate">The formatter delegate.</param>
+        </member>
+        <member name="M:Morestachio.Formatter.IFormatterMatcher.Execute(Morestachio.Formatter.FormatTemplateElement,System.Object,System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
+            <summary>
+                Executes the specified formatter.
+            </summary>
+            <param name="formatter">The formatter.</param>
+            <param name="sourceObject">The source object.</param>
+            <param name="templateArguments">The template arguments.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.Formatter.IFormatterMatcher.GetMostMatchingFormatter(System.Type,System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
+            <summary>
+                Gets the Formatter that matches the type or is assignable to that type. If null it will search for a object
+                formatter
+            </summary>
+            <param name="type"></param>
+            <param name="arguments"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.Formatter.IFormatterMatcher.CallMostMatchingFormatter(System.Type,System.Collections.Generic.KeyValuePair{System.String,System.Object}[],System.Object)">
+            <summary>
+                Searches for the first formatter does not reject the value.
+            </summary>
+            <param name="type">The type.</param>
+            <param name="arguments">The arguments.</param>
+            <param name="value">The value.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Morestachio.Formatter.IPartialTemplateProvider">
+            <summary>
+            	Can be used to Preprovide Partials in Templates. A template here will always be overwritten by a partial provided in the template
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.IPartialTemplateProvider.GetTemplates">
+            <summary>
+            	Obtains the Template from the store
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Morestachio.Formatter.MultiFormatterInfo">
+            <summary>
+            	Contains information about the Parameter of an Multi argument formatter
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.MultiFormatterInfo.#ctor(System.Type,System.String,System.Boolean,System.Int32,System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Morestachio.Formatter.MultiFormatterInfo"/> class.
+            </summary>
+        </member>
+        <member name="P:Morestachio.Formatter.MultiFormatterInfo.Type">
+            <summary>
+            	Of what type is this parameter
+            </summary>
+        </member>
+        <member name="P:Morestachio.Formatter.MultiFormatterInfo.Name">
+            <summary>
+            	Ether the name that is declared using the <seealso cref="T:Morestachio.Attributes.FormatterArgumentNameAttribute"/> or the name of the Parameter from code ( in that order )
+            </summary>
+        </member>
+        <member name="P:Morestachio.Formatter.MultiFormatterInfo.IsOptional">
+            <summary>
+            	Is the parameter optional
+            </summary>
+        </member>
+        <member name="P:Morestachio.Formatter.MultiFormatterInfo.IsSourceObject">
+            <summary>
+            	Is this parameter the source object
+            </summary>
+        </member>
+        <member name="P:Morestachio.Formatter.MultiFormatterInfo.Index">
+            <summary>
+            	The index in what order the argument is present in the Formatter
+            </summary>
+        </member>
+        <member name="P:Morestachio.Formatter.MultiFormatterInfo.IsRestObject">
+            <summary>
+            	Is this parameter a params parameter. If so it will get all following not matched arguments
+            </summary>
+        </member>
+        <member name="T:Morestachio.Formatter.MultiFormatterInfoCollection">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Formatter.MultiFormatterInfoCollection.#ctor(System.Collections.Generic.IEnumerable{Morestachio.Formatter.MultiFormatterInfo})">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Formatter.MultiFormatterInfoCollection.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Formatter.MultiFormatterInfoCollection.System#Collections#IEnumerable#GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.Formatter.MultiFormatterInfoCollection.Count">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.Formatter.MultiFormatterInfoCollection.Item(System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Formatter.MultiFormatterInfoCollection.SetName(System.String,System.String)">
+            <summary>
+            	Sets the name of an Parameter.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.Formatter.MultiFormatterInfoCollection.LastIsParams">
+            <summary>
+            	When called and the last parameter is an object array, it will be used as an params parameter.
+            	This is quite helpful as you cannot annotate Lambdas.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Morestachio.Framework.ByteCounterStream">
+            <summary>
+            	Internal class to ensure that the given limit of bytes to write is never extended to ensure template quotas
+            </summary>
+            <seealso cref="T:System.IDisposable" />
+        </member>
+        <member name="T:Morestachio.Framework.CharacterLocation">
+            <summary>
+            	Describes an Position within the Template
+            </summary>
+        </member>
+        <member name="P:Morestachio.Framework.CharacterLocation.Line">
+            <summary>
+            	The line of the Template
+            </summary>
+        </member>
+        <member name="P:Morestachio.Framework.CharacterLocation.Character">
+            <summary>
+            	The Character at the <see cref="P:Morestachio.Framework.CharacterLocation.Line"/>
+            </summary>
+        </member>
+        <member name="T:Morestachio.Framework.ContextCollection">
+            <summary>
+                A context object for collections that is generated for each item inside a collection
+            </summary>
+        </member>
+        <member name="M:Morestachio.Framework.ContextCollection.#ctor(System.Int64,System.Boolean,Morestachio.ParserOptions,System.String,Morestachio.Framework.ContextObject)">
+            <summary>
+                ctor
+            </summary>
+            <param name="index">the current index of the item inside the collection</param>
+            <param name="last">true if its the last item</param>
+            <param name="options"></param>
+            <param name="key"></param>
+        </member>
+        <member name="P:Morestachio.Framework.ContextCollection.Index">
+            <summary>
+                The current index inside the collection
+            </summary>
+        </member>
+        <member name="P:Morestachio.Framework.ContextCollection.Last">
+            <summary>
+                True if its the last item in the current collection
+            </summary>
+        </member>
+        <member name="M:Morestachio.Framework.ContextCollection.HandlePathContext(System.Collections.Generic.Queue{System.String},System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Framework.ContextCollection.Clone">
+            <inheritdoc />
+        </member>
+        <member name="T:Morestachio.Framework.ContextObject">
+            <summary>
+                The current context for any given expression
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.ContextObject.DefaultDefinitionOfFalse">
+            <summary>
+            	<para>Gets the Default Definition of false.</para>
+            	This is ether:
+            	<para>- Null</para>
+            	<para>- boolean false</para>
+            	<para>- 0 double or int</para>
+            	<para>- string.Empty (whitespaces are allowed)</para>
+            	<para>- collection not Any().</para>
+            	This field can be used to define your own <see cref="P:Morestachio.Framework.ContextObject.DefinitionOfFalse"/> and then fallback to the default logic
+            </summary>
+        </member>
+        <member name="P:Morestachio.Framework.ContextObject.DefinitionOfFalse">
+            <summary>
+            	Gets the Definition of false on your Template.
+            </summary>
+            <value>
+            	Must no be null
+            </value>
+            <exception cref="T:System.InvalidOperationException">If the value is null</exception>
+        </member>
+        <member name="M:Morestachio.Framework.ContextObject.DefaultFormatterImpl(System.Object,System.Object)">
+            <summary>
+            	Calls <seealso cref="F:Morestachio.Framework.ContextObject.DefaultToStringWithFormatting"/>
+            </summary>
+            <param name="sourceValue">The source value.</param>
+            <param name="formatterArgument">The formatter argument.</param>
+            <returns></returns>
+        </member>
+        <member name="F:Morestachio.Framework.ContextObject.DefaultToStringWithFormatting">
+            <summary>
+                The default to string operator for any PrintableType.
+            	Can be overwritten to support an alternative formatting of all templates.
+            </summary>
+        </member>
+        <member name="M:Morestachio.Framework.ContextObject.#ctor(Morestachio.ParserOptions,System.String,Morestachio.Framework.ContextObject)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Morestachio.Framework.ContextObject"/> class.
+            </summary>
+            <param name="options">The options.</param>
+            <param name="key">The key as seen in the Template</param>
+        </member>
+        <member name="P:Morestachio.Framework.ContextObject.IsNaturalContext">
+            <summary>
+            	Gets a value indicating whether this instance is natural context.
+            	A Natural context is a context outside an Isolated scope
+            </summary>
+        </member>
+        <member name="P:Morestachio.Framework.ContextObject.DefaultFormatter">
+            <summary>
+                The set of allowed types that may be printed. Complex types (such as arrays and dictionaries)
+                should not be printed, or their printing should be specialized.
+                Add an typeof(object) entry as Type to define a Default Output
+            </summary>
+        </member>
+        <member name="P:Morestachio.Framework.ContextObject.Parent">
+            <summary>
+                The parent of the current context or null if its the root context
+            </summary>
+        </member>
+        <member name="P:Morestachio.Framework.ContextObject.Value">
+            <summary>
+                The evaluated value of the expression
+            </summary>
+        </member>
+        <member name="M:Morestachio.Framework.ContextObject.EnsureValue">
+            <summary>
+            Ensures that the Value is loaded if needed
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:Morestachio.Framework.ContextObject.AbortGeneration">
+            <summary>
+                is an abort currently requested
+            </summary>
+        </member>
+        <member name="P:Morestachio.Framework.ContextObject.Key">
+            <summary>
+                The name of the property or key inside the value or indexer expression for lists
+            </summary>
+        </member>
+        <member name="P:Morestachio.Framework.ContextObject.Options">
+            <summary>
+                With what options are the template currently is running
+            </summary>
+        </member>
+        <member name="P:Morestachio.Framework.ContextObject.CancellationToken">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:Morestachio.Framework.ContextObject.HandlePathContext(System.Collections.Generic.Queue{System.String},System.String)">
+            <summary>
+                if overwritten by a class it returns a context object for any non standard key or operation.
+                if non of that
+                <value>null</value>
+            </summary>
+            <param name="elements"></param>
+            <param name="currentElement"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.Framework.ContextObject.GetContextForPath(System.String,Morestachio.ScopeData)">
+            <summary>
+                Will walk the path by using the path seperator "." and evaluate the object at the end
+            </summary>
+            <param name="path"></param>
+            <param name="scopeData"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.Framework.ContextObject.Exists">
+            <summary>
+                Determines if the value of this context exists.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.Framework.ContextObject.RenderToString">
+            <summary>
+            	Renders the Current value to a string or if null to the Null placeholder in the Options
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.Framework.ContextObject.Format(System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
+            <summary>
+                Parses the current object by using the given argument
+            </summary>
+            <param name="argument"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.Framework.ContextObject.Clone">
+            <summary>
+                Clones the ContextObject into a new Detached object
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Morestachio.Framework.IByteCounterStream">
+            <summary>
+            	Defines the output that can count on written bytes into a stream
+            </summary>
+        </member>
+        <member name="P:Morestachio.Framework.IByteCounterStream.BytesWritten">
+            <summary>
+            Gets or sets the bytes written.
+            </summary>
+            <value>
+            The bytes written.
+            </value>
+        </member>
+        <member name="P:Morestachio.Framework.IByteCounterStream.ReachedLimit">
+            <summary>
+            Gets or sets a value indicating whether [reached limit].
+            </summary>
+            <value>
+              <c>true</c> if [reached limit]; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="M:Morestachio.Framework.IByteCounterStream.Write(System.String,System.Int64)">
+            <summary>
+            Writes the specified value.
+            </summary>
+            <param name="value">The value.</param>
+            <param name="sizeOfContent">Content of the size of.</param>
+        </member>
+        <member name="M:Morestachio.Framework.IByteCounterStream.Write(System.String)">
+            <summary>
+            Writes the specified value. Without counting its bytes.
+            </summary>
+            <param name="value">The value.</param>
+        </member>
+        <member name="M:Morestachio.Framework.IByteCounterStream.Write(System.Char[],System.Int64)">
+            <summary>
+            Writes the specified value.
+            </summary>
+            <param name="value">The value.</param>
+            <param name="sizeOfContent">Content of the size of.</param>
+        </member>
+        <member name="T:Morestachio.Framework.IndexedParseException">
+            <summary>
+                Indicates a parse error including line and character info.
+            </summary>
+        </member>
+        <member name="T:Morestachio.Framework.MustachioException">
+            <summary>
+                The General Exception type for Framework Exceptions
+            </summary>
+        </member>
+        <member name="M:Morestachio.Framework.MustachioException.#ctor(System.String)">
+            <summary>
+                Ctor
+            </summary>
+            <param name="message"></param>
+        </member>
+        <member name="T:Morestachio.Framework.MustachioStackOverflowException">
+            <summary>
+            	The Infinite Partials Exception type
+            </summary>
+        </member>
+        <member name="M:Morestachio.Framework.MustachioStackOverflowException.#ctor(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="message"></param>
+            <param name="replacements"></param>
+        </member>
+        <member name="T:Morestachio.Framework.Tokenizer">
+            <summary>
+                Reads in a mustache template and lexes it into tokens.
+            </summary>
+            <exception cref="T:Morestachio.Framework.IndexedParseException"></exception>
+        </member>
+        <member name="F:Morestachio.Framework.Tokenizer.NegativePathSpec">
+            <summary>
+                Specifies combinations of paths that don't work.
+            </summary>
+        </member>
+        <member name="M:Morestachio.Framework.Tokenizer.HumanizeCharacterLocationForErrorCase(System.Int32,System.Collections.Generic.List{System.Int32},System.String)">
+            <summary>
+            	As storing the string and the associated position data can slow down the process, we only do it in the case of an error.
+            </summary>
+            <param name="characterIndex"></param>
+            <param name="lines"></param>
+            <param name="template"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Morestachio.Framework.Tokenizer.HeaderTokenMatch">
+            <summary>
+            	Defines a Match of Arguments for a Formatter
+            </summary>
+        </member>
+        <member name="M:Morestachio.Framework.Tokenizer.HeaderTokenMatch.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Morestachio.Framework.Tokenizer.HeaderTokenMatch"/> class.
+            </summary>
+        </member>
+        <member name="P:Morestachio.Framework.Tokenizer.HeaderTokenMatch.ArgumentName">
+            <summary>
+            	The Parsed Argument Name as in [Name]'arg'
+            </summary>
+        </member>
+        <member name="P:Morestachio.Framework.Tokenizer.HeaderTokenMatch.Value">
+            <summary>
+            	Ether the argument constant string or the expression unparsed
+            </summary>
+        </member>
+        <member name="P:Morestachio.Framework.Tokenizer.HeaderTokenMatch.Arguments">
+            <summary>
+            	If value is an Expression the parsed arguments of that expression
+            </summary>
+        </member>
+        <member name="P:Morestachio.Framework.Tokenizer.HeaderTokenMatch.TokenType">
+            <summary>
+            Gets or sets the type of the token.
+            </summary>
+            <value>
+            The type of the token.
+            </value>
+        </member>
+        <member name="P:Morestachio.Framework.Tokenizer.HeaderTokenMatch.TokenLocation">
+            <summary>
+            	The location within the Template of the Argument
+            </summary>
+        </member>
+        <member name="T:Morestachio.Framework.Tokenizer.HeaderArgumentType">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.Tokenizer.HeaderArgumentType.String">
+            <summary>
+            	Defines the Value of the <see cref="T:Morestachio.Framework.Tokenizer.HeaderTokenMatch"/> to be the content argument
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.Tokenizer.HeaderArgumentType.Expression">
+            <summary>
+            	Defines the Value of the <see cref="T:Morestachio.Framework.Tokenizer.HeaderTokenMatch"/> to be an expression
+            </summary>
+        </member>
+        <member name="T:Morestachio.Framework.TokenPair">
+            <summary>
+                The token that has been lexed out of template content.
+            </summary>
+        </member>
+        <member name="T:Morestachio.Framework.TokenType">
+            <summary>
+                The type of token produced in the lexing stage of template compilation.
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.TokenType.ElementOpen">
+            <summary>
+            	Defines the start of a scope
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.TokenType.ElementClose">
+            <summary>
+            	Defines the end of a scope
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.TokenType.Format">
+            <summary>
+                Contains information about the formatting of the values. Must be followed by PrintFormatted or CollectionOpen
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.TokenType.Print">
+            <summary>
+                Is used to "print" the current formatted value to the output
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.TokenType.PartialDeclarationOpen">
+            <summary>
+            	A Partial that is inserted into the one or multiple places in the Template
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.TokenType.PartialDeclarationClose">
+            <summary>
+            	End of a Partial
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.TokenType.RenderPartial">
+            <summary>
+            	Defines the place for rendering a single partial
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.TokenType.Alias">
+            <summary>
+            	Defines the current Context as the be accessed by an alias
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.TokenType.If">
+            <summary>
+            	Defines an if. It Works the same as the "#" keyword but does not scope its body to it.
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.TokenType.IfClose">
+            <summary>
+            	Defines the end of a if-scope
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.TokenType.IfNot">
+            <summary>
+            	Defines an inverted If. Works the same as the "^" keyword but does not scope its body to it
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.TokenType.Else">
+            <summary>
+            	Defines an Else. An else can only be used when an if is it predecessor and will only execute when the if will not
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.TokenType.ElseClose">
+            <summary>
+            	Defines the end of an else-scope
+            </summary>
+        </member>
+        <member name="T:Morestachio.Helper.AsyncHelper">
+            <summary>
+            A Helper class to run Asynchronous functions from synchronous ones
+            </summary>
+        </member>
+        <member name="M:Morestachio.Helper.AsyncHelper.UnpackFormatterTask(System.Object)">
+            <summary>
+                Unpacks the task.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Morestachio.Helper.AsyncHelper.AsyncBridge">
+            <summary>
+            A class to bridge synchronous asynchronous methods
+            </summary>
+        </member>
+        <member name="M:Morestachio.Helper.AsyncHelper.AsyncBridge.#ctor">
+            <summary>
+            Constructs the AsyncBridge by capturing the current
+            SynchronizationContext and replacing it with a new
+            ExclusiveSynchronizationContext.
+            </summary>
+        </member>
+        <member name="M:Morestachio.Helper.AsyncHelper.AsyncBridge.Run(System.Threading.Tasks.Task,System.Action{System.Threading.Tasks.Task})">
+            <summary>
+            Execute's an async task with a void return type
+            from a synchronous context
+            </summary>
+            <param name="task">Task to execute</param>
+            <param name="callback">Optional callback</param>
+        </member>
+        <member name="M:Morestachio.Helper.AsyncHelper.AsyncBridge.Run``1(System.Threading.Tasks.Task{``0},System.Action{System.Threading.Tasks.Task{``0}})">
+            <summary>
+            Execute's an async task with a T return type
+            from a synchronous context
+            </summary>
+            <typeparam name="T">The type of the task</typeparam>
+            <param name="task">Task to execute</param>
+            <param name="callback">Optional callback</param>
+        </member>
+        <member name="M:Morestachio.Helper.AsyncHelper.AsyncBridge.Run``1(System.Threading.Tasks.Task{``0},System.Action{``0})">
+            <summary>
+            Execute's an async task with a T return type
+            from a synchronous context
+            </summary>
+            <typeparam name="T">The type of the task</typeparam>
+            <param name="task">Task to execute</param>
+            <param name="callback">
+            The callback function that uses the result of the task
+            </param>
+        </member>
+        <member name="M:Morestachio.Helper.AsyncHelper.AsyncBridge.Dispose">
+            <summary>
+            Disposes the object
+            </summary>
+        </member>
+        <member name="P:Morestachio.Helper.AsyncHelper.Wait">
+            <summary>
+            Creates a new AsyncBridge. This should always be used in
+            conjunction with the using statement, to ensure it is disposed
+            </summary>
+        </member>
+        <member name="M:Morestachio.Helper.AsyncHelper.FireAndForget(System.Func{System.Threading.Tasks.Task},System.Action{System.Exception})">
+            <summary>
+            Runs a task with the "Fire and Forget" pattern using Task.Run,
+            and unwraps and handles exceptions
+            </summary>
+            <param name="task">A function that returns the task to run</param>
+            <param name="handle">Error handling action, null by default</param>
+        </member>
+        <member name="T:Morestachio.Helper.StreamExtensions">
+            <summary>
+                Helper class for Steam operations
+            </summary>
+        </member>
+        <member name="M:Morestachio.Helper.StreamExtensions.Stringify(System.IO.Stream,System.Boolean,System.Text.Encoding)">
+            <summary>
+                Reads all content from the Stream and returns it as a String
+            </summary>
+            <param name="source"></param>
+            <param name="disposeOriginal"></param>
+            <param name="encoding"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Morestachio.InvalidPath">
+            <summary>
+            	Delegate for the Event Handler in <see cref="E:Morestachio.ParserOptions.UnresolvedPath"/>
+            </summary>
+            <param name="path"></param>
+            <param name="type"></param>
+        </member>
+        <member name="T:Morestachio.IValueResolver">
+            <summary>
+            	Can be used to extract a value from an object that is not natively supported such as IDictionary{string, object} or object.
+            	for example: This could be used to resolve Newtonesofts JObject
+            </summary>
+        </member>
+        <member name="M:Morestachio.IValueResolver.Resolve(System.Type,System.Object,System.String,Morestachio.Framework.ContextObject)">
+             <summary>
+            	Should return ether NULL or an object as result.
+            	this CAN return a Task that has a result. The task will be awaited if needed.
+             </summary>
+             <param name="type"></param>
+             <param name="value"></param>
+             <param name="path"></param>
+             <param name="context"></param>
+             <returns></returns>
+        </member>
+        <member name="M:Morestachio.IValueResolver.CanResolve(System.Type,System.Object,System.String,Morestachio.Framework.ContextObject)">
+             <summary>
+            		Will be called for each lookup. If returns false the default logic will kick in otherwise morestachio will call <see cref="M:Morestachio.IValueResolver.Resolve(System.Type,System.Object,System.String,Morestachio.Framework.ContextObject)"/> to obtain the value from path
+             </summary>
+             <param name="type"></param>
+             <param name="value"></param>
+             <param name="path"></param>
+             <param name="context"></param>
+             <returns></returns>
+        </member>
+        <member name="T:Morestachio.MorestachioDocumentInfo">
+            <summary>
+                Provided when parsing a template and getting information about the embedded variables.
+            </summary>
+        </member>
+        <member name="M:Morestachio.MorestachioDocumentInfo.#ctor(Morestachio.ParserOptions,Morestachio.Document.Contracts.IDocumentItem)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Morestachio.MorestachioDocumentInfo"/> class.
+            </summary>
+            <param name="options">The options.</param>
+            <param name="document">The document.</param>
+        </member>
+        <member name="P:Morestachio.MorestachioDocumentInfo.Document">
+            <summary>
+            	The Morestachio Document generated by the <see cref="T:Morestachio.Parser"/>
+            </summary>
+        </member>
+        <member name="P:Morestachio.MorestachioDocumentInfo.ParserOptions">
+            <summary>
+                The parser Options object that was used to create the Template Delegate
+            </summary>
+        </member>
+        <member name="P:Morestachio.MorestachioDocumentInfo.Errors">
+            <summary>
+            	Gets a list of errors occured while parsing the Template
+            </summary>
+        </member>
+        <member name="M:Morestachio.MorestachioDocumentInfo.CreateAsync(System.Object,System.Threading.CancellationToken)">
+            <summary>
+                Calls the Underlying Template Delegate and Produces a Stream
+            </summary>
+            <param name="data"></param>
+            <param name="token"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.MorestachioDocumentInfo.CreateAsync(System.Object)">
+            <summary>
+                Calls the Underlying Template Delegate and Produces a Stream
+            </summary>
+            <param name="data"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.MorestachioDocumentInfo.CreateAndStringifyAsync(System.Object)">
+            <summary>
+                Calls the Underlying Template Delegate and Produces a Stream
+            </summary>
+            <param name="source"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.MorestachioDocumentInfo.CreateAndStringifyAsync(System.Object,System.Threading.CancellationToken)">
+            <summary>
+                Calls the Underlying Template Delegate and Produces a Stream
+            </summary>
+            <param name="source"></param>
+            <param name="token"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.MorestachioDocumentInfo.Create(System.Object,System.Threading.CancellationToken)">
+            <summary>
+                Calls the Underlying Template Delegate and Produces a Stream
+            </summary>
+            <param name="source"></param>
+            <param name="token"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.MorestachioDocumentInfo.Create(System.Object)">
+            <summary>
+                Calls the Underlying Template Delegate and Produces a Stream
+            </summary>
+            <param name="source"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.MorestachioDocumentInfo.CreateAndStringify(System.Object)">
+            <summary>
+                Calls the Underlying Template Delegate and Produces a Stream
+            </summary>
+            <param name="source"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.MorestachioDocumentInfo.CreateAndStringify(System.Object,System.Threading.CancellationToken)">
+            <summary>
+                Calls the Underlying Template Delegate and Produces a Stream
+            </summary>
+            <param name="source"></param>
+            <param name="token"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Morestachio.MorestachioDocumentResult">
+            <summary>
+            	The Compiled template
+            </summary>
+        </member>
+        <member name="P:Morestachio.MorestachioDocumentResult.Stream">
+            <summary>
+            	The Result of the CreateAsync call
+            </summary>
+        </member>
+        <member name="T:Morestachio.Parser">
+            <summary>
+                The main entry point for this library. Use the static "Parse" methods to create template functions.
+                Functions are safe for reuse, so you may parse and cache the resulting function.
+            </summary>
+        </member>
+        <member name="M:Morestachio.Parser.ParseWithOptions(Morestachio.ParserOptions)">
+            <summary>
+                Parses the Template with the given options
+            </summary>
+            <param name="parsingOptions">a set of options</param>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.Parser.Parse(System.Collections.Generic.Queue{Morestachio.Framework.TokenPair})">
+            <summary>
+                Parses the Tokens into a Document.
+            </summary>
+            <param name="tokens">The tokens.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Morestachio.ParserErrors.CharacterLocationExtended">
+            <summary>
+            	Defines a line within the template and the char that should be marked
+            </summary>
+        </member>
+        <member name="P:Morestachio.ParserErrors.CharacterLocationExtended.Line">
+            <summary>
+            	The line of the Template
+            </summary>
+        </member>
+        <member name="P:Morestachio.ParserErrors.CharacterLocationExtended.Character">
+            <summary>
+            	The Character at the <see cref="P:Morestachio.ParserErrors.CharacterLocationExtended.Line"/>
+            </summary>
+        </member>
+        <member name="P:Morestachio.ParserErrors.CharacterSnippedLocation.Line">
+            <summary>
+            	The line of the Template
+            </summary>
+        </member>
+        <member name="P:Morestachio.ParserErrors.CharacterSnippedLocation.Character">
+            <summary>
+            	The Character at the <see cref="P:Morestachio.ParserErrors.CharacterSnippedLocation.Line"/>
+            </summary>
+        </member>
+        <member name="T:Morestachio.ParserErrors.IMorestachioError">
+            <summary>
+            	Defines a Error while parsing a Template
+            </summary>
+        </member>
+        <member name="P:Morestachio.ParserErrors.IMorestachioError.Location">
+            <summary>
+            	The location within the Template where the error occured
+            </summary>
+        </member>
+        <member name="M:Morestachio.ParserErrors.IMorestachioError.GetException">
+            <summary>
+            Gets the exception.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:Morestachio.ParserErrors.IMorestachioError.HelpText">
+            <summary>
+            	Gets a string that describes the Error
+            </summary>
+        </member>
+        <member name="T:Morestachio.ParserErrors.InvalidPathSyntaxError">
+            <summary>
+            	Defines an Error on a position within the Template.
+            </summary>
+        </member>
+        <member name="P:Morestachio.ParserErrors.InvalidPathSyntaxError.Location">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.ParserErrors.InvalidPathSyntaxError.Token">
+            <summary>
+            Gets the token.
+            </summary>
+            <value>
+            The token.
+            </value>
+        </member>
+        <member name="M:Morestachio.ParserErrors.InvalidPathSyntaxError.#ctor(Morestachio.ParserErrors.CharacterLocationExtended,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.ParserErrors.InvalidPathSyntaxError.GetException">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.ParserErrors.InvalidPathSyntaxError.HelpText">
+            <inheritdoc />
+        </member>
+        <member name="T:Morestachio.ParserErrors.MorestachioSyntaxError">
+            <summary>
+            	Defines an error that occured when parsing the template that has an invalid token
+            </summary>
+        </member>
+        <member name="M:Morestachio.ParserErrors.MorestachioSyntaxError.#ctor(Morestachio.ParserErrors.CharacterLocationExtended,System.String,System.String,System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Morestachio.ParserErrors.MorestachioSyntaxError"/> class.
+            </summary>
+            <param name="location">The location.</param>
+        </member>
+        <member name="P:Morestachio.ParserErrors.MorestachioSyntaxError.Location">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.ParserErrors.MorestachioSyntaxError.GetException">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.ParserErrors.MorestachioSyntaxError.HelpText">
+            <inheritdoc />
+        </member>
+        <member name="T:Morestachio.ParserErrors.MorestachioUnopendScopeError">
+            <summary>
+            	Defines an error that occured when parsing the template that has an invalid token
+            </summary>
+        </member>
+        <member name="M:Morestachio.ParserErrors.MorestachioUnopendScopeError.#ctor(Morestachio.ParserErrors.CharacterLocationExtended,System.String,System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Morestachio.ParserErrors.MorestachioSyntaxError"/> class.
+            </summary>
+            <param name="location">The location.</param>
+        </member>
+        <member name="P:Morestachio.ParserErrors.MorestachioUnopendScopeError.Location">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.ParserErrors.MorestachioUnopendScopeError.GetException">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.ParserErrors.MorestachioUnopendScopeError.HelpText">
+            <inheritdoc />
+        </member>
+        <member name="T:Morestachio.ParserOptions">
+            <summary>
+                Options for Parsing run
+            </summary>
+        </member>
+        <member name="M:Morestachio.ParserOptions.#ctor(System.String)">
+            <summary>
+                ctor
+            </summary>
+            <param name="template"></param>
+        </member>
+        <member name="M:Morestachio.ParserOptions.#ctor(System.String,System.Func{System.IO.Stream})">
+            <summary>
+                ctor
+            </summary>
+            <param name="template"></param>
+            <param name="sourceStream">The factory that is used for each template generation</param>
+        </member>
+        <member name="M:Morestachio.ParserOptions.#ctor(System.String,System.Func{System.IO.Stream},System.Text.Encoding)">
+            <summary>
+                Initializes a new instance of the <see cref="T:Morestachio.ParserOptions" /> class.
+            </summary>
+            <param name="template">The template.</param>
+            <param name="sourceStream">The source stream.</param>
+            <param name="encoding">The encoding.</param>
+        </member>
+        <member name="M:Morestachio.ParserOptions.#ctor(System.String,System.Func{System.IO.Stream},System.Text.Encoding,System.Int64,System.Boolean,System.Boolean)">
+            <summary>
+                Initializes a new instance of the <see cref="T:Morestachio.ParserOptions" /> class.
+            </summary>
+            <param name="template">The template.</param>
+            <param name="sourceStream">The source stream.</param>
+            <param name="encoding">The encoding.</param>
+            <param name="maxSize">The maximum size.</param>
+            <param name="disableContentEscaping">if set to <c>true</c> [disable content escaping].</param>
+            <param name="withModelInference">if set to <c>true</c> [with model inference].</param>
+        </member>
+        <member name="M:Morestachio.ParserOptions.#ctor(System.String,System.Func{System.IO.Stream},System.Text.Encoding,System.Boolean,System.Boolean)">
+            <summary>
+                Initializes a new instance of the <see cref="T:Morestachio.ParserOptions" /> class.
+            </summary>
+            <param name="template">The template.</param>
+            <param name="sourceStream">The source stream.</param>
+            <param name="encoding">The encoding.</param>
+            <param name="disableContentEscaping">if set to <c>true</c> [disable content escaping].</param>
+            <param name="withModelInference">if set to <c>true</c> [with model inference].</param>
+        </member>
+        <member name="P:Morestachio.ParserOptions.ProfileExecution">
+            <summary>
+            	If set to True morestachio will profile the execution and report the result in both <seealso cref="T:Morestachio.MorestachioDocumentInfo"/> and <seealso cref="!:"/>
+            </summary>
+        </member>
+        <member name="P:Morestachio.ParserOptions.ValueResolver">
+            <summary>
+            	Can be used to resolve values from custom objects
+            </summary>
+        </member>
+        <member name="E:Morestachio.ParserOptions.UnresolvedPath">
+            <summary>
+            	Can be used to observe unresolved paths
+            </summary>
+        </member>
+        <member name="P:Morestachio.ParserOptions.Formatters">
+            <summary>
+                Adds an Formatter overwrite or new Formatter for an Type
+            </summary>
+        </member>
+        <member name="P:Morestachio.ParserOptions.PartialStackSize">
+            <summary>
+            	Gets or sets the max Stack size for nested Partials in execution. Recommended to be not exceeding 2000. Defaults to 255.
+            </summary>
+        </member>
+        <member name="P:Morestachio.ParserOptions.StackOverflowBehavior">
+            <summary>
+            	Defines how the Parser should behave when encountering a the PartialStackSize to be exceeded.
+            	Default is <see cref="F:Morestachio.ParserOptions.PartialStackOverflowBehavior.FailWithException"/>
+            </summary>
+        </member>
+        <member name="T:Morestachio.ParserOptions.PartialStackOverflowBehavior">
+            <summary>
+            	Defines how the Parser should behave when encountering a the PartialStackSize to be exceeded
+            </summary>
+        </member>
+        <member name="F:Morestachio.ParserOptions.PartialStackOverflowBehavior.FailWithException">
+            <summary>
+            	Throw a <see cref="T:Morestachio.Framework.MustachioStackOverflowException"/>
+            </summary>
+        </member>
+        <member name="F:Morestachio.ParserOptions.PartialStackOverflowBehavior.FailSilent">
+            <summary>
+            	Do nothing and skip further calls
+            </summary>
+        </member>
+        <member name="P:Morestachio.ParserOptions.Timeout">
+            <summary>
+            	Gets or sets the timeout. After the timeout is reached and the Template has not finished Processing and Exception is thrown.
+            	For no timeout use <code>TimeSpan.Zero</code>
+            </summary>
+            <value>
+            The timeout.
+            </value>
+        </member>
+        <member name="P:Morestachio.ParserOptions.Template">
+            <summary>
+                The template content to parse.
+            </summary>
+        </member>
+        <member name="P:Morestachio.ParserOptions.DisableContentEscaping">
+            <summary>
+                In some cases, content should not be escaped (such as when rendering text bodies and subjects in emails).
+                By default, we use no content escaping, but this parameter allows it to be enabled. Default is False
+            </summary>
+        </member>
+        <member name="P:Morestachio.ParserOptions.WithModelInference">
+            <summary>
+                Parse the template, and capture paths used in the template to determine a suitable structure for the required
+                model. Default is False
+            </summary>
+        </member>
+        <member name="P:Morestachio.ParserOptions.MaxSize">
+            <summary>
+                Defines a Max size for the Generated Template.
+                Zero for unlimited
+            </summary>
+        </member>
+        <member name="P:Morestachio.ParserOptions.SourceFactory">
+            <summary>
+                SourceFactory can be used to create a new stream for each template. Default is
+                <code>() => new MemoryStream()</code>
+            </summary>
+        </member>
+        <member name="P:Morestachio.ParserOptions.Encoding">
+            <summary>
+                In what encoding should the text be written
+                Default is <code>Encoding.Utf8</code>
+            </summary>
+        </member>
+        <member name="P:Morestachio.ParserOptions.Null">
+            <summary>
+                Defines how NULL values are exposed to the Template default is <code>String.Empty</code>
+            </summary>
+        </member>
+        <member name="T:Morestachio.ScopeData">
+            <summary>
+            	Hosts all infos about the current execution path of a part in the Template.
+            	Can be used for future parallel execution
+            </summary>
+        </member>
+        <member name="M:Morestachio.ScopeData.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Morestachio.ScopeData"/> class.
+            </summary>
+        </member>
+        <member name="P:Morestachio.ScopeData.Partials">
+            <summary>
+            	List of all Partials
+            </summary>
+        </member>
+        <member name="P:Morestachio.ScopeData.PartialDepth">
+            <summary>
+            	The Depth of current Partial usage
+            </summary>
+        </member>
+        <member name="P:Morestachio.ScopeData.Alias">
+            <summary>
+            	Lists all Alias objects
+            </summary>
+        </member>
+        <member name="P:Morestachio.ScopeData.ExecuteElse">
+            <summary>
+            	Will be set by any preceding If statement if the expression was not rendered to true
+            </summary>
+        </member>
+    </members>
+</doc>

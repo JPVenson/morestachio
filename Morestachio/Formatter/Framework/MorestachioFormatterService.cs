@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Morestachio.Attributes;
+using Morestachio.Formatter.Framework.Converter;
 
 namespace Morestachio.Formatter.Framework
 {
@@ -24,12 +25,24 @@ namespace Morestachio.Formatter.Framework
 		public MorestachioFormatterService()
 		{
 			GlobalFormatterModels = new List<MorestachioFormatterModel>();
+			ValueConverter = new List<IFormatterValueConverter>();
+			DefaultConverter = new GenericTypeConverter();
 		}
 
 		/// <summary>
 		///     Gets the gloabl formatter that are used always for any formatting run.
 		/// </summary>
 		public ICollection<MorestachioFormatterModel> GlobalFormatterModels { get; }
+
+		/// <summary>
+		///		List of all Value Converters that can be used to convert formatter arguments
+		/// </summary>
+		public ICollection<IFormatterValueConverter> ValueConverter { get; }
+
+		/// <summary>
+		///		The fallback Converter that should convert all known mscore lib types
+		/// </summary>
+		public IFormatterValueConverter DefaultConverter { get; set; }
 
 		/// <summary>
 		///     Add all formatter into the given options object
@@ -89,7 +102,7 @@ namespace Morestachio.Formatter.Framework
 		/// <param name="methodInfo"></param>
 		/// <param name="parameter"></param>
 		/// <returns></returns>
-		public static object[] CanMethodCalledWith(MethodInfo methodInfo, object[] parameter)
+		public object[] CanMethodCalledWith(MethodInfo methodInfo, object[] parameter)
 		{
 			var testParameterValueList = new List<object>();
 			ParameterInfo[] parameters = methodInfo.GetParameters();
@@ -133,9 +146,42 @@ namespace Morestachio.Formatter.Framework
 					}
 					//check the value to be used for this parameter
 					var value = parameter[index];
+
+					var valueType = value?.GetType();
+					
+
 					if (!parameterInfo.ParameterType.IsInstanceOfType(value))
 					{
-						return null;
+						if (valueType != null)
+						{
+							var inplaceConverter = parameterInfo.GetCustomAttributes<FormatterValueConverter>();
+
+							IFormatterValueConverter hasConverter = null;
+							foreach (var formatterValueConverter in inplaceConverter)
+							{
+								var converter =
+									(IFormatterValueConverter)Activator.CreateInstance(formatterValueConverter.ConverterType);
+								if (!converter.CanConvert(value, parameterInfo.ParameterType))
+								{
+									continue;
+								}
+
+								hasConverter = converter;
+								break;
+							}
+
+
+							hasConverter = hasConverter ?? ValueConverter.FirstOrDefault(e => e.CanConvert(value, parameterInfo.ParameterType));
+							hasConverter = hasConverter ?? DefaultConverter;
+							if (hasConverter != null)
+							{
+								value = hasConverter.Convert(value, parameterInfo.ParameterType);
+							}
+							else
+							{
+								return null;
+							}
+						}
 					}
 					testParameterValueList.Add(value);
 				}
