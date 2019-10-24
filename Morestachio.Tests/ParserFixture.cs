@@ -15,6 +15,7 @@ using NUnit.Framework;
 
 namespace Morestachio.Tests
 {
+	[TestFixture]
 	public class ParserFixture
 	{
 		public static Encoding DefaultEncoding { get; set; } = new UnicodeEncoding(true, false, false);
@@ -33,6 +34,24 @@ namespace Morestachio.Tests
 					DefaultEncoding));
 			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
 			Assert.That(result, Is.EqualTo(data.ToString(dtFormat) + "," + data));
+		}
+
+		[Test]
+		public void ParserCanNullableFormatTest()
+		{
+			var parsingOptions = new ParserOptions("ShouldBe: {{data}}, ButNot: {{extData}}", null,
+				DefaultEncoding)
+			{
+				Null = "IAmTheLaw!"
+			};
+			var results =
+				Parser.ParseWithOptions(parsingOptions);
+			var result = results.CreateAndStringify(new Dictionary<string, object>
+			{
+				{ "data", (string)null },
+				{ "extData", "Test" }
+			});
+			Assert.That(result, Is.EqualTo($"ShouldBe: {parsingOptions.Null}, ButNot: Test"));
 		}
 
 		[Test]
