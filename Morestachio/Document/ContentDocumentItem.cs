@@ -57,7 +57,7 @@ namespace Morestachio.Document
 
 		internal static void WriteContent(IByteCounterStream builder, string content, ContextObject context)
 		{
-			content = content ?? context.Options.Null;
+			content = content ?? context.Options.Null?.ToString();
 
 			var sourceCount = builder.BytesWritten;
 

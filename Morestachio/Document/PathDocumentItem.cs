@@ -62,7 +62,7 @@ namespace Morestachio.Document
 		{
 			//try to locate the value in the context, if it exists, append it.
 			var contextObject = context != null ? (await context.GetContextForPath(Value, scopeData)) : null;
-			if (contextObject?.Value != null)
+			if (contextObject != null)
 			{
 				await contextObject.EnsureValue();
 				if (EscapeValue && !context.Options.DisableContentEscaping)

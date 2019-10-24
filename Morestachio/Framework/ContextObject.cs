@@ -371,7 +371,7 @@ namespace Morestachio.Framework
 		public async Task<string> RenderToString()
 		{
 			await EnsureValue();
-			return Value?.ToString() ?? Options.Null;
+			return Value?.ToString() ?? (Options.Null?.ToString());
 		}
 
 		/// <summary>
