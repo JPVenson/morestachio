@@ -17,13 +17,13 @@ namespace Morestachio.Attributes
 	///		Defines one or more Value Converter for this parameter
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Parameter, Inherited = false, AllowMultiple = true)]
-	public sealed class FormatterValueConverter : Attribute
+	public sealed class FormatterValueConverterAttribute : Attribute
 	{
 		/// <summary>
 		///		
 		/// </summary>
 		/// <param name="converterType">Must implement <see cref="IFormatterValueConverter"/></param>
-		public FormatterValueConverter(Type converterType)
+		public FormatterValueConverterAttribute(Type converterType)
 		{
 			ConverterType = converterType;
 			if (!typeof(IFormatterValueConverter).IsAssignableFrom(converterType))

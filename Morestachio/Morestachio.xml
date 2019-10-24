@@ -30,18 +30,18 @@
             </summary>
             <seealso cref="T:System.Attribute" />
         </member>
-        <member name="T:Morestachio.Attributes.FormatterValueConverter">
+        <member name="T:Morestachio.Attributes.FormatterValueConverterAttribute">
             <summary>
             	Defines one or more Value Converter for this parameter
             </summary>
         </member>
-        <member name="M:Morestachio.Attributes.FormatterValueConverter.#ctor(System.Type)">
+        <member name="M:Morestachio.Attributes.FormatterValueConverterAttribute.#ctor(System.Type)">
             <summary>
             	
             </summary>
             <param name="converterType">Must implement <see cref="T:Morestachio.Formatter.Framework.Converter.IFormatterValueConverter"/></param>
         </member>
-        <member name="P:Morestachio.Attributes.FormatterValueConverter.ConverterType">
+        <member name="P:Morestachio.Attributes.FormatterValueConverterAttribute.ConverterType">
             <summary>
             	The Formatter for this parameter
             </summary>

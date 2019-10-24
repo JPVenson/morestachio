@@ -154,7 +154,7 @@ namespace Morestachio.Formatter.Framework
 					{
 						if (valueType != null)
 						{
-							var inplaceConverter = parameterInfo.GetCustomAttributes<FormatterValueConverter>();
+							var inplaceConverter = parameterInfo.GetCustomAttributes<FormatterValueConverterAttribute>();
 
 							IFormatterValueConverter hasConverter = null;
 							foreach (var formatterValueConverter in inplaceConverter)
