@@ -127,10 +127,13 @@ namespace Morestachio.Framework
 
 		internal ContextObject FindNextNaturalContextObject()
 		{
-			if (IsNaturalContext)
+			var context = this;
+			while (context != null && !context.IsNaturalContext)
 			{
-				return this;
+				context = context.Parent;
 			}
+
+			return context;
 
 			return Parent?.FindNextNaturalContextObject();
 		}

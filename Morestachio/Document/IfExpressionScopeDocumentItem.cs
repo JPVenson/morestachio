@@ -44,7 +44,7 @@ namespace Morestachio.Document
 			if (await c.Exists())
 			{
 				scopeData.ExecuteElse = false;
-				return Children.WithScope(context);
+				return Children.WithScope(context.FindNextNaturalContextObject());
 			}
 			scopeData.ExecuteElse = true;
 			return new DocumentItemExecution[0];

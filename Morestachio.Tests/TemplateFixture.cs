@@ -299,7 +299,7 @@ namespace Morestachio.Tests
 
 
 		[Test]
-		public void TemplateDoesNotScopeWithFormatter()
+		public void TemplateIfDoesNotScopeWithFormatter()
 		{
 			var template =
 				@"{{#IF data()}}{{.}}{{/IF}}";
@@ -321,7 +321,29 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
-		public void TemplateRendersRootScopePath()
+		public void TemplateInvertedIfDoesNotScopeWithFormatter()
+		{
+			var template =
+				@"{{^IF data()}}{{.}}{{/IF}}";
+
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			parsingOptions.Formatters.AddFormatter<string>(new Func<string, bool>(f => f != "test"));
+			var parsedTemplate =
+				Parser.ParseWithOptions(parsingOptions);
+
+			var model = new Dictionary<string, object>()
+			{
+				{"data", "test" },
+				{"root", "tset" }
+			};
+
+			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+
+			Assert.AreEqual(model.ToString(), result);
+		}
+
+		[Test]
+		public void TemplateIfRendersRootScopePath()
 		{
 			var template =
 				@"{{#IF ~data}}{{data}}{{/IF}}";
