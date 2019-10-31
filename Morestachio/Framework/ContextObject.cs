@@ -116,6 +116,11 @@ namespace Morestachio.Framework
 			Options = options;
 			Key = key;
 			Parent = parent;
+			if (Parent != null)
+			{
+				CancellationToken = Parent.CancellationToken;
+				AbortGeneration = Parent.AbortGeneration;
+			}
 			IsNaturalContext = Parent?.IsNaturalContext ?? true;
 		}
 
@@ -134,8 +139,6 @@ namespace Morestachio.Framework
 			}
 
 			return context;
-
-			return Parent?.FindNextNaturalContextObject();
 		}
 
 		/// <summary>
@@ -200,7 +203,7 @@ namespace Morestachio.Framework
 		{
 			return null;
 		}
-
+		
 		private async Task<ContextObject> GetContextForPath(Queue<string> elements, ScopeData scopeData)
 		{
 			var retval = this;
@@ -329,6 +332,7 @@ namespace Morestachio.Framework
 			return retval;
 		}
 
+
 		/// <summary>
 		///     Will walk the path by using the path seperator "." and evaluate the object at the end
 		/// </summary>
@@ -346,17 +350,42 @@ namespace Morestachio.Framework
 			if (elements.Any())
 			{
 				//look at the first element if its an alias switch to that alias
-				var maybeAlias = elements.Peek();
-				if (scopeData.Alias.TryGetValue(maybeAlias, out var alias))
+				var peekPathPart = elements.Peek();
+				if (scopeData.Alias.TryGetValue(peekPathPart, out var alias))
 				{
 					elements.Dequeue();
 					return await alias.GetContextForPath(elements, scopeData);
+				}
+
+				//check if this part of the path can be seen as an number
+				if (Number.TryParse(peekPathPart, out var isNumber))
+				{
+					elements.Dequeue();
+					ContextObject contextObject;
+					if (elements.Count > 0)
+					{
+						peekPathPart = elements.Peek();
+						if (Number.TryParse(peekPathPart, out var fraction))
+						{
+							elements.Dequeue();
+							var floatingNumber = isNumber.WithFraction(fraction);
+							contextObject = new ContextObject(Options, ".", this);
+							contextObject.Value = floatingNumber.Value;
+							contextObject.IsNaturalContext = IsNaturalContext;
+							return await contextObject.GetContextForPath(elements, scopeData);
+						}
+
+					}
+
+					contextObject = new ContextObject(Options, ".", this);
+					contextObject.Value = isNumber.Value;
+					contextObject.IsNaturalContext = IsNaturalContext;
+					return await contextObject.GetContextForPath(elements, scopeData);
 				}
 			}
 
 			return await GetContextForPath(elements, scopeData);
 		}
-
 		/// <summary>
 		///     Determines if the value of this context exists.
 		/// </summary>
@@ -416,8 +445,6 @@ namespace Morestachio.Framework
 		{
 			var contextClone = new ContextObject(Options, Key, this) //note: Parent must be the original context so we can traverse up to an unmodified context
 			{
-				CancellationToken = CancellationToken,
-				AbortGeneration = AbortGeneration,
 				Value = Value,
 				IsNaturalContext = false
 			};

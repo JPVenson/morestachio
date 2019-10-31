@@ -1777,6 +1777,47 @@
             <param name="task">A function that returns the task to run</param>
             <param name="handle">Error handling action, null by default</param>
         </member>
+        <member name="T:Morestachio.Helper.FloatingNumber">
+            <summary>
+            	A Floating Number
+            </summary>
+        </member>
+        <member name="M:Morestachio.Helper.FloatingNumber.#ctor(System.Decimal)">
+            <summary>
+            	Creates a new Floating number
+            </summary>
+            <param name="floatingNumber"></param>
+        </member>
+        <member name="M:Morestachio.Helper.FloatingNumber.#ctor(System.Double)">
+            <summary>
+            	Creates a new Floating number
+            </summary>
+            <param name="floatingNumber"></param>
+        </member>
+        <member name="T:Morestachio.Helper.Number">
+            <summary>
+            	Encapsulates a late bound number
+            </summary>
+        </member>
+        <member name="M:Morestachio.Helper.Number.#ctor(System.Int64)">
+            <summary>
+            	Creates an new Integral number
+            </summary>
+            <param name="fullNumber"></param>
+        </member>
+        <member name="M:Morestachio.Helper.Number.#ctor(System.UInt64)">
+            <summary>
+            	Creates an new Integral number
+            </summary>
+            <param name="fullNumber"></param>
+        </member>
+        <member name="M:Morestachio.Helper.Number.WithFraction(Morestachio.Helper.Number)">
+            <summary>
+            	Adds an Fraction to the Number
+            </summary>
+            <param name="floatingPoint"></param>
+            <returns></returns>
+        </member>
         <member name="T:Morestachio.Helper.StreamExtensions">
             <summary>
                 Helper class for Steam operations

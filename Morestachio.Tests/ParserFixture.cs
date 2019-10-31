@@ -55,6 +55,32 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		public void ParserCanParseIntegerNumber()
+		{
+			var parsingOptions = new ParserOptions("{{1111}}", null,
+				DefaultEncoding);
+			var results =
+				Parser.ParseWithOptions(parsingOptions);
+			var result = results.CreateAndStringify(new Dictionary<string, object>
+			{
+			});
+			Assert.That(result, Is.EqualTo("1111"));
+		}
+
+		[Test]
+		public void ParserCanParseFloatingNumber()
+		{
+			var parsingOptions = new ParserOptions("{{1111.123('F5')}}", null,
+				DefaultEncoding);
+			var results =
+				Parser.ParseWithOptions(parsingOptions);
+			var result = results.CreateAndStringify(new Dictionary<string, object>
+			{
+			});
+			Assert.That(result, Is.EqualTo(1111.123.ToString("F5")));
+		}
+
+		[Test]
 		[TestCase("d")]
 		[TestCase("D")]
 		[TestCase("f")]
