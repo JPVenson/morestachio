@@ -589,7 +589,7 @@ namespace Morestachio.Framework
 			ICollection<IMorestachioError> parseErrors,
 			PerformanceProfiler profiler)
 		{
-			return TokenizeString(parserOptions.Template, parseErrors, profiler);
+			return TokenizeString(parserOptions.Template, parseErrors, profiler, parserOptions);
 		}
 
 		internal static Tuple<string, string> EvaluateNameFromToken(string token)
@@ -634,7 +634,7 @@ namespace Morestachio.Framework
 
 		internal static IEnumerable<TokenPair> TokenizeString(string partial,
 			ICollection<IMorestachioError> parseErrors,
-			PerformanceProfiler profiler)
+			PerformanceProfiler profiler, ParserOptions parserOptions)
 		{
 			var templateString = partial;
 			MatchCollection matches;
@@ -651,7 +651,7 @@ namespace Morestachio.Framework
 
 			lines.AddRange(NewlineFinder.Matches(templateString).OfType<Match>().Select(k => k.Index));
 
-			var partialsNames = new List<string>();
+			var partialsNames = new List<string>(parserOptions.PartialsStore?.GetNames() ?? new string[0]);
 
 			var tokens = new List<TokenPair>();
 

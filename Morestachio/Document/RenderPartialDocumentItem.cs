@@ -28,6 +28,7 @@ namespace Morestachio.Document
 			Value = value;
 		}
 
+		/// <inheritdoc />
 		[UsedImplicitly]
 		protected RenderPartialDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
@@ -66,11 +67,25 @@ namespace Morestachio.Document
 				}
 			}
 
-			var scopeDataPartial = scopeData.Partials[partialName];
-			return new[]
+			if (scopeData.Partials.TryGetValue(partialName, out var partial))
 			{
-				new DocumentItemExecution(scopeDataPartial, context), 
-			};
+				return new[]
+				{
+					new DocumentItemExecution(partial, context),
+				};
+			}
+
+			partial = context.Options.PartialsStore?.GetPartial(partialName)?.Document;
+
+			if (partial != null)
+			{
+				return new[]
+				{
+					new DocumentItemExecution(partial, context),
+				};
+			}
+
+			throw new MorestachioRuntimeException($"Could not obtain a partial named '{partialName}' from the template nor the Partial store");
 		}
 	}
 }

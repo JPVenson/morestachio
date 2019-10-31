@@ -35,18 +35,21 @@ namespace Morestachio.Document
 			Partial = partial;
 		}
 
+		/// <inheritdoc />
 		[UsedImplicitly]
 		protected PartialDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 			Partial = info.GetValue(nameof(Partial), typeof(IDocumentItem)) as IDocumentItem;
 		}
 
+		/// <inheritdoc />
 		protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
 		{
 			base.SerializeBinaryCore(info, context);
 			info.AddValue(nameof(Partial), Partial, Partial.GetType());
 		}
 
+		/// <inheritdoc />
 		protected override void SerializeXml(XmlWriter writer)
 		{
 			base.SerializeXml(writer);
@@ -55,6 +58,7 @@ namespace Morestachio.Document
 			writer.WriteEndElement();//nameof(Partial)
 		}
 
+		/// <inheritdoc />
 		protected override void DeSerializeXml(XmlReader reader)
 		{
 			base.DeSerializeXml(reader);

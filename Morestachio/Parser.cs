@@ -57,6 +57,7 @@ namespace Morestachio
 			documentInfo.Profiler = profiler;
 			return documentInfo;
 		}
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static IValueDocumentItem ParseAsPath(Tokenizer.HeaderTokenMatch token)
 		{

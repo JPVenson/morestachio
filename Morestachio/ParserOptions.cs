@@ -22,6 +22,12 @@ namespace Morestachio
 		private IFormatterMatcher _formatters;
 
 		/// <summary>
+		///		The store for PreParsed Partials
+		/// </summary>
+		[CanBeNull]
+		public IPartialsStore PartialsStore { get; set; }
+
+		/// <summary>
 		///     ctor
 		/// </summary>
 		/// <param name="template"></param>

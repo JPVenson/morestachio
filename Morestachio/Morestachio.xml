@@ -409,6 +409,18 @@
             <param name="partialName">The partial name.</param>
             <param name="partial">The partial.</param>
         </member>
+        <member name="M:Morestachio.Document.PartialDocumentItem.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.PartialDocumentItem.SerializeBinaryCore(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.PartialDocumentItem.SerializeXml(System.Xml.XmlWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.PartialDocumentItem.DeSerializeXml(System.Xml.XmlReader)">
+            <inheritdoc />
+        </member>
         <member name="P:Morestachio.Document.PartialDocumentItem.Kind">
             <inheritdoc />
         </member>
@@ -496,6 +508,9 @@
             </summary>
         </member>
         <member name="M:Morestachio.Document.RenderPartialDocumentItem.#ctor(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.RenderPartialDocumentItem.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
             <inheritdoc />
         </member>
         <member name="P:Morestachio.Document.RenderPartialDocumentItem.Kind">
@@ -1175,6 +1190,34 @@
             <param name="arguments">The arguments.</param>
             <param name="value">The value.</param>
             <returns></returns>
+        </member>
+        <member name="T:Morestachio.Formatter.IPartialsStore">
+            <summary>
+            	Allows to store Partials for multiple Runs
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.IPartialsStore.AddParsedPartial(Morestachio.MorestachioDocumentInfo,System.String)">
+            <summary>
+            	Adds the Parsed Partial to the store
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.IPartialsStore.RemovePartial(System.String)">
+            <summary>
+            	Removes the Partial from the List of Known Partials
+            </summary>
+            <param name="name"></param>
+        </member>
+        <member name="M:Morestachio.Formatter.IPartialsStore.GetPartial(System.String)">
+            <summary>
+            	Obtains the Partial if known
+            </summary>
+            <param name="name"></param>
+        </member>
+        <member name="M:Morestachio.Formatter.IPartialsStore.GetNames">
+            <summary>
+            	Obtains the Partial if known
+            </summary>
+            <param name="name"></param>
         </member>
         <member name="T:Morestachio.Formatter.IPartialTemplateProvider">
             <summary>
@@ -1879,6 +1922,14 @@
             	The Result of the CreateAsync call
             </summary>
         </member>
+        <member name="T:Morestachio.MorestachioRuntimeException">
+            <summary>
+            	An Exception that occured on Runtime
+            </summary>
+        </member>
+        <member name="M:Morestachio.MorestachioRuntimeException.#ctor(System.String)">
+            <inheritdoc />
+        </member>
         <member name="T:Morestachio.Parser">
             <summary>
                 The main entry point for this library. Use the static "Parse" methods to create template functions.
@@ -2013,6 +2064,11 @@
         <member name="T:Morestachio.ParserOptions">
             <summary>
                 Options for Parsing run
+            </summary>
+        </member>
+        <member name="P:Morestachio.ParserOptions.PartialsStore">
+            <summary>
+            	The store for PreParsed Partials
             </summary>
         </member>
         <member name="M:Morestachio.ParserOptions.#ctor(System.String)">
