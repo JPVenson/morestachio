@@ -6,6 +6,7 @@ using System.Text;
 using JetBrains.Annotations;
 using Morestachio.Attributes;
 using Morestachio.Formatter;
+using Morestachio.Formatter.Framework;
 using Morestachio.Framework;
 
 #endregion
@@ -19,7 +20,7 @@ namespace Morestachio
 	public class ParserOptions
 	{
 		[NotNull]
-		private IFormatterMatcher _formatters;
+		private MorestachioFormatterService _formatters;
 
 		/// <summary>
 		///		The store for PreParsed Partials
@@ -60,7 +61,7 @@ namespace Morestachio
 			Template = template ?? "";
 			SourceFactory = sourceStream ?? (() => new MemoryStream());
 			Encoding = encoding ?? Encoding.UTF8;
-			_formatters = new FormatterMatcher();
+			_formatters = new MorestachioFormatterService();
 			Null = string.Empty;
 			MaxSize = 0;
 			DisableContentEscaping = false;
@@ -131,7 +132,7 @@ namespace Morestachio
 		///     Adds an Formatter overwrite or new Formatter for an Type
 		/// </summary>
 		[NotNull]
-		public IFormatterMatcher Formatters
+		public MorestachioFormatterService Formatters
 		{
 			get { return _formatters; }
 			set

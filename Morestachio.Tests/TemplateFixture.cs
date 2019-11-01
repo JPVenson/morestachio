@@ -305,7 +305,7 @@ namespace Morestachio.Tests
 				@"{{#IF data()}}{{.}}{{/IF}}";
 
 			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
-			parsingOptions.Formatters.AddFormatter<string>(new Func<string, bool>(f => f == "test"));
+			parsingOptions.Formatters.AddSingle(new Func<string, bool>(f => f == "test"));
 			var parsedTemplate =
 				Parser.ParseWithOptions(parsingOptions);
 
@@ -327,7 +327,7 @@ namespace Morestachio.Tests
 				@"{{^IF data()}}{{.}}{{/IF}}";
 
 			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
-			parsingOptions.Formatters.AddFormatter<string>(new Func<string, bool>(f => f != "test"));
+			parsingOptions.Formatters.AddSingle(new Func<string, bool>(f => f != "test"));
 			var parsedTemplate =
 				Parser.ParseWithOptions(parsingOptions);
 

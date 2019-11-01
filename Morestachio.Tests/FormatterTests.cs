@@ -19,7 +19,7 @@ namespace Morestachio.Formatter.Framework.Tests
 			formatterService.AddFromType(typeof(StringFormatter));
 
 			var options = new ParserOptions("{{data('ExpectInt')}}", null, DefaultEncoding);
-			formatterService.AddFormatterToMorestachio(options);
+			options.Formatters = formatterService;
 			var template = Parser.ParseWithOptions(options);
 
 			var andStringify = template.CreateAndStringify(new Dictionary<string, object>() { { "data", 123 } });
@@ -33,7 +33,7 @@ namespace Morestachio.Formatter.Framework.Tests
 			formatterService.AddFromType(typeof(StringFormatter));
 
 			var options = new ParserOptions("{{.('Plus', NumberB, NumberB)}}", null, DefaultEncoding);
-			formatterService.AddFormatterToMorestachio(options);
+			options.Formatters = formatterService;
 			var template = Parser.ParseWithOptions(options);
 
 			var andStringify = template.CreateAndStringify(new Dictionary<string, object>()
@@ -52,7 +52,7 @@ namespace Morestachio.Formatter.Framework.Tests
 			formatterService.AddFromType(typeof(StringFormatter));
 
 			var options = new ParserOptions("{{data([Name]'reverse')}}", null, DefaultEncoding);
-			formatterService.AddFormatterToMorestachio(options);
+			options.Formatters = formatterService;
 			var template = Parser.ParseWithOptions(options);
 
 			var andStringify = template.CreateAndStringify(new Dictionary<string, object>() { { "data", "Test" } });
@@ -67,7 +67,7 @@ namespace Morestachio.Formatter.Framework.Tests
 			formatterService.AddFromType(typeof(StringFormatter));
 
 			var options = new ParserOptions("{{data('rest', 'other', 'and', 'more')}}", null, DefaultEncoding);
-			formatterService.AddFormatterToMorestachio(options);
+			options.Formatters = formatterService;
 			var template = Parser.ParseWithOptions(options);
 
 			var andStringify = template.CreateAndStringify(new Dictionary<string, object>() { { "data", "Test" } });
@@ -81,7 +81,7 @@ namespace Morestachio.Formatter.Framework.Tests
 			formatterService.AddFromType(typeof(StringFormatter));
 
 			var options = new ParserOptions("{{data([Name]'reverseAsync')}}", null, DefaultEncoding);
-			formatterService.AddFormatterToMorestachio(options);
+			options.Formatters = formatterService;
 			var template = Parser.ParseWithOptions(options);
 
 			var andStringify = template.CreateAndStringify(new Dictionary<string, object>() { { "data", "Test" } });
@@ -95,7 +95,7 @@ namespace Morestachio.Formatter.Framework.Tests
 			formatterService.AddFromType(typeof(StringFormatter));
 
 			var options = new ParserOptions("{{data([Name]'optional')}}", null, DefaultEncoding);
-			formatterService.AddFormatterToMorestachio(options);
+			options.Formatters = formatterService;
 			var template = Parser.ParseWithOptions(options);
 
 			var andStringify = template.CreateAndStringify(new Dictionary<string, object>() { { "data", "Test" } });
@@ -109,7 +109,7 @@ namespace Morestachio.Formatter.Framework.Tests
 			formatterService.AddFromType(typeof(StringFormatter));
 
 			var options = new ParserOptions("{{data([Name]'defaultValue')}}", null, DefaultEncoding);
-			formatterService.AddFormatterToMorestachio(options);
+			options.Formatters = formatterService;
 			var template = Parser.ParseWithOptions(options);
 
 			var andStringify = template.CreateAndStringify(new Dictionary<string, object>() { { "data", "Test" } });
@@ -123,7 +123,7 @@ namespace Morestachio.Formatter.Framework.Tests
 			formatterService.AddFromType(typeof(StringFormatter));
 
 			var options = new ParserOptions("{{data([Name]'reverse-arg', 'TEST')}}", null, DefaultEncoding);
-			formatterService.AddFormatterToMorestachio(options);
+			options.Formatters = formatterService;
 			var template = Parser.ParseWithOptions(options);
 
 			var andStringify = template.CreateAndStringify(new Dictionary<string, object>() { { "data", "Test" } });
@@ -138,7 +138,7 @@ namespace Morestachio.Formatter.Framework.Tests
 			formatterService.AddFromType(typeof(ListFormatter));
 
 			var options = new ParserOptions("{{data([Name]'fod')}}", null, DefaultEncoding);
-			formatterService.AddFormatterToMorestachio(options);
+			options.Formatters = formatterService;
 			var template = Parser.ParseWithOptions(options);
 
 			var andStringify = template.CreateAndStringify(new Dictionary<string, object>() { { "data", new[] { "TEST", "test" } } });

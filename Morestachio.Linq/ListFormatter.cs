@@ -194,7 +194,7 @@ namespace Morestachio.Formatter.Linq
 				}
 			}
 
-			return FormatterMatcher.FormatterFlow.Skip;
+			return MorestachioFormatterService.FormatterFlow.Skip;
 		}
 
 		[MorestachioFormatter("sum", "Aggreates the property in the argument and returns it")]
