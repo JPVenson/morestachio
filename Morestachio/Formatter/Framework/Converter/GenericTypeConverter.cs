@@ -7,7 +7,7 @@ namespace Morestachio.Formatter.Framework.Converter
 	{
 		public bool CanConvert(object value, Type requestedType)
 		{
-			var typeConverter = TypeDescriptor.GetConverter(requestedType);
+			var typeConverter = TypeDescriptor.GetConverter(value.GetType());
 			return typeConverter.CanConvertTo(requestedType);
 		}
 

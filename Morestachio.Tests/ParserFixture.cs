@@ -68,6 +68,21 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		public void ParserCanParseNumberAsFormatterArg()
+		{
+			var parsingOptions = new ParserOptions("{{Format(123)}}", null,
+				DefaultEncoding);
+			parsingOptions.Formatters.AddFormatter<string, int, string>((e, f) => f.ToString(e));
+			var results =
+				Parser.ParseWithOptions(parsingOptions);
+			var result = results.CreateAndStringify(new Dictionary<string, object>
+			{
+				{"Format", "F5" }
+			});
+			Assert.That(result, Is.EqualTo(123.ToString("F5")));
+		}
+
+		[Test]
 		public void ParserCanParseFloatingNumber()
 		{
 			var parsingOptions = new ParserOptions("{{1111.123('F5')}}", null,

@@ -192,7 +192,7 @@ namespace Morestachio.Framework
 			return formatChar == '\r' || formatChar == '\r' || formatChar == '\t' || formatChar == ' ';
 		}
 
-		private static readonly Regex IsCharRegex = new Regex("\\w", RegexOptions.Compiled);
+		private static readonly Regex IsCharRegex = new Regex("\\w||\\d", RegexOptions.Compiled);
 
 		private static bool IsExpressionChar(char formatChar)
 		{

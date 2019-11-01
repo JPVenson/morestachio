@@ -364,13 +364,14 @@ namespace Morestachio.Framework
 					ContextObject contextObject;
 					if (elements.Count > 0)
 					{
-						peekPathPart = elements.Peek();
-						if (Number.TryParse(peekPathPart, out var fraction))
+						var peekNextPathPart = elements.Peek();
+						if (Number.TryParse(peekPathPart 
+						                    + CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator 
+						                    + peekNextPathPart, out var floatingNumber))
 						{
 							elements.Dequeue();
-							var floatingNumber = isNumber.WithFraction(fraction);
 							contextObject = new ContextObject(Options, ".", this);
-							contextObject.Value = floatingNumber.Value;
+							contextObject.Value = floatingNumber;
 							contextObject.IsNaturalContext = IsNaturalContext;
 							return await contextObject.GetContextForPath(elements, scopeData);
 						}
@@ -378,7 +379,7 @@ namespace Morestachio.Framework
 					}
 
 					contextObject = new ContextObject(Options, ".", this);
-					contextObject.Value = isNumber.Value;
+					contextObject.Value = isNumber;
 					contextObject.IsNaturalContext = IsNaturalContext;
 					return await contextObject.GetContextForPath(elements, scopeData);
 				}

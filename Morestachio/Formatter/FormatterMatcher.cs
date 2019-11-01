@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Morestachio.Attributes;
+using Morestachio.Formatter.Framework.Converter;
 using Morestachio.Helper;
 
 namespace Morestachio.Formatter
@@ -20,7 +22,10 @@ namespace Morestachio.Formatter
 		public FormatterMatcher()
 		{
 			Formatter = new List<FormatTemplateElement>();
+			ValueConverter = new GenericTypeConverter();
 		}
+
+		public IFormatterValueConverter ValueConverter { get; set; }
 
 		/// <summary>
 		///     If set to <code>true</code> this Formatter will search for existing formatter for the given type and if found any,
@@ -293,6 +298,8 @@ namespace Morestachio.Formatter
 			}
 		}
 
+		private static GenericTypeConverter _typeConverter = new GenericTypeConverter();
+
 		/// <summary>
 		///     Composes the values into a Dictionary for each formatter. If returns null, the formatter will not be called.
 		/// </summary>
@@ -349,12 +356,25 @@ namespace Morestachio.Formatter
 					Log(() => $"Matched '{match.Item1}': '{match.Item2}' by Name/Index");
 
 					//check for matching types
-					if (!multiFormatterInfo.Type.GetTypeInfo().IsInstanceOfType(match.Item2))
+					if (!multiFormatterInfo.Type.GetTypeInfo().IsAssignableFrom(givenValue?.GetType()))
 					{
-						Log(() =>
-							$"Skip: Match is Invalid because type at {argumentIndex} of '{multiFormatterInfo.Type.Name}' was not expected. Abort.");
-						//The type in the template and the type defined in the formatter do not match. Abort
-						return null;
+						if (_typeConverter.CanConvert(givenValue, multiFormatterInfo.Type))
+						{
+							givenValue = _typeConverter.Convert(givenValue, multiFormatterInfo.Type);
+						}
+						else if (givenValue is IConvertible convtable &&
+						         typeof(IConvertible).IsAssignableFrom(multiFormatterInfo.Type))
+						{
+							givenValue = convtable.ToType(multiFormatterInfo.Type, CultureInfo.CurrentCulture);
+						}
+						else
+						{
+							Log(() =>
+								$"Skip: Match is Invalid because type at {argumentIndex} of '{multiFormatterInfo.Type.Name}' was not expected. Abort.");
+							//The type in the template and the type defined in the formatter do not match. Abort	
+
+							return null;
+						}
 					}
 
 					matched.Add(multiFormatterInfo, match);
