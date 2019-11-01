@@ -18,6 +18,10 @@
     <DocumentationFile>H:\Code\morestachio\Morestachio\Morestachio.xml</DocumentationFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+    <DocumentationFile>H:\Code\morestachio\Morestachio\Morestachio.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2018.3.0" />
   </ItemGroup>

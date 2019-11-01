@@ -129,7 +129,7 @@ namespace Morestachio.Framework
 		///     Add an typeof(object) entry as Type to define a Default Output
 		/// </summary>
 		[NotNull]
-		public static MorestachioFormatterService DefaultFormatter { get; private set; }
+		public static IMorestachioFormatterService DefaultFormatter { get; private set; }
 
 		/// <summary>
 		///     The parent of the current context or null if its the root context

@@ -20,7 +20,7 @@ namespace Morestachio
 	public class ParserOptions
 	{
 		[NotNull]
-		private MorestachioFormatterService _formatters;
+		private IMorestachioFormatterService _formatters;
 
 		/// <summary>
 		///		The store for PreParsed Partials
@@ -132,7 +132,7 @@ namespace Morestachio
 		///     Adds an Formatter overwrite or new Formatter for an Type
 		/// </summary>
 		[NotNull]
-		public MorestachioFormatterService Formatters
+		public IMorestachioFormatterService Formatters
 		{
 			get { return _formatters; }
 			set
