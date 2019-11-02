@@ -17,7 +17,7 @@ namespace Morestachio.Tests.DocTree
 		[Test]
 		public void TestIsContentWithPathAndFormatterSerializable()
 		{
-			var template = "I am <Text> {{Data.data('test').('next', arg).(last)}}";
+			var template = "I am <Text> {{Data.data.test().next(arg).(last)}}";
 			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
 			var text = DocumentSerializerStrategy.SerializeToText(morestachioDocumentInfo.Document);
 			var deserialized = DocumentSerializerStrategy.DeSerializeToText(text);
@@ -28,7 +28,7 @@ namespace Morestachio.Tests.DocTree
 		[Test]
 		public void TestIsContentWithPathAndEachAndFormatterSerializable()
 		{
-			var template = "I am <Text> {{#each data('', dd)}} {{Data.data('test')}} {{/each}}";
+			var template = "I am <Text> {{#each data.('', dd)}} {{Data.data.test()}} {{/each}}";
 			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
 			var text = DocumentSerializerStrategy.SerializeToText(morestachioDocumentInfo.Document);
 			var deserialized = DocumentSerializerStrategy.DeSerializeToText(text);

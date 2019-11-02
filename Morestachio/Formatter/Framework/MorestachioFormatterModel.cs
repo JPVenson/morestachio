@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
+using JetBrains.Annotations;
 
 namespace Morestachio.Formatter.Framework
 {
@@ -17,11 +19,14 @@ namespace Morestachio.Formatter.Framework
 		/// <param name="inputDescription">The input description.</param>
 		/// <param name="output">The output.</param>
 		/// <param name="function">The function.</param>
-		public MorestachioFormatterModel(string name, string description,
+		public MorestachioFormatterModel(
+			string name, 
+			string description,
 			Type inputType,
 			InputDescription[] inputDescription,
 			string output,
-			MethodInfo function)
+			MethodInfo function,
+			MultiFormatterInfoCollection metaData)
 		{
 			Name = name;
 			Description = description;
@@ -29,6 +34,7 @@ namespace Morestachio.Formatter.Framework
 			Output = output;
 			Function = function;
 			InputType = inputType;
+			MetaData = metaData;
 		}
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MorestachioFormatterModel"/> class.
@@ -45,11 +51,13 @@ namespace Morestachio.Formatter.Framework
 			Type outputType,
 			InputDescription[] inputDescription,
 			string output,
-			MethodInfo function)
-			: this(name, description, inputType, inputDescription, output, function)
+			MethodInfo function,
+			MultiFormatterInfoCollection metaData)
+			: this(name, description, inputType, inputDescription, output, function, metaData)
 		{
 			OutputType = outputType;
 		}
+
 		/// <summary>
 		/// Gets the name.
 		/// </summary>
@@ -99,5 +107,15 @@ namespace Morestachio.Formatter.Framework
 		/// The function.
 		/// </value>
 		public MethodInfo Function { get; private set; }
+
+		internal object FunctionTarget { get; set; }
+
+
+		/// <summary>
+		///     Gets the Meta data for the Arguments
+		/// </summary>
+		[NotNull]
+		[ItemNotNull]
+		public MultiFormatterInfoCollection MetaData { get; }
 	}
 }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Morestachio.Attributes;
 using Morestachio.Formatter;
 using Morestachio.Framework;
+using Morestachio.Formatter.Framework;
 using Morestachio.ParserErrors;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -30,7 +31,7 @@ namespace Morestachio.Tests
 		{
 			var data = DateTime.UtcNow;
 			var results =
-				Parser.ParseWithOptions(new ParserOptions("{{data(\"" + dtFormat + "\")}},{{data}}", null,
+				Parser.ParseWithOptions(new ParserOptions("{{data.(\"" + dtFormat + "\")}},{{data}}", null,
 					DefaultEncoding));
 			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
 			Assert.That(result, Is.EqualTo(data.ToString(dtFormat) + "," + data));
@@ -70,9 +71,9 @@ namespace Morestachio.Tests
 		[Test]
 		public void ParserCanParseNumberAsFormatterArg()
 		{
-			var parsingOptions = new ParserOptions("{{Format(123)}}", null,
+			var parsingOptions = new ParserOptions("{{Format.(123)}}", null,
 				DefaultEncoding);
-			parsingOptions.Formatters.AddFormatter<string, int, string>((e, f) => f.ToString(e));
+			parsingOptions.Formatters.AddSingle(new Func<string, int, string>((e, f) => f.ToString(e)));
 			var results =
 				Parser.ParseWithOptions(parsingOptions);
 			var result = results.CreateAndStringify(new Dictionary<string, object>
@@ -85,7 +86,7 @@ namespace Morestachio.Tests
 		[Test]
 		public void ParserCanParseFloatingNumber()
 		{
-			var parsingOptions = new ParserOptions("{{1111.123('F5')}}", null,
+			var parsingOptions = new ParserOptions("{{1111.123.('F5')}}", null,
 				DefaultEncoding);
 			var results =
 				Parser.ParseWithOptions(parsingOptions);
@@ -237,371 +238,7 @@ namespace Morestachio.Tests
 				.CreateAndStringify(model), Is.EqualTo(expected));
 		}
 
-		[Test]
-		public void ParserCanChainFormat()
-		{
-			var data = DateTime.UtcNow;
-			var parsingOptions = new ParserOptions("{{#data}}{{.('d').()}}{{/data}}", null, DefaultEncoding);
-			parsingOptions.Formatters.AddFormatter<string>(new Func<string, string>(s => "TEST"));
-			var results = Parser.ParseWithOptions(parsingOptions);
-			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
-			Assert.That(result, Is.EqualTo("TEST"));
-		}
-
-
-
-		[Test]
-		public void ParserCanChainFormatSubExpression()
-		{
-			var data = new
-			{
-				field = "field value",
-				reference = new
-				{
-					data = "reference data value"
-				}
-			};
-			var parsingOptions = new ParserOptions("{{#data}}{{.('template value').('template value', reference.data)}}{{/data}}", null, DefaultEncoding);
-			parsingOptions.Formatters.AddFormatter<object>(
-				new Func<object, object, object, object>((source, tempValue, reference) => reference));
-
-			parsingOptions.Formatters.AddFormatter<object>(
-				new Func<object, object, object>((source, tempValue) => source));
-			var results = Parser.ParseWithOptions(parsingOptions);
-			var result = results.CreateAndStringify(new Dictionary<string, object>
-			{
-				{"data", data},
-			});
-			Assert.That(result, Is.EqualTo(data.reference.data));
-		}
-
-		[Test]
-		public void ParserCanChainFormatSubExpressionFromEach()
-		{
-			var data = new
-			{
-				field = "field value",
-				reference = new List<dynamic>()
-				{
-					{
-						new
-						{
-							displayValue = "display data value",
-							formatterValue = "formatter data value",
-						}
-					},
-				}
-			};
-			var parsingOptions = new ParserOptions("{{#each data.reference}}{{displayValue('template value').('template value', formatterValue)}}{{/each}}", null, DefaultEncoding);
-			parsingOptions.Formatters.AddFormatter<object>(
-				new Func<object, object, object, object>((source, tempValue, reference) => reference));
-
-			parsingOptions.Formatters.AddFormatter<object>(
-				new Func<object, object, object>((source, tempValue) => source));
-			var results = Parser.ParseWithOptions(parsingOptions);
-			var result = results.CreateAndStringify(new Dictionary<string, object>
-			{
-				{"data", data},
-			});
-			Assert.That(result, Is.EqualTo(data.reference[0].formatterValue));
-		}
-
-		[Test]
-		public void ParserCanChainFormatWithLineBreak()
-		{
-			var data = DateTime.UtcNow;
-			var parsingOptions = new ParserOptions(@"{{#data}}{{
-	.  (   'd'  )
-																.()
-}}{{/data}}", null, DefaultEncoding);
-			parsingOptions.Formatters.AddFormatter<string>(new Func<string, string>(s => "TEST"));
-			var results = Parser.ParseWithOptions(parsingOptions);
-			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
-			Assert.That(result, Is.EqualTo("TEST"));
-		}
-
-		[Test]
-		public void ParserCanTransferChains()
-		{
-			var data = "d";
-			var parsingOptions = new ParserOptions("{{#data}}{{.('(d(a))')}}{{/data}}", null, DefaultEncoding);
-			parsingOptions.Formatters.AddFormatter<string>(new Func<string, string, string>((s, s1) => s1));
-
-			var results = Parser.ParseWithOptions(parsingOptions);
-			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
-			Assert.That(result, Is.EqualTo("(d(a))"));
-		}
-
-		[Test]
-		public void ParserCanFormatMultipleUnnamedWithoutResult()
-		{
-			var data = 123123123;
-			var formatterResult = "";
-			var parsingOptions =
-				new ParserOptions(
-					"{{#data}}{{.('test', 'arg', 'arg, arg', ' spaced ', ' spaced with quote \\' ' , . )}}{{/data}}",
-					null, DefaultEncoding);
-
-			parsingOptions.Formatters.AddFormatter<int>(new Action<int, string[]>(
-				(self, test) => { Assert.Fail("Should not be invoked"); }));
-
-			parsingOptions.Formatters.AddFormatter<int>(new Action<int, string, string, string, string, string, int>(
-				(self, test, arg, argarg, spacedArg, spacedWithQuote, refSelf) =>
-				{
-					formatterResult = string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}", self, test, arg, argarg, spacedArg,
-						spacedWithQuote,
-						refSelf);
-				}));
-
-			var results = Parser.ParseWithOptions(parsingOptions);
-			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
-			Assert.That(result, Is.Empty);
-			Assert.That(formatterResult,
-				Is.EqualTo(@"123123123|test|arg|arg, arg| spaced | spaced with quote ' |123123123"));
-		}
-
-		[Test]
-		public void ParserCanFormatMultipleUnnamed()
-		{
-			var data = 123123123;
-			var parsingOptions =
-				new ParserOptions(
-					"{{#data}}{{.('test', 'arg', 'arg, arg', ' spaced ', ' spaced with quote \\' ' , .)}}{{/data}}",
-					null, DefaultEncoding);
-
-
-			parsingOptions.Formatters.AddFormatter<int>(
-				new Func<int, string, string, string, string, string, int, string>(
-					(self, test, arg, argarg, spacedArg, spacedWithQuote, refSelf) =>
-					{
-						return string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}", self, test, arg, argarg, spacedArg,
-							spacedWithQuote,
-							refSelf);
-					}));
-
-			var results = Parser.ParseWithOptions(parsingOptions);
-			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
-			Assert.That(result, Is.EqualTo("123123123|test|arg|arg, arg| spaced | spaced with quote ' |123123123"));
-		}
-
-		[Test]
-		public void ParserCanFormatMultipleUnnamedParams()
-		{
-			var data = 123123123;
-			var parsingOptions =
-				new ParserOptions(
-					"{{#data}}{{.( 'arg', 'arg, arg', ' spaced ', [testArgument]'test', ' spaced with quote \\' ' , .)}}{{/data}}",
-					null, DefaultEncoding);
-			parsingOptions.Formatters.AddFormatter<int>(
-				new Func<int, string, object[], string>(UnnamedParamsFormatter));
-
-			var results = Parser.ParseWithOptions(parsingOptions);
-			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
-			Assert.That(result, Is.EqualTo("123123123|test|arg|arg, arg| spaced | spaced with quote ' |123123123"));
-		}
-
-		private string UnnamedParamsFormatter(int self, string testArgument, params object[] other)
-		{
-			return string.Format("{0}|{1}|{2}", self, testArgument, other.Aggregate((e, f) => e + "|" + f));
-		}
-
-		[Test]
-		public void ParserCanFormatMultipleNamed()
-		{
-			var data = 123123123;
-			var parsingOptions =
-				new ParserOptions(
-					"{{#data}}{{.([refSelf] ., 'arg',[Fob]'test', [twoArgs]'arg, arg', [anySpaceArg]' spaced ')}}{{/data}}",
-					null, DefaultEncoding);
-			parsingOptions.Formatters.AddFormatter<int>(
-				new Func<int, string, string, string, string, int, string>(NamedFormatter));
-
-			var results = Parser.ParseWithOptions(parsingOptions);
-			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
-			Assert.That(result, Is.EqualTo("123123123|test|arg|arg, arg| spaced |123123123"));
-		}
-
-		private string NamedFormatter(int self, [FormatterArgumentName("Fob")] string testArgument, string arg,
-			string twoArgs, string anySpaceArg, int refSelf)
-		{
-			return string.Format("{0}|{1}|{2}|{3}|{4}|{5}", self, testArgument, arg, twoArgs, anySpaceArg, refSelf);
-		}
-
-		[Test]
-		public void ParserCanCheckCanFormat()
-		{
-			var data = "d";
-			var parsingOptions = new ParserOptions("{{#data}}{{.('(d(a))')}}{{/data}}", null, DefaultEncoding);
-			parsingOptions.Formatters.AddFormatter<string>(
-				new Func<string, string, string, string>((s, inv, inva) => throw new Exception("A")));
-
-			parsingOptions.Formatters.AddFormatter<string>(new Func<string, string>(s =>
-				throw new Exception("Wrong Ordering")));
-			parsingOptions.Formatters.AddFormatter<string>(new Action<string>(s =>
-				throw new Exception("Wrong Return Ordering")));
-			parsingOptions.Formatters.AddFormatter<string>(new Func<string, string, string>((s, inv) => inv));
-
-			var results = Parser.ParseWithOptions(parsingOptions);
-			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
-			Assert.That(result, Is.EqualTo("(d(a))"));
-		}
-
-		[Test]
-		public void ParserCanChainWithAndWithoutFormat()
-		{
-			var data = DateTime.UtcNow;
-			var parsingOptions = new ParserOptions("{{data().TimeOfDay.Ticks().()}}", null, DefaultEncoding);
-			parsingOptions.Formatters.AddFormatter<string, string>(s => s);
-			parsingOptions.Formatters.AddFormatter<DateTime, DateTime>(s => s);
-			parsingOptions.Formatters.AddFormatter<long, TimeSpan>(s => new TimeSpan(s));
-			var results = Parser.ParseWithOptions(parsingOptions);
-			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
-			Assert.That(result, Is.EqualTo(new TimeSpan(data.TimeOfDay.Ticks).ToString()));
-		}
-
-		[Test]
-		public void ParserCanFormatAndCombine()
-		{
-			var data = DateTime.UtcNow;
-			var results =
-				Parser.ParseWithOptions(new ParserOptions("{{data('d').Year}},{{data}}", null, DefaultEncoding));
-			//this should compile as its valid but not work as the Default
-			//settings for DateTime are ToString(Arg) so it should return a string and not an object
-			Assert.That(results
-					.CreateAndStringify(new Dictionary<string, object> { { "data", data } }),
-				Is.EqualTo(string.Empty + "," + data));
-		}
-
-		[Test]
-		public void ParserCanFormatArgumentWithExpression()
-		{
-			var dt = DateTime.Now;
-			var extendedParseInformation =
-				Parser.ParseWithOptions(new ParserOptions("{{data(testFormat)}}", null, DefaultEncoding));
-
-			var format = "yyyy.mm";
-			var andStringify = extendedParseInformation.CreateAndStringify(new Dictionary<string, object>
-			{
-				{"data", dt},
-				{"testFormat", format}
-			});
-
-			Assert.That(andStringify, Is.EqualTo(dt.ToString(format)));
-		}
-
-		[Test]
-		public void ParserCanFormatArgumentWithNestedExpression()
-		{
-			var dt = DateTime.Now;
-			var extendedParseInformation =
-				Parser.ParseWithOptions(new ParserOptions("{{data(testFormat.inner)}}", null, DefaultEncoding));
-
-			var format = new Dictionary<string, object>
-			{
-				{"inner", "yyyy.mm"}
-			};
-			var andStringify = extendedParseInformation.CreateAndStringify(new Dictionary<string, object>
-			{
-				{"data", dt},
-				{"testFormat", format}
-			});
-
-			Assert.That(andStringify, Is.EqualTo(dt.ToString(format["inner"].ToString())));
-		}
-
-		[Test]
-		public void ParserCanFormatArgumentWithSubExpression()
-		{
-			var dt = DateTime.Now;
-			var parsingOptions = new ParserOptions("{{data(tt('d'), \"test\")}}", null, DefaultEncoding);
-			var format = "yyyy.mm";
-			var formatterCalled = false;
-			var formatter2Called = false;
-			parsingOptions.Formatters.AddFormatter<int, string, string>((sourceValue, testString) =>
-			{
-				Assert.That(testString, Is.EqualTo("d"));
-				formatterCalled = true;
-				return format;
-			});
-			parsingOptions.Formatters.AddFormatter<DateTime>(new Func<DateTime, string, string, string>(
-				(sourceValue, testString2, shouldBed) =>
-				{
-					Assert.That(shouldBed, Is.EqualTo("test"));
-					Assert.That(testString2, Is.EqualTo(format));
-					formatter2Called = true;
-					return sourceValue.ToString(testString2);
-				}));
-
-			var extendedParseInformation =
-				Parser.ParseWithOptions(parsingOptions);
-
-			var andStringify = extendedParseInformation.CreateAndStringify(new Dictionary<string, object>
-			{
-				{"data", dt},
-				{"tt", 19191919}
-			});
-			Assert.That(formatterCalled, Is.True, "The  formatter was not called");
-			Assert.That(formatter2Called, Is.True, "The Date formatter was not called");
-			Assert.That(andStringify, Is.EqualTo(dt.ToString(format)));
-		}
-
-		[Test]
-		public void ParserCanFormatArgumentWithSubExpressionMultiple()
-		{
-			var dt = DateTime.Now;
-			var dictionary = new Dictionary<string, object>
-			{
-				{"data", dt},
-				{"testFormat", 19191919},
-				{"by", 10L}
-			};
-			var parsingOptions = new ParserOptions("{{data(testFormat('d'), \"test\").('pad-left', by(by, 'f'))}}",
-				null, DefaultEncoding);
-			var format = "yyyy.mm";
-			var formatterCalled = false;
-			var formatter2Called = false;
-			var formatter3Called = false;
-			parsingOptions.Formatters.AddFormatter<int, string, string>((sourceValue, testString) =>
-			{
-				Assert.That(testString, Is.EqualTo("d"));
-				formatterCalled = true;
-				return format;
-			});
-			parsingOptions.Formatters.AddFormatter<long>(new Func<long, long, string, int>(
-				(sourceValue, testString, f) =>
-				{
-					Assert.That(testString, Is.EqualTo(sourceValue));
-					Assert.That(f, Is.EqualTo("f"));
-					formatterCalled = true;
-					return (int)sourceValue;
-				}));
-			parsingOptions.Formatters.AddFormatter<DateTime>(new Func<DateTime, string, string, string>(
-				(sourceValue, testString2, shouldBed) =>
-				{
-					Assert.That(shouldBed, Is.EqualTo("test"));
-					Assert.That(testString2, Is.EqualTo(format));
-					formatter2Called = true;
-					return sourceValue.ToString(testString2);
-				}));
-			parsingOptions.Formatters.AddFormatter<string>(new Func<string, string, int, string>(
-				(sourceValue, name, number) =>
-				{
-					Assert.That(sourceValue, Is.EqualTo(dt.ToString(format)));
-					Assert.That(name, Is.EqualTo("pad-left"));
-					Assert.That(number, Is.EqualTo(dictionary["by"]));
-
-					formatter3Called = true;
-					return sourceValue.PadLeft(number);
-				}));
-
-			var extendedParseInformation =
-				Parser.ParseWithOptions(parsingOptions);
-			var andStringify = extendedParseInformation.CreateAndStringify(dictionary);
-			Assert.That(formatterCalled, Is.True, "The formatter was not called");
-			Assert.That(formatter2Called, Is.True, "The Date formatter was not called");
-			Assert.That(formatter3Called, Is.True, "The Pad formatter was not called");
-			Assert.That(andStringify, Is.EqualTo(dt.ToString(format).PadLeft(int.Parse(dictionary["by"].ToString()))));
-		}
+		
 
 		[Test]
 		public async Task ParserCanPartials()
@@ -721,10 +358,10 @@ namespace Morestachio.Tests
 			//declare TestPartial -> Print Recursion -> If Recursion is smaller then 10 -> Print TestPartial
 			//Print TestPartial
 			var template =
-				@"{{#declare TestPartial}}{{$recursion}}{{#$recursion()}}{{#include TestPartial}}{{/$recursion()}}{{/declare}}{{#include TestPartial}}";
+				@"{{#declare TestPartial}}{{$recursion}}{{#$recursion.() as rec}}{{#include TestPartial}}{{/rec}}{{/declare}}{{#include TestPartial}}";
 
 			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
-			parsingOptions.Formatters.AddFormatter<int, bool>(e => { return e < 9; });
+			parsingOptions.Formatters.AddSingle<int, bool>(e => { return e < 9; });
 			var parsed = Parser.ParseWithOptions(parsingOptions);
 			var result = await parsed.CreateAndStringifyAsync(data);
 			Assert.That(result, Is.EqualTo("123456789"));
@@ -1172,8 +809,8 @@ namespace Morestachio.Tests
 		public void ParserChangeDefaultFormatter()
 		{
 			var dateTime = DateTime.UtcNow;
-			var parsingOptions = new ParserOptions("{{data(d).AnyInt}},{{data}}", null, DefaultEncoding);
-			parsingOptions.Formatters.AddFormatter<DateTime, object>(dt => new
+			var parsingOptions = new ParserOptions("{{data.(d).AnyInt}},{{data}}", null, DefaultEncoding);
+			parsingOptions.Formatters.AddSingle<DateTime, object>(dt => new
 			{
 				Dt = dt,
 				AnyInt = 2

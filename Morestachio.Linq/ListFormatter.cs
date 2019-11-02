@@ -6,7 +6,7 @@ using System.Linq.Dynamic;
 using JetBrains.Annotations;
 using Morestachio.Formatter.Framework;
 
-namespace Morestachio.Formatter.Linq
+namespace Morestachio.Linq
 {
 	[PublicAPI]
 	public static class ListFormatter
@@ -24,6 +24,12 @@ namespace Morestachio.Formatter.Linq
 		}
 
 		[MorestachioFormatter("order asc", "Orders the list ascending")]
+		public static IEnumerable<T> OrderAsc<T>(IEnumerable<T> sourceCollection)
+		{
+			return sourceCollection.OrderBy(e => e);
+		}
+
+		[MorestachioFormatter("order", "Orders the list ascending")]
 		public static IEnumerable<T> Order<T>(IEnumerable<T> sourceCollection)
 		{
 			return sourceCollection.OrderBy(e => e);
@@ -194,7 +200,7 @@ namespace Morestachio.Formatter.Linq
 				}
 			}
 
-			return FormatterMatcher.FormatterFlow.Skip;
+			return MorestachioFormatterService.FormatterFlow.Skip;
 		}
 
 		[MorestachioFormatter("sum", "Aggreates the property in the argument and returns it")]
