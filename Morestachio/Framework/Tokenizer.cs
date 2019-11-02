@@ -357,6 +357,13 @@ namespace Morestachio.Framework
 		private static FormatMatch[] EnumerateFormats(string input,
 			List<int> lines, int tokenIndex, ICollection<IMorestachioError> parseErrors)
 		{
+			//performance shortcut
+
+			if (!input.Contains("("))
+			{
+				return new FormatMatch[0];
+			}
+
 			char? isInString = null;
 			var isEscapedString = false;
 			var format = new FormatMatch();

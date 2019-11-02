@@ -561,43 +561,6 @@
         <member name="M:Morestachio.Document.RenderPartialDoneDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
             <inheritdoc />
         </member>
-        <member name="T:Morestachio.Formatter.ExternalPartialDeclaration">
-            <summary>
-            	Defines the contents of a Predifined Partial
-            </summary>
-        </member>
-        <member name="P:Morestachio.Formatter.ExternalPartialDeclaration.Name">
-            <summary>
-            	The name of that partial
-            </summary>
-        </member>
-        <member name="P:Morestachio.Formatter.ExternalPartialDeclaration.Template">
-            <summary>
-            	The Template Contents
-            </summary>
-        </member>
-        <member name="T:Morestachio.Formatter.FormatterToken">
-            <summary>
-            	An Argument for a Formatter
-            </summary>
-        </member>
-        <member name="M:Morestachio.Formatter.FormatterToken.#ctor(System.String,Morestachio.Formatter.FormatExpression)">
-            <summary>
-            Initializes a new instance of the <see cref="T:Morestachio.Formatter.FormatterToken"/> class.
-            </summary>
-            <param name="name">The name.</param>
-            <param name="argument">The argument.</param>
-        </member>
-        <member name="P:Morestachio.Formatter.FormatterToken.Name">
-            <summary>
-            	Ether the Name of the Argument or Null
-            </summary>
-        </member>
-        <member name="P:Morestachio.Formatter.FormatterToken.Argument">
-            <summary>
-            	The value of the Argument
-            </summary>
-        </member>
         <member name="T:Morestachio.Formatter.Framework.Converter.IFormatterValueConverter">
             <summary>
             	Can be used to Convert formatter parameters
@@ -977,17 +940,6 @@
             	Obtains the Partial if known
             </summary>
             <param name="name"></param>
-        </member>
-        <member name="T:Morestachio.Formatter.IPartialTemplateProvider">
-            <summary>
-            	Can be used to Preprovide Partials in Templates. A template here will always be overwritten by a partial provided in the template
-            </summary>
-        </member>
-        <member name="M:Morestachio.Formatter.IPartialTemplateProvider.GetTemplates">
-            <summary>
-            	Obtains the Template from the store
-            </summary>
-            <returns></returns>
         </member>
         <member name="T:Morestachio.Formatter.MultiFormatterInfo">
             <summary>
