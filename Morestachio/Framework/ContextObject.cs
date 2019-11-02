@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Morestachio.Formatter;
+using Morestachio.Formatter.Framework;
 using Morestachio.Helper;
 
 namespace Morestachio.Framework
@@ -18,19 +19,11 @@ namespace Morestachio.Framework
 	/// </summary>
 	public class ContextObject
 	{
+
 		static ContextObject()
 		{
-			DefaultFormatter = new FormatterMatcher();
-			foreach (var type in new[]
-			{
-				typeof(IFormattable),
-			})
-			{
-				//we have to use a proxy function to get around a changing delegate that maybe overwritten by the user
-				//if the user overwrites the static DefaultToStringWithFormatting after we have added it to the list this would
-				//have no effect
-				DefaultFormatter.AddFormatter(type, new Func<object, object, object>(DefaultFormatterImpl));
-			}
+			DefaultFormatter = new MorestachioFormatterService();
+			DefaultFormatter.AddFromType(typeof(DefaultFormatterClassImpl));
 			DefaultDefinitionOfFalse = (value) => value != null &&
 												  value as bool? != false &&
 												  // ReSharper disable once CompareOfFloatsByEqualityOperator
@@ -42,6 +35,22 @@ namespace Morestachio.Framework
 												  (!(value is IEnumerable) || ((IEnumerable)value).Cast<object>().Any()
 												  );
 			DefinitionOfFalse = DefaultDefinitionOfFalse;
+		}
+
+
+		private class DefaultFormatterClassImpl
+		{
+			[MorestachioFormatter(null, null)]
+			public static string Formattable(IFormattable source, string argument)
+			{
+				return source.ToString(argument, CultureInfo.CurrentCulture);
+			}
+
+			[MorestachioFormatter(null, null)]
+			public static string Formattable(IFormattable source)
+			{
+				return source.ToString();
+			}
 		}
 
 		/// <summary>
@@ -76,33 +85,6 @@ namespace Morestachio.Framework
 
 		internal static readonly Regex PathFinder = new Regex("[~]{1}|(\\.\\.[\\\\/]{1})|([^.]+)",
 			RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
-
-		/// <summary>
-		///		Calls <seealso cref="DefaultToStringWithFormatting"/>
-		/// </summary>
-		/// <param name="sourceValue">The source value.</param>
-		/// <param name="formatterArgument">The formatter argument.</param>
-		/// <returns></returns>
-		public static object DefaultFormatterImpl(object sourceValue, object formatterArgument = null)
-		{
-			return DefaultToStringWithFormatting(sourceValue, formatterArgument);
-		}
-
-		/// <summary>
-		///     The default to string operator for any PrintableType.
-		///		Can be overwritten to support an alternative formatting of all templates.
-		/// </summary>
-		[NotNull]
-		public static Func<object, object, object> DefaultToStringWithFormatting = (value, formatArgument) =>
-		{
-			var o = value as IFormattable;
-			if (o != null && formatArgument != null)
-			{
-				return o.ToString(formatArgument.ToString(), null);
-			}
-
-			return value.ToString();
-		};
 
 		private static Func<object, bool> _definitionOfFalse;
 
@@ -147,7 +129,7 @@ namespace Morestachio.Framework
 		///     Add an typeof(object) entry as Type to define a Default Output
 		/// </summary>
 		[NotNull]
-		public static IFormatterMatcher DefaultFormatter { get; private set; }
+		public static IMorestachioFormatterService DefaultFormatter { get; private set; }
 
 		/// <summary>
 		///     The parent of the current context or null if its the root context
@@ -412,6 +394,7 @@ namespace Morestachio.Framework
 		/// </summary>
 		/// <param name="argument"></param>
 		/// <returns></returns>
+		[Obsolete("This mehtod should not be used anymore. Use the Format(name, arguments) method")]
 		public async Task<object> Format(KeyValuePair<string, object>[] argument)
 		{
 			await EnsureValue();
@@ -421,17 +404,64 @@ namespace Morestachio.Framework
 				return retval;
 			}
 
+			var name = argument.FirstOrDefault().Value?.ToString();
+			var argumentWithoutName = argument.Skip(1).ToArray();
+
 			//call formatters that are given by the Options for this run
-			retval = await Options.Formatters.CallMostMatchingFormatter(Value.GetType(), argument, Value);
-			if ((retval as FormatterMatcher.FormatterFlow) != FormatterMatcher.FormatterFlow.Skip)
+			retval = await Options.Formatters.CallMostMatchingFormatter(Value.GetType(), argumentWithoutName, Value, name);
+			if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
+			{
+				//one formatter has returned a valid value so use this one.
+				return retval;
+			}
+
+			//call formatters that are given by the Options for this run
+			retval = await Options.Formatters.CallMostMatchingFormatter(Value.GetType(), argument, Value, null);
+			if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
 			{
 				//one formatter has returned a valid value so use this one.
 				return retval;
 			}
 
 			//all formatters in the options object have rejected the value so try use the global ones
-			retval = await DefaultFormatter.CallMostMatchingFormatter(Value.GetType(), argument, Value);
-			if ((retval as FormatterMatcher.FormatterFlow) != FormatterMatcher.FormatterFlow.Skip)
+			retval = await DefaultFormatter.CallMostMatchingFormatter(Value.GetType(), argument, Value, null);
+			if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
+			{
+				return retval;
+			}
+			return Value;
+		}
+
+
+
+		/// <summary>
+		///     Parses the current object by using the given argument
+		/// </summary>
+		public async Task<object> Format(string name, KeyValuePair<string, object>[] argument)
+		{
+			await EnsureValue();
+			var retval = Value;
+			if (Value == null)
+			{
+				return retval;
+			}
+
+			if (string.IsNullOrWhiteSpace(name))
+			{
+				name = null;
+			}
+			
+			//call formatters that are given by the Options for this run
+			retval = await Options.Formatters.CallMostMatchingFormatter(Value.GetType(), argument, Value, name);
+			if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
+			{
+				//one formatter has returned a valid value so use this one.
+				return retval;
+			}
+
+			//all formatters in the options object have rejected the value so try use the global ones
+			retval = await DefaultFormatter.CallMostMatchingFormatter(Value.GetType(), argument, Value, name);
+			if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
 			{
 				return retval;
 			}

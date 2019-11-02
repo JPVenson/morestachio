@@ -35,17 +35,7 @@ namespace Morestachio.Document
 		protected CollectionDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}
-
-		protected override void SerializeXml(XmlWriter writer)
-		{
-			base.SerializeXml(writer);
-		}
-
-		protected override void DeSerializeXml(XmlReader reader)
-		{
-			base.DeSerializeXml(reader);
-		}
-
+		
 		/// <inheritdoc />
 		public override string Kind { get; } = "OpenCollection";
 

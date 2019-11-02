@@ -27,11 +27,6 @@ namespace Morestachio.Framework
 				get { return _pair.Type.ToString(); }
 			}
 
-			internal Tokenizer.HeaderTokenMatch[] FormatString
-			{
-				get { return _pair.FormatString; }
-			}
-
 			public string Value
 			{
 				get { return _pair.Value; }
@@ -39,9 +34,9 @@ namespace Morestachio.Framework
 
 			public override string ToString()
 			{
-				if (FormatString != null && FormatString.Any())
+				if (_pair.Format != null && _pair.Format.FormatString.Any())
 				{
-					return $"{Type} \"{Value}\" AS ({FormatString.Select(e => e.ToString()).Aggregate((e, f) => e + "," + f)})";
+					return $"{Type} {Value}.{_pair.Format.FormatterName}({_pair.Format.FormatString.Select(e => e.ToString()).Aggregate((e, f) => e + "," + f)})";
 				}
 				return $"{Type} {Value}";
 			}
@@ -56,8 +51,7 @@ namespace Morestachio.Framework
 
 		public TokenType Type { get; set; }
 
-		[CanBeNull]
-		internal Tokenizer.HeaderTokenMatch[] FormatString { get; set; }
+		internal Tokenizer.FormattableToken Format { get; set; }
 		
 		[CanBeNull]
 		public string Value { get; set; }

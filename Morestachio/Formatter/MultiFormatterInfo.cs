@@ -12,9 +12,13 @@ namespace Morestachio.Formatter
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MultiFormatterInfo"/> class.
 		/// </summary>
-		public MultiFormatterInfo([NotNull]Type type, [CanBeNull]string name, bool isOptional, int index, bool isRestObject)
+		public MultiFormatterInfo([NotNull]Type type, 
+			[CanBeNull]string name, 
+			bool isOptional, 
+			int index, 
+			bool isRestObject)
 		{
-			Type = type ?? throw new ArgumentNullException(nameof(type));
+			ParameterType = type ?? throw new ArgumentNullException(nameof(type));
 			Name = name;
 			IsOptional = isOptional;
 			Index = index;
@@ -24,7 +28,7 @@ namespace Morestachio.Formatter
 		/// <summary>
 		///		Of what type is this parameter
 		/// </summary>
-		public Type Type { get; internal set; }
+		public Type ParameterType { get; internal set; }
 		/// <summary>
 		///		Ether the name that is declared using the <seealso cref="FormatterArgumentNameAttribute"/> or the name of the Parameter from code ( in that order )
 		/// </summary>
@@ -46,5 +50,7 @@ namespace Morestachio.Formatter
 		///		Is this parameter a params parameter. If so it will get all following not matched arguments
 		/// </summary>
 		public bool IsRestObject { get; internal set; }
+
+		public FormatterValueConverterAttribute[] FormatterValueConverterAttribute { get; set; }
 	}
 }

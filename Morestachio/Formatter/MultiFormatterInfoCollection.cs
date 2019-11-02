@@ -68,7 +68,7 @@ namespace Morestachio.Formatter
 				return this;
 			}
 
-			if (multiFormatterInfo.Type == typeof(object[]))
+			if (multiFormatterInfo.ParameterType == typeof(object[]))
 			{
 				multiFormatterInfo.IsRestObject = true;
 			}

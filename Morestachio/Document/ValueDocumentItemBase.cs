@@ -38,13 +38,16 @@ namespace Morestachio.Document
 
 		protected override void DeSerializeXml(XmlReader reader)
 		{
-			if (reader.IsEmptyElement)
+			reader.ReadStartElement();
+			if (reader.Name == nameof(Value))
 			{
-				return;
+				if (reader.IsEmptyElement)
+				{
+					return;
+				}
+				//reader.ReadToFollowing(nameof(Value));
+				Value = reader.ReadString();
 			}
-
-			reader.ReadToFollowing(nameof(Value));
-			Value = reader.ReadString();
 		}
 	}
 }

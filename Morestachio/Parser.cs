@@ -86,7 +86,7 @@ namespace Morestachio
 		private static Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>[] ParseArgumentHeader(TokenPair currentToken)
 		{
 			var argumentMap = new List<Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>>();
-			foreach (var formatterPart in currentToken.FormatString ?? new Tokenizer.HeaderTokenMatch[0])
+			foreach (var formatterPart in currentToken.Format?.FormatString ?? new Tokenizer.HeaderTokenMatch[0])
 			{
 				argumentMap.Add(new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>(formatterPart,
 					ParseAsPath(formatterPart)));
@@ -212,7 +212,9 @@ namespace Morestachio
 						ExpressionStart = currentToken.TokenLocation
 					};
 					buildStack.Push(new DocumentScope(formatterItem, true));
-					formatterItem.Add(new CallFormatterDocumentItem(ParseArgumentHeader(currentToken), currentToken.Value));
+					formatterItem.Add(new CallFormatterDocumentItem(ParseArgumentHeader(currentToken), 
+						currentToken.Value, 
+						string.IsNullOrWhiteSpace(currentToken.Format?.FormatterName) ? null : currentToken.Format.FormatterName));
 
 					currentDocumentItem.Document.Add(formatterItem);
 				}
