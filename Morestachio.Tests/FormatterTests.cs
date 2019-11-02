@@ -509,6 +509,46 @@ namespace Morestachio.Formatter.Framework.Tests
 			Assert.AreEqual(model.ToString(), result);
 		}
 
+
+
+		[Test]
+		public void TemplateIfDoesNotScopeToRootWithFormatter()
+		{
+			var template =
+				@"{{#data}}{{#IF data2.()}}{{data3.dataSet}}{{/IF}}{{/data}}";
+
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			parsingOptions.Formatters.AddSingle(new Func<string, bool>(f => f == "test"));
+			var parsedTemplate =
+				Parser.ParseWithOptions(parsingOptions);
+
+			var model = new Dictionary<string, object>()
+			{
+				{
+					"data", new Dictionary<string, object>()
+					{
+						{
+							"data2", new Dictionary<string, object>()
+							{
+								{"condition", "true"}
+							}
+						},
+
+						{
+							"data3", new Dictionary<string, object>()
+							{
+								{"dataSet", "TEST"}
+							}
+						}
+					}
+				},
+			};
+
+			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+
+			Assert.AreEqual("TEST", result);
+		}
+
 		[Test]
 		public void TemplateInvertedIfDoesNotScopeWithFormatter()
 		{
