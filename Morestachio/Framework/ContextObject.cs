@@ -394,6 +394,7 @@ namespace Morestachio.Framework
 		/// </summary>
 		/// <param name="argument"></param>
 		/// <returns></returns>
+		[Obsolete("This mehtod should not be used anymore. Use the Format(name, arguments) method")]
 		public async Task<object> Format(KeyValuePair<string, object>[] argument)
 		{
 			await EnsureValue();
@@ -424,6 +425,42 @@ namespace Morestachio.Framework
 
 			//all formatters in the options object have rejected the value so try use the global ones
 			retval = await DefaultFormatter.CallMostMatchingFormatter(Value.GetType(), argument, Value, null);
+			if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
+			{
+				return retval;
+			}
+			return Value;
+		}
+
+
+
+		/// <summary>
+		///     Parses the current object by using the given argument
+		/// </summary>
+		public async Task<object> Format(string name, KeyValuePair<string, object>[] argument)
+		{
+			await EnsureValue();
+			var retval = Value;
+			if (Value == null)
+			{
+				return retval;
+			}
+
+			if (string.IsNullOrWhiteSpace(name))
+			{
+				name = null;
+			}
+			
+			//call formatters that are given by the Options for this run
+			retval = await Options.Formatters.CallMostMatchingFormatter(Value.GetType(), argument, Value, name);
+			if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
+			{
+				//one formatter has returned a valid value so use this one.
+				return retval;
+			}
+
+			//all formatters in the options object have rejected the value so try use the global ones
+			retval = await DefaultFormatter.CallMostMatchingFormatter(Value.GetType(), argument, Value, name);
 			if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
 			{
 				return retval;

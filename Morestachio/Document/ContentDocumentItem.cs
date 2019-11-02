@@ -33,16 +33,6 @@ namespace Morestachio.Document
 		{
 		}
 
-		protected override void DeSerializeXml(XmlReader reader)
-		{
-			base.DeSerializeXml(reader);
-		}
-
-		protected override void SerializeXml(XmlWriter writer)
-		{
-			base.SerializeXml(writer);
-		}
-
 		/// <inheritdoc />
 		public override string Kind { get; } = "Content";
 

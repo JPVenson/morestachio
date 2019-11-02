@@ -109,6 +109,12 @@ namespace Morestachio
 		}
 
 		/// <summary>
+		///		Enables the Legacy resolver for Formatters names that formatters should contain the name of the formatter as the first argument.
+		/// </summary>
+		[Obsolete("Enables Legacy behavior for the resolving of formatters. This behavior will be removed completely in later versions")]
+		public bool LegacyFormatterResolving { get; set; }
+
+		/// <summary>
 		///		If set to True morestachio will profile the execution and report the result in both <seealso cref="MorestachioDocumentInfo"/> and <seealso cref=""/>
 		/// </summary>
 		public bool ProfileExecution { get; set; }

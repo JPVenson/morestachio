@@ -22,7 +22,7 @@ namespace Morestachio.Document
 		/// </summary>
 		internal CallFormatterDocumentItem()
 		{
-			
+
 		}
 
 		/// <inheritdoc />
@@ -32,24 +32,61 @@ namespace Morestachio.Document
 			Value = value;
 		}
 
+		/// <inheritdoc />
+		public CallFormatterDocumentItem(Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>[] formatString,
+			string value,
+			[CanBeNull]string targetFormatterName)
+		{
+			FormatString = formatString;
+			TargetFormatterName = targetFormatterName;
+			Value = value;
+		}
+
+		/// <inheritdoc />
 		[UsedImplicitly]
 		protected CallFormatterDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 			FormatString = info.GetValue(nameof(FormatString),
 					typeof(Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>[]))
 				as Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>[];
+			TargetFormatterName = info.GetString(nameof(TargetFormatterName));
 		}
 
+		/// <inheritdoc />
 		protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
 		{
 			base.SerializeBinaryCore(info, context);
 			info.AddValue(nameof(FormatString), FormatString, FormatString.GetType());
+			info.AddValue(nameof(TargetFormatterName), TargetFormatterName);
 		}
 
+		/// <inheritdoc />
 		protected override void DeSerializeXml(XmlReader reader)
 		{
 			base.DeSerializeXml(reader);
-			reader.ReadEndElement();
+			if (reader.NodeType == XmlNodeType.EndElement && reader.Name.Equals(nameof(Value)))
+			{
+				reader.ReadEndElement();//end of value
+			}
+			if (reader.NodeType == XmlNodeType.EndElement && reader.Name.Equals(GetType().Name))
+			{
+				FormatString = new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>[0];
+				return;
+			}
+
+			AssertElement(reader, nameof(TargetFormatterName));
+			if (!reader.IsEmptyElement)
+			{
+				reader.ReadStartElement();//start of TargetFormatterName
+				TargetFormatterName = reader.ReadString();
+				reader.ReadEndElement();//end of TargetFormatterName
+			}
+			else
+			{
+				TargetFormatterName = null;
+				reader.ReadStartElement();//end of TargetFormatterName
+			}
+
 			if (reader.NodeType == XmlNodeType.EndElement && reader.Name.Equals(GetType().Name))
 			{
 				FormatString = new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>[0];
@@ -78,9 +115,11 @@ namespace Morestachio.Document
 			FormatString = formatString.ToArray();
 		}
 
+		/// <inheritdoc />
 		protected override void SerializeXml(XmlWriter writer)
 		{
 			base.SerializeXml(writer);
+			writer.WriteElementString(nameof(TargetFormatterName), TargetFormatterName);
 			if (FormatString.Any())
 			{
 				writer.WriteStartElement(nameof(FormatString));
@@ -109,6 +148,11 @@ namespace Morestachio.Document
 		/// </summary>
 		public Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>[] FormatString { get; private set; }
 
+		/// <summary>
+		///		The name of the Formatter to be invoked
+		/// </summary>
+		public string TargetFormatterName { get; private set; }
+
 		/// <inheritdoc />
 		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
@@ -121,11 +165,10 @@ namespace Morestachio.Document
 			return Children.WithScope(context);
 		}
 
+		/// <inheritdoc />
 		public async Task<ContextObject> GetValue(ContextObject context, ScopeData scopeData)
 		{
-			await Task.CompletedTask;
 			var c = await context.GetContextForPath(Value, scopeData);
-
 			if (FormatString != null && FormatString.Any())
 			{
 				var argList = new List<KeyValuePair<string, object>>();
@@ -146,13 +189,16 @@ namespace Morestachio.Document
 					}
 				}
 				//we do NOT await the task here. We await the task only if we need the value
-				context.Value = c.Format(argList.ToArray());
+				context.Value = context.Options.LegacyFormatterResolving
+					? c.Format(argList.ToArray())
+					: c.Format(TargetFormatterName, argList.ToArray());
 			}
 			else
 			{
-				context.Value = c.Format(new KeyValuePair<string, object>[0]);
+				context.Value = context.Options.LegacyFormatterResolving
+					? c.Format(new KeyValuePair<string, object>[0])
+					: c.Format(TargetFormatterName, new KeyValuePair<string, object>[0]);
 			}
-
 			return context;
 		}
 	}

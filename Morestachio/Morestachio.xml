@@ -24,12 +24,6 @@
             The name.
             </value>
         </member>
-        <member name="T:Morestachio.Attributes.RestParameterAttribute">
-            <summary>
-            	Marks the Parameter as an Rest parameter. All non specify parameter will given here. 
-            </summary>
-            <seealso cref="T:System.Attribute" />
-        </member>
         <member name="T:Morestachio.Attributes.FormatterValueConverterAttribute">
             <summary>
             	Defines one or more Value Converter for this parameter
@@ -45,6 +39,12 @@
             <summary>
             	The Formatter for this parameter
             </summary>
+        </member>
+        <member name="T:Morestachio.Attributes.RestParameterAttribute">
+            <summary>
+            	Marks the Parameter as an Rest parameter. All non specify parameter will given here. 
+            </summary>
+            <seealso cref="T:System.Attribute" />
         </member>
         <member name="T:Morestachio.Attributes.SourceObjectAttribute">
             <summary>
@@ -87,6 +87,21 @@
         <member name="M:Morestachio.Document.CallFormatterDocumentItem.#ctor(System.Tuple{Morestachio.Framework.Tokenizer.HeaderTokenMatch,Morestachio.Document.IValueDocumentItem}[],System.String)">
             <inheritdoc />
         </member>
+        <member name="M:Morestachio.Document.CallFormatterDocumentItem.#ctor(System.Tuple{Morestachio.Framework.Tokenizer.HeaderTokenMatch,Morestachio.Document.IValueDocumentItem}[],System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.CallFormatterDocumentItem.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.CallFormatterDocumentItem.SerializeBinaryCore(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.CallFormatterDocumentItem.DeSerializeXml(System.Xml.XmlReader)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.CallFormatterDocumentItem.SerializeXml(System.Xml.XmlWriter)">
+            <inheritdoc />
+        </member>
         <member name="P:Morestachio.Document.CallFormatterDocumentItem.Kind">
             <inheritdoc />
         </member>
@@ -95,7 +110,15 @@
             	Gets the parsed list of arguments for <see cref="!:Value"/>
             </summary>
         </member>
+        <member name="P:Morestachio.Document.CallFormatterDocumentItem.TargetFormatterName">
+            <summary>
+            	The name of the Formatter to be invoked
+            </summary>
+        </member>
         <member name="M:Morestachio.Document.CallFormatterDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.CallFormatterDocumentItem.GetValue(Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
             <inheritdoc />
         </member>
         <member name="T:Morestachio.Document.CollectionDocumentItem">
@@ -538,41 +561,6 @@
         <member name="M:Morestachio.Document.RenderPartialDoneDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
             <inheritdoc />
         </member>
-        <member name="T:Morestachio.Formatter.CanExecute">
-            <summary>
-                Delegate for the Can Execute method on a FormatTemplateElement
-            </summary>
-            <param name="sourceObject">The source object.</param>
-            <param name="parameter">
-                The parameters from template matched to the formatters
-                <seealso cref="P:Morestachio.Formatter.FormatTemplateElement.Format" />.
-            </param>
-            <returns></returns>
-        </member>
-        <member name="T:Morestachio.Formatter.DisabledFormatterMatcher">
-            <summary>
-            	This is the Dummy formatter matcher that can be used to completely disable the Formatter syntax
-            </summary>
-            <seealso cref="T:Morestachio.Formatter.IFormatterMatcher" />
-        </member>
-        <member name="M:Morestachio.Formatter.DisabledFormatterMatcher.AddFormatter``1(System.Delegate)">
-            <inheritdoc />
-        </member>
-        <member name="M:Morestachio.Formatter.DisabledFormatterMatcher.AddFormatter(Morestachio.Formatter.FormatTemplateElement)">
-            <inheritdoc />
-        </member>
-        <member name="M:Morestachio.Formatter.DisabledFormatterMatcher.AddFormatter(System.Type,System.Delegate)">
-            <inheritdoc />
-        </member>
-        <member name="M:Morestachio.Formatter.DisabledFormatterMatcher.Execute(Morestachio.Formatter.FormatTemplateElement,System.Object,System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
-            <inheritdoc />
-        </member>
-        <member name="M:Morestachio.Formatter.DisabledFormatterMatcher.GetMostMatchingFormatter(System.Type,System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
-            <inheritdoc />
-        </member>
-        <member name="M:Morestachio.Formatter.DisabledFormatterMatcher.CallMostMatchingFormatter(System.Type,System.Collections.Generic.KeyValuePair{System.String,System.Object}[],System.Object)">
-            <inheritdoc />
-        </member>
         <member name="T:Morestachio.Formatter.ExternalPartialDeclaration">
             <summary>
             	Defines the contents of a Predifined Partial
@@ -587,243 +575,6 @@
             <summary>
             	The Template Contents
             </summary>
-        </member>
-        <member name="T:Morestachio.Formatter.FormatTemplateElement">
-            <summary>
-                Encapsulates a Format function
-            </summary>
-        </member>
-        <member name="M:Morestachio.Formatter.FormatTemplateElement.#ctor(System.Delegate,System.Type,System.Type,Morestachio.Formatter.MultiFormatterInfo[])">
-            <summary>
-                Ctor
-            </summary>
-            <param name="formatTemplate"></param>
-            <param name="inputTypes"></param>
-            <param name="outputType"></param>
-            <param name="argumentMeta"></param>
-        </member>
-        <member name="M:Morestachio.Formatter.FormatTemplateElement.#ctor(System.Func{System.Object,System.Object,System.Object},System.Type,System.Type,Morestachio.Formatter.MultiFormatterInfo[])">
-            <summary>
-                Ctor
-            </summary>
-        </member>
-        <member name="M:Morestachio.Formatter.FormatTemplateElement.#ctor(System.Func{System.Object,System.Object[],System.Object},System.Type,System.Type,Morestachio.Formatter.MultiFormatterInfo[])">
-            <summary>
-                Ctor
-            </summary>
-        </member>
-        <member name="M:Morestachio.Formatter.FormatTemplateElement.#ctor(System.Action{System.Object,System.Object[]},System.Type,System.Type,Morestachio.Formatter.MultiFormatterInfo[])">
-            <summary>
-                Ctor
-            </summary>
-        </member>
-        <member name="M:Morestachio.Formatter.FormatTemplateElement.#ctor(System.Action{System.Object,System.Object},System.Type,System.Type,Morestachio.Formatter.MultiFormatterInfo[])">
-            <summary>
-                Ctor
-            </summary>
-        </member>
-        <member name="M:Morestachio.Formatter.FormatTemplateElement.#ctor(System.Delegate,Morestachio.Formatter.CanExecute,System.Type,System.Type,Morestachio.Formatter.MultiFormatterInfo[])">
-            <summary>
-                Ctor
-            </summary>
-            <param name="formatTemplate">The Delegate that will be invoked when the formatters type is matched by the <see cref="T:Morestachio.Formatter.FormatterMatcher"/></param>
-            <param name="canFormat">An optional Delegate of type <see cref="T:Morestachio.Formatter.CanExecute"/> that will be invoked when the match was successfull, all arguments of the FormatTemplate are provided</param>
-            <param name="inputTypes">The type that this formatter is attached to</param>
-            <param name="outputType">The type of object this formatter returns</param>
-            <param name="argumentMeta">Meta informations of the Formatters Delegate</param>
-        </member>
-        <member name="M:Morestachio.Formatter.FormatTemplateElement.#ctor(System.Func{System.Object,System.Object,System.Object},Morestachio.Formatter.CanExecute,System.Type,System.Type,Morestachio.Formatter.MultiFormatterInfo[])">
-            <summary>
-                Ctor
-            </summary>
-        </member>
-        <member name="M:Morestachio.Formatter.FormatTemplateElement.#ctor(System.Func{System.Object,System.Object[],System.Object},Morestachio.Formatter.CanExecute,System.Type,System.Type,Morestachio.Formatter.MultiFormatterInfo[])">
-            <summary>
-                Ctor
-            </summary>
-        </member>
-        <member name="M:Morestachio.Formatter.FormatTemplateElement.#ctor(System.Action{System.Object,System.Object[]},Morestachio.Formatter.CanExecute,System.Type,System.Type,Morestachio.Formatter.MultiFormatterInfo[])">
-            <summary>
-                Ctor
-            </summary>
-        </member>
-        <member name="M:Morestachio.Formatter.FormatTemplateElement.#ctor(System.Action{System.Object,System.Object},Morestachio.Formatter.CanExecute,System.Type,System.Type,Morestachio.Formatter.MultiFormatterInfo[])">
-            <summary>
-                Ctor
-            </summary>
-        </member>
-        <member name="M:Morestachio.Formatter.FormatTemplateElement.SetCanFormat(Morestachio.Formatter.CanExecute)">
-            <summary>
-            Sets the can format delegate.
-            </summary>
-            <param name="canFormat">The can format.</param>
-            <returns></returns>
-            <exception cref="T:System.InvalidOperationException">This object is Frozen</exception>
-        </member>
-        <member name="P:Morestachio.Formatter.FormatTemplateElement.CanFormat">
-            <summary>
-                Delegate for custom check if this formatter can handle the values
-            </summary>
-        </member>
-        <member name="P:Morestachio.Formatter.FormatTemplateElement.Format">
-            <summary>
-                delegate for formatting template pars
-            </summary>
-        </member>
-        <member name="P:Morestachio.Formatter.FormatTemplateElement.MetaData">
-            <summary>
-                Gets the Meta data for the Arguments
-            </summary>
-        </member>
-        <member name="P:Morestachio.Formatter.FormatTemplateElement.InputTypes">
-            <summary>
-                The type of input the Formatter is able to accept. Can be null.
-            </summary>
-        </member>
-        <member name="P:Morestachio.Formatter.FormatTemplateElement.OutputType">
-            <summary>
-                The type that the formatter will return. Can be null.
-            </summary>
-        </member>
-        <member name="T:Morestachio.Formatter.FormatterMatcher">
-            <summary>
-                Matches the Arguments from the Template to a Function from .net
-            </summary>
-        </member>
-        <member name="M:Morestachio.Formatter.FormatterMatcher.#ctor">
-            <summary>
-            </summary>
-        </member>
-        <member name="P:Morestachio.Formatter.FormatterMatcher.ReplaceExisting">
-            <summary>
-                If set to <code>true</code> this Formatter will search for existing formatter for the given type and if found any,
-                replace
-                them with the new one.
-                Default: <code>False</code>
-            </summary>
-        </member>
-        <member name="P:Morestachio.Formatter.FormatterMatcher.FormatterLog">
-            <summary>
-                If set writes the Formatters log.
-            </summary>
-        </member>
-        <member name="P:Morestachio.Formatter.FormatterMatcher.Formatter">
-            <summary>
-                The Enumeration of all formatter
-            </summary>
-        </member>
-        <member name="M:Morestachio.Formatter.FormatterMatcher.AddFormatter``1(System.Delegate)">
-            <summary>
-                Adds the formatter.
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="formatterDelegate">The formatter delegate.</param>
-        </member>
-        <member name="M:Morestachio.Formatter.FormatterMatcher.AddFormatter(Morestachio.Formatter.FormatTemplateElement)">
-            <summary>
-                Adds the formatter.
-            </summary>
-            <param name="formatter">The formatter.</param>
-        </member>
-        <member name="M:Morestachio.Formatter.FormatterMatcher.AddFormatter(System.Type,System.Delegate)">
-            <summary>
-                Adds the formatter.
-            </summary>
-            <param name="forType">For type.</param>
-            <param name="formatterDelegate">The formatter delegate.</param>
-        </member>
-        <member name="M:Morestachio.Formatter.FormatterMatcher.Execute(Morestachio.Formatter.FormatTemplateElement,System.Object,System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
-            <summary>
-                Executes the specified formatter.
-            </summary>
-            <param name="formatter">The formatter.</param>
-            <param name="sourceObject">The source object.</param>
-            <param name="templateArguments">The template arguments.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Morestachio.Formatter.FormatterMatcher.GetMostMatchingFormatter(System.Type,System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
-            <summary>
-                Gets the Formatter that matches the type or is assignable to that type. If null it will search for a object
-                formatter
-            </summary>
-            <param name="type"></param>
-            <param name="arguments"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Morestachio.Formatter.FormatterMatcher.CallMostMatchingFormatter(System.Type,System.Collections.Generic.KeyValuePair{System.String,System.Object}[],System.Object)">
-            <summary>
-                Searches for the first formatter does not reject the value.
-            </summary>
-            <param name="type">The type.</param>
-            <param name="arguments">The arguments.</param>
-            <param name="value">The value.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Morestachio.Formatter.FormatterMatcher.Log(System.Func{System.String})">
-            <summary>
-                Writes the specified log.
-            </summary>
-            <param name="log">The log.</param>
-        </member>
-        <member name="M:Morestachio.Formatter.FormatterMatcher.GetMatchingFormatter(System.Type,System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
-            <summary>
-                Gets the matching formatter.
-            </summary>
-            <param name="typeToFormat">The type to format.</param>
-            <param name="arguments"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Morestachio.Formatter.FormatterMatcher.ComposeValues(Morestachio.Formatter.FormatTemplateElement,System.Object,System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
-            <summary>
-                Composes the values into a Dictionary for each formatter. If returns null, the formatter will not be called.
-            </summary>
-            <param name="formatter">The formatter.</param>
-            <param name="sourceObject">The source object.</param>
-            <param name="templateArguments">The template arguments.</param>
-            <returns></returns>
-        </member>
-        <member name="T:Morestachio.Formatter.FormatterMatcher.FormatterFlow">
-            <summary>
-                Can be returned by a Formatter to control what formatter should be used
-            </summary>
-        </member>
-        <member name="P:Morestachio.Formatter.FormatterMatcher.FormatterFlow.Skip">
-            <summary>
-                Return code for all formatters to skip the execution of the current formatter and try another one that could also
-                match
-            </summary>
-        </member>
-        <member name="T:Morestachio.Formatter.FormatterMatcherExtensions">
-            <summary>
-            	Common used extensions to the Formatter Matcher
-            </summary>
-        </member>
-        <member name="M:Morestachio.Formatter.FormatterMatcherExtensions.AddFormatter``1(Morestachio.Formatter.IFormatterMatcher,System.Func{``0})">
-            <summary>
-                Adds the formatter.
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="matcher">The instance of FormatterMatcher</param>
-            <param name="formatterDelegate">The formatter delegate.</param>
-        </member>
-        <member name="M:Morestachio.Formatter.FormatterMatcherExtensions.AddFormatter``2(Morestachio.Formatter.IFormatterMatcher,System.Func{``0,``1})">
-            <summary>
-                Adds the formatter.
-            </summary>
-            <typeparam name="T"></typeparam>
-            <typeparam name="TResult"></typeparam>
-            <param name="matcher">The instance of FormatterMatcher</param>
-            <param name="formatterDelegate">The formatter delegate.</param>
-        </member>
-        <member name="M:Morestachio.Formatter.FormatterMatcherExtensions.AddFormatter``3(Morestachio.Formatter.IFormatterMatcher,System.Func{``0,``1,``2})">
-            <summary>
-                Adds the formatter.
-            </summary>
-            <typeparam name="T"></typeparam>
-            <typeparam name="TResult"></typeparam>
-            <typeparam name="TArgument"></typeparam>
-            <param name="matcher">The instance of FormatterMatcher</param>
-            <param name="formatterDelegate">The formatter delegate.</param>
         </member>
         <member name="T:Morestachio.Formatter.FormatterToken">
             <summary>
@@ -867,6 +618,29 @@
              <param name="value"></param>
              <param name="requestedType"></param>
              <returns></returns>
+        </member>
+        <member name="T:Morestachio.Formatter.Framework.IMorestachioFormatterService">
+            <summary>
+            	Interface for Resolving formatters
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.Framework.IMorestachioFormatterService.CallMostMatchingFormatter(System.Type,System.Collections.Generic.KeyValuePair{System.String,System.Object}[],System.Object,System.String)">
+            <summary>
+            	Searches for the formatter that matches the type and the given values
+            </summary>
+            <param name="type"></param>
+            <param name="values"></param>
+            <param name="sourceValue"></param>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.Formatter.Framework.IMorestachioFormatterService.Add(System.Reflection.MethodInfo,Morestachio.Formatter.Framework.MorestachioFormatterAttribute)">
+            <summary>
+            	Adds a new Formatter
+            </summary>
+            <param name="method"></param>
+            <param name="morestachioFormatterAttribute"></param>
+            <returns></returns>
         </member>
         <member name="T:Morestachio.Formatter.Framework.InputDescription">
             <summary>
@@ -990,7 +764,7 @@
             	Wrapper class for a function call
             </summary>
         </member>
-        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterModel.#ctor(System.String,System.String,System.Type,Morestachio.Formatter.Framework.InputDescription[],System.String,System.Reflection.MethodInfo)">
+        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterModel.#ctor(System.String,System.String,System.Type,Morestachio.Formatter.Framework.InputDescription[],System.String,System.Reflection.MethodInfo,Morestachio.Formatter.MultiFormatterInfoCollection)">
             <summary>
             Initializes a new instance of the <see cref="T:Morestachio.Formatter.Framework.MorestachioFormatterModel"/> class.
             </summary>
@@ -1001,7 +775,7 @@
             <param name="output">The output.</param>
             <param name="function">The function.</param>
         </member>
-        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterModel.#ctor(System.String,System.String,System.Type,System.Type,Morestachio.Formatter.Framework.InputDescription[],System.String,System.Reflection.MethodInfo)">
+        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterModel.#ctor(System.String,System.String,System.Type,System.Type,Morestachio.Formatter.Framework.InputDescription[],System.String,System.Reflection.MethodInfo,Morestachio.Formatter.MultiFormatterInfoCollection)">
             <summary>
             Initializes a new instance of the <see cref="T:Morestachio.Formatter.Framework.MorestachioFormatterModel"/> class.
             </summary>
@@ -1069,6 +843,11 @@
             The function.
             </value>
         </member>
+        <member name="P:Morestachio.Formatter.Framework.MorestachioFormatterModel.MetaData">
+            <summary>
+                Gets the Meta data for the Arguments
+            </summary>
+        </member>
         <member name="T:Morestachio.Formatter.Framework.MorestachioFormatterService">
             <summary>
                 The Formatter service that can be used to interpret the Native C# formatter.
@@ -1077,7 +856,7 @@
                 If the formatter should be only used for int formatting and the argument will always be a string you have to create
                 a function that has this header.
                 It must not return a value.
-                The function must have the MorestachioFormatter attribute
+                The functions must be annotated with the MorestachioFormatter attribute
             </summary>
         </member>
         <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterService.#ctor">
@@ -1085,7 +864,7 @@
                 Initializes a new instance of the <see cref="T:Morestachio.Formatter.Framework.MorestachioFormatterService" /> class.
             </summary>
         </member>
-        <member name="P:Morestachio.Formatter.Framework.MorestachioFormatterService.GlobalFormatterModels">
+        <member name="P:Morestachio.Formatter.Framework.MorestachioFormatterService.Formatters">
             <summary>
                 Gets the gloabl formatter that are used always for any formatting run.
             </summary>
@@ -1100,31 +879,63 @@
             	The fallback Converter that should convert all known mscore lib types
             </summary>
         </member>
-        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterService.AddFormatterToMorestachio(System.Collections.Generic.IEnumerable{Morestachio.Formatter.Framework.MorestachioFormatterModel},Morestachio.ParserOptions)">
+        <member name="P:Morestachio.Formatter.Framework.MorestachioFormatterService.FormatterLog">
             <summary>
-                Add all formatter into the given options object
+                If set writes the Formatters log.
             </summary>
-            <param name="listOfFormatter">The list of formatter.</param>
-            <param name="options">The options.</param>
         </member>
-        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterService.AddFormatterToMorestachio(Morestachio.ParserOptions)">
+        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterService.Log(System.Func{System.String})">
             <summary>
-                Add all formatter into the given options object
+                Writes the specified log.
             </summary>
-            <param name="options">The options.</param>
+            <param name="log">The log.</param>
         </member>
-        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterService.CanMethodCalledWith(System.Reflection.MethodInfo,System.Object[])">
+        <member name="T:Morestachio.Formatter.Framework.MorestachioFormatterService.FormatterFlow">
             <summary>
-            	Checks if the provided MethodInfo can be called with the set of parameters
-            	Support for null -> class
-            	Support for optional
-            	Support for default value
+                Can be returned by a Formatter to control what formatter should be used
             </summary>
-            <param name="methodInfo"></param>
-            <param name="parameter"></param>
+        </member>
+        <member name="P:Morestachio.Formatter.Framework.MorestachioFormatterService.FormatterFlow.Skip">
+            <summary>
+                Return code for all formatters to skip the execution of the current formatter and try another one that could also
+                match
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterService.CallMostMatchingFormatter(System.Type,System.Collections.Generic.KeyValuePair{System.String,System.Object}[],System.Object,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterService.Execute(Morestachio.Formatter.Framework.MorestachioFormatterModel,System.Object,System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
+            <summary>
+                Executes the specified formatter.
+            </summary>
+            <param name="formatter">The formatter.</param>
+            <param name="sourceObject">The source object.</param>
+            <param name="templateArguments">The template arguments.</param>
             <returns></returns>
         </member>
-        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterService.AddFromType(System.Type)">
+        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterService.GetMatchingFormatter(System.Type,System.Collections.Generic.KeyValuePair{System.String,System.Object}[],System.String)">
+            <summary>
+                Gets the matching formatter.
+            </summary>
+            <param name="typeToFormat">The type to format.</param>
+            <param name="arguments"></param>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterService.ComposeValues(Morestachio.Formatter.Framework.MorestachioFormatterModel,System.Object,System.Reflection.MethodInfo,System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
+            <summary>
+                Composes the values into a Dictionary for each formatter. If returns null, the formatter will not be called.
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterService.Add(System.Reflection.MethodInfo,Morestachio.Formatter.Framework.MorestachioFormatterAttribute)">
+            <inheritdoc />
+        </member>
+        <member name="T:Morestachio.Formatter.Framework.MorestachioFormatterServiceExtensions">
+            <summary>
+            	Add Extensions for easy runtime added Functions
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterServiceExtensions.AddFromType(Morestachio.Formatter.Framework.IMorestachioFormatterService,System.Type)">
             <summary>
                 Adds all formatter that are decorated with the <see cref="T:Morestachio.Formatter.Framework.MorestachioFormatterAttribute" />
             </summary>
@@ -1137,58 +948,6 @@
             <param name="originalObject">The original object.</param>
             <param name="name">The name.</param>
             <param name="arguments">The arguments.</param>
-            <returns></returns>
-        </member>
-        <member name="T:Morestachio.Formatter.IFormatterMatcher">
-            <summary>
-            	Defines the Tools for Enumerating formatter based on the input type
-            </summary>
-        </member>
-        <member name="M:Morestachio.Formatter.IFormatterMatcher.AddFormatter``1(System.Delegate)">
-            <summary>
-                Adds the formatter.
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="formatterDelegate">The formatter delegate.</param>
-        </member>
-        <member name="M:Morestachio.Formatter.IFormatterMatcher.AddFormatter(Morestachio.Formatter.FormatTemplateElement)">
-            <summary>
-                Adds the formatter.
-            </summary>
-            <param name="formatter">The formatter.</param>
-        </member>
-        <member name="M:Morestachio.Formatter.IFormatterMatcher.AddFormatter(System.Type,System.Delegate)">
-            <summary>
-                Adds the formatter.
-            </summary>
-            <param name="forType">For type.</param>
-            <param name="formatterDelegate">The formatter delegate.</param>
-        </member>
-        <member name="M:Morestachio.Formatter.IFormatterMatcher.Execute(Morestachio.Formatter.FormatTemplateElement,System.Object,System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
-            <summary>
-                Executes the specified formatter.
-            </summary>
-            <param name="formatter">The formatter.</param>
-            <param name="sourceObject">The source object.</param>
-            <param name="templateArguments">The template arguments.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Morestachio.Formatter.IFormatterMatcher.GetMostMatchingFormatter(System.Type,System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
-            <summary>
-                Gets the Formatter that matches the type or is assignable to that type. If null it will search for a object
-                formatter
-            </summary>
-            <param name="type"></param>
-            <param name="arguments"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Morestachio.Formatter.IFormatterMatcher.CallMostMatchingFormatter(System.Type,System.Collections.Generic.KeyValuePair{System.String,System.Object}[],System.Object)">
-            <summary>
-                Searches for the first formatter does not reject the value.
-            </summary>
-            <param name="type">The type.</param>
-            <param name="arguments">The arguments.</param>
-            <param name="value">The value.</param>
             <returns></returns>
         </member>
         <member name="T:Morestachio.Formatter.IPartialsStore">
@@ -1240,7 +999,7 @@
             Initializes a new instance of the <see cref="T:Morestachio.Formatter.MultiFormatterInfo"/> class.
             </summary>
         </member>
-        <member name="P:Morestachio.Formatter.MultiFormatterInfo.Type">
+        <member name="P:Morestachio.Formatter.MultiFormatterInfo.ParameterType">
             <summary>
             	Of what type is this parameter
             </summary>
@@ -1378,20 +1137,6 @@
             </value>
             <exception cref="T:System.InvalidOperationException">If the value is null</exception>
         </member>
-        <member name="M:Morestachio.Framework.ContextObject.DefaultFormatterImpl(System.Object,System.Object)">
-            <summary>
-            	Calls <seealso cref="F:Morestachio.Framework.ContextObject.DefaultToStringWithFormatting"/>
-            </summary>
-            <param name="sourceValue">The source value.</param>
-            <param name="formatterArgument">The formatter argument.</param>
-            <returns></returns>
-        </member>
-        <member name="F:Morestachio.Framework.ContextObject.DefaultToStringWithFormatting">
-            <summary>
-                The default to string operator for any PrintableType.
-            	Can be overwritten to support an alternative formatting of all templates.
-            </summary>
-        </member>
         <member name="M:Morestachio.Framework.ContextObject.#ctor(Morestachio.ParserOptions,System.String,Morestachio.Framework.ContextObject)">
             <summary>
             Initializes a new instance of the <see cref="T:Morestachio.Framework.ContextObject"/> class.
@@ -1484,6 +1229,11 @@
             <param name="argument"></param>
             <returns></returns>
         </member>
+        <member name="M:Morestachio.Framework.ContextObject.Format(System.String,System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
+            <summary>
+                Parses the current object by using the given argument
+            </summary>
+        </member>
         <member name="M:Morestachio.Framework.ContextObject.Clone">
             <summary>
                 Clones the ContextObject into a new Detached object
@@ -1565,6 +1315,20 @@
             </summary>
             <exception cref="T:Morestachio.Framework.IndexedParseException"></exception>
         </member>
+        <member name="T:Morestachio.Framework.Tokenizer.HeaderArgumentType">
+            <summary>
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.Tokenizer.HeaderArgumentType.String">
+            <summary>
+                Defines the Value of the <see cref="T:Morestachio.Framework.Tokenizer.HeaderTokenMatch" /> to be the content argument
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.Tokenizer.HeaderArgumentType.Expression">
+            <summary>
+                Defines the Value of the <see cref="T:Morestachio.Framework.Tokenizer.HeaderTokenMatch" /> to be an expression
+            </summary>
+        </member>
         <member name="F:Morestachio.Framework.Tokenizer.NegativePathSpec">
             <summary>
                 Specifies combinations of paths that don't work.
@@ -1572,65 +1336,59 @@
         </member>
         <member name="M:Morestachio.Framework.Tokenizer.HumanizeCharacterLocationForErrorCase(System.Int32,System.Collections.Generic.List{System.Int32},System.String)">
             <summary>
-            	As storing the string and the associated position data can slow down the process, we only do it in the case of an error.
+                As storing the string and the associated position data can slow down the process, we only do it in the case of an
+                error.
             </summary>
             <param name="characterIndex"></param>
             <param name="lines"></param>
             <param name="template"></param>
             <returns></returns>
         </member>
+        <member name="T:Morestachio.Framework.Tokenizer.FormattableToken">
+            <summary>
+                Defines the Format instructions for a token
+            </summary>
+        </member>
         <member name="T:Morestachio.Framework.Tokenizer.HeaderTokenMatch">
             <summary>
-            	Defines a Match of Arguments for a Formatter
+                Defines a Match of Arguments for a Formatter
             </summary>
         </member>
         <member name="M:Morestachio.Framework.Tokenizer.HeaderTokenMatch.#ctor">
             <summary>
-            Initializes a new instance of the <see cref="T:Morestachio.Framework.Tokenizer.HeaderTokenMatch"/> class.
+                Initializes a new instance of the <see cref="T:Morestachio.Framework.Tokenizer.HeaderTokenMatch" /> class.
             </summary>
         </member>
         <member name="P:Morestachio.Framework.Tokenizer.HeaderTokenMatch.ArgumentName">
             <summary>
-            	The Parsed Argument Name as in [Name]'arg'
+                The Parsed Argument Name as in [Name]'arg'
             </summary>
         </member>
         <member name="P:Morestachio.Framework.Tokenizer.HeaderTokenMatch.Value">
             <summary>
-            	Ether the argument constant string or the expression unparsed
+                Ether the argument constant string or the expression unparsed
             </summary>
         </member>
         <member name="P:Morestachio.Framework.Tokenizer.HeaderTokenMatch.Arguments">
             <summary>
-            	If value is an Expression the parsed arguments of that expression
+                If value is an Expression the parsed arguments of that expression
             </summary>
         </member>
         <member name="P:Morestachio.Framework.Tokenizer.HeaderTokenMatch.TokenType">
             <summary>
-            Gets or sets the type of the token.
+                Gets or sets the type of the token.
             </summary>
             <value>
-            The type of the token.
+                The type of the token.
             </value>
         </member>
         <member name="P:Morestachio.Framework.Tokenizer.HeaderTokenMatch.TokenLocation">
             <summary>
-            	The location within the Template of the Argument
+                The location within the Template of the Argument
             </summary>
         </member>
-        <member name="T:Morestachio.Framework.Tokenizer.HeaderArgumentType">
-            <summary>
-            
-            </summary>
-        </member>
-        <member name="F:Morestachio.Framework.Tokenizer.HeaderArgumentType.String">
-            <summary>
-            	Defines the Value of the <see cref="T:Morestachio.Framework.Tokenizer.HeaderTokenMatch"/> to be the content argument
-            </summary>
-        </member>
-        <member name="F:Morestachio.Framework.Tokenizer.HeaderArgumentType.Expression">
-            <summary>
-            	Defines the Value of the <see cref="T:Morestachio.Framework.Tokenizer.HeaderTokenMatch"/> to be an expression
-            </summary>
+        <member name="M:Morestachio.Framework.Tokenizer.HeaderTokenMatch.ToString">
+            <inheritdoc />
         </member>
         <member name="T:Morestachio.Framework.TokenPair">
             <summary>
@@ -1777,23 +1535,6 @@
             <param name="task">A function that returns the task to run</param>
             <param name="handle">Error handling action, null by default</param>
         </member>
-        <member name="T:Morestachio.Helper.FloatingNumber">
-            <summary>
-            	A Floating Number
-            </summary>
-        </member>
-        <member name="M:Morestachio.Helper.FloatingNumber.#ctor(System.Decimal)">
-            <summary>
-            	Creates a new Floating number
-            </summary>
-            <param name="floatingNumber"></param>
-        </member>
-        <member name="M:Morestachio.Helper.FloatingNumber.#ctor(System.Double)">
-            <summary>
-            	Creates a new Floating number
-            </summary>
-            <param name="floatingNumber"></param>
-        </member>
         <member name="T:Morestachio.Helper.Number">
             <summary>
             	Encapsulates a late bound number
@@ -1811,12 +1552,110 @@
             </summary>
             <param name="fullNumber"></param>
         </member>
-        <member name="M:Morestachio.Helper.Number.WithFraction(Morestachio.Helper.Number)">
+        <member name="M:Morestachio.Helper.Number.#ctor(System.Int32)">
             <summary>
-            	Adds an Fraction to the Number
+            	Creates an new Integral number
             </summary>
-            <param name="floatingPoint"></param>
-            <returns></returns>
+            <param name="fullNumber"></param>
+        </member>
+        <member name="M:Morestachio.Helper.Number.#ctor(System.UInt32)">
+            <summary>
+            	Creates an new Integral number
+            </summary>
+            <param name="fullNumber"></param>
+        </member>
+        <member name="M:Morestachio.Helper.Number.#ctor(System.Byte)">
+            <summary>
+            	Creates an new Integral number
+            </summary>
+            <param name="fullNumber"></param>
+        </member>
+        <member name="M:Morestachio.Helper.Number.#ctor(System.SByte)">
+            <summary>
+            	Creates an new Integral number
+            </summary>
+            <param name="fullNumber"></param>
+        </member>
+        <member name="M:Morestachio.Helper.Number.#ctor(System.Int16)">
+            <summary>
+            	Creates an new Integral number
+            </summary>
+            <param name="fullNumber"></param>
+        </member>
+        <member name="M:Morestachio.Helper.Number.#ctor(System.UInt16)">
+            <summary>
+            	Creates an new Integral number
+            </summary>
+            <param name="fullNumber"></param>
+        </member>
+        <member name="M:Morestachio.Helper.Number.#ctor(System.Single)">
+            <summary>
+            	Creates an new floating number
+            </summary>
+            <param name="fullNumber"></param>
+        </member>
+        <member name="M:Morestachio.Helper.Number.#ctor(System.Double)">
+            <summary>
+            	Creates an new floating number
+            </summary>
+            <param name="fullNumber"></param>
+        </member>
+        <member name="M:Morestachio.Helper.Number.#ctor(System.Decimal)">
+            <summary>
+            	Creates an new floating number
+            </summary>
+            <param name="fullNumber"></param>
+        </member>
+        <member name="M:Morestachio.Helper.Number.GetTypeCode">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Helper.Number.ToBoolean(System.IFormatProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Helper.Number.ToChar(System.IFormatProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Helper.Number.ToSByte(System.IFormatProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Helper.Number.ToByte(System.IFormatProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Helper.Number.ToInt16(System.IFormatProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Helper.Number.ToUInt16(System.IFormatProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Helper.Number.ToInt32(System.IFormatProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Helper.Number.ToUInt32(System.IFormatProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Helper.Number.ToInt64(System.IFormatProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Helper.Number.ToUInt64(System.IFormatProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Helper.Number.ToSingle(System.IFormatProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Helper.Number.ToDouble(System.IFormatProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Helper.Number.ToDecimal(System.IFormatProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Helper.Number.ToDateTime(System.IFormatProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Helper.Number.ToString(System.IFormatProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Helper.Number.ToType(System.Type,System.IFormatProvider)">
+            <inheritdoc />
         </member>
         <member name="T:Morestachio.Helper.StreamExtensions">
             <summary>
@@ -2153,6 +1992,11 @@
             <param name="encoding">The encoding.</param>
             <param name="disableContentEscaping">if set to <c>true</c> [disable content escaping].</param>
             <param name="withModelInference">if set to <c>true</c> [with model inference].</param>
+        </member>
+        <member name="P:Morestachio.ParserOptions.LegacyFormatterResolving">
+            <summary>
+            	Enables the Legacy resolver for Formatters names that formatters should contain the name of the formatter as the first argument.
+            </summary>
         </member>
         <member name="P:Morestachio.ParserOptions.ProfileExecution">
             <summary>
