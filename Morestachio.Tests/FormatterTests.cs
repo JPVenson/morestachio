@@ -515,33 +515,32 @@ namespace Morestachio.Formatter.Framework.Tests
 		public void TemplateIfDoesNotScopeToRootWithFormatter()
 		{
 			var template =
-				@"{{#data}}{{#IF data2.()}}{{data3.dataSet}}{{/IF}}{{/data}}";
+				@"{{#data}}{{#each data4.dataList}}{{#IF data2.()}}{{.}}{{/IF}}{{/each}}{{/data}}";
 
-			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+            var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
 			parsingOptions.Formatters.AddSingle(new Func<string, bool>(f => f == "test"));
 			var parsedTemplate =
 				Parser.ParseWithOptions(parsingOptions);
 
-			var model = new Dictionary<string, object>()
-			{
-				{
-					"data", new Dictionary<string, object>()
-					{
-						{
-							"data2", new Dictionary<string, object>()
-							{
-								{"condition", "true"}
-							}
-						},
-
-						{
-							"data3", new Dictionary<string, object>()
-							{
-								{"dataSet", "TEST"}
-							}
-						}
-					}
-				},
+            var model = new Dictionary<string, object>()
+            {
+                {
+                    "data", new Dictionary<string, object>()
+                    {
+                        {
+                            "data2", new Dictionary<string, object>()
+                            {
+                                {"condition", "true"}
+                            }
+                        },
+                        {
+                            "data3", new Dictionary<string, object>()
+                            {
+                                {"dataList", new List<string>{"TE","ST"}}
+                            }
+                        }
+                    }
+                },
 			};
 
 			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
