@@ -553,7 +553,7 @@ namespace Morestachio.Formatter.Framework.Tests
 		public void TemplateIfDoesNotScopeToRootWithFormatterCustomized()
 		{
 			var template =
-				@"{{#data}}{{#each data4.dataList}}{{#IF data2.()}}{{.}}{{/IF}}{{/each}}{{/data}}";
+				@"{{#data}}{{#each data3.dataList}}{{#IF data2.()}}{{.}}{{/IF}}{{/each}}{{/data}}";
 
             var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
 			parsingOptions.Formatters.AddSingle(new Func<string, bool>(f => f == "test"));
