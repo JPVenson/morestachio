@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Morestachio.Formatter.Framework.Converter;
 
 namespace Morestachio.Formatter.Framework
 {
@@ -11,6 +12,11 @@ namespace Morestachio.Formatter.Framework
 	/// </summary>
 	public interface IMorestachioFormatterService
 	{
+		/// <summary>
+		///		Defines the list of all formatter value converters
+		/// </summary>
+		ICollection<IFormatterValueConverter> ValueConverter { get; }
+
 		/// <summary>
 		///		Searches for the formatter that matches the type and the given values
 		/// </summary>

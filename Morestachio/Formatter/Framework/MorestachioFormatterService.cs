@@ -84,7 +84,7 @@ namespace Morestachio.Formatter.Framework
 		{
 			Log(() => "---------------------------------------------------------------------------------------------");
 			Log(() => $"Call Formatter for Type '{type}' on '{sourceValue}'");
-			var hasFormatter = GetMatchingFormatter(type, values, name).Where(e => e != null);
+			var hasFormatter = GetMatchingFormatter(sourceValue, type, values, name).Where(e => e != null);
 
 			foreach (var formatTemplateElement in hasFormatter)
 			{
@@ -133,11 +133,9 @@ namespace Morestachio.Formatter.Framework
 		/// <summary>
 		///     Gets the matching formatter.
 		/// </summary>
-		/// <param name="typeToFormat">The type to format.</param>
-		/// <param name="arguments"></param>
-		/// <param name="name"></param>
-		/// <returns></returns>
-		public virtual IEnumerable<MorestachioFormatterModel> GetMatchingFormatter([NotNull] Type typeToFormat,
+		public virtual IEnumerable<MorestachioFormatterModel> GetMatchingFormatter(
+			[CanBeNull] object sourceValue,
+			[NotNull] Type typeToFormat,
 			[NotNull] KeyValuePair<string, object>[] arguments,
 			[CanBeNull] string name)
 		{
@@ -158,28 +156,37 @@ namespace Morestachio.Formatter.Framework
 
 				Log(() => $"Test filter: '{formatTemplateElement.InputType} : {formatTemplateElement.Function.Name}'");
 
-				if (formatTemplateElement.InputType != typeToFormat &&
-					!formatTemplateElement.InputType.GetTypeInfo().IsAssignableFrom(typeToFormat))
+				if (formatTemplateElement.InputType != typeToFormat && !formatTemplateElement.InputType.GetTypeInfo().IsAssignableFrom(typeToFormat))
 				{
-					var typeToFormatGenerics = typeToFormat.GetTypeInfo().GetGenericArguments();
-
-					//explicit check for array support
-					if (typeToFormat.HasElementType)
+					if (ValueConverter.All(e => !e.CanConvert(sourceValue, formatTemplateElement.InputType)))
 					{
-						var elementType = typeToFormat.GetElementType();
-						typeToFormatGenerics = typeToFormatGenerics.Concat(new[] { elementType }).ToArray();
-					}
+						if (formatTemplateElement.MetaData.SourceValue().FormatterValueConverterAttribute.Select(e => e.CreateInstance())
+							.All(e => !e.CanConvert(sourceValue, formatTemplateElement.InputType)))
+						{
+							var typeToFormatGenerics = typeToFormat.GetTypeInfo().GetGenericArguments();
 
-					//the type check has maybe failed because of generic parameter. Check if both the formatter and the typ have generic arguments
+							//explicit check for array support
+							if (typeToFormat.HasElementType)
+							{
+								var elementType = typeToFormat.GetElementType();
+								typeToFormatGenerics = typeToFormatGenerics.Concat(new[]
+								{
+									elementType
+								}).ToArray();
+							}
 
-					var formatterGenerics = formatTemplateElement.InputType.GetTypeInfo().GetGenericArguments();
+							//the type check has maybe failed because of generic parameter. Check if both the formatter and the typ have generic arguments
 
-					if (typeToFormatGenerics.Length <= 0 || formatterGenerics.Length <= 0 ||
-						typeToFormatGenerics.Length != formatterGenerics.Length)
-					{
-						Log(() =>
-							$"Exclude because formatter accepts '{formatTemplateElement.InputType}' is not assignable from '{typeToFormat}'");
-						continue;
+							var formatterGenerics = formatTemplateElement.InputType.GetTypeInfo().GetGenericArguments();
+
+							if (typeToFormatGenerics.Length <= 0 || formatterGenerics.Length <= 0 ||
+							    typeToFormatGenerics.Length != formatterGenerics.Length)
+							{
+								Log(() =>
+									$"Exclude because formatter accepts '{formatTemplateElement.InputType}' is not assignable from '{typeToFormat}'");
+								continue;
+							}
+						}
 					}
 				}
 
@@ -217,9 +224,22 @@ namespace Morestachio.Formatter.Framework
 			}
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
 		public struct FormatterComposingResult
 		{
+			/// <summary>
+			///		The Result Method of the Composing operation. It can be different from the original.
+			/// </summary>
+			[NotNull]
 			public MethodInfo MethodInfo { get; set; }
+
+			/// <summary>
+			///		The list of arguments for the <see cref="MethodInfo"/>
+			/// </summary>
+			[NotNull]
+			[ItemNotNull]
 			public IDictionary<MultiFormatterInfo, object> Arguments { get; set; }
 		}
 
@@ -251,6 +271,11 @@ namespace Morestachio.Formatter.Framework
 				{
 					Log(() => "Is Source object");
 					givenValue = sourceObject;
+					//check for matching types
+					if (!ComposeArgumentValue(parameter, argumentIndex, ref givenValue))
+					{
+						return default;
+					}
 				}
 				else
 				{
@@ -287,37 +312,9 @@ namespace Morestachio.Formatter.Framework
 						Log(() => $"Matched '{match.Item1}': '{match.Item2}' by Name/Index");
 
 						//check for matching types
-						if (!parameter.ParameterType.GetTypeInfo().IsAssignableFrom(givenValue?.GetType()))
+						if (!ComposeArgumentValue(parameter, argumentIndex, ref givenValue))
 						{
-							var typeConverter =
-								ValueConverter.FirstOrDefault(e => e.CanConvert(givenValue, parameter.ParameterType));
-							typeConverter = typeConverter ??
-							                (DefaultConverter.CanConvert(givenValue, parameter.ParameterType) ? DefaultConverter : null);
-							var perParameterConverter = parameter.FormatterValueConverterAttribute
-								.Select(f => f.CreateInstance())
-								.FirstOrDefault(e => e.CanConvert(givenValue, parameter.ParameterType));
-
-							if (perParameterConverter != null)
-							{
-								givenValue = perParameterConverter.Convert(givenValue, parameter.ParameterType);
-							}
-							else if (typeConverter != null)
-							{
-								givenValue = typeConverter.Convert(givenValue, parameter.ParameterType);
-							}
-							else if (givenValue is IConvertible convertible &&
-							         typeof(IConvertible).IsAssignableFrom(parameter.ParameterType))
-							{
-								givenValue = convertible.ToType(parameter.ParameterType, CultureInfo.CurrentCulture);
-							}
-							else
-							{
-								Log(() =>
-									$"Skip: Match is Invalid because type at {argumentIndex} of '{parameter.ParameterType.Name}' was not expected. Abort.");
-								//The type in the template and the type defined in the formatter do not match. Abort	
-
-								return default;
-							}
+							return default;
 						}
 					}
 					matched.Add(parameter, match);
@@ -411,6 +408,48 @@ namespace Morestachio.Formatter.Framework
 				MethodInfo = method,
 				Arguments = values
 			};
+		}
+
+		private bool ComposeArgumentValue(
+			MultiFormatterInfo parameter, 
+			int argumentIndex, 
+			ref object givenValue)
+		{
+			if (!parameter.ParameterType.GetTypeInfo().IsAssignableFrom(givenValue?.GetType()))
+			{
+				var o = givenValue;
+				var typeConverter =
+					ValueConverter.FirstOrDefault(e => e.CanConvert(o, parameter.ParameterType));
+				typeConverter = typeConverter ??
+				                (DefaultConverter.CanConvert(givenValue, parameter.ParameterType) ? DefaultConverter : null);
+				var perParameterConverter = parameter.FormatterValueConverterAttribute
+					.Select(f => f.CreateInstance())
+					.FirstOrDefault(e => e.CanConvert(o, parameter.ParameterType));
+
+				if (perParameterConverter != null)
+				{
+					givenValue = perParameterConverter.Convert(givenValue, parameter.ParameterType);
+				}
+				else if (typeConverter != null)
+				{
+					givenValue = typeConverter.Convert(givenValue, parameter.ParameterType);
+				}
+				else if (givenValue is IConvertible convertible &&
+				         typeof(IConvertible).IsAssignableFrom(parameter.ParameterType))
+				{
+					givenValue = convertible.ToType(parameter.ParameterType, CultureInfo.CurrentCulture);
+				}
+				else
+				{
+					Log(() =>
+						$"Skip: Match is Invalid because type at {argumentIndex} of '{parameter.ParameterType.Name}' was not expected. Abort.");
+					//The type in the template and the type defined in the formatter do not match. Abort	
+
+					return false;
+				}
+			}
+
+			return true;
 		}
 
 		/// <inheritdoc />

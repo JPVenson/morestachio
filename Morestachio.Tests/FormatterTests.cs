@@ -2,19 +2,47 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Morestachio.Attributes;
+using Morestachio.Formatter.Framework;
 using Morestachio.Helper;
 using Morestachio.Linq;
-using Morestachio.Tests;
 using NUnit.Framework;
 
-namespace Morestachio.Formatter.Framework.Tests
+namespace Morestachio.Tests
 {
 	[TestFixture]
 	public class FormatterTests
 	{
 		public static Encoding DefaultEncoding { get; set; } = new UnicodeEncoding(true, false, false);
+
+		[Test]
+		public void TestCanTransformValue()
+		{
+			var options = new ParserOptions("{{data.ReturnValue()}}", null, DefaultEncoding);
+			options.Formatters.AddFromType(typeof(CustomConverterFormatter));
+			options.Formatters.ValueConverter.Add(new CustomConverterFormatter.TestToExpectedObjectConverter());
+			var template = Parser.ParseWithOptions(options);
+
+			var andStringify = template.CreateAndStringify(new Dictionary<string, object>()
+			{
+				{ "data", new CustomConverterFormatter.TestObject(){No = 123} }
+			});
+			Assert.That(andStringify, Is.EqualTo("123"));
+		}
+
+		[Test]
+		public void TestCanTransformValueWithAttribute()
+		{
+			var options = new ParserOptions("{{data.ReturnValueExplicitConverter()}}", null, DefaultEncoding);
+			options.Formatters.AddFromType(typeof(CustomConverterFormatter));
+			var template = Parser.ParseWithOptions(options);
+
+			var andStringify = template.CreateAndStringify(new Dictionary<string, object>()
+			{
+				{ "data", new CustomConverterFormatter.TestObject(){No = 123} }
+			});
+			Assert.That(andStringify, Is.EqualTo("123"));
+		}
 
 		[Test]
 		public void TestStringConversion()
@@ -115,7 +143,6 @@ namespace Morestachio.Formatter.Framework.Tests
 		{
 			var options = new ParserOptions("{{data.fod()}}", null, DefaultEncoding);
 			options.Formatters.AddFromType(typeof(StringFormatter));
-			options.Formatters.AddFromType(typeof(ListFormatter));
 			var template = Parser.ParseWithOptions(options);
 
 			var andStringify = template.CreateAndStringify(new Dictionary<string, object>() { { "data", new[] { "TEST", "test" } } });

@@ -40,6 +40,12 @@
             	The Formatter for this parameter
             </summary>
         </member>
+        <member name="M:Morestachio.Attributes.FormatterValueConverterAttribute.CreateInstance">
+            <summary>
+            	Creates an instance of the given converter type
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:Morestachio.Attributes.RestParameterAttribute">
             <summary>
             	Marks the Parameter as an Rest parameter. All non specify parameter will given here. 
@@ -587,6 +593,11 @@
             	Interface for Resolving formatters
             </summary>
         </member>
+        <member name="P:Morestachio.Formatter.Framework.IMorestachioFormatterService.ValueConverter">
+            <summary>
+            	Defines the list of all formatter value converters
+            </summary>
+        </member>
         <member name="M:Morestachio.Formatter.Framework.IMorestachioFormatterService.CallMostMatchingFormatter(System.Type,System.Collections.Generic.KeyValuePair{System.String,System.Object}[],System.Object,System.String)">
             <summary>
             	Searches for the formatter that matches the type and the given values
@@ -876,14 +887,25 @@
             <param name="templateArguments">The template arguments.</param>
             <returns></returns>
         </member>
-        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterService.GetMatchingFormatter(System.Type,System.Collections.Generic.KeyValuePair{System.String,System.Object}[],System.String)">
+        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterService.GetMatchingFormatter(System.Object,System.Type,System.Collections.Generic.KeyValuePair{System.String,System.Object}[],System.String)">
             <summary>
                 Gets the matching formatter.
             </summary>
-            <param name="typeToFormat">The type to format.</param>
-            <param name="arguments"></param>
-            <param name="name"></param>
-            <returns></returns>
+        </member>
+        <member name="T:Morestachio.Formatter.Framework.MorestachioFormatterService.FormatterComposingResult">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Morestachio.Formatter.Framework.MorestachioFormatterService.FormatterComposingResult.MethodInfo">
+            <summary>
+            	The Result Method of the Composing operation. It can be different from the original.
+            </summary>
+        </member>
+        <member name="P:Morestachio.Formatter.Framework.MorestachioFormatterService.FormatterComposingResult.Arguments">
+            <summary>
+            	The list of arguments for the <see cref="P:Morestachio.Formatter.Framework.MorestachioFormatterService.FormatterComposingResult.MethodInfo"/>
+            </summary>
         </member>
         <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterService.ComposeValues(Morestachio.Formatter.Framework.MorestachioFormatterModel,System.Object,System.Reflection.MethodInfo,System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
             <summary>
@@ -937,9 +959,8 @@
         </member>
         <member name="M:Morestachio.Formatter.IPartialsStore.GetNames">
             <summary>
-            	Obtains the Partial if known
+            	Gets the list of all known partials
             </summary>
-            <param name="name"></param>
         </member>
         <member name="T:Morestachio.Formatter.MultiFormatterInfo">
             <summary>
@@ -1010,6 +1031,34 @@
             	When called and the last parameter is an object array, it will be used as an params parameter.
             	This is quite helpful as you cannot annotate Lambdas.
             </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Morestachio.Formatter.Predefined.EqualityFormatter">
+            <summary>
+            	A list of predefined Morestachio Formatters
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.Predefined.EqualityFormatter.IsEquals(System.Object,System.Object)">
+            <summary>
+            	Checks two objects for equality
+            </summary>
+            <param name="source"></param>
+            <param name="target"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.Formatter.Predefined.EqualityFormatter.Negate(System.Boolean)">
+            <summary>
+            	Negates a boolean value
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.Formatter.Predefined.EqualityFormatter.IsReferenceEquals(System.Object,System.Object)">
+            <summary>
+            	Checks if two objects are the same
+            </summary>
+            <param name="source"></param>
+            <param name="target"></param>
             <returns></returns>
         </member>
         <member name="T:Morestachio.Framework.ByteCounterStream">

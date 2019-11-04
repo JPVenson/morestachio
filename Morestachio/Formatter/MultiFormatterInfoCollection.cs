@@ -75,5 +75,10 @@ namespace Morestachio.Formatter
 
 			return this;
 		}
+
+		public MultiFormatterInfo SourceValue()
+		{
+			return this.FirstOrDefault(e => e.IsSourceObject);
+		}
 	}
 }

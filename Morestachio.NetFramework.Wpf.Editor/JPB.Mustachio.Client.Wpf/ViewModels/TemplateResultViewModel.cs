@@ -14,6 +14,7 @@ using Morestachio;
 using Morestachio.Formatter.Framework;
 using Morestachio.Framework;
 using Morestachio.Helper;
+using Morestachio.ParserErrors;
 using Newtonsoft.Json.Linq;
 
 namespace JPB.Mustachio.Client.Wpf.ViewModels
@@ -109,15 +110,16 @@ namespace JPB.Mustachio.Client.Wpf.ViewModels
 
 			parsingOptions.ValueResolver = new JObjectResolver();
 
-			var formatterService = new MorestachioFormatterService();
-			var formatters = _templateServiceProvider.ObtainFormatters();
+			//var formatterService = new MorestachioFormatterService();
+			//var formatters = _templateServiceProvider.ObtainFormatters();
 
-			foreach (var formatter in formatters)
-			{
-				formatterService.GlobalFormatterModels.Add(formatter.CreateFormatter());
-			}
+			//foreach (var formatter in formatters)
+			//{
+			//	var morestachioFormatterModel = formatter.CreateFormatter();
+			//	formatterService.Add(morestachioFormatterModel.Function, morestachioFormatterModel);
+			//}
 
-			formatterService.AddFormatterToMorestachio(parsingOptions);
+			
 			MorestachioDocumentInfo extendedParseInformation;
 
 			try
@@ -130,7 +132,7 @@ namespace JPB.Mustachio.Client.Wpf.ViewModels
 				{
 					Errors = new IMorestachioError[]
 					{
-						new MorestachioSyntaxError(new Tokenizer.CharacterLocation(), "Error ", "", "", e.Message), 
+						new MorestachioSyntaxError(new CharacterLocationExtended(), "Error ", "", "", e.Message), 
 					}
 				};
 			}
