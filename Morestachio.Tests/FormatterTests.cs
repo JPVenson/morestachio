@@ -575,7 +575,7 @@ namespace Morestachio.Tests
             Assert.AreEqual("TEST", result);
         }
 
-
+		[Ignore("Test is incomplete")]
         [Test]
 		public void TemplateIfDoesNotScopeToRootWithFormatterCustomized()
 		{

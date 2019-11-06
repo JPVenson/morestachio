@@ -115,7 +115,7 @@ namespace Morestachio.Tests
 		[Test]
 		[TestCase("{{data(d))}}", 2)]
 		[TestCase("{{data((d)}}", 2)]
-		[TestCase("{{data)}}", 2)]
+		[TestCase("{{data)}}", 1)]
 		[TestCase("{{data(}}", 2)]
 		[TestCase("{{data(arg}}", 2)]
 		[TestCase("{{data(arg, 'test'}}", 2)]
@@ -178,7 +178,7 @@ namespace Morestachio.Tests
 		[TestCase("{{@}}")]
 		[TestCase("{{[}}")]
 		[TestCase("{{]}}")]
-		[TestCase("{{)}}", 2)]
+		[TestCase("{{)}}")]
 		[TestCase("{{(}}", 2)]
 		[TestCase("{{%}}")]
 		public void ParserShouldThrowForInvalidPaths(string template, int noOfErrors = 1)

@@ -271,11 +271,6 @@ namespace Morestachio.Formatter.Framework
 				{
 					Log(() => "Is Source object");
 					givenValue = sourceObject;
-					//check for matching types
-					if (!ComposeArgumentValue(parameter, argumentIndex, ref givenValue))
-					{
-						return default;
-					}
 				}
 				else
 				{
@@ -311,11 +306,6 @@ namespace Morestachio.Formatter.Framework
 						givenValue = match.Item2;
 						Log(() => $"Matched '{match.Item1}': '{match.Item2}' by Name/Index");
 
-						//check for matching types
-						if (!ComposeArgumentValue(parameter, argumentIndex, ref givenValue))
-						{
-							return default;
-						}
 					}
 					matched.Add(parameter, match);
 				}
@@ -354,6 +344,12 @@ namespace Morestachio.Formatter.Framework
 					}
 
 					method = method.MakeGenericMethod(templateGen);
+				}
+				
+				//check for matching types
+				if (!parameter.IsOptional && !ComposeArgumentValue(parameter, argumentIndex, ref givenValue))
+				{
+					return default;
 				}
 
 				values.Add(parameter, givenValue);
@@ -415,6 +411,11 @@ namespace Morestachio.Formatter.Framework
 			int argumentIndex, 
 			ref object givenValue)
 		{
+			if (parameter.ParameterType.IsConstructedGenericType)
+			{
+				return true;
+			}
+
 			if (!parameter.ParameterType.GetTypeInfo().IsAssignableFrom(givenValue?.GetType()))
 			{
 				var o = givenValue;
