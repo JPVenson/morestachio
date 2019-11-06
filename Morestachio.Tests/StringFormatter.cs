@@ -1,11 +1,55 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Morestachio.Attributes;
+using Morestachio.Formatter.Framework;
+using Morestachio.Formatter.Framework.Converter;
 
-namespace Morestachio.Formatter.Framework.Tests
+namespace Morestachio.Tests
 {
+	public static class CustomConverterFormatter
+	{
+		public class TestObject
+		{
+			public int No { get; set; }
+		}
+
+		public class ExpectedObject
+		{
+			public int No { get; set; }
+		}
+
+		public class TestToExpectedObjectConverter : IFormatterValueConverter
+		{
+			public bool CanConvert(object value, Type requestedType)
+			{
+				return requestedType == typeof(ExpectedObject) && value is TestObject;
+			}
+
+			public object Convert(object value, Type requestedType)
+			{
+				return new ExpectedObject()
+				{
+					No = (value as TestObject).No
+				};
+			}
+		}
+
+		[MorestachioFormatter("ReturnValue", "XXX")]
+		public static int ReturnValue(ExpectedObject value)
+		{
+			return value.No;
+		}
+
+		[MorestachioFormatter("ReturnValueExplicitConverter", "XXX")]
+		public static int ReturnValueA([FormatterValueConverter(typeof(TestToExpectedObjectConverter))]ExpectedObject value)
+		{
+			return value.No;
+		}
+	}
+
 	public static class StringFormatter
 	{
 		[MorestachioFormatter("ExpectInt", "XXX")]

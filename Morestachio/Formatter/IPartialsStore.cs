@@ -1,4 +1,6 @@
-﻿namespace Morestachio.Formatter
+﻿using JetBrains.Annotations;
+
+namespace Morestachio.Formatter
 {
 	/// <summary>
 	///		Allows to store Partials for multiple Runs
@@ -8,24 +10,23 @@
 		/// <summary>
 		///		Adds the Parsed Partial to the store
 		/// </summary>
-		void AddParsedPartial(MorestachioDocumentInfo document, string name);
+		void AddParsedPartial([NotNull]MorestachioDocumentInfo document, [NotNull]string name);
 
 		/// <summary>
 		///		Removes the Partial from the List of Known Partials
 		/// </summary>
 		/// <param name="name"></param>
-		void RemovePartial(string name);
+		void RemovePartial([NotNull]string name);
 
 		/// <summary>
 		///		Obtains the Partial if known
 		/// </summary>
 		/// <param name="name"></param>
-		MorestachioDocumentInfo GetPartial(string name);
+		[NotNull] MorestachioDocumentInfo GetPartial([NotNull]string name);
 
 		/// <summary>
-		///		Obtains the Partial if known
+		///		Gets the list of all known partials
 		/// </summary>
-		/// <param name="name"></param>
-		string[] GetNames();
+		[NotNull, ItemNotNull] string[] GetNames();
 	}
 }

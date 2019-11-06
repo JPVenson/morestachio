@@ -86,7 +86,7 @@ public string GetFunction<T>(string name, string op, string operation, Type left
 public string GetFunction(string name, string op, string operation, Type result, Type left, Type right, string text)
 {
 	var opText = $@"
-		[MorestachioFormatter(""{op}"", ""{text}"")]
+		[MorestachioFormatter(""fnc_{op}"", ""{text}"")]
 		public static {result.Name} {name}([SourceObject]{left.Name} val1, {right.Name} val2) {{
 			return val1 {operation} val2;
 		}}";

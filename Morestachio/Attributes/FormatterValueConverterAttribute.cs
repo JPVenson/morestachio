@@ -27,9 +27,15 @@ namespace Morestachio.Attributes
 		/// </summary>
 		public Type ConverterType { get; set; }
 
+		private IFormatterValueConverter _converter;
+
+		/// <summary>
+		///		Creates an instance of the given converter type
+		/// </summary>
+		/// <returns></returns>
 		public IFormatterValueConverter CreateInstance()
 		{
-			return (IFormatterValueConverter) Activator.CreateInstance(ConverterType);
+			return _converter ?? (_converter = (IFormatterValueConverter)Activator.CreateInstance(ConverterType));
 		}
 	}
 }
