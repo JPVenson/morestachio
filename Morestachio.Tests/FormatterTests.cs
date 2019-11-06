@@ -575,15 +575,15 @@ namespace Morestachio.Tests
             Assert.AreEqual("TEST", result);
         }
 
-		[Ignore("Test is incomplete")]
         [Test]
 		public void TemplateIfDoesNotScopeToRootWithFormatterCustomized()
 		{
 			var template =
-				@"{{#data}}{{#each data4.dataList}}{{#IF data2.()}}{{.}}{{/IF}}{{/each}}{{/data}}";
+				@"{{#data}}{{#each data3.dataList()}}{{#IF .()}}{{.}}{{/IF}}{{/each}}{{/data}}";
 
             var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
-			parsingOptions.Formatters.AddSingle(new Func<string, bool>(f => f == "test"));
+			parsingOptions.Formatters.AddSingle(new Func<IEnumerable<string>, IEnumerable<string>>(f => f));
+			parsingOptions.Formatters.AddSingle(new Func<string, bool>(f => f == "TE"));
 			var parsedTemplate =
 				Parser.ParseWithOptions(parsingOptions);
 
@@ -610,7 +610,7 @@ namespace Morestachio.Tests
 
 			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
 
-			Assert.AreEqual("TEST", result);
+			Assert.AreEqual("TE", result);
 		}
 
 		[Test]
