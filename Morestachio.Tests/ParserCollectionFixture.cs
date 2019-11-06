@@ -4,7 +4,6 @@ using System.Linq;
 using Morestachio.Helper;
 using Morestachio.Formatter;
 using Morestachio.Formatter.Framework;
-using Morestachio.Formatter.Framework.Tests;
 using Morestachio.Linq;
 using NUnit.Framework;
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Windows.Documents;
 using JPB.Mustachio.Client.Contacts.Contracts;
+using Morestachio.Formatter;
 using Morestachio.Formatter.Framework;
 
 namespace JPB.Mustachio.Client.Wpf.Services
@@ -29,8 +30,11 @@ namespace JPB.Mustachio.Client.Wpf.Services
 
 		public MorestachioFormatterModel CreateFormatter()
 		{
-			return new MorestachioFormatterModel(Name, Description, InputType, OutputType, InputDescriptions,
-				OutputHint, DelegateFactory());
+			return new MorestachioFormatterModel(Name, Description, InputType,
+				OutputType,
+				InputDescriptions,
+				OutputHint,
+				DelegateFactory(), new MultiFormatterInfoCollection(new List<MultiFormatterInfo>()));
 		}
 
 		public string Name { get; }

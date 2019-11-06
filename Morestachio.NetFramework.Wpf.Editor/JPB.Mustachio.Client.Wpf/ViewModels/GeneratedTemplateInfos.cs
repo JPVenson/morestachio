@@ -1,5 +1,7 @@
 ﻿using Morestachio;
+using Morestachio.Document.Contracts;
 using Morestachio.Framework;
+using Morestachio.ParserErrors;
 
 namespace JPB.Mustachio.Client.Wpf.ViewModels
 {
