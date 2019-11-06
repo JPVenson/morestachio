@@ -581,9 +581,40 @@ namespace Morestachio.Formatter.Framework.Tests
                 },
 			};
 
-			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+            var template2 =
+                @"{{#data}}{{#each data3.dataList}}{{.}}{{/each}}{{/data}}";
 
-			Assert.AreEqual("TEST", result);
+            var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+
+            var parsingOptions2 = new ParserOptions(template2, null, ParserFixture.DefaultEncoding);
+            parsingOptions.Formatters.AddSingle(new Func<string, bool>(f => f == "test"));
+            var parsedTemplate2 =
+                Parser.ParseWithOptions(parsingOptions2);
+
+            var model2 = new Dictionary<string, object>()
+            {
+                {
+                    "data", new Dictionary<string, object>()
+                    {
+                        {
+                            "data2", new Dictionary<string, object>()
+                            {
+                                {"condition", "true"}
+                            }
+                        },
+                        {
+                            "data3", new Dictionary<string, object>()
+                            {
+                                {"dataList", new List<string>{"TE","ST"}}
+                            }
+                        }
+                    }
+                },
+            };
+
+            var result2 = parsedTemplate2.Create(model2).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+
+            Assert.AreEqual(result2, result);
 		}
 
 		[Test]
