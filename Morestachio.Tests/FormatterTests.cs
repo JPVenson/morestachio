@@ -538,6 +538,10 @@ namespace Morestachio.Tests
         {
             public decimal SomeValue2 { get; set; }
             public decimal SomeValue3 { get; set; }
+            public string SomeString { get; set; }
+            public string SomeString2 { get; set; }
+            public string SomeString3 { get; set; }
+
         }
 
         [Test]
@@ -724,5 +728,41 @@ namespace Morestachio.Tests
             Assert.AreEqual(result, "-3,-6");
         }
 
+        [Test]
+        public void TestFormatterCheckEmpty()
+        {
+            var templateWorking = @"{{#data}}{{#each someList}}{{#Entity}}{{#if SomeString}}2{{#ifelse}}{{#if SomeString2}}a{{SomeString3}}a{{/if}}{{/else}}{{/Entity}}{{/each}}{{/data}}";
+
+            var parsingOptionsWorking = new ParserOptions(templateWorking, null, ParserFixture.DefaultEncoding);
+            parsingOptionsWorking.Formatters.AddFromType(typeof(ListFormatter));
+            var parsedTemplateWorking = Parser.ParseWithOptions(parsingOptionsWorking);
+
+            var modelWorking = new Dictionary<string, object>()
+            {
+                {
+                    "data", new Dictionary<string, object>()
+                    {
+                         {
+                            "someList",
+                            new MainTestClass[1]
+                            {
+                                new MainTestClass()
+                                {
+                                    Entity = new TestClass
+                                    {
+                                        SomeString ="",
+                                        SomeString2 ="1",
+                                        SomeString3 ="3"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            var result = parsedTemplateWorking.Create(modelWorking).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+            Assert.AreEqual(result, "a3a");
+        }
     }
 }
