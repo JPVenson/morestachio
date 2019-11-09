@@ -16,6 +16,20 @@ namespace Morestachio.Tests
 		public static Encoding DefaultEncoding { get; set; } = new UnicodeEncoding(true, false, false);
 
 		[Test]
+		public void TestCanFormatObject()
+		{
+			var options = new ParserOptions("{{.(data)}}", null, DefaultEncoding);
+			options.Formatters.AddSingle(new Func<object, object, int>((e, f) => (int) f));
+			var template = Parser.ParseWithOptions(options);
+
+			var andStringify = template.CreateAndStringify(new Dictionary<string, object>()
+			{
+				{ "data", 123 }
+			});
+			Assert.That(andStringify, Is.EqualTo("123"));
+		}
+
+		[Test]
 		public void TestCanTransformValue()
 		{
 			var options = new ParserOptions("{{data.ReturnValue()}}", null, DefaultEncoding);
@@ -537,75 +551,75 @@ namespace Morestachio.Tests
 		}
 
 
-        [Test]
-        public void TemplateIfDoesNotScopeToRootWithFormatter()
-        {
-            var template =
-                @"{{#data}}{{#IF data2.()}}{{data3.dataSet}}{{/IF}}{{/data}}";
+		[Test]
+		public void TemplateIfDoesNotScopeToRootWithFormatter()
+		{
+			var template =
+				@"{{#data}}{{#IF data2.()}}{{data3.dataSet}}{{/IF}}{{/data}}";
 
-            var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
-            parsingOptions.Formatters.AddSingle(new Func<string, bool>(f => f == "test"));
-            var parsedTemplate =
-                Parser.ParseWithOptions(parsingOptions);
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			parsingOptions.Formatters.AddSingle(new Func<string, bool>(f => f == "test"));
+			var parsedTemplate =
+				Parser.ParseWithOptions(parsingOptions);
 
-            var model = new Dictionary<string, object>()
-            {
-                {
-                    "data", new Dictionary<string, object>()
-                    {
-                        {
-                            "data2", new Dictionary<string, object>()
-                            {
-                                {"condition", "true"}
-                            }
-                        },
+			var model = new Dictionary<string, object>()
+			{
+				{
+					"data", new Dictionary<string, object>()
+					{
+						{
+							"data2", new Dictionary<string, object>()
+							{
+								{"condition", "true"}
+							}
+						},
 
-                        {
-                            "data3", new Dictionary<string, object>()
-                            {
-                                {"dataSet", "TEST"}
-                            }
-                        }
-                    }
-                },
-            };
+						{
+							"data3", new Dictionary<string, object>()
+							{
+								{"dataSet", "TEST"}
+							}
+						}
+					}
+				},
+			};
 
-            var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
 
-            Assert.AreEqual("TEST", result);
-        }
+			Assert.AreEqual("TEST", result);
+		}
 
-        [Test]
+		[Test]
 		public void TemplateIfDoesNotScopeToRootWithFormatterCustomized()
 		{
 			var template =
 				@"{{#data}}{{#each data3.dataList.()}}{{#IF .()}}{{.}}{{/IF}}{{/each}}{{/data}}";
 
-            var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
 			parsingOptions.Formatters.AddSingle(new Func<IEnumerable<string>, IEnumerable<string>>(f => f));
 			parsingOptions.Formatters.AddSingle(new Func<string, bool>(f => f == "TE"));
 			var parsedTemplate =
 				Parser.ParseWithOptions(parsingOptions);
 
-            var model = new Dictionary<string, object>()
-            {
-                {
-                    "data", new Dictionary<string, object>()
-                    {
-                        {
-                            "data2", new Dictionary<string, object>()
-                            {
-                                {"condition", "true"}
-                            }
-                        },
-                        {
-                            "data3", new Dictionary<string, object>()
-                            {
-                                {"dataList", new List<string>{"TE","ST"}}
-                            }
-                        }
-                    }
-                },
+			var model = new Dictionary<string, object>()
+			{
+				{
+					"data", new Dictionary<string, object>()
+					{
+						{
+							"data2", new Dictionary<string, object>()
+							{
+								{"condition", "true"}
+							}
+						},
+						{
+							"data3", new Dictionary<string, object>()
+							{
+								{"dataList", new List<string>{"TE","ST"}}
+							}
+						}
+					}
+				},
 			};
 
 			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
