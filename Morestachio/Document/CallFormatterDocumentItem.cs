@@ -175,7 +175,7 @@ namespace Morestachio.Document
 
 				foreach (var formatterArgument in FormatString)
 				{
-					var value = context.FindNextNaturalContextObject().Clone();
+					var value = context.FindNextNaturalContextObject().CloneForEdit();
 					value = await formatterArgument.Item2.GetValue(value, scopeData);
 
 					if (value == null)

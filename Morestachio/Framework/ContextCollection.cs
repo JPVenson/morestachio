@@ -15,7 +15,11 @@ namespace Morestachio.Framework
 		/// <param name="last">true if its the last item</param>
 		/// <param name="options"></param>
 		/// <param name="key"></param>
-		public ContextCollection(long index, bool last, [NotNull] ParserOptions options, string key, [CanBeNull]ContextObject parent) 
+		public ContextCollection(long index, 
+			bool last, 
+			[NotNull] ParserOptions options, 
+			string key, 
+			[CanBeNull]ContextObject parent) 
 			: base(options, key, parent)
 		{
 			Index = index;
@@ -69,7 +73,7 @@ namespace Morestachio.Framework
 		}
 
 		/// <inheritdoc />
-		public override ContextObject Clone()
+		public override ContextObject CloneForEdit()
 		{
 			var contextClone = new ContextCollection(Index, Last, Options, Key, this)
 			{

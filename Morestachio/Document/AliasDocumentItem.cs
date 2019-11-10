@@ -38,7 +38,7 @@ namespace Morestachio.Document
 		/// <inheritdoc />
 		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
-			scopeData.Alias[Value] = context.Clone();
+			scopeData.Alias[Value] = context.CloneForEdit();
 
 			await Task.CompletedTask;
 			return Children.WithScope(context);

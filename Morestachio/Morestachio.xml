@@ -1109,7 +1109,7 @@
         <member name="M:Morestachio.Framework.ContextCollection.HandlePathContext(System.Collections.Generic.Queue{System.String},System.String)">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.ContextCollection.Clone">
+        <member name="M:Morestachio.Framework.ContextCollection.CloneForEdit">
             <inheritdoc />
         </member>
         <member name="T:Morestachio.Framework.ContextObject">
@@ -1167,6 +1167,12 @@
             <summary>
                 The evaluated value of the expression
             </summary>
+        </member>
+        <member name="M:Morestachio.Framework.ContextObject.MakeNatural">
+            <summary>
+            	Makes this instance natural
+            </summary>
+            <returns></returns>
         </member>
         <member name="M:Morestachio.Framework.ContextObject.EnsureValue">
             <summary>
@@ -1235,7 +1241,13 @@
                 Parses the current object by using the given argument
             </summary>
         </member>
-        <member name="M:Morestachio.Framework.ContextObject.Clone">
+        <member name="M:Morestachio.Framework.ContextObject.CloneForEdit">
+            <summary>
+                Clones the ContextObject into a new Detached object
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.Framework.ContextObject.Copy">
             <summary>
                 Clones the ContextObject into a new Detached object
             </summary>

@@ -110,7 +110,7 @@ namespace Morestachio.Framework
 		///		Gets a value indicating whether this instance is natural context.
 		///		A Natural context is a context outside an Isolated scope
 		/// </summary>
-		protected bool IsNaturalContext { get; set; }
+		public bool IsNaturalContext { get; protected set; }
 
 		internal ContextObject FindNextNaturalContextObject()
 		{
@@ -142,6 +142,16 @@ namespace Morestachio.Framework
 		/// </summary>
 		[CanBeNull]
 		public object Value { get; set; }
+
+		/// <summary>
+		///		Makes this instance natural
+		/// </summary>
+		/// <returns></returns>
+		internal ContextObject MakeNatural()
+		{
+			this.IsNaturalContext = true;
+			return this;
+		}
 
 		/// <summary>
 		///	Ensures that the Value is loaded if needed
@@ -415,13 +425,13 @@ namespace Morestachio.Framework
 				return retval;
 			}
 
-			//call formatters that are given by the Options for this run
-			retval = await Options.Formatters.CallMostMatchingFormatter(Value.GetType(), argument, Value, null);
-			if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
-			{
-				//one formatter has returned a valid value so use this one.
-				return retval;
-			}
+			////call formatters that are given by the Options for this run
+			//retval = await Options.Formatters.CallMostMatchingFormatter(Value.GetType(), argument, Value, null);
+			//if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
+			//{
+			//	//one formatter has returned a valid value so use this one.
+			//	return retval;
+			//}
 
 			//all formatters in the options object have rejected the value so try use the global ones
 			retval = await DefaultFormatter.CallMostMatchingFormatter(Value.GetType(), argument, Value, null);
@@ -472,12 +482,29 @@ namespace Morestachio.Framework
 		///     Clones the ContextObject into a new Detached object
 		/// </summary>
 		/// <returns></returns>
-		public virtual ContextObject Clone()
+		public virtual ContextObject CloneForEdit()
 		{
 			var contextClone = new ContextObject(Options, Key, this) //note: Parent must be the original context so we can traverse up to an unmodified context
 			{
 				Value = Value,
-				IsNaturalContext = false
+				IsNaturalContext = false,
+				AbortGeneration = AbortGeneration
+			};
+
+			return contextClone;
+		}
+
+		/// <summary>
+		///     Clones the ContextObject into a new Detached object
+		/// </summary>
+		/// <returns></returns>
+		public virtual ContextObject Copy()
+		{
+			var contextClone = new ContextObject(Options, Key, Parent) //note: Parent must be the original context so we can traverse up to an unmodified context
+			{
+				Value = Value,
+				IsNaturalContext = true,
+				AbortGeneration = AbortGeneration
 			};
 
 			return contextClone;

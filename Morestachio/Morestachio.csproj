@@ -23,6 +23,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Framework\ParserErrors\**" />
+    <EmbeddedResource Remove="Framework\ParserErrors\**" />
+    <None Remove="Framework\ParserErrors\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2018.3.0" />
   </ItemGroup>
 
@@ -49,10 +55,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>NumberFormatter.tt</DependentUpon>
     </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Framework\ParserErrors\" />
   </ItemGroup>
 
 </Project>

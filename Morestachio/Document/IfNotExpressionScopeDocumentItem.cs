@@ -40,11 +40,13 @@ namespace Morestachio.Document
 			ContextObject context, 
 			ScopeData scopeData)
 		{
+			//we are checking the parent value not our current value
+			var contextObject = context.Parent ?? context;
 			var c = await context.GetContextForPath(Value, scopeData);
 			if (!await c.Exists())
 			{
 				scopeData.ExecuteElse = false;
-				return Children.WithScope(context.FindNextNaturalContextObject());
+				return Children.WithScope(contextObject.FindNextNaturalContextObject());
 			}
 
 			scopeData.ExecuteElse = true;

@@ -82,9 +82,9 @@ namespace Morestachio.Document
 				var next = enumerator.MoveNext() ? enumerator.Current : null;
 				var innerContext = new ContextCollection(index, next == null, context.Options, $"[{index}]", c)
 				{
-					Value = current
+					Value = current,
 				};
-				scopes.AddRange(Children.WithScope(innerContext));
+				scopes.AddRange(Children.WithScope(innerContext.MakeNatural()));
 				index++;
 				current = next;
 			} while (current != null && ContinueBuilding(outputStream, context));

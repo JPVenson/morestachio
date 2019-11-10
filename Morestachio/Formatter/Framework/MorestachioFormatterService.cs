@@ -84,7 +84,9 @@ namespace Morestachio.Formatter.Framework
 		{
 			Log(() => "---------------------------------------------------------------------------------------------");
 			Log(() => $"Call Formatter for Type '{type}' on '{sourceValue}'");
-			var hasFormatter = GetMatchingFormatter(sourceValue, type, values, name).Where(e => e != null);
+			var hasFormatter = GetMatchingFormatter(sourceValue, type, values, name)
+				.Where(e => e != null)
+				.ToArray();
 
 			foreach (var formatTemplateElement in hasFormatter)
 			{
@@ -218,10 +220,13 @@ namespace Morestachio.Formatter.Framework
 				filteredSourceList.Add(new KeyValuePair<MorestachioFormatterModel, ulong>(formatTemplateElement, score));
 			}
 
+			var formatter = new List<MorestachioFormatterModel>();
 			foreach (var formatTemplateElement in filteredSourceList.OrderBy(e => e.Value))
 			{
-				yield return formatTemplateElement.Key;
+				formatter.Add(formatTemplateElement.Key);
 			}
+
+			return formatter;
 		}
 
 		/// <summary>

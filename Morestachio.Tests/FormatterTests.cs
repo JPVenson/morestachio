@@ -15,6 +15,70 @@ namespace Morestachio.Tests
 	{
 		public static Encoding DefaultEncoding { get; set; } = new UnicodeEncoding(true, false, false);
 
+		public class MainTestClass
+		{
+			public TestClass Entity { get; set; }
+		}
+
+		public class TestClass
+		{
+			public decimal SomeValue2 { get; set; }
+			public decimal SomeValue3 { get; set; }
+		}
+
+		[Test]
+		public void TestSelect()
+		{
+			var templateWorking = @"{{#data}}{{#each someList.select('it.Entity')}}{{SomeValue2}}*{{SomeValue3}}={{SomeValue2.Multiply(SomeValue3)}}{{/each}}{{/data}}";
+
+			var parsingOptionsWorking = new ParserOptions(templateWorking, null, ParserFixture.DefaultEncoding);
+			parsingOptionsWorking.Formatters.AddFromType(typeof(ListFormatter));
+			parsingOptionsWorking.Formatters.AddFromType(typeof(NumberFormatter));
+			var parsedTemplateWorking = Parser.ParseWithOptions(parsingOptionsWorking);
+
+			var modelWorking = new Dictionary<string, object>()
+			{
+				{
+					"data", new Dictionary<string, object>()
+					{
+						{
+							"someList",
+							new MainTestClass[1]
+							{
+								new MainTestClass()
+								{
+									Entity = new TestClass
+									{
+										SomeValue2 = 2,
+										SomeValue3= 3
+									}
+								}
+							}
+						}
+					}
+				}
+			};
+
+			var result = parsedTemplateWorking.Create(modelWorking).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+
+			Assert.AreEqual("2*3=6", result);
+		}
+
+		public static class NumberFormatter
+		{
+			[MorestachioFormatter("Multiply", "XXX")]
+			public static decimal Multiply(object value, object value2)
+			{
+				decimal a = 0;
+				decimal.TryParse(value.ToString(), out a);
+				decimal b = 0;
+				decimal.TryParse(value2.ToString(), out b);
+
+
+				return a * b;
+			}
+		}
+
 		[Test]
 		public void TestCanFormatObject()
 		{
