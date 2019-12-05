@@ -76,6 +76,12 @@ namespace Morestachio.Formatter.Framework
 		}
 
 		/// <inheritdoc />
+		public IEnumerable<MorestachioFormatterModel> Filter(Func<MorestachioFormatterModel, bool> filter)
+		{
+			return Formatters.Where(filter);
+		}
+
+		/// <inheritdoc />
 		public virtual async Task<object> CallMostMatchingFormatter(
 			Type type,
 			KeyValuePair<string, object>[] values,

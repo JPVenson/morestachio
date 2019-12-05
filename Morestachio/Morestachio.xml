@@ -745,6 +745,13 @@
             	Interface for Resolving formatters
             </summary>
         </member>
+        <member name="M:Morestachio.Formatter.Framework.IMorestachioFormatterService.Filter(System.Func{Morestachio.Formatter.Framework.MorestachioFormatterModel,System.Boolean})">
+            <summary>
+            	Filteres the list of Formatters
+            </summary>
+            <param name="filter"></param>
+            <returns></returns>
+        </member>
         <member name="P:Morestachio.Formatter.Framework.IMorestachioFormatterService.ValueConverter">
             <summary>
             	Defines the list of all formatter value converters
@@ -1026,6 +1033,9 @@
                 Return code for all formatters to skip the execution of the current formatter and try another one that could also
                 match
             </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterService.Filter(System.Func{Morestachio.Formatter.Framework.MorestachioFormatterModel,System.Boolean})">
+            <inheritdoc />
         </member>
         <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterService.CallMostMatchingFormatter(System.Type,System.Collections.Generic.KeyValuePair{System.String,System.Object}[],System.Object,System.String)">
             <inheritdoc />

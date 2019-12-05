@@ -11,7 +11,14 @@ namespace Morestachio.Formatter.Framework
 	///		Interface for Resolving formatters
 	/// </summary>
 	public interface IMorestachioFormatterService
-	{
+	{		
+		/// <summary>
+		///		Filteres the list of Formatters
+		/// </summary>
+		/// <param name="filter"></param>
+		/// <returns></returns>
+		IEnumerable<MorestachioFormatterModel> Filter(Func<MorestachioFormatterModel, bool> filter);
+
 		/// <summary>
 		///		Defines the list of all formatter value converters
 		/// </summary>
