@@ -72,6 +72,15 @@ namespace Morestachio
 				throw new AggregateException("You cannot Create this Template as there are one or more Errors. See Inner Exception for more infos.", Errors.Select(e => e.GetException())).Flatten();
 			}
 
+			if (Document is MorestachioDocument morestachioDocument && morestachioDocument.MorestachioVersion !=
+			    MorestachioDocument.GetMorestachioVersion())
+			{
+				throw new InvalidOperationException($"The supplied version in the Morestachio document " +
+				                                    $"'{morestachioDocument.MorestachioVersion}'" +
+				                                    $" is not compatible with the current morestachio version of " +
+				                                    $"'{MorestachioDocument.GetMorestachioVersion()}'");
+			}
+
 			var timeoutCancellation = new CancellationTokenSource();
 			if (ParserOptions.Timeout != TimeSpan.Zero)
 			{
@@ -101,8 +110,11 @@ namespace Morestachio
 						CancellationToken = token
 					};
 
-					await MorestachioDocument.ProcessItemsAndChildren(new[] { Document }, byteCounterStream,
-						context, new ScopeData());
+					using (var scopeData = new ScopeData())
+					{
+						await MorestachioDocument.ProcessItemsAndChildren(new[] { Document }, byteCounterStream,
+							context, scopeData);
+					}
 				}
 
 				if (timeoutCancellation.IsCancellationRequested)

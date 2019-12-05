@@ -58,6 +58,37 @@
             </summary>
             <seealso cref="T:System.Attribute" />
         </member>
+        <member name="T:Morestachio.DocumentScope">
+            <summary>
+            	Defines the scope of an DocumentItem that can has children
+            </summary>
+        </member>
+        <member name="M:Morestachio.DocumentScope.#ctor(Morestachio.Document.Contracts.IDocumentItem)">
+            <summary>
+            	Creates a new Document scope that is no formatting and is no alias
+            </summary>
+            <param name="document"></param>
+        </member>
+        <member name="P:Morestachio.DocumentScope.Document">
+            <summary>
+            	The document item that has children
+            </summary>
+        </member>
+        <member name="P:Morestachio.DocumentScope.IsFormattingScope">
+            <summary>
+            	Is this a formatted scope
+            </summary>
+        </member>
+        <member name="P:Morestachio.DocumentScope.HasAlias">
+            <summary>
+            	Is this an alias
+            </summary>
+        </member>
+        <member name="P:Morestachio.DocumentScope.AliasName">
+            <summary>
+            	If <see cref="P:Morestachio.DocumentScope.HasAlias"/> what name does the alias have
+            </summary>
+        </member>
         <member name="T:Morestachio.Document.AliasDocumentItem">
             <summary>
             	Creates an alias 
@@ -251,12 +282,80 @@
             </summary>
             <param name="writer"></param>
         </member>
+        <member name="T:Morestachio.Document.Custom.CustomDocumentItemProvider">
+            <summary>
+            	Allows the injection of a custom DocumentItem 
+            </summary>
+        </member>
+        <member name="P:Morestachio.Document.Custom.CustomDocumentItemProvider.ScopeStack">
+            <summary>
+            	A Custom stack that keeps track of enclosing tokens such as #IF and /IF
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.Custom.CustomDocumentItemProvider.ShouldTokenize(System.String)">
+            <summary>
+            	Should check if the token contains this partial token. If returns true further actions will happen.
+            </summary>
+            <param name="token"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Morestachio.Document.Custom.CustomDocumentItemProvider.TokenInfo">
+            <summary>
+            	An helper object that will be given to the Tokenize method
+            </summary>
+        </member>
+        <member name="P:Morestachio.Document.Custom.CustomDocumentItemProvider.TokenInfo.Token">
+            <summary>
+            	The obtained Token
+            </summary>
+        </member>
+        <member name="P:Morestachio.Document.Custom.CustomDocumentItemProvider.TokenInfo.Errors">
+            <summary>
+            	Can be filled to return errors that occured in the formatting process
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.Custom.CustomDocumentItemProvider.TokenInfo.Format(System.String,Morestachio.ParserOptions)">
+            <summary>
+            	Can be used to format parts or a whole portion of the path
+            </summary>
+            <param name="format"></param>
+            <param name="options"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.Document.Custom.CustomDocumentItemProvider.Tokenize(Morestachio.Document.Custom.CustomDocumentItemProvider.TokenInfo,Morestachio.ParserOptions)">
+            <summary>
+            	Should return any kind of token Pair that encapsulates the value for the DocumentItem
+            </summary>
+            <param name="token"></param>
+            <param name="options"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.Document.Custom.CustomDocumentItemProvider.ShouldParse(Morestachio.Framework.TokenPair,Morestachio.ParserOptions)">
+            <summary>
+            	Should return True if the Token is produced by this provider and should be parsed with this provider
+            </summary>
+            <param name="token"></param>
+            <param name="options"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Morestachio.Document.Custom.CustomDocumentItemProvider.Parse(Morestachio.Framework.TokenPair,Morestachio.ParserOptions,System.Collections.Generic.Stack{Morestachio.DocumentScope})">
+            <summary>
+            	Should return an document item that will be invoked when parsing the Template
+            </summary>
+            <param name="token"></param>
+            <param name="options"></param>
+            <param name="buildStack"></param>
+            <returns></returns>
+        </member>
         <member name="T:Morestachio.Document.DocumentItemBase">
             <summary>
-            	Base class for Document items
+                Base class for Document items
             </summary>
         </member>
         <member name="M:Morestachio.Document.DocumentItemBase.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.DocumentItemBase.Equals(Morestachio.Document.DocumentItemBase)">
             <inheritdoc />
         </member>
         <member name="M:Morestachio.Document.DocumentItemBase.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
@@ -271,16 +370,38 @@
         <member name="P:Morestachio.Document.DocumentItemBase.ExpressionStart">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Document.DocumentItemBase.ContinueBuilding(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject)">
-            <summary>
-            	Can be called to check if any stop is requested. If return true no stop is requested
-            </summary>
-        </member>
         <member name="M:Morestachio.Document.DocumentItemBase.Add(Morestachio.Document.Contracts.IDocumentItem[])">
             <inheritdoc />
         </member>
         <member name="M:Morestachio.Document.DocumentItemBase.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
             <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.DocumentItemBase.ContinueBuilding(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject)">
+            <summary>
+                Can be called to check if any stop is requested. If return true no stop is requested
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.DocumentItemBase.SerializeBinaryCore(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+                Can be overwritten to extend the binary serialization process
+            </summary>
+            <param name="info"></param>
+            <param name="context"></param>
+        </member>
+        <member name="M:Morestachio.Document.DocumentItemBase.SerializeXml(System.Xml.XmlWriter)">
+            <summary>
+                Should be overwritten when using custom properties in deviated document items to add the necessary xml information.
+                When using this method it is ensured that there is already a distinct XML node present. You should not close this
+                node and always exit before leaving it.
+                This method will be called right after writing the document node and before writing the children of this node
+            </summary>
+            <param name="writer"></param>
+        </member>
+        <member name="M:Morestachio.Document.DocumentItemBase.DeSerializeXml(System.Xml.XmlReader)">
+            <summary>
+                Will be called to deserialize custom properties. See <see cref="M:Morestachio.Document.DocumentItemBase.SerializeXml(System.Xml.XmlWriter)" /> for further info.
+            </summary>
+            <param name="reader"></param>
         </member>
         <member name="T:Morestachio.Document.ElseExpressionScopeDocumentItem">
             <summary>
@@ -405,6 +526,23 @@
             	Used for XML Serialization
             </summary>
         </member>
+        <member name="M:Morestachio.Document.MorestachioDocument.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.MorestachioDocument.SerializeBinaryCore(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.MorestachioDocument.DeSerializeXml(System.Xml.XmlReader)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.MorestachioDocument.SerializeXml(System.Xml.XmlWriter)">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.Document.MorestachioDocument.MorestachioVersion">
+            <summary>
+            	Gets the Version of Morestachio that this Document was parsed with
+            </summary>
+        </member>
         <member name="P:Morestachio.Document.MorestachioDocument.Kind">
             <inheritdoc />
         </member>
@@ -420,6 +558,15 @@
             <param name="context">The context.</param>
             <param name="scopeData">The scope data.</param>
             <returns></returns>
+        </member>
+        <member name="M:Morestachio.Document.MorestachioDocument.Equals(Morestachio.Document.MorestachioDocument)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.MorestachioDocument.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.MorestachioDocument.GetHashCode">
+            <inheritdoc />
         </member>
         <member name="T:Morestachio.Document.PartialDocumentItem">
             <summary>
@@ -566,6 +713,11 @@
         </member>
         <member name="M:Morestachio.Document.RenderPartialDoneDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
             <inheritdoc />
+        </member>
+        <member name="T:Morestachio.Document.ValueDocumentItemBase">
+            <summary>
+            	A common base class for emitting a single string value
+            </summary>
         </member>
         <member name="T:Morestachio.Formatter.Framework.Converter.IFormatterValueConverter">
             <summary>
@@ -1403,14 +1555,60 @@
         <member name="M:Morestachio.Framework.Tokenizer.HeaderTokenMatch.ToString">
             <inheritdoc />
         </member>
+        <member name="M:Morestachio.Framework.Tokenizer.HeaderTokenMatch.Equals(Morestachio.Framework.Tokenizer.HeaderTokenMatch)">
+            <inheritdoc />
+        </member>
         <member name="T:Morestachio.Framework.TokenPair">
             <summary>
                 The token that has been lexed out of template content.
             </summary>
         </member>
+        <member name="M:Morestachio.Framework.TokenPair.#ctor(Morestachio.Framework.TokenType,System.String,Morestachio.Framework.CharacterLocation)">
+            <summary>
+            	Creates a new Token Pair
+            </summary>
+            <param name="type"></param>
+            <param name="value"></param>
+            <param name="tokenLocation"></param>
+        </member>
+        <member name="P:Morestachio.Framework.TokenPair.Type">
+            <summary>
+            	The type of this Token
+            </summary>
+        </member>
+        <member name="P:Morestachio.Framework.TokenPair.Format">
+            <summary>
+            	With what format should this token be evaluated
+            </summary>
+        </member>
+        <member name="P:Morestachio.Framework.TokenPair.Value">
+            <summary>
+            	What is the Value of this token
+            </summary>
+        </member>
+        <member name="P:Morestachio.Framework.TokenPair.TokenLocation">
+            <summary>
+            	Where does this token occure in the Template
+            </summary>
+        </member>
         <member name="T:Morestachio.Framework.TokenType">
             <summary>
                 The type of token produced in the lexing stage of template compilation.
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.TokenType.EscapedSingleValue">
+            <summary>
+            	A path that should be printed. If it contains any html tags, those will be escaped
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.TokenType.UnescapedSingleValue">
+            <summary>
+            	A path that should be printed. 
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.TokenType.InvertedElementOpen">
+            <summary>
+            	Defines the start of a scope that will only be applied if the value of the path is falsy
             </summary>
         </member>
         <member name="F:Morestachio.Framework.TokenType.ElementOpen">
@@ -1421,6 +1619,26 @@
         <member name="F:Morestachio.Framework.TokenType.ElementClose">
             <summary>
             	Defines the end of a scope
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.TokenType.Comment">
+            <summary>
+            	A comment inside. Will not be printed
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.TokenType.Content">
+            <summary>
+            	Plain content. No further processing
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.TokenType.CollectionOpen">
+            <summary>
+            	The start of a collection loop
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.TokenType.CollectionClose">
+            <summary>
+            	The end of a collection loop
             </summary>
         </member>
         <member name="F:Morestachio.Framework.TokenType.Format">
@@ -1836,7 +2054,7 @@
             <param name="parsingOptions">a set of options</param>
             <returns></returns>
         </member>
-        <member name="M:Morestachio.Parser.Parse(System.Collections.Generic.Queue{Morestachio.Framework.TokenPair})">
+        <member name="M:Morestachio.Parser.Parse(System.Collections.Generic.Queue{Morestachio.Framework.TokenPair},Morestachio.ParserOptions)">
             <summary>
                 Parses the Tokens into a Document.
             </summary>
@@ -2006,6 +2224,11 @@
             <param name="disableContentEscaping">if set to <c>true</c> [disable content escaping].</param>
             <param name="withModelInference">if set to <c>true</c> [with model inference].</param>
         </member>
+        <member name="P:Morestachio.ParserOptions.CustomDocumentItemProviders">
+            <summary>
+            	The list of provider that emits custom document items
+            </summary>
+        </member>
         <member name="P:Morestachio.ParserOptions.LegacyFormatterResolving">
             <summary>
             	Enables the Legacy resolver for Formatters names that formatters should contain the name of the formatter as the first argument.
@@ -2132,10 +2355,19 @@
             	Lists all Alias objects
             </summary>
         </member>
+        <member name="P:Morestachio.ScopeData.CustomData">
+            <summary>
+            	Can be used by 3rd party document items to store data.
+            	If it contains an IDisposable it will be disposed after the execution is finished.
+            </summary>
+        </member>
         <member name="P:Morestachio.ScopeData.ExecuteElse">
             <summary>
             	Will be set by any preceding If statement if the expression was not rendered to true
             </summary>
+        </member>
+        <member name="M:Morestachio.ScopeData.Dispose">
+            <inheritdoc />
         </member>
     </members>
 </doc>

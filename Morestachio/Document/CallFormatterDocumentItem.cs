@@ -15,7 +15,7 @@ namespace Morestachio.Document
 	///		Calls a formatter on the current context value
 	/// </summary>
 	[System.Serializable]
-	public class CallFormatterDocumentItem : ValueDocumentItemBase, IValueDocumentItem
+	public class CallFormatterDocumentItem : ValueDocumentItemBase, IValueDocumentItem, IEquatable<CallFormatterDocumentItem>
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -200,6 +200,57 @@ namespace Morestachio.Document
 					: c.Format(TargetFormatterName, new KeyValuePair<string, object>[0]);
 			}
 			return context;
+		}
+
+		public bool Equals(CallFormatterDocumentItem other)
+		{
+			if (ReferenceEquals(null, other))
+			{
+				return false;
+			}
+
+			if (ReferenceEquals(this, other))
+			{
+				return true;
+			}
+
+			return base.Equals(other) &&
+				   TargetFormatterName == other.TargetFormatterName &&
+				   FormatString.Length == other.FormatString.Length &&
+				   FormatString.Select((item, index) => Tuple.Create(item, other.FormatString[index]))
+					   .All(e => e.Item1.Item1.Equals(e.Item1.Item1) && e.Item1.Item2.Equals(e.Item2.Item2));
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj))
+			{
+				return false;
+			}
+
+			if (ReferenceEquals(this, obj))
+			{
+				return true;
+			}
+
+			if (obj.GetType() != this.GetType())
+			{
+				return false;
+			}
+
+			return Equals((CallFormatterDocumentItem)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				int hashCode = base.GetHashCode();
+				hashCode = (hashCode * 397) ^ (Kind != null ? Kind.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ (FormatString.Any() ? FormatString.Select(f => f.Item1.GetHashCode() ^ f.Item2.GetHashCode()).Aggregate((e, f) => e ^ f) : 0);
+				hashCode = (hashCode * 397) ^ (TargetFormatterName != null ? TargetFormatterName.GetHashCode() : 0);
+				return hashCode;
+			}
 		}
 	}
 }

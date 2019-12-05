@@ -53,7 +53,7 @@ namespace Morestachio
 
 			//if there are any errors do not parse the template
 			var documentInfo = new MorestachioDocumentInfo(parsingOptions,
-				errors.Any() ? null : Parse(tokens), errors);
+				errors.Any() ? null : Parse(tokens, parsingOptions), errors);
 			documentInfo.Profiler = profiler;
 			return documentInfo;
 		}
@@ -108,7 +108,7 @@ namespace Morestachio
 		/// </summary>
 		/// <param name="tokens">The tokens.</param>
 		/// <returns></returns>
-		internal static IDocumentItem Parse(Queue<TokenPair> tokens)
+		internal static IDocumentItem Parse(Queue<TokenPair> tokens, ParserOptions options)
 		{
 			var buildStack = new Stack<DocumentScope>();
 			//instead of recursive calling the parse function we stack the current document 
@@ -270,6 +270,16 @@ namespace Morestachio
 					};
 					currentDocumentItem.Document.Add(aliasDocumentItem);
 					buildStack.Push(new DocumentScope(aliasDocumentItem, currentToken.Value));
+				}
+				else
+				{
+					var customDocumentItemProvider =
+						options.CustomDocumentItemProviders.FirstOrDefault(e => e.ShouldParse(currentToken, options));
+					if (customDocumentItemProvider != null)
+					{
+						var documentItem = customDocumentItemProvider.Parse(currentToken, options, buildStack);
+						currentDocumentItem.Document.Add(documentItem);
+					}
 				}
 			}
 

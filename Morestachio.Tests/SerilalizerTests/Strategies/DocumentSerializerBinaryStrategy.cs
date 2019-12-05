@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -12,15 +13,13 @@ namespace Morestachio.Tests.DocTree
 	{
 		public DocumentSerializerBinaryStrategy()
 		{
-			BinarySerializer = new DataContractSerializer(typeof(MorestachioDocument));
 
 			//BinarySerializer.TypeFormat = FormatterTypeStyle.TypesWhenNeeded;
 		}
-
-		public DataContractSerializer BinarySerializer { get; private set; }
-
+		
 		public string SerializeToText(IDocumentItem obj)
 		{
+			var BinarySerializer = new DataContractSerializer(obj.GetType());
 			using (var ms = new MemoryStream())
 			{
 				BinarySerializer.WriteObject(ms, obj);
@@ -28,8 +27,9 @@ namespace Morestachio.Tests.DocTree
 			}
 		}
 
-		public IDocumentItem DeSerializeToText(string text)
+		public IDocumentItem DeSerializeToText(string text, Type expectedType)
 		{
+			var BinarySerializer = new DataContractSerializer(expectedType);
 			using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(text)))
 			{
 				return BinarySerializer.ReadObject(ms) as IDocumentItem;

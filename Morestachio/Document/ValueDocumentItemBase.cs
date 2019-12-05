@@ -1,10 +1,14 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 using System.Xml;
 
 namespace Morestachio.Document
 {
+	/// <summary>
+	///		A common base class for emitting a single string value
+	/// </summary>
 	[System.Serializable]
-	public abstract class ValueDocumentItemBase : DocumentItemBase
+	public abstract class ValueDocumentItemBase : DocumentItemBase, IEquatable<ValueDocumentItemBase>
 	{
 		protected ValueDocumentItemBase()
 		{
@@ -48,6 +52,50 @@ namespace Morestachio.Document
 				//reader.ReadToFollowing(nameof(Value));
 				Value = reader.ReadString();
 			}
+		}
+
+		public bool Equals(ValueDocumentItemBase other)
+		{
+			if (ReferenceEquals(null, other))
+			{
+				return false;
+			}
+
+			if (ReferenceEquals(this, other))
+			{
+				return true;
+			}
+
+			return base.Equals(other) && 
+			       ((string.IsNullOrEmpty(Value) && string.IsNullOrEmpty(other.Value))
+				       || Value == other.Value);
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj))
+			{
+				return false;
+			}
+
+			if (ReferenceEquals(this, obj))
+			{
+				return true;
+			}
+
+			if (obj.GetType() != this.GetType())
+			{
+				return false;
+			}
+
+			return Equals((ValueDocumentItemBase) obj);
+		}
+
+		public override int GetHashCode()
+		{
+			int hashCode = base.GetHashCode();
+			hashCode = (hashCode * 397) ^ (!string.IsNullOrWhiteSpace(Value) ? Value.GetHashCode() : 0);
+			return hashCode;
 		}
 	}
 }

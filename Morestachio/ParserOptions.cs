@@ -1,10 +1,12 @@
 ﻿#region
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using JetBrains.Annotations;
 using Morestachio.Attributes;
+using Morestachio.Document.Custom;
 using Morestachio.Formatter;
 using Morestachio.Formatter.Framework;
 using Morestachio.Framework;
@@ -68,6 +70,7 @@ namespace Morestachio
 			WithModelInference = false;
 			Timeout = TimeSpan.Zero;
 			PartialStackSize = 255;
+			CustomDocumentItemProviders = new List<CustomDocumentItemProvider>();
 		}
 
 		/// <summary>
@@ -107,6 +110,11 @@ namespace Morestachio
 			: this(template, sourceStream, encoding, 0, disableContentEscaping, withModelInference)
 		{
 		}
+
+		/// <summary>
+		///		The list of provider that emits custom document items
+		/// </summary>
+		public IList<CustomDocumentItemProvider> CustomDocumentItemProviders { get; }
 
 		/// <summary>
 		///		Enables the Legacy resolver for Formatters names that formatters should contain the name of the formatter as the first argument.

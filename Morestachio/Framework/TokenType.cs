@@ -3,10 +3,21 @@
 	/// <summary>
 	///     The type of token produced in the lexing stage of template compilation.
 	/// </summary>
-	internal enum TokenType
+	public enum TokenType
 	{
+		/// <summary>
+		///		A path that should be printed. If it contains any html tags, those will be escaped
+		/// </summary>
 		EscapedSingleValue,
+
+		/// <summary>
+		///		A path that should be printed. 
+		/// </summary>
 		UnescapedSingleValue,
+
+		/// <summary>
+		///		Defines the start of a scope that will only be applied if the value of the path is falsy
+		/// </summary>
 		InvertedElementOpen,
 		/// <summary>
 		///		Defines the start of a scope
@@ -16,9 +27,25 @@
 		///		Defines the end of a scope
 		/// </summary>
 		ElementClose,
+
+		/// <summary>
+		///		A comment inside. Will not be printed
+		/// </summary>
 		Comment,
+
+		/// <summary>
+		///		Plain content. No further processing
+		/// </summary>
 		Content,
+
+		/// <summary>
+		///		The start of a collection loop
+		/// </summary>
 		CollectionOpen,
+
+		/// <summary>
+		///		The end of a collection loop
+		/// </summary>
 		CollectionClose,
 
 		/// <summary>

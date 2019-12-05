@@ -10,7 +10,7 @@ namespace Morestachio.Framework
 	///     The token that has been lexed out of template content.
 	/// </summary>
 	[DebuggerTypeProxy(typeof(TokenPairDebuggerProxy))]
-	internal class TokenPair
+	public class TokenPair
 	{
 		[PublicAPI]
 		private class TokenPairDebuggerProxy
@@ -42,6 +42,12 @@ namespace Morestachio.Framework
 			}
 		}
 
+		/// <summary>
+		///		Creates a new Token Pair
+		/// </summary>
+		/// <param name="type"></param>
+		/// <param name="value"></param>
+		/// <param name="tokenLocation"></param>
 		public TokenPair(TokenType type, string value, CharacterLocation tokenLocation)
 		{
 			Type = type;
@@ -49,13 +55,25 @@ namespace Morestachio.Framework
 			TokenLocation = tokenLocation;
 		}
 
+		/// <summary>
+		///		The type of this Token
+		/// </summary>
 		public TokenType Type { get; set; }
 
+		/// <summary>
+		///		With what format should this token be evaluated
+		/// </summary>
 		internal Tokenizer.FormattableToken Format { get; set; }
 		
+		/// <summary>
+		///		What is the Value of this token
+		/// </summary>
 		[CanBeNull]
 		public string Value { get; set; }
 
+		/// <summary>
+		///		Where does this token occure in the Template
+		/// </summary>
 		public CharacterLocation TokenLocation { get; set; }
 	}
 }

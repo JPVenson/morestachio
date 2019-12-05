@@ -1,4 +1,5 @@
-﻿using Morestachio.Document;
+﻿using System;
+using Morestachio.Document;
 using Morestachio.Document.Contracts;
 using Newtonsoft.Json;
 
@@ -20,9 +21,10 @@ namespace Morestachio.Tests.DocTree
 			return JsonConvert.SerializeObject(obj, jsonSerializerSettings);
 		}
 
-		public IDocumentItem DeSerializeToText(string text)
+		public IDocumentItem DeSerializeToText(string text, Type expectedType)
 		{
-			return JsonConvert.DeserializeObject<MorestachioDocument>(text, jsonSerializerSettings);
+			return JsonConvert.DeserializeObject(text, expectedType, jsonSerializerSettings)
+				as IDocumentItem;
 		}
 	}
 }

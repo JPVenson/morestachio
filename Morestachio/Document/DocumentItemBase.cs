@@ -1,24 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
-using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Framework;
 
 namespace Morestachio.Document
 {
 	/// <summary>
-	///		Base class for Document items
+	///     Base class for Document items
 	/// </summary>
 	[Serializable]
-	public abstract class DocumentItemBase : IMorestachioDocument
+	public abstract class DocumentItemBase : IMorestachioDocument, IEquatable<DocumentItemBase>
 	{
 		/// <inheritdoc />
 		protected DocumentItemBase()
@@ -38,8 +36,29 @@ namespace Morestachio.Document
 			}
 		}
 
+
 		/// <inheritdoc />
-		public abstract Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context,
+		public bool Equals(DocumentItemBase other)
+		{
+			if (ReferenceEquals(null, other))
+			{
+				return false;
+			}
+
+			if (ReferenceEquals(this, other))
+			{
+				return true;
+			}
+
+			return Children.SequenceEqual(other.Children)
+			       && (ReferenceEquals(ExpressionStart, other.ExpressionStart) ||
+			           ExpressionStart.Equals(other.ExpressionStart))
+			       && string.Equals(Kind, other.Kind);
+		}
+
+		/// <inheritdoc />
+		public abstract Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream,
+			ContextObject context,
 			ScopeData scopeData);
 
 		/// <inheritdoc />
@@ -50,14 +69,6 @@ namespace Morestachio.Document
 
 		/// <inheritdoc />
 		public CharacterLocation ExpressionStart { get; set; }
-
-		/// <summary>
-		///		Can be called to check if any stop is requested. If return true no stop is requested
-		/// </summary>
-		protected static bool ContinueBuilding(IByteCounterStream builder, ContextObject context)
-		{
-			return !context.AbortGeneration && !context.CancellationToken.IsCancellationRequested && !builder.ReachedLimit;
-		}
 
 		/// <inheritdoc />
 		public void Add(params IDocumentItem[] documentChildren)
@@ -79,21 +90,6 @@ namespace Morestachio.Document
 			info.AddValue(nameof(Children), Children.ToArray(), typeof(IDocumentItem[]));
 		}
 
-		protected virtual void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
-		{
-
-		}
-
-		protected virtual void SerializeXml(XmlWriter writer)
-		{
-			
-		}
-
-		protected virtual void DeSerializeXml(XmlReader reader)
-		{
-
-		}
-
 		void IDocumentItem.SerializeXmlCore(XmlWriter writer)
 		{
 			writer.WriteStartElement(GetType().Name);
@@ -102,6 +98,7 @@ namespace Morestachio.Document
 			{
 				writer.WriteAttributeString(nameof(ExpressionStart), ExpressionStart?.ToFormatString() ?? string.Empty);
 			}
+
 			SerializeXml(writer);
 			if (Children.Any())
 			{
@@ -113,6 +110,7 @@ namespace Morestachio.Document
 
 				writer.WriteEndElement(); //nameof(Children)	
 			}
+
 			writer.WriteEndElement(); //GetType().Name
 		}
 
@@ -129,7 +127,7 @@ namespace Morestachio.Document
 			if (!reader.IsEmptyElement)
 			{
 				DeSerializeXml(reader);
-				
+
 				if (reader.ReadToFollowing(nameof(Children)))
 				{
 					reader.ReadStartElement(); //nameof(Children)
@@ -143,13 +141,14 @@ namespace Morestachio.Document
 						reader.Skip();
 						Children.Add(child);
 					}
-					reader.ReadEndElement();//nameof(Children)
+
+					reader.ReadEndElement(); //nameof(Children)
 				}
 
 				if (reader.NodeType == XmlNodeType.EndElement && reader.Name.Equals(GetType().Name))
 				{
 					//there are no children and we have reached the end of the document
-					reader.ReadEndElement();//GetType().Name
+					reader.ReadEndElement(); //GetType().Name
 				}
 			}
 		}
@@ -157,14 +156,6 @@ namespace Morestachio.Document
 		public XmlSchema GetSchema()
 		{
 			return null;
-		}
-
-		protected internal void AssertElement(XmlReader reader, string elementName)
-		{
-			if (!reader.Name.Equals(elementName, StringComparison.InvariantCultureIgnoreCase))
-			{
-				throw new XmlSchemaException($"Unexpected Element '{reader.Name}' expected '{elementName}'");
-			}
 		}
 
 		void IXmlSerializable.ReadXml(XmlReader reader)
@@ -192,7 +183,84 @@ namespace Morestachio.Document
 
 				writer.WriteEndElement(); //nameof(Children)	
 			}
+
 			//writer.WriteEndElement(); //GetType().Name
+		}
+
+		/// <summary>
+		///     Can be called to check if any stop is requested. If return true no stop is requested
+		/// </summary>
+		protected static bool ContinueBuilding(IByteCounterStream builder, ContextObject context)
+		{
+			return !context.AbortGeneration && !context.CancellationToken.IsCancellationRequested &&
+			       !builder.ReachedLimit;
+		}
+
+		/// <summary>
+		///     Can be overwritten to extend the binary serialization process
+		/// </summary>
+		/// <param name="info"></param>
+		/// <param name="context"></param>
+		protected virtual void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
+		{
+		}
+
+
+		/// <summary>
+		///     Should be overwritten when using custom properties in deviated document items to add the necessary xml information.
+		///     When using this method it is ensured that there is already a distinct XML node present. You should not close this
+		///     node and always exit before leaving it.
+		///     This method will be called right after writing the document node and before writing the children of this node
+		/// </summary>
+		/// <param name="writer"></param>
+		protected virtual void SerializeXml(XmlWriter writer)
+		{
+		}
+
+		/// <summary>
+		///     Will be called to deserialize custom properties. See <see cref="SerializeXml" /> for further info.
+		/// </summary>
+		/// <param name="reader"></param>
+		protected virtual void DeSerializeXml(XmlReader reader)
+		{
+		}
+
+		protected internal void AssertElement(XmlReader reader, string elementName)
+		{
+			if (!reader.Name.Equals(elementName, StringComparison.InvariantCultureIgnoreCase))
+			{
+				throw new XmlSchemaException($"Unexpected Element '{reader.Name}' expected '{elementName}'");
+			}
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj))
+			{
+				return false;
+			}
+
+			if (ReferenceEquals(this, obj))
+			{
+				return true;
+			}
+
+			if (obj.GetType() != GetType())
+			{
+				return false;
+			}
+
+			return Equals((DocumentItemBase) obj);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				return ((Children.Any() ? Children.Select(f => f.GetHashCode()).Aggregate((e,f) => e ^ f) : 0) * 397) ^
+				       (ExpressionStart != null ? ExpressionStart.GetHashCode() : 0) ^
+				       Kind.GetHashCode();
+			}
 		}
 	}
 }

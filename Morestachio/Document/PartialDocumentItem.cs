@@ -14,7 +14,7 @@ namespace Morestachio.Document
 	///		Contains the Declaration of a Partial item
 	/// </summary>
 	[System.Serializable]
-	public class PartialDocumentItem : ValueDocumentItemBase
+	public class PartialDocumentItem : ValueDocumentItemBase, IEquatable<PartialDocumentItem>
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -89,6 +89,51 @@ namespace Morestachio.Document
 			scopeData.Partials[Value] = Partial;
 			await Task.CompletedTask;
 			return new DocumentItemExecution[0];
+		}
+
+		public bool Equals(PartialDocumentItem other)
+		{
+			if (ReferenceEquals(null, other))
+			{
+				return false;
+			}
+
+			if (ReferenceEquals(this, other))
+			{
+				return true;
+			}
+
+			return base.Equals(other) && Partial.Equals(other.Partial);
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj))
+			{
+				return false;
+			}
+
+			if (ReferenceEquals(this, obj))
+			{
+				return true;
+			}
+
+			if (obj.GetType() != this.GetType())
+			{
+				return false;
+			}
+
+			return Equals((PartialDocumentItem) obj);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				int hashCode = base.GetHashCode();
+				hashCode = (hashCode * 397) ^ (Partial != null ? Partial.GetHashCode() : 0);
+				return hashCode;
+			}
 		}
 	}
 }
