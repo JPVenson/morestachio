@@ -164,7 +164,8 @@ namespace Morestachio.Formatter.Framework
 
 				Log(() => $"Test filter: '{formatTemplateElement.InputType} : {formatTemplateElement.Function.Name}'");
 
-				if (formatTemplateElement.InputType != typeToFormat && !formatTemplateElement.InputType.GetTypeInfo().IsAssignableFrom(typeToFormat))
+				if (formatTemplateElement.InputType != typeToFormat 
+				    && !formatTemplateElement.InputType.GetTypeInfo().IsAssignableFrom(typeToFormat))
 				{
 					if (ValueConverter.All(e => !e.CanConvert(sourceValue, formatTemplateElement.InputType)))
 					{
@@ -254,6 +255,170 @@ namespace Morestachio.Formatter.Framework
 			public IDictionary<MultiFormatterInfo, object> Arguments { get; set; }
 		}
 
+		static Type[] GetGenericArgumentsForBaseType(Type givenType, Type genericType)
+		{
+			if (genericType.IsInterface)
+			{
+				var interfaceTypes = givenType.GetInterfaces();
+				foreach (var it in interfaceTypes)
+				{
+					if (it.IsGenericType && it.GetGenericTypeDefinition() == genericType)
+					{
+						return it.GetGenericArguments();
+					}
+				}
+			}
+			else
+			{
+				Type baseType = givenType;
+				while (baseType != null)
+				{
+					if (baseType.IsGenericType && baseType.GetGenericTypeDefinition() == genericType)
+					{
+						return baseType.GetGenericArguments();
+					}
+
+					baseType = baseType.BaseType;
+				}
+			}
+			return null;
+		}
+
+		public static bool IsAssignableToGenericType(Type givenType, Type genericType)
+		{
+			var interfaceTypes = givenType.GetInterfaces();
+
+			foreach (var it in interfaceTypes)
+			{
+				if (it.IsGenericType && it.GetGenericTypeDefinition() == genericType)
+					return true;
+			}
+
+			if (givenType.IsGenericType && givenType.GetGenericTypeDefinition() == genericType)
+				return true;
+
+			Type baseType = givenType.BaseType;
+			if (baseType == null) return false;
+
+			return IsAssignableToGenericType(baseType, genericType);
+		}
+
+		public static MethodInfo MakeGenericMethodInfoByValues(MethodInfo methodInfo,
+			IDictionary<string, object> namedParameter)
+		{
+			var generics = new List<Type>();
+			foreach (var genericArgument in methodInfo.GetGenericArguments())
+			{
+				var found = false;
+				foreach (var parameterInfo in methodInfo.GetParameters())
+				{
+					var argument = new Stack<Tuple<Type, Type>>();
+					var sourceValue = namedParameter[parameterInfo.Name];
+					var sourceValueType = sourceValue.GetType();
+
+					//in case the parameter is an generic argument directly
+					
+					if (parameterInfo.ParameterType.IsGenericParameter &&
+					    parameterInfo.ParameterType == genericArgument)
+					{
+						found = true;
+						generics.Add(sourceValueType);
+						break;
+					}
+					
+					//this is a hack for T[] to IEnumerable<T> support
+					if (sourceValueType.IsArray && 
+					    IsAssignableToGenericType(parameterInfo.ParameterType, typeof(IEnumerable<>)) &&
+					    typeof(IEnumerable<>).MakeGenericType(sourceValueType.GetElementType()).IsAssignableFrom(sourceValueType))
+					{
+						found = true;
+						//the source value is an array and the parameter is of type of IEnumerable<>
+						generics.Add(sourceValueType.GetElementType());
+						break;
+					}
+					
+					//examine the generic arguments and check that they both declare the same amount of generics
+					var paramGenerics = parameterInfo.ParameterType.GetGenericArguments();
+					var sourceGenerics = sourceValueType.GetGenericArguments();
+					if (paramGenerics.Length != sourceGenerics.Length)
+					{
+						return null;
+					}
+
+					for (var index = 0; index < paramGenerics.Length; index++)
+					{
+						var paramGeneric = paramGenerics[index];
+						var sourceGeneric = sourceGenerics[index];
+
+						if (paramGeneric == genericArgument)
+						{
+							found = true;
+							generics.Add(sourceGeneric);
+							argument.Clear();
+							break;
+						}
+
+						argument.Push(new Tuple<Type, Type>(paramGeneric, sourceGeneric));
+					}
+
+					while (argument.Any())
+					{
+						var arg = argument.Pop();
+
+						if (arg.Item1 == genericArgument)
+						{
+							found = true;
+							generics.Add(arg.Item2);
+							argument.Clear();
+							break;
+						}
+
+						var innerParamGenerics = arg.Item1.GetGenericArguments();
+						var innerSourceGenerics = arg.Item2.GetGenericArguments();
+						if (paramGenerics.Length != sourceGenerics.Length)
+						{
+							return null;
+						}
+
+						for (var index = 0; index < innerParamGenerics.Length; index++)
+						{
+							var innerParamGeneric = innerParamGenerics[index];
+							var innerSourceGeneric = innerSourceGenerics[index];
+
+							if (innerParamGeneric == genericArgument)
+							{
+								found = true;
+								generics.Add(innerSourceGeneric);
+								argument.Clear();
+								break;
+							}
+
+							argument.Push(new Tuple<Type, Type>(innerParamGeneric, innerSourceGeneric));
+						}
+					}
+
+					if (found)
+					{
+						break;
+					}
+				}
+
+				if (!found)
+				{
+					return null;
+				}
+			}
+
+			try
+			{
+				return methodInfo.MakeGenericMethod(generics.ToArray());
+			}
+			catch (Exception e)
+			{
+				return null;
+			}
+		}
+
 		/// <summary>
 		///     Composes the values into a Dictionary for each formatter. If returns null, the formatter will not be called.
 		/// </summary>
@@ -320,42 +485,6 @@ namespace Morestachio.Formatter.Framework
 					}
 					matched.Add(parameter, match);
 				}
-
-				var localGen = parameter.ParameterType.GetGenericArguments();
-				var valueType = givenValue?.GetType();
-				var templateGen = valueType?.GetGenericArguments();
-				if (parameter.ParameterType.ContainsGenericParameters && templateGen != null)
-				{
-					if (localGen.Any() != templateGen.Any())
-					{
-						if (valueType.IsArray)
-						{
-							templateGen = new[] { valueType.GetElementType() };
-						}
-						else
-						{
-							Log(() =>
-								$"{nameof(MorestachioFormatterService)}| Generic type mismatch");
-							continue;
-						}
-					}
-
-					if (!parameter.ParameterType.ContainsGenericParameters)
-					{
-						Log(() =>
-							$"{nameof(MorestachioFormatterService)}| Type has Generic but Method not");
-						continue;
-					}
-
-					if (localGen.Length != templateGen.LongLength)
-					{
-						Log(() =>
-							$"{nameof(MorestachioFormatterService)}| Generic type count mismatch");
-						continue;
-					}
-
-					method = method.MakeGenericMethod(templateGen);
-				}
 				
 				//check for matching types
 				if (!parameter.IsOptional && !ComposeArgumentValue(parameter, argumentIndex, ref givenValue))
@@ -374,6 +503,16 @@ namespace Morestachio.Formatter.Framework
 					Log(() =>
 						"Skip: Match is Invalid because template value is null where the Formatter does not have a optional value");
 					//the delegates parameter is not optional so this formatter does not fit. Continue.
+					return default;
+				}
+			}
+			
+				
+			if (method.ContainsGenericParameters)
+			{
+				method = MakeGenericMethodInfoByValues(method, values.ToDictionary(e => e.Key.Name, e => e.Value));
+				if (method == null)
+				{
 					return default;
 				}
 			}
@@ -417,7 +556,14 @@ namespace Morestachio.Formatter.Framework
 			};
 		}
 
-		private bool ComposeArgumentValue(
+		/// <summary>
+		///		Should compose the givenValue and/or transform it in any way that it can match the <para>parameter</para>
+		/// </summary>
+		/// <param name="parameter"></param>
+		/// <param name="argumentIndex"></param>
+		/// <param name="givenValue"></param>
+		/// <returns></returns>
+		protected virtual bool ComposeArgumentValue(
 			MultiFormatterInfo parameter, 
 			int argumentIndex, 
 			ref object givenValue)
@@ -465,7 +611,7 @@ namespace Morestachio.Formatter.Framework
 		}
 
 		/// <inheritdoc />
-		public MorestachioFormatterModel Add(MethodInfo method, MorestachioFormatterAttribute morestachioFormatterAttribute)
+		public virtual MorestachioFormatterModel Add(MethodInfo method, MorestachioFormatterAttribute morestachioFormatterAttribute)
 		{
 			var arguments = method.GetParameters().Select((e, index) =>
 				new MultiFormatterInfo(

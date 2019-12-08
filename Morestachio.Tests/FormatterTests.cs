@@ -223,7 +223,8 @@ namespace Morestachio.Tests
 			options.Formatters.AddFromType(typeof(StringFormatter));
 			var template = Parser.ParseWithOptions(options);
 
-			var andStringify = template.CreateAndStringify(new Dictionary<string, object>() { { "data", new[] { "TEST", "test" } } });
+			string[] strings = new string[] { "TEST", "test" };
+			var andStringify = template.CreateAndStringify(new Dictionary<string, object>() { { "data", strings } });
 			Assert.That(andStringify, Is.EqualTo("TEST"));
 		}
 

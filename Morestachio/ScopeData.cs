@@ -21,6 +21,7 @@ namespace Morestachio
 			Partials = new Dictionary<string, IDocumentItem>();
 			PartialDepth = new Stack<string>();
 			Alias = new Dictionary<string, ContextObject>();
+			CustomData = new Dictionary<string, object>();
 		}
 
 		/// <summary>

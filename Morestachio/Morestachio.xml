@@ -1074,6 +1074,15 @@
                 Composes the values into a Dictionary for each formatter. If returns null, the formatter will not be called.
             </summary>
         </member>
+        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterService.ComposeArgumentValue(Morestachio.Formatter.MultiFormatterInfo,System.Int32,System.Object@)">
+            <summary>
+            	Should compose the givenValue and/or transform it in any way that it can match the <para>parameter</para>
+            </summary>
+            <param name="parameter"></param>
+            <param name="argumentIndex"></param>
+            <param name="givenValue"></param>
+            <returns></returns>
+        </member>
         <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterService.Add(System.Reflection.MethodInfo,Morestachio.Formatter.Framework.MorestachioFormatterAttribute)">
             <inheritdoc />
         </member>
