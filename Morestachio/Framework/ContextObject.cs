@@ -19,7 +19,6 @@ namespace Morestachio.Framework
 	/// </summary>
 	public class ContextObject
 	{
-
 		static ContextObject()
 		{
 			DefaultFormatter = new MorestachioFormatterService();

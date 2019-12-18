@@ -53,7 +53,10 @@ namespace Morestachio.ObjectRenderer
 		{
 			foreach (var morestachioFormatterModel in formatter)
 			{
-				//_stream.AppendInterlacedLine($"{morestachioFormatterModel.Name}({morestachioFormatterModel.InputDescription.Select(e => e.)}")
+				_stream.AppendInterlacedLine(
+					$"{morestachioFormatterModel.Name}(" + 
+					$"{morestachioFormatterModel.Function.GetParameters().Select(e => $"{e.Name}: {e.ParameterType}").Aggregate((e, f) => e + ", " + f)}):" +
+					$"{morestachioFormatterModel.Function.ReturnType}");
 			}
 
 			_stream.Down().AppendInterlacedLine($"}}").AppendInterlacedLine("");

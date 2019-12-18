@@ -255,34 +255,34 @@ namespace Morestachio.Formatter.Framework
 			public IDictionary<MultiFormatterInfo, object> Arguments { get; set; }
 		}
 
-		static Type[] GetGenericArgumentsForBaseType(Type givenType, Type genericType)
-		{
-			if (genericType.IsInterface)
-			{
-				var interfaceTypes = givenType.GetInterfaces();
-				foreach (var it in interfaceTypes)
-				{
-					if (it.IsGenericType && it.GetGenericTypeDefinition() == genericType)
-					{
-						return it.GetGenericArguments();
-					}
-				}
-			}
-			else
-			{
-				Type baseType = givenType;
-				while (baseType != null)
-				{
-					if (baseType.IsGenericType && baseType.GetGenericTypeDefinition() == genericType)
-					{
-						return baseType.GetGenericArguments();
-					}
+		//static Type[] GetGenericArgumentsForBaseType(Type givenType, Type genericType)
+		//{
+		//	if (genericType.IsInterface)
+		//	{
+		//		var interfaceTypes = givenType.GetInterfaces();
+		//		foreach (var it in interfaceTypes)
+		//		{
+		//			if (it.IsGenericType && it.GetGenericTypeDefinition() == genericType)
+		//			{
+		//				return it.GetGenericArguments();
+		//			}
+		//		}
+		//	}
+		//	else
+		//	{
+		//		Type baseType = givenType;
+		//		while (baseType != null)
+		//		{
+		//			if (baseType.IsGenericType && baseType.GetGenericTypeDefinition() == genericType)
+		//			{
+		//				return baseType.GetGenericArguments();
+		//			}
 
-					baseType = baseType.BaseType;
-				}
-			}
-			return null;
-		}
+		//			baseType = baseType.BaseType;
+		//		}
+		//	}
+		//	return null;
+		//}
 
 		public static bool IsAssignableToGenericType(Type givenType, Type genericType)
 		{
@@ -291,14 +291,21 @@ namespace Morestachio.Formatter.Framework
 			foreach (var it in interfaceTypes)
 			{
 				if (it.IsGenericType && it.GetGenericTypeDefinition() == genericType)
+				{
 					return true;
+				}
 			}
 
 			if (givenType.IsGenericType && givenType.GetGenericTypeDefinition() == genericType)
+			{
 				return true;
+			}
 
 			Type baseType = givenType.BaseType;
-			if (baseType == null) return false;
+			if (baseType == null)
+			{
+				return false;
+			}
 
 			return IsAssignableToGenericType(baseType, genericType);
 		}
