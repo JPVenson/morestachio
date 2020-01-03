@@ -13,7 +13,7 @@ namespace Morestachio.Framework
 		/// <value>
 		/// The bytes written.
 		/// </value>
-		long BytesWritten { get; set; }
+		long BytesWritten { get; }
 
 		/// <summary>
 		/// Gets or sets a value indicating whether [reached limit].
@@ -21,26 +21,33 @@ namespace Morestachio.Framework
 		/// <value>
 		///   <c>true</c> if [reached limit]; otherwise, <c>false</c>.
 		/// </value>
-		bool ReachedLimit { get; set; }
+		bool ReachedLimit { get; }
+
 
 		/// <summary>
-		/// Writes the specified value.
+		///		Writes the Content into the underlying Stream when the limit is not exceeded
 		/// </summary>
-		/// <param name="value">The value.</param>
-		/// <param name="sizeOfContent">Content of the size of.</param>
-		void Write(string value, long sizeOfContent);
+		/// <param name="content"></param>
+		void Write(string content);
 
-		/// <summary>
-		/// Writes the specified value. Without counting its bytes.
-		/// </summary>
-		/// <param name="value">The value.</param>
-		void Write(string value);
+		///// <summary>
+		///// Writes the specified value.
+		///// </summary>
+		///// <param name="value">The value.</param>
+		///// <param name="sizeOfContent">Content of the size of.</param>
+		//void Write(string value, long sizeOfContent);
 
-		/// <summary>
-		/// Writes the specified value.
-		/// </summary>
-		/// <param name="value">The value.</param>
-		/// <param name="sizeOfContent">Content of the size of.</param>
-		void Write(char[] value, long sizeOfContent);
+		///// <summary>
+		///// Writes the specified value. Without counting its bytes.
+		///// </summary>
+		///// <param name="value">The value.</param>
+		//void Write(string value);
+
+		///// <summary>
+		///// Writes the specified value.
+		///// </summary>
+		///// <param name="value">The value.</param>
+		///// <param name="sizeOfContent">Content of the size of.</param>
+		//void Write(char[] value, long sizeOfContent);
 	}
 }

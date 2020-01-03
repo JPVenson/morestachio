@@ -446,7 +446,7 @@ namespace Morestachio.Framework
 		/// <summary>
 		///     Parses the current object by using the given argument
 		/// </summary>
-		public async Task<object> Format(string name, KeyValuePair<string, object>[] argument)
+		public async Task<object> Format([CanBeNull] string name, [NotNull] KeyValuePair<string, object>[] argument)
 		{
 			await EnsureValue();
 			var retval = Value;

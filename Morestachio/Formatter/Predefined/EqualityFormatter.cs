@@ -14,7 +14,7 @@ namespace Morestachio.Formatter.Predefined
 		/// <param name="source"></param>
 		/// <param name="target"></param>
 		/// <returns></returns>
-		[MorestachioFormatter("fnc_Equals", "Checks if two objects are equals")]
+		[MorestachioFormatter("fnc_Equals", "Checks if two objects are equal")]
 		public static bool IsEquals([SourceObject]object source, object target)
 		{
 			return Equals(source, target);

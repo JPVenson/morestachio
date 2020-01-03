@@ -12,6 +12,7 @@ namespace Morestachio.Document.Custom
 	/// </summary>
 	public abstract class CustomDocumentItemProvider
 	{
+		/// <inheritdoc />
 		public CustomDocumentItemProvider()
 		{
 			ScopeStack = new Stack<Tuple<string, int>>();

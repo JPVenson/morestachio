@@ -31,24 +31,28 @@ namespace Morestachio.Document
 			EscapeValue = escapeValue;
 		}
 
+		/// <inheritdoc />
 		[UsedImplicitly]
 		protected PathDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 			EscapeValue = info.GetBoolean(nameof(EscapeValue));
 		}
 
+		/// <inheritdoc />
 		protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
 		{
 			base.SerializeBinaryCore(info, context);
 			info.AddValue(nameof(EscapeValue), EscapeValue);
 		}
 
+		/// <inheritdoc />
 		protected override void SerializeXml(XmlWriter writer)
 		{
 			writer.WriteAttributeString(nameof(EscapeValue), EscapeValue.ToString());
 			base.SerializeXml(writer);
 		}
 
+		/// <inheritdoc />
 		protected override void DeSerializeXml(XmlReader reader)
 		{
 			EscapeValue = reader.GetAttribute(nameof(EscapeValue)) == Boolean.TrueString;
@@ -81,23 +85,25 @@ namespace Morestachio.Document
 				await contextObject.EnsureValue();
 				if (EscapeValue && !context.Options.DisableContentEscaping)
 				{
-					ContentDocumentItem.WriteContent(outputStream, HtmlEncodeString(await contextObject.RenderToString()), contextObject);
+					outputStream.Write(HtmlEncodeString(await contextObject.RenderToString()));
 				}
 				else
 				{
-					ContentDocumentItem.WriteContent(outputStream, await contextObject.RenderToString(), contextObject);
+					outputStream.Write(await contextObject.RenderToString());
 				}
 			}
 			
 			return Children.WithScope(contextObject);
 		}
 
+		/// <inheritdoc />
 		public async Task<ContextObject> GetValue(ContextObject context, ScopeData scopeData)
 		{
 			await Task.CompletedTask;
 			return await context.GetContextForPath(Value, scopeData);
 		}
 
+		/// <inheritdoc />
 		public bool Equals(PathDocumentItem other)
 		{
 			if (ReferenceEquals(null, other))
@@ -113,6 +119,7 @@ namespace Morestachio.Document
 			return base.Equals(other) && EscapeValue == other.EscapeValue;
 		}
 
+		/// <inheritdoc />
 		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj))
@@ -133,6 +140,7 @@ namespace Morestachio.Document
 			return Equals((PathDocumentItem) obj);
 		}
 
+		/// <inheritdoc />
 		public override int GetHashCode()
 		{
 			unchecked

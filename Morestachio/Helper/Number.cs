@@ -8,6 +8,9 @@ namespace Morestachio.Helper
 	/// </summary>
 	public struct Number : IConvertible, IFormattable
 	{
+		/// <summary>
+		///		Contains the numeric value
+		/// </summary>
 		public IConvertible Value { get; }
 
 		/// <summary>
@@ -109,6 +112,21 @@ namespace Morestachio.Helper
 			Value = fullNumber;
 		}
 
+		/// <summary>
+		///		Tries to parse the input to any number folloring roughly the rules of msbuild.
+		///		Like:
+		///		Has Suffix? (u,l,f,d)
+		///		Has Prefix? (0x)
+		///		Is int?
+		///		Is long?
+		///		Is Double?
+		///		Is sbyte?
+		///		Is ushort?
+		///		Is decimal?
+		/// </summary>
+		/// <param name="input"></param>
+		/// <param name="number"></param>
+		/// <returns></returns>
 		public static bool TryParse(string input, out Number number)
 		{
 			//according to MSDN folloring literals are allowed
@@ -211,28 +229,30 @@ namespace Morestachio.Helper
 				number = default;
 				return false;
 			}
-
+			
+			//we start with parsing an int as its the default for any number in msbuild
 			if (int.TryParse(input, out var intVal))
 			{
 				number = new Number(intVal);
 				return true;
 			}
+			//if its bigger then an int it is most likely an long
 			if (long.TryParse(input, out var longVal))
 			{
 				number = new Number(longVal);
 				return true;
 			}
-			if (uint.TryParse(input, out var impliUIntVal))
-			{
-				number = new Number(impliUIntVal);
-				return true;
-			}
-			if (ulong.TryParse(input, out var impliULongVal))
-			{
-				number = new Number(impliULongVal);
-				return true;
-			}
-
+			//if (uint.TryParse(input, out var impliUIntVal))
+			//{
+			//	number = new Number(impliUIntVal);
+			//	return true;
+			//}
+			//if (ulong.TryParse(input, out var impliULongVal))
+			//{
+			//	number = new Number(impliULongVal);
+			//	return true;
+			//}
+			
 			if (double.TryParse(input, out var impliDoubleVal))
 			{
 				number = new Number(impliDoubleVal);
@@ -360,6 +380,7 @@ namespace Morestachio.Helper
 			return Value.ToType(conversionType, provider);
 		}
 
+		/// <inheritdoc />
 		public string ToString(string format, IFormatProvider formatProvider)
 		{
 			if (Value is IFormattable formattable)
@@ -370,6 +391,7 @@ namespace Morestachio.Helper
 			return Value.ToString(formatProvider);
 		}
 
+		/// <inheritdoc />
 		public override string ToString()
 		{
 			return Value?.ToString();

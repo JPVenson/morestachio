@@ -10,31 +10,62 @@ namespace Morestachio.Framework
 	/// <seealso cref="System.IDisposable" />
 	internal class ByteCounterStream : IByteCounterStream
 	{
-		public ByteCounterStream([NotNull] Stream stream, [NotNull] Encoding encoding, int bufferSize, bool leaveOpen)
+		private readonly ParserOptions _options;
+
+		public ByteCounterStream([NotNull] Stream stream, 
+			[NotNull] Encoding encoding, 
+			int bufferSize, 
+			bool leaveOpen,
+			ParserOptions options)
 		{
+			_options = options;
 			BaseWriter = new StreamWriter(stream, encoding, bufferSize, leaveOpen);
 		}
 
 		public StreamWriter BaseWriter { get; set; }
 
-		public long BytesWritten { get; set; }
-		public bool ReachedLimit { get; set; }
+		public long BytesWritten { get; private set; }
+		public bool ReachedLimit { get; private set; }
 
-		public void Write(string value, long sizeOfContent)
+		public void Write(string content)
 		{
-			BytesWritten += sizeOfContent;
-			BaseWriter.Write(value);
-		}
+			content = content ?? _options.Null?.ToString();
 
-		public void Write(string value)
-		{
-			BaseWriter.Write(value);
-		}
+			var sourceCount = BytesWritten;
 
-		public void Write(char[] value, long sizeOfContent)
-		{
-			BytesWritten += sizeOfContent;
-			BaseWriter.Write(value);
+			if (_options.MaxSize == 0)
+			{
+				BaseWriter.Write(content);
+				return;
+			}
+
+			if (sourceCount >= _options.MaxSize - 1)
+			{
+				ReachedLimit = true;
+				return;
+			}
+			
+			//TODO this is a performance critical operation. As we might deal with variable-length encodings this cannot be compute initial
+			var cl = _options.Encoding.GetByteCount(content);
+
+			var overflow = sourceCount + cl - _options.MaxSize;
+			if (overflow <= 0)
+			{
+				BytesWritten += cl;
+				BaseWriter.Write(content);
+				return;
+			}
+
+			if (overflow < content.Length)
+			{
+				BytesWritten += cl - overflow;
+				BaseWriter.Write(content.ToCharArray(0, (int)(cl - overflow)));
+			}
+			else
+			{
+				BytesWritten += cl;
+				BaseWriter.Write(content);
+			}
 		}
 
 		public void Dispose()

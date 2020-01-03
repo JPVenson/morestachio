@@ -21,6 +21,7 @@ namespace Morestachio.Document
 
 		}
 
+		/// <inheritdoc />
 		[UsedImplicitly]
 		protected PrintContextValue(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
@@ -41,12 +42,13 @@ namespace Morestachio.Document
 					value = await context.RenderToString();
 				}
 
-				ContentDocumentItem.WriteContent(outputStream, value, context);
+				outputStream.Write(value);
 			}
 			
 			return Children.WithScope(context);
 		}
 
+		/// <inheritdoc />
 		public async Task<ContextObject> GetValue(ContextObject context, ScopeData scopeData)
 		{
 			await Task.CompletedTask;
