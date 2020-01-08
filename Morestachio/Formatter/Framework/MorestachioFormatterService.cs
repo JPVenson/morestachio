@@ -251,7 +251,6 @@ namespace Morestachio.Formatter.Framework
 			///		The list of arguments for the <see cref="MethodInfo"/>
 			/// </summary>
 			[NotNull]
-			[ItemNotNull]
 			public IDictionary<MultiFormatterInfo, object> Arguments { get; set; }
 		}
 
@@ -310,6 +309,12 @@ namespace Morestachio.Formatter.Framework
 			return IsAssignableToGenericType(baseType, genericType);
 		}
 
+		/// <summary>
+		///		Internal use only
+		/// </summary>
+		/// <param name="methodInfo"></param>
+		/// <param name="namedParameter"></param>
+		/// <returns></returns>
 		public static MethodInfo MakeGenericMethodInfoByValues(MethodInfo methodInfo,
 			IDictionary<string, object> namedParameter)
 		{

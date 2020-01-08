@@ -32,7 +32,7 @@ namespace Morestachio.Tests
 			var templateWorking = @"{{#data}}{{#each someList.select('it.Entity')}}{{SomeValue2}}*{{SomeValue3}}={{SomeValue2.Multiply(SomeValue3)}}{{/each}}{{/data}}";
 
 			var parsingOptionsWorking = new ParserOptions(templateWorking, null, ParserFixture.DefaultEncoding);
-			parsingOptionsWorking.Formatters.AddFromType(typeof(ListFormatter));
+			parsingOptionsWorking.Formatters.AddFromType(typeof(DynamicLinq));
 			parsingOptionsWorking.Formatters.AddFromType(typeof(NumberFormatter));
 			var parsedTemplateWorking = Parser.ParseWithOptions(parsingOptionsWorking);
 

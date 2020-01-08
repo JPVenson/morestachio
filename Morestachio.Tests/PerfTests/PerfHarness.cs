@@ -12,7 +12,7 @@ namespace Morestachio.Tests.PerfTests
 	{
 		[Test()]
 		[Ignore("Performance tests")]
-		[Category("Explicit")]
+		//[Category("Explicit")]
 		[TestCase("Model Depth", 5, 30000, 10, 5000)]
 		[TestCase("Model Depth", 10, 30000, 10, 5000)]
 		[TestCase("Model Depth", 100, 30000, 10, 5000)]

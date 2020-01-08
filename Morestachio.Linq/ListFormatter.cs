@@ -3,13 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic;
+using System.Linq.Dynamic.Core;
 using JetBrains.Annotations;
 using Morestachio.Formatter.Framework;
 
 namespace Morestachio.Linq
 {
+	/// <summary>
+	///		This class wraps the System.Linq.Dynamic.Core package for Morstachio
+	/// </summary>
 	[PublicAPI]
-	public static class ListFormatter
+	public static class DynamicLinq
 	{
 		[MorestachioFormatter("first or default", "Selects the First item in the list")]
 		public static T FirstOrDefault<T>(IEnumerable<T> sourceCollection)
@@ -69,25 +73,13 @@ namespace Morestachio.Linq
 
 		[MorestachioFormatter("order by asc", "Orders the list by the argument")]
 		[MorestachioFormatterInput("Must be Expression to property")]
-		public static IEnumerable<T> OrderBy<T>(IEnumerable<T> sourceCollection, string arguments)
+		public static IEnumerable<T> OrderBy<T>(IEnumerable<T> sourceCollection, 
+			string expression, 
+			params object[] arguments)
 		{
-			return sourceCollection.OrderBy(arguments);
+			return sourceCollection.AsQueryable().OrderBy(expression, arguments);
 		}
-
-		[MorestachioFormatter("order by desc", "Orders the list by the argument")]
-		[MorestachioFormatterInput("Must be Expression to property")]
-		public static IEnumerable<T> OrderByDecending<T>(IEnumerable<T> sourceCollection, string arguments)
-		{
-			return sourceCollection.OrderBy(arguments).Reverse();
-		}
-
-		[MorestachioFormatter("order group by", "Orders the list by the argument")]
-		[MorestachioFormatterInput("Must be Expression to property")]
-		public static IEnumerable<IGrouping<TKey, T>> GroupOrderBy<T, TKey>(IEnumerable<IGrouping<TKey, T>> sourceCollection, string arguments)
-		{
-			return sourceCollection.OrderBy(arguments);
-		}
-
+		
 		[MorestachioFormatter("count", "Gets the count of the list")]
 		public static decimal Count<T>(IEnumerable<T> sourceCollection)
 		{
@@ -103,9 +95,12 @@ namespace Morestachio.Linq
 		[MorestachioFormatter("group by", "Groups the list be the argument.",
 			ReturnHint = "List with Key. Can be listed with #each")]
 		[MorestachioFormatterInput("Must be Expression to property")]
-		public static IEnumerable GroupBy<T>(IEnumerable<T> sourceCollection, string arguments)
+		public static IEnumerable GroupBy<T>(IEnumerable<T> sourceCollection, 
+			string expression = "it", 
+			params object[] arguments)
 		{
-			return sourceCollection.GroupBy(arguments, "it");
+			return sourceCollection.AsQueryable()
+				.GroupBy(expression, arguments);
 		}
 
 		[MorestachioFormatter("flat group", "Flattens the Group returned by group by",
@@ -116,109 +111,63 @@ namespace Morestachio.Linq
 			return sourceCollection.ToList();
 		}
 
-		[MorestachioFormatter("select", "Selects a Property from each item in the list and creates a new list", ReturnHint = "List contains the property. Can be listed with #each")]
-		[MorestachioFormatterInput("Must be Expression to property")]
-		public static IEnumerable Select<T>(IEnumerable<T> sourceCollection, string arguments)
-		{
-			return sourceCollection.Select(arguments);
-		}
-
-		[MorestachioFormatter("where", "Filters the list", ReturnHint = "List contains the property. Can be listed with #each")]
-		[MorestachioFormatterInput("Must be Expression to property")]
-		public static IEnumerable<T> Where<T>(IEnumerable<T> sourceCollection, string arguments)
-		{
-			return sourceCollection.Where(arguments);
-		}
-
+	
 		[MorestachioFormatter("any", "Returns ether true or false if the expression in the argument is fulfilled by any item")]
 		[MorestachioFormatterInput("Must be Expression to property")]
 		public static bool Any(IEnumerable sourceCollection)
 		{
-			return sourceCollection.Any();
+			return sourceCollection.AsQueryable().Any();
 		}
 
 		[MorestachioFormatter("take", "Takes the ammount of items in argument")]
 		[MorestachioFormatterInput("number")]
-		public static object Take(IEnumerable sourceCollection, string arguments)
+		public static object Take(IEnumerable sourceCollection, int arguments)
 		{
-			return sourceCollection.Take(int.Parse(arguments));
-		}
-
-		[MorestachioFormatter("aggregate", "Aggreates the elements and returns it")]
-		public static object Aggregate(IEnumerable sourceCollection)
-		{
-			return Sum(sourceCollection);
-		}
-
-		[MorestachioFormatter("sum", "Aggreates the elements and returns it")]
-		public static object Sum(IEnumerable sourceCollection)
-		{
-			var colQuery = sourceCollection.AsQueryable();
-
-			if (typeof(int).IsAssignableFrom(colQuery.ElementType))
-			{
-				return colQuery.Cast<int>().Sum();
-			}
-			else if (typeof(long).IsAssignableFrom(colQuery.ElementType))
-			{
-				return colQuery.Cast<long>().Sum();
-			}
-			else if (typeof(decimal).IsAssignableFrom(colQuery.ElementType))
-			{
-				return colQuery.Cast<decimal>().Sum();
-			}
-			else if (typeof(double).IsAssignableFrom(colQuery.ElementType))
-			{
-				return colQuery.Cast<double>().Sum();
-			}
-			else if (typeof(float).IsAssignableFrom(colQuery.ElementType))
-			{
-				return colQuery.Cast<float>().Sum();
-			}
-
-			if (Nullable.GetUnderlyingType(colQuery.ElementType) != null)
-			{
-				if (typeof(int?).IsAssignableFrom(colQuery.ElementType))
-				{
-					return colQuery.Cast<int?>().Sum();
-				}
-				else if (typeof(long?).IsAssignableFrom(colQuery.ElementType))
-				{
-					return colQuery.Cast<long?>().Sum();
-				}
-				else if (typeof(decimal?).IsAssignableFrom(colQuery.ElementType))
-				{
-					return colQuery.Cast<decimal?>().Sum();
-				}
-				else if (typeof(double?).IsAssignableFrom(colQuery.ElementType))
-				{
-					return colQuery.Cast<double?>().Sum();
-				}
-				else if (typeof(float?).IsAssignableFrom(colQuery.ElementType))
-				{
-					return colQuery.Cast<float?>().Sum();
-				}
-			}
-
-			return MorestachioFormatterService.FormatterFlow.Skip;
+			return sourceCollection.AsQueryable().Take(arguments);
 		}
 
 		[MorestachioFormatter("sum", "Aggreates the property in the argument and returns it")]
-		public static int Sum(IEnumerable<int> sourceCollection)
+		public static T Sum<T>(IEnumerable<T> sourceCollection)
 		{
-			return sourceCollection.Sum();
+			return (T)sourceCollection.AsQueryable().Sum();
 		}
 
-		[MorestachioFormatter("sum", "Aggreates the property in the argument and returns it")]
-		public static decimal Sum(IEnumerable<decimal> sourceCollection)
+		[MorestachioFormatter("all", "returns if all elements in the collection matches the condition")]
+		public static bool All<T>(IEnumerable<T> sourceCollection, string expression, params object[] arguments)
 		{
-			return sourceCollection.Sum();
+			return sourceCollection.AsQueryable().All(expression, arguments);
 		}
 
-		[MorestachioFormatter("sum", "Aggreates the property in the argument and returns it")]
-		public static double Sum(IEnumerable<double> sourceCollection)
+		[MorestachioFormatter("Any", "returns if there are any elements in the collection")]
+		public static bool Any<T>(IEnumerable<T> sourceCollection)
 		{
-			return sourceCollection.Sum();
+			return sourceCollection.AsQueryable().Any();
 		}
+
+		[MorestachioFormatter("Any", "returns if Any elements in the collection matches the condition")]
+		public static bool Any<T>(IEnumerable<T> sourceCollection, string expression, params object[] arguments)
+		{
+			return sourceCollection.AsQueryable().Any(expression, arguments);
+		}
+
+		[MorestachioFormatter("Average", "returns the Average of all items in the collection")]
+		public static double Average<T>(IEnumerable<T> sourceCollection, string expression, params object[] arguments)
+		{
+			return sourceCollection.AsQueryable().Average(expression, arguments);
+		}
+
+		[MorestachioFormatter("Cast", "casts all elements in the collection into another type")]
+		public static IQueryable Cast<T>(IEnumerable<T> sourceCollection, string type)
+		{
+			return sourceCollection.AsQueryable().Cast(type);
+		}
+
+		[MorestachioFormatter("Contains", "returns if the collection contains the given item")]
+		public static bool Contains<T>(IEnumerable<T> sourceCollection, T item)
+		{
+			return sourceCollection.AsQueryable().Contains(item);
+		}
+
+
 	}
 }

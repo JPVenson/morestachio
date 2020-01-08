@@ -287,6 +287,9 @@
             	Allows the injection of a custom DocumentItem 
             </summary>
         </member>
+        <member name="M:Morestachio.Document.Custom.CustomDocumentItemProvider.#ctor">
+            <inheritdoc />
+        </member>
         <member name="P:Morestachio.Document.Custom.CustomDocumentItemProvider.ScopeStack">
             <summary>
             	A Custom stack that keeps track of enclosing tokens such as #IF and /IF
@@ -621,6 +624,18 @@
         <member name="M:Morestachio.Document.PathDocumentItem.#ctor(System.String,System.Boolean)">
             <inheritdoc />
         </member>
+        <member name="M:Morestachio.Document.PathDocumentItem.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.PathDocumentItem.SerializeBinaryCore(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.PathDocumentItem.SerializeXml(System.Xml.XmlWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.PathDocumentItem.DeSerializeXml(System.Xml.XmlReader)">
+            <inheritdoc />
+        </member>
         <member name="P:Morestachio.Document.PathDocumentItem.Kind">
             <inheritdoc />
         </member>
@@ -635,6 +650,18 @@
         <member name="M:Morestachio.Document.PathDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
             <inheritdoc />
         </member>
+        <member name="M:Morestachio.Document.PathDocumentItem.GetValue(Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.PathDocumentItem.Equals(Morestachio.Document.PathDocumentItem)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.PathDocumentItem.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.PathDocumentItem.GetHashCode">
+            <inheritdoc />
+        </member>
         <member name="T:Morestachio.Document.PrintContextValue">
             <summary>
             	If a formatter ends without using its value it is printed
@@ -645,10 +672,16 @@
             	Used for XML Serialization
             </summary>
         </member>
+        <member name="M:Morestachio.Document.PrintContextValue.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <inheritdoc />
+        </member>
         <member name="P:Morestachio.Document.PrintContextValue.Kind">
             <inheritdoc />
         </member>
         <member name="M:Morestachio.Document.PrintContextValue.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.PrintContextValue.GetValue(Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
             <inheritdoc />
         </member>
         <member name="T:Morestachio.Document.RemoveAliasDocumentItem">
@@ -718,6 +751,17 @@
             <summary>
             	A common base class for emitting a single string value
             </summary>
+        </member>
+        <member name="T:Morestachio.Formatter.Framework.Converter.GenericTypeConverter">
+            <summary>
+            	Uses the TypeDescriptor to convert native cs types
+            </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.Framework.Converter.GenericTypeConverter.CanConvert(System.Object,System.Type)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Formatter.Framework.Converter.GenericTypeConverter.Convert(System.Object,System.Type)">
+            <inheritdoc />
         </member>
         <member name="T:Morestachio.Formatter.Framework.Converter.IFormatterValueConverter">
             <summary>
@@ -1068,6 +1112,14 @@
             <summary>
             	The list of arguments for the <see cref="P:Morestachio.Formatter.Framework.MorestachioFormatterService.FormatterComposingResult.MethodInfo"/>
             </summary>
+        </member>
+        <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterService.MakeGenericMethodInfoByValues(System.Reflection.MethodInfo,System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <summary>
+            	Internal use only
+            </summary>
+            <param name="methodInfo"></param>
+            <param name="namedParameter"></param>
+            <returns></returns>
         </member>
         <member name="M:Morestachio.Formatter.Framework.MorestachioFormatterService.ComposeValues(Morestachio.Formatter.Framework.MorestachioFormatterModel,System.Object,System.Reflection.MethodInfo,System.Collections.Generic.KeyValuePair{System.String,System.Object}[])">
             <summary>
@@ -1445,25 +1497,11 @@
               <c>true</c> if [reached limit]; otherwise, <c>false</c>.
             </value>
         </member>
-        <member name="M:Morestachio.Framework.IByteCounterStream.Write(System.String,System.Int64)">
-            <summary>
-            Writes the specified value.
-            </summary>
-            <param name="value">The value.</param>
-            <param name="sizeOfContent">Content of the size of.</param>
-        </member>
         <member name="M:Morestachio.Framework.IByteCounterStream.Write(System.String)">
             <summary>
-            Writes the specified value. Without counting its bytes.
+            	Writes the Content into the underlying Stream when the limit is not exceeded
             </summary>
-            <param name="value">The value.</param>
-        </member>
-        <member name="M:Morestachio.Framework.IByteCounterStream.Write(System.Char[],System.Int64)">
-            <summary>
-            Writes the specified value.
-            </summary>
-            <param name="value">The value.</param>
-            <param name="sizeOfContent">Content of the size of.</param>
+            <param name="content"></param>
         </member>
         <member name="T:Morestachio.Framework.IndexedParseException">
             <summary>
@@ -1790,6 +1828,11 @@
             	Encapsulates a late bound number
             </summary>
         </member>
+        <member name="P:Morestachio.Helper.Number.Value">
+            <summary>
+            	Contains the numeric value
+            </summary>
+        </member>
         <member name="M:Morestachio.Helper.Number.#ctor(System.Int64)">
             <summary>
             	Creates an new Integral number
@@ -1856,6 +1899,23 @@
             </summary>
             <param name="fullNumber"></param>
         </member>
+        <member name="M:Morestachio.Helper.Number.TryParse(System.String,Morestachio.Helper.Number@)">
+            <summary>
+            	Tries to parse the input to any number folloring roughly the rules of msbuild.
+            	Like:
+            	Has Suffix? (u,l,f,d)
+            	Has Prefix? (0x)
+            	Is int?
+            	Is long?
+            	Is Double?
+            	Is sbyte?
+            	Is ushort?
+            	Is decimal?
+            </summary>
+            <param name="input"></param>
+            <param name="number"></param>
+            <returns></returns>
+        </member>
         <member name="M:Morestachio.Helper.Number.GetTypeCode">
             <inheritdoc />
         </member>
@@ -1905,6 +1965,12 @@
             <inheritdoc />
         </member>
         <member name="M:Morestachio.Helper.Number.ToType(System.Type,System.IFormatProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Helper.Number.ToString(System.String,System.IFormatProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Helper.Number.ToString">
             <inheritdoc />
         </member>
         <member name="T:Morestachio.Helper.StreamExtensions">

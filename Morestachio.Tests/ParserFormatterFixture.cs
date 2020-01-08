@@ -18,7 +18,7 @@ namespace Morestachio.Tests
 			var options = new ParserOptions("{{#each data.order()}}{{.}},{{/each}}", null,
 				ParserFixture.DefaultEncoding);
 			var collection = new[] { 0, 1, 2, 3, 5, 4, 6, 7 };
-			options.Formatters.AddFromType(typeof(ListFormatter));
+			options.Formatters.AddFromType(typeof(DynamicLinq));
 			var report = Parser.ParseWithOptions(options).CreateAndStringify(new Dictionary<string, object>
 			{
 				{
