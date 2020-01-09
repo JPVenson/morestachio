@@ -119,7 +119,7 @@ namespace Morestachio
 		/// <summary>
 		///		Enables the Legacy resolver for Formatters names that formatters should contain the name of the formatter as the first argument.
 		/// </summary>
-		[Obsolete("Enables Legacy behavior for the resolving of formatters. This behavior will be removed completely in later versions")]
+		[Obsolete("Enables Legacy behavior for the resolving of formatters. This behavior will be removed completely in later versions", true)]
 		public bool LegacyFormatterResolving { get; set; }
 
 		/// <summary>

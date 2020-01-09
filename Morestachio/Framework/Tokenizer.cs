@@ -540,45 +540,28 @@ namespace Morestachio.Framework
 				}
 				else
 				{
-					if (!options.LegacyFormatterResolving)
+					var scalarParts = scalarValue.Split('.');
+					var formatterName = scalarParts.Last();
+					if (scalarParts.Length == 1)
 					{
-						var scalarParts = scalarValue.Split('.');
-						var formatterName = scalarParts.Last();
-						if (scalarParts.Length == 1)
-						{
-							//we are formatting the current value
-							scalarValue = ".";
-						}
-						else
-						{
-							scalarValue = scalarParts.Take(scalarParts.Length - 1).Aggregate((e, f) => e + "." + f);
-						}
-
-						var formatExpression = formatterArgument.Substring(1, formatterArgument.Length - 2);
-						var formatHeader = TokenizeFormatterHeader(formatExpression, parseErrors, lines, tokenArgIndex);
-						var validateArgumentHead = ValidateArgumentHead(scalarValue, formatterArgument, templateString,
-							tokenArgIndex, lines, parseErrors);
-						yield return new TokenPair(TokenType.Format,
-							validateArgumentHead,
-							HumanizeCharacterLocation(tokenArgIndex, lines))
-						{
-							Format = new FormattableToken(formatterName, formatHeader)
-						};
+						//we are formatting the current value
+						scalarValue = ".";
 					}
 					else
 					{
-						//trim only the last ) not each as there is maybe an expression as last argument
-						var formatExpression = formatterArgument.Substring(1, formatterArgument.Length - 2);
-						var formatHeader = TokenizeFormatterHeader(formatExpression, parseErrors, lines, tokenArgIndex);
-						var validateArgumentHead = ValidateArgumentHead(scalarValue, formatterArgument, templateString,
-							tokenArgIndex, lines, parseErrors);
-						yield return new TokenPair(TokenType.Format,
-							validateArgumentHead,
-							HumanizeCharacterLocation(tokenArgIndex, lines))
-						{
-							Format = new FormattableToken(null, formatHeader)
-						};
+						scalarValue = scalarParts.Take(scalarParts.Length - 1).Aggregate((e, f) => e + "." + f);
 					}
+
+					var formatExpression = formatterArgument.Substring(1, formatterArgument.Length - 2);
+					var formatHeader = TokenizeFormatterHeader(formatExpression, parseErrors, lines, tokenArgIndex);
+					var validateArgumentHead = ValidateArgumentHead(scalarValue, formatterArgument, templateString,
+						tokenArgIndex, lines, parseErrors);
+					yield return new TokenPair(TokenType.Format,
+						validateArgumentHead,
+						HumanizeCharacterLocation(tokenArgIndex, lines))
+					{
+						Format = new FormattableToken(formatterName, formatHeader)
+					};
 				}
 			}
 

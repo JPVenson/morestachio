@@ -189,15 +189,11 @@ namespace Morestachio.Document
 					}
 				}
 				//we do NOT await the task here. We await the task only if we need the value
-				context.Value = context.Options.LegacyFormatterResolving
-					? c.Format(argList.ToArray())
-					: c.Format(TargetFormatterName, argList.ToArray());
+				context.Value = c.Format(TargetFormatterName, argList.ToArray());
 			}
 			else
 			{
-				context.Value = context.Options.LegacyFormatterResolving
-					? c.Format(new KeyValuePair<string, object>[0])
-					: c.Format(TargetFormatterName, new KeyValuePair<string, object>[0]);
+				context.Value = c.Format(TargetFormatterName, new KeyValuePair<string, object>[0]);
 			}
 			return context;
 		}

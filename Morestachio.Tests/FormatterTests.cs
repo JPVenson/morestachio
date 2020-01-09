@@ -92,25 +92,15 @@ namespace Morestachio.Tests
 			});
 			Assert.That(andStringify, Is.EqualTo("123"));
 		}
-
-		private static class TestCanFormatObjectSubWithFormatterFormatters
-		{
-			[MorestachioFormatter("Format", "")]
-			public static int Format(int left, int right)
-			{
-				return left * right;
-			}
-		}
-
+		
 		[Test]
 		public void TestCanFormatObjectSubWithFormatter()
 		{
 			var options = new ParserOptions("{{Value.Format(SubValue)}}", null, DefaultEncoding);
-			options.Formatters.AddFromType(typeof(TestCanFormatObjectSubWithFormatterFormatters));
-			//options.Formatters.AddSingle((int left, int right) =>
-			//{
-			//	return left * right;
-			//}, "Format");	
+			options.Formatters.AddSingle((int left, int right) =>
+			{
+				return left * right;
+			}, "Format");
 
 			options.Formatters.AddSingle((int left, string arg) =>
 			{
