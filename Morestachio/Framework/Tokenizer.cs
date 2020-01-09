@@ -290,7 +290,9 @@ namespace Morestachio.Framework
 							var currentExpressionParts = currentScope.Value.Split('.');
 							if (currentExpressionParts.Length < 2)
 							{
-								error.Add(new MorestachioSyntaxError(HumanizeCharacterLocationForErrorCase(index,linesOfTemplate,formatString),
+								error.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(
+											startOfArgumentPosition + currentScope.Value.Length, linesOfTemplate)
+										.AddWindow(new CharacterSnippedLocation(1, index, formatString)),
 									"Format", "(", "Name of Formatter", "Did expect to find the name of a formatter but found single path"));
 								return new HeaderTokenMatch[0];
 							}
