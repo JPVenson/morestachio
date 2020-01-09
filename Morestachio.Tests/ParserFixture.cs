@@ -916,6 +916,25 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		public void TestScopeOfIfInScoping()
+		{
+			var template = "{{#Data}}{{#Failed}}{{#IF ~Value}}{{.}}{{/IF}}{{/Failed}}{{/Data}}";
+			var data = new
+			{
+				Data = new
+				{
+					Failed = "Success"
+				},
+				Value = "FAILED",
+			};
+			
+			var extendedParseInformation = Parser.ParseWithOptions(
+				new ParserOptions(template, null, DefaultEncoding));
+			var andStringify = extendedParseInformation.CreateAndStringify(data);
+			Assert.That(andStringify, Is.EqualTo("Success"));
+		}
+
+		[Test]
 		public void TestCollectionContext()
 		{
 			var template = "{{#each data}}{{$index}},{{$first}},{{$middel}},{{$last}},{{$odd}},{{$even}}.{{/each}}";

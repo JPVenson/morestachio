@@ -32,7 +32,7 @@ namespace Morestachio.ParserErrors
 				posMarker = "^";
 			}
 
-			return $"{Snipped}" +
+			return $"{Snipped.Snipped}" +
 				   Environment.NewLine +
 				   posMarker;
 

@@ -29,7 +29,7 @@ namespace Morestachio.Tests
 		[Test]
 		public void TestSelect()
 		{
-			var templateWorking = @"{{#data}}{{#each someList.select('it.Entity')}}{{SomeValue2}}*{{SomeValue3}}={{SomeValue2.Multiply(SomeValue3)}}{{/each}}{{/data}}";
+			var templateWorking = @"{{#data}}{{#each someList.Select('it.Entity')}}{{SomeValue2}}*{{SomeValue3}}={{SomeValue2.Multiply(SomeValue3)}}{{/each}}{{/data}}";
 
 			var parsingOptionsWorking = new ParserOptions(templateWorking, null, ParserFixture.DefaultEncoding);
 			parsingOptionsWorking.Formatters.AddFromType(typeof(DynamicLinq));
@@ -91,6 +91,66 @@ namespace Morestachio.Tests
 				{ "data", 123 }
 			});
 			Assert.That(andStringify, Is.EqualTo("123"));
+		}
+
+		private static class TestCanFormatObjectSubWithFormatterFormatters
+		{
+			[MorestachioFormatter("Format", "")]
+			public static int Format(int left, int right)
+			{
+				return left * right;
+			}
+		}
+
+		[Test]
+		public void TestCanFormatObjectSubWithFormatter()
+		{
+			var options = new ParserOptions("{{Value.Format(SubValue)}}", null, DefaultEncoding);
+			options.Formatters.AddFromType(typeof(TestCanFormatObjectSubWithFormatterFormatters));
+			//options.Formatters.AddSingle((int left, int right) =>
+			//{
+			//	return left * right;
+			//}, "Format");	
+
+			options.Formatters.AddSingle((int left, string arg) =>
+			{
+				return left;
+			}, "Self");
+
+			var data = new
+			{
+				Value = 123,
+				SubValue = 2
+			};
+			var template = Parser.ParseWithOptions(options);
+
+			var andStringify = template.CreateAndStringify(data);
+			Assert.That(andStringify, Is.EqualTo("246"));
+		}
+
+		[Test]
+		public void TestCanFormatObjectSubWithFormatterAndConst()
+		{
+			var options = new ParserOptions("{{Value.Format(SubValue.Self('test'))}}", null, DefaultEncoding);
+			options.Formatters.AddSingle((int left, int right) =>
+			{
+				return left * right;
+			}, "Format");
+
+			options.Formatters.AddSingle((int left, string arg) =>
+			{
+				return left;
+			}, "Self");
+
+			var data = new
+			{
+				Value = 123,
+				SubValue = 2
+			};
+			var template = Parser.ParseWithOptions(options);
+
+			var andStringify = template.CreateAndStringify(data);
+			Assert.That(andStringify, Is.EqualTo("246"));
 		}
 
 		[Test]

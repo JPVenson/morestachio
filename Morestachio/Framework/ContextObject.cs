@@ -170,7 +170,7 @@ namespace Morestachio.Framework
 		///     The name of the property or key inside the value or indexer expression for lists
 		/// </summary>
 		[NotNull]
-		public string Key { get; set; }
+		public string Key { get; }
 
 		/// <summary>
 		///     With what options are the template currently is running

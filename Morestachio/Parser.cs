@@ -78,7 +78,7 @@ namespace Morestachio
 						}
 
 						return new CallFormatterDocumentItem(list
-							.ToArray(), token.Value);
+							.ToArray(), token.Value, token.ArgumentName);
 					}
 					else
 					{

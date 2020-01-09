@@ -217,6 +217,14 @@ namespace Morestachio.Framework
 
 						break;
 					case TokenState.DecideArgumentType:
+						if (formatChar == ')')
+						{
+							currentScope.State = TokenState.Expression;
+							index--;
+							tokenScopes.Pop();
+							break;
+						}
+
 						//we are at the start of an argument
 						if (IsWhiteSpaceDelimiter(formatChar))
 						{
@@ -279,6 +287,19 @@ namespace Morestachio.Framework
 					case TokenState.Expression:
 						if (formatChar == '(')
 						{
+							var currentExpressionParts = currentScope.Value.Split('.');
+							if (currentExpressionParts.Length < 2)
+							{
+								error.Add(new MorestachioSyntaxError(HumanizeCharacterLocationForErrorCase(index,linesOfTemplate,formatString),
+									"Format", "(", "Name of Formatter", "Did expect to find the name of a formatter but found single path"));
+								return new HeaderTokenMatch[0];
+							}
+
+							currentScope.ArgumentName = currentExpressionParts.Last();
+							currentScope.Value = currentScope.Value.Remove(
+								currentScope.Value.Length - currentScope.ArgumentName.Length - 1,//include the .
+								currentScope.ArgumentName.Length + 1);//include the .
+
 							var argument = new HeaderTokenMatch();
 							argument.State = TokenState.ArgumentStart;
 							currentScope.Arguments.Add(argument);
