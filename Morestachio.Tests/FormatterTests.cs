@@ -186,7 +186,7 @@ namespace Morestachio.Tests
 		[Test]
 		public void FormatterCanFormatObjectTwice()
 		{
-			var options = new ParserOptions("{{Plus(NumberB, NumberB)}}", null, DefaultEncoding);
+			var options = new ParserOptions("{{.Plus(NumberB, NumberB)}}", null, DefaultEncoding);
 			options.Formatters.AddFromType(typeof(StringFormatter));
 			var template = Parser.ParseWithOptions(options);
 
@@ -332,7 +332,7 @@ namespace Morestachio.Tests
 					},
 				}
 			};
-			var parsingOptions = new ParserOptions("{{#each data.reference}}{{displayValue('template value').('template value', formatterValue)}}{{/each}}", null, DefaultEncoding);
+			var parsingOptions = new ParserOptions("{{#each data.reference}}{{displayValue.('template value').('template value', formatterValue)}}{{/each}}", null, DefaultEncoding);
 			parsingOptions.Formatters.AddSingle(
 				new Func<object, object, object, object>((source, tempValue, reference) => reference));
 
@@ -504,7 +504,7 @@ namespace Morestachio.Tests
 		{
 			var data = DateTime.UtcNow;
 			var results =
-				Parser.ParseWithOptions(new ParserOptions("{{data('d').Year}},{{data}}", null, DefaultEncoding));
+				Parser.ParseWithOptions(new ParserOptions("{{data.('d').Year}},{{data}}", null, DefaultEncoding));
 			//this should compile as its valid but not work as the Default
 			//settings for DateTime are ToString(Arg) so it should return a string and not an object
 			Assert.That(results

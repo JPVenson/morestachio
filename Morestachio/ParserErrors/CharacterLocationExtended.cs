@@ -23,9 +23,9 @@ namespace Morestachio.ParserErrors
 		public string Render()
 		{
 			string posMarker;
-			if (Character - 1 > 0)
+			if (Snipped.Character - 1 > 0)
 			{
-				posMarker = Enumerable.Repeat("-", Character - 1).Aggregate((e, f) => e + f) + "^";
+				posMarker = Enumerable.Repeat("-", Snipped.Character - 1).Aggregate((e, f) => e + f) + "^";
 			}
 			else
 			{

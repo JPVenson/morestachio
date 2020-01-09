@@ -150,8 +150,8 @@ namespace Morestachio.Framework
 		}
 
 		private static HeaderTokenMatch[] TokenizeFormatterHeader(string formatString,
-			ICollection<IMorestachioError> error,
-			List<int> linesOfTemplate,
+			ICollection<IMorestachioError> parseErrors,
+			List<int> lines,
 			int startOfArgumentPosition)
 		{
 			//this COULD be made with regexes, i have made it and rejected it as it was no longer readable in any way.
@@ -247,10 +247,10 @@ namespace Morestachio.Framework
 						else
 						{
 							//this is not the start of an expression and not a string
-							error.Add(new InvalidPathSyntaxError(
+							parseErrors.Add(new InvalidPathSyntaxError(
 								HumanizeCharacterLocation(
 										startOfArgumentPosition + currentScope.Value.Length,
-										linesOfTemplate)
+										lines)
 									.AddWindow(new CharacterSnippedLocation(1, index, formatString)),
 								currentScope.Value));
 							return new HeaderTokenMatch[0];
@@ -290,10 +290,10 @@ namespace Morestachio.Framework
 							var currentExpressionParts = currentScope.Value.Split('.');
 							if (currentExpressionParts.Length < 2)
 							{
-								error.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(
-											startOfArgumentPosition + currentScope.Value.Length, linesOfTemplate)
+								parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(
+											startOfArgumentPosition + currentScope.Value.Length, lines)
 										.AddWindow(new CharacterSnippedLocation(1, index, formatString)),
-									"Format", "(", "Name of Formatter", "Did expect to find the name of a formatter but found single path"));
+									"Format", "(", "Name of Formatter", "Did expect to find the name of a formatter but found single path. Did you forgot to put an . before the formatter?"));
 								return new HeaderTokenMatch[0];
 							}
 
@@ -359,17 +359,17 @@ namespace Morestachio.Framework
 
 			if (tokenScopes.Count != 1)
 			{
-				error.Add(new InvalidPathSyntaxError(
+				parseErrors.Add(new InvalidPathSyntaxError(
 					HumanizeCharacterLocation(startOfArgumentPosition + formatString.Length,
-							linesOfTemplate)
+							lines)
 						.AddWindow(new CharacterSnippedLocation(1, formatString.Length, formatString)), formatString));
 			}
 
 			if (argumentExpected)
 			{
-				error.Add(new MorestachioSyntaxError(
+				parseErrors.Add(new MorestachioSyntaxError(
 					HumanizeCharacterLocation(startOfArgumentPosition + formatString.Length,
-							linesOfTemplate)
+							lines)
 						.AddWindow(new CharacterSnippedLocation(1, formatString.Length, formatString)),
 					formatString[formatString.Length - 1].ToString(),
 					")", "Expected closing bracket"));
@@ -545,7 +545,11 @@ namespace Morestachio.Framework
 					if (scalarParts.Length == 1)
 					{
 						//we are formatting the current value
-						scalarValue = ".";
+						parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(
+									tokenArgIndex + tokensHandled, lines)
+								.AddWindow(new CharacterSnippedLocation(1, formatterName.Length, token)),
+							"Format", "(", "Name of Formatter", "Did expect to find the name of a formatter but found single path. Did you forgot to put an . before the formatter?"));
+						yield break;
 					}
 					else
 					{
