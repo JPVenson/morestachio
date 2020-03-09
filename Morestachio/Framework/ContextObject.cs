@@ -254,6 +254,13 @@ namespace Morestachio.Framework
 				else
 				{
 					await EnsureValue();
+					if (Value is null)
+					{
+						return new ContextObject(Options, "x:null", null)
+						{
+							Value = null
+						};
+					}
 					var type = Value?.GetType();
 					if (path.StartsWith("?")) //enumerate ether an IDictionary, an cs object or an IEnumerable to a KeyValuePair array
 					{
@@ -322,8 +329,7 @@ namespace Morestachio.Framework
 
 			return retval;
 		}
-
-
+		
 		/// <summary>
 		///     Will walk the path by using the path seperator "." and evaluate the object at the end
 		/// </summary>
@@ -332,6 +338,11 @@ namespace Morestachio.Framework
 		/// <returns></returns>
 		internal async Task<ContextObject> GetContextForPath(string path, ScopeData scopeData)
 		{
+			if (Key == "x:null")
+			{
+				return this;
+			}
+
 			var elements = new Queue<string>();
 			foreach (var m in PathFinder.Matches(path).OfType<Match>())
 			{
@@ -342,10 +353,27 @@ namespace Morestachio.Framework
 			{
 				//look at the first element if its an alias switch to that alias
 				var peekPathPart = elements.Peek();
+				if (elements.Count == 1 && peekPathPart == "null")
+				{
+					return new ContextObject(Options, "x:null", null)
+					{
+						Value = null
+					};
+				}
+
 				if (scopeData.Alias.TryGetValue(peekPathPart, out var alias))
 				{
 					elements.Dequeue();
 					return await alias.GetContextForPath(elements, scopeData);
+				}
+
+				if (peekPathPart == "true" || peekPathPart == "false")
+				{
+					elements.Dequeue();
+					var booleanContext = new ContextObject(Options, ".", this);
+					booleanContext.Value = peekPathPart == "true";
+					booleanContext.IsNaturalContext = IsNaturalContext;
+					return await booleanContext.GetContextForPath(elements, scopeData);
 				}
 
 				//check if this part of the path can be seen as an number
