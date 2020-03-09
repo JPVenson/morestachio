@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -11,7 +12,7 @@ namespace Morestachio.Document
 	///		Executes the children with a cloned Context
 	/// </summary>
 	[System.Serializable]
-	public class IsolatedContextDocumentItem : DocumentItemBase
+	public class IsolatedContextDocumentItem : DocumentItemBase, IValueDocumentItem
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -35,6 +36,16 @@ namespace Morestachio.Document
 			await Task.CompletedTask;
 			context = context.CloneForEdit();
 			return Children.WithScope(context);
+		}
+
+		public async Task<ContextObject> GetValue(ContextObject context, ScopeData scopeData)
+		{
+			foreach (var valueDocumentItem in Children.OfType<IValueDocumentItem>())
+			{
+				context = await valueDocumentItem.GetValue(context, scopeData);
+			}
+
+			return context;
 		}
 	}
 }

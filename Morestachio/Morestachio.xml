@@ -416,6 +416,20 @@
             	Used for XML Serialization
             </summary>
         </member>
+        <member name="T:Morestachio.Document.EvaluateVariableDocumentItem">
+            <summary>
+            	Evaluates a variable expression and then stores it into the set alias
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.EvaluateVariableDocumentItem.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.EvaluateVariableDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.Document.EvaluateVariableDocumentItem.Kind">
+            <inheritdoc />
+        </member>
         <member name="T:Morestachio.Document.ExpressionScopeDocumentItem">
             <summary>
             	Defines the start of a Scope
@@ -1751,6 +1765,16 @@
         <member name="F:Morestachio.Framework.TokenType.ElseClose">
             <summary>
             	Defines the end of an else-scope
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.TokenType.VariableDeclaration">
+            <summary>
+            	Defines the current Context as the be accessed by an alias
+            </summary>
+        </member>
+        <member name="F:Morestachio.Framework.TokenType.VariableSet">
+            <summary>
+            	Defines the current Context as the be accessed by an alias
             </summary>
         </member>
         <member name="T:Morestachio.Helper.AsyncHelper">

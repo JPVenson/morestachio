@@ -271,6 +271,21 @@ namespace Morestachio
 					currentDocumentItem.Document.Add(aliasDocumentItem);
 					buildStack.Push(new DocumentScope(aliasDocumentItem, currentToken.Value));
 				}
+				else if (currentToken.Type == TokenType.VariableDeclaration)
+				{
+					var evaluateVariableDocumentItem = new EvaluateVariableDocumentItem(currentToken.Value);
+					currentDocumentItem.Document.Add(evaluateVariableDocumentItem);
+					buildStack.Push(new DocumentScope(evaluateVariableDocumentItem));
+				}
+				else if (currentToken.Type == TokenType.VariableSet)
+				{	
+					if (buildStack.Peek().IsFormattingScope) //is the remaining scope a formatting one. If it is pop it and return to its parent
+					{
+						buildStack.Pop();
+					}
+					// remove the last document from the stack and go back to the parents
+					buildStack.Pop();
+				}
 				else
 				{
 					var customDocumentItemProvider =

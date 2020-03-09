@@ -22,13 +22,24 @@ namespace Morestachio.Framework
 			BaseWriter = new StreamWriter(stream, encoding, bufferSize, leaveOpen);
 		}
 
+		private ByteCounterStream()
+		{
+			ReadOnly = true;
+		}
+
+		public bool ReadOnly { get; private set; }
 		public StreamWriter BaseWriter { get; set; }
 
 		public long BytesWritten { get; private set; }
 		public bool ReachedLimit { get; private set; }
+		public static IByteCounterStream ReadOnlyEmpty { get; private set; } = new ByteCounterStream();
 
 		public void Write(string content)
 		{
+			if (ReadOnly)
+			{
+				return;
+			}
 			content = content ?? _options.Null?.ToString();
 
 			var sourceCount = BytesWritten;
@@ -70,8 +81,8 @@ namespace Morestachio.Framework
 
 		public void Dispose()
 		{
-			BaseWriter.Flush();
-			BaseWriter.Dispose();
+			BaseWriter?.Flush();
+			BaseWriter?.Dispose();
 		}
 	}
 }

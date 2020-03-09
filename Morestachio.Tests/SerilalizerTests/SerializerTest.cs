@@ -49,6 +49,14 @@ namespace Morestachio.Tests.SerilalizerTests
 		}
 
 		[Test]
+		public void TestIsVariableSerializable()
+		{
+			var template = "I am <Text> {{#var f = data.test.Format().As.Test('', exp)}}";
+			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
+			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
+		}
+
+		[Test]
 		public void TestIsContentSerializable()
 		{
 			var template = "I am <Text>";

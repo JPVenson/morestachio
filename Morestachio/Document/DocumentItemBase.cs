@@ -225,7 +225,7 @@ namespace Morestachio.Document
 		{
 		}
 
-		protected internal void AssertElement(XmlReader reader, string elementName)
+		protected internal static void AssertElement(XmlReader reader, string elementName)
 		{
 			if (!reader.Name.Equals(elementName, StringComparison.InvariantCultureIgnoreCase))
 			{

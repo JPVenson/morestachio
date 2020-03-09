@@ -45,8 +45,6 @@ namespace Morestachio.Document
 			return Children.WithScope(context);
 		}
 
-		
-
 		public async Task<ContextObject> GetValue(ContextObject context, ScopeData scopeData)
 		{
 			await Task.CompletedTask;

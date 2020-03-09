@@ -38,6 +38,97 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		public void ParserCanVariableStaticExpression()
+		{
+			var parsingOptions = new ParserOptions("{{#var f = data}}|{{f}}", null,
+				DefaultEncoding);
+			var results =
+				Parser.ParseWithOptions(parsingOptions);
+			var result = results.CreateAndStringify(new Dictionary<string, object>
+			{
+				{ "data", "test" },
+			});
+			Assert.That(result, Is.EqualTo("|test"));
+		}
+
+		[Test]
+		public void ParserCanVariableExpression()
+		{
+			var parsingOptions = new ParserOptions("{{#var f = data.('G')}}|{{f}}", null,
+				DefaultEncoding);
+			var results =
+				Parser.ParseWithOptions(parsingOptions);
+			var date = DateTime.Now;
+			var result = results.CreateAndStringify(new Dictionary<string, object>
+			{
+				{ "data", date },
+			});
+			Assert.That(result, Is.EqualTo("|" + date.ToString("G")));
+		}
+
+		[Test]
+		public void ParserCanVariableExpressionWithFormats()
+		{
+			var parsingOptions = new ParserOptions("{{#var f = data.('G').PadLeft(123)}}|{{f}}", null,
+				DefaultEncoding);
+			parsingOptions.Formatters.AddSingle((string value, int nr) =>
+			{
+				return value.PadLeft(nr);
+			}, "PadLeft");
+			var results =
+				Parser.ParseWithOptions(parsingOptions);
+			var date = DateTime.Now;
+			var result = results.CreateAndStringify(new Dictionary<string, object>
+			{
+				{ "data", date },
+			});
+			Assert.That(result, Is.EqualTo("|" + date.ToString("G").PadLeft(123)));
+		}
+
+		[Test]
+		public void ParserCanVariableSetToOtherVariable()
+		{
+			var parsingOptions = new ParserOptions("{{#var f = data}}" +
+			                                       "{{#var e = f.('G')}}" +
+			                                       "{{e.PadLeft(123)}}", null,
+				DefaultEncoding);
+			parsingOptions.Formatters.AddSingle((string value, int nr) =>
+			{
+				return value.PadLeft(nr);
+			}, "PadLeft");
+			var results =
+				Parser.ParseWithOptions(parsingOptions);
+			var date = DateTime.Now;
+			var result = results.CreateAndStringify(new Dictionary<string, object>
+			{
+				{ "data", date },
+			});
+			Assert.That(result, Is.EqualTo(date.ToString("G").PadLeft(123)));
+		}
+
+		[Test]
+		public void ParserCanVariableSetToNull()
+		{
+			var parsingOptions = new ParserOptions("{{#var f = data}}" +
+			                                       "{{#var f = null}}" +
+			                                       "{{e.PadLeft(123)}}", null,
+				DefaultEncoding);
+			parsingOptions.Formatters.AddSingle((string value, int nr) =>
+			{
+				return value.PadLeft(nr);
+			}, "PadLeft");
+			parsingOptions.Null = "{NULL}";
+			var results =
+				Parser.ParseWithOptions(parsingOptions);
+			var date = DateTime.Now;
+			var result = results.CreateAndStringify(new Dictionary<string, object>
+			{
+				{ "data", date },
+			});
+			Assert.That(result, Is.EqualTo(parsingOptions.Null));
+		}
+
+		[Test]
 		public void ParserCanNullableFormatTest()
 		{
 			var parsingOptions = new ParserOptions("ShouldBe: {{data}}, ButNot: {{extData}}", null,
@@ -238,7 +329,7 @@ namespace Morestachio.Tests
 				.CreateAndStringify(model), Is.EqualTo(expected));
 		}
 
-		
+
 
 		[Test]
 		public async Task ParserCanPartials()
@@ -927,7 +1018,7 @@ namespace Morestachio.Tests
 				},
 				Value = "FAILED",
 			};
-			
+
 			var extendedParseInformation = Parser.ParseWithOptions(
 				new ParserOptions(template, null, DefaultEncoding));
 			var andStringify = extendedParseInformation.CreateAndStringify(data);

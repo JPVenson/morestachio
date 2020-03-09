@@ -97,6 +97,14 @@
 		/// <summary>
 		///		Defines the end of an else-scope
 		/// </summary>
-		ElseClose
+		ElseClose,
+		/// <summary>
+		///		Defines the current Context as the be accessed by an alias
+		/// </summary>
+		VariableDeclaration,
+		/// <summary>
+		///		Defines the current Context as the be accessed by an alias
+		/// </summary>
+		VariableSet,
 	}
 }

@@ -92,11 +92,18 @@ namespace Morestachio.Document
 				FormatString = new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>[0];
 				return;
 			}
+			
+			FormatString = ReadListOfFormatString(reader,
+				nameof(FormatString)).ToArray();
+		}
 
-			AssertElement(reader, nameof(FormatString));
+		internal static List<Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>> ReadListOfFormatString(XmlReader reader,
+			string property)
+		{
+			AssertElement(reader, property);
 			var formatString = new List<Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>>();
 			reader.ReadStartElement(); //Argument
-			while (reader.NodeType != XmlNodeType.EndElement || !reader.Name.Equals(nameof(FormatString)))
+			while (reader.NodeType != XmlNodeType.EndElement || !reader.Name.Equals(property))
 			{
 				AssertElement(reader, "Argument");
 				var formatStr = new Tokenizer.HeaderTokenMatch();
@@ -108,11 +115,11 @@ namespace Morestachio.Document
 				childTree.Read();
 				child.ReadXml(childTree);
 				reader.Skip();
-				reader.ReadEndElement();//Argument
+				reader.ReadEndElement(); //Argument
 				formatString.Add(new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>(formatStr, child));
 			}
 
-			FormatString = formatString.ToArray();
+			return formatString;
 		}
 
 		/// <inheritdoc />

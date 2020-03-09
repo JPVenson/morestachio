@@ -58,7 +58,7 @@ namespace Morestachio.Framework
 
 		private static readonly Regex IsCharRegex = new Regex("\\w||\\d", RegexOptions.Compiled);
 
-		private static CharacterLocation HumanizeCharacterLocation(int characterIndex, List<int> lines)
+		internal static CharacterLocation HumanizeCharacterLocation(int characterIndex, List<int> lines)
 		{
 			var line = Array.BinarySearch(lines.ToArray(), characterIndex);
 			line = line < 0 ? ~line : line;
@@ -483,27 +483,36 @@ namespace Morestachio.Framework
 			return formats.ToArray();
 		}
 
-		internal static IEnumerable<TokenPair> TokenizeFormattables(
-			FormatMatch[] formattables,
+		internal class EvaluatedFormattable
+		{
+			public EvaluatedFormattable(string expressionPart, 
+				CharacterLocation location,
+				FormattableToken formattableToken = null)
+			{
+				ExpressionPart = expressionPart;
+				Location = location;
+				FormattableToken = formattableToken;
+			}
+
+			public string ExpressionPart { get; private set; }
+			public CharacterLocation Location { get; private set; }
+			public FormattableToken FormattableToken { get; }
+		}
+		
+		internal static IEnumerable<EvaluatedFormattable> EvaluateFormattables(FormatMatch[] formattables,
 			string token,
 			string templateString,
 			List<int> lines,
 			int tokenIndex,
-			ICollection<IMorestachioError> parseErrors,
-			ParserOptions options)
+			ICollection<IMorestachioError> parseErrors)
 		{
 			var tokensHandled = 0;
 			var lastPosition = 0;
 
-			//foreach (Match tokenFormats in FormatFinder.Matches(token))
-			//FormatMatch[] enumerateFormats = EnumerateFormats(token, templateString, lines, tokenIndex, parseErrors);
+			var tokenizeFormattables = new List<EvaluatedFormattable>();
 			foreach (var tokenFormats in formattables)
 			{
 				var tokenArgIndex = tokenFormats.Index + tokenIndex;
-				//var found = tokenFormats.Groups[0].Value;
-				//var scalarValue = tokenFormats.Groups[1].Value;
-				//var formatterArgument = tokenFormats.Groups[2].Value;
-
 				var found = tokenFormats.Path;
 				var scalarValue = tokenFormats.Scalar.ToString();
 				var formatterArgument = tokenFormats.Arguments.ToString();
@@ -534,9 +543,13 @@ namespace Morestachio.Framework
 
 				if (string.IsNullOrWhiteSpace(formatterArgument))
 				{
-					yield return new TokenPair(TokenType.Format,
-						Validated(scalarValue, tokenArgIndex, lines, parseErrors),
-						HumanizeCharacterLocation(tokenArgIndex, lines));
+					tokenizeFormattables.Add(
+						new EvaluatedFormattable(Validated(scalarValue, tokenArgIndex, lines, parseErrors),
+						HumanizeCharacterLocation(tokenArgIndex, lines)));
+
+					//tokenizeFormattables.Add(new TokenPair(TokenType.Format,
+					//	Validated(scalarValue, tokenArgIndex, lines, parseErrors),
+					//	HumanizeCharacterLocation(tokenArgIndex, lines)));
 				}
 				else
 				{
@@ -549,32 +562,85 @@ namespace Morestachio.Framework
 									tokenArgIndex + tokensHandled, lines)
 								.AddWindow(new CharacterSnippedLocation(1, formatterName.Length, token)),
 							"Format", "(", "Name of Formatter", "Did expect to find the name of a formatter but found single path. Did you forgot to put an . before the formatter?"));
-						yield break;
+						return tokenizeFormattables;
 					}
 					else
 					{
 						scalarValue = scalarParts.Take(scalarParts.Length - 1).Aggregate((e, f) => e + "." + f);
 					}
-
+					
 					var formatExpression = formatterArgument.Substring(1, formatterArgument.Length - 2);
-					var formatHeader = TokenizeFormatterHeader(formatExpression, parseErrors, lines, tokenArgIndex);
-					var validateArgumentHead = ValidateArgumentHead(scalarValue, formatterArgument, templateString,
-						tokenArgIndex, lines, parseErrors);
-					yield return new TokenPair(TokenType.Format,
-						validateArgumentHead,
-						HumanizeCharacterLocation(tokenArgIndex, lines))
-					{
-						Format = new FormattableToken(formatterName, formatHeader)
-					};
+					var formatHeader = TokenizeExpression(formatExpression, 
+						null, 
+						lines, 
+						parseErrors, 
+						tokenArgIndex, 
+						scalarValue, 
+						out var validateArgumentHead);
+					
+					tokenizeFormattables.Add(
+						new EvaluatedFormattable(validateArgumentHead,
+							HumanizeCharacterLocation(tokenArgIndex, lines),
+							new FormattableToken(formatterName, formatHeader)));
+
+					//tokenizeFormattables.Add(new TokenPair(TokenType.Format,
+					//	validateArgumentHead,
+					//	HumanizeCharacterLocation(tokenArgIndex, lines))
+					//{
+					//	Format = new FormattableToken(formatterName, formatHeader)
+					//});
 				}
 			}
 
 			if (tokensHandled != token.Length)
 			{
-				yield return new TokenPair(TokenType.Format,
-					Validated(token.Substring(tokensHandled), tokenIndex, lines, parseErrors),
-					HumanizeCharacterLocation(tokenIndex, lines));
+				
+				tokenizeFormattables.Add(
+					new EvaluatedFormattable(
+						Validated(token.Substring(tokensHandled), tokenIndex, lines, parseErrors),
+						HumanizeCharacterLocation(tokenIndex, lines)));
+
+				//tokenizeFormattables.Add(new TokenPair(TokenType.Format,
+				//	Validated(token.Substring(tokensHandled), tokenIndex, lines, parseErrors),
+				//	HumanizeCharacterLocation(tokenIndex, lines)));
 			}
+
+			return tokenizeFormattables;
+		}
+
+		internal static IEnumerable<TokenPair> TokenizeFormattables(
+			FormatMatch[] formattables,
+			string token,
+			string templateString,
+			List<int> lines,
+			int tokenIndex,
+			ICollection<IMorestachioError> parseErrors,
+			ParserOptions options)
+		{
+			foreach (var evaluatedFormattable in EvaluateFormattables(formattables,token,templateString,lines,tokenIndex,parseErrors))
+			{
+				yield return new TokenPair(TokenType.Format,
+					evaluatedFormattable.ExpressionPart,
+					evaluatedFormattable.Location)
+				{
+					Format = evaluatedFormattable.FormattableToken
+				};
+			}
+		}
+
+		internal static HeaderTokenMatch[] TokenizeExpression(
+			string formatterArgument, 
+			string templateString,
+			List<int> lines, 
+			ICollection<IMorestachioError> parseErrors,
+			int tokenArgIndex, 
+			string scalarValue, 
+			out string validateArgumentHead)
+		{
+			var formatHeader = TokenizeFormatterHeader(formatterArgument, parseErrors, lines, tokenArgIndex);
+			validateArgumentHead = ValidateArgumentHead(scalarValue, formatterArgument, templateString,
+				tokenArgIndex, lines, parseErrors);
+			return formatHeader;
 		}
 
 		internal static IEnumerable<TokenPair> Tokenize(ParserOptions parserOptions,
@@ -879,6 +945,15 @@ namespace Morestachio.Framework
 						}
 					}
 				}
+				else if (tokenValue.StartsWith("{{#var "))
+				{
+					tokens.AddRange(ExpressionTokenizer.Tokenize(tokenValue.Trim('{','}'), 
+						HumanizeCharacterLocation(match.Index, lines),
+						lines,
+						tokenIndex,
+						parseErrors,
+						parserOptions));
+				}
 				else if (tokenValue.StartsWith("{{#"))
 				{
 					//open group
@@ -975,6 +1050,7 @@ namespace Morestachio.Framework
 							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)),
 						$"Unexpected token. Expected an valid Expression but got '{tokenValue}'", tokenValue, ""));
 				}
+				
 				else
 				{
 					//check for custom DocumentItem provider
@@ -1088,7 +1164,7 @@ namespace Morestachio.Framework
 			return tokens;
 		}
 
-		private static string Validated(string token, int index, List<int> lines,
+		internal static string Validated(string token, int index, List<int> lines,
 			ICollection<IMorestachioError> exceptions)
 		{
 			token = token.Trim();
