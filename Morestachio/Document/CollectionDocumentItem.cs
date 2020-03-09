@@ -15,24 +15,24 @@ namespace Morestachio.Document
 	///		Emits N items that are in the <see cref="Value"/>
 	/// </summary>
 	[System.Serializable]
-	public class CollectionDocumentItem : ValueDocumentItemBase
+	public class EachDocumentItem : ValueDocumentItemBase
 	{
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal CollectionDocumentItem()
+		internal EachDocumentItem()
 		{
 
 		}
 
 		/// <inheritdoc />
-		public CollectionDocumentItem(string value)
+		public EachDocumentItem(string value)
 		{
 			Value = value;
 		}
 
 		[UsedImplicitly]
-		protected CollectionDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
+		protected EachDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}
 		

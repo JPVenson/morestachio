@@ -12,6 +12,12 @@ namespace Morestachio.Formatter.Framework
 	/// </summary>
 	public interface IMorestachioFormatterService
 	{		
+
+		/// <summary>
+		///		Defines how Formatters names are compared
+		/// </summary>
+		StringComparison FormatterNameCompareMode { get; set; }
+
 		/// <summary>
 		///		Filteres the list of Formatters
 		/// </summary>

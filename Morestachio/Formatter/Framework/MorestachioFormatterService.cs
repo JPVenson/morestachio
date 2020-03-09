@@ -157,7 +157,7 @@ namespace Morestachio.Formatter.Framework
 			var filteredSourceList = new List<KeyValuePair<MorestachioFormatterModel, ulong>>();
 			foreach (MorestachioFormatterModel formatTemplateElement in Formatters)
 			{
-				if (!string.Equals(formatTemplateElement.Name, name))
+				if (!string.Equals(formatTemplateElement.Name, name, FormatterNameCompareMode))
 				{
 					continue;
 				}
@@ -235,6 +235,8 @@ namespace Morestachio.Formatter.Framework
 
 			return formatter;
 		}
+
+		public StringComparison FormatterNameCompareMode { get; set; } = StringComparison.Ordinal;
 
 		/// <summary>
 		/// 

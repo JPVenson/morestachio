@@ -29,7 +29,11 @@ namespace Morestachio.Tests
 		[Test]
 		public void TestSelect()
 		{
-			var templateWorking = @"{{#data}}{{#each someList.Select('it.Entity')}}{{SomeValue2}}*{{SomeValue3}}={{SomeValue2.Multiply(SomeValue3)}}{{/each}}{{/data}}";
+			var templateWorking = "{{#data}}" +
+								  "{{#each someList.Select('Entity')}}" +
+								  "{{SomeValue2}}*{{SomeValue3}}={{SomeValue2.Multiply(SomeValue3)}}" +
+								  "{{/each}}" +
+								  "{{/data}}";
 
 			var parsingOptionsWorking = new ParserOptions(templateWorking, null, ParserFixture.DefaultEncoding);
 			parsingOptionsWorking.Formatters.AddFromType(typeof(DynamicLinq));
@@ -50,7 +54,7 @@ namespace Morestachio.Tests
 									Entity = new TestClass
 									{
 										SomeValue2 = 2,
-										SomeValue3= 3
+										SomeValue3 = 3
 									}
 								}
 							}
@@ -83,7 +87,7 @@ namespace Morestachio.Tests
 		public void TestCanFormatObject()
 		{
 			var options = new ParserOptions("{{.(data)}}", null, DefaultEncoding);
-			options.Formatters.AddSingle(new Func<object, object, int>((e, f) => (int) f));
+			options.Formatters.AddSingle(new Func<object, object, int>((e, f) => (int)f));
 			var template = Parser.ParseWithOptions(options);
 
 			var andStringify = template.CreateAndStringify(new Dictionary<string, object>()
@@ -92,7 +96,7 @@ namespace Morestachio.Tests
 			});
 			Assert.That(andStringify, Is.EqualTo("123"));
 		}
-		
+
 		[Test]
 		public void TestCanFormatObjectSubWithFormatter()
 		{

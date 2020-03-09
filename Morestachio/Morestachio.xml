@@ -158,23 +158,23 @@
         <member name="M:Morestachio.Document.CallFormatterDocumentItem.GetValue(Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
             <inheritdoc />
         </member>
-        <member name="T:Morestachio.Document.CollectionDocumentItem">
+        <member name="T:Morestachio.Document.EachDocumentItem">
             <summary>
             	Emits N items that are in the <see cref="!:Value"/>
             </summary>
         </member>
-        <member name="M:Morestachio.Document.CollectionDocumentItem.#ctor">
+        <member name="M:Morestachio.Document.EachDocumentItem.#ctor">
             <summary>
             	Used for XML Serialization
             </summary>
         </member>
-        <member name="M:Morestachio.Document.CollectionDocumentItem.#ctor(System.String)">
+        <member name="M:Morestachio.Document.EachDocumentItem.#ctor(System.String)">
             <inheritdoc />
         </member>
-        <member name="P:Morestachio.Document.CollectionDocumentItem.Kind">
+        <member name="P:Morestachio.Document.EachDocumentItem.Kind">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Document.CollectionDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+        <member name="M:Morestachio.Document.EachDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
             <exception cref="T:Morestachio.Framework.IndexedParseException"></exception>
             <inheritdoc />
         </member>

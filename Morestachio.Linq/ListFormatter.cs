@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Dynamic;
 using System.Linq.Dynamic.Core;
 using JetBrains.Annotations;
+using Morestachio.Attributes;
 using Morestachio.Formatter.Framework;
 
 namespace Morestachio.Linq
@@ -124,6 +125,12 @@ namespace Morestachio.Linq
 		public static object Take(IEnumerable sourceCollection, int arguments)
 		{
 			return sourceCollection.AsQueryable().Take(arguments);
+		}
+
+		[MorestachioFormatter("Select", "Takes the ammount of items in argument")]
+		public static IEnumerable Select<T>(IEnumerable<T> sourceCollection, string query, [RestParameter]object[] arguments)
+		{
+			return sourceCollection.AsQueryable().Select(query, arguments);
 		}
 
 		[MorestachioFormatter("sum", "Aggreates the property in the argument and returns it")]

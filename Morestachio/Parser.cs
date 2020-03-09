@@ -159,7 +159,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type == TokenType.CollectionOpen)
 				{
-					var nestedDocument = new CollectionDocumentItem(currentToken.Value)
+					var nestedDocument = new EachDocumentItem(currentToken.Value)
 					{
 						ExpressionStart = currentToken.TokenLocation
 					};
