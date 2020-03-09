@@ -803,6 +803,11 @@
             	Interface for Resolving formatters
             </summary>
         </member>
+        <member name="P:Morestachio.Formatter.Framework.IMorestachioFormatterService.FormatterNameCompareMode">
+            <summary>
+            	Defines how Formatters names are compared
+            </summary>
+        </member>
         <member name="M:Morestachio.Formatter.Framework.IMorestachioFormatterService.Filter(System.Func{Morestachio.Formatter.Framework.MorestachioFormatterModel,System.Boolean})">
             <summary>
             	Filteres the list of Formatters
