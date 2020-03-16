@@ -89,5 +89,14 @@ namespace Morestachio.Framework
 				return (Line * 397) ^ Character;
 			}
 		}
+
+		public CharacterLocation Offset(int length)
+		{
+			return new CharacterLocation()
+			{
+				Character = Character + length,
+				Line = Line
+			};
+		}
 	}
 }

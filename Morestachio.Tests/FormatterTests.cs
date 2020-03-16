@@ -97,6 +97,19 @@ namespace Morestachio.Tests
 			Assert.That(andStringify, Is.EqualTo("123"));
 		}
 
+		//[Test]
+		//public void TestCanFormatStringFromTemplate()
+		//{
+		//	var options = new ParserOptions("{{'TEST'.Length}}", null, DefaultEncoding);
+		//	var template = Parser.ParseWithOptions(options);
+
+		//	var andStringify = template.CreateAndStringify(new Dictionary<string, object>()
+		//	{
+
+		//	});
+		//	Assert.That(andStringify, Is.EqualTo("TEST".Length));
+		//}
+
 		[Test]
 		public void TestCanFormatObjectSubWithFormatter()
 		{
@@ -766,6 +779,37 @@ namespace Morestachio.Tests
 			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
 
 			Assert.AreEqual(model.ToString(), result);
+		}
+
+		[Test]
+		[Ignore("This behavior is currently desired. Implicit null calls are expected to fail")]
+		public void FormatterCanHandleNullArgument()
+		{
+			var template =
+				@"{{data.TEST(root, null, any.Any)}}";
+
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			parsingOptions.Formatters.AddSingle(new Func<string, string, string, string>((source, argNullConst, argNullValue) =>
+				{
+					Assert.That(argNullConst, Is.Null);
+					Assert.That(argNullValue, Is.Null);
+					return source.PadLeft(123);
+				}), "TEST");
+			var parsedTemplate =
+				Parser.ParseWithOptions(parsingOptions);
+
+			var model = new Dictionary<string, object>()
+			{
+				{"data", "test" },
+				{"root", "tset" }
+			};
+
+			var result = parsedTemplate
+				.Create(model)
+				.Stream
+				.Stringify(true, ParserFixture.DefaultEncoding);
+
+			Assert.AreEqual("test".PadLeft(123), result);
 		}
 	}
 }

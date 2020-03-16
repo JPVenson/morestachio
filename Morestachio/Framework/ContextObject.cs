@@ -50,6 +50,18 @@ namespace Morestachio.Framework
 			{
 				return source.ToString();
 			}
+
+			[MorestachioFormatter("ToString", null)]
+			public static string FormattableToString(IFormattable source, string argument)
+			{
+				return source.ToString(argument, CultureInfo.CurrentCulture);
+			}
+
+			[MorestachioFormatter("ToString", null)]
+			public static string FormattableToString(IFormattable source)
+			{
+				return source.ToString();
+			}
 		}
 
 		/// <summary>

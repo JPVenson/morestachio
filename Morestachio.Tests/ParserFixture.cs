@@ -111,7 +111,7 @@ namespace Morestachio.Tests
 		{
 			var parsingOptions = new ParserOptions("{{#var f = data}}" +
 			                                       "{{#var f = null}}" +
-			                                       "{{e.PadLeft(123)}}", null,
+			                                       "{{f.PadLeft(123)}}", null,
 				DefaultEncoding);
 			parsingOptions.Formatters.AddSingle((string value, int nr) =>
 			{
@@ -126,6 +126,68 @@ namespace Morestachio.Tests
 				{ "data", date },
 			});
 			Assert.That(result, Is.EqualTo(parsingOptions.Null));
+		}
+
+		[Test]
+		public void ParserCanVariableSetToString()
+		{
+			var parsingOptions = new ParserOptions("{{#var f = data}}" +
+			                                       "{{#var f = 'Test'}}" +
+			                                       "{{f.PadLeft(123)}}", null,
+				DefaultEncoding);
+			parsingOptions.Formatters.AddSingle((string value, int nr) =>
+			{
+				return value.PadLeft(nr);
+			}, "PadLeft");
+			var results =
+				Parser.ParseWithOptions(parsingOptions);
+			var date = DateTime.Now;
+			var result = results.CreateAndStringify(new Dictionary<string, object>
+			{
+				{ "data", date },
+			});
+			Assert.That(result, Is.EqualTo("Test".PadLeft(123)));
+		}
+
+		[Test]
+		public void ParserCanVariableSetToStringWithEscaptedValues()
+		{
+			var parsingOptions = new ParserOptions("{{#var f = data}}" +
+			                                       "{{#var f = 'Te\\'st'}}" +
+			                                       "{{f.PadLeft(123)}}", null,
+				DefaultEncoding);
+			parsingOptions.Formatters.AddSingle((string value, int nr) =>
+			{
+				return value.PadLeft(nr);
+			}, "PadLeft");
+			var results =
+				Parser.ParseWithOptions(parsingOptions);
+			var date = DateTime.Now;
+			var result = results.CreateAndStringify(new Dictionary<string, object>
+			{
+				{ "data", date },
+			});
+			Assert.That(result, Is.EqualTo("Te'st".PadLeft(123)));
+		}
+
+		[Test]
+		public void ParserCanVariableSetToEmptyString()
+		{
+			var parsingOptions = new ParserOptions("{{#var f = ''}}" +
+			                                       "{{f.PadLeft(123)}}", null,
+				DefaultEncoding);
+			parsingOptions.Formatters.AddSingle((string value, int nr) =>
+			{
+				return value.PadLeft(nr);
+			}, "PadLeft");
+			var results =
+				Parser.ParseWithOptions(parsingOptions);
+			var date = DateTime.Now;
+			var result = results.CreateAndStringify(new Dictionary<string, object>
+			{
+				{ "data", date },
+			});
+			Assert.That(result, Is.EqualTo("".PadLeft(123)));
 		}
 
 		[Test]

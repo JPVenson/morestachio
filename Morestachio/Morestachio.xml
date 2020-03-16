@@ -1550,6 +1550,11 @@
             <param name="message"></param>
             <param name="replacements"></param>
         </member>
+        <member name="T:Morestachio.Framework.TextEngine">
+            <summary>
+            	Engine class for Text Compiling
+            </summary>
+        </member>
         <member name="T:Morestachio.Framework.Tokenizer">
             <summary>
                 Reads in a mustache template and lexes it into tokens.

@@ -131,12 +131,12 @@ namespace Morestachio.Framework
 			return textLocation;
 		}
 
-		private static bool IsStringDelimiter(char formatChar)
+		internal static bool IsStringDelimiter(char formatChar)
 		{
 			return formatChar == '\'' || formatChar == '\"';
 		}
 
-		private static bool IsWhiteSpaceDelimiter(char formatChar)
+		internal static bool IsWhiteSpaceDelimiter(char formatChar)
 		{
 			return formatChar == '\r' || formatChar == '\r' || formatChar == '\t' || formatChar == ' ';
 		}
