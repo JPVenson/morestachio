@@ -740,11 +740,11 @@ namespace Morestachio.Framework
 				}
 
 				var tokenValue = match.Value;
-				if (tokenValue.StartsWith("{{#declare", true, CultureInfo.InvariantCulture))
+				if (tokenValue.StartsWith("{{#declare ", true, CultureInfo.InvariantCulture))
 				{
 					scopestack.Push(Tuple.Create(tokenValue, match.Index));
 					var token = tokenValue.TrimStart('{').TrimEnd('}').TrimStart('#').Trim()
-						.Substring("declare".Length);
+						.Substring("declare ".Length).Trim();
 					if (string.IsNullOrWhiteSpace(token))
 					{
 						parseErrors.Add(new MorestachioSyntaxError(HumanizeCharacterLocation(match.Index, lines)
@@ -780,10 +780,10 @@ namespace Morestachio.Framework
 							"{{#declare name}}"));
 					}
 				}
-				else if (tokenValue.StartsWith("{{#include", true, CultureInfo.InvariantCulture))
+				else if (tokenValue.StartsWith("{{#include ", true, CultureInfo.InvariantCulture))
 				{
 					var token = tokenValue.TrimStart('{').TrimEnd('}').TrimStart('#').Trim()
-						.Substring("include".Length);
+						.Substring("include ".Length).Trim();
 					if (string.IsNullOrWhiteSpace(token) || !partialsNames.Contains(token))
 					{
 						parseErrors.Add(new MorestachioSyntaxError(
