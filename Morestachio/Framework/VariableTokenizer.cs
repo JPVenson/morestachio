@@ -85,8 +85,6 @@ namespace Morestachio.Framework
 							Tokenizer.HumanizeCharacterLocation(tokenIndex, lines)));
 						break;
 				}
-
-
 			}
 			else
 			{
