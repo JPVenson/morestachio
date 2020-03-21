@@ -31,3 +31,7 @@
 ////
 //[assembly: AssemblyVersion("1.0.0.0")]
 //[assembly: AssemblyFileVersion("1.0.0.0")]
+
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("Morestachio.Tests")]

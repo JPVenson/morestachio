@@ -155,7 +155,7 @@ namespace Morestachio.Tests
 			var parsingOptions = new ParserOptions("{{#var f = data}}" +
 			                                       "{{#var f = 'Te\\'st'}}" +
 			                                       "{{f.PadLeft(123)}}", null,
-				DefaultEncoding);
+				DefaultEncoding, true);
 			parsingOptions.Formatters.AddSingle((string value, int nr) =>
 			{
 				return value.PadLeft(nr);
@@ -224,14 +224,14 @@ namespace Morestachio.Tests
 		[Test]
 		public void ParserCanParseNumberAsFormatterArg()
 		{
-			var parsingOptions = new ParserOptions("{{Format.(123)}}", null,
+			var parsingOptions = new ParserOptions("{{f.(123)}}", null,
 				DefaultEncoding);
 			parsingOptions.Formatters.AddSingle(new Func<string, int, string>((e, f) => f.ToString(e)));
 			var results =
 				Parser.ParseWithOptions(parsingOptions);
 			var result = results.CreateAndStringify(new Dictionary<string, object>
 			{
-				{"Format", "F5" }
+				{"f", "F5" }
 			});
 			Assert.That(result, Is.EqualTo(123.ToString("F5")));
 		}
@@ -239,14 +239,14 @@ namespace Morestachio.Tests
 		[Test]
 		public void ParserCanParseFloatingNumber()
 		{
-			var parsingOptions = new ParserOptions("{{1111.123.('F5')}}", null,
+			var parsingOptions = new ParserOptions("{{1.123.('F5')}}", null,
 				DefaultEncoding);
 			var results =
 				Parser.ParseWithOptions(parsingOptions);
 			var result = results.CreateAndStringify(new Dictionary<string, object>
 			{
 			});
-			Assert.That(result, Is.EqualTo(1111.123.ToString("F5")));
+			Assert.That(result, Is.EqualTo(1.123.ToString("F5")));
 		}
 
 		[Test]
@@ -332,11 +332,12 @@ namespace Morestachio.Tests
 		[TestCase("{{[}}")]
 		[TestCase("{{]}}")]
 		[TestCase("{{)}}")]
-		[TestCase("{{(}}", 2)]
+		[TestCase("{{(}}")]
 		[TestCase("{{%}}")]
 		public void ParserShouldThrowForInvalidPaths(string template, int noOfErrors = 1)
 		{
-			Assert.That(Parser.ParseWithOptions(new ParserOptions(template)).Errors, Is.Not.Empty.And.Count.EqualTo(noOfErrors));
+			Assert.That(Parser.ParseWithOptions(new ParserOptions(template)).Errors, 
+				Is.Not.Empty);
 		}
 
 		[Test]
@@ -519,86 +520,7 @@ namespace Morestachio.Tests
 			var result = await parsed.CreateAndStringifyAsync(data);
 			Assert.That(result, Is.EqualTo("123456789"));
 		}
-
-		[Test]
-		[Ignore("Infer Tests are Outdated")]
-		public void ParserCanInferCollection()
-		{
-			var results = Parser.ParseWithOptions(new ParserOptions(
-				@"{{#Person}}{{Name}}{{#each ../Person.FavoriteColors}}{{.}}{{/each}}{{/Person}}", null, null, 0, false,
-				true));
-
-			var expected = @"{
-  ""Kind"": ""Document"",
-  ""Children"": [
-	{
-	  ""Kind"": ""ExpressionScope"",
-	  ""Value"": ""Person"",
-	  ""Children"": [
-		{
-		  ""Kind"": ""Expression"",
-		  ""Value"": ""Name"",
-		  ""EscapeValue"": true,
-		  ""Children"": []
-		},
-		{
-		  ""Kind"": ""OpenCollection"",
-		  ""Value"": ""../Person.FavoriteColors"",
-		  ""Children"": [
-			{
-			  ""Kind"": ""Expression"",
-			  ""Value"": ""."",
-			  ""EscapeValue"": true,
-			  ""Children"": []
-			}
-		  ]
-		}
-	  ]
-	}
-  ]
-}".EliminateWhitespace();
-
-			var serializeObject = JsonConvert.SerializeObject(results.Document);
-
-			Assert.That(serializeObject, Is.EqualTo(expected));
-		}
-
-		[Test]
-		[Ignore("Infer Tests are Outdated")]
-		public void ParserCanInferNestedProperties()
-		{
-			var results =
-				Parser.ParseWithOptions(new ParserOptions("{{#Person}}{{Name}}{{/Person}}", null, null, 0, false,
-					true));
-
-			var expected =
-				@"{""Kind"":""Document"",""Children"":[{""Kind"":""ExpressionScope"",""Value"":""Person"",""Children"":[{""Kind"":""Expression"",""Value"":""Name"",""EscapeValue"":true,""Children"":[]}]}]}"
-					.EliminateWhitespace();
-
-			var serializeObject = JsonConvert.SerializeObject(results.Document);
-
-			//var actual = JsonConvert.SerializeObject(results.InferredModel?.RepresentedContext()).EliminateWhitespace();
-
-			Assert.That(serializeObject, Is.EqualTo(expected));
-		}
-
-		[Test]
-		[Ignore("Infer Tests are Outdated")]
-		public void ParserCanInferScalar()
-		{
-			var results = Parser.ParseWithOptions(new ParserOptions("{{Name}}", null, null, 0, false, true));
-			var expected =
-				@"{""Kind"":""Document"",""Children"":[{""Kind"":""Expression"",""Value"":""Name"",""EscapeValue"":true,""Children"":[]}]}"
-					.EliminateWhitespace();
-
-
-			var serializeObject = JsonConvert.SerializeObject(results.Document);
-
-			//var actual = JsonConvert.SerializeObject(results.InferredModel?.RepresentedContext()).EliminateWhitespace();
-
-			Assert.That(serializeObject, Is.EqualTo(expected));
-		}
-
+		
 		[Test]
 		public void ParserCanParseEmailAcidTest()
 		{
@@ -913,9 +835,9 @@ namespace Morestachio.Tests
 			Assert.That(() =>
 			{
 				Parser.ParseWithOptions(new ParserOptions(
-					"{{#Collection}}Collection has elements{{^Collection}}Collection doesn't have elements{{/Collection}}"));
+					"{{#Collection}}Collection has elements{{/Collection}}{{^Collection}}Collection doesn't have elements{{/Collection}}"));
 				Parser.ParseWithOptions(new ParserOptions(
-					"{{^Collection}}Collection doesn't have elements{{#Collection}}Collection has elements{{/Collection}}"));
+					"{{^Collection}}Collection doesn't have elements{{/Collection}}{{#Collection}}Collection has elements{{/Collection}}"));
 			}, Throws.Nothing);
 		}
 
@@ -931,7 +853,7 @@ namespace Morestachio.Tests
 		{
 			Assert.That(() => Parser.ParseWithOptions(new ParserOptions(@"{{^Collection}}Collection doesn't have
 							elements{{#Collection}}Collection has
-						elements{{/Collection}}")), Throws.Nothing);
+						elements{{/Collection}}{{/Collection}}")), Throws.Nothing);
 		}
 
 		[Test]
@@ -962,75 +884,20 @@ namespace Morestachio.Tests
 		public void ParserChangeDefaultFormatter()
 		{
 			var dateTime = DateTime.UtcNow;
-			var parsingOptions = new ParserOptions("{{data.(d).AnyInt}},{{data}}", null, DefaultEncoding);
+			var parsingOptions = new ParserOptions("{{d.().a}},{{d}}", null, DefaultEncoding);
 			parsingOptions.Formatters.AddSingle<DateTime, object>(dt => new
 			{
 				Dt = dt,
-				AnyInt = 2
+				a = 2
 			});
 			var results = Parser.ParseWithOptions(parsingOptions);
 			//this should not work as the Default settings for DateTime are ToString(Arg) so it should return a string and not an object
 			Assert.That(results.CreateAndStringify(new Dictionary<string, object>
 			{
 				{
-					"data", dateTime
+					"d", dateTime
 				}
 			}), Is.EqualTo("2," + dateTime));
-		}
-
-		[Test]
-		[Ignore("Infer Tests are Outdated")]
-		public void ParserProducesEmptyObjectWhenTemplateHasNoMustacheMarkup()
-		{
-			var results = Parser.ParseWithOptions(new ParserOptions("This template has no mustache thingies.", null,
-				null, 0, false, true));
-
-			var expected =
-				@"{""Kind"":""Document"",""Children"":[{""Kind"":""Content"",""Content"":""This template has no mustache thingies."",""Children"":[]}]}";
-
-			var serializeObject = JsonConvert.SerializeObject(results.Document);
-
-			//var actual = JsonConvert.SerializeObject(results.InferredModel?.RepresentedContext()).EliminateWhitespace();
-
-			Assert.That(serializeObject, Is.EqualTo(expected));
-		}
-
-
-		[Test]
-		[Ignore("Infer Tests are Outdated")]
-		public void ParserRendersCollectionObjectsWhenUsed()
-		{
-			var results = Parser.ParseWithOptions(new ParserOptions("{{#each Employees}}{{name}}{{/each}}", null, null,
-				0, false, true));
-
-			var expected =
-				@"{""Kind"":""Document"",""Children"":[{""Kind"":""OpenCollection"",""Value"":""Employees"",""Children"":[{""Kind"":""Expression"",""Value"":""name"",""EscapeValue"":true,""Children"":[]}]}]}";
-
-			var serializeObject = JsonConvert.SerializeObject(results.Document);
-
-			//var actual = JsonConvert.SerializeObject(results.InferredModel?.RepresentedContext()).EliminateWhitespace();
-
-			Assert.That(serializeObject, Is.EqualTo(expected));
-		}
-
-
-		[Test]
-		[Ignore("Infer Tests are Outdated")]
-		public void ParserRendersCollectionSubObjectsWhenUsed()
-		{
-			var results = Parser.ParseWithOptions(new ParserOptions(
-				"{{#each Employees}}{{person.name}}{{#each favoriteColors}}{{hue}}{{/each}}{{#each workplaces}}{{.}}{{/each}}{{/each}}",
-				null, null, 0, false, true));
-
-			var expected =
-				@"{""Kind"":""Document"",""Children"":[{""Kind"":""OpenCollection"",""Value"":""Employees"",""Children"":[{""Kind"":""Expression"",""Value"":""person.name"",""EscapeValue"":true,""Children"":[]},{""Kind"":""OpenCollection"",""Value"":""favoriteColors"",""Children"":[{""Kind"":""Expression"",""Value"":""hue"",""EscapeValue"":true,""Children"":[]}]},{""Kind"":""OpenCollection"",""Value"":""workplaces"",""Children"":[{""Kind"":""Expression"",""Value"":""."",""EscapeValue"":true,""Children"":[]}]}]}]}"
-					.EliminateWhitespace();
-
-			var serializeObject = JsonConvert.SerializeObject(results.Document);
-
-			//var actual = JsonConvert.SerializeObject(results.InferredModel?.RepresentedContext()).EliminateWhitespace();
-
-			Assert.That(serializeObject, Is.EqualTo(expected));
 		}
 
 		[Test]

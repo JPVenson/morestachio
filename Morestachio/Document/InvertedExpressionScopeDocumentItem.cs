@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Framework;
+using Morestachio.Framework.Expression;
 
 namespace Morestachio.Document
 {
@@ -12,7 +13,7 @@ namespace Morestachio.Document
 	/// </summary>
 	/// <seealso cref="ExpressionScopeDocumentItem"/>
 	[System.Serializable]
-	public class InvertedExpressionScopeDocumentItem : ValueDocumentItemBase
+	public class InvertedExpressionScopeDocumentItem : ExpressionDocumentItemBase
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -23,9 +24,9 @@ namespace Morestachio.Document
 		}
 
 		/// <inheritdoc />
-		public InvertedExpressionScopeDocumentItem(string value)
+		public InvertedExpressionScopeDocumentItem(IExpression value)
 		{
-			Value = value;
+			Expression = value;
 		}
 
 		[UsedImplicitly]
@@ -40,7 +41,8 @@ namespace Morestachio.Document
 		/// <inheritdoc />
 		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
-			var c = await context.GetContextForPath(Value, scopeData);
+			//var c = await context.GetContextForPath(Value, scopeData);
+			var c = await Expression.GetValue(context, scopeData);
 			if (!await c.Exists())
 			{
 				return Children.WithScope(c);

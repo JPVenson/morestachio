@@ -28,7 +28,7 @@ namespace Morestachio.Linq
 			return sourceCollection.OrderByDescending(e => e);
 		}
 
-		[MorestachioFormatter("order asc", "Orders the list ascending")]
+		[MorestachioFormatter("OrderAsc", "Orders the list ascending")]
 		public static IEnumerable<T> OrderAsc<T>(IEnumerable<T> sourceCollection)
 		{
 			return sourceCollection.OrderBy(e => e);

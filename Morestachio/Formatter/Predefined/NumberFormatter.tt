@@ -36,8 +36,8 @@ namespace Morestachio.Formatter.Predefined
 {
 	public static partial class NumberFormatter
 	{
-	 <# 
-	 /* foreach (var type in wholeNumbers) 
+	 <# /*
+	  foreach (var type in wholeNumbers) 
 	 { 
 		foreach (var otherType in wholeNumbers) 
 		{ 
@@ -114,10 +114,11 @@ public string GetSelfFunction(string name, string op, string operation, Type lef
 public string GetFunction(string name, string op, string operation, Type result, Type left, Type right, string text)
 {
 	var opText = $@"
-		[MorestachioFormatter(""fnc_{op}"", ""{text}"")]
-		public static {result.Name} {name}([SourceObject]{left.Name} val1, {right.Name} val2) {{
+		[MorestachioFormatter(""fnc{name}"", ""{text}"")]
+		public static {result.Name} {name}([SourceObject]{left.Name} left, {right.Name} right) {{
 			return val1 {operation} val2;
 		}}";
 	return opText;
 }
 #>
+

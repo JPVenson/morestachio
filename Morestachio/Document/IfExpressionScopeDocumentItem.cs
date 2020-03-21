@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Framework;
+using Morestachio.Framework.Expression;
 
 namespace Morestachio.Document
 {
@@ -11,7 +12,7 @@ namespace Morestachio.Document
 	///		Defines the start of a Scope
 	/// </summary>
 	[System.Serializable]
-	public class IfExpressionScopeDocumentItem : ValueDocumentItemBase
+	public class IfExpressionScopeDocumentItem : ExpressionDocumentItemBase
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -22,9 +23,9 @@ namespace Morestachio.Document
 		}
 
 		/// <inheritdoc />
-		public IfExpressionScopeDocumentItem(string value)
+		public IfExpressionScopeDocumentItem(IExpression value)
 		{
-			Value = value;
+			Expression = value;
 		}
 
 		[UsedImplicitly]
@@ -41,7 +42,8 @@ namespace Morestachio.Document
 			ScopeData scopeData)
 		{
 			//we are checking the parent value not our current value
-			var c = await context.GetContextForPath(Value, scopeData);
+			//var c = await context.GetContextForPath(Value, scopeData);
+			var c = await Expression.GetValue(context, scopeData);
 			if (await c.Exists())
 			{
 				scopeData.ExecuteElse = false;

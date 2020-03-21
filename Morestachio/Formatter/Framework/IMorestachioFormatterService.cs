@@ -12,6 +12,11 @@ namespace Morestachio.Formatter.Framework
 	/// </summary>
 	public interface IMorestachioFormatterService
 	{		
+		/// <summary>
+		///		Experimental <para/>
+		///		Allows all parameters that are objects to be null
+		/// </summary>
+		bool AllParametersAllDefaultValue { get; set; }
 
 		/// <summary>
 		///		Defines how Formatters names are compared

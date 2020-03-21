@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Morestachio.Formatter;
+using Morestachio.Framework.Expression;
 
 namespace Morestachio.Framework
 {
@@ -34,9 +35,9 @@ namespace Morestachio.Framework
 
 			public override string ToString()
 			{
-				if (_pair.Format != null && _pair.Format.FormatString.Any())
+				if (_pair.Expression != null)
 				{
-					return $"{Type} {Value}.{_pair.Format.FormatterName}({_pair.Format.FormatString.Select(e => e.ToString()).Aggregate((e, f) => e + "," + f)})";
+					return $"{Type} {_pair.Expression}";
 				}
 				return $"{Type} {Value}";
 			}
@@ -63,7 +64,7 @@ namespace Morestachio.Framework
 		/// <summary>
 		///		With what format should this token be evaluated
 		/// </summary>
-		internal Tokenizer.FormattableToken Format { get; set; }
+		internal IExpression Expression { get; set; }
 		
 		/// <summary>
 		///		What is the Value of this token
