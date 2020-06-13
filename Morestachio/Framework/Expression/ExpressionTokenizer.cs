@@ -154,22 +154,7 @@ namespace Morestachio.Framework.Expression
 			}
 			else
 			{
-				var expressions = Expression.ParseFrom(expression, context, out _);
-				if (expressions.Length == 1)
-				{
-					return expressions[0];
-				}
-
-				if (expressions.Length == 0)
-				{
-					return new ExpressionList();
-				}
-
-				return new ExpressionList(expressions)
-				{
-					Location = expressions.First().Location
-				};
-				//xTokenizer.Validated(expression, tokenIndex, lines, parseErrors);
+				return Expression.ParseFrom(expression, context, out _);
 			}
 		}
 

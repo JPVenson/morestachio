@@ -216,7 +216,7 @@ namespace Morestachio.Framework.Expression
 		/// <param name="context">The context used to tokenize the text</param>
 		/// <param name="indexVar">the index of where the parsing stoped</param>
 		/// <returns></returns>
-		public static IExpression[] ParseFrom(string text,
+		public static IExpression ParseFrom(string text,
 			TokenzierContext context,
 			out int indexVar)
 		{
@@ -239,13 +239,10 @@ namespace Morestachio.Framework.Expression
 				expression.CompilePath(context, 0);
 				indexVar = text.Length;
 				context.AdvanceLocation(text.Length);
-				return new IExpression[]
-				{
-					expression
-				};
+				return expression;
 			}
 
-			var expressions = new List<IExpression>();
+			IExpression expressions = null;
 			HeaderTokenMatch currentScope = null;
 			//this COULD be made with regexes, i have made it and rejected it as it was no longer readable in any way.
 			var tokenScopes = new Stack<HeaderTokenMatch>();
@@ -496,12 +493,34 @@ namespace Morestachio.Framework.Expression
 									.AddWindow(new CharacterSnippedLocation(1, index, text)),
 								currentScope.Value.ToString()));
 							indexVar = 0;
-							return new IExpression[0];
+							return null;
 						}
 
 						if (currentScope.Parent == null)
 						{
-							expressions.Add(currentScope.Value);
+							if (expressions == null)
+							{
+								expressions = currentScope.Value;
+							}
+							else
+							{
+								if (expressions is ExpressionList expList)
+								{
+									expList.Add(currentScope.Value);
+								}
+								else
+								{
+									var oldExp = expressions;
+									expressions = new ExpressionList(new List<IExpression>()
+									{
+										oldExp,
+										currentScope.Value
+									})
+									{
+										Location = oldExp.Location
+									};	
+								}
+							}
 						}
 						else
 						{
@@ -535,7 +554,7 @@ namespace Morestachio.Framework.Expression
 									"Format", "(", "Name of Formatter",
 									"Did expect to find the name of a formatter but found single path. Did you forgot to put an . before the 2nd formatter?"));
 								indexVar = 0;
-								return new IExpression[0];
+								return null;
 							}
 
 							var currentExpression = currentScope.Value as Expression;
@@ -548,7 +567,7 @@ namespace Morestachio.Framework.Expression
 									"Format", "(", "Name of Formatter",
 									"Did expect to find the name of a formatter but found single path. Did you forgot to put an . before the 2nd formatter?"));
 								indexVar = 0;
-								return new IExpression[0];
+								return null;
 							}
 
 							//get the last part of the path as the name of the formatter
@@ -669,10 +688,10 @@ namespace Morestachio.Framework.Expression
 									.AddWindow(new CharacterSnippedLocation(1, index, text)),
 								currentScope.Value.ToString()));
 							indexVar = 0;
-							return new IExpression[0];
+							return null;
 						}
 
-						if (expressions.Any())
+						if (expressions != null)
 						{
 							if (formatChar != '.')
 							{
@@ -682,7 +701,7 @@ namespace Morestachio.Framework.Expression
 									currentScope.Value.ToString()));
 
 								indexVar = 0;
-								return new IExpression[0];
+								return null;
 							}
 						}
 
@@ -704,7 +723,7 @@ namespace Morestachio.Framework.Expression
 
 			context.AdvanceLocation(index);
 			indexVar = index;
-			return expressions.ToArray();
+			return expressions;
 		}
 
 		private class ExpressionDebuggerDisplay
