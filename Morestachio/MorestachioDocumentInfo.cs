@@ -185,13 +185,7 @@ namespace Morestachio
 		[PublicAPI]
 		public MorestachioDocumentResult Create([NotNull]object source, CancellationToken token)
 		{
-			MorestachioDocumentResult result = null;
-			using (var async = AsyncHelper.Wait)
-			{
-				async.Run(CreateAsync(source, token), e => result = e);
-			}
-
-			return result;
+			return CreateAsync(source, token).ConfigureAwait(false).GetAwaiter().GetResult();
 		}
 
 		/// <summary>

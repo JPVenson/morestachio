@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Morestachio.Framework;
 
 namespace Morestachio.ParserErrors
@@ -23,5 +24,7 @@ namespace Morestachio.ParserErrors
 		///		Gets a string that describes the Error
 		/// </summary>
 		string HelpText { get; }
+
+		void Format(StringBuilder sb);
 	}
 }

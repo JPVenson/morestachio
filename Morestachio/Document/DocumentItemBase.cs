@@ -126,9 +126,11 @@ namespace Morestachio.Document
 
 			if (!reader.IsEmptyElement)
 			{
-				DeSerializeXml(reader);
+				var readSubtree = reader.ReadSubtree();
+				readSubtree.Read();
+				DeSerializeXml(readSubtree);
 
-				if (reader.ReadToFollowing(nameof(Children)))
+				if (reader.Name == "Children" || reader.ReadToFollowing(nameof(Children)))
 				{
 					reader.ReadStartElement(); //nameof(Children)
 					while (!reader.Name.Equals(nameof(Children)) && reader.NodeType != XmlNodeType.EndElement)

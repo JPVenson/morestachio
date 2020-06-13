@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Morestachio.Document.Contracts;
 using Morestachio.Framework;
+using Morestachio.Framework.Expression;
 using Morestachio.ParserErrors;
 
 namespace Morestachio.Document.Custom
@@ -35,15 +36,12 @@ namespace Morestachio.Document.Custom
 		/// </summary>
 		public class TokenInfo
 		{
-			private readonly List<int> _lines;
-			private readonly int _tokenIndex;
+			public TokenzierContext TokenizerContext { get; set; }
 
 			internal TokenInfo(string token,
-				List<int> lines,
-				int tokenIndex)
+				TokenzierContext context)
 			{
-				_lines = lines;
-				_tokenIndex = tokenIndex;
+				TokenizerContext = context;
 				Token = token;
 				Errors = new List<IMorestachioError>();
 			}
@@ -57,20 +55,6 @@ namespace Morestachio.Document.Custom
 			///		Can be filled to return errors that occured in the formatting process
 			/// </summary>
 			public ICollection<IMorestachioError> Errors { get; }
-
-
-			/// <summary>
-			///		Can be used to format parts or a whole portion of the path
-			/// </summary>
-			/// <param name="format"></param>
-			/// <param name="options"></param>
-			/// <returns></returns>
-			public IEnumerable<TokenPair> Format(string format, ParserOptions options)
-			{
-				var enumerateFormats = Tokenizer.EnumerateFormats(format, _lines, _tokenIndex, Errors);
-				var tokenizeFormattables = Tokenizer.TokenizeFormattables(enumerateFormats, format, format, _lines, _tokenIndex, Errors, options);
-				return tokenizeFormattables;
-			}
 		}
 
 		/// <summary>

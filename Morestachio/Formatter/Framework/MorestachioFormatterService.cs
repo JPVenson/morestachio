@@ -236,6 +236,7 @@ namespace Morestachio.Formatter.Framework
 			return formatter;
 		}
 
+		public bool AllParametersAllDefaultValue { get; set; }
 		public StringComparison FormatterNameCompareMode { get; set; } = StringComparison.Ordinal;
 
 		/// <summary>
@@ -456,7 +457,7 @@ namespace Morestachio.Formatter.Framework
 				Log(() => $"Match parameter '{parameter.ParameterType}' [{parameter.Name}]");
 				object givenValue;
 				//set ether the source object or the value from the given arguments
-				
+
 				if (parameter.IsSourceObject)
 				{
 					Log(() => "Is Source object");
@@ -511,8 +512,8 @@ namespace Morestachio.Formatter.Framework
 				{
 					continue; //value and source object are optional so we do not to check for its existence 
 				}
-
-				if (Equals(givenValue, null))
+				
+				if (!AllParametersAllDefaultValue && Equals(givenValue, null))
 				{
 					Log(() =>
 						"Skip: Match is Invalid because template value is null where the Formatter does not have a optional value");
@@ -520,8 +521,7 @@ namespace Morestachio.Formatter.Framework
 					return default;
 				}
 			}
-			
-				
+
 			if (method.ContainsGenericParameters)
 			{
 				method = MakeGenericMethodInfoByValues(method, values.ToDictionary(e => e.Key.Name, e => e.Value));
@@ -584,6 +584,7 @@ namespace Morestachio.Formatter.Framework
 		{
 			if (parameter.ParameterType.IsConstructedGenericType)
 			{
+				//TODO check constraints of the generic type
 				return true;
 			}
 

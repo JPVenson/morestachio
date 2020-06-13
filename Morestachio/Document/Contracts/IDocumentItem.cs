@@ -1,18 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Xml;
-using System.Xml.Serialization;
 using JetBrains.Annotations;
 using Morestachio.Framework;
 
 namespace Morestachio.Document.Contracts
 {
-	internal interface IMorestachioDocument : IDocumentItem, IXmlSerializable, ISerializable
-	{
-
-	}
-
 	/// <summary>
 	///		Defines a Part in the Template that can be processed
 	/// </summary>

@@ -10,7 +10,7 @@ namespace Morestachio.Framework
 	/// </summary>
 	public class IndexedParseException : MustachioException
 	{
-		private static string FormatMessage(string message, CharacterLocationExtended location)
+		internal static string FormatMessage(string message, CharacterLocationExtended location)
 		{
 			return $"{location.Line}:{location.Character} {message}" +
 				   Environment.NewLine +

@@ -12,7 +12,7 @@ namespace Morestachio.Document
 	{
 		protected ValueDocumentItemBase()
 		{
-			
+
 		}
 
 		public string Value { get; protected set; }
@@ -66,9 +66,9 @@ namespace Morestachio.Document
 				return true;
 			}
 
-			return base.Equals(other) && 
-			       ((string.IsNullOrEmpty(Value) && string.IsNullOrEmpty(other.Value))
-				       || Value == other.Value);
+			return base.Equals(other) &&
+				   ((string.IsNullOrEmpty(Value) && string.IsNullOrEmpty(other.Value))
+					   || Value == other.Value);
 		}
 
 		public override bool Equals(object obj)
@@ -88,7 +88,7 @@ namespace Morestachio.Document
 				return false;
 			}
 
-			return Equals((ValueDocumentItemBase) obj);
+			return Equals((ValueDocumentItemBase)obj);
 		}
 
 		public override int GetHashCode()

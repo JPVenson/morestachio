@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core.Parser;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,6 +9,9 @@ using Morestachio.Attributes;
 using Morestachio.Formatter;
 using Morestachio.Framework;
 using Morestachio.Formatter.Framework;
+using Morestachio.Framework.Expression;
+using Morestachio.Helper;
+using Morestachio.Linq;
 using Morestachio.ParserErrors;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -21,6 +25,61 @@ namespace Morestachio.Tests
 	{
 		public static Encoding DefaultEncoding { get; set; } = new UnicodeEncoding(true, false, false);
 
+		[Test]
+		[TestCase(".(.('').())")]
+		[TestCase(".a(.b(.c().d()))")]
+		[TestCase("d.f")]
+		[TestCase("d.f()")]
+		[TestCase("d.f().Test")]
+		[TestCase("d.f(fA)")]
+		[TestCase("d.f(fA).Test")]
+		[TestCase("d.f(fA, .fb()).Test")]
+		[TestCase("d.f(fA, fb.()).Test")]
+		[TestCase("d.f(fA.())")]
+		[TestCase("d.f(fA.(''))")]
+		[TestCase("d.f(fA.('').Test)")]
+		[TestCase("d.f(fA.('').().())")]
+		[TestCase("d.f(fA.('').fB.())")]
+		[TestCase("d.f(fA.('').fB.()).Test")]
+		[TestCase("d.f(fA.('').fB.()).Test.Data")]
+		[TestCase("d.f(fA.('').fB.()).Test.fC()")]
+		[TestCase("d.f(fA.('', e))")]
+		[TestCase("d.f(fA.('', e.()))")]
+		[TestCase("d.f(fA.('d'))")]
+		[TestCase("d.f(fA.('d').Test)")]
+		[TestCase("d.f(fA.('d').())")]
+		[TestCase("d.f(fA.('d').fB.())")]
+		[TestCase("d.f(fA.('d').fB.()).Test")]
+		[TestCase("d.f(fA.('d').fB.()).Test.Data")]
+		[TestCase("d.f(fA.('d').fB.()).Test.fC()")]
+		[TestCase("d.f(fA.('d').fB.('')).Test.fC()")]
+		[TestCase("d.f(fA.('d').fB.('')).Test.fC('')")]
+		[TestCase("d.f(fA.('d').fB.('d')).Test.fC('')")]
+		[TestCase("d.f(fA.('d').fB.('d')).Test.fC('d')")]
+		[TestCase("d.f(fA.('d', f).fB.('d')).Test.fC('d')")]
+		[TestCase("d.f(fA.('d', f).fB.('d', f)).Test.fC('d')")]
+		[TestCase("d.f(fA.('d', f).fB.('d', f)).Test.fC('d', f)")]
+		[TestCase("d.f(fA.('d', f.()).fB.('d', f)).Test.fC('d', f)")]
+		[TestCase("d.f(fA.('d', f.()).fB.('d', f.())).Test.fC('d', f.())")]
+		public void TestExpressionParser(string query)
+		{
+			var context = TokenzierContext.FromText(query);
+			var expressions = ExpressionTokenizer.ParseExpressionOrString(query, context);
+			Assert.That(expressions, Is.Not.Null);
+			Assert.That(expressions.ToString(), Is.EqualTo(query));
+			Assert.That(context.Errors, Is.Empty, () => context.Errors.GetErrorText());
+		}
+		
+		[Test]
+		[TestCase("d.f(fA.('', e.('')))")]
+		public void TestExpressionParserDbg(string query)
+		{
+			var context = TokenzierContext.FromText(query);
+			var expressions = ExpressionTokenizer.ParseExpressionOrString(query, context);
+			Assert.That(expressions, Is.Not.Null);
+			Assert.That(context.Errors, Is.Empty, () => context.Errors.GetErrorText());
+		}
+		
 		[Test]
 		[TestCase("d")]
 		[TestCase("D")]
@@ -89,8 +148,8 @@ namespace Morestachio.Tests
 		public void ParserCanVariableSetToOtherVariable()
 		{
 			var parsingOptions = new ParserOptions("{{#var f = data}}" +
-			                                       "{{#var e = f.('G')}}" +
-			                                       "{{e.PadLeft(123)}}", null,
+												   "{{#var e = f.('G')}}" +
+												   "{{e.PadLeft(123)}}", null,
 				DefaultEncoding);
 			parsingOptions.Formatters.AddSingle((string value, int nr) =>
 			{
@@ -110,8 +169,8 @@ namespace Morestachio.Tests
 		public void ParserCanVariableSetToNull()
 		{
 			var parsingOptions = new ParserOptions("{{#var f = data}}" +
-			                                       "{{#var f = null}}" +
-			                                       "{{f.PadLeft(123)}}", null,
+												   "{{#var f = null}}" +
+												   "{{f.PadLeft(123)}}", null,
 				DefaultEncoding);
 			parsingOptions.Formatters.AddSingle((string value, int nr) =>
 			{
@@ -132,8 +191,8 @@ namespace Morestachio.Tests
 		public void ParserCanVariableSetToString()
 		{
 			var parsingOptions = new ParserOptions("{{#var f = data}}" +
-			                                       "{{#var f = 'Test'}}" +
-			                                       "{{f.PadLeft(123)}}", null,
+												   "{{#var f = 'Test'}}" +
+												   "{{f.PadLeft(123)}}", null,
 				DefaultEncoding);
 			parsingOptions.Formatters.AddSingle((string value, int nr) =>
 			{
@@ -153,9 +212,9 @@ namespace Morestachio.Tests
 		public void ParserCanVariableSetToStringWithEscaptedValues()
 		{
 			var parsingOptions = new ParserOptions("{{#var f = data}}" +
-			                                       "{{#var f = 'Te\\'st'}}" +
-			                                       "{{f.PadLeft(123)}}", null,
-				DefaultEncoding);
+												   "{{#var f = 'Te\\'st'}}" +
+												   "{{f.PadLeft(123)}}", null,
+				DefaultEncoding, true);
 			parsingOptions.Formatters.AddSingle((string value, int nr) =>
 			{
 				return value.PadLeft(nr);
@@ -174,7 +233,7 @@ namespace Morestachio.Tests
 		public void ParserCanVariableSetToEmptyString()
 		{
 			var parsingOptions = new ParserOptions("{{#var f = ''}}" +
-			                                       "{{f.PadLeft(123)}}", null,
+												   "{{f.PadLeft(123)}}", null,
 				DefaultEncoding);
 			parsingOptions.Formatters.AddSingle((string value, int nr) =>
 			{
@@ -224,14 +283,14 @@ namespace Morestachio.Tests
 		[Test]
 		public void ParserCanParseNumberAsFormatterArg()
 		{
-			var parsingOptions = new ParserOptions("{{Format.(123)}}", null,
+			var parsingOptions = new ParserOptions("{{f.(123)}}", null,
 				DefaultEncoding);
 			parsingOptions.Formatters.AddSingle(new Func<string, int, string>((e, f) => f.ToString(e)));
 			var results =
 				Parser.ParseWithOptions(parsingOptions);
 			var result = results.CreateAndStringify(new Dictionary<string, object>
 			{
-				{"Format", "F5" }
+				{"f", "F5" }
 			});
 			Assert.That(result, Is.EqualTo(123.ToString("F5")));
 		}
@@ -239,14 +298,78 @@ namespace Morestachio.Tests
 		[Test]
 		public void ParserCanParseFloatingNumber()
 		{
-			var parsingOptions = new ParserOptions("{{1111.123.('F5')}}", null,
+			var parsingOptions = new ParserOptions("{{1.123.('F5')}}", null,
 				DefaultEncoding);
 			var results =
 				Parser.ParseWithOptions(parsingOptions);
 			var result = results.CreateAndStringify(new Dictionary<string, object>
 			{
 			});
-			Assert.That(result, Is.EqualTo(1111.123.ToString("F5")));
+			Assert.That(result, Is.EqualTo(1.123.ToString("F5")));
+		}
+
+		[Test]
+		public void TestRootAccess()
+		{
+			var templateWorking = "{{#EACH data.testList.Select()}}" +
+								  "{{#var eachValue = ~data.testInt}}" +
+								  "{{/EACH}}" +
+								  "{{eachValue}} = {{~data.testInt}} = {{data.testInt}}";
+
+			var parsingOptionsWorking = new ParserOptions(templateWorking, null, DefaultEncoding);
+			parsingOptionsWorking.Formatters.AddFromType(typeof(DynamicLinq));
+			parsingOptionsWorking.Formatters.AddFromType(typeof(FormatterTests.NumberFormatter));
+			var parsedTemplateWorking = Parser.ParseWithOptions(parsingOptionsWorking);
+
+			var modelWorking = new Dictionary<string, object>()
+			{
+				{
+					"data", new Dictionary<string, object>()
+					{
+						{
+							"testList",
+							new string[1]
+							{
+								string.Empty
+							}
+						},
+						{
+							"testInt",
+							2
+						}
+					}
+				}
+			};
+	
+			var result = parsedTemplateWorking.Create(modelWorking).Stream.Stringify(true, DefaultEncoding);
+			Assert.AreEqual("2 = 2 = 2", result);
+		}
+
+		[Test]
+		public void TestMethodAsArgumentAccess()
+		{
+			var options = new ParserOptions("{{data.Multiply(data.Multiply(data))}}", null, DefaultEncoding);
+			options.Formatters.AddFromType(typeof(NumberFormatter));
+			var template = Parser.ParseWithOptions(options);
+			var andStringify = template.CreateAndStringify(new Dictionary<string, object>()
+			{
+				{"data", 2}
+			});
+
+			Assert.That(andStringify, Is.EqualTo("8"));
+		}
+
+		public static class NumberFormatter
+		{
+			[MorestachioFormatter("Multiply", "XXX")]
+			public static decimal Multiply(object value, object value2)
+			{
+				decimal a = 0;
+				decimal.TryParse(value.ToString(), out a);
+				decimal b = 0;
+				decimal.TryParse(value2.ToString(), out b);
+				return a * b;
+			}
 		}
 
 		[Test]
@@ -266,20 +389,20 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
-		[TestCase("{{data(d))}}", 2)]
-		[TestCase("{{data((d)}}", 2)]
+		[TestCase("{{data.(d))}}", 1, Ignore = "Currently its not possible to evaluate this info")]
+		[TestCase("{{data.((d)}}", 1)]
 		[TestCase("{{data)}}", 1)]
-		[TestCase("{{data(}}", 2)]
-		[TestCase("{{data(arg}}", 2)]
-		[TestCase("{{data(arg, 'test'}}", 2)]
-		[TestCase("{{data(arg, 'test)}}", 3)]
-		[TestCase("{{data(arg, )}}", 1)]
+		[TestCase("{{data.(}}", 1)]
+		[TestCase("{{data.(arg}}", 1)]
+		[TestCase("{{data.(arg, 'test'}}", 1)]
+		[TestCase("{{data.(arg, 'test)}}", 1)]
+		[TestCase("{{data.(arg, )}}", 1)]
 		public void ParserThrowsAnExceptionWhenFormatIsMismatched(string invalidTemplate, int expectedNoOfExceptions)
 		{
 			IEnumerable<IMorestachioError> errors;
 			Assert.That(errors = Parser.ParseWithOptions(new ParserOptions(invalidTemplate)).Errors,
 				Is.Not.Empty.And.Count.EqualTo(expectedNoOfExceptions),
-				() => errors.Select(e => e.HelpText).Aggregate((e, f) => e + Environment.NewLine + f));
+				() => errors.Select(e => e.HelpText).DefaultIfEmpty("").Aggregate((e, f) => e + Environment.NewLine + f));
 		}
 
 		[Test]
@@ -332,11 +455,12 @@ namespace Morestachio.Tests
 		[TestCase("{{[}}")]
 		[TestCase("{{]}}")]
 		[TestCase("{{)}}")]
-		[TestCase("{{(}}", 2)]
+		[TestCase("{{(}}")]
 		[TestCase("{{%}}")]
 		public void ParserShouldThrowForInvalidPaths(string template, int noOfErrors = 1)
 		{
-			Assert.That(Parser.ParseWithOptions(new ParserOptions(template)).Errors, Is.Not.Empty.And.Count.EqualTo(noOfErrors));
+			Assert.That(Parser.ParseWithOptions(new ParserOptions(template)).Errors,
+				Is.Not.Empty);
 		}
 
 		[Test]
@@ -350,17 +474,17 @@ namespace Morestachio.Tests
 		}
 
 
-		[Test]
-		[TestCase("1{{first name}}", 1)]
-		[TestCase("ss{{#each company.name}}\nasdf", 1)]
-		[TestCase("xzyhj{{#company.address_line_1}}\nasdf{{dsadskl-sasa@}}\n{{/each}}", 3)]
-		[TestCase("fff{{#each company.address_line_1}}\n{{dsadskl-sasa@}}\n{{/each}}", 1)]
-		[TestCase("a{{name}}dd\ndd{{/each}}dd", 1)]
-		public void ParserShouldThrowWithCharacterLocationInformation(string template, int expectedErrorCount)
-		{
-			Assert.That(Parser.ParseWithOptions(new ParserOptions(template)).Errors,
-				Is.Not.Empty.And.Count.EqualTo(expectedErrorCount));
-		}
+		//[Test]
+		//[TestCase("1{{first name}}", 1)]
+		//[TestCase("ss{{#each company.name}}\nasdf", 1)]
+		//[TestCase("xzyhj{{#company.address_line_1}}\nasdf{{dsadskl-sasa@}}\n{{/each}}", 2)]
+		//[TestCase("fff{{#each company.address_line_1}}\n{{dsadskl-sasa@}}\n{{/each}}", 1)]
+		//[TestCase("a{{name}}dd\ndd{{/each}}dd", 1)]
+		//public void ParserShouldThrowWithCharacterLocationInformation(string template, int expectedErrorCount)
+		//{
+		//	Assert.That(Parser.ParseWithOptions(new ParserOptions(template)).Errors,
+		//		Is.Not.Empty.And.Count.EqualTo(expectedErrorCount));
+		//}
 
 		[Test]
 		[TestCase("<wbr>", "{{content}}", "&lt;wbr&gt;")]
@@ -518,85 +642,6 @@ namespace Morestachio.Tests
 			var parsed = Parser.ParseWithOptions(parsingOptions);
 			var result = await parsed.CreateAndStringifyAsync(data);
 			Assert.That(result, Is.EqualTo("123456789"));
-		}
-
-		[Test]
-		[Ignore("Infer Tests are Outdated")]
-		public void ParserCanInferCollection()
-		{
-			var results = Parser.ParseWithOptions(new ParserOptions(
-				@"{{#Person}}{{Name}}{{#each ../Person.FavoriteColors}}{{.}}{{/each}}{{/Person}}", null, null, 0, false,
-				true));
-
-			var expected = @"{
-  ""Kind"": ""Document"",
-  ""Children"": [
-	{
-	  ""Kind"": ""ExpressionScope"",
-	  ""Value"": ""Person"",
-	  ""Children"": [
-		{
-		  ""Kind"": ""Expression"",
-		  ""Value"": ""Name"",
-		  ""EscapeValue"": true,
-		  ""Children"": []
-		},
-		{
-		  ""Kind"": ""OpenCollection"",
-		  ""Value"": ""../Person.FavoriteColors"",
-		  ""Children"": [
-			{
-			  ""Kind"": ""Expression"",
-			  ""Value"": ""."",
-			  ""EscapeValue"": true,
-			  ""Children"": []
-			}
-		  ]
-		}
-	  ]
-	}
-  ]
-}".EliminateWhitespace();
-
-			var serializeObject = JsonConvert.SerializeObject(results.Document);
-
-			Assert.That(serializeObject, Is.EqualTo(expected));
-		}
-
-		[Test]
-		[Ignore("Infer Tests are Outdated")]
-		public void ParserCanInferNestedProperties()
-		{
-			var results =
-				Parser.ParseWithOptions(new ParserOptions("{{#Person}}{{Name}}{{/Person}}", null, null, 0, false,
-					true));
-
-			var expected =
-				@"{""Kind"":""Document"",""Children"":[{""Kind"":""ExpressionScope"",""Value"":""Person"",""Children"":[{""Kind"":""Expression"",""Value"":""Name"",""EscapeValue"":true,""Children"":[]}]}]}"
-					.EliminateWhitespace();
-
-			var serializeObject = JsonConvert.SerializeObject(results.Document);
-
-			//var actual = JsonConvert.SerializeObject(results.InferredModel?.RepresentedContext()).EliminateWhitespace();
-
-			Assert.That(serializeObject, Is.EqualTo(expected));
-		}
-
-		[Test]
-		[Ignore("Infer Tests are Outdated")]
-		public void ParserCanInferScalar()
-		{
-			var results = Parser.ParseWithOptions(new ParserOptions("{{Name}}", null, null, 0, false, true));
-			var expected =
-				@"{""Kind"":""Document"",""Children"":[{""Kind"":""Expression"",""Value"":""Name"",""EscapeValue"":true,""Children"":[]}]}"
-					.EliminateWhitespace();
-
-
-			var serializeObject = JsonConvert.SerializeObject(results.Document);
-
-			//var actual = JsonConvert.SerializeObject(results.InferredModel?.RepresentedContext()).EliminateWhitespace();
-
-			Assert.That(serializeObject, Is.EqualTo(expected));
 		}
 
 		[Test]
@@ -913,9 +958,9 @@ namespace Morestachio.Tests
 			Assert.That(() =>
 			{
 				Parser.ParseWithOptions(new ParserOptions(
-					"{{#Collection}}Collection has elements{{^Collection}}Collection doesn't have elements{{/Collection}}"));
+					"{{#Collection}}Collection has elements{{/Collection}}{{^Collection}}Collection doesn't have elements{{/Collection}}"));
 				Parser.ParseWithOptions(new ParserOptions(
-					"{{^Collection}}Collection doesn't have elements{{#Collection}}Collection has elements{{/Collection}}"));
+					"{{^Collection}}Collection doesn't have elements{{/Collection}}{{#Collection}}Collection has elements{{/Collection}}"));
 			}, Throws.Nothing);
 		}
 
@@ -931,7 +976,7 @@ namespace Morestachio.Tests
 		{
 			Assert.That(() => Parser.ParseWithOptions(new ParserOptions(@"{{^Collection}}Collection doesn't have
 							elements{{#Collection}}Collection has
-						elements{{/Collection}}")), Throws.Nothing);
+						elements{{/Collection}}{{/Collection}}")), Throws.Nothing);
 		}
 
 		[Test]
@@ -962,75 +1007,20 @@ namespace Morestachio.Tests
 		public void ParserChangeDefaultFormatter()
 		{
 			var dateTime = DateTime.UtcNow;
-			var parsingOptions = new ParserOptions("{{data.(d).AnyInt}},{{data}}", null, DefaultEncoding);
+			var parsingOptions = new ParserOptions("{{d.().a}},{{d}}", null, DefaultEncoding);
 			parsingOptions.Formatters.AddSingle<DateTime, object>(dt => new
 			{
 				Dt = dt,
-				AnyInt = 2
+				a = 2
 			});
 			var results = Parser.ParseWithOptions(parsingOptions);
 			//this should not work as the Default settings for DateTime are ToString(Arg) so it should return a string and not an object
 			Assert.That(results.CreateAndStringify(new Dictionary<string, object>
 			{
 				{
-					"data", dateTime
+					"d", dateTime
 				}
 			}), Is.EqualTo("2," + dateTime));
-		}
-
-		[Test]
-		[Ignore("Infer Tests are Outdated")]
-		public void ParserProducesEmptyObjectWhenTemplateHasNoMustacheMarkup()
-		{
-			var results = Parser.ParseWithOptions(new ParserOptions("This template has no mustache thingies.", null,
-				null, 0, false, true));
-
-			var expected =
-				@"{""Kind"":""Document"",""Children"":[{""Kind"":""Content"",""Content"":""This template has no mustache thingies."",""Children"":[]}]}";
-
-			var serializeObject = JsonConvert.SerializeObject(results.Document);
-
-			//var actual = JsonConvert.SerializeObject(results.InferredModel?.RepresentedContext()).EliminateWhitespace();
-
-			Assert.That(serializeObject, Is.EqualTo(expected));
-		}
-
-
-		[Test]
-		[Ignore("Infer Tests are Outdated")]
-		public void ParserRendersCollectionObjectsWhenUsed()
-		{
-			var results = Parser.ParseWithOptions(new ParserOptions("{{#each Employees}}{{name}}{{/each}}", null, null,
-				0, false, true));
-
-			var expected =
-				@"{""Kind"":""Document"",""Children"":[{""Kind"":""OpenCollection"",""Value"":""Employees"",""Children"":[{""Kind"":""Expression"",""Value"":""name"",""EscapeValue"":true,""Children"":[]}]}]}";
-
-			var serializeObject = JsonConvert.SerializeObject(results.Document);
-
-			//var actual = JsonConvert.SerializeObject(results.InferredModel?.RepresentedContext()).EliminateWhitespace();
-
-			Assert.That(serializeObject, Is.EqualTo(expected));
-		}
-
-
-		[Test]
-		[Ignore("Infer Tests are Outdated")]
-		public void ParserRendersCollectionSubObjectsWhenUsed()
-		{
-			var results = Parser.ParseWithOptions(new ParserOptions(
-				"{{#each Employees}}{{person.name}}{{#each favoriteColors}}{{hue}}{{/each}}{{#each workplaces}}{{.}}{{/each}}{{/each}}",
-				null, null, 0, false, true));
-
-			var expected =
-				@"{""Kind"":""Document"",""Children"":[{""Kind"":""OpenCollection"",""Value"":""Employees"",""Children"":[{""Kind"":""Expression"",""Value"":""person.name"",""EscapeValue"":true,""Children"":[]},{""Kind"":""OpenCollection"",""Value"":""favoriteColors"",""Children"":[{""Kind"":""Expression"",""Value"":""hue"",""EscapeValue"":true,""Children"":[]}]},{""Kind"":""OpenCollection"",""Value"":""workplaces"",""Children"":[{""Kind"":""Expression"",""Value"":""."",""EscapeValue"":true,""Children"":[]}]}]}]}"
-					.EliminateWhitespace();
-
-			var serializeObject = JsonConvert.SerializeObject(results.Document);
-
-			//var actual = JsonConvert.SerializeObject(results.InferredModel?.RepresentedContext()).EliminateWhitespace();
-
-			Assert.That(serializeObject, Is.EqualTo(expected));
 		}
 
 		[Test]

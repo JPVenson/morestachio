@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Morestachio.Framework;
 
 namespace Morestachio.ParserErrors
@@ -34,5 +35,11 @@ namespace Morestachio.ParserErrors
 		
 		/// <inheritdoc />
 		public string HelpText { get; }
+
+		/// <inheritdoc />
+		public void Format(StringBuilder sb)
+		{
+			sb.Append(IndexedParseException.FormatMessage(HelpText, Location));
+		}
 	}
 }

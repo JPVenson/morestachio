@@ -107,60 +107,60 @@ namespace Morestachio.Tests.SerilalizerTests
 			SerilalizeAndDeserialize(alias);
 		}
 
-		[Test]
-		public void CallFormatter()
-		{
-			var alias = new CallFormatterDocumentItem(new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>[0], "");
-			SerilalizeAndDeserialize(alias);
-			alias = new CallFormatterDocumentItem(new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>[0], null);
-			SerilalizeAndDeserialize(alias);
-			alias = new CallFormatterDocumentItem(new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>[0], "test");
-			SerilalizeAndDeserialize(alias);
-			alias = new CallFormatterDocumentItem(new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>[]
-			{
-				new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>(new Tokenizer.HeaderTokenMatch()
-				{
-					Value = "TEST",
-					Arguments = new List<Tokenizer.HeaderTokenMatch>()
-					{
-						new Tokenizer.HeaderTokenMatch()
-						{
-							Value = "TESTINNER"
-						}
-					},
-					TokenType = Tokenizer.HeaderArgumentType.String,
-					TokenLocation = new CharacterLocation()
-					{
-						Character = 123,
-						Line = 321
-					},
-					ArgumentName = "TESTARG"
-				}, new ContentDocumentItem("CONTENT")),
-			}, "test");
-			SerilalizeAndDeserialize(alias);	
+		//[Test]
+		//public void CallFormatter()
+		//{
+		//	var alias = new CallFormatterDocumentItem(new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>[0], "");
+		//	SerilalizeAndDeserialize(alias);
+		//	alias = new CallFormatterDocumentItem(new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>[0], null);
+		//	SerilalizeAndDeserialize(alias);
+		//	alias = new CallFormatterDocumentItem(new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>[0], "test");
+		//	SerilalizeAndDeserialize(alias);
+		//	alias = new CallFormatterDocumentItem(new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>[]
+		//	{
+		//		new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>(new Tokenizer.HeaderTokenMatch()
+		//		{
+		//			Value = "TEST",
+		//			Arguments = new List<Tokenizer.HeaderTokenMatch>()
+		//			{
+		//				new Tokenizer.HeaderTokenMatch()
+		//				{
+		//					Value = "TESTINNER"
+		//				}
+		//			},
+		//			TokenType = Tokenizer.HeaderArgumentType.String,
+		//			TokenLocation = new CharacterLocation()
+		//			{
+		//				Character = 123,
+		//				Line = 321
+		//			},
+		//			ArgumentName = "TESTARG"
+		//		}, new ContentDocumentItem("CONTENT")),
+		//	}, "test");
+		//	SerilalizeAndDeserialize(alias);	
 			
-			alias = new CallFormatterDocumentItem(new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>[]
-			{
-				new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>(new Tokenizer.HeaderTokenMatch()
-				{
-					Value = "",
-					Arguments = new List<Tokenizer.HeaderTokenMatch>()
-					{
-						new Tokenizer.HeaderTokenMatch()
-						{
-							Value = ""
-						}
-					},
-					TokenType = Tokenizer.HeaderArgumentType.String,
-					TokenLocation = new CharacterLocation()
-					{
-						Character = 123,
-						Line = 321
-					},
-					ArgumentName = ""
-				}, new ContentDocumentItem("")),
-			}, "test");
-			SerilalizeAndDeserialize(alias);
-		}
+		//	alias = new CallFormatterDocumentItem(new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>[]
+		//	{
+		//		new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>(new Tokenizer.HeaderTokenMatch()
+		//		{
+		//			Value = "",
+		//			Arguments = new List<Tokenizer.HeaderTokenMatch>()
+		//			{
+		//				new Tokenizer.HeaderTokenMatch()
+		//				{
+		//					Value = ""
+		//				}
+		//			},
+		//			TokenType = Tokenizer.HeaderArgumentType.String,
+		//			TokenLocation = new CharacterLocation()
+		//			{
+		//				Character = 123,
+		//				Line = 321
+		//			},
+		//			ArgumentName = ""
+		//		}, new ContentDocumentItem("")),
+		//	}, "test");
+		//	SerilalizeAndDeserialize(alias);
+		//}
 	}
 }

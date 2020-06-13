@@ -126,7 +126,7 @@ namespace Morestachio.Tests
 			var model = new Dictionary<string, object>();
 
 			var plainText = @"as{{!stu
-            ff}}df";
+			ff}}df";
 			var rendered = Parser.ParseWithOptions(new ParserOptions(plainText, null, ParserFixture.DefaultEncoding))
 				.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
 
@@ -420,7 +420,7 @@ namespace Morestachio.Tests
 
 			Assert.That(parsedTemplate.Errors
 				.OfType<MorestachioSyntaxError>()
-				.FirstOrDefault(e => e.Location.Equals(CharacterLocation.FromFormatString("1:36"))), Is.Not.Null );
+				.FirstOrDefault(e => e.Location.Equals(CharacterLocation.FromFormatString("1:38"))), Is.Not.Null );
 		}
 
 		[Test]
@@ -554,7 +554,7 @@ namespace Morestachio.Tests
 		public void TemplateRendersWithComplexUpScopePathWithFormatting()
 		{
 			var template =
-				@"{{#Data1.Data2.NullableInit}}{{../../../root.('c')}}{{/Data1.Data2.NullableInit}}";
+				@"{{#d.d.n}}{{../../../r.('c')}}{{/d.d.n}}";
 
 			var parsedTemplate =
 				Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding));
@@ -562,22 +562,22 @@ namespace Morestachio.Tests
 			var model = new Dictionary<string, object>()
 			{
 				{
-					"Data1", new Dictionary<string, object>()
+					"d", new Dictionary<string, object>()
 					{
 						{
-							"Data2", new Dictionary<string, object>()
+							"d", new Dictionary<string, object>()
 							{
-								{"NullableInit", (int?) 1}
+								{"n", (int?) 1}
 							}
 						}
 					}
 				},
-				{"root", "tset"}
+				{"r", "tset"}
 			};
 
 			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
 
-			Assert.AreEqual(model["root"], result);
+			Assert.AreEqual(model["r"], result);
 		}
 
 		[Test]

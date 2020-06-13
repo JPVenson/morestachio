@@ -2,6 +2,7 @@
 using Morestachio.Document;
 using Morestachio.Document.Contracts;
 using Morestachio.Formatter;
+using Morestachio.Framework.Expression;
 using Morestachio.ParserErrors;
 
 #region
@@ -43,65 +44,65 @@ namespace Morestachio
 				throw new ArgumentNullException(nameof(parsingOptions), "The given Stream is null");
 			}
 
-			var errors = new List<IMorestachioError>();
 			var profiler = new PerformanceProfiler(parsingOptions.ProfileExecution);
 			Queue<TokenPair> tokens;
+			TokenzierContext context;
 			using (profiler.Begin("Tokenize"))
 			{
-				tokens = new Queue<TokenPair>(Tokenizer.Tokenize(parsingOptions, errors, profiler));
+				tokens = new Queue<TokenPair>(Tokenizer.Tokenize(parsingOptions, profiler, out context));
 			}
 
 			//if there are any errors do not parse the template
 			var documentInfo = new MorestachioDocumentInfo(parsingOptions,
-				errors.Any() ? null : Parse(tokens, parsingOptions), errors);
+				context.Errors.Any() ? null : Parse(tokens, parsingOptions), context.Errors);
 			documentInfo.Profiler = profiler;
 			return documentInfo;
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static IValueDocumentItem ParseAsPath(Tokenizer.HeaderTokenMatch token)
-		{
-			switch (token.TokenType)
-			{
-				case Tokenizer.HeaderArgumentType.String:
-					return new ContentDocumentItem(token.Value)
-					{
-						ExpressionStart = token.TokenLocation
-					};
-				case Tokenizer.HeaderArgumentType.Expression:
-					if (token.Arguments.Any())
-					{
-						var list = new List<Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>>();
-						foreach (var e in token.Arguments)
-						{
-							list.Add(new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>(e, ParseAsPath(e)));
-						}
+		//[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		//internal static IValueDocumentItem ParseAsPath(Tokenizer.HeaderTokenMatch token)
+		//{
+		//	switch (token.TokenType)
+		//	{
+		//		case Tokenizer.HeaderArgumentType.String:
+		//			return new ContentDocumentItem(token.Value)
+		//			{
+		//				ExpressionStart = token.TokenLocation
+		//			};
+		//		case Tokenizer.HeaderArgumentType.Expression:
+		//			if (token.Arguments.Any())
+		//			{
+		//				var list = new List<Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>>();
+		//				foreach (var e in token.Arguments)
+		//				{
+		//					list.Add(new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>(e, ParseAsPath(e)));
+		//				}
 
-						return new CallFormatterDocumentItem(list
-							.ToArray(), token.Value, token.ArgumentName);
-					}
-					else
-					{
-						return new PathDocumentItem(token.Value, false);
-					}
+		//				return new CallFormatterDocumentItem(list
+		//					.ToArray(), token.Value, token.ArgumentName);
+		//			}
+		//			else
+		//			{
+		//				return new PathDocumentItem(token.Value, false);
+		//			}
 					
-				default:
-					throw new ArgumentOutOfRangeException();
-			}
-		}
+		//		default:
+		//			throw new ArgumentOutOfRangeException();
+		//	}
+		//}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>[] ParseArgumentHeader(TokenPair currentToken)
-		{
-			var argumentMap = new List<Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>>();
-			foreach (var formatterPart in currentToken.Format?.FormatString ?? new Tokenizer.HeaderTokenMatch[0])
-			{
-				argumentMap.Add(new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>(formatterPart,
-					ParseAsPath(formatterPart)));
-			}
+		//[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		//private static Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>[] ParseArgumentHeader(TokenPair currentToken)
+		//{
+		//	var argumentMap = new List<Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>>();
+		//	foreach (var formatterPart in currentToken.Expression?.FormatString ?? new Tokenizer.HeaderTokenMatch[0])
+		//	{
+		//		argumentMap.Add(new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>(formatterPart,
+		//			ParseAsPath(formatterPart)));
+		//	}
 
-			return argumentMap.ToArray();
-		}
+		//	return argumentMap.ToArray();
+		//}
 
 		/// <summary>
 		///     Parses the Tokens into a Document.
@@ -132,7 +133,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type == TokenType.If)
 				{
-					var nestedDocument = new IfExpressionScopeDocumentItem(currentToken.Value)
+					var nestedDocument = new IfExpressionScopeDocumentItem(currentToken.Expression)
 					{
 						ExpressionStart = currentToken.TokenLocation
 					};
@@ -141,7 +142,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type == TokenType.IfNot)
 				{
-					var nestedDocument = new IfNotExpressionScopeDocumentItem(currentToken.Value)
+					var nestedDocument = new IfNotExpressionScopeDocumentItem(currentToken.Expression)
 					{
 						ExpressionStart = currentToken.TokenLocation
 					};
@@ -159,7 +160,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type == TokenType.CollectionOpen)
 				{
-					var nestedDocument = new EachDocumentItem(currentToken.Value)
+					var nestedDocument = new EachDocumentItem(currentToken.Expression)
 					{
 						ExpressionStart = currentToken.TokenLocation
 					};
@@ -168,7 +169,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type == TokenType.ElementOpen)
 				{
-					var nestedDocument = new ExpressionScopeDocumentItem(currentToken.Value)
+					var nestedDocument = new ExpressionScopeDocumentItem(currentToken.Expression)
 					{
 						ExpressionStart = currentToken.TokenLocation
 					};
@@ -177,7 +178,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type == TokenType.InvertedElementOpen)
 				{
-					var invertedScope = new InvertedExpressionScopeDocumentItem(currentToken.Value)
+					var invertedScope = new InvertedExpressionScopeDocumentItem(currentToken.Expression)
 					{
 						ExpressionStart = currentToken.TokenLocation
 					};
@@ -196,40 +197,11 @@ namespace Morestachio
 					}
 					// remove the last document from the stack and go back to the parents
 					buildStack.Pop();
-
-					if (buildStack.Peek().IsFormattingScope
-					) //is the remaining scope a formatting one. If it is pop it and return to its parent
-					{
-						buildStack.Pop();
-					}
-				}
-				else if (currentToken.Type == TokenType.Print)
-				{
-					currentDocumentItem.Document.Add(new PrintContextValue());
-					buildStack.Pop(); //Print formatted can only be followed by a Format and if not the parser should have not emited it
-				}
-				else if (currentToken.Type == TokenType.Format)
-				{
-					if (buildStack.Peek().IsFormattingScope)
-					{
-						buildStack.Pop();
-					}
-
-					var formatterItem = new IsolatedContextDocumentItem
-					{
-						ExpressionStart = currentToken.TokenLocation
-					};
-					buildStack.Push(new DocumentScope(formatterItem, true));
-					formatterItem.Add(new CallFormatterDocumentItem(ParseArgumentHeader(currentToken), 
-						currentToken.Value, 
-						string.IsNullOrWhiteSpace(currentToken.Format?.FormatterName) ? null : currentToken.Format.FormatterName));
-
-					currentDocumentItem.Document.Add(formatterItem);
 				}
 				else if (currentToken.Type == TokenType.EscapedSingleValue ||
-						 currentToken.Type == TokenType.UnescapedSingleValue)
+				         currentToken.Type == TokenType.UnescapedSingleValue)
 				{
-					currentDocumentItem.Document.Add(new PathDocumentItem(currentToken.Value,
+					currentDocumentItem.Document.Add(new PathDocumentItem(currentToken.Expression,
 							currentToken.Type == TokenType.EscapedSingleValue)
 					{
 						ExpressionStart = currentToken.TokenLocation
@@ -273,18 +245,8 @@ namespace Morestachio
 				}
 				else if (currentToken.Type == TokenType.VariableDeclaration)
 				{
-					var evaluateVariableDocumentItem = new EvaluateVariableDocumentItem(currentToken.Value);
+					var evaluateVariableDocumentItem = new EvaluateVariableDocumentItem(currentToken.Value, currentToken.Expression);
 					currentDocumentItem.Document.Add(evaluateVariableDocumentItem);
-					buildStack.Push(new DocumentScope(evaluateVariableDocumentItem));
-				}
-				else if (currentToken.Type == TokenType.VariableSet)
-				{	
-					if (buildStack.Peek().IsFormattingScope) //is the remaining scope a formatting one. If it is pop it and return to its parent
-					{
-						buildStack.Pop();
-					}
-					// remove the last document from the stack and go back to the parents
-					buildStack.Pop();
 				}
 				else
 				{

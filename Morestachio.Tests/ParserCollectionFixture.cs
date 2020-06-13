@@ -74,10 +74,10 @@ namespace Morestachio.Tests
 		[Test]
 		public void TestCollectionSpecialKeyFormatting()
 		{
-			var options = new ParserOptions("{{#each data}}{{$index.plus one()}},{{/each}}", null,
+			var options = new ParserOptions("{{#each data}}{{$index.PlusOne()}},{{/each}}", null,
 				ParserFixture.DefaultEncoding);
 			var collection = new[] { 10, 11, 12, 14 };
-			options.Formatters.AddSingle(new Func<long, long>((value) => value + 1), "plus one");
+			options.Formatters.AddSingle(new Func<long, long>((value) => value + 1), "PlusOne");
 
 			var report = Parser.ParseWithOptions(options).CreateAndStringify(new Dictionary<string, object>
 			{
@@ -93,7 +93,7 @@ namespace Morestachio.Tests
 		[Test]
 		public void TestCollectionFormatting()
 		{
-			var options = new ParserOptions("{{#each data.order asc()}}{{.}},{{/each}}", null,
+			var options = new ParserOptions("{{#each data.OrderAsc()}}{{.}},{{/each}}", null,
 				ParserFixture.DefaultEncoding);
 			var collection = new[] { 0, 1, 2, 3, 5, 4, 6, 7 };
 			options.Formatters.AddFromType(typeof(DynamicLinq));
@@ -111,7 +111,7 @@ namespace Morestachio.Tests
 		[Test]
 		public void TestCollectionFormattingScope()
 		{
-			var options = new ParserOptions("{{#each data.order asc()}}{{.}},{{/each}}|{{#each data}}{{.}},{{/each}}", null,
+			var options = new ParserOptions("{{#each data.OrderAsc()}}{{.}},{{/each}}|{{#each data}}{{.}},{{/each}}", null,
 				ParserFixture.DefaultEncoding);
 			var collection = new[] { 0, 1, 2, 3, 5, 4, 6, 7 };
 			options.Formatters.AddFromType(typeof(DynamicLinq));

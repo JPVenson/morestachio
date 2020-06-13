@@ -12,7 +12,7 @@ namespace Morestachio.Document
 	///		Defines a area that has no morestachio keywords and can be rendered as is
 	/// </summary>
 	[System.Serializable]
-	public class ContentDocumentItem : ValueDocumentItemBase, IValueDocumentItem
+	public class ContentDocumentItem : ValueDocumentItemBase
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -43,15 +43,6 @@ namespace Morestachio.Document
 			outputStream.Write(Value);
 			await Task.CompletedTask;
 			return Children.WithScope(context);
-		}
-
-		public async Task<ContextObject> GetValue(ContextObject context, ScopeData scopeData)
-		{
-			await Task.CompletedTask;
-			return new ContextObject(context.Options, ".", context)
-			{
-				Value = Value
-			};
 		}
 	}
 }

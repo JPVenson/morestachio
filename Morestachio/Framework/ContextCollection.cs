@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using JetBrains.Annotations;
+using Morestachio.Framework.Expression;
 
 namespace Morestachio.Framework
 {
@@ -37,33 +38,39 @@ namespace Morestachio.Framework
 		public bool Last { get; }
 
 		/// <inheritdoc />
-		protected override ContextObject HandlePathContext(Queue<string> elements, string path)
+		protected override ContextObject HandlePathContext(Queue<KeyValuePair<string, PathTokenizer.PathType>> elements,
+			KeyValuePair<string, PathTokenizer.PathType> path)
 		{
-			var innerContext = new ContextObject(Options, path, this);
+			if (path.Value != PathTokenizer.PathType.DataPath)
+			{
+				return null;
+			}
+
+			var innerContext = new ContextObject(Options, path.Key, this);
 
 			object value = null;
 
-			if (path.Equals("$first"))
+			if (path.Key.Equals("$first"))
 			{
 				value = Index == 0;
 			}
-			else if (path.Equals("$index"))
+			else if (path.Key.Equals("$index"))
 			{
 				value = Index;
 			}
-			else if (path.Equals("$middel"))
+			else if (path.Key.Equals("$middel"))
 			{
 				value = Index != 0 && !Last;
 			}
-			else if (path.Equals("$last"))
+			else if (path.Key.Equals("$last"))
 			{
 				value = Last;
 			}
-			else if (path.Equals("$odd"))
+			else if (path.Key.Equals("$odd"))
 			{
 				value = Index % 2 != 0;
 			}
-			else if (path.Equals("$even"))
+			else if (path.Key.Equals("$even"))
 			{
 				value = Index % 2 == 0;
 			}

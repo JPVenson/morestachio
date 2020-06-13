@@ -121,7 +121,7 @@ namespace Morestachio
 		/// </summary>
 		[Obsolete("Enables Legacy behavior for the resolving of formatters. This behavior will be removed completely in later versions", true)]
 		public bool LegacyFormatterResolving { get; set; }
-
+		
 		/// <summary>
 		///		If set to True morestachio will profile the execution and report the result in both <seealso cref="MorestachioDocumentInfo"/> and <seealso cref=""/>
 		/// </summary>

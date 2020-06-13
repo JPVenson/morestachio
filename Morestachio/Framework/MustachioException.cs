@@ -12,7 +12,7 @@ namespace Morestachio.Framework
 		/// </summary>
 		/// <param name="message"></param>
 		public MustachioException(string message) 
-			: base(string.Format(message))
+			: base(message)
 		{
 		}
 	}

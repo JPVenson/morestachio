@@ -7,6 +7,7 @@ using System.Xml;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Framework;
+using Morestachio.Framework.Expression;
 
 namespace Morestachio.Document
 {
@@ -14,13 +15,13 @@ namespace Morestachio.Document
 	///		Evaluates a variable expression and then stores it into the set alias
 	/// </summary>
 	[System.Serializable]
-	public class EvaluateVariableDocumentItem : ValueDocumentItemBase
+	public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase
 	{
 		/// <inheritdoc />
 		[UsedImplicitly]
 		protected EvaluateVariableDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
-			
+			Value = info.GetString(nameof(Value));
 		}
 
 		internal EvaluateVariableDocumentItem()
@@ -28,24 +29,47 @@ namespace Morestachio.Document
 			
 		}
 
-		public EvaluateVariableDocumentItem(string value)
+		/// <inheritdoc />
+		public EvaluateVariableDocumentItem(string value, IExpression expression)
 		{
+			Expression = expression;
 			Value = value;
+		}
+		
+		/// <inheritdoc />
+		protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
+		{
+			base.SerializeBinaryCore(info, context);
+			info.AddValue(nameof(Value), Value);
+		}
+		
+		/// <inheritdoc />
+		protected override void SerializeXml(XmlWriter writer)
+		{
+			writer.WriteAttributeString(nameof(Value), Value);
+			base.SerializeXml(writer);
+		}
+		
+		/// <inheritdoc />
+		protected override void DeSerializeXml(XmlReader reader)
+		{
+			Value = reader.GetAttribute(nameof(Value));
+			base.DeSerializeXml(reader);
 		}
 		
 		/// <inheritdoc />
 		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
 			await Task.CompletedTask;
-			context = context.CloneForEdit();
-			foreach (var expression in Children.OfType<IValueDocumentItem>())
-			{
-				context = await expression.GetValue(context, scopeData);
-			}
+			context = await Expression.GetValue(context, scopeData);
 			scopeData.Alias[Value] = context;
 			return new DocumentItemExecution[0];
 		}
 
+		/// <summary>
+		///		The name of the Variable
+		/// </summary>
+		public string Value { get; set; }
 		/// <inheritdoc />
 		public override string Kind { get; } = "EvaluateVariableDocumentItem";
 	}

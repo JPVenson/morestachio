@@ -7,6 +7,7 @@ using System.Xml;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Framework;
+using Morestachio.Framework.Expression;
 using Morestachio.ParserErrors;
 
 namespace Morestachio.Document
@@ -15,7 +16,7 @@ namespace Morestachio.Document
 	///		Emits N items that are in the <see cref="Value"/>
 	/// </summary>
 	[System.Serializable]
-	public class EachDocumentItem : ValueDocumentItemBase
+	public class EachDocumentItem : ExpressionDocumentItemBase
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -26,9 +27,9 @@ namespace Morestachio.Document
 		}
 
 		/// <inheritdoc />
-		public EachDocumentItem(string value)
+		public EachDocumentItem(IExpression value)
 		{
-			Value = value;
+			Expression = value;
 		}
 
 		[UsedImplicitly]
@@ -44,7 +45,8 @@ namespace Morestachio.Document
 		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
 			//if we're in the same scope, just negating, then we want to use the same object
-			var c = await context.GetContextForPath(Value, scopeData);
+			//var c = await context.GetContextForPath(Value, scopeData);
+			var c = await Expression.GetValue(context, scopeData);
 
 			if (!await c.Exists())
 			{
@@ -63,7 +65,7 @@ namespace Morestachio.Document
 
 				throw new IndexedParseException(CharacterLocationExtended.Empty, 
 					string.Format("{1}'{0}' is used like an array by the template, but is a scalar value or object in your model." + " Complete Expression until Error:{2}",
-						Value, base.ExpressionStart, (path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
+						Expression.ToString(), base.ExpressionStart, (path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 			}
 
 			var scopes = new List<DocumentItemExecution>();

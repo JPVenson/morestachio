@@ -7,6 +7,7 @@ using System.Xml;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Framework;
+using Morestachio.Framework.Expression;
 
 namespace Morestachio.Document
 {
@@ -14,7 +15,7 @@ namespace Morestachio.Document
 	///		An single Value expression
 	/// </summary>
 	[System.Serializable]
-	public class PathDocumentItem : ValueDocumentItemBase, IValueDocumentItem, IEquatable<PathDocumentItem>
+	public class PathDocumentItem : ExpressionDocumentItemBase
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -25,9 +26,9 @@ namespace Morestachio.Document
 		}
 
 		/// <inheritdoc />
-		public PathDocumentItem(string value, bool escapeValue)
+		public PathDocumentItem(IExpression value, bool escapeValue)
 		{
-			Value = value;
+			Expression = value;
 			EscapeValue = escapeValue;
 		}
 
@@ -79,7 +80,7 @@ namespace Morestachio.Document
 		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
 			//try to locate the value in the context, if it exists, append it.
-			var contextObject = context != null ? (await context.GetContextForPath(Value, scopeData)) : null;
+			var contextObject = context != null ? (await Expression.GetValue(context, scopeData)) : null;
 			if (contextObject != null)
 			{
 				await contextObject.EnsureValue();
@@ -95,14 +96,7 @@ namespace Morestachio.Document
 			
 			return Children.WithScope(contextObject);
 		}
-
-		/// <inheritdoc />
-		public async Task<ContextObject> GetValue(ContextObject context, ScopeData scopeData)
-		{
-			await Task.CompletedTask;
-			return await context.GetContextForPath(Value, scopeData);
-		}
-
+		
 		/// <inheritdoc />
 		public bool Equals(PathDocumentItem other)
 		{
