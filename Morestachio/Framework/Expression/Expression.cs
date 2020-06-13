@@ -236,15 +236,7 @@ namespace Morestachio.Framework.Expression
 								text[index].ToString()));
 					}
 				}
-
-
 				expression.CompilePath(context, 0);
-
-				//foreach (var parts in text.Split('.'))
-				//{
-				//	expression.AddPathPart(parts);
-				//}
-
 				indexVar = text.Length;
 				context.AdvanceLocation(text.Length);
 				return new IExpression[]
@@ -353,7 +345,7 @@ namespace Morestachio.Framework.Expression
 					if (seekNext == ')')
 					{
 						//there is nothing after this expression so close it
-						TerminateCurrentScope(true);
+						TerminateCurrentScope();
 						HeaderTokenMatch scope = null;
 						if (tokenScopes.Any())
 						{
@@ -369,16 +361,21 @@ namespace Morestachio.Framework.Expression
 					}
 					else
 					{
-						HeaderTokenMatch scope = null;
-						if (tokenScopes.Any())
-						{
-							scope = tokenScopes.Peek();
-						}
 						if (seekNext == '.')
 						{
+							HeaderTokenMatch scope = null;
+							if (tokenScopes.Any())
+							{
+								scope = tokenScopes.Peek();
+							}
 							if (scope != null && scope.Parent != null)
 							{
-								if (!(scope.Value is ExpressionList))
+								if ((scope.Parent?.Value is ExpressionList))
+								{
+									scope = scope.Parent;
+									TerminateCurrentScope();
+								}
+								else if (!(scope.Value is ExpressionList))
 								{
 									var oldValue = scope.Value as Expression;
 									scope.Value = new ExpressionList(new List<IExpression>
@@ -399,6 +396,11 @@ namespace Morestachio.Framework.Expression
 								//there is nothing after this expression so close it
 								TerminateCurrentScope(true);
 							}
+						}
+						else
+						{
+							//there is nothing after this expression so close it
+							TerminateCurrentScope(true);
 						}
 
 						if (!Eoex())
