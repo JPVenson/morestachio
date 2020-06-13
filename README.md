@@ -16,7 +16,7 @@ A Lightweight, powerful, flavorful, templating engine for C# and other .net-base
 var sourceTemplate = "Dear {{name}}, this is definitely a personalized note to you. Very truly yours, {{sender}}"
 
 // Parse the Template into the Document Tree. 
-var document = Morestachio.Parser.ParseWithOptions(new Morstachio.ParserOptions(sourceTemplate));
+var document = Morestachio.Parser.ParseWithOptions(new Morestachio.ParserOptions(sourceTemplate));
 
 // Create the values for the template model:
 dynamic model = new ExpandoObject();
