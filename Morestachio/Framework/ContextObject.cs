@@ -226,7 +226,7 @@ namespace Morestachio.Framework
 
 				if (path.Value == PathTokenizer.PathType.RootSelector) //go the root object
 				{
-					var parent = Parent;
+					var parent = Parent ?? this;
 					var lastParent = parent;
 					while (parent != null)
 					{

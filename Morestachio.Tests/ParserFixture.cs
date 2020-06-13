@@ -10,6 +10,8 @@ using Morestachio.Formatter;
 using Morestachio.Framework;
 using Morestachio.Formatter.Framework;
 using Morestachio.Framework.Expression;
+using Morestachio.Helper;
+using Morestachio.Linq;
 using Morestachio.ParserErrors;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -304,6 +306,70 @@ namespace Morestachio.Tests
 			{
 			});
 			Assert.That(result, Is.EqualTo(1.123.ToString("F5")));
+		}
+
+		[Test]
+		public void TestRootAccess()
+		{
+			var templateWorking = "{{#EACH data.testList.Select()}}" +
+								  "{{#var eachValue = ~data.testInt}}" +
+								  "{{/EACH}}" +
+								  "{{eachValue}} = {{~data.testInt}} = {{data.testInt}}";
+
+			var parsingOptionsWorking = new ParserOptions(templateWorking, null, DefaultEncoding);
+			parsingOptionsWorking.Formatters.AddFromType(typeof(DynamicLinq));
+			parsingOptionsWorking.Formatters.AddFromType(typeof(FormatterTests.NumberFormatter));
+			var parsedTemplateWorking = Parser.ParseWithOptions(parsingOptionsWorking);
+
+			var modelWorking = new Dictionary<string, object>()
+			{
+				{
+					"data", new Dictionary<string, object>()
+					{
+						{
+							"testList",
+							new string[1]
+							{
+								string.Empty
+							}
+						},
+						{
+							"testInt",
+							2
+						}
+					}
+				}
+			};
+	
+			var result = parsedTemplateWorking.Create(modelWorking).Stream.Stringify(true, DefaultEncoding);
+			Assert.AreEqual("2 = 2 = 2", result);
+		}
+
+		[Test]
+		public void TestMethodAsArgumentAccess()
+		{
+			var options = new ParserOptions("{{data.Multiply(data.Multiply(data))}}", null, DefaultEncoding);
+			options.Formatters.AddFromType(typeof(NumberFormatter));
+			var template = Parser.ParseWithOptions(options);
+			var andStringify = template.CreateAndStringify(new Dictionary<string, object>()
+			{
+				{"data", 2}
+			});
+
+			Assert.That(andStringify, Is.EqualTo("8"));
+		}
+
+		public static class NumberFormatter
+		{
+			[MorestachioFormatter("Multiply", "XXX")]
+			public static decimal Multiply(object value, object value2)
+			{
+				decimal a = 0;
+				decimal.TryParse(value.ToString(), out a);
+				decimal b = 0;
+				decimal.TryParse(value2.ToString(), out b);
+				return a * b;
+			}
 		}
 
 		[Test]

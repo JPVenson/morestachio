@@ -1813,6 +1813,37 @@
             <param name="scopeData"></param>
             <returns></returns>
         </member>
+        <member name="M:Morestachio.Framework.Expression.Renderer.ExpressionRenderer.RenderExpression(Morestachio.Framework.Expression.IExpression,System.Text.StringBuilder)">
+            <summary>
+            	Renders a Expression into the StringBuilder
+            </summary>
+            <param name="expression"></param>
+            <param name="sb"></param>
+        </member>
+        <member name="M:Morestachio.Framework.Expression.Renderer.ExpressionRenderer.RenderExpression(Morestachio.Framework.Expression.ExpressionArgument,System.Text.StringBuilder)">
+            <summary>
+            	Renders the Argument like this:
+            	IF HAS NAME	-> "[" + NAME + "]" -> END + RenderExpression(Expression)
+            </summary>
+            <param name="expression"></param>
+            <param name="sb"></param>
+        </member>
+        <member name="M:Morestachio.Framework.Expression.Renderer.ExpressionRenderer.RenderExpression(Morestachio.Framework.Expression.Expression,System.Text.StringBuilder)">
+            <summary>
+            	Renders the Expression like this:
+            	EACH PATHPART -> [Path + "."], "~", "../", "." END + IF HAS FORMATTER -> IF NOT SELFASSIGNMENT -> "." END -> FormatterName + "(" + [EACH ARG -> RenderExpression(ExpressionArgument ARG) + ", "] + ")" END
+            </summary>
+            <param name="expression"></param>
+            <param name="sb"></param>
+        </member>
+        <member name="M:Morestachio.Framework.Expression.Renderer.ExpressionRenderer.RenderExpression(Morestachio.Framework.Expression.ExpressionList,System.Text.StringBuilder)">
+            <summary>
+            	Renders the Expression like this:
+            	EACH EXP -> IF EXP NOT ONLY SelfAssignment -> "." END + RenderExpression(IExpression EXP) -> END
+            </summary>
+            <param name="expression"></param>
+            <param name="sb"></param>
+        </member>
         <member name="P:Morestachio.Framework.Expression.TokenzierContext.Character">
             <summary>
             	The current total character
