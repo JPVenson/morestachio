@@ -32,7 +32,8 @@ namespace Morestachio.Framework.Expression
 			DataPath,
 			RootSelector,
 			ParentSelector,
-			SelfAssignment
+			SelfAssignment,
+			ObjectSelector
 		}
 
 		public string CurrentPart { get; set; }
@@ -62,6 +63,13 @@ namespace Morestachio.Framework.Expression
 			if (c == '~')
 			{
 				PathParts.Add(new KeyValuePair<string, PathType>(null, PathType.RootSelector));
+				CurrentPart = "";
+				return true;
+			}
+
+			if (c == '?')
+			{
+				PathParts.Add(new KeyValuePair<string, PathType>(null, PathType.ObjectSelector));
 				CurrentPart = "";
 				return true;
 			}
@@ -131,18 +139,19 @@ namespace Morestachio.Framework.Expression
 			{
 				PathParts.Add(new KeyValuePair<string, PathType>(null, PathType.SelfAssignment));
 			}
-
-			if (CurrentPart == "../")
+			else if (CurrentPart == "../")
 			{
 				PathParts.Add(new KeyValuePair<string, PathType>(null, PathType.ParentSelector));
 			}
-
-			if (CurrentPart == "~")
+			else if (CurrentPart == "~")
 			{
 				PathParts.Add(new KeyValuePair<string, PathType>(null, PathType.RootSelector));
 			}
-
-			if (CurrentPart.Trim() != "")
+			else if (CurrentPart == "?")
+			{
+				PathParts.Add(new KeyValuePair<string, PathType>(null, PathType.ObjectSelector));
+			}
+			else if (CurrentPart.Trim() != "")
 			{
 				hasError = CheckPathPart();
 				if (hasError != -1)
@@ -152,10 +161,16 @@ namespace Morestachio.Framework.Expression
 				PathParts.Add(new KeyValuePair<string, PathType>(CurrentPart, PathType.DataPath));
 			}
 
-			if (PathParts.LastOrDefault().Value == PathType.SelfAssignment)
+			if (PathParts.Count > 1 && PathParts.Last().Value == PathType.SelfAssignment)
 			{
 				PathParts.Remove(PathParts.Last());
 			}
+
+			//if (!PathParts.Any())
+			//{
+			//	hasError = 0;
+			//	return PathParts;
+			//}
 
 			CurrentPart = "";
 			

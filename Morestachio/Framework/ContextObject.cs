@@ -222,6 +222,7 @@ namespace Morestachio.Framework
 				{
 					return preHandeld;
 				}
+				var type = Value?.GetType();
 
 				if (path.Value == PathTokenizer.PathType.RootSelector) //go the root object
 				{
@@ -260,6 +261,44 @@ namespace Morestachio.Framework
 						retval = await GetContextForPath(elements, scopeData);
 					}
 				}
+				else if (path.Value == PathTokenizer.PathType.ObjectSelector) //enumerate ether an IDictionary, an cs object or an IEnumerable to a KeyValuePair array
+				{
+					await EnsureValue();
+					if (Value is null)
+					{
+						return new ContextObject(Options, "x:null", null)
+						{
+							Value = null
+						};
+					}
+					//ALWAYS return the context, even if the value is null.
+					var innerContext = new ContextObject(Options, path.Key, this);
+					switch (Value)
+					{
+						case IDictionary<string, object> dictList:
+							innerContext.Value = dictList.Select(e => e);
+							break;
+						//This is a draft that i have discarded as its more likely to enumerate a single IEnumerable with #each alone
+						//case IEnumerable ctx:
+						//	innerContext.Value = ctx.OfType<object>().Select((item, index) => new KeyValuePair<string, object>(index.ToString(), item));
+						//	break;
+						default:
+						{
+							if (Value != null)
+							{
+								innerContext.Value = type
+									.GetTypeInfo()
+									.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+									.Where(e => !e.IsSpecialName && !e.GetIndexParameters().Any())
+									.Select(e => new KeyValuePair<string, object>(e.Name, e.GetValue(Value)));
+							}
+
+							break;
+						}
+					}
+
+					retval = await innerContext.GetContextForPath(elements, scopeData);
+				}
 				else if (path.Value == PathTokenizer.PathType.DataPath)
 				{
 					if (path.Key.Equals("$recursion")) //go the root object
@@ -278,37 +317,6 @@ namespace Morestachio.Framework
 							{
 								Value = null
 							};
-						}
-						var type = Value?.GetType();
-						if (path.Key.StartsWith("?")) //enumerate ether an IDictionary, an cs object or an IEnumerable to a KeyValuePair array
-						{
-							//ALWAYS return the context, even if the value is null.
-							var innerContext = new ContextObject(Options, path.Key, this);
-							switch (Value)
-							{
-								case IDictionary<string, object> dictList:
-									innerContext.Value = dictList.Select(e => e);
-									break;
-								//This is a draft that i have discarded as its more likely to enumerate a single IEnumerable with #each alone
-								//case IEnumerable ctx:
-								//	innerContext.Value = ctx.OfType<object>().Select((item, index) => new KeyValuePair<string, object>(index.ToString(), item));
-								//	break;
-								default:
-									{
-										if (Value != null)
-										{
-											innerContext.Value = type
-												.GetTypeInfo()
-												.GetProperties(BindingFlags.Instance | BindingFlags.Public)
-												.Where(e => !e.IsSpecialName && !e.GetIndexParameters().Any())
-												.Select(e => new KeyValuePair<string, object>(e.Name, e.GetValue(Value)));
-										}
-
-										break;
-									}
-							}
-
-							retval = await innerContext.GetContextForPath(elements, scopeData);
 						}
 						//TODO: handle array accessors and maybe "special" keys.
 						else

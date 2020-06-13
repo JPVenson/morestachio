@@ -21,7 +21,7 @@ namespace Morestachio.Document
 		[UsedImplicitly]
 		protected EvaluateVariableDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
-			
+			Value = info.GetString(nameof(Value));
 		}
 
 		internal EvaluateVariableDocumentItem()
@@ -29,36 +29,32 @@ namespace Morestachio.Document
 			
 		}
 
+		/// <inheritdoc />
 		public EvaluateVariableDocumentItem(string value, IExpression expression)
 		{
 			Expression = expression;
 			Value = value;
 		}
-
+		
+		/// <inheritdoc />
 		protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
 		{
 			base.SerializeBinaryCore(info, context);
 			info.AddValue(nameof(Value), Value);
 		}
-
+		
+		/// <inheritdoc />
 		protected override void SerializeXml(XmlWriter writer)
 		{
 			writer.WriteAttributeString(nameof(Value), Value);
 			base.SerializeXml(writer);
 		}
-
+		
+		/// <inheritdoc />
 		protected override void DeSerializeXml(XmlReader reader)
 		{
 			Value = reader.GetAttribute(nameof(Value));
-			if (reader.Name == nameof(Expression))
-			{
-				if (reader.IsEmptyElement)
-				{
-					return;
-				}
-				//reader.ReadToFollowing(nameof(Value));
-				Expression = reader.ReadContentAs(typeof(IExpression), null) as IExpression;
-			}
+			base.DeSerializeXml(reader);
 		}
 		
 		/// <inheritdoc />
@@ -70,6 +66,9 @@ namespace Morestachio.Document
 			return new DocumentItemExecution[0];
 		}
 
+		/// <summary>
+		///		The name of the Variable
+		/// </summary>
 		public string Value { get; set; }
 		/// <inheritdoc />
 		public override string Kind { get; } = "EvaluateVariableDocumentItem";

@@ -1,12 +1,57 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Xml;
 using Morestachio.ParserErrors;
 
 namespace Morestachio.Framework.Expression
 {
 	public static class ExpressionTokenizer
 	{
+		internal const string ExpressionNodeName = "Expression";
+		internal const string ExpressionKindNodeName = "ExpressionKind";
+
+		internal static IExpression ParseExpressionFromKind(this XmlReader reader)
+		{
+			IExpression exp = null;
+			switch (reader.GetAttribute(ExpressionKindNodeName))
+			{
+				case "Expression":
+					exp = new Expression();
+					break;
+				case "ExpressionList":
+					exp = new ExpressionList();
+					break;
+				case "ExpressionString":
+					exp = new ExpressionString();
+					break;
+			}
+			exp.ReadXml(reader);
+			return exp;
+		}
+
+		internal static void WriteExpressionToXml(this XmlWriter writer, IExpression expression)
+		{
+			writer.WriteStartElement(ExpressionNodeName);
+			switch (expression)
+			{
+				case Expression expression1:
+					writer.WriteAttributeString(ExpressionKindNodeName, "Expression");
+					break;
+				case ExpressionList expressionList:
+					writer.WriteAttributeString(ExpressionKindNodeName, "ExpressionList");
+					break;
+				case ExpressionString expressionString:
+					writer.WriteAttributeString(ExpressionKindNodeName, "ExpressionString");
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(expression));
+			}
+			expression.WriteXml(writer);
+			writer.WriteEndElement();
+		}
+
 		internal static TokenPair[] TokenizeVariableAssignment(string tokenValue,
 			TokenzierContext context)
 		{
@@ -73,37 +118,6 @@ namespace Morestachio.Framework.Expression
 			{
 				Expression = ParseExpressionOrString(expression, context)
 			});
-			//var formats = Tokenizer.EnumerateFormats(expression, lines, tokenIndex, parseErrors);
-			//if (!formats.Any())
-			//{
-			//	var headerArgumentType = ParseExpressionOrString(expression, parseErrors, tokenLocation.Offset("#var ".Length + i), lines, tokenIndex);
-			//	if (headerArgumentType == null)
-			//	{
-			//		return new TokenPair[0];
-			//	}
-
-			//	tokens.AddRange(headerArgumentType.Tokenize());
-
-			//	switch (headerArgumentType)
-			//	{
-			//		case Tokenizer.HeaderArgumentType.String:
-			//			tokens.Add(new TokenPair(TokenType.Content,
-			//				expression,
-			//				Tokenizer.HumanizeCharacterLocation(tokenIndex, lines)));
-			//			break;
-			//		case Tokenizer.HeaderArgumentType.Expression:
-			//			tokens.Add(new TokenPair(TokenType.EscapedSingleValue,
-			//				expression,
-			//				Tokenizer.HumanizeCharacterLocation(tokenIndex, lines)));
-			//			break;
-			//	}
-			//}
-			//else
-			//{
-			//	tokens.AddRange(Tokenizer.TokenizeFormattables(formats, expression, null, lines, tokenIndex, parseErrors, options));
-			//}
-
-			//tokens.Add(new TokenPair(TokenType.VariableSet, variableName, tokenLocation));
 			return tokens.ToArray();
 		}
 
@@ -145,7 +159,16 @@ namespace Morestachio.Framework.Expression
 				{
 					return expressions[0];
 				}
-				return new ExpressionList(expressions);
+
+				if (expressions.Length == 0)
+				{
+					return new ExpressionList();
+				}
+
+				return new ExpressionList(expressions)
+				{
+					Location = expressions.First().Location
+				};
 				//xTokenizer.Validated(expression, tokenIndex, lines, parseErrors);
 			}
 		}
@@ -158,7 +181,8 @@ namespace Morestachio.Framework.Expression
 		/// <returns></returns>
 		public static IExpression ParseExpressionOrString(string expression, out TokenzierContext context)
 		{
-			context = new TokenzierContext(Tokenizer.NewlineFinder.Matches(expression).OfType<Match>().Select(k => k.Index)
+			context = 
+				new TokenzierContext(Tokenizer.NewlineFinder.Matches(expression).OfType<Match>().Select(k => k.Index)
 				.ToArray());
 			context.SetLocation(0);
 			return ParseExpressionOrString(expression,

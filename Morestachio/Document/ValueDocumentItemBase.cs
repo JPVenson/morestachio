@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using System.Xml;
-using Morestachio.Framework.Expression;
 
 namespace Morestachio.Document
 {
@@ -96,94 +95,6 @@ namespace Morestachio.Document
 		{
 			int hashCode = base.GetHashCode();
 			hashCode = (hashCode * 397) ^ (!string.IsNullOrWhiteSpace(Value) ? Value.GetHashCode() : 0);
-			return hashCode;
-		}
-	}
-
-	/// <summary>
-	///		A common base class for emitting a single string value
-	/// </summary>
-	[System.Serializable]
-	public abstract class ExpressionDocumentItemBase : DocumentItemBase, IEquatable<ExpressionDocumentItemBase>
-	{
-		protected ExpressionDocumentItemBase()
-		{
-
-		}
-
-		public IExpression Expression { get; protected set; }
-
-		protected ExpressionDocumentItemBase(SerializationInfo info, StreamingContext c) : base(info, c)
-		{
-			Expression = info.GetValue(nameof(Expression), typeof(IExpression)) as IExpression;
-		}
-
-		protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
-		{
-			base.SerializeBinaryCore(info, context);
-			info.AddValue(nameof(Expression), Expression);
-		}
-
-		protected override void SerializeXml(XmlWriter writer)
-		{
-			writer.WriteStartElement(nameof(Expression));
-			writer.WriteValue(Expression);
-			writer.WriteEndElement();
-		}
-
-		protected override void DeSerializeXml(XmlReader reader)
-		{
-			reader.ReadStartElement();
-			if (reader.Name == nameof(Expression))
-			{
-				if (reader.IsEmptyElement)
-				{
-					return;
-				}
-				//reader.ReadToFollowing(nameof(Value));
-				Expression = reader.ReadContentAs(typeof(IExpression), null) as IExpression;
-			}
-		}
-
-		public bool Equals(ExpressionDocumentItemBase other)
-		{
-			if (ReferenceEquals(null, other))
-			{
-				return false;
-			}
-
-			if (ReferenceEquals(this, other))
-			{
-				return true;
-			}
-
-			return base.Equals(other) && Expression.Equals(other.Expression);
-		}
-
-		public override bool Equals(object obj)
-		{
-			if (ReferenceEquals(null, obj))
-			{
-				return false;
-			}
-
-			if (ReferenceEquals(this, obj))
-			{
-				return true;
-			}
-
-			if (obj.GetType() != this.GetType())
-			{
-				return false;
-			}
-
-			return Equals((ExpressionDocumentItemBase)obj);
-		}
-
-		public override int GetHashCode()
-		{
-			int hashCode = base.GetHashCode();
-			hashCode = (hashCode * 397) ^ (Expression.GetHashCode());
 			return hashCode;
 		}
 	}

@@ -7,83 +7,114 @@ namespace Morestachio.Framework.Expression.Renderer
 {
 	public static class ExpressionRenderer
 	{
-		public static StringBuilder RenderExpression(IExpression expression)
+		public static void RenderExpression(IExpression expression, StringBuilder sb, int intention = 0)
 		{
 			switch (expression)
 			{
 				case Expression expression1:
-					return RenderExpression(expression1);
+					RenderExpression(expression1, sb, intention);
+					break;
 				case ExpressionArgument expressionArgument:
-					return RenderExpression(expressionArgument);
+					RenderExpression(expressionArgument, sb, intention);
+					break;
 				case ExpressionList expressionList:
-					return RenderExpression(expressionList);
+					RenderExpression(expressionList, sb, intention);
+					break;
 				case ExpressionString expressionString:
-					return RenderExpression(expressionString);
+					RenderExpression(expressionString, sb, intention);
+					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(expression));
 			}
 		}
 
-		public static StringBuilder RenderExpression(Expression expression)
+		public static void RenderExpression(ExpressionArgument expression, StringBuilder sb, int intention = 0)
 		{
-			var text = new StringBuilder();
-
-			foreach (var expressionPathPart in expression.PathParts)
+			if (!string.IsNullOrWhiteSpace(expression.Name))
 			{
+				sb.Append("[");
+				sb.Append(expression.Name);
+				sb.Append("] ");
+			}
+
+			RenderExpression(expression.Expression, sb, intention);
+		}
+
+		public static void RenderExpression(Expression expression, StringBuilder sb, int intention = 0)
+		{
+			var isSelfAssignment = false;
+			for (var index = 0; index < expression.PathParts.Count; index++)
+			{
+				var expressionPathPart = expression.PathParts[index];
 				switch (expressionPathPart.Value)
 				{
 					case PathTokenizer.PathType.DataPath:
-						if (text.Length != 0)
+						sb.Append(expressionPathPart.Key);
+
+						if (index != expression.PathParts.Count - 1)
 						{
-							text.Append(".");
+							sb.Append(".");
 						}
-						text.Append(expressionPathPart.Key);
 						break;
 					case PathTokenizer.PathType.RootSelector:
-						text.Append("~");
+						sb.Append("~");
 						break;
 					case PathTokenizer.PathType.ParentSelector:
-						text.Append("../");
+						sb.Append("../");
 						break;
 					case PathTokenizer.PathType.SelfAssignment:
-						text.Append(".");
+						sb.Append(".");
+						isSelfAssignment = true;
 						break;
 					default:
 						throw new ArgumentOutOfRangeException();
 				}
 			}
-
-			if (expression.Formats.Any())
+			if (expression.FormatterName != null)
 			{
-				text.Append("(");
-				text.Append(expression.Formats.Select(f =>
+				if (!isSelfAssignment)
 				{
-					var argName = "";
-					if (f.Name != null)
+					sb.Append(".");
+				}
+
+				sb.Append(expression.FormatterName);
+				sb.Append("(");
+
+				if (expression.Formats.Any())
+				{
+					for (var index = 0; index < expression.Formats.Count; index++)
 					{
-						argName += $"[{f.Name}] ";
+						var expressionArgument = expression.Formats[index];
+						RenderExpression(expressionArgument, sb, 0);
+						if (index != expression.Formats.Count - 1)
+						{
+							sb.Append(", ");
+						}
 					}
-
-					return argName + RenderExpression(f.Expression);
-				}).Aggregate((e, f) => e + ", " + f));
-				text.Append(")");
+				}
+				sb.Append(")");
 			}
-
-			return text;
 		}
 
-		public static StringBuilder RenderExpression(ExpressionList expression)
+		public static void RenderExpression(ExpressionList expression, StringBuilder sb, int intention = 0)
 		{
-			var sb = new StringBuilder();
-			sb.Append(string.Join(".", expression.Expressions.Select(RenderExpression).Select(f => f.ToString())));
-			return sb;
+			for (var index = 0; index < expression.Expressions.Count; index++)
+			{
+				var expressionExpression = expression.Expressions[index];
+				if (index != 0 && 
+				    (expressionExpression as Expression)?.PathParts.All(f => f.Value == PathTokenizer.PathType.SelfAssignment) == false)
+				{
+					sb.Append(".");
+				}
+				RenderExpression(expressionExpression, sb, intention);
+			}
 		}
 
-		public static StringBuilder RenderExpression(ExpressionString expression)
+		public static void RenderExpression(ExpressionString expression, StringBuilder sb, int intention = 0)
 		{
-			var sb = new StringBuilder();
-			sb.Append(expression.Delimiter + string.Join("", expression.StringParts.Select(f => f.PartText)) + expression.Delimiter);
-			return sb;
+			sb.Append(expression.Delimiter +
+					  string.Join("", expression.StringParts.Select(f => f.PartText))
+					  + expression.Delimiter);
 		}
 	}
 }

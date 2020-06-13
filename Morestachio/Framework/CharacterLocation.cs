@@ -23,11 +23,20 @@ namespace Morestachio.Framework
 			return new CharacterLocationExtended(Line, Character, window);
 		}
 
+		/// <summary>
+		///		Formats the Character Location into a readable string
+		/// </summary>
+		/// <returns></returns>
 		public string ToFormatString()
 		{
 			return $"{Line}:{Character}";
 		}
 
+		/// <summary>
+		///		Parses the result of ToFormatString
+		/// </summary>
+		/// <param name="formatString"></param>
+		/// <returns></returns>
 		public static CharacterLocation FromFormatString(string formatString)
 		{
 			if (!formatString.Contains(":"))
@@ -42,11 +51,13 @@ namespace Morestachio.Framework
 			return charLoc;
 		}
 
+		/// <inheritdoc />
 		public override string ToString()
 		{
 			return $"Line: {Line}, Column: {Character}";
 		}
-
+		
+		/// <inheritdoc />
 		public bool Equals(CharacterLocation other)
 		{
 			if (ReferenceEquals(null, other))
@@ -61,7 +72,8 @@ namespace Morestachio.Framework
 
 			return Line == other.Line && Character == other.Character;
 		}
-
+		
+		/// <inheritdoc />
 		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj))
@@ -81,7 +93,8 @@ namespace Morestachio.Framework
 
 			return Equals((CharacterLocation)obj);
 		}
-
+		
+		/// <inheritdoc />
 		public override int GetHashCode()
 		{
 			unchecked
@@ -90,6 +103,11 @@ namespace Morestachio.Framework
 			}
 		}
 
+		/// <summary>
+		///		Creates a copy that is length chars advanced to this location
+		/// </summary>
+		/// <param name="length"></param>
+		/// <returns></returns>
 		public CharacterLocation Offset(int length)
 		{
 			return new CharacterLocation()

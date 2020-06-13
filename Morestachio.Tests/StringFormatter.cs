@@ -95,7 +95,7 @@ namespace Morestachio.Tests
 			return "DEFAULT " + originalObject;
 		}
 
-		[MorestachioFormatter("reverse-arg", "XXX")]
+		[MorestachioFormatter("ReverseArg", "XXX")]
 		public static string ReverseWithArgSuccess(string originalObject, string argument)
 		{
 			return argument;

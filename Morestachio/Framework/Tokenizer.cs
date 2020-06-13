@@ -83,8 +83,14 @@ namespace Morestachio.Framework
 
 		internal static bool IsExpressionPathChar(char formatChar)
 		{
-			return formatChar == '$'
+			return formatChar == '?'
 				   || formatChar == '/'
+				   || IsStartOfExpressionPathChar(formatChar);
+		}
+
+		internal static bool IsStartOfExpressionPathChar(char formatChar)
+		{
+			return formatChar == '$'
 				   || IsSingleExpressionPathChar(formatChar);
 		}
 
@@ -227,7 +233,7 @@ namespace Morestachio.Framework
 								.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "close", "declare",
 							"{{/declare}}"));
 					}
-					else if (scopestack.Any() && scopestack.Peek().Item1.StartsWith("{{#declare"))
+					else if (scopestack.Any() && scopestack.Peek().Item1.StartsWith("{{#declare", StringComparison.InvariantCultureIgnoreCase))
 					{
 						var token = scopestack.Pop().Item1.TrimStart('{').TrimEnd('}').TrimStart('#').Trim()
 							.Substring("declare".Length);
