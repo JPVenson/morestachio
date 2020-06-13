@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Morestachio.Attributes;
 using Morestachio.Formatter.Framework;
+using Morestachio.Framework.Expression;
 using Morestachio.Helper;
 using Morestachio.Linq;
 using NUnit.Framework;
@@ -613,7 +614,9 @@ namespace Morestachio.Tests
 				{"f", 19191919},
 				{"by", 10L}
 			};
-			var parsingOptions = new ParserOptions("{{d.(f.('d'), \"t\").('pl', by.(by, 'f'))}}",
+			var exp = "d.(f.('d'), \"t\").('pl', by.(by, 'f'))";
+			Assert.That(exp, Is.EqualTo(Expression.ParseFrom(exp, TokenzierContext.FromText(exp), out _).ToString()));
+			var parsingOptions = new ParserOptions("{{" + exp + "}}",
 				null, DefaultEncoding);
 			var format = "yyyy.mm";
 			var formatterCalled = false;

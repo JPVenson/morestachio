@@ -7,28 +7,39 @@ namespace Morestachio.Framework.Expression.Renderer
 {
 	public static class ExpressionRenderer
 	{
-		public static void RenderExpression(IExpression expression, StringBuilder sb, int intention = 0)
+		/// <summary>
+		///		Renders a Expression into the StringBuilder
+		/// </summary>
+		/// <param name="expression"></param>
+		/// <param name="sb"></param>
+		public static void RenderExpression(IExpression expression, StringBuilder sb)
 		{
 			switch (expression)
 			{
 				case Expression expression1:
-					RenderExpression(expression1, sb, intention);
+					RenderExpression(expression1, sb);
 					break;
 				case ExpressionArgument expressionArgument:
-					RenderExpression(expressionArgument, sb, intention);
+					RenderExpression(expressionArgument, sb);
 					break;
 				case ExpressionList expressionList:
-					RenderExpression(expressionList, sb, intention);
+					RenderExpression(expressionList, sb);
 					break;
 				case ExpressionString expressionString:
-					RenderExpression(expressionString, sb, intention);
+					RenderExpression(expressionString, sb);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(expression));
 			}
 		}
-
-		public static void RenderExpression(ExpressionArgument expression, StringBuilder sb, int intention = 0)
+		
+		/// <summary>
+		///		Renders the Argument like this:
+		///		IF HAS NAME	-> "[" + NAME + "]" -> END + RenderExpression(Expression)
+		/// </summary>
+		/// <param name="expression"></param>
+		/// <param name="sb"></param>
+		public static void RenderExpression(ExpressionArgument expression, StringBuilder sb)
 		{
 			if (!string.IsNullOrWhiteSpace(expression.Name))
 			{
@@ -37,10 +48,16 @@ namespace Morestachio.Framework.Expression.Renderer
 				sb.Append("] ");
 			}
 
-			RenderExpression(expression.Expression, sb, intention);
+			RenderExpression(expression.Expression, sb);
 		}
 
-		public static void RenderExpression(Expression expression, StringBuilder sb, int intention = 0)
+		/// <summary>
+		///		Renders the Expression like this:
+		///		EACH PATHPART -> [Path + "."], "~", "../", "." END + IF HAS FORMATTER -> IF NOT SELFASSIGNMENT -> "." END -> FormatterName + "(" + [EACH ARG -> RenderExpression(ExpressionArgument ARG) + ", "] + ")" END
+		/// </summary>
+		/// <param name="expression"></param>
+		/// <param name="sb"></param>
+		public static void RenderExpression(Expression expression, StringBuilder sb)
 		{
 			var isSelfAssignment = false;
 			for (var index = 0; index < expression.PathParts.Count; index++)
@@ -85,7 +102,7 @@ namespace Morestachio.Framework.Expression.Renderer
 					for (var index = 0; index < expression.Formats.Count; index++)
 					{
 						var expressionArgument = expression.Formats[index];
-						RenderExpression(expressionArgument, sb, 0);
+						RenderExpression(expressionArgument, sb);
 						if (index != expression.Formats.Count - 1)
 						{
 							sb.Append(", ");
@@ -96,7 +113,13 @@ namespace Morestachio.Framework.Expression.Renderer
 			}
 		}
 
-		public static void RenderExpression(ExpressionList expression, StringBuilder sb, int intention = 0)
+		/// <summary>
+		///		Renders the Expression like this:
+		///		EACH EXP -> IF EXP NOT ONLY SelfAssignment -> "." END + RenderExpression(IExpression EXP) -> END
+		/// </summary>
+		/// <param name="expression"></param>
+		/// <param name="sb"></param>
+		public static void RenderExpression(ExpressionList expression, StringBuilder sb)
 		{
 			for (var index = 0; index < expression.Expressions.Count; index++)
 			{
@@ -106,11 +129,11 @@ namespace Morestachio.Framework.Expression.Renderer
 				{
 					sb.Append(".");
 				}
-				RenderExpression(expressionExpression, sb, intention);
+				RenderExpression(expressionExpression, sb);
 			}
 		}
 
-		public static void RenderExpression(ExpressionString expression, StringBuilder sb, int intention = 0)
+		public static void RenderExpression(ExpressionString expression, StringBuilder sb)
 		{
 			sb.Append(expression.Delimiter +
 					  string.Join("", expression.StringParts.Select(f => f.PartText))
