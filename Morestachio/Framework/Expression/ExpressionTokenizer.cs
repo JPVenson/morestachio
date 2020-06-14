@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -59,7 +60,7 @@ namespace Morestachio.Framework.Expression
 			TokenzierContext context)
 		{
 			var startOfExpression = context.CurrentLocation;
-			var variableNameIndex = tokenValue.IndexOf("#var ");
+			var variableNameIndex = tokenValue.IndexOf("#var ", StringComparison.InvariantCultureIgnoreCase);
 			if (variableNameIndex != 0)
 			{
 				context.Errors.Add(new MorestachioSyntaxError(

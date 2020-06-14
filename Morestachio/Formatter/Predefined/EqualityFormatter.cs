@@ -1,4 +1,5 @@
-﻿using Morestachio.Attributes;
+﻿using System;
+using Morestachio.Attributes;
 using Morestachio.Formatter.Framework;
 
 namespace Morestachio.Formatter.Predefined
@@ -17,7 +18,31 @@ namespace Morestachio.Formatter.Predefined
 		[MorestachioFormatter("fnc_Equals", "Checks if two objects are equal")]
 		public static bool IsEquals([SourceObject]object source, object target)
 		{
-			return Equals(source, target);
+			if ((source == null && target == null))
+			{
+				return true;
+			}
+			if (source == null || target == null)
+			{
+				return false;
+			}
+
+			if (source is IConvertible conv)
+			{
+				return conv.ToType(target.GetType(), null)?.Equals(target) == true;
+			}
+
+			if (target is IConvertible conv2)
+			{
+				return conv2.ToType(source.GetType(), null)?.Equals(source) == true;
+			}
+
+			if (source is IComparable comp)
+			{
+				return comp.CompareTo(target) == 0;
+			}
+
+			return source == target || source.Equals(target) || Equals(source, target);
 		}
 
 		/// <summary>

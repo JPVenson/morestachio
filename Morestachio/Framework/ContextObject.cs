@@ -417,7 +417,7 @@ namespace Morestachio.Framework
 							{
 								elements.Dequeue();
 								contextObject = new ContextObject(Options, ".", this);
-								contextObject.Value = floatingNumber;
+								contextObject.Value = floatingNumber.Value;
 								contextObject.IsNaturalContext = IsNaturalContext;
 								return await contextObject.GetContextForPath(elements, scopeData);
 							}
@@ -425,7 +425,7 @@ namespace Morestachio.Framework
 						}
 
 						contextObject = new ContextObject(Options, ".", this);
-						contextObject.Value = isNumber;
+						contextObject.Value = isNumber.Value;
 						contextObject.IsNaturalContext = IsNaturalContext;
 						return await contextObject.GetContextForPath(elements, scopeData);
 					}

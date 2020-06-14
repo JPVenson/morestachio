@@ -106,5 +106,25 @@
 		///		Defines the current Context as the be accessed by an alias
 		/// </summary>
 		VariableSet,
+
+		/// <summary>
+		///		The start of a while loop
+		/// </summary>
+		WhileLoopOpen,
+
+		/// <summary>
+		///		The end of a while loop
+		/// </summary>
+		WhileLoopClose,
+
+		/// <summary>
+		///		The start of a while loop
+		/// </summary>
+		DoLoopOpen,
+
+		/// <summary>
+		///		The end of a while loop
+		/// </summary>
+		DoLoopClose,
 	}
 }

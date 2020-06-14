@@ -113,7 +113,7 @@ namespace Morestachio.Helper
 		}
 
 		/// <summary>
-		///		Tries to parse the input to any number folloring roughly the rules of msbuild.
+		///		Tries to parse the input to any number, following roughly the rules of msbuild.
 		///		Like:
 		///		Has Suffix? (u,l,f,d)
 		///		Has Prefix? (0x)

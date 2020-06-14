@@ -316,6 +316,86 @@ namespace Morestachio.Framework
 							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "each", "{{#each name}}"));
 					}
 				}
+				else if (tokenValue.StartsWith("{{#while", true, CultureInfo.InvariantCulture))
+				{
+					var token = trimmedToken.TrimStart('#')
+						.Trim()
+						.Substring("while".Length);
+					scopestack.Push(Tuple.Create($"#while{token}", match.Index));
+
+					if (token.StartsWith(" ") && token.Trim() != "")
+					{
+						token = token.Trim();
+						tokens.Add(new TokenPair(TokenType.WhileLoopOpen, token, context.CurrentLocation)
+						{
+							MorestachioExpression = ExpressionTokenizer.ParseExpressionOrString(token, context)
+						});
+					}
+					else
+					{
+						context.Errors.Add(new InvalidPathSyntaxError(context.CurrentLocation
+							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), ""));
+					}
+				}
+				else if (tokenValue.StartsWith("{{/while", true, CultureInfo.InvariantCulture))
+				{
+					if (!string.Equals(tokenValue, "{{/while}}", StringComparison.InvariantCultureIgnoreCase))
+					{
+						context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation
+							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "close", "while", "{{/while}}"));
+					}
+					else if (scopestack.Any() && scopestack.Peek().Item1.StartsWith("#while"))
+					{
+						var token = scopestack.Pop().Item1;
+						tokens.Add(new TokenPair(TokenType.WhileLoopClose, token,
+							context.CurrentLocation));
+					}
+					else
+					{
+						context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
+							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "while", "{{#while Expression}}"));
+					}
+				}
+				else if (tokenValue.StartsWith("{{#do", true, CultureInfo.InvariantCulture))
+				{
+					var token = trimmedToken.TrimStart('#')
+						.Trim()
+						.Substring("do".Length);
+					scopestack.Push(Tuple.Create($"#do{token}", match.Index));
+
+					if (token.StartsWith(" ") && token.Trim() != "")
+					{
+						token = token.Trim();
+						tokens.Add(new TokenPair(TokenType.DoLoopOpen, token, context.CurrentLocation)
+						{
+							MorestachioExpression = ExpressionTokenizer.ParseExpressionOrString(token, context)
+						});
+					}
+					else
+					{
+						context.Errors.Add(new InvalidPathSyntaxError(context.CurrentLocation
+							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), ""));
+					}
+				}
+				else if (tokenValue.StartsWith("{{/do", true, CultureInfo.InvariantCulture))
+				{
+					if (!string.Equals(tokenValue, "{{/do}}", StringComparison.InvariantCultureIgnoreCase))
+					{
+						context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation
+							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "close", "do", "{{/do}}"));
+					}
+					else if (scopestack.Any() && scopestack.Peek().Item1.StartsWith("#do"))
+					{
+						var token = scopestack.Pop().Item1;
+						tokens.Add(new TokenPair(TokenType.DoLoopClose, token,
+							context.CurrentLocation));
+					}
+					else
+					{
+						context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
+							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "do", "{{#do Expression}}"));
+					}
+				}
 				else if (tokenValue.StartsWith("{{#if ", true, CultureInfo.InvariantCulture))
 				{
 					var token = trimmedToken.TrimStart('#').Trim().Substring("if".Length);
@@ -409,7 +489,7 @@ namespace Morestachio.Framework
 						}
 					}
 				}
-				else if (tokenValue.StartsWith("{{#var "))
+				else if (tokenValue.StartsWith("{{#var ", true, CultureInfo.InvariantCulture))
 				{
 					tokens.AddRange(ExpressionTokenizer.TokenizeVariableAssignment(tokenValue.Trim('{', '}'),
 						context));
@@ -523,22 +603,6 @@ namespace Morestachio.Framework
 						{
 							MorestachioExpression = ExpressionTokenizer.ParseExpressionOrString(token, context)
 						});
-
-						//var formats = EnumerateFormats(token, lines, tokenIndex, context.Errors);
-						//if (!formats.Any())
-						//{
-						//	tokens.Add(new TokenPair(TokenType.EscapedSingleValue,
-						//		Validated(token, 0, lines, context.Errors).Trim(),
-						//		context.CurrentLocation));
-						//}
-						//else
-						//{
-						//	tokens.AddRange(TokenizeFormattables(formats, token, templateString, lines,
-						//		tokenIndex, context.Errors, parserOptions));
-
-						//	tokens.Add(new TokenPair(TokenType.Print, ".",
-						//		context.CurrentLocation));
-						//}
 					}
 				}
 

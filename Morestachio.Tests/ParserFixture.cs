@@ -9,6 +9,7 @@ using Morestachio.Attributes;
 using Morestachio.Formatter;
 using Morestachio.Framework;
 using Morestachio.Formatter.Framework;
+using Morestachio.Formatter.Predefined;
 using Morestachio.Framework.Expression;
 using Morestachio.Helper;
 using Morestachio.Linq;
@@ -1117,6 +1118,44 @@ namespace Morestachio.Tests
 			var genTemplate = parsedTemplate.CreateAndStringify(new Dictionary<string, object> { { "data", elementdata } });
 			var realData = elementdata.Select(e => e.ToString()).Aggregate((e, f) => e + f);
 			Assert.That(genTemplate, Is.EqualTo(realData));
+		}
+
+		[Test]
+		public void TestWhileLoopContext()
+		{
+			var template = "{{#VAR condition = true}}" +
+			               "{{#WHILE condition}}" +
+			               "{{$index}}," +
+			               "{{#IF $index.fnc_Equals(5)}}{{#VAR condition = false}}{{/IF}}" +
+			               "{{/WHILE}}";
+
+			var parsingOptions = new ParserOptions(template, null, DefaultEncoding)
+			{
+				//Timeout = TimeSpan.FromSeconds(5)
+			};
+			parsingOptions.Formatters.AddFromType(typeof(EqualityFormatter));
+			var parsedTemplate = Parser.ParseWithOptions(parsingOptions);
+			var genTemplate = parsedTemplate.CreateAndStringify(new object());
+			Assert.That(genTemplate, Is.EqualTo("0,1,2,3,4,5,"));
+		}
+
+		[Test]
+		public void TestDoLoopContext()
+		{
+			var template = "{{#VAR condition = true}}" +
+			               "{{#DO condition}}" +
+			               "{{$index}}," +
+			               "{{#IF $index.fnc_Equals(5)}}{{#VAR condition = false}}{{/IF}}" +
+			               "{{/DO}}";
+
+			var parsingOptions = new ParserOptions(template, null, DefaultEncoding)
+			{
+				//Timeout = TimeSpan.FromSeconds(5)
+			};
+			parsingOptions.Formatters.AddFromType(typeof(EqualityFormatter));
+			var parsedTemplate = Parser.ParseWithOptions(parsingOptions);
+			var genTemplate = parsedTemplate.CreateAndStringify(new object());
+			Assert.That(genTemplate, Is.EqualTo("0,1,2,3,4,5,"));
 		}
 
 		private class CollectionContextInfo

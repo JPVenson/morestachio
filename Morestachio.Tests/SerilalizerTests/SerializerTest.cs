@@ -85,6 +85,32 @@ namespace Morestachio.Tests.SerilalizerTests
 		}
 
 		[Test]
+		public void TestCanSerializeWhile()
+		{
+			var template = "{{#VAR condition = true}}" +
+			               "{{#WHILE condition}}" +
+			               "{{$index}}," +
+			               "{{#IF condition.Equals(5)}}{{#VAR condition = false}}{{/IF}}" +
+			               "{{/WHILE}}";
+
+			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
+			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
+		}
+
+		[Test]
+		public void TestCanSerializeDo()
+		{
+			var template = "{{#VAR condition = true}}" +
+			               "{{#DO condition}}" +
+			               "{{$index}}," +
+			               "{{#IF condition.Equals(5)}}{{#VAR condition = false}}{{/IF}}" +
+			               "{{/DO}}";
+
+			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
+			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
+		}
+
+		[Test]
 		public void TestIsIfNotIfSerializable()
 		{
 			var template = "I am <Text> {{#IF data}} {{/If}} {{^IF data}} {{/If}}";

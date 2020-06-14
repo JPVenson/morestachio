@@ -122,6 +122,24 @@ namespace Morestachio
 					buildStack.Push(new DocumentScope(nestedDocument));
 					currentDocumentItem.Document.Add(nestedDocument);
 				}
+				else if (currentToken.Type == TokenType.WhileLoopOpen)
+				{
+					var nestedDocument = new WhileLoopDocumentItem(currentToken.MorestachioExpression)
+					{
+						ExpressionStart = currentToken.TokenLocation
+					};
+					buildStack.Push(new DocumentScope(nestedDocument));
+					currentDocumentItem.Document.Add(nestedDocument);
+				}
+				else if (currentToken.Type == TokenType.DoLoopOpen)
+				{
+					var nestedDocument = new DoLoopDocumentItem(currentToken.MorestachioExpression)
+					{
+						ExpressionStart = currentToken.TokenLocation
+					};
+					buildStack.Push(new DocumentScope(nestedDocument));
+					currentDocumentItem.Document.Add(nestedDocument);
+				}
 				else if (currentToken.Type == TokenType.ElementOpen)
 				{
 					var nestedDocument = new ExpressionScopeDocumentItem(currentToken.MorestachioExpression)
@@ -143,7 +161,9 @@ namespace Morestachio
 				else if (currentToken.Type == TokenType.CollectionClose
 						 || currentToken.Type == TokenType.ElementClose
 						 || currentToken.Type == TokenType.IfClose
-						 || currentToken.Type == TokenType.ElseClose)
+						 || currentToken.Type == TokenType.ElseClose
+						 || currentToken.Type == TokenType.WhileLoopClose
+						 || currentToken.Type == TokenType.DoLoopClose)
 				{
 					if (buildStack.Peek().HasAlias) //are we in a alias then remove it
 					{

@@ -208,6 +208,7 @@ namespace Morestachio.Framework.Expression
 						PathTokenizer.CurrentPart));
 			}
 		}
+		private static char?[] _closingChars = {'.', ',', ')'};
 
 		/// <summary>
 		///		Parses the text into one or more expressions
@@ -336,10 +337,10 @@ namespace Morestachio.Framework.Expression
 			{
 				var parent = currentScope.Parent?.Parent;
 				char? seekNext;
-				while (new char?[] {'.', ',', ')'}.Contains(seekNext = SeekNext(out var seekIndex)))
+				while (_closingChars.Contains(seekNext = SeekNext(out var seekIndex)))
 				{
 					index = seekIndex;
-					if (seekNext == ')')
+					if (seekNext == ')') //the next char is also an closing bracket so there is no next parameter nor an followup expression
 					{
 						//there is nothing after this expression so close it
 						TerminateCurrentScope();
@@ -349,30 +350,31 @@ namespace Morestachio.Framework.Expression
 							scope = tokenScopes.Peek();
 						}
 
-						if (scope?.Value is MorestachioExpressionList)
+						if (scope?.Value is MorestachioExpressionList)//if the parent expression is a list close that list too
 						{
 							TerminateCurrentScope();
 							parent = parent?.Parent;
 						}
-						parent = parent?.Parent;
+						parent = parent?.Parent;//set the new parent for followup expression
 					}
 					else
 					{
-						if (seekNext == '.')
+						//there is something after this expression
+						if (seekNext == '.')//the next char indicates a followup expression
 						{
 							HeaderTokenMatch scope = null;
 							if (tokenScopes.Any())
 							{
 								scope = tokenScopes.Peek();
 							}
-							if (scope != null && scope.Parent != null)
+							if (scope != null && scope.Parent != null) //this is a nested expression
 							{
-								if ((scope.Parent?.Value is MorestachioExpressionList))
+								if ((scope.Parent?.Value is MorestachioExpressionList))//the parents parent expression is already a list so close the parent
 								{
 									scope = scope.Parent;
 									TerminateCurrentScope();
 								}
-								else if (!(scope.Value is MorestachioExpressionList))
+								else if (!(scope.Value is MorestachioExpressionList))//the parent is not an list expression so replace the parent with a list expression
 								{
 									var oldValue = scope.Value as MorestachioExpression;
 									scope.Value = new MorestachioExpressionList(new List<IMorestachioExpression>
@@ -390,13 +392,13 @@ namespace Morestachio.Framework.Expression
 							}
 							else
 							{
-								//there is nothing after this expression so close it
+								//we are at root level no need to do anything as the root is already a list expression
 								TerminateCurrentScope(true);
 							}
 						}
-						else
+						else if(seekIndex == ',')
 						{
-							//there is nothing after this expression so close it
+							//the next char indicates a new parameter so close this expression and allow next
 							TerminateCurrentScope(true);
 						}
 
@@ -405,6 +407,7 @@ namespace Morestachio.Framework.Expression
 							HeaderTokenMatch item;
 							if (parent != null)
 							{
+								//if there is a parent set then this indicates a new argument
 								item = new HeaderTokenMatch
 								{
 									State = TokenState.ArgumentStart,
@@ -414,6 +417,7 @@ namespace Morestachio.Framework.Expression
 							}
 							else
 							{
+								//if there is no parent set this indicates a followup expression
 								item = new HeaderTokenMatch
 								{
 									State = TokenState.StartOfExpression,
