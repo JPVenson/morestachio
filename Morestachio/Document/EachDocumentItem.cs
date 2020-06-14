@@ -27,9 +27,9 @@ namespace Morestachio.Document
 		}
 
 		/// <inheritdoc />
-		public EachDocumentItem(IExpression value)
+		public EachDocumentItem(IMorestachioExpression value)
 		{
-			Expression = value;
+			MorestachioExpression = value;
 		}
 
 		[UsedImplicitly]
@@ -46,7 +46,7 @@ namespace Morestachio.Document
 		{
 			//if we're in the same scope, just negating, then we want to use the same object
 			//var c = await context.GetContextForPath(Value, scopeData);
-			var c = await Expression.GetValue(context, scopeData);
+			var c = await MorestachioExpression.GetValue(context, scopeData);
 
 			if (!await c.Exists())
 			{
@@ -65,7 +65,7 @@ namespace Morestachio.Document
 
 				throw new IndexedParseException(CharacterLocationExtended.Empty, 
 					string.Format("{1}'{0}' is used like an array by the template, but is a scalar value or object in your model." + " Complete Expression until Error:{2}",
-						Expression.ToString(), base.ExpressionStart, (path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
+						MorestachioExpression.ToString(), base.ExpressionStart, (path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 			}
 
 			var scopes = new List<DocumentItemExecution>();

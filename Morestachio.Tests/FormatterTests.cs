@@ -615,7 +615,7 @@ namespace Morestachio.Tests
 				{"by", 10L}
 			};
 			var exp = "d.(f.('d'), \"t\").('pl', by.(by, 'f'))";
-			Assert.That(exp, Is.EqualTo(Expression.ParseFrom(exp, TokenzierContext.FromText(exp), out _).ToString()));
+			Assert.That(exp, Is.EqualTo(MorestachioExpression.ParseFrom(exp, TokenzierContext.FromText(exp), out _).ToString()));
 			var parsingOptions = new ParserOptions("{{" + exp + "}}",
 				null, DefaultEncoding);
 			var format = "yyyy.mm";

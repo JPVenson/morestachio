@@ -12,14 +12,14 @@ namespace Morestachio.Framework.Expression
 	/// <summary>
 	///		Defines a list of Expressions 
 	/// </summary>
-	public class ExpressionList : IExpression
+	public class MorestachioExpressionList : IMorestachioExpression
 	{
 		/// <summary>
 		///		The list of Expressions
 		/// </summary>
-		public IList<IExpression> Expressions { get; private set; }
+		public IList<IMorestachioExpression> Expressions { get; private set; }
 
-		internal ExpressionList()
+		internal MorestachioExpressionList()
 		{
 
 		}
@@ -28,7 +28,7 @@ namespace Morestachio.Framework.Expression
 		///	
 		/// </summary>
 		/// <param name="expressions"></param>
-		public ExpressionList(IList<IExpression> expressions)
+		public MorestachioExpressionList(IList<IMorestachioExpression> expressions)
 		{
 			Expressions = expressions;
 		}
@@ -38,10 +38,10 @@ namespace Morestachio.Framework.Expression
 		/// </summary>
 		/// <param name="info"></param>
 		/// <param name="context"></param>
-		protected ExpressionList(SerializationInfo info, StreamingContext context)
+		protected MorestachioExpressionList(SerializationInfo info, StreamingContext context)
 		{
 			Location = CharacterLocation.FromFormatString(info.GetString(nameof(Location)));
-			Expressions = (IExpression[])info.GetValue(nameof(Expressions), typeof(IExpression[]));
+			Expressions = (IMorestachioExpression[])info.GetValue(nameof(Expressions), typeof(IMorestachioExpression[]));
 		}
 		
 		/// <inheritdoc />
@@ -80,7 +80,7 @@ namespace Morestachio.Framework.Expression
 				return;
 			}
 			reader.ReadStartElement();
-			var expression = new List<IExpression>();
+			var expression = new List<IMorestachioExpression>();
 			while (reader.NodeType != XmlNodeType.EndElement)
 			{
 				var childTree = reader.ReadSubtree();
@@ -111,13 +111,13 @@ namespace Morestachio.Framework.Expression
 		}
 		
 		/// <inheritdoc />
-		public bool Equals(IExpression other)
+		public bool Equals(IMorestachioExpression other)
 		{
 			return Equals((object)other);
 		}
 		
 		/// <inheritdoc />
-		protected bool Equals(ExpressionList other)
+		protected bool Equals(MorestachioExpressionList other)
 		{
 			if (!Location.Equals(other.Location))
 			{
@@ -159,7 +159,7 @@ namespace Morestachio.Framework.Expression
 				return false;
 			}
 
-			return Equals((ExpressionList) obj);
+			return Equals((MorestachioExpressionList) obj);
 		}
 		
 		/// <inheritdoc />
@@ -171,7 +171,7 @@ namespace Morestachio.Framework.Expression
 			}
 		}
 
-		protected internal void Add(IExpression currentScopeValue)
+		protected internal void Add(IMorestachioExpression currentScopeValue)
 		{
 			Expressions.Add(currentScopeValue);
 		}

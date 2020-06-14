@@ -27,7 +27,7 @@ namespace Morestachio.Framework.Expression
 		/// <summary>
 		///		The value of the Argument
 		/// </summary>
-		public IExpression Expression { get; set; }
+		public IMorestachioExpression MorestachioExpression { get; set; }
 
 		/// <summary>
 		///		The Location within the Template
@@ -42,7 +42,7 @@ namespace Morestachio.Framework.Expression
 		/// <returns></returns>
 		public async Task<ContextObject> GetValue(ContextObject contextObject, ScopeData scopeData)
 		{
-			return await Expression.GetValue(contextObject, scopeData);
+			return await MorestachioExpression.GetValue(contextObject, scopeData);
 		}
 
 
@@ -67,7 +67,7 @@ namespace Morestachio.Framework.Expression
 				return true;
 			}
 
-			return Name == other.Name && Expression.Equals(other.Expression) && Location.Equals(other.Location);
+			return Name == other.Name && MorestachioExpression.Equals(other.MorestachioExpression) && Location.Equals(other.Location);
 		}
 		
 		/// <inheritdoc />
@@ -97,7 +97,7 @@ namespace Morestachio.Framework.Expression
 			unchecked
 			{
 				var hashCode = (Name != null ? Name.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ (Expression != null ? Expression.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ (MorestachioExpression != null ? MorestachioExpression.GetHashCode() : 0);
 				hashCode = (hashCode * 397) ^ (Location != null ? Location.GetHashCode() : 0);
 				return hashCode;
 			}

@@ -20,26 +20,26 @@ namespace Morestachio.Document
 		/// <summary>
 		///		The Expression to be evaluated
 		/// </summary>
-		public IExpression Expression { get; protected set; }
+		public IMorestachioExpression MorestachioExpression { get; protected set; }
 
 		/// <inheritdoc />
 		protected ExpressionDocumentItemBase(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
-			Expression = info.GetValue(nameof(Expression), typeof(IExpression)) as IExpression;
+			MorestachioExpression = info.GetValue(nameof(MorestachioExpression), typeof(IMorestachioExpression)) as IMorestachioExpression;
 		}
 
 		/// <inheritdoc />
 		protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
 		{
 			base.SerializeBinaryCore(info, context);
-			info.AddValue(nameof(Expression), Expression);
+			info.AddValue(nameof(MorestachioExpression), MorestachioExpression);
 			base.SerializeBinaryCore(info, context);
 		}
 
 		/// <inheritdoc />
 		protected override void SerializeXml(XmlWriter writer)
 		{
-			writer.WriteExpressionToXml(Expression);
+			writer.WriteExpressionToXml(MorestachioExpression);
 			base.SerializeXml(writer);
 		}
 
@@ -51,7 +51,7 @@ namespace Morestachio.Document
 			{
 				var subtree = reader.ReadSubtree();
 				subtree.Read();
-				Expression = subtree.ParseExpressionFromKind();
+				MorestachioExpression = subtree.ParseExpressionFromKind();
 				reader.Skip();
 			}
 			base.DeSerializeXml(reader);
@@ -70,7 +70,7 @@ namespace Morestachio.Document
 				return true;
 			}
 
-			return base.Equals(other) && Expression.Equals(other.Expression);
+			return base.Equals(other) && MorestachioExpression.Equals(other.MorestachioExpression);
 		}
 
 		/// <inheritdoc />
@@ -98,7 +98,7 @@ namespace Morestachio.Document
 		public override int GetHashCode()
 		{
 			int hashCode = base.GetHashCode();
-			hashCode = (hashCode * 397) ^ (Expression.GetHashCode());
+			hashCode = (hashCode * 397) ^ (MorestachioExpression.GetHashCode());
 			return hashCode;
 		}
 	}

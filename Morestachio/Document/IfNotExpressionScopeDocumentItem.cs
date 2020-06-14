@@ -23,9 +23,9 @@ namespace Morestachio.Document
 		}
 
 		/// <inheritdoc />
-		public IfNotExpressionScopeDocumentItem(IExpression value)
+		public IfNotExpressionScopeDocumentItem(IMorestachioExpression value)
 		{
-			Expression = value;
+			MorestachioExpression = value;
 		}
 
 		[UsedImplicitly]
@@ -45,7 +45,7 @@ namespace Morestachio.Document
 			var contextObject = context.Parent ?? context;
 
 			//var c = await context.GetContextForPath(Value, scopeData);
-			var c = await Expression.GetValue(contextObject, scopeData);
+			var c = await MorestachioExpression.GetValue(contextObject, scopeData);
 			if (!await c.Exists())
 			{
 				scopeData.ExecuteElse = false;

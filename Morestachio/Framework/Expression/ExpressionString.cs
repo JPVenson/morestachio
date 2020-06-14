@@ -14,14 +14,14 @@ namespace Morestachio.Framework.Expression
 	/// <summary>
 	///		Defines a string as or inside an expression
 	/// </summary>
-	public class ExpressionString : IExpression
+	public class MorestachioExpressionString : IMorestachioExpression
 	{
-		public ExpressionString()
+		public MorestachioExpressionString()
 		{
 			StringParts = new List<ExpressionStringConstPart>();
 		}
 
-		protected ExpressionString(SerializationInfo info, StreamingContext context)
+		protected MorestachioExpressionString(SerializationInfo info, StreamingContext context)
 		{
 			StringParts = (IList<ExpressionStringConstPart>)info.GetValue(nameof(StringParts), typeof(IList<ExpressionStringConstPart>));
 			Location = CharacterLocation.FromFormatString(info.GetString(nameof(Location)));
@@ -43,7 +43,7 @@ namespace Morestachio.Framework.Expression
 				return;
 			}
 			reader.ReadStartElement();
-			while (reader.Name == typeof(ExpressionStringConstPart).Name && reader.NodeType != XmlNodeType.EndElement)
+			while (reader.Name == nameof(ExpressionStringConstPart) && reader.NodeType != XmlNodeType.EndElement)
 			{
 				var constStr = new ExpressionStringConstPart();
 				constStr.Location = CharacterLocation.FromFormatString(reader.GetAttribute(nameof(Location)));
@@ -166,12 +166,12 @@ namespace Morestachio.Framework.Expression
 		/// <param name="context"></param>
 		/// <param name="index"></param>
 		/// <returns></returns>
-		public static ExpressionString ParseFrom(string text,
+		public static MorestachioExpressionString ParseFrom(string text,
 			int offset,
 			TokenzierContext context,
 			out int index)
 		{
-			var result = new ExpressionString()
+			var result = new MorestachioExpressionString()
 			{
 				Location = context.CurrentLocation
 			};
@@ -236,12 +236,12 @@ namespace Morestachio.Framework.Expression
 			return sb.ToString();
 		}
 		/// <inheritdoc />
-		public bool Equals(IExpression other)
+		public bool Equals(IMorestachioExpression other)
 		{
 			return Equals((object)other);
 		}
 		/// <inheritdoc />
-		protected bool Equals(ExpressionString other)
+		protected bool Equals(MorestachioExpressionString other)
 		{
 			if (Delimiter != other.Delimiter || !Location.Equals(other.Location))
 			{
@@ -283,7 +283,7 @@ namespace Morestachio.Framework.Expression
 				return false;
 			}
 
-			return Equals((ExpressionString)obj);
+			return Equals((MorestachioExpressionString)obj);
 		}
 		/// <inheritdoc />
 		public override int GetHashCode()

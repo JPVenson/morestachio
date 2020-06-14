@@ -10,26 +10,26 @@ namespace Morestachio.Framework.Expression.Renderer
 		/// <summary>
 		///		Renders a Expression into the StringBuilder
 		/// </summary>
-		/// <param name="expression"></param>
+		/// <param name="morestachioExpression"></param>
 		/// <param name="sb"></param>
-		public static void RenderExpression(IExpression expression, StringBuilder sb)
+		public static void RenderExpression(IMorestachioExpression morestachioExpression, StringBuilder sb)
 		{
-			switch (expression)
+			switch (morestachioExpression)
 			{
-				case Expression expression1:
+				case MorestachioExpression expression1:
 					RenderExpression(expression1, sb);
 					break;
 				case ExpressionArgument expressionArgument:
 					RenderExpression(expressionArgument, sb);
 					break;
-				case ExpressionList expressionList:
+				case MorestachioExpressionList expressionList:
 					RenderExpression(expressionList, sb);
 					break;
-				case ExpressionString expressionString:
+				case MorestachioExpressionString expressionString:
 					RenderExpression(expressionString, sb);
 					break;
 				default:
-					throw new ArgumentOutOfRangeException(nameof(expression));
+					throw new ArgumentOutOfRangeException(nameof(morestachioExpression));
 			}
 		}
 		
@@ -48,27 +48,27 @@ namespace Morestachio.Framework.Expression.Renderer
 				sb.Append("] ");
 			}
 
-			RenderExpression(expression.Expression, sb);
+			RenderExpression(expression.MorestachioExpression, sb);
 		}
 
 		/// <summary>
 		///		Renders the Expression like this:
 		///		EACH PATHPART -> [Path + "."], "~", "../", "." END + IF HAS FORMATTER -> IF NOT SELFASSIGNMENT -> "." END -> FormatterName + "(" + [EACH ARG -> RenderExpression(ExpressionArgument ARG) + ", "] + ")" END
 		/// </summary>
-		/// <param name="expression"></param>
+		/// <param name="morestachioExpression"></param>
 		/// <param name="sb"></param>
-		public static void RenderExpression(Expression expression, StringBuilder sb)
+		public static void RenderExpression(MorestachioExpression morestachioExpression, StringBuilder sb)
 		{
 			var isSelfAssignment = false;
-			for (var index = 0; index < expression.PathParts.Count; index++)
+			for (var index = 0; index < morestachioExpression.PathParts.Count; index++)
 			{
-				var expressionPathPart = expression.PathParts[index];
+				var expressionPathPart = morestachioExpression.PathParts[index];
 				switch (expressionPathPart.Value)
 				{
 					case PathTokenizer.PathType.DataPath:
 						sb.Append(expressionPathPart.Key);
 
-						if (index != expression.PathParts.Count - 1)
+						if (index != morestachioExpression.PathParts.Count - 1)
 						{
 							sb.Append(".");
 						}
@@ -87,23 +87,23 @@ namespace Morestachio.Framework.Expression.Renderer
 						throw new ArgumentOutOfRangeException();
 				}
 			}
-			if (expression.FormatterName != null)
+			if (morestachioExpression.FormatterName != null)
 			{
 				if (!isSelfAssignment)
 				{
 					sb.Append(".");
 				}
 
-				sb.Append(expression.FormatterName);
+				sb.Append(morestachioExpression.FormatterName);
 				sb.Append("(");
 
-				if (expression.Formats.Any())
+				if (morestachioExpression.Formats.Any())
 				{
-					for (var index = 0; index < expression.Formats.Count; index++)
+					for (var index = 0; index < morestachioExpression.Formats.Count; index++)
 					{
-						var expressionArgument = expression.Formats[index];
+						var expressionArgument = morestachioExpression.Formats[index];
 						RenderExpression(expressionArgument, sb);
-						if (index != expression.Formats.Count - 1)
+						if (index != morestachioExpression.Formats.Count - 1)
 						{
 							sb.Append(", ");
 						}
@@ -117,15 +117,15 @@ namespace Morestachio.Framework.Expression.Renderer
 		///		Renders the Expression like this:
 		///		EACH EXP -> IF EXP NOT ONLY SelfAssignment -> "." END + RenderExpression(IExpression EXP) -> END
 		/// </summary>
-		/// <param name="expression"></param>
+		/// <param name="morestachioExpression"></param>
 		/// <param name="sb"></param>
-		public static void RenderExpression(ExpressionList expression, StringBuilder sb)
+		public static void RenderExpression(MorestachioExpressionList morestachioExpression, StringBuilder sb)
 		{
-			for (var index = 0; index < expression.Expressions.Count; index++)
+			for (var index = 0; index < morestachioExpression.Expressions.Count; index++)
 			{
-				var expressionExpression = expression.Expressions[index];
+				var expressionExpression = morestachioExpression.Expressions[index];
 				if (index != 0 && 
-				    (expressionExpression as Expression)?.PathParts.All(f => f.Value == PathTokenizer.PathType.SelfAssignment) == false)
+				    (expressionExpression as MorestachioExpression)?.PathParts.All(f => f.Value == PathTokenizer.PathType.SelfAssignment) == false)
 				{
 					sb.Append(".");
 				}
@@ -133,11 +133,11 @@ namespace Morestachio.Framework.Expression.Renderer
 			}
 		}
 
-		public static void RenderExpression(ExpressionString expression, StringBuilder sb)
+		public static void RenderExpression(MorestachioExpressionString morestachioExpression, StringBuilder sb)
 		{
-			sb.Append(expression.Delimiter +
-					  string.Join("", expression.StringParts.Select(f => f.PartText))
-					  + expression.Delimiter);
+			sb.Append(morestachioExpression.Delimiter +
+					  string.Join("", morestachioExpression.StringParts.Select(f => f.PartText))
+					  + morestachioExpression.Delimiter);
 		}
 	}
 }

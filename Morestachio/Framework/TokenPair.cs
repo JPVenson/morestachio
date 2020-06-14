@@ -35,9 +35,9 @@ namespace Morestachio.Framework
 
 			public override string ToString()
 			{
-				if (_pair.Expression != null)
+				if (_pair.MorestachioExpression != null)
 				{
-					return $"{Type} {_pair.Expression}";
+					return $"{Type} {_pair.MorestachioExpression}";
 				}
 				return $"{Type} {Value}";
 			}
@@ -64,7 +64,7 @@ namespace Morestachio.Framework
 		/// <summary>
 		///		With what format should this token be evaluated
 		/// </summary>
-		internal IExpression Expression { get; set; }
+		internal IMorestachioExpression MorestachioExpression { get; set; }
 		
 		/// <summary>
 		///		What is the Value of this token

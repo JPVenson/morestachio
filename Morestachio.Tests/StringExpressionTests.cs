@@ -30,8 +30,8 @@ namespace Morestachio.Tests
 			var result = ExpressionTokenizer.ParseExpressionOrString(text, out var context);
 			Assert.That(context.Errors, Is.Empty, () => context.Errors.Select(f => f.GetException().ToString())
 				.Aggregate((e,f) => e + "\r\n-------------" + f));
-			Assert.That(result, Is.TypeOf<ExpressionString>());
-			var expressionString = (result as ExpressionString);
+			Assert.That(result, Is.TypeOf<MorestachioExpressionString>());
+			var expressionString = (result as MorestachioExpressionString);
 			Assert.That(expressionString.Location.ToFormatString(), Is.EqualTo("1:1"));
 			Assert.That(expressionString.StringParts.Count, Is.EqualTo(1));
 			Assert.That((await expressionString.GetValue(StringTestContext(), new ScopeData())).Value, Is.EqualTo("test"));
@@ -45,8 +45,8 @@ namespace Morestachio.Tests
 			Assert.That(context.Errors, Is.Empty, () => context.Errors.Select(f => f.GetException().ToString())
 				.Aggregate((e,f) => e + "\r\n-------------" + f));
 
-			Assert.That(result, Is.TypeOf<ExpressionString>());
-			var expressionString = (result as ExpressionString);
+			Assert.That(result, Is.TypeOf<MorestachioExpressionString>());
+			var expressionString = (result as MorestachioExpressionString);
 			Assert.That(expressionString.Location.ToFormatString(), Is.EqualTo("1:1"));
 			Assert.That(expressionString.StringParts.Count, Is.EqualTo(1));
 			Assert.That((await expressionString.GetValue(StringTestContext(), new ScopeData())).Value, Is.EqualTo("a string, with a comma, and other {[]}{§$%& stuff. also a escaped \" and \\\" and so on"));

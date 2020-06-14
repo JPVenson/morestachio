@@ -1526,48 +1526,48 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="T:Morestachio.Framework.Expression.Expression">
+        <member name="T:Morestachio.Framework.Expression.MorestachioExpression">
             <summary>
             	Defines a path with an optional formatting expression including sub expressions
             </summary>
         </member>
-        <member name="M:Morestachio.Framework.Expression.Expression.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpression.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.Expression.GetSchema">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpression.GetSchema">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.Expression.ReadXml(System.Xml.XmlReader)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpression.ReadXml(System.Xml.XmlReader)">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.Expression.WriteXml(System.Xml.XmlWriter)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpression.WriteXml(System.Xml.XmlWriter)">
             <inheritdoc />
         </member>
-        <member name="P:Morestachio.Framework.Expression.Expression.PathParts">
+        <member name="P:Morestachio.Framework.Expression.MorestachioExpression.PathParts">
             <summary>
             	Contains all parts of the path
             </summary>
         </member>
-        <member name="P:Morestachio.Framework.Expression.Expression.Formats">
+        <member name="P:Morestachio.Framework.Expression.MorestachioExpression.Formats">
             <summary>
             	If filled contains the arguments to be used to format the value located at PathParts
             </summary>
         </member>
-        <member name="P:Morestachio.Framework.Expression.Expression.FormatterName">
+        <member name="P:Morestachio.Framework.Expression.MorestachioExpression.FormatterName">
             <summary>
             	If set the formatter name to be used to format the value located at PathParts
             </summary>
         </member>
-        <member name="P:Morestachio.Framework.Expression.Expression.Location">
+        <member name="P:Morestachio.Framework.Expression.MorestachioExpression.Location">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.Expression.GetValue(Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpression.GetValue(Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.Expression.ToString">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpression.ToString">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.Expression.ParseFrom(System.String,Morestachio.Framework.Expression.TokenzierContext,System.Int32@)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpression.ParseFrom(System.String,Morestachio.Framework.Expression.TokenzierContext,System.Int32@)">
             <summary>
             	Parses the text into one or more expressions
             </summary>
@@ -1622,115 +1622,115 @@
         <member name="M:Morestachio.Framework.Expression.ExpressionArgument.GetHashCode">
             <inheritdoc />
         </member>
-        <member name="T:Morestachio.Framework.Expression.ExpressionList">
+        <member name="T:Morestachio.Framework.Expression.MorestachioExpressionList">
             <summary>
             	Defines a list of Expressions 
             </summary>
         </member>
-        <member name="P:Morestachio.Framework.Expression.ExpressionList.Expressions">
+        <member name="P:Morestachio.Framework.Expression.MorestachioExpressionList.Expressions">
             <summary>
             	The list of Expressions
             </summary>
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionList.#ctor(System.Collections.Generic.IList{Morestachio.Framework.Expression.IExpression})">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionList.#ctor(System.Collections.Generic.IList{Morestachio.Framework.Expression.IExpression})">
             <summary>
             
             </summary>
             <param name="expressions"></param>
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionList.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionList.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
             <summary>
             
             </summary>
             <param name="info"></param>
             <param name="context"></param>
         </member>
-        <member name="P:Morestachio.Framework.Expression.ExpressionList.Location">
+        <member name="P:Morestachio.Framework.Expression.MorestachioExpressionList.Location">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionList.GetValue(Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionList.GetValue(Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionList.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionList.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionList.GetSchema">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionList.GetSchema">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionList.ReadXml(System.Xml.XmlReader)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionList.ReadXml(System.Xml.XmlReader)">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionList.WriteXml(System.Xml.XmlWriter)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionList.WriteXml(System.Xml.XmlWriter)">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionList.ToString">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionList.ToString">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionList.Equals(Morestachio.Framework.Expression.IExpression)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionList.Equals(Morestachio.Framework.Expression.IExpression)">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionList.Equals(Morestachio.Framework.Expression.ExpressionList)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionList.Equals(Morestachio.Framework.Expression.MorestachioExpressionList)">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionList.Equals(System.Object)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionList.Equals(System.Object)">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionList.GetHashCode">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionList.GetHashCode">
             <inheritdoc />
         </member>
-        <member name="T:Morestachio.Framework.Expression.ExpressionString">
+        <member name="T:Morestachio.Framework.Expression.MorestachioExpressionString">
             <summary>
             	Defines a string as or inside an expression
             </summary>
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionString.GetSchema">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionString.GetSchema">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionString.ReadXml(System.Xml.XmlReader)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionString.ReadXml(System.Xml.XmlReader)">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionString.WriteXml(System.Xml.XmlWriter)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionString.WriteXml(System.Xml.XmlWriter)">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionString.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionString.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
             <inheritdoc />
         </member>
-        <member name="P:Morestachio.Framework.Expression.ExpressionString.Location">
+        <member name="P:Morestachio.Framework.Expression.MorestachioExpressionString.Location">
             <inheritdoc />
         </member>
-        <member name="P:Morestachio.Framework.Expression.ExpressionString.Delimiter">
+        <member name="P:Morestachio.Framework.Expression.MorestachioExpressionString.Delimiter">
             <summary>
             	The original Delimiter
             </summary>
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionString.GetValue(Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionString.GetValue(Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
             <inheritdoc />
         </member>
-        <member name="T:Morestachio.Framework.Expression.ExpressionString.ExpressionStringConstPart">
+        <member name="T:Morestachio.Framework.Expression.MorestachioExpressionString.ExpressionStringConstPart">
             <summary>
             	A constant part of an string
             </summary>
         </member>
-        <member name="P:Morestachio.Framework.Expression.ExpressionString.ExpressionStringConstPart.PartText">
+        <member name="P:Morestachio.Framework.Expression.MorestachioExpressionString.ExpressionStringConstPart.PartText">
             <summary>
             	The content of the Text Part
             </summary>
         </member>
-        <member name="P:Morestachio.Framework.Expression.ExpressionString.ExpressionStringConstPart.Location">
+        <member name="P:Morestachio.Framework.Expression.MorestachioExpressionString.ExpressionStringConstPart.Location">
             <summary>
             	Where in the string is this part located
             </summary>
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionString.ExpressionStringConstPart.Equals(Morestachio.Framework.Expression.ExpressionString.ExpressionStringConstPart)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionString.ExpressionStringConstPart.Equals(Morestachio.Framework.Expression.MorestachioExpressionString.ExpressionStringConstPart)">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionString.ExpressionStringConstPart.Equals(System.Object)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionString.ExpressionStringConstPart.Equals(System.Object)">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionString.ExpressionStringConstPart.GetHashCode">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionString.ExpressionStringConstPart.GetHashCode">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionString.ParseFrom(System.String,System.Int32,Morestachio.Framework.Expression.TokenzierContext,System.Int32@)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionString.ParseFrom(System.String,System.Int32,Morestachio.Framework.Expression.TokenzierContext,System.Int32@)">
             <summary>
             	Parses a text into an Expression string. Must start with ether " or '
             </summary>
@@ -1740,20 +1740,25 @@
             <param name="index"></param>
             <returns></returns>
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionString.ToString">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionString.ToString">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionString.Equals(Morestachio.Framework.Expression.IExpression)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionString.Equals(Morestachio.Framework.Expression.IExpression)">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionString.Equals(Morestachio.Framework.Expression.ExpressionString)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionString.Equals(Morestachio.Framework.Expression.MorestachioExpressionString)">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionString.Equals(System.Object)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionString.Equals(System.Object)">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionString.GetHashCode">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionString.GetHashCode">
             <inheritdoc />
+        </member>
+        <member name="T:Morestachio.Framework.Expression.ExpressionTokenizer">
+            <summary>
+            	This class provides methods for parsing ether a String or an Expression
+            </summary>
         </member>
         <member name="M:Morestachio.Framework.Expression.ExpressionTokenizer.ParseExpressionOrString(System.String,Morestachio.Framework.Expression.TokenzierContext)">
             <summary>
@@ -1828,20 +1833,20 @@
             <param name="expression"></param>
             <param name="sb"></param>
         </member>
-        <member name="M:Morestachio.Framework.Expression.Renderer.ExpressionRenderer.RenderExpression(Morestachio.Framework.Expression.Expression,System.Text.StringBuilder)">
+        <member name="M:Morestachio.Framework.Expression.Renderer.ExpressionRenderer.RenderExpression(Morestachio.Framework.Expression.MorestachioExpression,System.Text.StringBuilder)">
             <summary>
             	Renders the Expression like this:
             	EACH PATHPART -> [Path + "."], "~", "../", "." END + IF HAS FORMATTER -> IF NOT SELFASSIGNMENT -> "." END -> FormatterName + "(" + [EACH ARG -> RenderExpression(ExpressionArgument ARG) + ", "] + ")" END
             </summary>
-            <param name="expression"></param>
+            <param name="morestachioExpression"></param>
             <param name="sb"></param>
         </member>
-        <member name="M:Morestachio.Framework.Expression.Renderer.ExpressionRenderer.RenderExpression(Morestachio.Framework.Expression.ExpressionList,System.Text.StringBuilder)">
+        <member name="M:Morestachio.Framework.Expression.Renderer.ExpressionRenderer.RenderExpression(Morestachio.Framework.Expression.MorestachioExpressionList,System.Text.StringBuilder)">
             <summary>
             	Renders the Expression like this:
             	EACH EXP -> IF EXP NOT ONLY SelfAssignment -> "." END + RenderExpression(IExpression EXP) -> END
             </summary>
-            <param name="expression"></param>
+            <param name="morestachioExpression"></param>
             <param name="sb"></param>
         </member>
         <member name="P:Morestachio.Framework.Expression.TokenzierContext.Character">

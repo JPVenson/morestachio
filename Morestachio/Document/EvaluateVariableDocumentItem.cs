@@ -30,9 +30,9 @@ namespace Morestachio.Document
 		}
 
 		/// <inheritdoc />
-		public EvaluateVariableDocumentItem(string value, IExpression expression)
+		public EvaluateVariableDocumentItem(string value, IMorestachioExpression morestachioExpression)
 		{
-			Expression = expression;
+			MorestachioExpression = morestachioExpression;
 			Value = value;
 		}
 		
@@ -61,7 +61,7 @@ namespace Morestachio.Document
 		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
 			await Task.CompletedTask;
-			context = await Expression.GetValue(context, scopeData);
+			context = await MorestachioExpression.GetValue(context, scopeData);
 			scopeData.Alias[Value] = context;
 			return new DocumentItemExecution[0];
 		}

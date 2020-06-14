@@ -23,9 +23,9 @@ namespace Morestachio.Document
 		}
 
 		/// <inheritdoc />
-		public ExpressionScopeDocumentItem(IExpression value)
+		public ExpressionScopeDocumentItem(IMorestachioExpression value)
 		{
-			Expression = value;
+			MorestachioExpression = value;
 		}
 
 		[UsedImplicitly]
@@ -40,7 +40,7 @@ namespace Morestachio.Document
 		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
 			//var c = await context.GetContextForPath(Value, scopeData);
-			var c = await Expression.GetValue(context, scopeData);
+			var c = await MorestachioExpression.GetValue(context, scopeData);
 			if (await c.Exists())
 			{
 				return Children.WithScope(c);

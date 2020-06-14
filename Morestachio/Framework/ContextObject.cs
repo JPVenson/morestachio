@@ -4,11 +4,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Morestachio.Formatter;
 using Morestachio.Formatter.Framework;
 using Morestachio.Framework.Expression;
 using Morestachio.Helper;
@@ -94,10 +92,7 @@ namespace Morestachio.Framework
 				_definitionOfFalse = value ?? throw new InvalidOperationException("The value must not be null");
 			}
 		}
-
-		internal static readonly Regex PathFinder = new Regex("[~]{1}|(\\.\\.[\\\\/]{1})|([^.]+)",
-			RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
-
+		
 		private static Func<object, bool> _definitionOfFalse;
 
 		/// <summary>
@@ -105,10 +100,11 @@ namespace Morestachio.Framework
 		/// </summary>
 		/// <param name="options">The options.</param>
 		/// <param name="key">The key as seen in the Template</param>
+		/// <param name="parent">The Logical parent of this ContextObject</param>
 		public ContextObject([NotNull]ParserOptions options, [NotNull]string key, [CanBeNull]ContextObject parent)
 		{
-			Options = options;
-			Key = key;
+			Options = options ?? throw new ArgumentNullException(nameof(options));
+			Key = key ?? throw new ArgumentNullException(nameof(key));
 			Parent = parent;
 			if (Parent != null)
 			{

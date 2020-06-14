@@ -59,51 +59,6 @@ namespace Morestachio
 			return documentInfo;
 		}
 
-		//[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		//internal static IValueDocumentItem ParseAsPath(Tokenizer.HeaderTokenMatch token)
-		//{
-		//	switch (token.TokenType)
-		//	{
-		//		case Tokenizer.HeaderArgumentType.String:
-		//			return new ContentDocumentItem(token.Value)
-		//			{
-		//				ExpressionStart = token.TokenLocation
-		//			};
-		//		case Tokenizer.HeaderArgumentType.Expression:
-		//			if (token.Arguments.Any())
-		//			{
-		//				var list = new List<Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>>();
-		//				foreach (var e in token.Arguments)
-		//				{
-		//					list.Add(new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>(e, ParseAsPath(e)));
-		//				}
-
-		//				return new CallFormatterDocumentItem(list
-		//					.ToArray(), token.Value, token.ArgumentName);
-		//			}
-		//			else
-		//			{
-		//				return new PathDocumentItem(token.Value, false);
-		//			}
-					
-		//		default:
-		//			throw new ArgumentOutOfRangeException();
-		//	}
-		//}
-
-		//[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		//private static Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>[] ParseArgumentHeader(TokenPair currentToken)
-		//{
-		//	var argumentMap = new List<Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>>();
-		//	foreach (var formatterPart in currentToken.Expression?.FormatString ?? new Tokenizer.HeaderTokenMatch[0])
-		//	{
-		//		argumentMap.Add(new Tuple<Tokenizer.HeaderTokenMatch, IValueDocumentItem>(formatterPart,
-		//			ParseAsPath(formatterPart)));
-		//	}
-
-		//	return argumentMap.ToArray();
-		//}
-
 		/// <summary>
 		///     Parses the Tokens into a Document.
 		/// </summary>
@@ -133,7 +88,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type == TokenType.If)
 				{
-					var nestedDocument = new IfExpressionScopeDocumentItem(currentToken.Expression)
+					var nestedDocument = new IfExpressionScopeDocumentItem(currentToken.MorestachioExpression)
 					{
 						ExpressionStart = currentToken.TokenLocation
 					};
@@ -142,7 +97,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type == TokenType.IfNot)
 				{
-					var nestedDocument = new IfNotExpressionScopeDocumentItem(currentToken.Expression)
+					var nestedDocument = new IfNotExpressionScopeDocumentItem(currentToken.MorestachioExpression)
 					{
 						ExpressionStart = currentToken.TokenLocation
 					};
@@ -160,7 +115,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type == TokenType.CollectionOpen)
 				{
-					var nestedDocument = new EachDocumentItem(currentToken.Expression)
+					var nestedDocument = new EachDocumentItem(currentToken.MorestachioExpression)
 					{
 						ExpressionStart = currentToken.TokenLocation
 					};
@@ -169,7 +124,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type == TokenType.ElementOpen)
 				{
-					var nestedDocument = new ExpressionScopeDocumentItem(currentToken.Expression)
+					var nestedDocument = new ExpressionScopeDocumentItem(currentToken.MorestachioExpression)
 					{
 						ExpressionStart = currentToken.TokenLocation
 					};
@@ -178,7 +133,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type == TokenType.InvertedElementOpen)
 				{
-					var invertedScope = new InvertedExpressionScopeDocumentItem(currentToken.Expression)
+					var invertedScope = new InvertedExpressionScopeDocumentItem(currentToken.MorestachioExpression)
 					{
 						ExpressionStart = currentToken.TokenLocation
 					};
@@ -201,7 +156,7 @@ namespace Morestachio
 				else if (currentToken.Type == TokenType.EscapedSingleValue ||
 				         currentToken.Type == TokenType.UnescapedSingleValue)
 				{
-					currentDocumentItem.Document.Add(new PathDocumentItem(currentToken.Expression,
+					currentDocumentItem.Document.Add(new PathDocumentItem(currentToken.MorestachioExpression,
 							currentToken.Type == TokenType.EscapedSingleValue)
 					{
 						ExpressionStart = currentToken.TokenLocation
@@ -245,7 +200,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type == TokenType.VariableDeclaration)
 				{
-					var evaluateVariableDocumentItem = new EvaluateVariableDocumentItem(currentToken.Value, currentToken.Expression);
+					var evaluateVariableDocumentItem = new EvaluateVariableDocumentItem(currentToken.Value, currentToken.MorestachioExpression);
 					currentDocumentItem.Document.Add(evaluateVariableDocumentItem);
 				}
 				else

@@ -7,48 +7,51 @@ using Morestachio.ParserErrors;
 
 namespace Morestachio.Framework.Expression
 {
+	/// <summary>
+	///		This class provides methods for parsing ether a String or an Expression
+	/// </summary>
 	public static class ExpressionTokenizer
 	{
 		internal const string ExpressionNodeName = "Expression";
 		internal const string ExpressionKindNodeName = "ExpressionKind";
 
-		internal static IExpression ParseExpressionFromKind(this XmlReader reader)
+		internal static IMorestachioExpression ParseExpressionFromKind(this XmlReader reader)
 		{
-			IExpression exp = null;
+			IMorestachioExpression exp = null;
 			switch (reader.GetAttribute(ExpressionKindNodeName))
 			{
 				case "Expression":
-					exp = new Expression();
+					exp = new MorestachioExpression();
 					break;
 				case "ExpressionList":
-					exp = new ExpressionList();
+					exp = new MorestachioExpressionList();
 					break;
 				case "ExpressionString":
-					exp = new ExpressionString();
+					exp = new MorestachioExpressionString();
 					break;
 			}
 			exp.ReadXml(reader);
 			return exp;
 		}
 
-		internal static void WriteExpressionToXml(this XmlWriter writer, IExpression expression)
+		internal static void WriteExpressionToXml(this XmlWriter writer, IMorestachioExpression morestachioExpression)
 		{
 			writer.WriteStartElement(ExpressionNodeName);
-			switch (expression)
+			switch (morestachioExpression)
 			{
-				case Expression expression1:
+				case MorestachioExpression expression1:
 					writer.WriteAttributeString(ExpressionKindNodeName, "Expression");
 					break;
-				case ExpressionList expressionList:
+				case MorestachioExpressionList expressionList:
 					writer.WriteAttributeString(ExpressionKindNodeName, "ExpressionList");
 					break;
-				case ExpressionString expressionString:
+				case MorestachioExpressionString expressionString:
 					writer.WriteAttributeString(ExpressionKindNodeName, "ExpressionString");
 					break;
 				default:
-					throw new ArgumentOutOfRangeException(nameof(expression));
+					throw new ArgumentOutOfRangeException(nameof(morestachioExpression));
 			}
-			expression.WriteXml(writer);
+			morestachioExpression.WriteXml(writer);
 			writer.WriteEndElement();
 		}
 
@@ -116,7 +119,7 @@ namespace Morestachio.Framework.Expression
 			var tokens = new List<TokenPair>();
 			tokens.Add(new TokenPair(TokenType.VariableDeclaration, variableName, startOfExpression)
 			{
-				Expression = ParseExpressionOrString(expression, context)
+				MorestachioExpression = ParseExpressionOrString(expression, context)
 			});
 			return tokens.ToArray();
 		}
@@ -127,7 +130,7 @@ namespace Morestachio.Framework.Expression
 		/// <param name="expression"></param>
 		/// <param name="context"></param>
 		/// <returns></returns>
-		public static IExpression ParseExpressionOrString(string expression,
+		public static IMorestachioExpression ParseExpressionOrString(string expression,
 			TokenzierContext context)
 		{
 			if (expression.Length == 0)
@@ -150,11 +153,11 @@ namespace Morestachio.Framework.Expression
 					return null;
 				}
 
-				return ExpressionString.ParseFrom(expression, 0, context, out _);
+				return MorestachioExpressionString.ParseFrom(expression, 0, context, out _);
 			}
 			else
 			{
-				return Expression.ParseFrom(expression, context, out _);
+				return MorestachioExpression.ParseFrom(expression, context, out _);
 			}
 		}
 
@@ -164,7 +167,7 @@ namespace Morestachio.Framework.Expression
 		/// <param name="expression"></param>
 		/// <param name="context"></param>
 		/// <returns></returns>
-		public static IExpression ParseExpressionOrString(string expression, out TokenzierContext context)
+		public static IMorestachioExpression ParseExpressionOrString(string expression, out TokenzierContext context)
 		{
 			context = 
 				new TokenzierContext(Tokenizer.NewlineFinder.Matches(expression).OfType<Match>().Select(k => k.Index)

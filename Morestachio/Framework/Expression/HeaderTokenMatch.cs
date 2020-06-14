@@ -14,7 +14,7 @@
 
 		public string ArgumentName { get; set; }
 
-		public IExpression Value { get; set; }
+		public IMorestachioExpression Value { get; set; }
 		public CharacterLocation TokenLocation { get; set; }
 
 		internal TokenState State { get; set; }

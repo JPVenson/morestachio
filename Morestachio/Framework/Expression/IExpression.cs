@@ -9,7 +9,7 @@ namespace Morestachio.Framework.Expression
 	/// <summary>
 	///		Defines an Morestachio expression that contains dynamic data
 	/// </summary>
-	public interface IExpression : ISerializable, IXmlSerializable, IEquatable<IExpression>
+	public interface IMorestachioExpression : ISerializable, IXmlSerializable, IEquatable<IMorestachioExpression>
 	{
 		/// <summary>
 		///		Where in the original template was this expression located

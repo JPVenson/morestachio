@@ -26,9 +26,9 @@ namespace Morestachio.Document
 		}
 
 		/// <inheritdoc />
-		public PathDocumentItem(IExpression value, bool escapeValue)
+		public PathDocumentItem(IMorestachioExpression value, bool escapeValue)
 		{
-			Expression = value;
+			MorestachioExpression = value;
 			EscapeValue = escapeValue;
 		}
 
@@ -80,7 +80,7 @@ namespace Morestachio.Document
 		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
 			//try to locate the value in the context, if it exists, append it.
-			var contextObject = context != null ? (await Expression.GetValue(context, scopeData)) : null;
+			var contextObject = context != null ? (await MorestachioExpression.GetValue(context, scopeData)) : null;
 			if (contextObject != null)
 			{
 				await contextObject.EnsureValue();
