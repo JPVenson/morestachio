@@ -89,6 +89,8 @@ The formatter CAN return a new object on wich you can call new Propertys or it c
 There are formatter prepaired for all Primitve types. That means per default you can call on an object hat contains a DateTime:
 ```csharp
 {{MyObject.DateTime.("D")}}
+Is the same as
+{{MyObject.DateTime.ToString("D")}}
 ```
 that will call the `IFormattable` interface on the DateTime. 
 
