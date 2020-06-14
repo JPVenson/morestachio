@@ -396,7 +396,7 @@ namespace Morestachio.Framework.Expression
 								TerminateCurrentScope(true);
 							}
 						}
-						else if(seekIndex == ',')
+						else
 						{
 							//the next char indicates a new parameter so close this expression and allow next
 							TerminateCurrentScope(true);

@@ -104,7 +104,7 @@ namespace Morestachio.Framework
 		public ContextObject([NotNull]ParserOptions options, [NotNull]string key, [CanBeNull]ContextObject parent)
 		{
 			Options = options ?? throw new ArgumentNullException(nameof(options));
-			Key = key ?? throw new ArgumentNullException(nameof(key));
+			Key = key;
 			Parent = parent;
 			if (Parent != null)
 			{
