@@ -124,6 +124,9 @@
         <member name="M:Morestachio.Document.ContentDocumentItem.#ctor(System.String)">
             <inheritdoc />
         </member>
+        <member name="M:Morestachio.Document.ContentDocumentItem.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <inheritdoc />
+        </member>
         <member name="P:Morestachio.Document.ContentDocumentItem.Kind">
             <inheritdoc />
         </member>
@@ -220,9 +223,6 @@
             	Allows the injection of a custom DocumentItem 
             </summary>
         </member>
-        <member name="M:Morestachio.Document.Custom.CustomDocumentItemProvider.#ctor">
-            <inheritdoc />
-        </member>
         <member name="P:Morestachio.Document.Custom.CustomDocumentItemProvider.ScopeStack">
             <summary>
             	A Custom stack that keeps track of enclosing tokens such as #IF and /IF
@@ -240,9 +240,14 @@
             	An helper object that will be given to the Tokenize method
             </summary>
         </member>
+        <member name="P:Morestachio.Document.Custom.CustomDocumentItemProvider.TokenInfo.TokenizerContext">
+            <summary>
+            	Provides the current context you document item is created in
+            </summary>
+        </member>
         <member name="P:Morestachio.Document.Custom.CustomDocumentItemProvider.TokenInfo.Token">
             <summary>
-            	The obtained Token
+            	The obtained Token. This is the Full text token
             </summary>
         </member>
         <member name="P:Morestachio.Document.Custom.CustomDocumentItemProvider.TokenInfo.Errors">
@@ -281,7 +286,16 @@
             </summary>
         </member>
         <member name="M:Morestachio.Document.DocumentItemBase.#ctor">
-            <inheritdoc />
+            <summary>
+            	Creates a new base object for encapsulating document items
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.DocumentItemBase.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            	Creates a new DocumentItemBase from a Serialization context
+            </summary>
+            <param name="info"></param>
+            <param name="c"></param>
         </member>
         <member name="M:Morestachio.Document.DocumentItemBase.Equals(Morestachio.Document.DocumentItemBase)">
             <inheritdoc />
@@ -302,6 +316,15 @@
             <inheritdoc />
         </member>
         <member name="M:Morestachio.Document.DocumentItemBase.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.DocumentItemBase.Morestachio#Document#Contracts#IDocumentItem#SerializeXmlCore(System.Xml.XmlWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.DocumentItemBase.Morestachio#Document#Contracts#IDocumentItem#DeSerializeXmlCore(System.Xml.XmlReader)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.DocumentItemBase.GetSchema">
             <inheritdoc />
         </member>
         <member name="M:Morestachio.Document.DocumentItemBase.ContinueBuilding(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject)">
@@ -330,6 +353,19 @@
                 Will be called to deserialize custom properties. See <see cref="M:Morestachio.Document.DocumentItemBase.SerializeXml(System.Xml.XmlWriter)" /> for further info.
             </summary>
             <param name="reader"></param>
+        </member>
+        <member name="M:Morestachio.Document.DocumentItemBase.AssertElement(System.Xml.XmlReader,System.String)">
+            <summary>
+            	Internal Only
+            </summary>
+            <param name="reader"></param>
+            <param name="elementName"></param>
+        </member>
+        <member name="M:Morestachio.Document.DocumentItemBase.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.DocumentItemBase.GetHashCode">
+            <inheritdoc />
         </member>
         <member name="T:Morestachio.Document.DoLoopDocumentItem">
             <summary>
@@ -366,6 +402,9 @@
         <member name="M:Morestachio.Document.EachDocumentItem.#ctor(Morestachio.Framework.Expression.IMorestachioExpression)">
             <inheritdoc />
         </member>
+        <member name="M:Morestachio.Document.EachDocumentItem.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <inheritdoc />
+        </member>
         <member name="P:Morestachio.Document.EachDocumentItem.Kind">
             <inheritdoc />
         </member>
@@ -382,6 +421,15 @@
             <summary>
             	Used for XML Serialization
             </summary>
+        </member>
+        <member name="M:Morestachio.Document.ElseExpressionScopeDocumentItem.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.ElseExpressionScopeDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="P:Morestachio.Document.ElseExpressionScopeDocumentItem.Kind">
+            <inheritdoc />
         </member>
         <member name="T:Morestachio.Document.EvaluateVariableDocumentItem">
             <summary>
@@ -519,6 +567,9 @@
         <member name="M:Morestachio.Document.InvertedExpressionScopeDocumentItem.#ctor(Morestachio.Framework.Expression.IMorestachioExpression)">
             <inheritdoc />
         </member>
+        <member name="M:Morestachio.Document.InvertedExpressionScopeDocumentItem.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <inheritdoc />
+        </member>
         <member name="P:Morestachio.Document.InvertedExpressionScopeDocumentItem.Kind">
             <inheritdoc />
         </member>
@@ -556,6 +607,12 @@
             	Defines a document that can be rendered. Does only store its Children
             </summary>
         </member>
+        <member name="M:Morestachio.Document.MorestachioDocument.GetMorestachioVersion">
+            <summary>
+            	Gets the current version of Morestachio
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:Morestachio.Document.MorestachioDocument.#ctor">
             <summary>
             	Used for XML Serialization
@@ -586,7 +643,7 @@
         </member>
         <member name="M:Morestachio.Document.MorestachioDocument.ProcessItemsAndChildren(System.Collections.Generic.IEnumerable{Morestachio.Document.Contracts.IDocumentItem},Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
             <summary>
-            Processes the items and children.
+            	Processes the items and children.
             </summary>
             <param name="documentItems">The document items.</param>
             <param name="outputStream">The output stream.</param>
@@ -1609,6 +1666,9 @@
         <member name="M:Morestachio.Framework.Expression.MorestachioExpression.GetValue(Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
             <inheritdoc />
         </member>
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpression.Visit(Morestachio.Framework.Expression.Visitors.IMorestachioExpressionVisitor)">
+            <inheritdoc />
+        </member>
         <member name="M:Morestachio.Framework.Expression.MorestachioExpression.ToString">
             <inheritdoc />
         </member>
@@ -1631,6 +1691,13 @@
             
             </summary>
             <param name="location"></param>
+        </member>
+        <member name="M:Morestachio.Framework.Expression.ExpressionArgument.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            
+            </summary>
+            <param name="info"></param>
+            <param name="context"></param>
         </member>
         <member name="P:Morestachio.Framework.Expression.ExpressionArgument.Name">
             <summary>
@@ -1655,10 +1722,28 @@
             <param name="scopeData"></param>
             <returns></returns>
         </member>
+        <member name="M:Morestachio.Framework.Expression.ExpressionArgument.Visit(Morestachio.Framework.Expression.Visitors.IMorestachioExpressionVisitor)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Framework.Expression.ExpressionArgument.GetSchema">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Framework.Expression.ExpressionArgument.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Framework.Expression.ExpressionArgument.ReadXml(System.Xml.XmlReader)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Framework.Expression.ExpressionArgument.WriteXml(System.Xml.XmlWriter)">
+            <inheritdoc />
+        </member>
         <member name="M:Morestachio.Framework.Expression.ExpressionArgument.ToString">
             <inheritdoc />
         </member>
         <member name="M:Morestachio.Framework.Expression.ExpressionArgument.Equals(Morestachio.Framework.Expression.ExpressionArgument)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Framework.Expression.ExpressionArgument.Equals(Morestachio.Framework.Expression.IMorestachioExpression)">
             <inheritdoc />
         </member>
         <member name="M:Morestachio.Framework.Expression.ExpressionArgument.Equals(System.Object)">
@@ -1709,6 +1794,9 @@
             <inheritdoc />
         </member>
         <member name="M:Morestachio.Framework.Expression.MorestachioExpressionList.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionList.Visit(Morestachio.Framework.Expression.Visitors.IMorestachioExpressionVisitor)">
             <inheritdoc />
         </member>
         <member name="M:Morestachio.Framework.Expression.MorestachioExpressionList.Equals(Morestachio.Framework.Expression.IMorestachioExpression)">
@@ -1784,6 +1872,9 @@
             <param name="context"></param>
             <param name="index"></param>
             <returns></returns>
+        </member>
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionString.Visit(Morestachio.Framework.Expression.Visitors.IMorestachioExpressionVisitor)">
+            <inheritdoc />
         </member>
         <member name="M:Morestachio.Framework.Expression.MorestachioExpressionString.ToString">
             <inheritdoc />
@@ -1863,36 +1954,11 @@
             <param name="scopeData"></param>
             <returns></returns>
         </member>
-        <member name="M:Morestachio.Framework.Expression.Renderer.ExpressionRenderer.RenderExpression(Morestachio.Framework.Expression.IMorestachioExpression,System.Text.StringBuilder)">
+        <member name="M:Morestachio.Framework.Expression.IMorestachioExpression.Visit(Morestachio.Framework.Expression.Visitors.IMorestachioExpressionVisitor)">
             <summary>
-            	Renders a Expression into the StringBuilder
+            	Visits this Expression
             </summary>
-            <param name="morestachioExpression"></param>
-            <param name="sb"></param>
-        </member>
-        <member name="M:Morestachio.Framework.Expression.Renderer.ExpressionRenderer.RenderExpression(Morestachio.Framework.Expression.ExpressionArgument,System.Text.StringBuilder)">
-            <summary>
-            	Renders the Argument like this:
-            	IF HAS NAME	-> "[" + NAME + "]" -> END + RenderExpression(Expression)
-            </summary>
-            <param name="expression"></param>
-            <param name="sb"></param>
-        </member>
-        <member name="M:Morestachio.Framework.Expression.Renderer.ExpressionRenderer.RenderExpression(Morestachio.Framework.Expression.MorestachioExpression,System.Text.StringBuilder)">
-            <summary>
-            	Renders the Expression like this:
-            	EACH PATHPART -> [Path + "."], "~", "../", "." END + IF HAS FORMATTER -> IF NOT SELFASSIGNMENT -> "." END -> FormatterName + "(" + [EACH ARG -> RenderExpression(ExpressionArgument ARG) + ", "] + ")" END
-            </summary>
-            <param name="morestachioExpression"></param>
-            <param name="sb"></param>
-        </member>
-        <member name="M:Morestachio.Framework.Expression.Renderer.ExpressionRenderer.RenderExpression(Morestachio.Framework.Expression.MorestachioExpressionList,System.Text.StringBuilder)">
-            <summary>
-            	Renders the Expression like this:
-            	EACH EXP -> IF EXP NOT ONLY SelfAssignment -> "." END + RenderExpression(IExpression EXP) -> END
-            </summary>
-            <param name="morestachioExpression"></param>
-            <param name="sb"></param>
+            <param name="visitor"></param>
         </member>
         <member name="P:Morestachio.Framework.Expression.TokenzierContext.Character">
             <summary>
@@ -1913,6 +1979,64 @@
             <summary>
             	The list of all tokenizer errors
             </summary>
+        </member>
+        <member name="T:Morestachio.Framework.Expression.Visitors.IMorestachioExpressionVisitor">
+            <summary>
+            	The Visitor interface for Expressions
+            </summary>
+        </member>
+        <member name="M:Morestachio.Framework.Expression.Visitors.IMorestachioExpressionVisitor.Visit(Morestachio.Framework.Expression.MorestachioExpression)">
+            <summary>
+            	Visits an Expression
+            </summary>
+        </member>
+        <member name="M:Morestachio.Framework.Expression.Visitors.IMorestachioExpressionVisitor.Visit(Morestachio.Framework.Expression.MorestachioExpressionList)">
+            <summary>
+            	Visits an Expression List
+            </summary>
+        </member>
+        <member name="M:Morestachio.Framework.Expression.Visitors.IMorestachioExpressionVisitor.Visit(Morestachio.Framework.Expression.MorestachioExpressionString)">
+            <summary>
+            	Visits an Expression String
+            </summary>
+        </member>
+        <member name="M:Morestachio.Framework.Expression.Visitors.IMorestachioExpressionVisitor.Visit(Morestachio.Framework.Expression.ExpressionArgument)">
+            <summary>
+            	Visits an Expression Argument
+            </summary>
+        </member>
+        <member name="T:Morestachio.Framework.Expression.Visitors.ToParsableStringExpressionVisitor">
+            <summary>
+            	Visits all Expression in a chain and creates an string inside the StringBuilder property that looks like the original expressions text form
+            </summary>
+        </member>
+        <member name="M:Morestachio.Framework.Expression.Visitors.ToParsableStringExpressionVisitor.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Morestachio.Framework.Expression.Visitors.ToParsableStringExpressionVisitor.StringBuilder">
+            <summary>
+            	The created string
+            </summary>
+        </member>
+        <member name="M:Morestachio.Framework.Expression.Visitors.ToParsableStringExpressionVisitor.Visit(Morestachio.Framework.Expression.IMorestachioExpression)">
+            <summary>
+            	Renders a Expression into the StringBuilder
+            </summary>
+            <param name="morestachioExpression"></param>
+        </member>
+        <member name="M:Morestachio.Framework.Expression.Visitors.ToParsableStringExpressionVisitor.Visit(Morestachio.Framework.Expression.MorestachioExpression)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Framework.Expression.Visitors.ToParsableStringExpressionVisitor.Visit(Morestachio.Framework.Expression.MorestachioExpressionList)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Framework.Expression.Visitors.ToParsableStringExpressionVisitor.Visit(Morestachio.Framework.Expression.MorestachioExpressionString)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Framework.Expression.Visitors.ToParsableStringExpressionVisitor.Visit(Morestachio.Framework.Expression.ExpressionArgument)">
+            <inheritdoc />
         </member>
         <member name="T:Morestachio.Framework.IByteCounterStream">
             <summary>

@@ -3,6 +3,7 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Morestachio.Document;
+using Morestachio.Framework.Expression.Visitors;
 
 namespace Morestachio.Framework.Expression
 {
@@ -23,5 +24,11 @@ namespace Morestachio.Framework.Expression
 		/// <param name="scopeData"></param>
 		/// <returns></returns>
 		Task<ContextObject> GetValue(ContextObject contextObject, ScopeData scopeData);
+
+		/// <summary>
+		///		Visits this Expression
+		/// </summary>
+		/// <param name="visitor"></param>
+		void Visit(IMorestachioExpressionVisitor visitor);
 	}
 }

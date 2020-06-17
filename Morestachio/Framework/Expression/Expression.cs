@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
-using Morestachio.Framework.Expression.Renderer;
+using Morestachio.Framework.Expression.Visitors;
 using Morestachio.ParserErrors;
 
 namespace Morestachio.Framework.Expression
@@ -86,18 +86,30 @@ namespace Morestachio.Framework.Expression
 			reader.ReadStartElement();
 			while (reader.Name == "Format" && reader.NodeType != XmlNodeType.EndElement)
 			{
-				var format = new ExpressionArgument(CharacterLocation.FromFormatString(reader.GetAttribute(nameof(ExpressionArgument.Location))));
-				format.Name = reader.GetAttribute(nameof(ExpressionArgument.Name));
-				Formats.Add(format);
-				reader.ReadStartElement();
+				var formatSubTree = reader.ReadSubtree();
+				formatSubTree.Read();
 
-				var childTree = reader.ReadSubtree();
-				childTree.Read();
-				var exp = childTree.ParseExpressionFromKind();
-				format.MorestachioExpression = exp;
+				var expressionArgument = new ExpressionArgument();
+				Formats.Add(expressionArgument);
+
+				expressionArgument.ReadXml(formatSubTree);
+
+
 				reader.Skip();
-
 				reader.ReadEndElement();
+
+				//var format = new ExpressionArgument(CharacterLocation.FromFormatString(reader.GetAttribute(nameof(ExpressionArgument.Location))));
+				//format.Name = reader.GetAttribute(nameof(ExpressionArgument.Name));
+				//Formats.Add(format);
+				//reader.ReadStartElement();
+
+				//var childTree = reader.ReadSubtree();
+				//childTree.Read();
+				//var exp = childTree.ParseExpressionFromKind();
+				//format.MorestachioExpression = exp;
+				//reader.Skip();
+
+				//reader.ReadEndElement();
 			}
 		}
 
@@ -126,12 +138,7 @@ namespace Morestachio.Framework.Expression
 			foreach (var expressionArgument in Formats)
 			{
 				writer.WriteStartElement("Format");
-				if (expressionArgument.Name != null)
-				{
-					writer.WriteAttributeString(nameof(ExpressionArgument.Name), expressionArgument.Name);
-				}
-				writer.WriteAttributeString(nameof(ExpressionArgument.Location), expressionArgument.Location.ToFormatString());
-				writer.WriteExpressionToXml(expressionArgument.MorestachioExpression);
+				expressionArgument.WriteXml(writer);
 				writer.WriteEndElement();//</Format>
 			}
 		}
@@ -188,11 +195,17 @@ namespace Morestachio.Framework.Expression
 		}
 
 		/// <inheritdoc />
+		public void Visit(IMorestachioExpressionVisitor visitor)
+		{
+			visitor.Visit(this);
+		}
+
+		/// <inheritdoc />
 		public override string ToString()
 		{
-			var sb = new StringBuilder();
-			ExpressionRenderer.RenderExpression(this, sb);
-			return sb.ToString();
+			var visitor = new ToParsableStringExpressionVisitor();
+			Visit(visitor);
+			return visitor.StringBuilder.ToString();
 		}
 
 		internal void CompilePath(

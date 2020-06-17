@@ -27,7 +27,8 @@ namespace Morestachio.Document
 		{
 			Value = content;
 		}
-
+		
+		/// <inheritdoc />
 		[UsedImplicitly]
 		protected ContentDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{

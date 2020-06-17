@@ -19,12 +19,14 @@ namespace Morestachio.Document
 		{
 			
 		}
-
+		
+		/// <inheritdoc />
 		[UsedImplicitly]
 		protected ElseExpressionScopeDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}
-
+		
+		/// <inheritdoc />
 		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
 			await Task.CompletedTask;
@@ -37,7 +39,8 @@ namespace Morestachio.Document
 			scopeData.ExecuteElse = false;
 			return new DocumentItemExecution[0];
 		}
-
+		
+		/// <inheritdoc />
 		public override string Kind { get; } = "ElseExpressionScope";
 	}
 }

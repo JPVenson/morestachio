@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
@@ -11,7 +12,7 @@ namespace Morestachio.Document
 	/// <summary>
 	///		Executes the children with a cloned Context
 	/// </summary>
-	[System.Serializable]
+	[System.Serializable, Obsolete("This class is no longer in use and will be removed in later versions")]
 	public class IsolatedContextDocumentItem : DocumentItemBase, IValueDocumentItem
 	{
 		/// <summary>

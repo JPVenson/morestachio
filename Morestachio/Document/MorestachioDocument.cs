@@ -17,6 +17,10 @@ namespace Morestachio.Document
 	public sealed class MorestachioDocument : DocumentItemBase, 
 		IEquatable<MorestachioDocument>
 	{
+		/// <summary>
+		///		Gets the current version of Morestachio
+		/// </summary>
+		/// <returns></returns>
 		public static Version GetMorestachioVersion()
 		{
 			return typeof(MorestachioDocument).Assembly.GetName().Version;
@@ -93,14 +97,16 @@ namespace Morestachio.Document
 		}
 
 		/// <summary>
-		/// Processes the items and children.
+		///		Processes the items and children.
 		/// </summary>
 		/// <param name="documentItems">The document items.</param>
 		/// <param name="outputStream">The output stream.</param>
 		/// <param name="context">The context.</param>
 		/// <param name="scopeData">The scope data.</param>
 		/// <returns></returns>
-		public static async Task ProcessItemsAndChildren(IEnumerable<IDocumentItem> documentItems, IByteCounterStream outputStream, ContextObject context,
+		public static async Task ProcessItemsAndChildren(IEnumerable<IDocumentItem> documentItems, 
+			IByteCounterStream outputStream, 
+			ContextObject context,
 			ScopeData scopeData)
 		{
 			//we do NOT use a recursive loop to avoid stack overflows. 

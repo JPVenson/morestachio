@@ -13,7 +13,6 @@ namespace Morestachio.Document.Custom
 	/// </summary>
 	public abstract class CustomDocumentItemProvider
 	{
-		/// <inheritdoc />
 		public CustomDocumentItemProvider()
 		{
 			ScopeStack = new Stack<Tuple<string, int>>();
@@ -36,6 +35,9 @@ namespace Morestachio.Document.Custom
 		/// </summary>
 		public class TokenInfo
 		{
+			/// <summary>
+			///		Provides the current context you document item is created in
+			/// </summary>
 			public TokenzierContext TokenizerContext { get; set; }
 
 			internal TokenInfo(string token,
@@ -47,7 +49,7 @@ namespace Morestachio.Document.Custom
 			}
 
 			/// <summary>
-			///		The obtained Token
+			///		The obtained Token. This is the Full text token
 			/// </summary>
 			public string Token { get; }
 

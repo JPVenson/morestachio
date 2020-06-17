@@ -11,6 +11,7 @@ using Morestachio.Framework;
 using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Predefined;
 using Morestachio.Framework.Expression;
+using Morestachio.Framework.Expression.Visitors;
 using Morestachio.Helper;
 using Morestachio.Linq;
 using Morestachio.ParserErrors;
@@ -67,7 +68,11 @@ namespace Morestachio.Tests
 			var context = TokenzierContext.FromText(query);
 			var expressions = ExpressionTokenizer.ParseExpressionOrString(query, context);
 			Assert.That(expressions, Is.Not.Null);
-			Assert.That(expressions.ToString(), Is.EqualTo(query));
+
+			var visitor = new ToParsableStringExpressionVisitor();
+			expressions.Visit(visitor);
+
+			Assert.That(visitor.StringBuilder.ToString(), Is.EqualTo(query));
 			Assert.That(context.Errors, Is.Empty, () => context.Errors.GetErrorText());
 		}
 		

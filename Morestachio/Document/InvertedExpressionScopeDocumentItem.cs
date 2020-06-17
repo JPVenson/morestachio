@@ -28,7 +28,8 @@ namespace Morestachio.Document
 		{
 			MorestachioExpression = value;
 		}
-
+		
+		/// <inheritdoc />
 		[UsedImplicitly]
 		protected InvertedExpressionScopeDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{

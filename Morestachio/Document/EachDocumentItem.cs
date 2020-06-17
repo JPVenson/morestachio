@@ -31,7 +31,8 @@ namespace Morestachio.Document
 		{
 			MorestachioExpression = value;
 		}
-
+		
+		/// <inheritdoc />
 		[UsedImplicitly]
 		protected EachDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{

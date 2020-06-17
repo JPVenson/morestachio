@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
-using Morestachio.Framework.Expression.Renderer;
+using Morestachio.Framework.Expression.Visitors;
 using Morestachio.ParserErrors;
 
 namespace Morestachio.Framework.Expression
@@ -227,19 +227,26 @@ namespace Morestachio.Framework.Expression
 			return result;
 		}
 
+		/// <inheritdoc />
+		public void Visit(IMorestachioExpressionVisitor visitor)
+		{
+			visitor.Visit(this);
+		}
 
 		/// <inheritdoc />
 		public override string ToString()
 		{
-			var sb = new StringBuilder();
-			ExpressionRenderer.RenderExpression(this, sb);
-			return sb.ToString();
+			var visitor = new ToParsableStringExpressionVisitor();
+			Visit(visitor);
+			return visitor.StringBuilder.ToString();
 		}
+
 		/// <inheritdoc />
 		public bool Equals(IMorestachioExpression other)
 		{
 			return Equals((object)other);
 		}
+
 		/// <inheritdoc />
 		protected bool Equals(MorestachioExpressionString other)
 		{

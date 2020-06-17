@@ -18,17 +18,24 @@ namespace Morestachio.Document
 	[Serializable]
 	public abstract class DocumentItemBase : IMorestachioDocument, IEquatable<DocumentItemBase>
 	{
-		/// <inheritdoc />
+		/// <summary>
+		///		Creates a new base object for encapsulating document items
+		/// </summary>
 		protected DocumentItemBase()
 		{
 			Children = new List<IDocumentItem>();
 		}
 
+		/// <summary>
+		///		Creates a new DocumentItemBase from a Serialization context
+		/// </summary>
+		/// <param name="info"></param>
+		/// <param name="c"></param>
 		[SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
 		protected DocumentItemBase(SerializationInfo info, StreamingContext c)
 		{
 			var documentItemBases = info.GetValue(nameof(Children), typeof(IDocumentItem[])) as IDocumentItem[];
-			Children = new List<IDocumentItem>(documentItemBases);
+			Children = new List<IDocumentItem>(documentItemBases ?? throw new InvalidOperationException());
 			var expStartLocation = info.GetString(nameof(ExpressionStart));
 			if (!string.IsNullOrWhiteSpace(expStartLocation))
 			{
@@ -40,7 +47,7 @@ namespace Morestachio.Document
 		/// <inheritdoc />
 		public bool Equals(DocumentItemBase other)
 		{
-			if (ReferenceEquals(null, other))
+			if (other is null)
 			{
 				return false;
 			}
@@ -90,6 +97,7 @@ namespace Morestachio.Document
 			info.AddValue(nameof(Children), Children.ToArray(), typeof(IDocumentItem[]));
 		}
 
+		/// <inheritdoc />
 		void IDocumentItem.SerializeXmlCore(XmlWriter writer)
 		{
 			writer.WriteStartElement(GetType().Name);
@@ -114,6 +122,7 @@ namespace Morestachio.Document
 			writer.WriteEndElement(); //GetType().Name
 		}
 
+		/// <inheritdoc />
 		void IDocumentItem.DeSerializeXmlCore(XmlReader reader)
 		{
 			AssertElement(reader, GetType().Name);
@@ -155,6 +164,7 @@ namespace Morestachio.Document
 			}
 		}
 
+		/// <inheritdoc />
 		public XmlSchema GetSchema()
 		{
 			return null;
@@ -227,6 +237,11 @@ namespace Morestachio.Document
 		{
 		}
 
+		/// <summary>
+		///		Internal Only
+		/// </summary>
+		/// <param name="reader"></param>
+		/// <param name="elementName"></param>
 		protected internal static void AssertElement(XmlReader reader, string elementName)
 		{
 			if (!reader.Name.Equals(elementName, StringComparison.InvariantCultureIgnoreCase))
@@ -235,6 +250,7 @@ namespace Morestachio.Document
 			}
 		}
 
+		/// <inheritdoc />
 		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj))
@@ -254,7 +270,8 @@ namespace Morestachio.Document
 
 			return Equals((DocumentItemBase) obj);
 		}
-
+		
+		/// <inheritdoc />
 		public override int GetHashCode()
 		{
 			unchecked

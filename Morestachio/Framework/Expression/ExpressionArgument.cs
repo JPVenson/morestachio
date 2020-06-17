@@ -1,15 +1,23 @@
 ﻿using System;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
-using Morestachio.Framework.Expression.Renderer;
+using System.Xml;
+using System.Xml.Schema;
+using Morestachio.Framework.Expression.Visitors;
 
 namespace Morestachio.Framework.Expression
 {
 	/// <summary>
 	///		Defines an Argument used within a formatter
 	/// </summary>
-	public class ExpressionArgument : IEquatable<ExpressionArgument>
+	public class ExpressionArgument : IEquatable<ExpressionArgument>,IMorestachioExpression
 	{
+		internal ExpressionArgument()
+		{
+			
+		}
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -17,6 +25,19 @@ namespace Morestachio.Framework.Expression
 		public ExpressionArgument(CharacterLocation location)
 		{
 			Location = location;
+		}
+
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="info"></param>
+		/// <param name="context"></param>
+		protected ExpressionArgument(SerializationInfo info, StreamingContext context)
+		{
+			Name = info.GetString(nameof(Name));
+			MorestachioExpression = info.GetValue(nameof(MorestachioExpression), typeof(IMorestachioExpression)) as IMorestachioExpression;
+			Location = CharacterLocation.FromFormatString(info.GetString(nameof(Location)));
 		}
 
 		/// <summary>
@@ -45,15 +66,57 @@ namespace Morestachio.Framework.Expression
 			return await MorestachioExpression.GetValue(contextObject, scopeData);
 		}
 
+		/// <inheritdoc />
+		public void Visit(IMorestachioExpressionVisitor visitor)
+		{
+			visitor.Visit(this);
+		}
+
+		/// <inheritdoc />
+		public XmlSchema GetSchema()
+		{
+			throw new NotImplementedException();
+		}
+		
+		/// <inheritdoc />
+		public void GetObjectData(SerializationInfo info, StreamingContext context)
+		{
+			info.AddValue(nameof(Name), Name);
+			info.AddValue(nameof(Location), Location.ToFormatString());
+			info.AddValue(nameof(MorestachioExpression), MorestachioExpression);
+		}
+		
+		/// <inheritdoc />
+		public void ReadXml(XmlReader reader)
+		{
+			Location = CharacterLocation.FromFormatString(reader.GetAttribute(nameof(Location)));
+			Name = reader.GetAttribute(nameof(Name));
+			reader.ReadStartElement();
+
+			var expSubtree = reader.ReadSubtree();
+			expSubtree.Read();
+			MorestachioExpression = expSubtree.ParseExpressionFromKind();
+		}
+		
+		/// <inheritdoc />
+		public void WriteXml(XmlWriter writer)
+		{
+			if (Name != null)
+			{
+				writer.WriteAttributeString(nameof(Name), Name);
+			}
+			writer.WriteAttributeString(nameof(Location), Location.ToFormatString());
+			writer.WriteExpressionToXml(MorestachioExpression);
+		}
 
 		/// <inheritdoc />
 		public override string ToString()
 		{
-			var sb = new StringBuilder();
-			ExpressionRenderer.RenderExpression(this, sb);
-			return sb.ToString();
+			var visitor = new ToParsableStringExpressionVisitor();
+			Visit(visitor);
+			return visitor.StringBuilder.ToString();
 		}
-		
+
 		/// <inheritdoc />
 		public bool Equals(ExpressionArgument other)
 		{
@@ -69,7 +132,13 @@ namespace Morestachio.Framework.Expression
 
 			return Name == other.Name && MorestachioExpression.Equals(other.MorestachioExpression) && Location.Equals(other.Location);
 		}
-		
+
+		/// <inheritdoc />
+		public bool Equals(IMorestachioExpression other)
+		{
+			return Equals((object)other);
+		}
+
 		/// <inheritdoc />
 		public override bool Equals(object obj)
 		{
