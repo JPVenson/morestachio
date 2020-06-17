@@ -3,6 +3,7 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
+using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Framework.Expression;
 
@@ -53,6 +54,11 @@ namespace Morestachio.Document
 
 		/// <inheritdoc />
 		public override string Kind { get; } = nameof(WhileLoopDocumentItem);
+		/// <inheritdoc />
+		public override void Accept(IDocumentItemVisitor visitor)
+		{
+			visitor.Visit(this);
+		}
 
 	}
 }

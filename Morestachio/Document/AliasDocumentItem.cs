@@ -3,6 +3,7 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
+using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 
 namespace Morestachio.Document
@@ -30,6 +31,7 @@ namespace Morestachio.Document
 			
 		}
 
+		/// <inheritdoc />
 		[UsedImplicitly]
 		protected AliasDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
@@ -46,5 +48,11 @@ namespace Morestachio.Document
 
 		/// <inheritdoc />
 		public override string Kind { get; } = "Alias";
+
+		/// <inheritdoc />
+		public override void Accept(IDocumentItemVisitor visitor)
+		{
+			visitor.Visit(this);
+		}
 	}
 }

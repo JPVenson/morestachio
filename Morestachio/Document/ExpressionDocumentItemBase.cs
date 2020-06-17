@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using System.Xml;
+using Morestachio.Document.Visitor;
 using Morestachio.Framework.Expression;
 
 namespace Morestachio.Document

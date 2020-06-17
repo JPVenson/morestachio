@@ -8,6 +8,7 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using Morestachio.Document.Contracts;
+using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 
 namespace Morestachio.Document
@@ -163,6 +164,9 @@ namespace Morestachio.Document
 				}
 			}
 		}
+
+		/// <inheritdoc />
+		public abstract void Accept(IDocumentItemVisitor visitor);
 
 		/// <inheritdoc />
 		public XmlSchema GetSchema()

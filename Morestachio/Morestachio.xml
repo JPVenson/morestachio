@@ -105,10 +105,16 @@
             	Used for XML Serialization
             </summary>
         </member>
+        <member name="M:Morestachio.Document.AliasDocumentItem.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <inheritdoc />
+        </member>
         <member name="M:Morestachio.Document.AliasDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
             <inheritdoc />
         </member>
         <member name="P:Morestachio.Document.AliasDocumentItem.Kind">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.AliasDocumentItem.Accept(Morestachio.Document.Visitor.IDocumentItemVisitor)">
             <inheritdoc />
         </member>
         <member name="T:Morestachio.Document.ContentDocumentItem">
@@ -131,6 +137,9 @@
             <inheritdoc />
         </member>
         <member name="M:Morestachio.Document.ContentDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.ContentDocumentItem.Accept(Morestachio.Document.Visitor.IDocumentItemVisitor)">
             <inheritdoc />
         </member>
         <member name="T:Morestachio.Document.Contracts.DocumentExtenstions">
@@ -217,6 +226,12 @@
             	Can be used to allow custom data to be deserialized for XML serialization
             </summary>
             <param name="writer"></param>
+        </member>
+        <member name="M:Morestachio.Document.Contracts.IDocumentItem.Accept(Morestachio.Document.Visitor.IDocumentItemVisitor)">
+            <summary>
+            	Visits this DocumentItem
+            </summary>
+            <param name="visitor"></param>
         </member>
         <member name="T:Morestachio.Document.Custom.CustomDocumentItemProvider">
             <summary>
@@ -324,6 +339,9 @@
         <member name="M:Morestachio.Document.DocumentItemBase.Morestachio#Document#Contracts#IDocumentItem#DeSerializeXmlCore(System.Xml.XmlReader)">
             <inheritdoc />
         </member>
+        <member name="M:Morestachio.Document.DocumentItemBase.Accept(Morestachio.Document.Visitor.IDocumentItemVisitor)">
+            <inheritdoc />
+        </member>
         <member name="M:Morestachio.Document.DocumentItemBase.GetSchema">
             <inheritdoc />
         </member>
@@ -389,6 +407,9 @@
         <member name="P:Morestachio.Document.DoLoopDocumentItem.Kind">
             <inheritdoc />
         </member>
+        <member name="M:Morestachio.Document.DoLoopDocumentItem.Accept(Morestachio.Document.Visitor.IDocumentItemVisitor)">
+            <inheritdoc />
+        </member>
         <member name="T:Morestachio.Document.EachDocumentItem">
             <summary>
             	Emits N items that are in the <see cref="!:Value"/>
@@ -412,6 +433,9 @@
             <exception cref="T:Morestachio.Framework.IndexedParseException"></exception>
             <inheritdoc />
         </member>
+        <member name="M:Morestachio.Document.EachDocumentItem.Accept(Morestachio.Document.Visitor.IDocumentItemVisitor)">
+            <inheritdoc />
+        </member>
         <member name="T:Morestachio.Document.ElseExpressionScopeDocumentItem">
             <summary>
             	Defines an else Expression. This expression MUST come ether directly or only separated by <see cref="T:Morestachio.Document.ContentDocumentItem"/> after an <see cref="T:Morestachio.Document.IfExpressionScopeDocumentItem"/> or an <see cref="T:Morestachio.Document.InvertedExpressionScopeDocumentItem"/>
@@ -429,6 +453,9 @@
             <inheritdoc />
         </member>
         <member name="P:Morestachio.Document.ElseExpressionScopeDocumentItem.Kind">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.ElseExpressionScopeDocumentItem.Accept(Morestachio.Document.Visitor.IDocumentItemVisitor)">
             <inheritdoc />
         </member>
         <member name="T:Morestachio.Document.EvaluateVariableDocumentItem">
@@ -460,6 +487,9 @@
             </summary>
         </member>
         <member name="P:Morestachio.Document.EvaluateVariableDocumentItem.Kind">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.EvaluateVariableDocumentItem.Accept(Morestachio.Document.Visitor.IDocumentItemVisitor)">
             <inheritdoc />
         </member>
         <member name="T:Morestachio.Document.ExpressionDocumentItemBase">
@@ -515,6 +545,9 @@
         <member name="M:Morestachio.Document.ExpressionScopeDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
             <inheritdoc />
         </member>
+        <member name="M:Morestachio.Document.ExpressionScopeDocumentItem.Accept(Morestachio.Document.Visitor.IDocumentItemVisitor)">
+            <inheritdoc />
+        </member>
         <member name="T:Morestachio.Document.IfExpressionScopeDocumentItem">
             <summary>
             	Defines the start of a Scope
@@ -534,6 +567,9 @@
         <member name="M:Morestachio.Document.IfExpressionScopeDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
             <inheritdoc />
         </member>
+        <member name="M:Morestachio.Document.IfExpressionScopeDocumentItem.Accept(Morestachio.Document.Visitor.IDocumentItemVisitor)">
+            <inheritdoc />
+        </member>
         <member name="T:Morestachio.Document.IfNotExpressionScopeDocumentItem">
             <summary>
             	Defines the start of a Scope
@@ -551,6 +587,9 @@
             <inheritdoc />
         </member>
         <member name="M:Morestachio.Document.IfNotExpressionScopeDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.IfNotExpressionScopeDocumentItem.Accept(Morestachio.Document.Visitor.IDocumentItemVisitor)">
             <inheritdoc />
         </member>
         <member name="T:Morestachio.Document.InvertedExpressionScopeDocumentItem">
@@ -574,6 +613,9 @@
             <inheritdoc />
         </member>
         <member name="M:Morestachio.Document.InvertedExpressionScopeDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.InvertedExpressionScopeDocumentItem.Accept(Morestachio.Document.Visitor.IDocumentItemVisitor)">
             <inheritdoc />
         </member>
         <member name="T:Morestachio.Document.IsolatedContextDocumentItem">
@@ -651,6 +693,9 @@
             <param name="scopeData">The scope data.</param>
             <returns></returns>
         </member>
+        <member name="M:Morestachio.Document.MorestachioDocument.Accept(Morestachio.Document.Visitor.IDocumentItemVisitor)">
+            <inheritdoc />
+        </member>
         <member name="M:Morestachio.Document.MorestachioDocument.Equals(Morestachio.Document.MorestachioDocument)">
             <inheritdoc />
         </member>
@@ -698,6 +743,9 @@
             </summary>
         </member>
         <member name="M:Morestachio.Document.PartialDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.PartialDocumentItem.Accept(Morestachio.Document.Visitor.IDocumentItemVisitor)">
             <inheritdoc />
         </member>
         <member name="T:Morestachio.Document.PathDocumentItem">
@@ -748,26 +796,32 @@
         <member name="M:Morestachio.Document.PathDocumentItem.GetHashCode">
             <inheritdoc />
         </member>
-        <member name="T:Morestachio.Document.PrintContextValue">
+        <member name="M:Morestachio.Document.PathDocumentItem.Accept(Morestachio.Document.Visitor.IDocumentItemVisitor)">
+            <inheritdoc />
+        </member>
+        <member name="T:Morestachio.Document.PrintContextValueDocumentItem">
             <summary>
             	If a formatter ends without using its value it is printed
             </summary>
         </member>
-        <member name="M:Morestachio.Document.PrintContextValue.#ctor">
+        <member name="M:Morestachio.Document.PrintContextValueDocumentItem.#ctor">
             <summary>
             	Used for XML Serialization
             </summary>
         </member>
-        <member name="M:Morestachio.Document.PrintContextValue.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+        <member name="M:Morestachio.Document.PrintContextValueDocumentItem.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
             <inheritdoc />
         </member>
-        <member name="P:Morestachio.Document.PrintContextValue.Kind">
+        <member name="P:Morestachio.Document.PrintContextValueDocumentItem.Kind">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Document.PrintContextValue.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+        <member name="M:Morestachio.Document.PrintContextValueDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Document.PrintContextValue.GetValue(Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+        <member name="M:Morestachio.Document.PrintContextValueDocumentItem.GetValue(Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.PrintContextValueDocumentItem.Accept(Morestachio.Document.Visitor.IDocumentItemVisitor)">
             <inheritdoc />
         </member>
         <member name="T:Morestachio.Document.RemoveAliasDocumentItem">
@@ -792,6 +846,9 @@
         <member name="P:Morestachio.Document.RemoveAliasDocumentItem.Kind">
             <inheritdoc />
         </member>
+        <member name="M:Morestachio.Document.RemoveAliasDocumentItem.Accept(Morestachio.Document.Visitor.IDocumentItemVisitor)">
+            <inheritdoc />
+        </member>
         <member name="T:Morestachio.Document.RenderPartialDocumentItem">
             <summary>
             	Prints a partial
@@ -814,6 +871,9 @@
         <member name="M:Morestachio.Document.RenderPartialDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
             <inheritdoc />
         </member>
+        <member name="M:Morestachio.Document.RenderPartialDocumentItem.Accept(Morestachio.Document.Visitor.IDocumentItemVisitor)">
+            <inheritdoc />
+        </member>
         <member name="T:Morestachio.Document.RenderPartialDoneDocumentItem">
             <summary>
             	The end of a Partial declaration
@@ -833,9 +893,53 @@
         <member name="M:Morestachio.Document.RenderPartialDoneDocumentItem.Render(Morestachio.Framework.IByteCounterStream,Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
             <inheritdoc />
         </member>
+        <member name="M:Morestachio.Document.RenderPartialDoneDocumentItem.Accept(Morestachio.Document.Visitor.IDocumentItemVisitor)">
+            <inheritdoc />
+        </member>
         <member name="T:Morestachio.Document.ValueDocumentItemBase">
             <summary>
             	A common base class for emitting a single string value
+            </summary>
+        </member>
+        <member name="P:Morestachio.Document.ValueDocumentItemBase.Value">
+            <summary>
+            	A value from the Template
+            </summary>
+        </member>
+        <member name="M:Morestachio.Document.ValueDocumentItemBase.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.ValueDocumentItemBase.SerializeBinaryCore(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.ValueDocumentItemBase.SerializeXml(System.Xml.XmlWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.ValueDocumentItemBase.DeSerializeXml(System.Xml.XmlReader)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.ValueDocumentItemBase.Equals(Morestachio.Document.ValueDocumentItemBase)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.ValueDocumentItemBase.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.ValueDocumentItemBase.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="T:Morestachio.Document.Visitor.IDocumentItemVisitor">
+            <summary>
+            	A visitor for a tree of document items
+            </summary>
+        </member>
+        <member name="T:Morestachio.Document.Visitor.ToParsableStringDocumentVisitor">
+            <summary>
+            	Reconstructs the DocumentTree to a Template string
+            </summary>
+        </member>
+        <member name="P:Morestachio.Document.Visitor.ToParsableStringDocumentVisitor.StringBuilder">
+            <summary>
+            	Contains the reconstructed DocumentTree
             </summary>
         </member>
         <member name="T:Morestachio.Document.WhileLoopDocumentItem">
@@ -858,6 +962,9 @@
             <inheritdoc />
         </member>
         <member name="P:Morestachio.Document.WhileLoopDocumentItem.Kind">
+            <inheritdoc />
+        </member>
+        <member name="M:Morestachio.Document.WhileLoopDocumentItem.Accept(Morestachio.Document.Visitor.IDocumentItemVisitor)">
             <inheritdoc />
         </member>
         <member name="T:Morestachio.Formatter.Framework.Converter.GenericTypeConverter">
@@ -1666,7 +1773,7 @@
         <member name="M:Morestachio.Framework.Expression.MorestachioExpression.GetValue(Morestachio.Framework.ContextObject,Morestachio.ScopeData)">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.MorestachioExpression.Visit(Morestachio.Framework.Expression.Visitors.IMorestachioExpressionVisitor)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpression.Accept(Morestachio.Framework.Expression.Visitors.IMorestachioExpressionVisitor)">
             <inheritdoc />
         </member>
         <member name="M:Morestachio.Framework.Expression.MorestachioExpression.ToString">
@@ -1722,7 +1829,7 @@
             <param name="scopeData"></param>
             <returns></returns>
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionArgument.Visit(Morestachio.Framework.Expression.Visitors.IMorestachioExpressionVisitor)">
+        <member name="M:Morestachio.Framework.Expression.ExpressionArgument.Accept(Morestachio.Framework.Expression.Visitors.IMorestachioExpressionVisitor)">
             <inheritdoc />
         </member>
         <member name="M:Morestachio.Framework.Expression.ExpressionArgument.GetSchema">
@@ -1796,7 +1903,7 @@
         <member name="M:Morestachio.Framework.Expression.MorestachioExpressionList.ToString">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionList.Visit(Morestachio.Framework.Expression.Visitors.IMorestachioExpressionVisitor)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionList.Accept(Morestachio.Framework.Expression.Visitors.IMorestachioExpressionVisitor)">
             <inheritdoc />
         </member>
         <member name="M:Morestachio.Framework.Expression.MorestachioExpressionList.Equals(Morestachio.Framework.Expression.IMorestachioExpression)">
@@ -1873,7 +1980,7 @@
             <param name="index"></param>
             <returns></returns>
         </member>
-        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionString.Visit(Morestachio.Framework.Expression.Visitors.IMorestachioExpressionVisitor)">
+        <member name="M:Morestachio.Framework.Expression.MorestachioExpressionString.Accept(Morestachio.Framework.Expression.Visitors.IMorestachioExpressionVisitor)">
             <inheritdoc />
         </member>
         <member name="M:Morestachio.Framework.Expression.MorestachioExpressionString.ToString">
@@ -1954,7 +2061,7 @@
             <param name="scopeData"></param>
             <returns></returns>
         </member>
-        <member name="M:Morestachio.Framework.Expression.IMorestachioExpression.Visit(Morestachio.Framework.Expression.Visitors.IMorestachioExpressionVisitor)">
+        <member name="M:Morestachio.Framework.Expression.IMorestachioExpression.Accept(Morestachio.Framework.Expression.Visitors.IMorestachioExpressionVisitor)">
             <summary>
             	Visits this Expression
             </summary>

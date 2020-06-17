@@ -70,7 +70,7 @@ namespace Morestachio.Tests
 			Assert.That(expressions, Is.Not.Null);
 
 			var visitor = new ToParsableStringExpressionVisitor();
-			expressions.Visit(visitor);
+			expressions.Accept(visitor);
 
 			Assert.That(visitor.StringBuilder.ToString(), Is.EqualTo(query));
 			Assert.That(context.Errors, Is.Empty, () => context.Errors.GetErrorText());
@@ -134,20 +134,21 @@ namespace Morestachio.Tests
 		[Test]
 		public void ParserCanVariableExpressionWithFormats()
 		{
-			var parsingOptions = new ParserOptions("{{#var f = data.('G').PadLeft(123)}}|{{f}}", null,
+			var parsingOptions = new ParserOptions("{{#VAR f = data.('G').PadLeft(123)}}|{{f}}", null,
 				DefaultEncoding);
 			parsingOptions.Formatters.AddSingle((string value, int nr) =>
 			{
 				return value.PadLeft(nr);
 			}, "PadLeft");
-			var results =
+			var parsedTemplate =
 				Parser.ParseWithOptions(parsingOptions);
 			var date = DateTime.Now;
-			var result = results.CreateAndStringify(new Dictionary<string, object>
+			var result = parsedTemplate.CreateAndStringify(new Dictionary<string, object>
 			{
 				{ "data", date },
 			});
 			Assert.That(result, Is.EqualTo("|" + date.ToString("G").PadLeft(123)));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
 		}
 
 		[Test]
@@ -317,15 +318,15 @@ namespace Morestachio.Tests
 		[Test]
 		public void TestRootAccess()
 		{
-			var templateWorking = "{{#EACH data.testList.Select()}}" +
-								  "{{#var eachValue = ~data.testInt}}" +
+			var template = "{{#EACH data.testList.Select()}}" +
+								  "{{#VAR eachValue = ~data.testInt}}" +
 								  "{{/EACH}}" +
 								  "{{eachValue}} = {{~data.testInt}} = {{data.testInt}}";
 
-			var parsingOptionsWorking = new ParserOptions(templateWorking, null, DefaultEncoding);
-			parsingOptionsWorking.Formatters.AddFromType(typeof(DynamicLinq));
-			parsingOptionsWorking.Formatters.AddFromType(typeof(FormatterTests.NumberFormatter));
-			var parsedTemplateWorking = Parser.ParseWithOptions(parsingOptionsWorking);
+			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
+			parsingOptions.Formatters.AddFromType(typeof(DynamicLinq));
+			parsingOptions.Formatters.AddFromType(typeof(FormatterTests.NumberFormatter));
+			var parsedTemplate = Parser.ParseWithOptions(parsingOptions);
 
 			var modelWorking = new Dictionary<string, object>()
 			{
@@ -347,8 +348,9 @@ namespace Morestachio.Tests
 				}
 			};
 	
-			var result = parsedTemplateWorking.Create(modelWorking).Stream.Stringify(true, DefaultEncoding);
+			var result = parsedTemplate.Create(modelWorking).Stream.Stringify(true, DefaultEncoding);
 			Assert.AreEqual("2 = 2 = 2", result);
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
 		}
 
 		[Test]
@@ -559,11 +561,13 @@ namespace Morestachio.Tests
 			};
 
 			var template =
-				@"{{#declare TestPartial}}{{self.Test}}{{/declare}}{{#each Data}}{{#include TestPartial}}{{/each}}";
+				@"{{#DECLARE TestPartial}}{{self.Test}}{{/DECLARE}}{{#EACH Data}}{{#INCLUDE TestPartial}}{{/EACH}}";
 
-			var parsed = Parser.ParseWithOptions(new ParserOptions(template, null, DefaultEncoding));
-			var andStringify = await parsed.CreateAndStringifyAsync(data);
+			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
+			var parsedTemplate = Parser.ParseWithOptions(parsingOptions);
+			var andStringify = await parsedTemplate.CreateAndStringifyAsync(data);
 			Assert.That(andStringify, Is.EqualTo("123"));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
 		}
 
 		[Test]
@@ -604,11 +608,16 @@ namespace Morestachio.Tests
 				};
 
 			var template =
-				@"{{#declare TestPartial}}{{../../DataOneUp.self.Test}}{{self.Test}}{{/declare}}{{#each Data}}{{#include TestPartial}}{{/each}}";
+				"{{#DECLARE TestPartial}}{{../../DataOneUp.self.Test}}{{self.Test}}{{/DECLARE}}" +
+				"{{#EACH Data}}" +
+				"	{{#INCLUDE TestPartial}}" +
+				"{{/EACH}}";
 
-			var parsed = Parser.ParseWithOptions(new ParserOptions(template, null, DefaultEncoding));
-			var andStringify = await parsed.CreateAndStringifyAsync(data);
-			Assert.That(andStringify, Is.EqualTo("Is:1Is:2"));
+			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
+			var parsedTemplate = Parser.ParseWithOptions(parsingOptions);
+			var andStringify = await parsedTemplate.CreateAndStringifyAsync(data);
+			Assert.That(andStringify, Is.EqualTo("	Is:1	Is:2"));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
 		}
 
 		[Test]
@@ -617,9 +626,11 @@ namespace Morestachio.Tests
 			var data = new Dictionary<string, object>();
 			var template = @"{{#declare TestPartial}}{{#include TestPartial}}{{/declare}}{{#include TestPartial}}";
 
-			var parsed = Parser.ParseWithOptions(new ParserOptions(template, null, DefaultEncoding));
-			Assert.That(async () => await parsed.CreateAndStringifyAsync(data),
+			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
+			var parsedTemplate = Parser.ParseWithOptions(parsingOptions);
+			Assert.That(async () => await parsedTemplate.CreateAndStringifyAsync(data),
 				Throws.Exception.TypeOf<MustachioStackOverflowException>());
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
 		}
 
 		[Test]
@@ -629,9 +640,11 @@ namespace Morestachio.Tests
 			var template =
 				@"{{#declare TestPartial}}{{#declare InnerPartial}}1{{/declare}}2{{/declare}}{{#include TestPartial}}{{#include InnerPartial}}";
 
-			var parsed = Parser.ParseWithOptions(new ParserOptions(template, null, DefaultEncoding));
-			var result = await parsed.CreateAndStringifyAsync(data);
+			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
+			var parsedTemplate = Parser.ParseWithOptions(parsingOptions);
+			var result = await parsedTemplate.CreateAndStringifyAsync(data);
 			Assert.That(result, Is.EqualTo("21"));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
 		}
 
 		[Test]
@@ -645,9 +658,11 @@ namespace Morestachio.Tests
 
 			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
 			parsingOptions.Formatters.AddSingle<int, bool>(e => { return e < 9; });
-			var parsed = Parser.ParseWithOptions(parsingOptions);
-			var result = await parsed.CreateAndStringifyAsync(data);
+			var parsedTemplate = Parser.ParseWithOptions(parsingOptions);
+			var result = await parsedTemplate.CreateAndStringifyAsync(data);
 			Assert.That(result, Is.EqualTo("123456789"));
+
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
 		}
 
 		[Test]
@@ -1077,10 +1092,12 @@ namespace Morestachio.Tests
 				Value = "FAILED",
 			};
 
-			var extendedParseInformation = Parser.ParseWithOptions(
-				new ParserOptions(template, null, DefaultEncoding));
-			var andStringify = extendedParseInformation.CreateAndStringify(data);
+			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
+			var parsedTemplate = Parser.ParseWithOptions(
+				parsingOptions);
+			var andStringify = parsedTemplate.CreateAndStringify(data);
 			Assert.That(andStringify, Is.EqualTo("Success"));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
 		}
 
 		[Test]
@@ -1142,6 +1159,7 @@ namespace Morestachio.Tests
 			var parsedTemplate = Parser.ParseWithOptions(parsingOptions);
 			var genTemplate = parsedTemplate.CreateAndStringify(new object());
 			Assert.That(genTemplate, Is.EqualTo("0,1,2,3,4,5,"));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
 		}
 
 		[Test]
@@ -1161,6 +1179,7 @@ namespace Morestachio.Tests
 			var parsedTemplate = Parser.ParseWithOptions(parsingOptions);
 			var genTemplate = parsedTemplate.CreateAndStringify(new object());
 			Assert.That(genTemplate, Is.EqualTo("0,1,2,3,4,5,"));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
 		}
 
 		private class CollectionContextInfo

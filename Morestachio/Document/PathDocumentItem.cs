@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
+using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Framework.Expression;
 
@@ -143,6 +144,11 @@ namespace Morestachio.Document
 				hashCode = (hashCode * 397) ^ EscapeValue.GetHashCode();
 				return hashCode;
 			}
+		}
+		/// <inheritdoc />
+		public override void Accept(IDocumentItemVisitor visitor)
+		{
+			visitor.Visit(this);
 		}
 	}
 }

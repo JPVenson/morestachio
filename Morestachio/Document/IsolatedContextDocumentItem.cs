@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
+using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 
 namespace Morestachio.Document
@@ -30,6 +31,11 @@ namespace Morestachio.Document
 
 		/// <inheritdoc />
 		public override string Kind { get; } = "IsolatedContext";
+
+		public override void Accept(IDocumentItemVisitor visitor)
+		{
+			throw new NotImplementedException();
+		}
 
 		/// <inheritdoc />
 		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)

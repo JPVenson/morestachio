@@ -29,6 +29,6 @@ namespace Morestachio.Framework.Expression
 		///		Visits this Expression
 		/// </summary>
 		/// <param name="visitor"></param>
-		void Visit(IMorestachioExpressionVisitor visitor);
+		void Accept(IMorestachioExpressionVisitor visitor);
 	}
 }

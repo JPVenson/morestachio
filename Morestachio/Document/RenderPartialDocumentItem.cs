@@ -4,6 +4,7 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
+using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 
 namespace Morestachio.Document
@@ -86,6 +87,11 @@ namespace Morestachio.Document
 			}
 
 			throw new MorestachioRuntimeException($"Could not obtain a partial named '{partialName}' from the template nor the Partial store");
+		}
+		/// <inheritdoc />
+		public override void Accept(IDocumentItemVisitor visitor)
+		{
+			visitor.Visit(this);
 		}
 	}
 }

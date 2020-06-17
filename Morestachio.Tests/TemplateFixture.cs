@@ -191,10 +191,11 @@ namespace Morestachio.Tests
 		public void TemplateRendersWithComplexEachPath()
 		{
 			var template =
-				@"{{#each Company.ceo.products}}<li>{{ name }} and {{version}} and has a CEO: {{../../last_name}}</li>{{/each}}";
+				@"{{#each Company.ceo.products}}<li>{{name}} and {{version}} and has a CEO: {{../../last_name}}</li>{{/each}}";
 
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
 			var parsedTemplate =
-				Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding));
+				Parser.ParseWithOptions(parsingOptions);
 
 			var model = new Dictionary<string, object>();
 
@@ -220,16 +221,18 @@ namespace Morestachio.Tests
 			Assert.AreEqual("<li>name 0 and version 0 and has a CEO: Smith</li>" +
 						 "<li>name 1 and version 1 and has a CEO: Smith</li>" +
 						 "<li>name 2 and version 2 and has a CEO: Smith</li>", result);
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
 		}
 
 		[Test]
 		public void TemplateRendersWithComplexScopePath()
 		{
 			var template =
-				@"{{#Company.ceo}}{{#each products}}<li>{{ name }} and {{version}} and has a CEO: {{../../last_name}}</li>{{/each}}{{/Company.ceo}}";
+				@"{{#Company.ceo}}{{#each products}}<li>{{name}} and {{version}} and has a CEO: {{../../last_name}}</li>{{/each}}{{/Company.ceo}}";
 
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
 			var parsedTemplate =
-				Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding));
+				Parser.ParseWithOptions(parsingOptions);
 
 			var model = new Dictionary<string, object>();
 
@@ -255,6 +258,7 @@ namespace Morestachio.Tests
 			Assert.AreEqual("<li>name 0 and version 0 and has a CEO: Smith</li>" +
 						 "<li>name 1 and version 1 and has a CEO: Smith</li>" +
 						 "<li>name 2 and version 2 and has a CEO: Smith</li>", result);
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
 		}
 
 		[Test]
@@ -297,10 +301,6 @@ namespace Morestachio.Tests
 			Assert.AreEqual(model.ToString(), result);
 		}
 
-
-
-		
-
 		[Test]
 		public void TemplateIfRendersRootScopePath()
 		{
@@ -327,8 +327,9 @@ namespace Morestachio.Tests
 			var template =
 				@"{{#IF data}}{{data}}{{/IF}}{{#else}}{{root}}{{/else}}";
 
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
 			var parsedTemplate =
-				Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding));
+				Parser.ParseWithOptions(parsingOptions);
 
 			var model = new Dictionary<string, object>()
 			{
@@ -339,6 +340,7 @@ namespace Morestachio.Tests
 			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
 
 			Assert.AreEqual(model["data"], result);
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
 		}
 
 		[Test]

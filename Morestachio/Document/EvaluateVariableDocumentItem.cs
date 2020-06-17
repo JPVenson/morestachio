@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
+using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Framework.Expression;
 
@@ -72,5 +73,11 @@ namespace Morestachio.Document
 		public string Value { get; set; }
 		/// <inheritdoc />
 		public override string Kind { get; } = "EvaluateVariableDocumentItem";
+
+		/// <inheritdoc />
+		public override void Accept(IDocumentItemVisitor visitor)
+		{
+			visitor.Visit(this);
+		}
 	}
 }

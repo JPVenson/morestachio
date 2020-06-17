@@ -106,13 +106,13 @@ namespace Morestachio.Framework.Expression
 		public override string ToString()
 		{
 			var visitor = new ToParsableStringExpressionVisitor();
-			Visit(visitor);
+			Accept(visitor);
 			return visitor.StringBuilder.ToString();
 		}
 
 
 		/// <inheritdoc />
-		public void Visit(IMorestachioExpressionVisitor visitor)
+		public void Accept(IMorestachioExpressionVisitor visitor)
 		{
 			visitor.Visit(this);
 		}

@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
+using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 
 namespace Morestachio.Document
@@ -11,19 +13,19 @@ namespace Morestachio.Document
 	///		If a formatter ends without using its value it is printed
 	/// </summary>
 	[System.Serializable]
-	public class PrintContextValue : DocumentItemBase, IValueDocumentItem
+	public class PrintContextValueDocumentItem : DocumentItemBase, IValueDocumentItem
 	{
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal PrintContextValue()
+		internal PrintContextValueDocumentItem()
 		{
 
 		}
 
 		/// <inheritdoc />
 		[UsedImplicitly]
-		protected PrintContextValue(SerializationInfo info, StreamingContext c) : base(info, c)
+		protected PrintContextValueDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}
 
@@ -53,6 +55,11 @@ namespace Morestachio.Document
 		{
 			await Task.CompletedTask;
 			return context;
+		}
+		/// <inheritdoc />
+		public override void Accept(IDocumentItemVisitor visitor)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

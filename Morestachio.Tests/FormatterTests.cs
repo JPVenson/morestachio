@@ -684,6 +684,7 @@ namespace Morestachio.Tests
 			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
 
 			Assert.AreEqual(model.ToString(), result);
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, parsedTemplate.Document);
 		}
 
 
@@ -723,13 +724,14 @@ namespace Morestachio.Tests
 			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
 
 			Assert.AreEqual("TEST", result);
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, parsedTemplate.Document);
 		}
 
 		[Test]
 		public void TemplateIfDoesNotScopeToRootWithFormatterCustomized()
 		{
 			var template =
-				@"{{#data}}{{#each data3.dataList.()}}{{#IF .()}}{{.}}{{/IF}}{{/each}}{{/data}}";
+				@"{{#data}}{{#EACH data3.dataList.()}}{{#IF .()}}{{.}}{{/IF}}{{/EACH}}{{/data}}";
 
 			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
 			parsingOptions.Formatters.AddSingle(new Func<IEnumerable<string>, IEnumerable<string>>(f => f));
@@ -761,6 +763,7 @@ namespace Morestachio.Tests
 			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
 
 			Assert.AreEqual("TE", result);
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, parsedTemplate.Document);
 		}
 
 		[Test]
@@ -783,6 +786,7 @@ namespace Morestachio.Tests
 			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
 
 			Assert.AreEqual(model.ToString(), result);
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, parsedTemplate.Document);
 		}
 
 		[Test]
@@ -817,6 +821,7 @@ namespace Morestachio.Tests
 				.Stringify(true, ParserFixture.DefaultEncoding);
 
 			Assert.AreEqual("tset".PadLeft(123), result);
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, parsedTemplate.Document);
 		}
 	}
 }

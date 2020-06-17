@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Xml;
 using JetBrains.Annotations;
+using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 
 namespace Morestachio.Document.Contracts
@@ -54,5 +55,11 @@ namespace Morestachio.Document.Contracts
 		/// </summary>
 		/// <param name="writer"></param>
 		void DeSerializeXmlCore(XmlReader writer);
+
+		/// <summary>
+		///		Visits this DocumentItem
+		/// </summary>
+		/// <param name="visitor"></param>
+		void Accept(IDocumentItemVisitor visitor);
 	}
 }

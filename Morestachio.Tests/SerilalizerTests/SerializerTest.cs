@@ -5,8 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Morestachio.Document;
 using Morestachio.Document.Contracts;
+using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Tests.DocTree;
+using Newtonsoft.Json.Bson;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 
@@ -22,6 +24,24 @@ namespace Morestachio.Tests.SerilalizerTests
 		}
 
 		public IDocumentSerializerStrategy DocumentSerializerStrategy { get; private set; }
+
+		public static void AssertDocumentItemIsSameAsTemplate(string text, IDocumentItem documentItem)
+		{
+			var visitor = new ToParsableStringDocumentVisitor();
+			visitor.Visit(documentItem as MorestachioDocument);
+
+			var format = visitor.StringBuilder.ToString();
+			StringAssert.AreEqualIgnoringCase(text, format);
+			if (!format.Equals(text))
+			{
+				if (!format.Equals(text, StringComparison.InvariantCultureIgnoreCase))
+				{
+					Assert.That(format, Is.EqualTo(text));	
+				}
+
+				Console.WriteLine("The two string are only the same of not checked for casing");
+			}
+		}
 
 		private void SerilalizeAndDeserialize(IDocumentItem document)
 		{
@@ -46,14 +66,16 @@ namespace Morestachio.Tests.SerilalizerTests
 			var template = "I am <Text> {{Data.data.test().next(arg).(last)}}";
 			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
 			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
+			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document);
 		}
 
 		[Test]
 		public void TestIsVariableSerializable()
 		{
-			var template = "I am <Text> {{#var f = data.test.Format().As.Test('', exp)}}";
+			var template = "I am <Text> {{#VAR f = data.test.Format().As.Test('', exp)}}";
 			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
 			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
+			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document);
 		}
 
 		[Test]
@@ -62,26 +84,29 @@ namespace Morestachio.Tests.SerilalizerTests
 			var template = "I am <Text>";
 			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
 			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
+			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document);
 		}
 
 		[Test]
 		public void TestIsContentWithPathAndEachAndFormatterSerializable()
 		{
-			var template = "I am <Text> {{#each data.('', dd)}} {{Data.data.test()}} {{/each}}";
+			var template = "I am <Text> {{#EACH data.('', dd)}} {{Data.data.test()}} {{/EACH}}";
 			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
 			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
+			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document);
 		}
 
 		[Test]
 		public void TestCanSerializePartial()
 		{
 			var template = "Partial:" +
-			               "{{#declare PartialA}}" +
+			               "{{#DECLARE PartialA}}" +
 						   "I am <Text> {{Data.data('test')}}" +
-			               "{{/declare}}" +
-			               "{{#Include PartialA}}";
+			               "{{/DECLARE}}" +
+			               "{{#INCLUDE PartialA}}";
 			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
 			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
+			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document);
 		}
 
 		[Test]
@@ -95,6 +120,7 @@ namespace Morestachio.Tests.SerilalizerTests
 
 			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
 			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
+			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document);
 		}
 
 		[Test]
@@ -108,22 +134,25 @@ namespace Morestachio.Tests.SerilalizerTests
 
 			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
 			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
+			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document);
 		}
 
 		[Test]
 		public void TestIsIfNotIfSerializable()
 		{
-			var template = "I am <Text> {{#IF data}} {{/If}} {{^IF data}} {{/If}}";
+			var template = "I am <Text> {{#IF data}} {{/IF}} {{^IF data}} {{/IF}}";
 			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
 			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
+			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document);
 		}
 		
 		[Test]
 		public void TestIsIfElseIsSerializable()
 		{
-			var template = "I am <Text> {{#IF data}} {{/If}} {{#else}} {{/else}}";
+			var template = "I am <Text> {{#IF data}} {{/IF}} {{#ELSE}} {{/ELSE}}";
 			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
 			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
+			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document);
 		}
 
 		[Test]

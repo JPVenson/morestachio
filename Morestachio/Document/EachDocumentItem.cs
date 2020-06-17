@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
+using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Framework.Expression;
 using Morestachio.ParserErrors;
@@ -93,6 +94,11 @@ namespace Morestachio.Document
 			} while (current != null && ContinueBuilding(outputStream, context));
 
 			return scopes;
+		}
+		/// <inheritdoc />
+		public override void Accept(IDocumentItemVisitor visitor)
+		{
+			visitor.Visit(this);
 		}
 	}
 }

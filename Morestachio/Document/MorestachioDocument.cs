@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
+using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 
 namespace Morestachio.Document
@@ -126,6 +127,12 @@ namespace Morestachio.Document
 					}
 				}
 			}
+		}
+
+		/// <inheritdoc />
+		public override void Accept(IDocumentItemVisitor visitor)
+		{
+			visitor.Visit(this);
 		}
 
 		/// <inheritdoc />
