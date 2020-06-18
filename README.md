@@ -116,7 +116,7 @@ parserOptions.Formatters.AddSingle(new Func<DateTime, string  , string>((value, 
   return value.ToString(argument);
 }));
 
-Parser.CreateAndStringify(parserOptions); // Friday, September 21, 2018 ish
+Parser.ParseWithOptions(parserOptions).CreateAndStringify(); // Friday, September 21, 2018 ish
 
 ```
 ###### Enumerating IDictionarys
