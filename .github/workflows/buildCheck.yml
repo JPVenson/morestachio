@@ -1,0 +1,32 @@
+name: .NET Core
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.101
+    - name: Install dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+    - name: Test
+      run: dotnet test --no-restore --verbosity normal -l:trx;LogFileName=C:\temp\TestOutput.xml
+    - name: NUnit Reporter
+      uses: MirrorNG/nunit-reporter@v1.0.5
+      with:
+        # github token
+        access-token: ${{ secrets.ApiKey }}
+        # glob to junit xml files
+        path: C:\temp\TestOutput.xml
