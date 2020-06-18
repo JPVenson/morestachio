@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netcoreapp2.0;netcoreapp2.1;netcoreapp2.2;netcoreapp3.0;net46;net461;net462;net47;net471;net472;</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.0.0-alpha1</Version>
+    <Version>4.0.0-alpha2</Version>
     <Authors>Jean-Pierre Bachmann</Authors>
     <PackageProjectUrl>https://github.com/JPVenson/morestachio</PackageProjectUrl>
     <PackageIconUrl>https://github.com/JPVenson/morestachio/raw/master/Morestachio/Morestachio%20248x248.png?raw=true</PackageIconUrl>
@@ -11,15 +11,17 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>Formatter, C#, Engine, NetStandard</PackageTags>
     <Description>A powerfull c# infused templating engine.</Description>
-    <PackageReleaseNotes>Extracted the Expression parser to allow destinct expressions to be parsed and executed</PackageReleaseNotes>
+    <PackageReleaseNotes>Added While and Do Loops
+Added Visitor pattern to Expressions and DocumentItems
+Fixed minor bugs</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
-    <DocumentationFile>H:\Code\morestachio\Morestachio\Morestachio.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\Morestachio.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-    <DocumentationFile>H:\Code\morestachio\Morestachio\Morestachio.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\Morestachio.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
