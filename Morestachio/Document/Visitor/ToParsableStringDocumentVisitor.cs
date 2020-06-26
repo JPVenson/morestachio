@@ -23,16 +23,23 @@ namespace Morestachio.Document.Visitor
 		/// </summary>
 		public StringBuilder StringBuilder { get; set; }
 
+		/// <inheritdoc />
 		public void Visit(AliasDocumentItem documentItem)
 		{
 			VisitChildren(documentItem);
 		}
 
+		/// <inheritdoc />
 		public void Visit(ContentDocumentItem documentItem)
 		{
 			StringBuilder.Append(documentItem.Value);
 		}
 
+		/// <summary>
+		///		Parses an expression for use in an original template
+		/// </summary>
+		/// <param name="expression"></param>
+		/// <returns></returns>
 		public string ReparseExpression(IMorestachioExpression expression)
 		{
 			var visitor = new ToParsableStringExpressionVisitor();
@@ -40,6 +47,10 @@ namespace Morestachio.Document.Visitor
 			return visitor.StringBuilder.ToString();
 		}
 
+		/// <summary>
+		///		Loops through all the document items children
+		/// </summary>
+		/// <param name="documentItem"></param>
 		public void VisitChildren(IDocumentItem documentItem)
 		{
 			foreach (var documentItemChild in documentItem.Children)
@@ -47,7 +58,14 @@ namespace Morestachio.Document.Visitor
 				documentItemChild.Accept(this);
 			}
 		}
+		
 
+		/// <summary>
+		///		Writes the tag with the leading char as well as all of the documentItems children
+		/// </summary>
+		/// <param name="documentItem"></param>
+		/// <param name="tag"></param>
+		/// <param name="cmdChar"></param>
 		public void Visit(ExpressionDocumentItemBase documentItem, string tag, string cmdChar = "#")
 		{
 			StringBuilder.Append("{{");
@@ -80,7 +98,12 @@ namespace Morestachio.Document.Visitor
 				StringBuilder.Append("}}");
 			}
 		}
-
+		
+		/// <summary>
+		///		Writes the Tag and all of the documentItems children
+		/// </summary>
+		/// <param name="documentItem"></param>
+		/// <param name="tag"></param>
 		public void Visit(DocumentItemBase documentItem, string tag)
 		{
 			StringBuilder.Append("{{#");
@@ -96,22 +119,27 @@ namespace Morestachio.Document.Visitor
 				StringBuilder.Append("}}");
 			}
 		}
+		
 
+		/// <inheritdoc />
 		public void Visit(DoLoopDocumentItem documentItem)
 		{
 			Visit(documentItem, "DO ");
 		}
 
+		/// <inheritdoc />
 		public void Visit(EachDocumentItem documentItem)
 		{
 			Visit(documentItem, "EACH ");
 		}
 
+		/// <inheritdoc />
 		public void Visit(ElseExpressionScopeDocumentItem documentItem)
 		{
 			Visit(documentItem, "ELSE");
 		}
 
+		/// <inheritdoc />
 		public void Visit(EvaluateVariableDocumentItem documentItem)
 		{
 			StringBuilder.Append("{{#VAR ");
@@ -121,6 +149,7 @@ namespace Morestachio.Document.Visitor
 			StringBuilder.Append("}}");
 		}
 
+		/// <inheritdoc />
 		public void Visit(ExpressionScopeDocumentItem documentItem)
 		{
 			StringBuilder.Append("{{#");
@@ -152,26 +181,31 @@ namespace Morestachio.Document.Visitor
 			}
 		}
 		
+		/// <inheritdoc />
 		public void Visit(IfExpressionScopeDocumentItem documentItem)
 		{
 			Visit(documentItem, "IF ");
 		}
-
+		
+		/// <inheritdoc />
 		public void Visit(IfNotExpressionScopeDocumentItem documentItem)
 		{
 			Visit(documentItem, "IF ", "^");
 		}
-
+		
+		/// <inheritdoc />
 		public void Visit(InvertedExpressionScopeDocumentItem documentItem)
 		{
 			Visit(documentItem, "", "^");
 		}
-
+		
+		/// <inheritdoc />
 		public void Visit(MorestachioDocument documentItem)
 		{
 			VisitChildren(documentItem);
 		}
-
+		
+		/// <inheritdoc />
 		public void Visit(PartialDocumentItem documentItem)
 		{
 			StringBuilder.Append("{{#DECLARE ");
@@ -182,16 +216,19 @@ namespace Morestachio.Document.Visitor
 
 			StringBuilder.Append("{{/DECLARE}}");
 		}
-
+		
+		/// <inheritdoc />
 		public void Visit(PathDocumentItem documentItem)
 		{
 			Visit(documentItem, "", "");
 		}
-
+		
+		/// <inheritdoc />
 		public void Visit(RemoveAliasDocumentItem documentItem)
 		{
 		}
-
+		
+		/// <inheritdoc />
 		public void Visit(RenderPartialDocumentItem documentItem)
 		{
 			StringBuilder.Append("{{#INCLUDE ");
@@ -199,15 +236,18 @@ namespace Morestachio.Document.Visitor
 			StringBuilder.Append("}}");
 		}
 
+		/// <inheritdoc />
 		public void Visit(RenderPartialDoneDocumentItem documentItem)
 		{
 		}
 
+		/// <inheritdoc />
 		public void Visit(WhileLoopDocumentItem documentItem)
 		{
 			Visit(documentItem, "WHILE ");
 		}
 
+		/// <inheritdoc />
 		public void Visit(IDocumentItem documentItem)
 		{
 			throw new NotImplementedException();
