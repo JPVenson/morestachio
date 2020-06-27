@@ -17,6 +17,7 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.101
+        
     - name: Setup MSBuild Path
       uses: warrenbuckley/Setup-MSBuild@v1  
        
@@ -26,7 +27,10 @@ jobs:
     - name: Restore NuGet Packages
       run: nuget restore Morestachio.sln
  
-    - name: Build and Publish Web App
+    - name: Build App
       run: msbuild Morestachio.sln /p:Configuration=Release
+    
+    - name: Run tests
+      uses: mstest 
       
    
