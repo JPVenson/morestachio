@@ -106,9 +106,19 @@ namespace JPB.Mustachio.Client.Wpf.ViewModels
 
 			var parsingOptions = new ParserOptions(template,
 				() => new MemoryStream(),
-				Encoding.Default, false, true);
-
+				Encoding.Default,
+				_templateServiceProvider.ParserOptions.MaxSize,
+				_templateServiceProvider.ParserOptions.DisableContentEscaping);
+			parsingOptions.Timeout = _templateServiceProvider.ParserOptions.Timeout;
+			parsingOptions.Null = _templateServiceProvider.ParserOptions.NullSubstitute;
+			parsingOptions.StackOverflowBehavior = _templateServiceProvider.ParserOptions.PartialStackOverflowBehavior;
+			parsingOptions.PartialStackSize = _templateServiceProvider.ParserOptions.PartialStackSize;
 			parsingOptions.ValueResolver = new JObjectResolver();
+
+			//if (_templateServiceProvider.ParserOptions.EnableExtendedMissingPathOutput)
+			//{
+			//	parsingOptions.UnresolvedPath += ParsingOptionsOnUnresolvedPath;
+			//}
 
 			//var formatterService = new MorestachioFormatterService();
 			//var formatters = _templateServiceProvider.ObtainFormatters();
@@ -154,9 +164,14 @@ namespace JPB.Mustachio.Client.Wpf.ViewModels
 			
 			return new GeneratedTemplateInfos()
 			{
-				Result = extendedParseInformation.Create(result).Stream.Stringify(true, Encoding.Default),
+				Result = await extendedParseInformation.CreateAndStringifyAsync(result),
 				InferredTemplateModel = extendedParseInformation.Document
 			};
+		}
+
+		private void ParsingOptionsOnUnresolvedPath(string path, Type type)
+		{
+			
 		}
 	}
 }

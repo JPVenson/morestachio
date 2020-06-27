@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Windows.Documents;
 using JPB.Mustachio.Client.Contacts.Contracts;
+using JPB.Mustachio.Client.Wpf.ViewModels;
+using Morestachio;
 using Morestachio.Formatter;
 using Morestachio.Formatter.Framework;
 
@@ -71,6 +73,7 @@ namespace JPB.Mustachio.Client.Wpf.Services
 		public IDataSourceProvider LastProvider { get; set; }
 		public string LastTemplate { get; set; }
 		public IList<IFormatterInfo> Formatter { get; set; }
+		public IParserOptions ParserOptions { get; set; }
 
 		public event EventHandler<List<FormatterInfo>> CreateFormatter;
 

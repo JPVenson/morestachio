@@ -11,10 +11,7 @@
 		<DockPanel>
 			<StackPanel DockPanel.Dock="Bottom">
 			</StackPanel>
-			<avalonedit:TextEditor Background="Transparent"
-								   Name="MustachioEditor"
-			                       FontFamily="Consolas"
-			                       ShowLineNumbers="True">
+			<avalonedit:TextEditor Name="MustachioEditor">
 				<i:Interaction.Behaviors>
 					<common:AvalonEditBehaviour Text="{Binding Template, Delay=1000, UpdateSourceTrigger=PropertyChanged}"
 					                            />

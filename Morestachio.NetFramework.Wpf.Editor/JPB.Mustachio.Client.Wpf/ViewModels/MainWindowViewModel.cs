@@ -21,6 +21,7 @@ namespace JPB.Mustachio.Client.Wpf.ViewModels
 			TemplateResultViewModel = new TemplateResultViewModel(service);
 			TemplateEditorViewModel = new TemplateEditorViewModel(service);
 			DataEditorViewModel = new DataEditorViewModel(service);
+			ParserOptionsViewModel = new ParserOptionsViewModel(service);
 			FormatterEditorViewModel = new FormatterEditorViewModel(service);
 			StoreData = new ThreadSaveObservableCollection<StoreMetaModel>();
 
@@ -148,6 +149,19 @@ namespace JPB.Mustachio.Client.Wpf.ViewModels
 				SendPropertyChanging(() => TemplateEditorViewModel);
 				_templateEditorViewModel = value;
 				SendPropertyChanged(() => TemplateEditorViewModel);
+			}
+		}
+
+		private ParserOptionsViewModel _parserOptionsViewModel;
+
+		public ParserOptionsViewModel ParserOptionsViewModel
+		{
+			get { return _parserOptionsViewModel; }
+			set
+			{
+				SendPropertyChanging(() => ParserOptionsViewModel);
+				_parserOptionsViewModel = value;
+				SendPropertyChanged(() => ParserOptionsViewModel);
 			}
 		}
 

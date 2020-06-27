@@ -5,7 +5,16 @@
                     xmlns:clientDataProvider="clr-namespace:JPB.Mustachio.Client.Wpf.ClientDataProvider"
                     xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
                     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-                    xmlns:common="clr-namespace:JPB.Mustachio.Clinet.Wpf.Common;assembly=JPB.Mustachio.Clinet.Wpf.Common">
+                    xmlns:common="clr-namespace:JPB.Mustachio.Clinet.Wpf.Common;assembly=JPB.Mustachio.Clinet.Wpf.Common"
+                    xmlns:System="clr-namespace:System;assembly=mscorlib"
+                    xmlns:morestachio="clr-namespace:Morestachio;assembly=Morestachio">
+    <ObjectDataProvider x:Key="partialStackOverflowBehaviorValues" MethodName="GetValues"
+                        ObjectType="{x:Type System:Enum}">
+        <ObjectDataProvider.MethodParameters>
+            <x:Type TypeName="morestachio:PartialStackOverflowBehavior"/>
+        </ObjectDataProvider.MethodParameters>
+    </ObjectDataProvider>
+
     <DataTemplate DataType="{x:Type clientDataProvider:JsonDataProvider}">
         <avalonedit:TextEditor Background="Transparent" SyntaxHighlighting="{Binding JsonSyntax}">
             <i:Interaction.Behaviors>
@@ -28,5 +37,58 @@
                 </DockPanel>
             </DockPanel>
         </DockPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type viewModels:ParserOptionsViewModel}">
+        <StackPanel Grid.IsSharedSizeScope="True" Orientation="Vertical">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition SharedSizeGroup="label_group"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Label Content="Null Display" Grid.Column="0"/>
+                <TextBox Text="{Binding NullSubstitute}" Grid.Column="1"/>
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition SharedSizeGroup="label_group"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Label Content="Max Size (0 for unlimted)" Grid.Column="0"/>
+                <TextBox Text="{Binding MaxSize}" Grid.Column="1"/>
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition SharedSizeGroup="label_group"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Label Content="Partial Stack-Overflow Behavior" Grid.Column="0"/>
+                <ComboBox ItemsSource="{Binding Source={StaticResource partialStackOverflowBehaviorValues}}"
+                          SelectedItem="{Binding PartialStackOverflowBehavior}"
+                           Grid.Column="1">
+                </ComboBox>
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition SharedSizeGroup="label_group"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Label Content="Partials Stack Size" Grid.Column="0"/>
+                <TextBox Text="{Binding PartialStackSize}" Grid.Column="1"/>
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition SharedSizeGroup="label_group"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Label Content="Disable Content Escaping" Grid.Column="0"/>
+                <CheckBox IsChecked="{Binding DisableContentEscaping}" Grid.Column="1"/>
+            </Grid>
+        </StackPanel>
     </DataTemplate>
 </ResourceDictionary>

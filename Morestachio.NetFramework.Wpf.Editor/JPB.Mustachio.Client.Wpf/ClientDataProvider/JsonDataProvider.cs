@@ -13,9 +13,11 @@ namespace JPB.Mustachio.Client.Wpf.ClientDataProvider
 	{
 		public JsonDataProvider()
 		{
-			JsonText = @"{ data: { 
-	test: ""ttt""
-	}
+			JsonText = @"
+{ 
+	data: { 
+		test: ""ttt"",
+	},
 }";
 		}
 		private string _jsonText;

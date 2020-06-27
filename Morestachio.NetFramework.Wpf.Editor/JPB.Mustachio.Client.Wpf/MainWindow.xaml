@@ -74,6 +74,9 @@
 					<TabItem Header="Formatter Editor">
 						<ContentControl Content="{Binding FormatterEditorViewModel}" />
 					</TabItem>
+					<TabItem Header="Options">
+						<ContentControl Content="{Binding ParserOptionsViewModel}" />
+					</TabItem>
 				</TabControl>
 			</Grid>
 
