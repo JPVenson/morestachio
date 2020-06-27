@@ -171,7 +171,10 @@ namespace Morestachio
 		[PublicAPI]
 		public async Task<string> CreateAndStringifyAsync([NotNull]object source, CancellationToken token)
 		{
-			return (await CreateAsync(source, token)).Stream.Stringify(true, ParserOptions.Encoding);
+			using (var stream = (await CreateAsync(source, token)).Stream)
+			{
+				return stream.Stringify(true, ParserOptions.Encoding);
+			}
 		}
 
 		/// <summary>
@@ -223,7 +226,10 @@ namespace Morestachio
 		[PublicAPI]
 		public string CreateAndStringify([NotNull]object source, CancellationToken token)
 		{
-			return Create(source, token).Stream.Stringify(true, ParserOptions.Encoding);
+			using (var stream = Create(source, token).Stream)
+			{
+				return stream.Stringify(true, ParserOptions.Encoding);
+			}
 		}
 	}
 }

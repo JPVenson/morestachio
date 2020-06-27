@@ -81,7 +81,7 @@ namespace Morestachio
 		/// <param name="encoding">The encoding.</param>
 		/// <param name="maxSize">The maximum size.</param>
 		/// <param name="disableContentEscaping">if set to <c>true</c> [disable content escaping].</param>
-		/// <param name="withModelInference">if set to <c>true</c> [with model inference].</param>
+		/// <param name="withModelInference">OBSOLETE</param>
 		public ParserOptions([NotNull]string template, 
 			[CanBeNull]Func<Stream> sourceStream,
 			[CanBeNull]Encoding encoding, 
@@ -102,7 +102,7 @@ namespace Morestachio
 		/// <param name="sourceStream">The source stream.</param>
 		/// <param name="encoding">The encoding.</param>
 		/// <param name="disableContentEscaping">if set to <c>true</c> [disable content escaping].</param>
-		/// <param name="withModelInference">if set to <c>true</c> [with model inference].</param>
+		/// <param name="withModelInference">OBSOLETE</param>
 		public ParserOptions([NotNull]string template,
 			[CanBeNull]Func<Stream> sourceStream,
 			[CanBeNull]Encoding encoding,
@@ -206,6 +206,7 @@ namespace Morestachio
 		///     Parse the template, and capture paths used in the template to determine a suitable structure for the required
 		///     model. Default is False
 		/// </summary>
+		[Obsolete("This property does nothing and will be removed in future versions")]
 		public bool WithModelInference { get; }
 
 		/// <summary>
