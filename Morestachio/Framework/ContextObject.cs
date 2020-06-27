@@ -22,6 +22,7 @@ namespace Morestachio.Framework
 		{
 			DefaultFormatter = new MorestachioFormatterService();
 			DefaultFormatter.AddFromType(typeof(DefaultFormatterClassImpl));
+			DefaultFormatter.AddFromType(typeof(Number));
 			DefaultDefinitionOfFalse = (value) => value != null &&
 												  value as bool? != false &&
 												  // ReSharper disable once CompareOfFloatsByEqualityOperator
@@ -417,7 +418,7 @@ namespace Morestachio.Framework
 							{
 								elements.Dequeue();
 								contextObject = new ContextObject(Options, ".", this);
-								contextObject.Value = floatingNumber.Value;
+								contextObject.Value = floatingNumber;
 								contextObject.IsNaturalContext = IsNaturalContext;
 								return await contextObject.GetContextForPath(elements, scopeData);
 							}
@@ -425,7 +426,7 @@ namespace Morestachio.Framework
 						}
 
 						contextObject = new ContextObject(Options, ".", this);
-						contextObject.Value = isNumber.Value;
+						contextObject.Value = isNumber;
 						contextObject.IsNaturalContext = IsNaturalContext;
 						return await contextObject.GetContextForPath(elements, scopeData);
 					}

@@ -10,6 +10,7 @@ using NUnit.Framework;
 namespace Morestachio.Tests
 {
 	[TestFixture]
+	[Parallelizable(ParallelScope.All)]
 	public class ParserCollectionFixture
 	{
 		public class EveryObjectTest
@@ -93,7 +94,7 @@ namespace Morestachio.Tests
 		[Test]
 		public void TestCollectionFormatting()
 		{
-			var options = new ParserOptions("{{#each data.OrderAsc()}}{{.}},{{/each}}", null,
+			var options = new ParserOptions("{{#each data.OrderBy()}}{{.}},{{/each}}", null,
 				ParserFixture.DefaultEncoding);
 			var collection = new[] { 0, 1, 2, 3, 5, 4, 6, 7 };
 			options.Formatters.AddFromType(typeof(DynamicLinq));
@@ -111,7 +112,7 @@ namespace Morestachio.Tests
 		[Test]
 		public void TestCollectionFormattingScope()
 		{
-			var options = new ParserOptions("{{#each data.OrderAsc()}}{{.}},{{/each}}|{{#each data}}{{.}},{{/each}}", null,
+			var options = new ParserOptions("{{#each data.OrderBy()}}{{.}},{{/each}}|{{#each data}}{{.}},{{/each}}", null,
 				ParserFixture.DefaultEncoding);
 			var collection = new[] { 0, 1, 2, 3, 5, 4, 6, 7 };
 			options.Formatters.AddFromType(typeof(DynamicLinq));

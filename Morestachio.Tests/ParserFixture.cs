@@ -23,6 +23,7 @@ using NUnit.Framework;
 namespace Morestachio.Tests
 {
 	[TestFixture]
+	[Parallelizable(ParallelScope.All)]
 	public class ParserFixture
 	{
 		public static Encoding DefaultEncoding { get; set; } = new UnicodeEncoding(true, false, false);
@@ -1148,7 +1149,7 @@ namespace Morestachio.Tests
 			var template = "{{#VAR condition = true}}" +
 			               "{{#WHILE condition}}" +
 			               "{{$index}}," +
-			               "{{#IF $index.fnc_Equals(5)}}{{#VAR condition = false}}{{/IF}}" +
+			               "{{#IF $index.Equals(5)}}{{#VAR condition = false}}{{/IF}}" +
 			               "{{/WHILE}}";
 
 			var parsingOptions = new ParserOptions(template, null, DefaultEncoding)
@@ -1168,7 +1169,7 @@ namespace Morestachio.Tests
 			var template = "{{#VAR condition = true}}" +
 			               "{{#DO condition}}" +
 			               "{{$index}}," +
-			               "{{#IF $index.fnc_Equals(5)}}{{#VAR condition = false}}{{/IF}}" +
+			               "{{#IF $index.Equals(5)}}{{#VAR condition = false}}{{/IF}}" +
 			               "{{/DO}}";
 
 			var parsingOptions = new ParserOptions(template, null, DefaultEncoding)

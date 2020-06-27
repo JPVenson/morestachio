@@ -1,6 +1,7 @@
 ﻿using System;
 using Morestachio.Attributes;
 using Morestachio.Formatter.Framework;
+using Morestachio.Helper;
 
 namespace Morestachio.Formatter.Predefined
 {
@@ -15,7 +16,7 @@ namespace Morestachio.Formatter.Predefined
 		/// <param name="source"></param>
 		/// <param name="target"></param>
 		/// <returns></returns>
-		[MorestachioFormatter("fnc_Equals", "Checks if two objects are equal")]
+		[MorestachioFormatter("Equals", "Checks if two objects are equal")]
 		public static bool IsEquals([SourceObject]object source, object target)
 		{
 			if ((source == null && target == null))
@@ -26,6 +27,22 @@ namespace Morestachio.Formatter.Predefined
 			{
 				return false;
 			}
+
+			//if (source is Number srcNumb)
+			//{
+			//	if (target is Number tarNumb)
+			//	{
+			//		return srcNumb.Value == tarNumb.Value;
+			//	}
+
+			//	return IsEquals(srcNumb.Value, target);
+			//}
+
+			//if (target is Number tarNumbA)
+			//{
+			//	return IsEquals(source, tarNumbA.Value);
+			//}
+			
 
 			if (source is IConvertible conv)
 			{
@@ -50,7 +67,7 @@ namespace Morestachio.Formatter.Predefined
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		[MorestachioFormatter("fnc_Negate", "Negates a Boolean value")]
+		[MorestachioFormatter("Negate", "Negates a Boolean value")]
 		public static bool Negate([SourceObject]bool value)
 		{
 			return !value;
@@ -62,7 +79,7 @@ namespace Morestachio.Formatter.Predefined
 		/// <param name="source"></param>
 		/// <param name="target"></param>
 		/// <returns></returns>
-		[MorestachioFormatter("fnc_ReferenceEquals", "Checks if two objects are the same")]
+		[MorestachioFormatter("ReferenceEquals", "Checks if two objects are the same")]
 		public static bool IsReferenceEquals([SourceObject]object source, object target)
 		{
 			return ReferenceEquals(source, target);

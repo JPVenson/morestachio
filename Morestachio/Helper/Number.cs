@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Globalization;
+using Morestachio.Formatter.Framework;
 
 namespace Morestachio.Helper
 {
 	/// <summary>
 	///		Encapsulates a late bound number
 	/// </summary>
-	public struct Number : IConvertible, IFormattable
+	public readonly struct Number : IConvertible, IFormattable
 	{
 		/// <summary>
 		///		Contains the numeric value
@@ -112,10 +113,339 @@ namespace Morestachio.Helper
 			Value = fullNumber;
 		}
 
+		private static bool IsIntegral(Number number)
+		{
+			return !(number.Value is decimal) && !(number.Value is double) && !(number.Value is float);
+		}
+
+		private static Type GetOperationTargetType(Number numberLeft, Number numberRight)
+		{
+			if (!IsIntegral(numberLeft) || !IsIntegral(numberRight))
+			{
+				var floatingNumbers = new Type[]
+				{
+					typeof(decimal), typeof(double)
+				};
+				foreach (var floatingNumber in floatingNumbers)
+				{
+					if (numberLeft.Value.GetType() == floatingNumber || numberRight.Value.GetType() == floatingNumber)
+					{
+						return floatingNumber;
+					}
+				}
+				return typeof(float);
+			}
+			var integrals = new Type[]
+			{
+				typeof(ulong), 
+				typeof(long),
+
+				typeof(uint),
+				typeof(int),
+
+				typeof(ushort),
+				typeof(short),
+
+				typeof(byte),
+			};
+			foreach (var integral in integrals)
+			{
+				if (numberLeft.Value.GetType() == integral || numberRight.Value.GetType() == integral)
+				{
+					return integral;
+				}
+			}
+			return typeof(sbyte);
+		}
+
+		#region MorestachioFormatter
+		
+		[MorestachioFormatter("Add", "Adds two numbers")]
+		public static Number Add(Number left, Number right)
+		{
+			return left.Add(right);
+		}
+		
+		[MorestachioFormatter("Subtract", "Subtracts two numbers")]
+		public static Number Subtract(Number left, Number right)
+		{
+			return left.Subtract(right);
+		}
+		
+		[MorestachioFormatter("Multiply", "Multiplies two numbers")]
+		public static Number Multiply(Number left, Number right)
+		{
+			return left.Multiply(right);
+		}
+		
+		[MorestachioFormatter("Divide", "Divides two numbers")]
+		public static Number Divide(Number left, Number right)
+		{
+			return left.Divide(right);
+		}
+		
+		[MorestachioFormatter("Modulo", "Modulo two numbers")]
+		public static Number Modulo(Number left, Number right)
+		{
+			return left.Divide(right);
+		}
+
+		#endregion
+
+		public Number Add(Number other)
+		{
+			var targetType = GetOperationTargetType(this, other);
+			if (targetType == typeof(decimal))
+			{
+				return new Number(ToDecimal(null) + other.ToDecimal(null));
+			}
+			if (targetType == typeof(double))
+			{
+				return new Number(ToDouble(null) + other.ToDouble(null));
+			}
+			if (targetType == typeof(float))
+			{
+				return new Number(ToSingle(null) + other.ToSingle(null));
+			}
+			if (targetType == typeof(ulong))
+			{
+				return new Number(ToUInt64(null) + other.ToUInt64(null));
+			}
+			if (targetType == typeof(long))
+			{
+				return new Number(ToInt64(null) + other.ToInt64(null));
+			}
+			if (targetType == typeof(uint))
+			{
+				return new Number(ToUInt32(null) + other.ToUInt32(null));
+			}
+			if (targetType == typeof(int))
+			{
+				return new Number(ToInt32(null) + other.ToInt32(null));
+			}
+			if (targetType == typeof(ushort))
+			{
+				return new Number(ToUInt16(null) + other.ToUInt16(null));
+			}
+			if (targetType == typeof(ushort))
+			{
+				return new Number(ToInt16(null) + other.ToInt16(null));
+			}
+			if (targetType == typeof(ushort))
+			{
+				return new Number(ToByte(null) + other.ToByte(null));
+			}
+			if (targetType == typeof(sbyte))
+			{
+				return new Number(ToSByte(null) + other.ToSByte(null));
+			}
+			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
+		}
+		
+		public Number Subtract(Number other)
+		{
+			var targetType = GetOperationTargetType(this, other);
+			if (targetType == typeof(decimal))
+			{
+				return new Number(ToDecimal(null) - other.ToDecimal(null));
+			}
+			if (targetType == typeof(double))
+			{
+				return new Number(ToDouble(null) - other.ToDouble(null));
+			}
+			if (targetType == typeof(float))
+			{
+				return new Number(ToSingle(null) - other.ToSingle(null));
+			}
+			if (targetType == typeof(ulong))
+			{
+				return new Number(ToUInt64(null) - other.ToUInt64(null));
+			}
+			if (targetType == typeof(long))
+			{
+				return new Number(ToInt64(null) - other.ToInt64(null));
+			}
+			if (targetType == typeof(uint))
+			{
+				return new Number(ToUInt32(null) - other.ToUInt32(null));
+			}
+			if (targetType == typeof(int))
+			{
+				return new Number(ToInt32(null) - other.ToInt32(null));
+			}
+			if (targetType == typeof(ushort))
+			{
+				return new Number(ToUInt16(null) - other.ToUInt16(null));
+			}
+			if (targetType == typeof(ushort))
+			{
+				return new Number(ToInt16(null) - other.ToInt16(null));
+			}
+			if (targetType == typeof(ushort))
+			{
+				return new Number(ToByte(null) - other.ToByte(null));
+			}
+			if (targetType == typeof(sbyte))
+			{
+				return new Number(ToSByte(null) - other.ToSByte(null));
+			}
+			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
+		}
+		
+		public Number Multiply(Number other)
+		{
+			var targetType = GetOperationTargetType(this, other);
+			if (targetType == typeof(decimal))
+			{
+				return new Number(ToDecimal(null) * other.ToDecimal(null));
+			}
+			if (targetType == typeof(double))
+			{
+				return new Number(ToDouble(null) * other.ToDouble(null));
+			}
+			if (targetType == typeof(float))
+			{
+				return new Number(ToSingle(null) * other.ToSingle(null));
+			}
+			if (targetType == typeof(ulong))
+			{
+				return new Number(ToUInt64(null) * other.ToUInt64(null));
+			}
+			if (targetType == typeof(long))
+			{
+				return new Number(ToInt64(null) * other.ToInt64(null));
+			}
+			if (targetType == typeof(uint))
+			{
+				return new Number(ToUInt32(null) * other.ToUInt32(null));
+			}
+			if (targetType == typeof(int))
+			{
+				return new Number(ToInt32(null) * other.ToInt32(null));
+			}
+			if (targetType == typeof(ushort))
+			{
+				return new Number(ToUInt16(null) * other.ToUInt16(null));
+			}
+			if (targetType == typeof(ushort))
+			{
+				return new Number(ToInt16(null) * other.ToInt16(null));
+			}
+			if (targetType == typeof(ushort))
+			{
+				return new Number(ToByte(null) * other.ToByte(null));
+			}
+			if (targetType == typeof(sbyte))
+			{
+				return new Number(ToSByte(null) * other.ToSByte(null));
+			}
+			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
+		}
+		
+		public Number Divide(Number other)
+		{
+			var targetType = GetOperationTargetType(this, other);
+			if (targetType == typeof(decimal))
+			{
+				return new Number(ToDecimal(null) / other.ToDecimal(null));
+			}
+			if (targetType == typeof(double))
+			{
+				return new Number(ToDouble(null) / other.ToDouble(null));
+			}
+			if (targetType == typeof(float))
+			{
+				return new Number(ToSingle(null) / other.ToSingle(null));
+			}
+			if (targetType == typeof(ulong))
+			{
+				return new Number(ToUInt64(null) / other.ToUInt64(null));
+			}
+			if (targetType == typeof(long))
+			{
+				return new Number(ToInt64(null) / other.ToInt64(null));
+			}
+			if (targetType == typeof(uint))
+			{
+				return new Number(ToUInt32(null) / other.ToUInt32(null));
+			}
+			if (targetType == typeof(int))
+			{
+				return new Number(ToInt32(null) / other.ToInt32(null));
+			}
+			if (targetType == typeof(ushort))
+			{
+				return new Number(ToUInt16(null) / other.ToUInt16(null));
+			}
+			if (targetType == typeof(ushort))
+			{
+				return new Number(ToInt16(null) / other.ToInt16(null));
+			}
+			if (targetType == typeof(ushort))
+			{
+				return new Number(ToByte(null) / other.ToByte(null));
+			}
+			if (targetType == typeof(sbyte))
+			{
+				return new Number(ToSByte(null) / other.ToSByte(null));
+			}
+			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
+		}
+		
+		public Number Modulo(Number other)
+		{
+			var targetType = GetOperationTargetType(this, other);
+			if (targetType == typeof(decimal))
+			{
+				return new Number(ToDecimal(null) % other.ToDecimal(null));
+			}
+			if (targetType == typeof(double))
+			{
+				return new Number(ToDouble(null) % other.ToDouble(null));
+			}
+			if (targetType == typeof(float))
+			{
+				return new Number(ToSingle(null) % other.ToSingle(null));
+			}
+			if (targetType == typeof(ulong))
+			{
+				return new Number(ToUInt64(null) % other.ToUInt64(null));
+			}
+			if (targetType == typeof(long))
+			{
+				return new Number(ToInt64(null) % other.ToInt64(null));
+			}
+			if (targetType == typeof(uint))
+			{
+				return new Number(ToUInt32(null) % other.ToUInt32(null));
+			}
+			if (targetType == typeof(int))
+			{
+				return new Number(ToInt32(null) % other.ToInt32(null));
+			}
+			if (targetType == typeof(ushort))
+			{
+				return new Number(ToUInt16(null) % other.ToUInt16(null));
+			}
+			if (targetType == typeof(ushort))
+			{
+				return new Number(ToInt16(null) % other.ToInt16(null));
+			}
+			if (targetType == typeof(ushort))
+			{
+				return new Number(ToByte(null) % other.ToByte(null));
+			}
+			if (targetType == typeof(sbyte))
+			{
+				return new Number(ToSByte(null) % other.ToSByte(null));
+			}
+			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
+		}
+
 		/// <summary>
 		///		Tries to parse the input to any number, following roughly the rules of msbuild.
 		///		Like:
-		///		Has Suffix? (u,l,f,d)
+		///		Has Suffix? (u,m,l,f,d)
 		///		Has Prefix? (0x)
 		///		Is int?
 		///		Is long?
@@ -131,7 +461,7 @@ namespace Morestachio.Helper
 		{
 			//according to MSDN folloring literals are allowed
 
-			if (input.EndsWith("U", StringComparison.CurrentCultureIgnoreCase))
+			if (input.EndsWith("u", StringComparison.CurrentCultureIgnoreCase))
 			{
 				input = input.TrimEnd('u', 'U');
 				//its an unsigned number
@@ -154,6 +484,21 @@ namespace Morestachio.Helper
 				if (byte.TryParse(input, out var byteVal))
 				{
 					number = new Number(byteVal);
+					return true;
+				}
+
+				number = default;
+				return false;
+			}
+
+			if (input.EndsWith("m", StringComparison.CurrentCultureIgnoreCase))
+			{
+				input = input.TrimEnd('m', 'M');
+				//its an unsigned number
+				//evaluate of which type it is
+				if (decimal.TryParse(input, out var uIntVal))
+				{
+					number = new Number(uIntVal);
 					return true;
 				}
 
@@ -229,7 +574,7 @@ namespace Morestachio.Helper
 				number = default;
 				return false;
 			}
-			
+
 			//we start with parsing an int as its the default for any number in msbuild
 			if (int.TryParse(input, out var intVal))
 			{
@@ -252,7 +597,7 @@ namespace Morestachio.Helper
 			//	number = new Number(impliULongVal);
 			//	return true;
 			//}
-			
+
 			if (double.TryParse(input, out var impliDoubleVal))
 			{
 				number = new Number(impliDoubleVal);

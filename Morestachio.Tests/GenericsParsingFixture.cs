@@ -10,6 +10,7 @@ using NUnit.Framework.Internal;
 namespace Morestachio.Tests
 {
 	[TestFixture()]
+	[Parallelizable(ParallelScope.All)]
 	public class GenericsParsingFixture
 	{
 		public GenericsParsingFixture()

@@ -101,6 +101,12 @@ namespace Morestachio.Linq
 			return sourceCollection.AsQueryable().OrderBy(predicate, arguments);
 		}
 
+		[MorestachioFormatter("OrderBy", "Orders the list descending")]
+		public static IEnumerable<T> OrderBy<T>(IEnumerable<T> sourceCollection)
+		{
+			return sourceCollection.OrderBy(f => f);
+		}
+
 		[MorestachioFormatter("ThenBy", "Orders an list previusly ordered with 'OrderBy'")]
 		public static IEnumerable<T> ThenBy<T>(IOrderedQueryable<T> sourceCollection,
 			string predicate,
@@ -189,7 +195,7 @@ namespace Morestachio.Linq
 			string predicate,
 			[RestParameter] params object[] arguments)
 		{
-			return sourceCollection.AsQueryable().First(predicate, arguments);
+			return sourceCollection.AsQueryable().Where(predicate, arguments).First();
 		}
 
 
@@ -204,7 +210,7 @@ namespace Morestachio.Linq
 			string predicate,
 			[RestParameter] params object[] arguments)
 		{
-			return sourceCollection.AsQueryable().FirstOrDefault(predicate, arguments);
+			return sourceCollection.AsQueryable().Where(predicate, arguments).FirstOrDefault();
 		}
 
 		[MorestachioFormatter("Last", "Selects the Last item in the list")]
@@ -218,7 +224,7 @@ namespace Morestachio.Linq
 			string predicate,
 			[RestParameter] params object[] arguments)
 		{
-			return sourceCollection.AsQueryable().Last(predicate, arguments);
+			return sourceCollection.AsQueryable().Where(predicate, arguments).Last();
 		}
 
 
@@ -233,7 +239,7 @@ namespace Morestachio.Linq
 			string predicate,
 			[RestParameter] params object[] arguments)
 		{
-			return sourceCollection.AsQueryable().LastOrDefault(predicate, arguments);
+			return sourceCollection.AsQueryable().Where(predicate, arguments).LastOrDefault();
 		}
 
 		[MorestachioFormatter("Single", "Selects the only item in the list")]
@@ -247,7 +253,7 @@ namespace Morestachio.Linq
 			string predicate,
 			[RestParameter] params object[] arguments)
 		{
-			return sourceCollection.AsQueryable().Single(predicate, arguments);
+			return sourceCollection.AsQueryable().Where(predicate, arguments).Single();
 		}
 
 		[MorestachioFormatter("SingleOrDefault", "Gets the only item in the list that matches the predicate")]
@@ -261,7 +267,7 @@ namespace Morestachio.Linq
 			string predicate,
 			[RestParameter] params object[] arguments)
 		{
-			return sourceCollection.AsQueryable().SingleOrDefault(predicate, arguments);
+			return sourceCollection.AsQueryable().Where(predicate, arguments).SingleOrDefault();
 		}
 
 		[MorestachioFormatter("ElementAt", "Gets the item in the list on the position")]

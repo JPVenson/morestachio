@@ -36,7 +36,7 @@ namespace Morestachio.Formatter.Predefined
 {
 	public static partial class NumberFormatter
 	{
-	 <# /*
+	 <# 
 	  foreach (var type in wholeNumbers) 
 	 { 
 		foreach (var otherType in wholeNumbers) 
@@ -94,7 +94,7 @@ namespace Morestachio.Formatter.Predefined
 			WriteLine(GetBoolFunction("BiggerOrEqualAs", ">=", ">=", type, otherType, "Returns if ether the value is bigger or equal as the other"));
 			WriteLine(GetBoolFunction("SmallerOrEqualAs", "<=", "<=", type, otherType, "Returns if ether the value is smaller or equal as the other"));
 		}
-	} */
+	} 
 	#> 
 	}
 }
@@ -114,9 +114,9 @@ public string GetSelfFunction(string name, string op, string operation, Type lef
 public string GetFunction(string name, string op, string operation, Type result, Type left, Type right, string text)
 {
 	var opText = $@"
-		[MorestachioFormatter(""fnc{name}"", ""{text}"")]
+		[MorestachioFormatter(""{name}"", ""{text}"")]
 		public static {result.Name} {name}([SourceObject]{left.Name} left, {right.Name} right) {{
-			return val1 {operation} val2;
+			return left {operation} right;
 		}}";
 	return opText;
 }

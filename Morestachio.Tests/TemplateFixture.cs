@@ -9,6 +9,7 @@ using NUnit.Framework;
 
 namespace Morestachio.Tests
 {
+	[Parallelizable(ParallelScope.All)]
 	public class TemplateFixture
 	{
 		[Test]

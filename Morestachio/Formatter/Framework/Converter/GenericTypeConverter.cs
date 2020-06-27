@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 
 namespace Morestachio.Formatter.Framework.Converter
 {
@@ -8,6 +9,8 @@ namespace Morestachio.Formatter.Framework.Converter
 	/// </summary>
 	public class GenericTypeConverter : IFormatterValueConverter
 	{
+		public static readonly IFormatterValueConverter Instance = new GenericTypeConverter();
+
 		/// <inheritdoc />
 		public bool CanConvert(object value, Type requestedType)
 		{

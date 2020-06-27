@@ -29,8 +29,11 @@ namespace Morestachio.Formatter.Framework
 		public MorestachioFormatterService()
 		{
 			Formatters = new List<MorestachioFormatterModel>();
-			ValueConverter = new List<IFormatterValueConverter>();
-			DefaultConverter = new GenericTypeConverter();
+			ValueConverter = new List<IFormatterValueConverter>()
+			{
+				NumberToCsNumberConverter.Instance
+			};
+			DefaultConverter = GenericTypeConverter.Instance;
 		}
 
 		/// <summary>
@@ -155,7 +158,7 @@ namespace Morestachio.Formatter.Framework
 			});
 
 			var filteredSourceList = new List<KeyValuePair<MorestachioFormatterModel, ulong>>();
-			foreach (MorestachioFormatterModel formatTemplateElement in Formatters)
+			foreach (var formatTemplateElement in Formatters)
 			{
 				if (!string.Equals(formatTemplateElement.Name, name, FormatterNameCompareMode))
 				{
@@ -588,7 +591,8 @@ namespace Morestachio.Formatter.Framework
 				return true;
 			}
 
-			if (!parameter.ParameterType.GetTypeInfo().IsAssignableFrom(givenValue?.GetType()))
+			//The check for Number is a bit hacky.
+			if (!parameter.ParameterType.GetTypeInfo().IsAssignableFrom(givenValue?.GetType()) || givenValue is Number)
 			{
 				var o = givenValue;
 				var typeConverter =

@@ -9,6 +9,7 @@ using NUnit.Framework;
 namespace Morestachio.Tests
 {
 	[TestFixture]
+	[Parallelizable(ParallelScope.All)]
 	public class NumberTests
 	{
 		[Test]
@@ -53,10 +54,86 @@ namespace Morestachio.Tests
 		
 		//hexdecimal test
 		[TestCase("0x123", 0x123)]
+		[TestCase("0xA", 0xA)]
 		public void CanParseNumber(string text, object expected)
 		{
 			Assert.That(Number.TryParse(text, out var number), Is.True);
 			Assert.That(number.Value, Is.EqualTo(expected).And.TypeOf(expected.GetType()));
+		}
+
+		[Test]
+		[TestCase("10", "10", 10 + 10)]
+		[TestCase("10D", "10", 10D + 10)]
+		[TestCase("10F", "10", 10F + 10)]
+		[TestCase("10U", "10", 10U + 10)]
+		[TestCase("10.1", "10", 10.1 + 10)]
+		[TestCase("0xA", "10", 0xA + 10)]
+		[TestCase("0xA", "10D", 0xA + 10D)]
+		public void CanAddNumbers(string left, string right, object expected)
+		{
+			Assert.That(Number.TryParse(left, out var numberLeft), Is.True);
+			Assert.That(Number.TryParse(right, out var numberRight), Is.True);
+			Assert.That(numberLeft.Add(numberRight).Value, Is.EqualTo(expected).And.TypeOf(expected.GetType()));
+		}
+
+		[Test]
+		[TestCase("30", "10", 30 - 10)]
+		[TestCase("30D", "10", 30D - 10)]
+		[TestCase("30F", "10", 30F - 10)]
+		[TestCase("30U", "10", 30U - 10)]
+		[TestCase("30.1", "10", 30.1 - 10)]
+		[TestCase("0x1E", "10", 0x1E - 10)]
+		[TestCase("0x1E", "10D", 0x1E - 10D)]
+		public void CanSubtractNumbers(string left, string right, object expected)
+		{
+			Assert.That(Number.TryParse(left, out var numberLeft), Is.True);
+			Assert.That(Number.TryParse(right, out var numberRight), Is.True);
+			Assert.That(numberLeft.Subtract(numberRight).Value, Is.EqualTo(expected).And.TypeOf(expected.GetType()));
+		}
+
+		[Test]
+		[TestCase("5", "4", 5 * 4)]
+		[TestCase("5D", "4", 5D * 4)]
+		[TestCase("5F", "4", 5F * 4)]
+		[TestCase("5U", "4", 5U * 4)]
+		[TestCase("5.1", "4", 5.1 * 4)]
+		[TestCase("0x5", "4", 0x5 * 4)]
+		[TestCase("0x5", "4D", 0x5 * 4D)]
+		public void CanMultiplyNumbers(string left, string right, object expected)
+		{
+			Assert.That(Number.TryParse(left, out var numberLeft), Is.True);
+			Assert.That(Number.TryParse(right, out var numberRight), Is.True);
+			Assert.That(numberLeft.Multiply(numberRight).Value, Is.EqualTo(expected).And.TypeOf(expected.GetType()));
+		}
+
+		[Test]
+		[TestCase("30", "5", 30 / 5)]
+		[TestCase("30D", "5", 30D / 5)]
+		[TestCase("30F", "5", 30F / 5)]
+		[TestCase("30U", "5", 30U / 5)]
+		[TestCase("30.5", "5", 30.5 / 5)]
+		[TestCase("0x1E", "5", 0x1E / 5)]
+		[TestCase("0x1E", "5D", 0x1E / 5D)]
+		public void CanDivideNumbers(string left, string right, object expected)
+		{
+			Assert.That(Number.TryParse(left, out var numberLeft), Is.True);
+			Assert.That(Number.TryParse(right, out var numberRight), Is.True);
+			Assert.That(numberLeft.Divide(numberRight).Value, Is.EqualTo(expected).And.TypeOf(expected.GetType()));
+		}
+
+		[Test]
+		[TestCase("30", "5", 30 % 5)]
+		[TestCase("30D", "5", 30D % 5)]
+		[TestCase("30F", "5", 30F % 5)]
+		[TestCase("30U", "5", 30U % 5)]
+		[TestCase("30.5", "5", 30.5 % 5)]
+		[TestCase("0x1E", "5", 0x1E % 5)]
+		[TestCase("0x1E", "5D", 0x1E % 5D)]
+		public void CanModuloNumbers(string left, string right, object expected)
+		{
+			Assert.That(Number.TryParse(left, out var numberLeft), Is.True);
+			Assert.That(Number.TryParse(right, out var numberRight), Is.True);
+			Assert.That(numberLeft.Modulo(numberRight).Value, Is.EqualTo(expected).And.TypeOf(expected.GetType()));
 		}
 	}
 }
