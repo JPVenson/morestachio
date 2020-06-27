@@ -15,6 +15,22 @@ using Morestachio.Framework;
 
 namespace Morestachio
 {
+
+	/// <summary>
+	///		Defines how the Parser should behave when encountering a the PartialStackSize to be exceeded
+	/// </summary>
+	public enum PartialStackOverflowBehavior
+	{
+		/// <summary>
+		///		Throw a <see cref="MustachioStackOverflowException"/>
+		/// </summary>
+		FailWithException,
+		/// <summary>
+		///		Do nothing and skip further calls
+		/// </summary>
+		FailSilent
+	}
+
 	/// <summary>
 	///     Options for Parsing run
 	/// </summary>
@@ -44,7 +60,7 @@ namespace Morestachio
 		/// </summary>
 		/// <param name="template"></param>
 		/// <param name="sourceStream">The factory that is used for each template generation</param>
-		public ParserOptions([NotNull]string template, 
+		public ParserOptions([NotNull]string template,
 			[CanBeNull]Func<Stream> sourceStream)
 			: this(template, sourceStream, null)
 		{
@@ -82,11 +98,11 @@ namespace Morestachio
 		/// <param name="maxSize">The maximum size.</param>
 		/// <param name="disableContentEscaping">if set to <c>true</c> [disable content escaping].</param>
 		/// <param name="withModelInference">OBSOLETE</param>
-		public ParserOptions([NotNull]string template, 
+		public ParserOptions([NotNull]string template,
 			[CanBeNull]Func<Stream> sourceStream,
-			[CanBeNull]Encoding encoding, 
+			[CanBeNull]Encoding encoding,
 			long maxSize,
-			bool disableContentEscaping = false, 
+			bool disableContentEscaping = false,
 			bool withModelInference = false)
 			: this(template, sourceStream, encoding)
 		{
@@ -114,14 +130,14 @@ namespace Morestachio
 		/// <summary>
 		///		The list of provider that emits custom document items
 		/// </summary>
-		public IList<CustomDocumentItemProvider> CustomDocumentItemProviders { get; }
+		public IList<CustomDocumentItemProvider> CustomDocumentItemProviders { get; private set; }
 
 		/// <summary>
 		///		Enables the Legacy resolver for Formatters names that formatters should contain the name of the formatter as the first argument.
 		/// </summary>
 		[Obsolete("Enables Legacy behavior for the resolving of formatters. This behavior will be removed completely in later versions", true)]
 		public bool LegacyFormatterResolving { get; set; }
-		
+
 		/// <summary>
 		///		If set to True morestachio will profile the execution and report the result in both <seealso cref="MorestachioDocumentInfo"/> and <seealso cref=""/>
 		/// </summary>
@@ -167,21 +183,6 @@ namespace Morestachio
 		public PartialStackOverflowBehavior StackOverflowBehavior { get; set; }
 
 		/// <summary>
-		///		Defines how the Parser should behave when encountering a the PartialStackSize to be exceeded
-		/// </summary>
-		public enum PartialStackOverflowBehavior
-		{
-			/// <summary>
-			///		Throw a <see cref="MustachioStackOverflowException"/>
-			/// </summary>
-			FailWithException,
-			/// <summary>
-			///		Do nothing and skip further calls
-			/// </summary>
-			FailSilent
-		}
-
-		/// <summary>
 		///		Gets or sets the timeout. After the timeout is reached and the Template has not finished Processing and Exception is thrown.
 		///		For no timeout use <code>TimeSpan.Zero</code>
 		/// </summary>
@@ -194,13 +195,13 @@ namespace Morestachio
 		///     The template content to parse.
 		/// </summary>
 		[NotNull]
-		public string Template { get; }
+		public string Template { get; private set; }
 
 		/// <summary>
 		///     In some cases, content should not be escaped (such as when rendering text bodies and subjects in emails).
 		///     By default, we use no content escaping, but this parameter allows it to be enabled. Default is False
 		/// </summary>
-		public bool DisableContentEscaping { get; }
+		public bool DisableContentEscaping { get; private set; }
 
 		/// <summary>
 		///     Parse the template, and capture paths used in the template to determine a suitable structure for the required
@@ -213,21 +214,21 @@ namespace Morestachio
 		///     Defines a Max size for the Generated Template.
 		///     Zero for unlimited
 		/// </summary>
-		public long MaxSize { get; }
+		public long MaxSize { get; private set; }
 
 		/// <summary>
 		///     SourceFactory can be used to create a new stream for each template. Default is
 		///     <code>() => new MemoryStream()</code>
 		/// </summary>
 		[NotNull]
-		public Func<Stream> SourceFactory { get; }
+		public Func<Stream> SourceFactory { get; private set; }
 
 		/// <summary>
 		///     In what encoding should the text be written
 		///     Default is <code>Encoding.Utf8</code>
 		/// </summary>
 		[NotNull]
-		public Encoding Encoding { get; }
+		public Encoding Encoding { get; private set; }
 
 		/// <summary>
 		///     Defines how NULL values are exposed to the Template default is <code>String.Empty</code>
@@ -243,6 +244,28 @@ namespace Morestachio
 				StackOverflowBehavior = StackOverflowBehavior,
 				Formatters = Formatters,
 				Timeout = Timeout
+			};
+		}
+
+		public ParserOptions CopyWithTemplate(string template)
+		{
+			return new ParserOptions(template)
+			{
+				Null = Null,
+				StackOverflowBehavior = StackOverflowBehavior,
+				Formatters = Formatters,
+				Timeout = Timeout,
+				CustomDocumentItemProviders = CustomDocumentItemProviders,
+				MaxSize = MaxSize,
+				DisableContentEscaping = DisableContentEscaping,
+				Encoding = Encoding,
+				PartialStackSize = PartialStackSize,
+				PartialsStore = PartialsStore,
+				ProfileExecution = ProfileExecution,
+				Template = template,
+				ValueResolver = ValueResolver,
+				UnresolvedPath = UnresolvedPath,
+				SourceFactory = SourceFactory
 			};
 		}
 

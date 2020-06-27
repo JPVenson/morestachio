@@ -51,7 +51,7 @@ namespace Morestachio.Document
 			{
 				switch (context.Options.StackOverflowBehavior)
 				{
-					case ParserOptions.PartialStackOverflowBehavior.FailWithException:
+					case PartialStackOverflowBehavior.FailWithException:
 						throw new MustachioStackOverflowException(
 							$"You have exceeded the maximum stack Size for nested Partial calls of '{context.Options.PartialStackSize}'. See Data for call stack")
 						{
@@ -60,7 +60,7 @@ namespace Morestachio.Document
 								{"Callstack", scopeData.PartialDepth}
 							}
 						};
-					case ParserOptions.PartialStackOverflowBehavior.FailSilent:
+					case PartialStackOverflowBehavior.FailSilent:
 
 						break;
 					default:
