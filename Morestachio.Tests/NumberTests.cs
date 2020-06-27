@@ -135,5 +135,25 @@ namespace Morestachio.Tests
 			Assert.That(Number.TryParse(right, out var numberRight), Is.True);
 			Assert.That(numberLeft.Modulo(numberRight).Value, Is.EqualTo(expected).And.TypeOf(expected.GetType()));
 		}
+		
+		[Test]
+		[TestCase(5L, "5", "Add", "10")]
+		[TestCase(5UL, "5", "Add", "10")]
+		[TestCase(5, "5", "Add", "10")]
+		[TestCase(5U, "5", "Add", "10")]
+		[TestCase(0x5, "5", "Add", "10")]
+		[TestCase(5F, "5", "Add", "10")]
+		[TestCase(5D, "5", "Add", "10")]
+		public async Task CanUseNumberFunctionsOnData(object realData, string templateData, string operation, string expected)
+		{
+			var template = $"{{{{data.{operation}({templateData})}}}}";
+			var data = new
+			{
+				data = realData
+			};
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			var result = await Parser.ParseWithOptions(parsingOptions).CreateAndStringifyAsync(data);
+			Assert.That(result, Is.EqualTo(expected));
+		}
 	}
 }

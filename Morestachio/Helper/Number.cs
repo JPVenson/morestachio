@@ -14,6 +14,11 @@ namespace Morestachio.Helper
 		/// </summary>
 		public IConvertible Value { get; }
 
+		internal Number(IConvertible fullNumber)
+		{
+			Value = fullNumber;
+		}
+
 		/// <summary>
 		///		Creates an new Integral number
 		/// </summary>
@@ -118,44 +123,49 @@ namespace Morestachio.Helper
 			return !(number.Value is decimal) && !(number.Value is double) && !(number.Value is float);
 		}
 
+		public static readonly Type[] CsFrameworkIntegralTypes = new[]
+		{
+			typeof(ulong),
+			typeof(long),
+
+			typeof(uint),
+			typeof(int),
+
+			typeof(ushort),
+			typeof(short),
+
+			typeof(byte),
+			typeof(sbyte)
+		};
+
+		public static readonly Type[] CsFrameworkFlowtingPointNumberTypes = new[]
+		{
+			typeof(decimal),
+			typeof(double),
+			typeof(float)
+		};
+
 		private static Type GetOperationTargetType(Number numberLeft, Number numberRight)
 		{
 			if (!IsIntegral(numberLeft) || !IsIntegral(numberRight))
 			{
-				var floatingNumbers = new Type[]
-				{
-					typeof(decimal), typeof(double)
-				};
-				foreach (var floatingNumber in floatingNumbers)
+				foreach (var floatingNumber in CsFrameworkFlowtingPointNumberTypes)
 				{
 					if (numberLeft.Value.GetType() == floatingNumber || numberRight.Value.GetType() == floatingNumber)
 					{
 						return floatingNumber;
 					}
 				}
-				return typeof(float);
+				throw new InvalidOperationException("Cannot determinate the numbers type");
 			}
-			var integrals = new Type[]
-			{
-				typeof(ulong), 
-				typeof(long),
-
-				typeof(uint),
-				typeof(int),
-
-				typeof(ushort),
-				typeof(short),
-
-				typeof(byte),
-			};
-			foreach (var integral in integrals)
+			foreach (var integral in CsFrameworkIntegralTypes)
 			{
 				if (numberLeft.Value.GetType() == integral || numberRight.Value.GetType() == integral)
 				{
 					return integral;
 				}
 			}
-			return typeof(sbyte);
+			throw new InvalidOperationException("Cannot determinate the numbers type");
 		}
 
 		#region MorestachioFormatter
@@ -192,6 +202,11 @@ namespace Morestachio.Helper
 
 		#endregion
 
+		/// <summary>
+		///		Adds the two numbers together
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
 		public Number Add(Number other)
 		{
 			var targetType = GetOperationTargetType(this, other);
@@ -242,6 +257,11 @@ namespace Morestachio.Helper
 			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
 		}
 		
+		/// <summary>
+		///		Subtracts the other number from this number
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
 		public Number Subtract(Number other)
 		{
 			var targetType = GetOperationTargetType(this, other);
@@ -292,6 +312,11 @@ namespace Morestachio.Helper
 			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
 		}
 		
+		/// <summary>
+		///		Multiplies the two numbers
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
 		public Number Multiply(Number other)
 		{
 			var targetType = GetOperationTargetType(this, other);
@@ -342,6 +367,11 @@ namespace Morestachio.Helper
 			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
 		}
 		
+		/// <summary>
+		///		Divides the other number from this number
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
 		public Number Divide(Number other)
 		{
 			var targetType = GetOperationTargetType(this, other);
@@ -392,6 +422,11 @@ namespace Morestachio.Helper
 			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
 		}
 		
+		/// <summary>
+		///		Gets the reminder from the diversion of the other number
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
 		public Number Modulo(Number other)
 		{
 			var targetType = GetOperationTargetType(this, other);

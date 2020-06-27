@@ -31,7 +31,7 @@ namespace Morestachio.Formatter.Framework
 			Formatters = new List<MorestachioFormatterModel>();
 			ValueConverter = new List<IFormatterValueConverter>()
 			{
-				NumberToCsNumberConverter.Instance
+				NumberConverter.Instance
 			};
 			DefaultConverter = GenericTypeConverter.Instance;
 		}

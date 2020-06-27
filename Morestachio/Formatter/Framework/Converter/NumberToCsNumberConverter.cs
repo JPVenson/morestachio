@@ -1,17 +1,30 @@
 ﻿using System;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
 using Morestachio.Helper;
 
 namespace Morestachio.Formatter.Framework.Converter
 {
-	public class NumberToCsNumberConverter : IFormatterValueConverter
+	public class NumberConverter : IFormatterValueConverter
 	{
-		public static readonly IFormatterValueConverter Instance = new NumberToCsNumberConverter();
+		public static readonly IFormatterValueConverter Instance = new NumberConverter();
 
 		public bool CanConvert(object value, Type requestedType)
 		{
-			if (value is Number && requestedType == typeof(Number))
+			if (requestedType == typeof(Number))
 			{
-				return true;
+				if (value is Number)
+				{
+					return true;
+				}
+
+				var type = value?.GetType();
+				if (Number.CsFrameworkFlowtingPointNumberTypes.Contains(type) ||
+				    Number.CsFrameworkIntegralTypes.Contains(type))
+				{
+					return true;
+				}
 			}
 
 			return value is Number numb && requestedType.IsInstanceOfType(numb.Value);
@@ -21,7 +34,12 @@ namespace Morestachio.Formatter.Framework.Converter
 		{
 			if (requestedType == typeof(Number))
 			{
-				return value;
+				if (value is Number)
+				{
+					return value;
+				}
+
+				return new Number(value as IConvertible);
 			}
 
 			return ((Number)value).Value;
