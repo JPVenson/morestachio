@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -51,13 +52,13 @@ namespace Morestachio.Tests
 		[TestCase("1.3d", 1.3d)]
 		[TestCase("0.5d", .5d)]
 		[TestCase("1000000.4564d", 1000000.4564d)]
-		
+
 		//hexdecimal test
 		[TestCase("0x123", 0x123)]
 		[TestCase("0xA", 0xA)]
 		public void CanParseNumber(string text, object expected)
 		{
-			Assert.That(Number.TryParse(text, out var number), Is.True);
+			Assert.That(Number.TryParse(text, CultureInfo.InvariantCulture, out var number), Is.True);
 			Assert.That(number.Value, Is.EqualTo(expected).And.TypeOf(expected.GetType()));
 		}
 
@@ -71,8 +72,8 @@ namespace Morestachio.Tests
 		[TestCase("0xA", "10D", 0xA + 10D)]
 		public void CanAddNumbers(string left, string right, object expected)
 		{
-			Assert.That(Number.TryParse(left, out var numberLeft), Is.True);
-			Assert.That(Number.TryParse(right, out var numberRight), Is.True);
+			Assert.That(Number.TryParse(left, CultureInfo.InvariantCulture, out var numberLeft), Is.True);
+			Assert.That(Number.TryParse(right, CultureInfo.InvariantCulture, out var numberRight), Is.True);
 			Assert.That(numberLeft.Add(numberRight).Value, Is.EqualTo(expected).And.TypeOf(expected.GetType()));
 		}
 
@@ -86,8 +87,8 @@ namespace Morestachio.Tests
 		[TestCase("0x1E", "10D", 0x1E - 10D)]
 		public void CanSubtractNumbers(string left, string right, object expected)
 		{
-			Assert.That(Number.TryParse(left, out var numberLeft), Is.True);
-			Assert.That(Number.TryParse(right, out var numberRight), Is.True);
+			Assert.That(Number.TryParse(left, CultureInfo.InvariantCulture, out var numberLeft), Is.True);
+			Assert.That(Number.TryParse(right, CultureInfo.InvariantCulture, out var numberRight), Is.True);
 			Assert.That(numberLeft.Subtract(numberRight).Value, Is.EqualTo(expected).And.TypeOf(expected.GetType()));
 		}
 
@@ -101,8 +102,8 @@ namespace Morestachio.Tests
 		[TestCase("0x5", "4D", 0x5 * 4D)]
 		public void CanMultiplyNumbers(string left, string right, object expected)
 		{
-			Assert.That(Number.TryParse(left, out var numberLeft), Is.True);
-			Assert.That(Number.TryParse(right, out var numberRight), Is.True);
+			Assert.That(Number.TryParse(left, CultureInfo.InvariantCulture, out var numberLeft), Is.True);
+			Assert.That(Number.TryParse(right, CultureInfo.InvariantCulture, out var numberRight), Is.True);
 			Assert.That(numberLeft.Multiply(numberRight).Value, Is.EqualTo(expected).And.TypeOf(expected.GetType()));
 		}
 
@@ -116,8 +117,8 @@ namespace Morestachio.Tests
 		[TestCase("0x1E", "5D", 0x1E / 5D)]
 		public void CanDivideNumbers(string left, string right, object expected)
 		{
-			Assert.That(Number.TryParse(left, out var numberLeft), Is.True);
-			Assert.That(Number.TryParse(right, out var numberRight), Is.True);
+			Assert.That(Number.TryParse(left, CultureInfo.InvariantCulture, out var numberLeft), Is.True);
+			Assert.That(Number.TryParse(right, CultureInfo.InvariantCulture, out var numberRight), Is.True);
 			Assert.That(numberLeft.Divide(numberRight).Value, Is.EqualTo(expected).And.TypeOf(expected.GetType()));
 		}
 
@@ -131,11 +132,11 @@ namespace Morestachio.Tests
 		[TestCase("0x1E", "5D", 0x1E % 5D)]
 		public void CanModuloNumbers(string left, string right, object expected)
 		{
-			Assert.That(Number.TryParse(left, out var numberLeft), Is.True);
-			Assert.That(Number.TryParse(right, out var numberRight), Is.True);
+			Assert.That(Number.TryParse(left, CultureInfo.InvariantCulture, out var numberLeft), Is.True);
+			Assert.That(Number.TryParse(right, CultureInfo.InvariantCulture, out var numberRight), Is.True);
 			Assert.That(numberLeft.Modulo(numberRight).Value, Is.EqualTo(expected).And.TypeOf(expected.GetType()));
 		}
-		
+
 		[Test]
 		[TestCase(5L, "5", "Add", "10")]
 		[TestCase(5UL, "5", "Add", "10")]

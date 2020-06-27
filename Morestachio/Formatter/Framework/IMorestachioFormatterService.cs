@@ -11,7 +11,17 @@ namespace Morestachio.Formatter.Framework
 	///		Interface for Resolving formatters
 	/// </summary>
 	public interface IMorestachioFormatterService
-	{		
+	{
+		/// <summary>
+		///		Contains a set of objects that can be injected into a formatter
+		/// </summary>
+		IReadOnlyDictionary<Type, object> ServiceCollection { get; }
+
+		void AddService<T, TE>(TE service) where TE : T;
+		void AddService<T>(T service);
+		void AddService<T, TE>(Func<TE> serviceFactory) where TE : T;
+		void AddService<T>(Func<T> serviceFactory);
+
 		/// <summary>
 		///		Experimental <para/>
 		///		Allows all parameters that are objects to be null
@@ -35,19 +45,21 @@ namespace Morestachio.Formatter.Framework
 		/// </summary>
 		ICollection<IFormatterValueConverter> ValueConverter { get; }
 
-		/// <summary>
-		///		Searches for the formatter that matches the type and the given values
-		/// </summary>
-		/// <param name="type"></param>
-		/// <param name="values"></param>
-		/// <param name="sourceValue"></param>
-		/// <param name="name"></param>
-		/// <returns></returns>
+		///  <summary>
+		/// 		Searches for the formatter that matches the type and the given values
+		///  </summary>
+		///  <param name="type"></param>
+		///  <param name="values"></param>
+		///  <param name="sourceValue"></param>
+		///  <param name="name"></param>
+		///  <param name="options"></param>
+		///  <returns></returns>
 		Task<object> CallMostMatchingFormatter(
 			[NotNull]Type type,
 			[NotNull]KeyValuePair<string, object>[] values,
 			object sourceValue,
-			[CanBeNull]string name);
+			[CanBeNull]string name,
+			ParserOptions options);
 
 		/// <summary>
 		///		Adds a new Formatter

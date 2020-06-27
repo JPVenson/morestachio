@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using JetBrains.Annotations;
@@ -87,6 +88,7 @@ namespace Morestachio
 			Timeout = TimeSpan.Zero;
 			PartialStackSize = 255;
 			CustomDocumentItemProviders = new List<CustomDocumentItemProvider>();
+			CultureInfo = CultureInfo.CurrentCulture;
 		}
 
 		/// <summary>
@@ -102,13 +104,11 @@ namespace Morestachio
 			[CanBeNull]Func<Stream> sourceStream,
 			[CanBeNull]Encoding encoding,
 			long maxSize,
-			bool disableContentEscaping = false,
-			bool withModelInference = false)
+			bool disableContentEscaping = false)
 			: this(template, sourceStream, encoding)
 		{
 			MaxSize = maxSize;
 			DisableContentEscaping = disableContentEscaping;
-			WithModelInference = withModelInference;
 		}
 
 		/// <summary>
@@ -122,8 +122,8 @@ namespace Morestachio
 		public ParserOptions([NotNull]string template,
 			[CanBeNull]Func<Stream> sourceStream,
 			[CanBeNull]Encoding encoding,
-			bool disableContentEscaping = false, bool withModelInference = false)
-			: this(template, sourceStream, encoding, 0, disableContentEscaping, withModelInference)
+			bool disableContentEscaping = false)
+			: this(template, sourceStream, encoding, 0, disableContentEscaping)
 		{
 		}
 
@@ -147,6 +147,11 @@ namespace Morestachio
 		///		Can be used to resolve values from custom objects
 		/// </summary>
 		public IValueResolver ValueResolver { get; set; }
+
+		/// <summary>
+		///		Gets or Sets the Culture in which the template should be rendered
+		/// </summary>
+		public CultureInfo CultureInfo { get; set; }
 
 		/// <summary>
 		///		Can be used to observe unresolved paths
@@ -238,12 +243,13 @@ namespace Morestachio
 
 		internal ParserOptions WithPartial(string partialTemplateTemplate)
 		{
-			return new ParserOptions(partialTemplateTemplate, SourceFactory, Encoding, DisableContentEscaping, WithModelInference)
+			return new ParserOptions(partialTemplateTemplate, SourceFactory, Encoding, DisableContentEscaping)
 			{
 				Null = Null,
 				StackOverflowBehavior = StackOverflowBehavior,
 				Formatters = Formatters,
-				Timeout = Timeout
+				Timeout = Timeout,
+				CultureInfo = CultureInfo
 			};
 		}
 
@@ -265,7 +271,8 @@ namespace Morestachio
 				Template = template,
 				ValueResolver = ValueResolver,
 				UnresolvedPath = UnresolvedPath,
-				SourceFactory = SourceFactory
+				SourceFactory = SourceFactory,
+				CultureInfo = CultureInfo
 			};
 		}
 

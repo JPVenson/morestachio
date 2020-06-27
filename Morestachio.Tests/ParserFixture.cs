@@ -76,7 +76,7 @@ namespace Morestachio.Tests
 			Assert.That(visitor.StringBuilder.ToString(), Is.EqualTo(query));
 			Assert.That(context.Errors, Is.Empty, () => context.Errors.GetErrorText());
 		}
-		
+
 		[Test]
 		[TestCase("d.f(fA.('', e.('')))")]
 		public void TestExpressionParserDbg(string query)
@@ -86,7 +86,7 @@ namespace Morestachio.Tests
 			Assert.That(expressions, Is.Not.Null);
 			Assert.That(context.Errors, Is.Empty, () => context.Errors.GetErrorText());
 		}
-		
+
 		[Test]
 		[TestCase("d")]
 		[TestCase("D")]
@@ -348,7 +348,7 @@ namespace Morestachio.Tests
 					}
 				}
 			};
-	
+
 			var result = parsedTemplate.Create(modelWorking).Stream.Stringify(true, DefaultEncoding);
 			Assert.AreEqual("2 = 2 = 2", result);
 			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
@@ -390,11 +390,12 @@ namespace Morestachio.Tests
 		public void ParserCanSelfFormat(string dtFormat)
 		{
 			var data = DateTime.UtcNow;
-			var results = Parser.ParseWithOptions(new ParserOptions(
+			var parsingOptions = new ParserOptions(
 				"{{#data}}{{.(\"" + dtFormat + "\")}}{{/data}},{{data}}",
-				null, DefaultEncoding));
+				null, DefaultEncoding);
+			var results = Parser.ParseWithOptions(parsingOptions);
 			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
-			Assert.That(result, Is.EqualTo(data.ToString(dtFormat) + "," + data));
+			Assert.That(result, Is.EqualTo(data.ToString(dtFormat, parsingOptions.CultureInfo) + "," + data));
 		}
 
 		[Test]
@@ -1147,10 +1148,10 @@ namespace Morestachio.Tests
 		public void TestWhileLoopContext()
 		{
 			var template = "{{#VAR condition = true}}" +
-			               "{{#WHILE condition}}" +
-			               "{{$index}}," +
-			               "{{#IF $index.Equals(5)}}{{#VAR condition = false}}{{/IF}}" +
-			               "{{/WHILE}}";
+						   "{{#WHILE condition}}" +
+						   "{{$index}}," +
+						   "{{#IF $index.Equals(5)}}{{#VAR condition = false}}{{/IF}}" +
+						   "{{/WHILE}}";
 
 			var parsingOptions = new ParserOptions(template, null, DefaultEncoding)
 			{
@@ -1167,10 +1168,10 @@ namespace Morestachio.Tests
 		public void TestDoLoopContext()
 		{
 			var template = "{{#VAR condition = true}}" +
-			               "{{#DO condition}}" +
-			               "{{$index}}," +
-			               "{{#IF $index.Equals(5)}}{{#VAR condition = false}}{{/IF}}" +
-			               "{{/DO}}";
+						   "{{#DO condition}}" +
+						   "{{$index}}," +
+						   "{{#IF $index.Equals(5)}}{{#VAR condition = false}}{{/IF}}" +
+						   "{{/DO}}";
 
 			var parsingOptions = new ParserOptions(template, null, DefaultEncoding)
 			{

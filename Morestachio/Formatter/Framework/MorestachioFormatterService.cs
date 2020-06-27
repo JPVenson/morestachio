@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -12,6 +13,77 @@ using Morestachio.Helper;
 
 namespace Morestachio.Formatter.Framework
 {
+	public class ServiceCollection
+	{
+		private readonly IDictionary<Type, object> _source;
+		private readonly IDictionary<Type, object> _localSource;
+
+		public ServiceCollection(IDictionary<Type, object> source)
+		{
+			_source = source;
+			_localSource = new Dictionary<Type, object>()
+			{
+				{typeof(ServiceCollection), this}
+			};
+		}
+
+		/// <inheritdoc />
+		public void AddService<T, TE>(TE service) where TE : T
+		{
+			_localSource[typeof(TE)] = service;
+		}
+
+		/// <inheritdoc />
+		public void AddService<T>(T service)
+		{
+			_localSource[typeof(T)] = service;
+		}
+
+		/// <inheritdoc />
+		public void AddService<T, TE>(Func<TE> serviceFactory) where TE : T
+		{
+			_localSource[typeof(TE)] = serviceFactory;
+		}
+
+		/// <inheritdoc />
+		public void AddService<T>(Func<T> serviceFactory)
+		{
+			_localSource[typeof(T)] = serviceFactory;
+		}
+
+		public bool GetService<T>(out T service)
+		{
+			var found = GetService(typeof(T), out var serviceTem);
+			if (found)
+			{
+				service = (T)serviceTem;
+			}
+			else
+			{
+				service = default;
+			}
+			return found;
+		}
+
+		public bool GetService(Type serviceType, out object service)
+		{
+			if (!_localSource.TryGetValue(serviceType, out service))
+			{
+				if (!_source.TryGetValue(serviceType, out service))
+				{
+					return false;
+				}
+			}
+
+			if (service is Delegate factory)
+			{
+				service = factory.DynamicInvoke();
+			}
+
+			return true;
+		}
+	}
+
 	/// <summary>
 	///     The Formatter service that can be used to interpret the Native C# formatter.
 	///     To use this kind of formatter you must create a public static class where all formatting functions are located.
@@ -34,7 +106,46 @@ namespace Morestachio.Formatter.Framework
 				NumberConverter.Instance
 			};
 			DefaultConverter = GenericTypeConverter.Instance;
+			ServiceCollectionAccess = new Dictionary<Type, object>()
+			{
+				{typeof(IMorestachioFormatterService), this}
+			};
 		}
+
+		/// <inheritdoc />
+		public IReadOnlyDictionary<Type, object> ServiceCollection
+		{
+			get
+			{
+				return new ReadOnlyDictionary<Type, object>(ServiceCollectionAccess);
+			}
+		}
+
+		/// <inheritdoc />
+		public void AddService<T, TE>(TE service) where TE : T
+		{
+			ServiceCollectionAccess[typeof(TE)] = service;
+		}
+
+		/// <inheritdoc />
+		public void AddService<T>(T service)
+		{
+			ServiceCollectionAccess[typeof(T)] = service;
+		}
+
+		/// <inheritdoc />
+		public void AddService<T, TE>(Func<TE> serviceFactory) where TE : T
+		{
+			ServiceCollectionAccess[typeof(TE)] = serviceFactory;
+		}
+
+		/// <inheritdoc />
+		public void AddService<T>(Func<T> serviceFactory)
+		{
+			ServiceCollectionAccess[typeof(T)] = serviceFactory;
+		}
+
+		protected IDictionary<Type, object> ServiceCollectionAccess { get; }
 
 		/// <summary>
 		///     Gets the gloabl formatter that are used always for any formatting run.
@@ -56,7 +167,7 @@ namespace Morestachio.Formatter.Framework
 		/// </summary>
 		[CanBeNull]
 		public TextWriter FormatterLog { get; set; }
-		
+
 		/// <summary>
 		///     Writes the specified log.
 		/// </summary>
@@ -89,7 +200,8 @@ namespace Morestachio.Formatter.Framework
 			Type type,
 			KeyValuePair<string, object>[] values,
 			object sourceValue,
-			string name)
+			string name,
+			ParserOptions parserOptions)
 		{
 			Log(() => "---------------------------------------------------------------------------------------------");
 			Log(() => $"Call Formatter for Type '{type}' on '{sourceValue}'");
@@ -97,11 +209,14 @@ namespace Morestachio.Formatter.Framework
 				.Where(e => e != null)
 				.ToArray();
 
+			var services = new ServiceCollection(ServiceCollectionAccess);
+			services.AddService(parserOptions);
 			foreach (var formatTemplateElement in hasFormatter)
 			{
+				services.AddService(formatTemplateElement);
 				Log(() =>
 					$"Try formatter '{formatTemplateElement.InputType}' on '{formatTemplateElement.Function.Name}'");
-				var executeFormatter = await Execute(formatTemplateElement, sourceValue, values);
+				var executeFormatter = await Execute(formatTemplateElement, sourceValue, services, values);
 				if (!Equals(executeFormatter, FormatterFlow.Skip))
 				{
 					Log(() => $"Success. return object {executeFormatter}");
@@ -121,13 +236,15 @@ namespace Morestachio.Formatter.Framework
 		/// </summary>
 		/// <param name="formatter">The formatter.</param>
 		/// <param name="sourceObject">The source object.</param>
+		/// <param name="services"></param>
 		/// <param name="templateArguments">The template arguments.</param>
 		/// <returns></returns>
 		public virtual async Task<object> Execute(MorestachioFormatterModel formatter,
 			object sourceObject,
+			ServiceCollection services,
 			params KeyValuePair<string, object>[] templateArguments)
 		{
-			var values = ComposeValues(formatter, sourceObject, formatter.Function, templateArguments);
+			var values = ComposeValues(formatter, sourceObject, formatter.Function, services, templateArguments);
 
 			if (values.Equals(new FormatterComposingResult()))
 			{
@@ -167,8 +284,8 @@ namespace Morestachio.Formatter.Framework
 
 				Log(() => $"Test filter: '{formatTemplateElement.InputType} : {formatTemplateElement.Function.Name}'");
 
-				if (formatTemplateElement.InputType != typeToFormat 
-				    && !formatTemplateElement.InputType.GetTypeInfo().IsAssignableFrom(typeToFormat))
+				if (formatTemplateElement.InputType != typeToFormat
+					&& !formatTemplateElement.InputType.GetTypeInfo().IsAssignableFrom(typeToFormat))
 				{
 					if (ValueConverter.All(e => !e.CanConvert(sourceValue, formatTemplateElement.InputType)))
 					{
@@ -192,7 +309,7 @@ namespace Morestachio.Formatter.Framework
 							var formatterGenerics = formatTemplateElement.InputType.GetTypeInfo().GetGenericArguments();
 
 							if (typeToFormatGenerics.Length <= 0 || formatterGenerics.Length <= 0 ||
-							    typeToFormatGenerics.Length != formatterGenerics.Length)
+								typeToFormatGenerics.Length != formatterGenerics.Length)
 							{
 								Log(() =>
 									$"Exclude because formatter accepts '{formatTemplateElement.InputType}' is not assignable from '{typeToFormat}'");
@@ -204,7 +321,7 @@ namespace Morestachio.Formatter.Framework
 
 				//count rest arguments
 				var mandatoryArguments = formatTemplateElement.MetaData
-					.Where(e => !e.IsRestObject && !e.IsOptional && !e.IsSourceObject).ToArray();
+					.Where(e => !e.IsRestObject && !e.IsOptional && !e.IsSourceObject && !e.IsInjected).ToArray();
 				if (mandatoryArguments.Length > arguments.Length)
 				//if there are less arguments excluding rest then parameters
 				{
@@ -239,7 +356,10 @@ namespace Morestachio.Formatter.Framework
 			return formatter;
 		}
 
+		/// <inheritdoc />
 		public bool AllParametersAllDefaultValue { get; set; }
+
+		/// <inheritdoc />
 		public StringComparison FormatterNameCompareMode { get; set; } = StringComparison.Ordinal;
 
 		/// <summary>
@@ -335,26 +455,26 @@ namespace Morestachio.Formatter.Framework
 					var sourceValueType = sourceValue.GetType();
 
 					//in case the parameter is an generic argument directly
-					
+
 					if (parameterInfo.ParameterType.IsGenericParameter &&
-					    parameterInfo.ParameterType == genericArgument)
+						parameterInfo.ParameterType == genericArgument)
 					{
 						found = true;
 						generics.Add(sourceValueType);
 						break;
 					}
-					
+
 					//this is a hack for T[] to IEnumerable<T> support
-					if (sourceValueType.IsArray && 
-					    IsAssignableToGenericType(parameterInfo.ParameterType, typeof(IEnumerable<>)) &&
-					    typeof(IEnumerable<>).MakeGenericType(sourceValueType.GetElementType()).IsAssignableFrom(sourceValueType))
+					if (sourceValueType.IsArray &&
+						IsAssignableToGenericType(parameterInfo.ParameterType, typeof(IEnumerable<>)) &&
+						typeof(IEnumerable<>).MakeGenericType(sourceValueType.GetElementType()).IsAssignableFrom(sourceValueType))
 					{
 						found = true;
 						//the source value is an array and the parameter is of type of IEnumerable<>
 						generics.Add(sourceValueType.GetElementType());
 						break;
 					}
-					
+
 					//examine the generic arguments and check that they both declare the same amount of generics
 					var paramGenerics = parameterInfo.ParameterType.GetGenericArguments();
 					var sourceGenerics = sourceValueType.GetGenericArguments();
@@ -440,10 +560,10 @@ namespace Morestachio.Formatter.Framework
 		/// <summary>
 		///     Composes the values into a Dictionary for each formatter. If returns null, the formatter will not be called.
 		/// </summary>
-		public virtual FormatterComposingResult ComposeValues(
-			[NotNull] MorestachioFormatterModel formatter,
+		public virtual FormatterComposingResult ComposeValues([NotNull] MorestachioFormatterModel formatter,
 			[CanBeNull] object sourceObject,
 			[NotNull] MethodInfo method,
+			ServiceCollection services,
 			[NotNull] params KeyValuePair<string, object>[] templateArguments)
 		{
 			Log(() =>
@@ -465,6 +585,31 @@ namespace Morestachio.Formatter.Framework
 				{
 					Log(() => "Is Source object");
 					givenValue = sourceObject;
+				}
+				else if (parameter.IsInjected)
+				{
+					//match by index or name
+					Log(() => "Get the injected service");
+					if (services.GetService(parameter.ParameterType, out var service))
+					{
+						if (service is Delegate factory)
+						{
+							service = factory.DynamicInvoke();
+						}
+
+						givenValue = service;
+
+						if (!parameter.ParameterType.IsInstanceOfType(givenValue))
+						{
+							Log(() => $"Expected service of type '{parameter.ParameterType}' but got '{givenValue}'");
+							return default;
+						}
+					}
+					else
+					{
+						Log(() => $"Requested service of type {parameter.ParameterType} is not present");
+						return default;
+					}
 				}
 				else
 				{
@@ -503,9 +648,9 @@ namespace Morestachio.Formatter.Framework
 					}
 					matched.Add(parameter, match);
 				}
-				
+
 				//check for matching types
-				if (!parameter.IsOptional && !ComposeArgumentValue(parameter, argumentIndex, ref givenValue))
+				if (!parameter.IsOptional && !ComposeArgumentValue(parameter, argumentIndex, services, ref givenValue))
 				{
 					return default;
 				}
@@ -515,7 +660,7 @@ namespace Morestachio.Formatter.Framework
 				{
 					continue; //value and source object are optional so we do not to check for its existence 
 				}
-				
+
 				if (!AllParametersAllDefaultValue && Equals(givenValue, null))
 				{
 					Log(() =>
@@ -573,16 +718,17 @@ namespace Morestachio.Formatter.Framework
 			};
 		}
 
-		/// <summary>
-		///		Should compose the givenValue and/or transform it in any way that it can match the <para>parameter</para>
-		/// </summary>
-		/// <param name="parameter"></param>
-		/// <param name="argumentIndex"></param>
-		/// <param name="givenValue"></param>
-		/// <returns></returns>
-		protected virtual bool ComposeArgumentValue(
-			MultiFormatterInfo parameter, 
-			int argumentIndex, 
+		///  <summary>
+		/// 		Should compose the givenValue and/or transform it in any way that it can match the <para>parameter</para>
+		///  </summary>
+		///  <param name="parameter"></param>
+		///  <param name="argumentIndex"></param>
+		///  <param name="services"></param>
+		///  <param name="givenValue"></param>
+		///  <returns></returns>
+		protected virtual bool ComposeArgumentValue(MultiFormatterInfo parameter,
+			int argumentIndex,
+			ServiceCollection services,
 			ref object givenValue)
 		{
 			if (parameter.ParameterType.IsConstructedGenericType)
@@ -598,7 +744,7 @@ namespace Morestachio.Formatter.Framework
 				var typeConverter =
 					ValueConverter.FirstOrDefault(e => e.CanConvert(o, parameter.ParameterType));
 				typeConverter = typeConverter ??
-				                (DefaultConverter.CanConvert(givenValue, parameter.ParameterType) ? DefaultConverter : null);
+								(DefaultConverter.CanConvert(givenValue, parameter.ParameterType) ? DefaultConverter : null);
 				var perParameterConverter = parameter.FormatterValueConverterAttribute
 					.Select(f => f.CreateInstance())
 					.FirstOrDefault(e => e.CanConvert(o, parameter.ParameterType));
@@ -612,9 +758,10 @@ namespace Morestachio.Formatter.Framework
 					givenValue = typeConverter.Convert(givenValue, parameter.ParameterType);
 				}
 				else if (givenValue is IConvertible convertible &&
-				         typeof(IConvertible).IsAssignableFrom(parameter.ParameterType))
+						 typeof(IConvertible).IsAssignableFrom(parameter.ParameterType))
 				{
-					givenValue = convertible.ToType(parameter.ParameterType, CultureInfo.CurrentCulture);
+					services.GetService<ParserOptions>(out var parserOptions);
+					givenValue = convertible.ToType(parameter.ParameterType, parserOptions.CultureInfo);
 				}
 				else
 				{
@@ -642,7 +789,8 @@ namespace Morestachio.Formatter.Framework
 					e.GetCustomAttribute<RestParameterAttribute>() != null)
 				{
 					IsSourceObject = e.GetCustomAttribute<SourceObjectAttribute>() != null,
-					FormatterValueConverterAttribute = e.GetCustomAttributes<FormatterValueConverterAttribute>().ToArray()
+					FormatterValueConverterAttribute = e.GetCustomAttributes<FormatterValueConverterAttribute>().ToArray(),
+					IsInjected = e.GetCustomAttribute<ExternalDataAttribute>() != null,
 				}).ToArray();
 			//if there is no declared SourceObject then check if the first object is of type what we are formatting and use this one.
 			if (!arguments.Any(e => e.IsSourceObject) && arguments.Any())

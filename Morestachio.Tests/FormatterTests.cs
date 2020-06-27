@@ -79,10 +79,52 @@ namespace Morestachio.Tests
 				decimal.TryParse(value.ToString(), out a);
 				decimal b = 0;
 				decimal.TryParse(value2.ToString(), out b);
-
-
 				return a * b;
 			}
+		}
+
+		public static class ExternalDataFormatter
+		{
+			public class ExternalDataService
+			{
+				public string Text { get; set; } = "B6B747D4-02E4-4CBE-8CD2-013B64C1399A";
+			}
+
+			[MorestachioFormatter("Formatter", "")]
+			public static string Formatter(object source, [ExternalData]ExternalDataService value2)
+			{
+				return source + "|" + value2.Text;
+			}
+		}
+
+		[Test]
+		public void TestCanAcceptExternalService()
+		{
+			var options = new ParserOptions("{{data.Formatter()}}", null, DefaultEncoding);
+			options.Formatters.AddFromType(typeof(ExternalDataFormatter));
+			options.Formatters.AddService(new ExternalDataFormatter.ExternalDataService());
+
+			var template = Parser.ParseWithOptions(options);
+			var andStringify = template.CreateAndStringify(new Dictionary<string, object>()
+			{
+				{ "data", 123 }
+			});
+			Assert.That(andStringify, Is.EqualTo("123|B6B747D4-02E4-4CBE-8CD2-013B64C1399A"));
+		}
+
+		[Test]
+		public void TestCanAcceptExternalServiceFactory()
+		{
+			var options = new ParserOptions("{{data.Formatter()}}", null, DefaultEncoding);
+			options.Formatters.AddFromType(typeof(ExternalDataFormatter));
+			options.Formatters.AddService(() => new ExternalDataFormatter.ExternalDataService());
+
+			var template = Parser.ParseWithOptions(options);
+			var andStringify = template.CreateAndStringify(new Dictionary<string, object>()
+			{
+				{ "data", 123 }
+			});
+			Assert.That(andStringify, Is.EqualTo("123|B6B747D4-02E4-4CBE-8CD2-013B64C1399A"));
 		}
 
 		[Test]

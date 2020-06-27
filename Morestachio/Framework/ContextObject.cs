@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Morestachio.Attributes;
 using Morestachio.Formatter.Framework;
 using Morestachio.Framework.Expression;
 using Morestachio.Helper;
@@ -40,9 +41,9 @@ namespace Morestachio.Framework
 		private class DefaultFormatterClassImpl
 		{
 			[MorestachioFormatter(null, null)]
-			public static string Formattable(IFormattable source, string argument)
+			public static string Formattable(IFormattable source, string argument, [ExternalData]ParserOptions options)
 			{
-				return source.ToString(argument, CultureInfo.CurrentCulture);
+				return source.ToString(argument, options.CultureInfo);
 			}
 
 			[MorestachioFormatter(null, null)]
@@ -52,9 +53,9 @@ namespace Morestachio.Framework
 			}
 
 			[MorestachioFormatter("ToString", null)]
-			public static string FormattableToString(IFormattable source, string argument)
+			public static string FormattableToString(IFormattable source, string argument, [ExternalData]ParserOptions options)
 			{
-				return source.ToString(argument, CultureInfo.CurrentCulture);
+				return source.ToString(argument, options.CultureInfo);
 			}
 
 			[MorestachioFormatter("ToString", null)]
@@ -93,7 +94,7 @@ namespace Morestachio.Framework
 				_definitionOfFalse = value ?? throw new InvalidOperationException("The value must not be null");
 			}
 		}
-		
+
 		private static Func<object, bool> _definitionOfFalse;
 
 		/// <summary>
@@ -280,18 +281,18 @@ namespace Morestachio.Framework
 						//	innerContext.Value = ctx.OfType<object>().Select((item, index) => new KeyValuePair<string, object>(index.ToString(), item));
 						//	break;
 						default:
-						{
-							if (Value != null)
 							{
-								innerContext.Value = type
-									.GetTypeInfo()
-									.GetProperties(BindingFlags.Instance | BindingFlags.Public)
-									.Where(e => !e.IsSpecialName && !e.GetIndexParameters().Any())
-									.Select(e => new KeyValuePair<string, object>(e.Name, e.GetValue(Value)));
-							}
+								if (Value != null)
+								{
+									innerContext.Value = type
+										.GetTypeInfo()
+										.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+										.Where(e => !e.IsSpecialName && !e.GetIndexParameters().Any())
+										.Select(e => new KeyValuePair<string, object>(e.Name, e.GetValue(Value)));
+								}
 
-							break;
-						}
+								break;
+							}
 					}
 
 					retval = await innerContext.GetContextForPath(elements, scopeData);
@@ -405,7 +406,7 @@ namespace Morestachio.Framework
 					}
 
 					//check if this part of the path can be seen as an number
-					if (Number.TryParse(peekPathPart.Key, out var isNumber))
+					if (Number.TryParse(peekPathPart.Key, Options.CultureInfo, out var isNumber))
 					{
 						elements.Dequeue();
 						ContextObject contextObject;
@@ -413,8 +414,8 @@ namespace Morestachio.Framework
 						{
 							var peekNextPathPart = elements.Peek();
 							if (Number.TryParse(peekPathPart.Key
-												+ CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator
-												+ peekNextPathPart.Key, out var floatingNumber))
+												+ Options.CultureInfo.NumberFormat.NumberDecimalSeparator
+												+ peekNextPathPart.Key, Options.CultureInfo, out var floatingNumber))
 							{
 								elements.Dequeue();
 								contextObject = new ContextObject(Options, ".", this);
@@ -455,48 +456,48 @@ namespace Morestachio.Framework
 			return Value?.ToString() ?? (Options.Null?.ToString());
 		}
 
-		/// <summary>
-		///     Parses the current object by using the given argument
-		/// </summary>
-		/// <param name="argument"></param>
-		/// <returns></returns>
-		[Obsolete("This mehtod should not be used anymore. Use the Format(name, arguments) method")]
-		public async Task<object> Format(KeyValuePair<string, object>[] argument)
-		{
-			await EnsureValue();
-			var retval = Value;
-			if (Value == null)
-			{
-				return retval;
-			}
+		///// <summary>
+		/////     Parses the current object by using the given argument
+		///// </summary>
+		///// <param name="argument"></param>
+		///// <returns></returns>
+		//[Obsolete("This mehtod should not be used anymore. Use the Format(name, arguments) method")]
+		//public async Task<object> Format(KeyValuePair<string, object>[] argument)
+		//{
+		//	await EnsureValue();
+		//	var retval = Value;
+		//	if (Value == null)
+		//	{
+		//		return retval;
+		//	}
 
-			var name = argument.FirstOrDefault().Value?.ToString();
-			var argumentWithoutName = argument.Skip(1).ToArray();
+		//	var name = argument.FirstOrDefault().Value?.ToString();
+		//	var argumentWithoutName = argument.Skip(1).ToArray();
 
-			//call formatters that are given by the Options for this run
-			retval = await Options.Formatters.CallMostMatchingFormatter(Value.GetType(), argumentWithoutName, Value, name);
-			if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
-			{
-				//one formatter has returned a valid value so use this one.
-				return retval;
-			}
+		//	//call formatters that are given by the Options for this run
+		//	retval = await Options.Formatters.CallMostMatchingFormatter(Value.GetType(), argumentWithoutName, Value, name);
+		//	if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
+		//	{
+		//		//one formatter has returned a valid value so use this one.
+		//		return retval;
+		//	}
 
-			////call formatters that are given by the Options for this run
-			//retval = await Options.Formatters.CallMostMatchingFormatter(Value.GetType(), argument, Value, null);
-			//if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
-			//{
-			//	//one formatter has returned a valid value so use this one.
-			//	return retval;
-			//}
+		//	////call formatters that are given by the Options for this run
+		//	//retval = await Options.Formatters.CallMostMatchingFormatter(Value.GetType(), argument, Value, null);
+		//	//if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
+		//	//{
+		//	//	//one formatter has returned a valid value so use this one.
+		//	//	return retval;
+		//	//}
 
-			//all formatters in the options object have rejected the value so try use the global ones
-			retval = await DefaultFormatter.CallMostMatchingFormatter(Value.GetType(), argument, Value, null);
-			if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
-			{
-				return retval;
-			}
-			return Value;
-		}
+		//	//all formatters in the options object have rejected the value so try use the global ones
+		//	retval = await DefaultFormatter.CallMostMatchingFormatter(Value.GetType(), argument, Value, null);
+		//	if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
+		//	{
+		//		return retval;
+		//	}
+		//	return Value;
+		//}
 
 
 
@@ -518,7 +519,7 @@ namespace Morestachio.Framework
 			}
 
 			//call formatters that are given by the Options for this run
-			retval = await Options.Formatters.CallMostMatchingFormatter(Value.GetType(), argument, Value, name);
+			retval = await Options.Formatters.CallMostMatchingFormatter(Value.GetType(), argument, Value, name, Options);
 			if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
 			{
 				//one formatter has returned a valid value so use this one.
@@ -526,7 +527,7 @@ namespace Morestachio.Framework
 			}
 
 			//all formatters in the options object have rejected the value so try use the global ones
-			retval = await DefaultFormatter.CallMostMatchingFormatter(Value.GetType(), argument, Value, name);
+			retval = await DefaultFormatter.CallMostMatchingFormatter(Value.GetType(), argument, Value, name, Options);
 			if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
 			{
 				return retval;

@@ -169,31 +169,31 @@ namespace Morestachio.Helper
 		}
 
 		#region MorestachioFormatter
-		
+
 		[MorestachioFormatter("Add", "Adds two numbers")]
 		public static Number Add(Number left, Number right)
 		{
 			return left.Add(right);
 		}
-		
+
 		[MorestachioFormatter("Subtract", "Subtracts two numbers")]
 		public static Number Subtract(Number left, Number right)
 		{
 			return left.Subtract(right);
 		}
-		
+
 		[MorestachioFormatter("Multiply", "Multiplies two numbers")]
 		public static Number Multiply(Number left, Number right)
 		{
 			return left.Multiply(right);
 		}
-		
+
 		[MorestachioFormatter("Divide", "Divides two numbers")]
 		public static Number Divide(Number left, Number right)
 		{
 			return left.Divide(right);
 		}
-		
+
 		[MorestachioFormatter("Modulo", "Modulo two numbers")]
 		public static Number Modulo(Number left, Number right)
 		{
@@ -256,7 +256,7 @@ namespace Morestachio.Helper
 			}
 			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
 		}
-		
+
 		/// <summary>
 		///		Subtracts the other number from this number
 		/// </summary>
@@ -311,7 +311,7 @@ namespace Morestachio.Helper
 			}
 			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
 		}
-		
+
 		/// <summary>
 		///		Multiplies the two numbers
 		/// </summary>
@@ -366,7 +366,7 @@ namespace Morestachio.Helper
 			}
 			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
 		}
-		
+
 		/// <summary>
 		///		Divides the other number from this number
 		/// </summary>
@@ -421,7 +421,7 @@ namespace Morestachio.Helper
 			}
 			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
 		}
-		
+
 		/// <summary>
 		///		Gets the reminder from the diversion of the other number
 		/// </summary>
@@ -477,22 +477,23 @@ namespace Morestachio.Helper
 			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
 		}
 
-		/// <summary>
-		///		Tries to parse the input to any number, following roughly the rules of msbuild.
-		///		Like:
-		///		Has Suffix? (u,m,l,f,d)
-		///		Has Prefix? (0x)
-		///		Is int?
-		///		Is long?
-		///		Is Double?
-		///		Is sbyte?
-		///		Is ushort?
-		///		Is decimal?
-		/// </summary>
-		/// <param name="input"></param>
-		/// <param name="number"></param>
-		/// <returns></returns>
-		public static bool TryParse(string input, out Number number)
+		///  <summary>
+		/// 		Tries to parse the input to any number, following roughly the rules of msbuild.
+		/// 		Like:
+		/// 		Has Suffix? (u,m,l,f,d)
+		/// 		Has Prefix? (0x)
+		/// 		Is int?
+		/// 		Is long?
+		/// 		Is Double?
+		/// 		Is sbyte?
+		/// 		Is ushort?
+		/// 		Is decimal?
+		///  </summary>
+		///  <param name="input"></param>
+		///  <param name="culture"></param>
+		///  <param name="number"></param>
+		///  <returns></returns>
+		public static bool TryParse(string input, CultureInfo culture, out Number number)
 		{
 			//according to MSDN folloring literals are allowed
 
@@ -501,22 +502,22 @@ namespace Morestachio.Helper
 				input = input.TrimEnd('u', 'U');
 				//its an unsigned number
 				//evaluate of which type it is
-				if (uint.TryParse(input, out var uIntVal))
+				if (uint.TryParse(input, NumberStyles.Integer, culture, out var uIntVal))
 				{
 					number = new Number(uIntVal);
 					return true;
 				}
-				if (ushort.TryParse(input, out var ushortVal))
+				if (ushort.TryParse(input, NumberStyles.Integer, culture, out var ushortVal))
 				{
 					number = new Number(ushortVal);
 					return true;
 				}
-				if (ulong.TryParse(input, out var uLongVal))
+				if (ulong.TryParse(input, NumberStyles.Integer, culture, out var uLongVal))
 				{
 					number = new Number(uLongVal);
 					return true;
 				}
-				if (byte.TryParse(input, out var byteVal))
+				if (byte.TryParse(input, NumberStyles.Integer, culture, out var byteVal))
 				{
 					number = new Number(byteVal);
 					return true;
@@ -531,7 +532,7 @@ namespace Morestachio.Helper
 				input = input.TrimEnd('m', 'M');
 				//its an unsigned number
 				//evaluate of which type it is
-				if (decimal.TryParse(input, out var uIntVal))
+				if (decimal.TryParse(input, NumberStyles.Number, culture, out var uIntVal))
 				{
 					number = new Number(uIntVal);
 					return true;
@@ -548,7 +549,7 @@ namespace Morestachio.Helper
 				{
 					input = input.TrimEnd('u', 'U', 'l', 'L');
 					//its unsigned
-					if (ulong.TryParse(input, out var uLongVal))
+					if (ulong.TryParse(input, NumberStyles.Integer, culture, out var uLongVal))
 					{
 						number = new Number(uLongVal);
 						return true;
@@ -559,7 +560,7 @@ namespace Morestachio.Helper
 				}
 				input = input.TrimEnd('l', 'L');
 				//its signed
-				if (long.TryParse(input, out var explLongVal))
+				if (long.TryParse(input, NumberStyles.Integer, culture, out var explLongVal))
 				{
 					number = new Number(explLongVal);
 					return true;
@@ -573,7 +574,7 @@ namespace Morestachio.Helper
 			{
 				//its an float
 				input = input.TrimEnd('f', 'F');
-				if (float.TryParse(input, out var floatVal))
+				if (float.TryParse(input, NumberStyles.Float | NumberStyles.AllowThousands, culture, out var floatVal))
 				{
 					number = new Number(floatVal);
 					return true;
@@ -587,7 +588,7 @@ namespace Morestachio.Helper
 			{
 				//its an float
 				input = input.TrimEnd('d', 'D');
-				if (double.TryParse(input, out var doubleVal))
+				if (double.TryParse(input, NumberStyles.Float | NumberStyles.AllowThousands, culture, out var doubleVal))
 				{
 					number = new Number(doubleVal);
 					return true;
@@ -600,7 +601,7 @@ namespace Morestachio.Helper
 			if (input.StartsWith("0x", StringComparison.InvariantCultureIgnoreCase))
 			{
 				input = input.TrimStart('0', 'x', 'X');
-				if (int.TryParse(input, NumberStyles.AllowHexSpecifier, CultureInfo.CurrentCulture, out var hexIntVal))
+				if (int.TryParse(input, NumberStyles.Integer | NumberStyles.AllowHexSpecifier, culture, out var hexIntVal))
 				{
 					number = new Number(hexIntVal);
 					return true;
@@ -611,13 +612,13 @@ namespace Morestachio.Helper
 			}
 
 			//we start with parsing an int as its the default for any number in msbuild
-			if (int.TryParse(input, out var intVal))
+			if (int.TryParse(input, NumberStyles.Integer, culture, out var intVal))
 			{
 				number = new Number(intVal);
 				return true;
 			}
 			//if its bigger then an int it is most likely an long
-			if (long.TryParse(input, out var longVal))
+			if (long.TryParse(input, NumberStyles.Integer, culture, out var longVal))
 			{
 				number = new Number(longVal);
 				return true;
@@ -633,22 +634,22 @@ namespace Morestachio.Helper
 			//	return true;
 			//}
 
-			if (double.TryParse(input, out var impliDoubleVal))
+			if (double.TryParse(input, NumberStyles.Float | NumberStyles.AllowThousands, culture, out var impliDoubleVal))
 			{
 				number = new Number(impliDoubleVal);
 				return true;
 			}
-			if (sbyte.TryParse(input, out var sByteVal))
+			if (sbyte.TryParse(input, NumberStyles.Integer, culture, out var sByteVal))
 			{
 				number = new Number(sByteVal);
 				return true;
 			}
-			if (ushort.TryParse(input, out var shortVal))
+			if (ushort.TryParse(input, NumberStyles.Integer, culture, out var shortVal))
 			{
 				number = new Number(shortVal);
 				return true;
 			}
-			if (decimal.TryParse(input, out var decimalVal))
+			if (decimal.TryParse(input, NumberStyles.Number, culture, out var decimalVal))
 			{
 				number = new Number(decimalVal);
 				return true;
