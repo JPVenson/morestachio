@@ -13,8 +13,8 @@ namespace Morestachio.Document.Contracts
 	public interface IDocumentItem
 	{
 		/// <summary>
-		///		Renders its Value into the <see cref="outputStream"/>.
-		///		If there are any Document items that should be executed directly after they should be returned		
+		///		Renders its Value into the <see cref="IByteCounterStream"/>.
+		///		If there are any Document items that should be executed directly after they should be returned, such as the children of this document item	
 		/// </summary>
 		/// <param name="outputStream">The output stream.</param>
 		/// <param name="context">The context.</param>
