@@ -20,7 +20,7 @@ namespace Morestachio.Formatter.Framework.Converter
 				}
 
 				var type = value?.GetType();
-				if (Number.CsFrameworkFlowtingPointNumberTypes.Contains(type) ||
+				if (Number.CsFrameworkFloatingPointNumberTypes.Contains(type) ||
 				    Number.CsFrameworkIntegralTypes.Contains(type))
 				{
 					return true;

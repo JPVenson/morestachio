@@ -145,7 +145,7 @@ namespace Morestachio.Helper
 		/// <summary>
 		///		Contains the list of all .net Floating Point numbers and the Decimal type
 		/// </summary>
-		public static readonly Type[] CsFrameworkFlowtingPointNumberTypes = new[]
+		public static readonly Type[] CsFrameworkFloatingPointNumberTypes = new[]
 		{
 			typeof(decimal),
 			typeof(double),
@@ -156,7 +156,7 @@ namespace Morestachio.Helper
 		{
 			if (!IsIntegral(numberLeft) || !IsIntegral(numberRight))
 			{
-				foreach (var floatingNumber in CsFrameworkFlowtingPointNumberTypes)
+				foreach (var floatingNumber in CsFrameworkFloatingPointNumberTypes)
 				{
 					if (numberLeft.Value.GetType() == floatingNumber || numberRight.Value.GetType() == floatingNumber)
 					{
