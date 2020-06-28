@@ -201,14 +201,14 @@ namespace Morestachio.Framework
 		/// <param name="elements"></param>
 		/// <param name="currentElement"></param>
 		/// <returns></returns>
-		protected virtual ContextObject HandlePathContext(Queue<KeyValuePair<string, PathTokenizer.PathType>> elements,
-			KeyValuePair<string, PathTokenizer.PathType> currentElement)
+		protected virtual ContextObject HandlePathContext(Queue<KeyValuePair<string, PathType>> elements,
+			KeyValuePair<string, PathType> currentElement)
 		{
 			return null;
 		}
 
 		private async Task<ContextObject> GetContextForPath(
-			Queue<KeyValuePair<string, PathTokenizer.PathType>> elements,
+			Queue<KeyValuePair<string, PathType>> elements,
 			ScopeData scopeData)
 		{
 			var retval = this;
@@ -222,7 +222,7 @@ namespace Morestachio.Framework
 				}
 				var type = Value?.GetType();
 
-				if (path.Value == PathTokenizer.PathType.RootSelector) //go the root object
+				if (path.Value == PathType.RootSelector) //go the root object
 				{
 					var parent = Parent ?? this;
 					var lastParent = parent;
@@ -240,7 +240,7 @@ namespace Morestachio.Framework
 						retval = await lastParent.GetContextForPath(elements, scopeData);
 					}
 				}
-				else if (path.Value == PathTokenizer.PathType.ParentSelector) //go one level up
+				else if (path.Value == PathType.ParentSelector) //go one level up
 				{
 					if (Parent != null)
 					{
@@ -259,7 +259,7 @@ namespace Morestachio.Framework
 						retval = await GetContextForPath(elements, scopeData);
 					}
 				}
-				else if (path.Value == PathTokenizer.PathType.ObjectSelector) //enumerate ether an IDictionary, an cs object or an IEnumerable to a KeyValuePair array
+				else if (path.Value == PathType.ObjectSelector) //enumerate ether an IDictionary, an cs object or an IEnumerable to a KeyValuePair array
 				{
 					await EnsureValue();
 					if (Value is null)
@@ -297,7 +297,35 @@ namespace Morestachio.Framework
 
 					retval = await innerContext.GetContextForPath(elements, scopeData);
 				}
-				else if (path.Value == PathTokenizer.PathType.DataPath)
+				else if (path.Value == PathType.Number)
+				{
+					//check if this part of the path can be seen as an number
+					if (Number.TryParse(path.Key, Options.CultureInfo, out var isNumber))
+					{
+						//elements.Dequeue();
+						//if (elements.Count > 0)
+						//{
+						//	var peekNextPathPart = elements.Peek();
+						//	if (Number.TryParse(peekPathPart.Key
+						//	                    + Options.CultureInfo.NumberFormat.NumberDecimalSeparator
+						//	                    + peekNextPathPart.Key, Options.CultureInfo, out var floatingNumber))
+						//	{
+						//		elements.Dequeue();
+						//		contextObject = new ContextObject(Options, ".", this);
+						//		contextObject.Value = floatingNumber;
+						//		contextObject.IsNaturalContext = IsNaturalContext;
+						//		return await contextObject.GetContextForPath(elements, scopeData);
+						//	}
+
+						//}
+						
+						var contextObject = new ContextObject(Options, ".", this);
+						contextObject.Value = isNumber;
+						contextObject.IsNaturalContext = IsNaturalContext;
+						return await contextObject.GetContextForPath(elements, scopeData);
+					}
+				}
+				else if (path.Value == PathType.DataPath)
 				{
 					if (path.Key.Equals("$recursion")) //go the root object
 					{
@@ -362,7 +390,7 @@ namespace Morestachio.Framework
 		/// <param name="scopeData"></param>
 		/// <returns></returns>
 		internal async Task<ContextObject> GetContextForPath(
-			IList<KeyValuePair<string, PathTokenizer.PathType>> pathParts,
+			IList<KeyValuePair<string, PathType>> pathParts,
 			ScopeData scopeData)
 		{
 			if (Key == "x:null")
@@ -370,7 +398,7 @@ namespace Morestachio.Framework
 				return this;
 			}
 
-			var elements = new Queue<KeyValuePair<string, PathTokenizer.PathType>>(pathParts);
+			var elements = new Queue<KeyValuePair<string, PathType>>(pathParts);
 			//foreach (var m in PathFinder.Matches(path).OfType<Match>())
 			//{
 			//	elements.Enqueue(m.Value);
@@ -388,7 +416,7 @@ namespace Morestachio.Framework
 					};
 				}
 
-				if (peekPathPart.Value == PathTokenizer.PathType.DataPath)
+				if (peekPathPart.Value == PathType.DataPath)
 				{
 					if (scopeData.Alias.TryGetValue(peekPathPart.Key, out var alias))
 					{
@@ -403,33 +431,6 @@ namespace Morestachio.Framework
 						booleanContext.Value = peekPathPart.Key == "true";
 						booleanContext.IsNaturalContext = IsNaturalContext;
 						return await booleanContext.GetContextForPath(elements, scopeData);
-					}
-
-					//check if this part of the path can be seen as an number
-					if (Number.TryParse(peekPathPart.Key, Options.CultureInfo, out var isNumber))
-					{
-						elements.Dequeue();
-						ContextObject contextObject;
-						if (elements.Count > 0)
-						{
-							var peekNextPathPart = elements.Peek();
-							if (Number.TryParse(peekPathPart.Key
-												+ Options.CultureInfo.NumberFormat.NumberDecimalSeparator
-												+ peekNextPathPart.Key, Options.CultureInfo, out var floatingNumber))
-							{
-								elements.Dequeue();
-								contextObject = new ContextObject(Options, ".", this);
-								contextObject.Value = floatingNumber;
-								contextObject.IsNaturalContext = IsNaturalContext;
-								return await contextObject.GetContextForPath(elements, scopeData);
-							}
-
-						}
-
-						contextObject = new ContextObject(Options, ".", this);
-						contextObject.Value = isNumber;
-						contextObject.IsNaturalContext = IsNaturalContext;
-						return await contextObject.GetContextForPath(elements, scopeData);
 					}
 				}
 			}

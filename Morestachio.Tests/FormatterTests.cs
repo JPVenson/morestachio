@@ -13,6 +13,7 @@ using NUnit.Framework;
 namespace Morestachio.Tests
 {
 	[TestFixture]
+	[Parallelizable(ParallelScope.All)]
 	public class FormatterTests
 	{
 		public static Encoding DefaultEncoding { get; set; } = new UnicodeEncoding(true, false, false);

@@ -2,12 +2,8 @@
 {
 	internal enum TokenState
 	{
-		None,
-		StartOfExpression,
 		Expression,
-		ArgumentName,
 		DecideArgumentType,
-		ArgumentStart,
-		EndOfExpression
+		ArgumentStart
 	}
 }

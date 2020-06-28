@@ -38,10 +38,10 @@ namespace Morestachio.Framework
 		public bool Last { get; }
 
 		/// <inheritdoc />
-		protected override ContextObject HandlePathContext(Queue<KeyValuePair<string, PathTokenizer.PathType>> elements,
-			KeyValuePair<string, PathTokenizer.PathType> path)
+		protected override ContextObject HandlePathContext(Queue<KeyValuePair<string, PathType>> elements,
+			KeyValuePair<string, PathType> path)
 		{
-			if (path.Value != PathTokenizer.PathType.DataPath)
+			if (path.Value != PathType.DataPath)
 			{
 				return null;
 			}

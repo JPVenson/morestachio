@@ -455,6 +455,8 @@ namespace Morestachio.Tests
 
 		[Test]
 		[TestCase("{{..../asdf.content}}")]
+		[TestCase("{{asdf.content.~}}")]
+		[TestCase("{{asdf.content../}}")]
 		[TestCase("{{/}}")]
 		[TestCase("{{./}}")]
 		[TestCase("{{.. }}")]

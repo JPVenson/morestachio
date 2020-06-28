@@ -44,6 +44,7 @@ namespace Morestachio.Framework
 				RegexOptions.Singleline | RegexOptions.Compiled);
 
 		internal static readonly Regex IsCharRegex = new Regex("\\w|\\d", RegexOptions.Compiled);
+		internal static readonly Regex IsNumberRegex = new Regex("\\d", RegexOptions.Compiled);
 		internal static readonly Regex NegativeCharRegex = new Regex("[^\\w\\d]", RegexOptions.Compiled);
 
 		internal static CharacterLocation HumanizeCharacterLocation(int characterIndex, int[] lines)
@@ -106,6 +107,11 @@ namespace Morestachio.Framework
 			return IsExpressionPathChar(formatChar) ||
 				   formatChar == '(' ||
 				   formatChar == ')';
+		}
+
+		internal static bool IsNumberExpressionChar(char formatChar)
+		{
+			return IsNumberRegex.IsMatch(formatChar.ToString());
 		}
 
 		internal static bool IsPathDelimiterChar(char formatChar)

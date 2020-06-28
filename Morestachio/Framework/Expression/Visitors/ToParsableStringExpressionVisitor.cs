@@ -56,7 +56,8 @@ namespace Morestachio.Framework.Expression.Visitors
 				var expressionPathPart = expression.PathParts[index];
 				switch (expressionPathPart.Value)
 				{
-					case PathTokenizer.PathType.DataPath:
+					case PathType.DataPath:
+					case PathType.Number:
 						StringBuilder.Append(expressionPathPart.Key);
 
 						if (index != expression.PathParts.Count - 1)
@@ -64,13 +65,13 @@ namespace Morestachio.Framework.Expression.Visitors
 							StringBuilder.Append(".");
 						}
 						break;
-					case PathTokenizer.PathType.RootSelector:
+					case PathType.RootSelector:
 						StringBuilder.Append("~");
 						break;
-					case PathTokenizer.PathType.ParentSelector:
+					case PathType.ParentSelector:
 						StringBuilder.Append("../");
 						break;
-					case PathTokenizer.PathType.SelfAssignment:
+					case PathType.SelfAssignment:
 						StringBuilder.Append(".");
 						isSelfAssignment = true;
 						break;
@@ -111,7 +112,7 @@ namespace Morestachio.Framework.Expression.Visitors
 			{
 				var expressionExpression = expression.Expressions[index];
 				if (index != 0 && 
-				    (expressionExpression as MorestachioExpression)?.PathParts.All(f => f.Value == PathTokenizer.PathType.SelfAssignment) == false)
+				    (expressionExpression as MorestachioExpression)?.PathParts.All(f => f.Value == PathType.SelfAssignment) == false)
 				{
 					StringBuilder.Append(".");
 				}

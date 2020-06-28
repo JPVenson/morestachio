@@ -5,7 +5,34 @@ using Morestachio.ParserErrors;
 
 namespace Morestachio.Framework.Expression
 {
-	public class PathTokenizer
+	public readonly struct PathPart
+	{
+		public PathPart(PathType pathType, string value)
+		{
+			PathType = pathType;
+			Value = value;
+		}
+
+		public PathType PathType { get; }
+		public string Value { get; }
+	}
+
+	public enum PathType
+	{
+		DataPath,
+		RootSelector,
+		ParentSelector,
+		SelfAssignment,
+		ObjectSelector,
+		Number
+	}
+
+#pragma warning disable 1591
+
+	/// <summary>
+	///		This path is internal and should not be used in your code
+	/// </summary>
+	internal class PathTokenizer
 	{
 		public PathTokenizer()
 		{
@@ -15,29 +42,9 @@ namespace Morestachio.Framework.Expression
 
 		IList<KeyValuePair<string, PathType>> PathParts { get; set; }
 
-		public struct PathPart
-		{
-			public PathPart(PathType pathType, string value)
-			{
-				PathType = pathType;
-				Value = value;
-			}
-
-			public PathType PathType { get; private set; }
-			public string Value { get; private set; }
-		}
-
-		public enum PathType
-		{
-			DataPath,
-			RootSelector,
-			ParentSelector,
-			SelfAssignment,
-			ObjectSelector
-		}
-
 		public string CurrentPart { get; set; }
 		public bool LastCharWasDelimiter { get; set; }
+		public bool CurrentPartIsNumber { get; set; }
 
 		public bool Add(char c)
 		{
@@ -47,11 +54,15 @@ namespace Morestachio.Framework.Expression
 			}
 
 			LastCharWasDelimiter = c == '.';
+
 			if (c == '/')
 			{
 				if (CurrentPart == "..")
 				{
-					CurrentPart += c;
+					if (PathParts.Any() && PathParts.Any(e => e.Value != PathType.ParentSelector && e.Value != PathType.RootSelector))
+					{
+						return false;
+					}
 					PathParts.Add(new KeyValuePair<string, PathType>(null, PathType.ParentSelector));
 					CurrentPart = "";
 					return true;
@@ -62,6 +73,11 @@ namespace Morestachio.Framework.Expression
 
 			if (c == '~')
 			{
+				if (CurrentPart != string.Empty || PathParts.Any())
+				{
+					return false;
+				}
+
 				PathParts.Add(new KeyValuePair<string, PathType>(null, PathType.RootSelector));
 				CurrentPart = "";
 				return true;
@@ -83,16 +99,39 @@ namespace Morestachio.Framework.Expression
 
 			if (CurrentPart != "" && CurrentPart != "." && c == '.')
 			{
+				if (CurrentPartIsNumber)
+				{
+					if (CurrentPart.Contains("."))
+					{
+						PathParts.Add(new KeyValuePair<string, PathType>(CurrentPart, PathType.Number));
+						CurrentPart = "";
+					}
+					else
+					{
+						CurrentPart += c;
+					}
+
+					return true;
+				}
+				
 				if (CheckPathPart() != -1)
 				{
 					return false;
 				}
-
 				PathParts.Add(new KeyValuePair<string, PathType>(CurrentPart, PathType.DataPath));
 				CurrentPart = "";
 			}
 			else
 			{
+				if (CurrentPart == string.Empty && char.IsDigit(c))
+				{
+					CurrentPartIsNumber = true;
+					if (PathParts.Any())
+					{
+						return false;
+					}
+				}
+
 				CurrentPart += c;
 			}
 
@@ -153,12 +192,19 @@ namespace Morestachio.Framework.Expression
 			}
 			else if (CurrentPart.Trim() != "")
 			{
-				hasError = CheckPathPart();
-				if (hasError != -1)
+				if (CurrentPartIsNumber)
 				{
-					return new List<KeyValuePair<string, PathType>>();
+					PathParts.Add(new KeyValuePair<string, PathType>(CurrentPart, PathType.Number));
 				}
-				PathParts.Add(new KeyValuePair<string, PathType>(CurrentPart, PathType.DataPath));
+				else
+				{
+					hasError = CheckPathPart();
+					if (hasError != -1)
+					{
+						return new List<KeyValuePair<string, PathType>>();
+					}
+					PathParts.Add(new KeyValuePair<string, PathType>(CurrentPart, PathType.DataPath));	
+				}
 			}
 
 			if (PathParts.Count > 1 && PathParts.Last().Value == PathType.SelfAssignment)
