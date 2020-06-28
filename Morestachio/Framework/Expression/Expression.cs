@@ -726,7 +726,7 @@ namespace Morestachio.Framework.Expression
 						currentScope.State = TokenState.DecideArgumentType;
 						break;
 					case TokenState.EndOfExpression:
-						Console.WriteLine();
+						//Console.WriteLine();
 						break;
 				}
 			}
