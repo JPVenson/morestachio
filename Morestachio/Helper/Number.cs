@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Numerics;
 using Morestachio.Formatter.Framework;
 
 namespace Morestachio.Helper
@@ -7,7 +8,7 @@ namespace Morestachio.Helper
 	/// <summary>
 	///		Encapsulates a late bound number
 	/// </summary>
-	public readonly struct Number : IConvertible, IFormattable
+	public readonly struct Number : IComparable, IComparable<Number>, IConvertible, IFormattable, IEquatable<Number>
 	{
 		/// <summary>
 		///		Contains the numeric value
@@ -123,6 +124,9 @@ namespace Morestachio.Helper
 			return !(number.Value is decimal) && !(number.Value is double) && !(number.Value is float);
 		}
 
+		/// <summary>
+		///		Contains the list of all .net Integral Types
+		/// </summary>
 		public static readonly Type[] CsFrameworkIntegralTypes = new[]
 		{
 			typeof(ulong),
@@ -138,6 +142,9 @@ namespace Morestachio.Helper
 			typeof(sbyte)
 		};
 
+		/// <summary>
+		///		Contains the list of all .net Floating Point numbers and the Decimal type
+		/// </summary>
 		public static readonly Type[] CsFrameworkFlowtingPointNumberTypes = new[]
 		{
 			typeof(decimal),
@@ -200,7 +207,45 @@ namespace Morestachio.Helper
 			return left.Divide(right);
 		}
 
+		[MorestachioFormatter("ShiftLeft", "Shift two numbers")]
+		public static Number ShiftLeft(Number left, Number right)
+		{
+			return left.ShiftLeft(right);
+		}
+
+		[MorestachioFormatter("ShiftRight", "Shift two numbers")]
+		public static Number ShiftRight(Number left, Number right)
+		{
+			return left.ShiftRight(right);
+		}
+
+		[MorestachioFormatter("BiggerAs", "Checks if the source number is bigger as the other number")]
+		public static bool BiggerAs(Number left, Number right)
+		{
+			return left.BiggerAs(right);
+		}
+
+		[MorestachioFormatter("SmallerAs", "Checks if the source number is smaller as the other number")]
+		public static bool SmallerAs(Number left, Number right)
+		{
+			return left.SmallerAs(right);
+		}
+
+		[MorestachioFormatter("Equals", "Checks if the two numbers are equal to each other")]
+		public static bool Equals(Number left, Number right)
+		{
+			return left.Equals(right);
+		}
+
+		[MorestachioFormatter("Same", "Checks if the two numbers are the same")]
+		public static bool Same(Number left, Number right)
+		{
+			return left.Same(right);
+		}
+
 		#endregion
+
+		#region Number Operations
 
 		/// <summary>
 		///		Adds the two numbers together
@@ -242,11 +287,11 @@ namespace Morestachio.Helper
 			{
 				return new Number(ToUInt16(null) + other.ToUInt16(null));
 			}
-			if (targetType == typeof(ushort))
+			if (targetType == typeof(short))
 			{
 				return new Number(ToInt16(null) + other.ToInt16(null));
 			}
-			if (targetType == typeof(ushort))
+			if (targetType == typeof(byte))
 			{
 				return new Number(ToByte(null) + other.ToByte(null));
 			}
@@ -477,6 +522,277 @@ namespace Morestachio.Helper
 			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
 		}
 
+		/// <summary>
+		///		Shifts its left-hand operand right by the number of bits defined by its right-hand operand.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		public Number ShiftRight(Number other)
+		{
+			var targetType = GetOperationTargetType(this, other);
+			if (targetType == typeof(ulong))
+			{
+				return new Number(ToUInt64(null) >> other.ToInt32(null));
+			}
+			if (targetType == typeof(long))
+			{
+				return new Number(ToInt64(null) >> other.ToInt32(null));
+			}
+			if (targetType == typeof(uint))
+			{
+				return new Number(ToUInt32(null) >> other.ToInt32(null));
+			}
+			if (targetType == typeof(int))
+			{
+				return new Number(ToInt32(null) >> other.ToInt32(null));
+			}
+			if (targetType == typeof(ushort))
+			{
+				return new Number(ToUInt16(null) >> other.ToInt32(null));
+			}
+			if (targetType == typeof(ushort))
+			{
+				return new Number(ToInt16(null) >> other.ToInt32(null));
+			}
+			if (targetType == typeof(ushort))
+			{
+				return new Number(ToByte(null) >> other.ToInt32(null));
+			}
+			if (targetType == typeof(sbyte))
+			{
+				return new Number(ToSByte(null) >> other.ToInt32(null));
+			}
+			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
+		}
+
+		/// <summary>
+		///		Shifts its left-hand operand left by the number of bits defined by its right-hand operand.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		public Number ShiftLeft(Number other)
+		{
+			var targetType = GetOperationTargetType(this, other);
+			if (targetType == typeof(ulong))
+			{
+				return new Number(ToUInt64(null) << other.ToInt32(null));
+			}
+			if (targetType == typeof(long))
+			{
+				return new Number(ToInt64(null) << other.ToInt32(null));
+			}
+			if (targetType == typeof(uint))
+			{
+				return new Number(ToUInt32(null) << other.ToInt32(null));
+			}
+			if (targetType == typeof(int))
+			{
+				return new Number(ToInt32(null) << other.ToInt32(null));
+			}
+			if (targetType == typeof(ushort))
+			{
+				return new Number(ToUInt16(null) << other.ToInt32(null));
+			}
+			if (targetType == typeof(ushort))
+			{
+				return new Number(ToInt16(null) << other.ToInt32(null));
+			}
+			if (targetType == typeof(ushort))
+			{
+				return new Number(ToByte(null) << other.ToInt32(null));
+			}
+			if (targetType == typeof(sbyte))
+			{
+				return new Number(ToSByte(null) << other.ToInt32(null));
+			}
+			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
+		}
+
+		/// <summary>
+		///		Checks if this number is bigger as the other number
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		public bool BiggerAs(Number other)
+		{
+			var targetType = GetOperationTargetType(this, other);
+			if (targetType == typeof(decimal))
+			{
+				return ToDecimal(null) > other.ToDecimal(null);
+			}
+			if (targetType == typeof(double))
+			{
+				return ToDouble(null) > other.ToDouble(null);
+			}
+			if (targetType == typeof(float))
+			{
+				return ToSingle(null) > other.ToSingle(null);
+			}
+			if (targetType == typeof(ulong))
+			{
+				return ToUInt64(null) > other.ToUInt64(null);
+			}
+			if (targetType == typeof(long))
+			{
+				return ToInt64(null) > other.ToInt64(null);
+			}
+			if (targetType == typeof(uint))
+			{
+				return ToUInt32(null) > other.ToUInt32(null);
+			}
+			if (targetType == typeof(int))
+			{
+				return ToInt32(null) > other.ToInt32(null);
+			}
+			if (targetType == typeof(ushort))
+			{
+				return ToUInt16(null) > other.ToUInt16(null);
+			}
+			if (targetType == typeof(ushort))
+			{
+				return ToInt16(null) > other.ToInt16(null);
+			}
+			if (targetType == typeof(ushort))
+			{
+				return ToByte(null) > other.ToByte(null);
+			}
+			if (targetType == typeof(sbyte))
+			{
+				return ToSByte(null) > other.ToSByte(null);
+			}
+			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
+		}
+
+		/// <summary>
+		///		Checks if this number is smaller as the other number
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		public bool SmallerAs(Number other)
+		{
+			var targetType = GetOperationTargetType(this, other);
+			if (targetType == typeof(decimal))
+			{
+				return ToDecimal(null) < other.ToDecimal(null);
+			}
+			if (targetType == typeof(double))
+			{
+				return ToDouble(null) < other.ToDouble(null);
+			}
+			if (targetType == typeof(float))
+			{
+				return ToSingle(null) < other.ToSingle(null);
+			}
+			if (targetType == typeof(ulong))
+			{
+				return ToUInt64(null) < other.ToUInt64(null);
+			}
+			if (targetType == typeof(long))
+			{
+				return ToInt64(null) < other.ToInt64(null);
+			}
+			if (targetType == typeof(uint))
+			{
+				return ToUInt32(null) < other.ToUInt32(null);
+			}
+			if (targetType == typeof(int))
+			{
+				return ToInt32(null) < other.ToInt32(null);
+			}
+			if (targetType == typeof(ushort))
+			{
+				return ToUInt16(null) < other.ToUInt16(null);
+			}
+			if (targetType == typeof(ushort))
+			{
+				return ToInt16(null) < other.ToInt16(null);
+			}
+			if (targetType == typeof(ushort))
+			{
+				return ToByte(null) < other.ToByte(null);
+			}
+			if (targetType == typeof(sbyte))
+			{
+				return ToSByte(null) < other.ToSByte(null);
+			}
+			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
+		}
+
+		/// <summary>
+		///		Checks if both numbers are the same type and also the same value
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		public bool Equals(Number other)
+		{
+			if (other.Value.GetType() != Value.GetType())
+			{
+				return false;
+			}
+
+			return Same(other);
+		}
+
+		/// <summary>
+		///		Checks if both numbers are the same type and also the same value
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		public bool Same(Number other)
+		{
+			if (other.Value == Value)
+			{
+				return true;
+			}
+
+			var targetType = Value.GetType();
+			if (targetType == typeof(decimal))
+			{
+				return ToDecimal(null) == other.ToDecimal(null);
+			}
+			if (targetType == typeof(double))
+			{
+				return ToDouble(null) == other.ToDouble(null);
+			}
+			if (targetType == typeof(float))
+			{
+				return ToSingle(null) == other.ToSingle(null);
+			}
+			if (targetType == typeof(ulong))
+			{
+				return ToUInt64(null) == other.ToUInt64(null);
+			}
+			if (targetType == typeof(long))
+			{
+				return ToInt64(null) == other.ToInt64(null);
+			}
+			if (targetType == typeof(uint))
+			{
+				return ToUInt32(null) == other.ToUInt32(null);
+			}
+			if (targetType == typeof(int))
+			{
+				return ToInt32(null) == other.ToInt32(null);
+			}
+			if (targetType == typeof(ushort))
+			{
+				return ToUInt16(null) == other.ToUInt16(null);
+			}
+			if (targetType == typeof(ushort))
+			{
+				return ToInt16(null) == other.ToInt16(null);
+			}
+			if (targetType == typeof(ushort))
+			{
+				return ToByte(null) == other.ToByte(null);
+			}
+			if (targetType == typeof(sbyte))
+			{
+				return ToSByte(null) == other.ToSByte(null);
+			}
+			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
+		}
+
 		///  <summary>
 		/// 		Tries to parse the input to any number, following roughly the rules of msbuild.
 		/// 		Like:
@@ -601,7 +917,7 @@ namespace Morestachio.Helper
 			if (input.StartsWith("0x", StringComparison.InvariantCultureIgnoreCase))
 			{
 				input = input.TrimStart('0', 'x', 'X');
-				if (int.TryParse(input, NumberStyles.Integer | NumberStyles.AllowHexSpecifier, culture, out var hexIntVal))
+				if (int.TryParse(input, NumberStyles.HexNumber, culture, out var hexIntVal))
 				{
 					number = new Number(hexIntVal);
 					return true;
@@ -659,6 +975,21 @@ namespace Morestachio.Helper
 			return false;
 		}
 
+		#endregion
+
+		/// <inheritdoc />
+		public override bool Equals(object obj)
+		{
+			return obj is Number other && Equals(other);
+		}
+		/// <inheritdoc />
+		public override int GetHashCode()
+		{
+			return (Value != null ? Value.GetHashCode() : 0);
+		}
+
+		#region IConvertable
+
 		/// <inheritdoc />
 		public TypeCode GetTypeCode()
 		{
@@ -668,84 +999,141 @@ namespace Morestachio.Helper
 		/// <inheritdoc />
 		public bool ToBoolean(IFormatProvider provider)
 		{
+			if (Value is bool realVal)
+			{
+				return realVal;
+			}
+
 			return Value.ToBoolean(provider);
 		}
 
 		/// <inheritdoc />
 		public char ToChar(IFormatProvider provider)
 		{
+			if (Value is char realVal)
+			{
+				return realVal;
+			}
 			return Value.ToChar(provider);
 		}
 
 		/// <inheritdoc />
 		public sbyte ToSByte(IFormatProvider provider)
 		{
+			if (Value is sbyte realVal)
+			{
+				return realVal;
+			}
 			return Value.ToSByte(provider);
 		}
 
 		/// <inheritdoc />
 		public byte ToByte(IFormatProvider provider)
 		{
+			if (Value is byte realVal)
+			{
+				return realVal;
+			}
 			return Value.ToByte(provider);
 		}
 
 		/// <inheritdoc />
 		public short ToInt16(IFormatProvider provider)
 		{
+			if (Value is short realVal)
+			{
+				return realVal;
+			}
 			return Value.ToInt16(provider);
 		}
 
 		/// <inheritdoc />
 		public ushort ToUInt16(IFormatProvider provider)
 		{
+			if (Value is ushort realVal)
+			{
+				return realVal;
+			}
 			return Value.ToUInt16(provider);
 		}
 
 		/// <inheritdoc />
 		public int ToInt32(IFormatProvider provider)
 		{
+			if (Value is int realVal)
+			{
+				return realVal;
+			}
 			return Value.ToInt32(provider);
 		}
 
 		/// <inheritdoc />
 		public uint ToUInt32(IFormatProvider provider)
 		{
+			if (Value is uint realVal)
+			{
+				return realVal;
+			}
 			return Value.ToUInt32(provider);
 		}
 
 		/// <inheritdoc />
 		public long ToInt64(IFormatProvider provider)
 		{
+			if (Value is long realVal)
+			{
+				return realVal;
+			}
 			return Value.ToInt64(provider);
 		}
 
 		/// <inheritdoc />
 		public ulong ToUInt64(IFormatProvider provider)
 		{
+			if (Value is ulong realVal)
+			{
+				return realVal;
+			}
 			return Value.ToUInt64(provider);
 		}
 
 		/// <inheritdoc />
 		public float ToSingle(IFormatProvider provider)
 		{
+			if (Value is float realVal)
+			{
+				return realVal;
+			}
 			return Value.ToSingle(provider);
 		}
 
 		/// <inheritdoc />
 		public double ToDouble(IFormatProvider provider)
 		{
+			if (Value is double realVal)
+			{
+				return realVal;
+			}
 			return Value.ToDouble(provider);
 		}
 
 		/// <inheritdoc />
 		public decimal ToDecimal(IFormatProvider provider)
 		{
+			if (Value is decimal realVal)
+			{
+				return realVal;
+			}
 			return Value.ToDecimal(provider);
 		}
 
 		/// <inheritdoc />
 		public DateTime ToDateTime(IFormatProvider provider)
 		{
+			if (Value is DateTime realVal)
+			{
+				return realVal;
+			}
 			return Value.ToDateTime(provider);
 		}
 
@@ -758,6 +1146,11 @@ namespace Morestachio.Helper
 		/// <inheritdoc />
 		public object ToType(Type conversionType, IFormatProvider provider)
 		{
+			if (Value.GetType() == conversionType)
+			{
+				return Value;
+			}
+
 			return Value.ToType(conversionType, provider);
 		}
 
@@ -777,5 +1170,130 @@ namespace Morestachio.Helper
 		{
 			return Value?.ToString();
 		}
+
+		/// <inheritdoc />
+		public int CompareTo(object obj)
+		{
+			if (!(Value is IComparable comparable))
+			{
+				throw new ArgumentException($"Cannot compare '{obj}' with '{Value}'");
+			}
+
+			return comparable.CompareTo(obj);
+		}
+
+		/// <inheritdoc />
+		public int CompareTo(Number obj)
+		{
+			if (!(Value is IComparable comparable))
+			{
+				throw new ArgumentException($"Cannot compare '{obj}' with '{Value}'");
+			}
+
+			return comparable.CompareTo(obj.Value);
+		}
+
+		#endregion
+
+		#region Operator Overloading
+
+		public static Number operator +(Number a) => a;
+		public static Number operator ++(Number a) => a.Add(1);
+		public static Number operator -(Number a) => a * -1;
+		public static Number operator --(Number a) => a.Subtract(1);
+		public static Number operator <<(Number a, int b) => a.ShiftLeft(b);
+		public static Number operator >>(Number a, int b) => a.ShiftRight(b);
+		public static bool operator ==(Number a, Number b) => a.Equals(b);
+		public static bool operator !=(Number a, Number b) => !a.Equals(b);
+		public static bool operator <(Number a, Number b) => a.BiggerAs(b);
+		public static bool operator >(Number a, Number b) => a.SmallerAs(b);
+		public static bool operator <=(Number a, Number b) => a.Equals(b) || a.BiggerAs(b);
+		public static bool operator >=(Number a, Number b) => a.Equals(b) || a.SmallerAs(b);
+
+		public static Number operator +(Number a, Number b) => a.Add(b);
+		public static Number operator -(Number a, Number b) => a.Subtract(b);
+		public static Number operator *(Number a, Number b) => a.Multiply(b);
+		public static Number operator /(Number a, Number b) => a.Subtract(b);
+		public static Number operator %(Number a, Number b) => a.Modulo(b);
+
+		public static Number operator +(Number a, decimal b) => a.Add(b);
+		public static Number operator -(Number a, decimal b) => a.Subtract(b);
+		public static Number operator *(Number a, decimal b) => a.Multiply(b);
+		public static Number operator /(Number a, decimal b) => a.Subtract(b);
+		public static Number operator %(Number a, decimal b) => a.Modulo(b);
+
+		public static Number operator +(Number a, double b) => a.Add(b);
+		public static Number operator -(Number a, double b) => a.Subtract(b);
+		public static Number operator *(Number a, double b) => a.Multiply(b);
+		public static Number operator /(Number a, double b) => a.Subtract(b);
+		public static Number operator %(Number a, double b) => a.Modulo(b);
+
+		public static Number operator +(Number a, float b) => a.Add(b);
+		public static Number operator -(Number a, float b) => a.Subtract(b);
+		public static Number operator *(Number a, float b) => a.Multiply(b);
+		public static Number operator /(Number a, float b) => a.Subtract(b);
+		public static Number operator %(Number a, float b) => a.Modulo(b);
+
+		public static Number operator +(Number a, ulong b) => a.Add(b);
+		public static Number operator -(Number a, ulong b) => a.Subtract(b);
+		public static Number operator *(Number a, ulong b) => a.Multiply(b);
+		public static Number operator /(Number a, ulong b) => a.Subtract(b);
+		public static Number operator %(Number a, ulong b) => a.Modulo(b);
+
+		public static Number operator +(Number a, long b) => a.Add(b);
+		public static Number operator -(Number a, long b) => a.Subtract(b);
+		public static Number operator *(Number a, long b) => a.Multiply(b);
+		public static Number operator /(Number a, long b) => a.Subtract(b);
+		public static Number operator %(Number a, long b) => a.Modulo(b);
+
+		public static Number operator +(Number a, uint b) => a.Add(b);
+		public static Number operator -(Number a, uint b) => a.Subtract(b);
+		public static Number operator *(Number a, uint b) => a.Multiply(b);
+		public static Number operator /(Number a, uint b) => a.Subtract(b);
+		public static Number operator %(Number a, uint b) => a.Modulo(b);
+
+		public static Number operator +(Number a, int b) => a.Add(b);
+		public static Number operator -(Number a, int b) => a.Subtract(b);
+		public static Number operator *(Number a, int b) => a.Multiply(b);
+		public static Number operator /(Number a, int b) => a.Subtract(b);
+		public static Number operator %(Number a, int b) => a.Modulo(b);
+
+		public static Number operator +(Number a, ushort b) => a.Add(b);
+		public static Number operator -(Number a, ushort b) => a.Subtract(b);
+		public static Number operator *(Number a, ushort b) => a.Multiply(b);
+		public static Number operator /(Number a, ushort b) => a.Subtract(b);
+		public static Number operator %(Number a, ushort b) => a.Modulo(b);
+
+		public static Number operator +(Number a, short b) => a.Add(b);
+		public static Number operator -(Number a, short b) => a.Subtract(b);
+		public static Number operator *(Number a, short b) => a.Multiply(b);
+		public static Number operator /(Number a, short b) => a.Subtract(b);
+		public static Number operator %(Number a, short b) => a.Modulo(b);
+
+		public static Number operator +(Number a, byte b) => a.Add(b);
+		public static Number operator -(Number a, byte b) => a.Subtract(b);
+		public static Number operator *(Number a, byte b) => a.Multiply(b);
+		public static Number operator /(Number a, byte b) => a.Subtract(b);
+		public static Number operator %(Number a, byte b) => a.Modulo(b);
+
+		public static Number operator +(Number a, sbyte b) => a.Add(b);
+		public static Number operator -(Number a, sbyte b) => a.Subtract(b);
+		public static Number operator *(Number a, sbyte b) => a.Multiply(b);
+		public static Number operator /(Number a, sbyte b) => a.Subtract(b);
+		public static Number operator %(Number a, sbyte b) => a.Modulo(b);
+
+		public static implicit operator Number(decimal d) => new Number(d);
+		public static implicit operator Number(double d) => new Number(d);
+		public static implicit operator Number(float d) => new Number(d);
+		public static implicit operator Number(ulong d) => new Number(d);
+		public static implicit operator Number(long d) => new Number(d);
+		public static implicit operator Number(uint d) => new Number(d);
+		public static implicit operator Number(int d) => new Number(d);
+		public static implicit operator Number(ushort d) => new Number(d);
+		public static implicit operator Number(short d) => new Number(d);
+		public static implicit operator Number(byte d) => new Number(d);
+		public static implicit operator Number(sbyte d) => new Number(d);
+
+		#endregion
 	}
 }
