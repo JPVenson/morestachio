@@ -142,8 +142,8 @@ namespace Morestachio.Framework
 				var firstNonContentToken = tokens
 					.AsReadOnly()
 					.Reverse()
-					.FirstOrDefault(e => e.Type != TokenType.Content);
-				if (firstNonContentToken == null || firstNonContentToken.Type != TokenType.IfClose)
+					.FirstOrDefault(e => !e.Type.Equals(TokenType.Content));
+				if (firstNonContentToken == null || !firstNonContentToken.Type.Equals(TokenType.IfClose))
 				{
 					context.Errors
 						.Add(new MorestachioSyntaxError(
@@ -202,7 +202,6 @@ namespace Morestachio.Framework
 
 			foreach (Match match in matches)
 			{
-				var tokenIndex = match.Index;
 				//yield front content.
 				if (match.Index > context.Character)
 				{
@@ -597,7 +596,7 @@ namespace Morestachio.Framework
 
 					if (customDocumentProvider != null)
 					{
-						var tokenInfo = new CustomDocumentItemProvider.TokenInfo(tokenValue, context);
+						var tokenInfo = new CustomDocumentItemProvider.TokenInfo(tokenValue, context,scopestack);
 						var tokenPairs = customDocumentProvider.Tokenize(tokenInfo, parserOptions);
 						tokens.AddRange(tokenPairs);
 					}

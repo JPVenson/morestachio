@@ -49,7 +49,7 @@ namespace Morestachio.Framework
 		/// <param name="type"></param>
 		/// <param name="value"></param>
 		/// <param name="tokenLocation"></param>
-		public TokenPair(TokenType type, string value, CharacterLocation tokenLocation)
+		public TokenPair(IComparable type, string value, CharacterLocation tokenLocation)
 		{
 			Type = type;
 			Value = value;
@@ -59,7 +59,7 @@ namespace Morestachio.Framework
 		/// <summary>
 		///		The type of this Token
 		/// </summary>
-		public TokenType Type { get; set; }
+		public IComparable Type { get; set; }
 
 		/// <summary>
 		///		With what format should this token be evaluated

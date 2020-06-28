@@ -75,18 +75,18 @@ namespace Morestachio
 				var currentToken = tokens.Dequeue();
 				var currentDocumentItem = buildStack.Peek(); //get the latest document
 
-				if (currentToken.Type == TokenType.Comment)
+				if (currentToken.Type.Equals(TokenType.Comment))
 				{
 					//just ignore this part and print nothing
 				}
-				else if (currentToken.Type == TokenType.Content)
+				else if (currentToken.Type.Equals(TokenType.Content))
 				{
 					currentDocumentItem.Document.Add(new ContentDocumentItem(currentToken.Value)
 					{
 						ExpressionStart = currentToken.TokenLocation
 					});
 				}
-				else if (currentToken.Type == TokenType.If)
+				else if (currentToken.Type.Equals(TokenType.If))
 				{
 					var nestedDocument = new IfExpressionScopeDocumentItem(currentToken.MorestachioExpression)
 					{
@@ -95,7 +95,7 @@ namespace Morestachio
 					buildStack.Push(new DocumentScope(nestedDocument));
 					currentDocumentItem.Document.Add(nestedDocument);
 				}
-				else if (currentToken.Type == TokenType.IfNot)
+				else if (currentToken.Type.Equals(TokenType.IfNot))
 				{
 					var nestedDocument = new IfNotExpressionScopeDocumentItem(currentToken.MorestachioExpression)
 					{
@@ -104,7 +104,7 @@ namespace Morestachio
 					buildStack.Push(new DocumentScope(nestedDocument));
 					currentDocumentItem.Document.Add(nestedDocument);
 				}
-				else if (currentToken.Type == TokenType.Else)
+				else if (currentToken.Type.Equals(TokenType.Else))
 				{
 					var nestedDocument = new ElseExpressionScopeDocumentItem()
 					{
@@ -113,7 +113,7 @@ namespace Morestachio
 					buildStack.Push(new DocumentScope(nestedDocument));
 					currentDocumentItem.Document.Add(nestedDocument);
 				}
-				else if (currentToken.Type == TokenType.CollectionOpen)
+				else if (currentToken.Type.Equals(TokenType.CollectionOpen))
 				{
 					var nestedDocument = new EachDocumentItem(currentToken.MorestachioExpression)
 					{
@@ -122,7 +122,7 @@ namespace Morestachio
 					buildStack.Push(new DocumentScope(nestedDocument));
 					currentDocumentItem.Document.Add(nestedDocument);
 				}
-				else if (currentToken.Type == TokenType.WhileLoopOpen)
+				else if (currentToken.Type.Equals(TokenType.WhileLoopOpen))
 				{
 					var nestedDocument = new WhileLoopDocumentItem(currentToken.MorestachioExpression)
 					{
@@ -131,7 +131,7 @@ namespace Morestachio
 					buildStack.Push(new DocumentScope(nestedDocument));
 					currentDocumentItem.Document.Add(nestedDocument);
 				}
-				else if (currentToken.Type == TokenType.DoLoopOpen)
+				else if (currentToken.Type.Equals(TokenType.DoLoopOpen))
 				{
 					var nestedDocument = new DoLoopDocumentItem(currentToken.MorestachioExpression)
 					{
@@ -140,7 +140,7 @@ namespace Morestachio
 					buildStack.Push(new DocumentScope(nestedDocument));
 					currentDocumentItem.Document.Add(nestedDocument);
 				}
-				else if (currentToken.Type == TokenType.ElementOpen)
+				else if (currentToken.Type.Equals(TokenType.ElementOpen))
 				{
 					var nestedDocument = new ExpressionScopeDocumentItem(currentToken.MorestachioExpression)
 					{
@@ -149,7 +149,7 @@ namespace Morestachio
 					buildStack.Push(new DocumentScope(nestedDocument));
 					currentDocumentItem.Document.Add(nestedDocument);
 				}
-				else if (currentToken.Type == TokenType.InvertedElementOpen)
+				else if (currentToken.Type.Equals(TokenType.InvertedElementOpen))
 				{
 					var invertedScope = new InvertedExpressionScopeDocumentItem(currentToken.MorestachioExpression)
 					{
@@ -158,12 +158,12 @@ namespace Morestachio
 					buildStack.Push(new DocumentScope(invertedScope));
 					currentDocumentItem.Document.Add(invertedScope);
 				}
-				else if (currentToken.Type == TokenType.CollectionClose
-						 || currentToken.Type == TokenType.ElementClose
-						 || currentToken.Type == TokenType.IfClose
-						 || currentToken.Type == TokenType.ElseClose
-						 || currentToken.Type == TokenType.WhileLoopClose
-						 || currentToken.Type == TokenType.DoLoopClose)
+				else if (currentToken.Type.Equals(TokenType.CollectionClose)
+						|| currentToken.Type.Equals(TokenType.ElementClose)
+						|| currentToken.Type.Equals(TokenType.IfClose)
+						|| currentToken.Type.Equals(TokenType.ElseClose)
+						|| currentToken.Type.Equals(TokenType.WhileLoopClose)
+						|| currentToken.Type.Equals(TokenType.DoLoopClose))
 				{
 					if (buildStack.Peek().HasAlias) //are we in a alias then remove it
 					{
@@ -173,16 +173,16 @@ namespace Morestachio
 					// remove the last document from the stack and go back to the parents
 					buildStack.Pop();
 				}
-				else if (currentToken.Type == TokenType.EscapedSingleValue ||
-				         currentToken.Type == TokenType.UnescapedSingleValue)
+				else if (currentToken.Type.Equals(TokenType.EscapedSingleValue) ||
+						currentToken.Type.Equals(TokenType.UnescapedSingleValue))
 				{
 					currentDocumentItem.Document.Add(new PathDocumentItem(currentToken.MorestachioExpression,
-							currentToken.Type == TokenType.EscapedSingleValue)
+							currentToken.Type.Equals(TokenType.EscapedSingleValue))
 					{
 						ExpressionStart = currentToken.TokenLocation
 					});
 				}
-				else if (currentToken.Type == TokenType.PartialDeclarationOpen)
+				else if (currentToken.Type.Equals(TokenType.PartialDeclarationOpen))
 				{
 					// currently same named partials will override each other
 					// to allow recursive calls of partials we first have to declare the partial and then load it as we would parse
@@ -194,7 +194,7 @@ namespace Morestachio
 						ExpressionStart = currentToken.TokenLocation
 					});
 				}
-				else if (currentToken.Type == TokenType.PartialDeclarationClose)
+				else if (currentToken.Type.Equals(TokenType.PartialDeclarationClose))
 				{
 					currentDocumentItem.Document.Add(new RenderPartialDoneDocumentItem(currentToken.Value)
 					{
@@ -202,14 +202,14 @@ namespace Morestachio
 					});
 					buildStack.Pop();
 				}
-				else if (currentToken.Type == TokenType.RenderPartial)
+				else if (currentToken.Type.Equals(TokenType.RenderPartial))
 				{
 					currentDocumentItem.Document.Add(new RenderPartialDocumentItem(currentToken.Value)
 					{
 						ExpressionStart = currentToken.TokenLocation
 					});
 				}
-				else if (currentToken.Type == TokenType.Alias)
+				else if (currentToken.Type.Equals(TokenType.Alias))
 				{
 					var aliasDocumentItem = new AliasDocumentItem(currentToken.Value)
 					{
@@ -218,7 +218,7 @@ namespace Morestachio
 					currentDocumentItem.Document.Add(aliasDocumentItem);
 					buildStack.Push(new DocumentScope(aliasDocumentItem, currentToken.Value));
 				}
-				else if (currentToken.Type == TokenType.VariableDeclaration)
+				else if (currentToken.Type.Equals(TokenType.VariableDeclaration))
 				{
 					var evaluateVariableDocumentItem = new EvaluateVariableDocumentItem(currentToken.Value, currentToken.MorestachioExpression);
 					currentDocumentItem.Document.Add(evaluateVariableDocumentItem);

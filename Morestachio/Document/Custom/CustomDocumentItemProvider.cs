@@ -35,18 +35,26 @@ namespace Morestachio.Document.Custom
 		/// </summary>
 		public class TokenInfo
 		{
+
+			internal TokenInfo(string token,
+				TokenzierContext context, 
+				Stack<Tuple<string, int>> scopeStack)
+			{
+				TokenizerContext = context;
+				ScopeStack = scopeStack;
+				Token = token;
+				Errors = new List<IMorestachioError>();
+			}
+			
 			/// <summary>
 			///		Provides the current context you document item is created in
 			/// </summary>
 			public TokenzierContext TokenizerContext { get; set; }
 
-			internal TokenInfo(string token,
-				TokenzierContext context)
-			{
-				TokenizerContext = context;
-				Token = token;
-				Errors = new List<IMorestachioError>();
-			}
+			/// <summary>
+			///		The global scope stack
+			/// </summary>
+			public Stack<Tuple<string, int>> ScopeStack { get; }
 
 			/// <summary>
 			///		The obtained Token. This is the Full text token
