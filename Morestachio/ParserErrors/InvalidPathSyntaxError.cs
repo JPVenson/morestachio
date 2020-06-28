@@ -19,14 +19,22 @@ namespace Morestachio.ParserErrors
 		/// The token.
 		/// </value>
 		public string Token { get; }
-		
-		/// <inheritdoc />
-		public InvalidPathSyntaxError(CharacterLocationExtended location, string token)
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="location"></param>
+		/// <param name="token"></param>
+		public InvalidPathSyntaxError(CharacterLocationExtended location, string token, string helpText = null)
 		{
 			Location = location;
 			Token = token;
 			HelpText =
 				$"line:char '{Location.Line}:{Location.Character}' - The path '{Token}' is not valid. Please see documentation for examples of valid paths.";
+			if (helpText != null)
+			{
+				HelpText += "\r\n" + helpText;
+			}
 		}
 		
 		/// <inheritdoc />

@@ -46,10 +46,14 @@ namespace Morestachio.Framework.Expression
 		public bool LastCharWasDelimiter { get; set; }
 		public bool CurrentPartIsNumber { get; set; }
 
-		public bool Add(char c)
+		public bool Add(char c, TokenzierContext context, int index)
 		{
 			if (!Tokenizer.IsExpressionChar(c))
 			{
+				context.Errors.Add(
+					new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
+							.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
+						CurrentPart));
 				return false;
 			}
 
@@ -59,15 +63,25 @@ namespace Morestachio.Framework.Expression
 			{
 				if (CurrentPart == "..")
 				{
-					if (PathParts.Any() && PathParts.Any(e => e.Value != PathType.ParentSelector && e.Value != PathType.RootSelector))
+					if (PathParts.Any() && PathParts.Any(e => e.Value != PathType.ParentSelector))
 					{
+						context.Errors.Add(
+							new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
+									.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
+								CurrentPart,
+								"An Parent selector '..\\' can only follow on another parent selector like and never on an root or an data selector"));
+
 						return false;
 					}
 					PathParts.Add(new KeyValuePair<string, PathType>(null, PathType.ParentSelector));
 					CurrentPart = "";
 					return true;
 				}
-				//add error
+				context.Errors.Add(
+					new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
+							.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
+						CurrentPart,
+						"Unexpected '/'. Expected ether the start of an expression or an './'"));
 				return false;
 			}
 
@@ -75,6 +89,12 @@ namespace Morestachio.Framework.Expression
 			{
 				if (CurrentPart != string.Empty || PathParts.Any())
 				{
+					context.Errors.Add(
+						new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
+								.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
+							CurrentPart,
+							"An root selector '~' must be at the start of an expression"));
+
 					return false;
 				}
 
@@ -113,9 +133,15 @@ namespace Morestachio.Framework.Expression
 
 					return true;
 				}
-				
-				if (CheckPathPart() != -1)
+
+				var checkPathPart = CheckPathPart();
+				if (checkPathPart != -1)
 				{
+					context.Errors.Add(
+						new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
+								.AddWindow(new CharacterSnippedLocation(1, checkPathPart, CurrentPart)),
+							CurrentPart));
+
 					return false;
 				}
 				PathParts.Add(new KeyValuePair<string, PathType>(CurrentPart, PathType.DataPath));
@@ -128,6 +154,12 @@ namespace Morestachio.Framework.Expression
 					CurrentPartIsNumber = true;
 					if (PathParts.Any())
 					{
+						context.Errors.Add(
+							new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
+									.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
+								CurrentPart,
+								"A number expression must be at the start of the expression and cannot follow on anything else"));
+
 						return false;
 					}
 				}
@@ -172,7 +204,7 @@ namespace Morestachio.Framework.Expression
 			return lastPartIsFormatterName;
 		}
 
-		public IList<KeyValuePair<string, PathType>> Compile(out int hasError)
+		public IList<KeyValuePair<string, PathType>> Compile(TokenzierContext context, int index)
 		{
 			if (CurrentPart == ".")
 			{
@@ -198,12 +230,16 @@ namespace Morestachio.Framework.Expression
 				}
 				else
 				{
-					hasError = CheckPathPart();
+					var hasError = CheckPathPart();
 					if (hasError != -1)
 					{
+						context.Errors.Add(
+							new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
+									.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
+								CurrentPart));
 						return new List<KeyValuePair<string, PathType>>();
 					}
-					PathParts.Add(new KeyValuePair<string, PathType>(CurrentPart, PathType.DataPath));	
+					PathParts.Add(new KeyValuePair<string, PathType>(CurrentPart, PathType.DataPath));
 				}
 			}
 
@@ -219,8 +255,6 @@ namespace Morestachio.Framework.Expression
 			//}
 
 			CurrentPart = "";
-			
-			hasError = -1;
 			return PathParts;
 		}
 	}

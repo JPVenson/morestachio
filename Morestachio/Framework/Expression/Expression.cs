@@ -193,15 +193,9 @@ namespace Morestachio.Framework.Expression
 			TokenzierContext context,
 			int index)
 		{
-			PathParts = PathTokenizer.Compile(out var hasError);
-			if (hasError != -1)
-			{
-				context.Errors.Add(
-					new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-							.AddWindow(new CharacterSnippedLocation(1, hasError, PathTokenizer.CurrentPart)),
-						PathTokenizer.CurrentPart));
-			}
+			PathParts = PathTokenizer.Compile(context, index);
 		}
+
 		private static char?[] _closingChars = { '.', ',', ')' };
 
 		/// <summary>
@@ -223,12 +217,10 @@ namespace Morestachio.Framework.Expression
 				for (; index < text.Length; index++)
 				{
 					var c = text[index];
-					if (!expression.PathTokenizer.Add(c))
+					if (!expression.PathTokenizer.Add(c, context, index))
 					{
-						context.Errors.Add(
-							new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-									.AddWindow(new CharacterSnippedLocation(1, index, text)),
-								text[index].ToString()));
+						indexVar = 0;
+						return null;
 					}
 				}
 				expression.CompilePath(context, 0);
@@ -670,12 +662,10 @@ namespace Morestachio.Framework.Expression
 								//we are in an path expression
 								//like data.data.data.data
 
-								if ((currentScope.Value as MorestachioExpression)?.PathTokenizer.Add(formatChar) == false)
+								if ((currentScope.Value as MorestachioExpression)?.PathTokenizer.Add(formatChar, context, index) == false)
 								{
-									context.Errors.Add(
-										new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-												.AddWindow(new CharacterSnippedLocation(1, index, text)),
-											formatChar.ToString()));
+									indexVar = 0;
+									return null;
 								}
 
 								if (Eoex())
