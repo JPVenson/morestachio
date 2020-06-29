@@ -156,5 +156,42 @@ namespace Morestachio.Tests
 			var result = await Parser.ParseWithOptions(parsingOptions).CreateAndStringifyAsync(data);
 			Assert.That(result, Is.EqualTo(expected));
 		}
+		
+		[Test]
+		public void TestNumberOperators()
+		{
+			Assert.That(() => new Number(10) + new Number(10), Is.EqualTo(new Number(20)));
+			Assert.That(() =>
+			{
+				var number = new Number(19);
+				var e = number++;
+				Assert.That(e, Is.EqualTo(new Number(19)));
+				return number;
+			}, Is.EqualTo(new Number(20)));
+			Assert.That(() =>
+			{
+				var number = new Number(21);
+				var e = number--;
+				Assert.That(e, Is.EqualTo(new Number(21)));
+				return number;
+			}, Is.EqualTo(new Number(20)));
+			Assert.That(() => new Number(30) - new Number(10), Is.EqualTo(new Number(20)));
+			Assert.That(() => new Number(2) * new Number(10), Is.EqualTo(new Number(2 * 10)));
+			Assert.That(() => new Number(10) / new Number(2), Is.EqualTo(new Number(10 / 2)));
+			Assert.That(() => new Number(10) % new Number(2), Is.EqualTo(new Number(10 % 2)));
+			Assert.That(() => new Number(50) << 40, Is.EqualTo(new Number(50 << 40)));
+			Assert.That(() => new Number(50) >> 40, Is.EqualTo(new Number(50 >> 40)));
+
+			Assert.That(() => new Number(50) < new Number(2), Is.EqualTo(50 < 2));
+			Assert.That(() => new Number(50) > new Number(2), Is.EqualTo(50 > 2));
+
+			Assert.That(() => new Number(2) < new Number(50), Is.EqualTo(2 < 50));
+			Assert.That(() => new Number(2) > new Number(50), Is.EqualTo(2 > 50));
+			Assert.That(() => new Number(2) == new Number(2), Is.EqualTo(2 == 2));
+			Assert.That(() => new Number(2) != new Number(2), Is.EqualTo(2 != 2));
+
+			Assert.That(() => new Number(2D).Same(new Number(2)), Is.EqualTo(2D == 2));
+			Assert.That(() => !new Number(2D).Same(new Number(2)), Is.EqualTo(2D != 2));
+		}
 	}
 }

@@ -1204,81 +1204,81 @@ namespace Morestachio.Helper
 		public static Number operator >>(Number a, int b) => a.ShiftRight(b);
 		public static bool operator ==(Number a, Number b) => a.Equals(b);
 		public static bool operator !=(Number a, Number b) => !a.Equals(b);
-		public static bool operator <(Number a, Number b) => a.BiggerAs(b);
-		public static bool operator >(Number a, Number b) => a.SmallerAs(b);
-		public static bool operator <=(Number a, Number b) => a.Equals(b) || a.BiggerAs(b);
-		public static bool operator >=(Number a, Number b) => a.Equals(b) || a.SmallerAs(b);
+		public static bool operator <(Number a, Number b) => a.SmallerAs(b);
+		public static bool operator >(Number a, Number b) => a.BiggerAs(b);
+		public static bool operator <=(Number a, Number b) => a.Equals(b) || a.SmallerAs(b);
+		public static bool operator >=(Number a, Number b) => a.Equals(b) || a.BiggerAs(b);
 
 		public static Number operator +(Number a, Number b) => a.Add(b);
 		public static Number operator -(Number a, Number b) => a.Subtract(b);
 		public static Number operator *(Number a, Number b) => a.Multiply(b);
-		public static Number operator /(Number a, Number b) => a.Subtract(b);
+		public static Number operator /(Number a, Number b) => a.Divide(b);
 		public static Number operator %(Number a, Number b) => a.Modulo(b);
 
 		public static Number operator +(Number a, decimal b) => a.Add(b);
 		public static Number operator -(Number a, decimal b) => a.Subtract(b);
 		public static Number operator *(Number a, decimal b) => a.Multiply(b);
-		public static Number operator /(Number a, decimal b) => a.Subtract(b);
+		public static Number operator /(Number a, decimal b) => a.Divide(b);
 		public static Number operator %(Number a, decimal b) => a.Modulo(b);
 
 		public static Number operator +(Number a, double b) => a.Add(b);
 		public static Number operator -(Number a, double b) => a.Subtract(b);
 		public static Number operator *(Number a, double b) => a.Multiply(b);
-		public static Number operator /(Number a, double b) => a.Subtract(b);
+		public static Number operator /(Number a, double b) => a.Divide(b);
 		public static Number operator %(Number a, double b) => a.Modulo(b);
 
 		public static Number operator +(Number a, float b) => a.Add(b);
 		public static Number operator -(Number a, float b) => a.Subtract(b);
 		public static Number operator *(Number a, float b) => a.Multiply(b);
-		public static Number operator /(Number a, float b) => a.Subtract(b);
+		public static Number operator /(Number a, float b) => a.Divide(b);
 		public static Number operator %(Number a, float b) => a.Modulo(b);
 
 		public static Number operator +(Number a, ulong b) => a.Add(b);
 		public static Number operator -(Number a, ulong b) => a.Subtract(b);
 		public static Number operator *(Number a, ulong b) => a.Multiply(b);
-		public static Number operator /(Number a, ulong b) => a.Subtract(b);
+		public static Number operator /(Number a, ulong b) => a.Divide(b);
 		public static Number operator %(Number a, ulong b) => a.Modulo(b);
 
 		public static Number operator +(Number a, long b) => a.Add(b);
 		public static Number operator -(Number a, long b) => a.Subtract(b);
 		public static Number operator *(Number a, long b) => a.Multiply(b);
-		public static Number operator /(Number a, long b) => a.Subtract(b);
+		public static Number operator /(Number a, long b) => a.Divide(b);
 		public static Number operator %(Number a, long b) => a.Modulo(b);
 
 		public static Number operator +(Number a, uint b) => a.Add(b);
 		public static Number operator -(Number a, uint b) => a.Subtract(b);
 		public static Number operator *(Number a, uint b) => a.Multiply(b);
-		public static Number operator /(Number a, uint b) => a.Subtract(b);
+		public static Number operator /(Number a, uint b) => a.Divide(b);
 		public static Number operator %(Number a, uint b) => a.Modulo(b);
 
 		public static Number operator +(Number a, int b) => a.Add(b);
 		public static Number operator -(Number a, int b) => a.Subtract(b);
 		public static Number operator *(Number a, int b) => a.Multiply(b);
-		public static Number operator /(Number a, int b) => a.Subtract(b);
+		public static Number operator /(Number a, int b) => a.Divide(b);
 		public static Number operator %(Number a, int b) => a.Modulo(b);
 
 		public static Number operator +(Number a, ushort b) => a.Add(b);
 		public static Number operator -(Number a, ushort b) => a.Subtract(b);
 		public static Number operator *(Number a, ushort b) => a.Multiply(b);
-		public static Number operator /(Number a, ushort b) => a.Subtract(b);
+		public static Number operator /(Number a, ushort b) => a.Divide(b);
 		public static Number operator %(Number a, ushort b) => a.Modulo(b);
 
 		public static Number operator +(Number a, short b) => a.Add(b);
 		public static Number operator -(Number a, short b) => a.Subtract(b);
 		public static Number operator *(Number a, short b) => a.Multiply(b);
-		public static Number operator /(Number a, short b) => a.Subtract(b);
+		public static Number operator /(Number a, short b) => a.Divide(b);
 		public static Number operator %(Number a, short b) => a.Modulo(b);
 
 		public static Number operator +(Number a, byte b) => a.Add(b);
 		public static Number operator -(Number a, byte b) => a.Subtract(b);
 		public static Number operator *(Number a, byte b) => a.Multiply(b);
-		public static Number operator /(Number a, byte b) => a.Subtract(b);
+		public static Number operator /(Number a, byte b) => a.Divide(b);
 		public static Number operator %(Number a, byte b) => a.Modulo(b);
 
 		public static Number operator +(Number a, sbyte b) => a.Add(b);
 		public static Number operator -(Number a, sbyte b) => a.Subtract(b);
 		public static Number operator *(Number a, sbyte b) => a.Multiply(b);
-		public static Number operator /(Number a, sbyte b) => a.Subtract(b);
+		public static Number operator /(Number a, sbyte b) => a.Divide(b);
 		public static Number operator %(Number a, sbyte b) => a.Modulo(b);
 
 		public static implicit operator Number(decimal d) => new Number(d);
