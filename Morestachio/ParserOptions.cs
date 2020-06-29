@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Threading;
 using JetBrains.Annotations;
 using Morestachio.Attributes;
 using Morestachio.Document.Custom;
@@ -240,6 +241,26 @@ namespace Morestachio
 		/// </summary>
 		[NotNull]
 		public string Null { get; set; }
+
+		/// <summary>
+		///		Allows the creation of an custom Context object
+		/// </summary>
+		/// <param name="key"></param>
+		/// <param name="token"></param>
+		/// <param name="value"></param>
+		/// <param name="parent"></param>
+		/// <returns></returns>
+		public virtual ContextObject CreateContextObject(string key,
+			CancellationToken token, 
+			object value,
+			ContextObject parent = null)
+		{
+			return new ContextObject(this, key, parent)
+			{
+				CancellationToken = token,
+				Value = value
+			};
+		}
 
 		internal ParserOptions WithPartial(string partialTemplateTemplate)
 		{

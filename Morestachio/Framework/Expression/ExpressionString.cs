@@ -12,6 +12,68 @@ using Morestachio.ParserErrors;
 namespace Morestachio.Framework.Expression
 {
 	/// <summary>
+	///		A constant part of an string
+	/// </summary>
+	public class ExpressionStringConstPart : IEquatable<ExpressionStringConstPart>
+	{
+		/// <summary>
+		///		The content of the Text Part
+		/// </summary>
+		public string PartText { get; set; }
+
+		/// <summary>
+		///		Where in the string is this part located
+		/// </summary>
+		public CharacterLocation Location { get; set; }
+
+		/// <inheritdoc />
+		public bool Equals(ExpressionStringConstPart other)
+		{
+			if (ReferenceEquals(null, other))
+			{
+				return false;
+			}
+
+			if (ReferenceEquals(this, other))
+			{
+				return true;
+			}
+
+			return PartText == other.PartText && Location.Equals(other.Location);
+		}
+
+		/// <inheritdoc />
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj))
+			{
+				return false;
+			}
+
+			if (ReferenceEquals(this, obj))
+			{
+				return true;
+			}
+
+			if (obj.GetType() != this.GetType())
+			{
+				return false;
+			}
+
+			return Equals((ExpressionStringConstPart)obj);
+		}
+
+		/// <inheritdoc />
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				return ((PartText != null ? PartText.GetHashCode() : 0) * 397) ^ (Location != null ? Location.GetHashCode() : 0);
+			}
+		}
+	}
+
+	/// <summary>
 	///		Defines a string as or inside an expression
 	/// </summary>
 	public class MorestachioExpressionString : IMorestachioExpression
@@ -90,73 +152,12 @@ namespace Morestachio.Framework.Expression
 		public async Task<ContextObject> GetValue(ContextObject contextObject, ScopeData scopeData)
 		{
 			await Task.CompletedTask;
-			return new ContextObject(contextObject.Options, ".", contextObject)
-			{
-				Value = string.Join("", StringParts.Select(f => f.PartText))
-			};
+			return contextObject.Options.CreateContextObject(".", contextObject.CancellationToken,
+				string.Join("", StringParts.Select(f => f.PartText)),
+				contextObject);
 		}
 
-		/// <summary>
-		///		A constant part of an string
-		/// </summary>
-		public class ExpressionStringConstPart : IEquatable<ExpressionStringConstPart>
-		{
-			/// <summary>
-			///		The content of the Text Part
-			/// </summary>
-			public string PartText { get; set; }
-
-			/// <summary>
-			///		Where in the string is this part located
-			/// </summary>
-			public CharacterLocation Location { get; set; }
-
-			/// <inheritdoc />
-			public bool Equals(ExpressionStringConstPart other)
-			{
-				if (ReferenceEquals(null, other))
-				{
-					return false;
-				}
-
-				if (ReferenceEquals(this, other))
-				{
-					return true;
-				}
-
-				return PartText == other.PartText && Location.Equals(other.Location);
-			}
-
-			/// <inheritdoc />
-			public override bool Equals(object obj)
-			{
-				if (ReferenceEquals(null, obj))
-				{
-					return false;
-				}
-
-				if (ReferenceEquals(this, obj))
-				{
-					return true;
-				}
-
-				if (obj.GetType() != this.GetType())
-				{
-					return false;
-				}
-
-				return Equals((ExpressionStringConstPart)obj);
-			}
-
-			/// <inheritdoc />
-			public override int GetHashCode()
-			{
-				unchecked
-				{
-					return ((PartText != null ? PartText.GetHashCode() : 0) * 397) ^ (Location != null ? Location.GetHashCode() : 0);
-				}
-			}
-		}
+		
 
 		/// <summary>
 		///		Parses a text into an Expression string. Must start with ether " or '
@@ -175,7 +176,7 @@ namespace Morestachio.Framework.Expression
 			{
 				Location = context.CurrentLocation
 			};
-			var expectStringDelimiter = false;
+			var isEscapeChar = false;
 			var currentPart = new ExpressionStringConstPart()
 			{
 				Location = context.CurrentLocation,
@@ -188,19 +189,19 @@ namespace Morestachio.Framework.Expression
 			for (index = offset + 1; index < text.Length; index++)
 			{
 				var c = text[index];
-				if (expectStringDelimiter)
+				if (isEscapeChar)
 				{
 					currentPart.PartText += c;
 					if (c == result.Delimiter)
 					{
-						expectStringDelimiter = false;
+						isEscapeChar = false;
 					}
 				}
 				else
 				{
 					if (c == '\\')
 					{
-						expectStringDelimiter = true;
+						isEscapeChar = true;
 					}
 					else if (c == result.Delimiter)
 					{

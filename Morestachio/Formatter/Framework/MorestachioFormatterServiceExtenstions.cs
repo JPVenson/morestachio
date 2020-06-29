@@ -32,6 +32,13 @@ namespace Morestachio.Formatter.Framework
 				}
 			}
 		}
+		/// <summary>
+		///     Adds all formatter that are decorated with the <see cref="MorestachioFormatterAttribute" />
+		/// </summary>
+		public static void AddFromType<T>(this IMorestachioFormatterService service)
+		{
+			AddFromType(service, typeof(T));
+		}
 
 
 		public static MultiFormatterInfoCollection AddSingle(this IMorestachioFormatterService service, Delegate function, [CanBeNull]string name = null)
@@ -58,6 +65,21 @@ namespace Morestachio.Formatter.Framework
 		}
 
 		public static MultiFormatterInfoCollection AddSingle<T, T1>(this IMorestachioFormatterService service, Action<T, T1> function, [CanBeNull]string name = null)
+		{
+			return service.AddSingle((Delegate)function, name);
+		}
+
+		public static MultiFormatterInfoCollection AddSingle<T, T1, T2>(this IMorestachioFormatterService service, Action<T, T1, T2> function, [CanBeNull]string name = null)
+		{
+			return service.AddSingle((Delegate)function, name);
+		}
+
+		public static MultiFormatterInfoCollection AddSingle<T, T1, T2, T3>(this IMorestachioFormatterService service, Action<T, T1, T2, T3> function, [CanBeNull]string name = null)
+		{
+			return service.AddSingle((Delegate)function, name);
+		}
+
+		public static MultiFormatterInfoCollection AddSingle<T, T1, T2, T3, T4>(this IMorestachioFormatterService service, Action<T, T1, T2, T3, T4> function, [CanBeNull]string name = null)
 		{
 			return service.AddSingle((Delegate)function, name);
 		}

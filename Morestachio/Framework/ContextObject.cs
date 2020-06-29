@@ -238,31 +238,27 @@ namespace Morestachio.Framework
 					await EnsureValue();
 					if (Value is null)
 					{
-						return new ContextObject(Options, "x:null", null)
-						{
-							Value = null
-						};
+						return Options.CreateContextObject("x:null", CancellationToken, null);
 					}
 					//ALWAYS return the context, even if the value is null.
-					var innerContext = new ContextObject(Options, path.Key, this);
+					ContextObject innerContext = null;
 					switch (Value)
 					{
 						case IDictionary<string, object> dictList:
-							innerContext.Value = dictList.Select(e => e);
+							innerContext = Options.CreateContextObject(path.Key, CancellationToken,
+								dictList.Select(e => e), this);
 							break;
-						//This is a draft that i have discarded as its more likely to enumerate a single IEnumerable with #each alone
-						//case IEnumerable ctx:
-						//	innerContext.Value = ctx.OfType<object>().Select((item, index) => new KeyValuePair<string, object>(index.ToString(), item));
-						//	break;
 						default:
 							{
 								if (Value != null)
 								{
-									innerContext.Value = type
-										.GetTypeInfo()
-										.GetProperties(BindingFlags.Instance | BindingFlags.Public)
-										.Where(e => !e.IsSpecialName && !e.GetIndexParameters().Any())
-										.Select(e => new KeyValuePair<string, object>(e.Name, e.GetValue(Value)));
+									innerContext = Options.CreateContextObject(path.Key, CancellationToken,
+										type
+											.GetTypeInfo()
+											.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+											.Where(e => !e.IsSpecialName && !e.GetIndexParameters().Any())
+											.Select(e => new KeyValuePair<string, object>(e.Name, e.GetValue(Value))),
+										this);
 								}
 
 								break;
@@ -276,53 +272,39 @@ namespace Morestachio.Framework
 					//check if this part of the path can be seen as an number
 					if (Number.TryParse(path.Key, Options.CultureInfo, out var isNumber))
 					{
-						//elements.Dequeue();
-						//if (elements.Count > 0)
-						//{
-						//	var peekNextPathPart = elements.Peek();
-						//	if (Number.TryParse(peekPathPart.Key
-						//	                    + Options.CultureInfo.NumberFormat.NumberDecimalSeparator
-						//	                    + peekNextPathPart.Key, Options.CultureInfo, out var floatingNumber))
-						//	{
-						//		elements.Dequeue();
-						//		contextObject = new ContextObject(Options, ".", this);
-						//		contextObject.Value = floatingNumber;
-						//		contextObject.IsNaturalContext = IsNaturalContext;
-						//		return await contextObject.GetContextForPath(elements, scopeData);
-						//	}
-
-						//}
-						
-						var contextObject = new ContextObject(Options, ".", this);
-						contextObject.Value = isNumber;
+						var contextObject = Options.CreateContextObject(".", CancellationToken, isNumber, this);
 						contextObject.IsNaturalContext = IsNaturalContext;
 						return await contextObject.GetContextForPath(elements, scopeData);
+					}
+				}
+				else if (path.Value == PathType.Boolean)
+				{
+					if (path.Key == "true" || path.Key == "false")
+					{
+						var booleanContext = Options.CreateContextObject(".", CancellationToken, path.Key == "true", this);
+						booleanContext.IsNaturalContext = IsNaturalContext;
+						return await booleanContext.GetContextForPath(elements, scopeData);
 					}
 				}
 				else if (path.Value == PathType.DataPath)
 				{
 					if (path.Key.Equals("$recursion")) //go the root object
 					{
-						retval = new ContextObject(Options, path.Key, this)
-						{
-							Value = scopeData.PartialDepth.Count
-						};
+						retval = Options.CreateContextObject(path.Key, CancellationToken, scopeData.PartialDepth.Count, this);
 					}
 					else
 					{
 						await EnsureValue();
 						if (Value is null)
 						{
-							return new ContextObject(Options, "x:null", null)
-							{
-								Value = null
-							};
+							return Options.CreateContextObject("x:null", CancellationToken, null);
 						}
 						//TODO: handle array accessors and maybe "special" keys.
 						else
 						{
 							//ALWAYS return the context, even if the value is null.
-							var innerContext = new ContextObject(Options, path.Key, this);
+							
+							var innerContext = Options.CreateContextObject(path.Key, CancellationToken, null, this);
 							if (Options.ValueResolver?.CanResolve(type, Value, path.Key, innerContext) == true)
 							{
 								innerContext.Value = Options.ValueResolver.Resolve(type, Value, path.Key, innerContext);
@@ -382,12 +364,9 @@ namespace Morestachio.Framework
 			{
 				//look at the first element if its an alias switch to that alias
 				var peekPathPart = elements.Peek();
-				if (elements.Count == 1 && peekPathPart.Key == "null")
+				if (elements.Count == 1 && peekPathPart.Value == PathType.Null)
 				{
-					return new ContextObject(Options, "x:null", null)
-					{
-						Value = null
-					};
+					return Options.CreateContextObject("x:null", CancellationToken, null);
 				}
 
 				if (peekPathPart.Value == PathType.DataPath)
@@ -396,15 +375,6 @@ namespace Morestachio.Framework
 					{
 						elements.Dequeue();
 						return await alias.GetContextForPath(elements, scopeData);
-					}
-
-					if (peekPathPart.Key == "true" || peekPathPart.Key == "false")
-					{
-						elements.Dequeue();
-						var booleanContext = new ContextObject(Options, ".", this);
-						booleanContext.Value = peekPathPart.Key == "true";
-						booleanContext.IsNaturalContext = IsNaturalContext;
-						return await booleanContext.GetContextForPath(elements, scopeData);
 					}
 				}
 			}
@@ -415,7 +385,7 @@ namespace Morestachio.Framework
 		///     Determines if the value of this context exists.
 		/// </summary>
 		/// <returns></returns>
-		public async Task<bool> Exists()
+		public virtual async Task<bool> Exists()
 		{
 			await EnsureValue();
 			return DefinitionOfFalse(Value);
@@ -425,61 +395,16 @@ namespace Morestachio.Framework
 		///		Renders the Current value to a string or if null to the Null placeholder in the Options
 		/// </summary>
 		/// <returns></returns>
-		public async Task<string> RenderToString()
+		public virtual async Task<string> RenderToString()
 		{
 			await EnsureValue();
 			return Value?.ToString() ?? (Options.Null?.ToString());
 		}
 
-		///// <summary>
-		/////     Parses the current object by using the given argument
-		///// </summary>
-		///// <param name="argument"></param>
-		///// <returns></returns>
-		//[Obsolete("This mehtod should not be used anymore. Use the Format(name, arguments) method")]
-		//public async Task<object> Format(KeyValuePair<string, object>[] argument)
-		//{
-		//	await EnsureValue();
-		//	var retval = Value;
-		//	if (Value == null)
-		//	{
-		//		return retval;
-		//	}
-
-		//	var name = argument.FirstOrDefault().Value?.ToString();
-		//	var argumentWithoutName = argument.Skip(1).ToArray();
-
-		//	//call formatters that are given by the Options for this run
-		//	retval = await Options.Formatters.CallMostMatchingFormatter(Value.GetType(), argumentWithoutName, Value, name);
-		//	if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
-		//	{
-		//		//one formatter has returned a valid value so use this one.
-		//		return retval;
-		//	}
-
-		//	////call formatters that are given by the Options for this run
-		//	//retval = await Options.Formatters.CallMostMatchingFormatter(Value.GetType(), argument, Value, null);
-		//	//if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
-		//	//{
-		//	//	//one formatter has returned a valid value so use this one.
-		//	//	return retval;
-		//	//}
-
-		//	//all formatters in the options object have rejected the value so try use the global ones
-		//	retval = await DefaultFormatter.CallMostMatchingFormatter(Value.GetType(), argument, Value, null);
-		//	if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
-		//	{
-		//		return retval;
-		//	}
-		//	return Value;
-		//}
-
-
-
 		/// <summary>
 		///     Parses the current object by using the given argument
 		/// </summary>
-		public async Task<object> Format([CanBeNull] string name, [NotNull] KeyValuePair<string, object>[] argument)
+		public virtual async Task<object> Format([CanBeNull] string name, [NotNull] KeyValuePair<string, object>[] argument)
 		{
 			await EnsureValue();
 			var retval = Value;

@@ -58,12 +58,16 @@ namespace Morestachio.Framework.Expression.Visitors
 				{
 					case PathType.DataPath:
 					case PathType.Number:
+					case PathType.Boolean:
 						StringBuilder.Append(expressionPathPart.Key);
 
 						if (index != expression.PathParts.Count - 1)
 						{
 							StringBuilder.Append(".");
 						}
+						break;
+					case PathType.Null:
+						StringBuilder.Append("null");
 						break;
 					case PathType.RootSelector:
 						StringBuilder.Append("~");

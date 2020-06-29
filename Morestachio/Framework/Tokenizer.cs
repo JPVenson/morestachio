@@ -17,7 +17,6 @@ namespace Morestachio.Framework
 	/// <exception cref="IndexedParseException"></exception>
 	public class Tokenizer
 	{
-
 		private static readonly Regex TokenFinder = new Regex("([{]{2}[^{}]+?[}]{2})|([{]{3}[^{}]+?[}]{3})",
 			RegexOptions.Compiled);
 

@@ -104,11 +104,12 @@ namespace Morestachio
 				using (var byteCounterStream = new ByteCounterStream(sourceStream,
 					ParserOptions.Encoding, BufferSize, true, ParserOptions))
 				{
-					var context = new ContextObject(ParserOptions, "", null)
-					{
-						Value = data,
-						CancellationToken = token
-					};
+					var context = ParserOptions.CreateContextObject("", token, data);
+					//var context = new ContextObject(ParserOptions, "", null)
+					//{
+					//	Value = data,
+					//	CancellationToken = token
+					//};
 
 					using (var scopeData = new ScopeData())
 					{

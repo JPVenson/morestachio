@@ -144,7 +144,7 @@ namespace Morestachio.Formatter.Framework
 		{
 			ServiceCollectionAccess[typeof(T)] = serviceFactory;
 		}
-
+		
 		protected IDictionary<Type, object> ServiceCollectionAccess { get; }
 
 		/// <summary>
@@ -197,9 +197,9 @@ namespace Morestachio.Formatter.Framework
 
 		/// <inheritdoc />
 		public virtual async Task<object> CallMostMatchingFormatter(
-			Type type,
-			KeyValuePair<string, object>[] values,
-			object sourceValue,
+			[NotNull]Type type,
+			[NotNull]KeyValuePair<string, object>[] values,
+			[NotNull]object sourceValue,
 			string name,
 			ParserOptions parserOptions)
 		{
@@ -239,9 +239,9 @@ namespace Morestachio.Formatter.Framework
 		/// <param name="services"></param>
 		/// <param name="templateArguments">The template arguments.</param>
 		/// <returns></returns>
-		public virtual async Task<object> Execute(MorestachioFormatterModel formatter,
-			object sourceObject,
-			ServiceCollection services,
+		public virtual async Task<object> Execute([NotNull]MorestachioFormatterModel formatter,
+			[NotNull]object sourceObject,
+			[NotNull]ServiceCollection services,
 			params KeyValuePair<string, object>[] templateArguments)
 		{
 			var values = ComposeValues(formatter, sourceObject, formatter.Function, services, templateArguments);
@@ -409,7 +409,7 @@ namespace Morestachio.Formatter.Framework
 		//	return null;
 		//}
 
-		public static bool IsAssignableToGenericType(Type givenType, Type genericType)
+		public static bool IsAssignableToGenericType([NotNull]Type givenType, [NotNull]Type genericType)
 		{
 			var interfaceTypes = givenType.GetInterfaces();
 
@@ -441,8 +441,8 @@ namespace Morestachio.Formatter.Framework
 		/// <param name="methodInfo"></param>
 		/// <param name="namedParameter"></param>
 		/// <returns></returns>
-		public static MethodInfo MakeGenericMethodInfoByValues(MethodInfo methodInfo,
-			IDictionary<string, object> namedParameter)
+		public static MethodInfo MakeGenericMethodInfoByValues([NotNull]MethodInfo methodInfo,
+			[NotNull]IDictionary<string, object> namedParameter)
 		{
 			var generics = new List<Type>();
 			foreach (var genericArgument in methodInfo.GetGenericArguments())
@@ -563,7 +563,7 @@ namespace Morestachio.Formatter.Framework
 		public virtual FormatterComposingResult ComposeValues([NotNull] MorestachioFormatterModel formatter,
 			[CanBeNull] object sourceObject,
 			[NotNull] MethodInfo method,
-			ServiceCollection services,
+			[NotNull] ServiceCollection services,
 			[NotNull] params KeyValuePair<string, object>[] templateArguments)
 		{
 			Log(() =>
