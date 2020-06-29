@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection.Emit;
@@ -36,7 +37,6 @@ namespace JPB.Mustachio.Client.Wpf.ViewModels
 		}
 
 		private GeneratedTemplateInfos _generatedTemplate;
-
 		public GeneratedTemplateInfos GeneratedTemplate
 		{
 			get { return _generatedTemplate; }
@@ -71,8 +71,10 @@ namespace JPB.Mustachio.Client.Wpf.ViewModels
 
 			SimpleWorkAsync(async () =>
 			{
+				var sw = Stopwatch.StartNew();
 				var generatedTemplateInfos = await GenerateTemplateExecute(_templateServiceProvider.LastTemplate,
 					_templateServiceProvider.LastProvider);
+				sw.Stop();
 				if (_generateTemplateCallGuardFlag)
 				{
 					_generateTemplateCallGuardFlag = false;
@@ -80,6 +82,7 @@ namespace JPB.Mustachio.Client.Wpf.ViewModels
 					return;
 				}
 
+				generatedTemplateInfos.RenderTime = sw.Elapsed;
 				GeneratedTemplate = generatedTemplateInfos;
 			});
 		}
@@ -149,11 +152,13 @@ namespace JPB.Mustachio.Client.Wpf.ViewModels
 
 			if (extendedParseInformation.Errors.Any())
 			{
-				return new GeneratedTemplateInfos()
+				var generatedTemplateInfos = new GeneratedTemplateInfos()
 				{
 					InferredTemplateModel = extendedParseInformation.Document,
 					Errors = extendedParseInformation.Errors.ToArray()
 				};
+				_templateServiceProvider.OnTemplateCreated(generatedTemplateInfos);
+				return generatedTemplateInfos;
 			}
 
 			var result = await dataSourceProvider.Fetch();
@@ -161,12 +166,14 @@ namespace JPB.Mustachio.Client.Wpf.ViewModels
 			{
 				return null;
 			}
-			
-			return new GeneratedTemplateInfos()
+
+			var generateTemplateExecute = new GeneratedTemplateInfos()
 			{
 				Result = await extendedParseInformation.CreateAndStringifyAsync(result),
 				InferredTemplateModel = extendedParseInformation.Document
 			};
+			_templateServiceProvider.OnTemplateCreated(generateTemplateExecute);
+			return generateTemplateExecute;
 		}
 
 		private void ParsingOptionsOnUnresolvedPath(string path, Type type)

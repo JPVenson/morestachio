@@ -13,8 +13,8 @@
 		<DockPanel>
 			<DockPanel DockPanel.Dock="Bottom">
 				<GroupBox Header="Errors">
-					<ListBox MaxHeight="250" 
-					         ItemsSource="{Binding GeneratedTemplate.Errors}">
+                    <ListBox MaxHeight="250" 
+                             ItemsSource="{Binding GeneratedTemplate.Errors}">
 						<ListBox.ItemTemplate>
 							<DataTemplate>
 								<StackPanel Orientation="Horizontal">
@@ -27,7 +27,7 @@
 				</GroupBox>
 			</DockPanel>
 			<xctk:BusyIndicator IsBusy="{Binding IsWorking}">
-				<avalonedit:TextEditor Background="Transparent" IsReadOnly="True">
+                <avalonedit:TextEditor Background="Transparent" IsReadOnly="True">
 					<i:Interaction.Behaviors>
 						<common:AvalonEditBehaviour Text="{Binding GeneratedTemplate.Result}" />
 					</i:Interaction.Behaviors>

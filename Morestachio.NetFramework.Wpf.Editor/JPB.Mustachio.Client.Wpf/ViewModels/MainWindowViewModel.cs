@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Utils;
 using JPB.Mustachio.Client.Wpf.Services;
 using JPB.Mustachio.Client.Wpf.ViewModels.Formatting;
@@ -68,7 +69,7 @@ namespace JPB.Mustachio.Client.Wpf.ViewModels
 				var jsonSerializer = JsonSerializer.Create();
 				var storeModel = new StoreModel();
 
-				storeModel.MustachioTemplate = TemplateEditorViewModel.Template;
+				storeModel.MustachioTemplate = TemplateEditorViewModel.Template.Text;
 				if (DataEditorViewModel.SelectedDataSourceProvider != null)
 				{
 					storeModel.CodeProviderType = DataEditorViewModel.SelectedDataSourceProvider.Name;
@@ -105,7 +106,7 @@ namespace JPB.Mustachio.Client.Wpf.ViewModels
 					}
 				}
 
-				TemplateEditorViewModel.Template = storeModel.MustachioTemplate;
+				TemplateEditorViewModel.Template.Text = storeModel.MustachioTemplate;
 				DataEditorViewModel.SelectedDataSourceProvider =
 					DataEditorViewModel.DataSourceProviders.FirstOrDefault(f => f.Name == storeModel.CodeProviderType);
 				if (DataEditorViewModel.SelectedDataSourceProvider != null)

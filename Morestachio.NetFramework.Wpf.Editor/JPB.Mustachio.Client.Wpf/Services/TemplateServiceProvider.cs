@@ -76,6 +76,7 @@ namespace JPB.Mustachio.Client.Wpf.Services
 		public IParserOptions ParserOptions { get; set; }
 
 		public event EventHandler<List<FormatterInfo>> CreateFormatter;
+		public event EventHandler<GeneratedTemplateInfos> TemplateCreated;
 
 		public IEnumerable<FormatterInfo> ObtainFormatters()
 		{
@@ -87,6 +88,11 @@ namespace JPB.Mustachio.Client.Wpf.Services
 		protected virtual void OnCreateFormatter(List<FormatterInfo> e)
 		{
 			CreateFormatter?.Invoke(this, e);
+		}
+
+		public virtual void OnTemplateCreated(GeneratedTemplateInfos e)
+		{
+			TemplateCreated?.Invoke(this, e);
 		}
 	}
 }

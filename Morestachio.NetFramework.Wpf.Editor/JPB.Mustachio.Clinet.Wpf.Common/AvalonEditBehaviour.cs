@@ -14,9 +14,27 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.Editing;
 
 namespace JPB.Mustachio.Clinet.Wpf.Common
 {
+	public class AvalonEditTextAreaBindingBehaviour : Behavior<TextEditor>
+	{
+		public static readonly DependencyProperty TextAreaProperty = DependencyProperty.Register(
+			"TextArea", typeof(TextArea), typeof(AvalonEditTextAreaBindingBehaviour), new FrameworkPropertyMetadata(default(TextArea), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+
+		public TextArea TextArea
+		{
+			get { return (TextArea)GetValue(TextAreaProperty); }
+			set { SetValue(TextAreaProperty, value); }
+		}
+
+		protected override void OnAttached()
+		{
+			TextArea = AssociatedObject.TextArea;
+		}
+	}
+
 	public sealed class AvalonEditBehaviour : Behavior<TextEditor>
 	{
 		public static readonly DependencyProperty TextProperty =
@@ -26,7 +44,8 @@ namespace JPB.Mustachio.Clinet.Wpf.Common
 		public static readonly DependencyProperty CaretOffsetProperty = DependencyProperty.Register(
 			"CaretOffset", typeof(int), typeof(AvalonEditBehaviour), new FrameworkPropertyMetadata(default(int), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, CaretOffsetChangedCallback));
 
-		private static void CaretOffsetChangedCallback(DependencyObject dependencyObject, 
+
+		private static void CaretOffsetChangedCallback(DependencyObject dependencyObject,
 			DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
 		{
 			var behavior = dependencyObject as AvalonEditBehaviour;
@@ -47,7 +66,7 @@ namespace JPB.Mustachio.Clinet.Wpf.Common
 
 		public int CaretOffset
 		{
-			get { return (int) GetValue(CaretOffsetProperty); }
+			get { return (int)GetValue(CaretOffsetProperty); }
 			set { SetValue(CaretOffsetProperty, value); }
 		}
 

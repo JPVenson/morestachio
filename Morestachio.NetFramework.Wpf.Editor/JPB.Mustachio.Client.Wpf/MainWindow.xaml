@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:JPB.Mustachio.Client.Wpf"
         xmlns:viewModels="clr-namespace:JPB.Mustachio.Client.Wpf.ViewModels"
         mc:Ignorable="d"
-        Title="Mustachio Editor" Height="350" Width="525"
+        Title="Mustachio Editor" Height="600" Width="600"
         d:DataContext="{d:DesignInstance viewModels:MainWindowViewModel}">
 	<Window.Style>
 		<Style TargetType="Window">
@@ -86,8 +86,15 @@
 			              ResizeBehavior="PreviousAndNext"
 			              ResizeDirection="Rows" />
 
-			<GroupBox Header="Result" Grid.Row="2">
-				<ContentControl Content="{Binding TemplateResultViewModel}" />
+			<GroupBox Grid.Row="2">
+                <GroupBox.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Result: "/>
+                        <Label Content="{Binding TemplateResultViewModel.GeneratedTemplate.RenderTime}"/>
+                    </StackPanel>
+                </GroupBox.Header>
+
+                <ContentControl Content="{Binding TemplateResultViewModel}" />
 			</GroupBox>
 		</Grid>
 	</DockPanel>
