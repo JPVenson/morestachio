@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Numerics;
 using Morestachio.Formatter.Framework;
 
 namespace Morestachio.Helper
@@ -242,9 +243,199 @@ namespace Morestachio.Helper
 			return left.Same(right);
 		}
 
+		[MorestachioFormatter("Abs", "Gets the Absolute value")]
+		public static Number Abs(Number left)
+		{
+			return left.Abs();
+		}
+
+		[MorestachioFormatter("Negate", "Negates the current value")]
+		public static Number Negate(Number left)
+		{
+			return left.Negate();
+		}
+
+		[MorestachioFormatter("Log", "")]
+		public static Number Log(Number left, Number right)
+		{
+			return left.Log(right);
+		}
+
+		[MorestachioFormatter("Max", "Returns the bigger of the two numbers")]
+		public static Number Max(Number left, Number right)
+		{
+			return left.Max(right);
+		}
+
+		[MorestachioFormatter("Min", "Returns the smaller of the two numbers")]
+		public static Number Min(Number left, Number right)
+		{
+			return left.Max(right);
+		}
+
+		[MorestachioFormatter("Pow", "Gets this number power the times of the other number")]
+		public static Number Pow(Number left, Number right)
+		{
+			return left.Pow(right);
+		}
+
 		#endregion
 
 		#region Number Operations
+
+		/// <summary>
+		///		Gets the Absolute value
+		/// </summary>
+		/// <returns></returns>
+		public Number Max(Number other)
+		{
+			return this > other ? this : other;
+		}
+
+		/// <summary>
+		///		Gets the Absolute value
+		/// </summary>
+		/// <returns></returns>
+		public Number Min(Number other)
+		{
+			return this < other ? this : other;
+		}
+
+		/// <summary>
+		///		Gets this number power the times of the other number
+		/// </summary>
+		/// <returns></returns>
+		public Number Pow(Number other)
+		{
+			return new Number(Math.Pow(ToDouble(null), other.ToDouble(null)));
+		}
+
+		/// <summary>
+		///		Gets the Absolute value
+		/// </summary>
+		/// <returns></returns>
+		public Number Log(Number other)
+		{
+			return new Number(Math.Log(ToDouble(null), other.ToDouble(null)));
+		}
+
+		/// <summary>
+		///		Gets the Absolute value
+		/// </summary>
+		/// <returns></returns>
+		public Number Log()
+		{
+			return Log(new Number(Math.E));
+		}
+
+		/// <summary>
+		///		Gets the Absolute value
+		/// </summary>
+		/// <returns></returns>
+		public Number Log10()
+		{
+			return Log(10D);
+		}
+
+		/// <summary>
+		///		Gets the Absolute value
+		/// </summary>
+		/// <returns></returns>
+		public Number Negate()
+		{
+			var targetType = Value.GetType();
+			if (targetType == typeof(decimal))
+			{
+				return new Number(-ToDecimal(null));
+			}
+			if (targetType == typeof(double))
+			{
+				return new Number(-ToDouble(null));
+			}
+			if (targetType == typeof(float))
+			{
+				return new Number(-ToSingle(null));
+			}
+			if (targetType == typeof(long))
+			{
+				return new Number(-ToInt64(null));
+			}
+			if (targetType == typeof(uint))
+			{
+				return new Number(-ToDouble(null));
+			}
+			if (targetType == typeof(int))
+			{
+				return new Number(-ToInt32(null));
+			}
+			if (targetType == typeof(ushort))
+			{
+				return new Number(-ToUInt16(null));
+			}
+			if (targetType == typeof(short))
+			{
+				return new Number(-ToInt16(null));
+			}
+			if (targetType == typeof(byte))
+			{
+				return new Number(-ToByte(null));
+			}
+			if (targetType == typeof(sbyte))
+			{
+				return new Number(-ToSByte(null));
+			}
+			throw new InvalidCastException($"Cannot get the absolute value for {Value} ({Value.GetType()})");
+		}
+
+		/// <summary>
+		///		Gets the Absolute value
+		/// </summary>
+		/// <returns></returns>
+		public Number Abs()
+		{
+			var targetType = Value.GetType();
+			if (targetType == typeof(decimal))
+			{
+				return new Number(Math.Abs(ToDecimal(null)));
+			}
+			if (targetType == typeof(double))
+			{
+				return new Number(Math.Abs(ToDouble(null)));
+			}
+			if (targetType == typeof(float))
+			{
+				return new Number(Math.Abs(ToSingle(null)));
+			}
+			if (targetType == typeof(long))
+			{
+				return new Number(Math.Abs(ToInt64(null)));
+			}
+			if (targetType == typeof(uint))
+			{
+				return new Number(Math.Abs(ToDouble(null)));
+			}
+			if (targetType == typeof(int))
+			{
+				return new Number(Math.Abs(ToInt32(null)));
+			}
+			if (targetType == typeof(ushort))
+			{
+				return new Number(Math.Abs(ToUInt16(null)));
+			}
+			if (targetType == typeof(short))
+			{
+				return new Number(Math.Abs(ToInt16(null)));
+			}
+			if (targetType == typeof(byte))
+			{
+				return new Number(Math.Abs(ToByte(null)));
+			}
+			if (targetType == typeof(sbyte))
+			{
+				return new Number(Math.Abs(ToSByte(null)));
+			}
+			throw new InvalidCastException($"Cannot get the absolute value for {Value} ({Value.GetType()})");
+		}
 
 		/// <summary>
 		///		Adds the two numbers together
