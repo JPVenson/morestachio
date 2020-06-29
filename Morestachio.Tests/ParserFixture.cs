@@ -1149,11 +1149,9 @@ namespace Morestachio.Tests
 		[Test]
 		public void TestWhileLoopContext()
 		{
-			var template = "{{#VAR condition = true}}" +
-						   "{{#WHILE condition}}" +
-						   "{{$index}}," +
-						   "{{#IF $index.Equals(5)}}{{#VAR condition = false}}{{/IF}}" +
-						   "{{/WHILE}}";
+			var template = "{{#WHILE $index.SmallerAs(5)}}" +
+			               "{{$index}}," +
+			               "{{/WHILE}}";
 
 			var parsingOptions = new ParserOptions(template, null, DefaultEncoding)
 			{
@@ -1162,18 +1160,16 @@ namespace Morestachio.Tests
 			parsingOptions.Formatters.AddFromType(typeof(EqualityFormatter));
 			var parsedTemplate = Parser.ParseWithOptions(parsingOptions);
 			var genTemplate = parsedTemplate.CreateAndStringify(new object());
-			Assert.That(genTemplate, Is.EqualTo("0,1,2,3,4,5,"));
+			Assert.That(genTemplate, Is.EqualTo("0,1,2,3,4,"));
 			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
 		}
 
 		[Test]
 		public void TestDoLoopContext()
 		{
-			var template = "{{#VAR condition = true}}" +
-						   "{{#DO condition}}" +
-						   "{{$index}}," +
-						   "{{#IF $index.Equals(5)}}{{#VAR condition = false}}{{/IF}}" +
-						   "{{/DO}}";
+			var template = "{{#DO $index.SmallerAs(5)}}" +
+			               "{{$index}}," +
+			               "{{/DO}}";
 
 			var parsingOptions = new ParserOptions(template, null, DefaultEncoding)
 			{

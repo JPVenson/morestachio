@@ -50,7 +50,7 @@ namespace Morestachio.Document
 				//TODO get a way how to execute this on the caller
 				await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, collectionContext, scopeData);
 
-				if (!await (await MorestachioExpression.GetValue(context, scopeData)).Exists())
+				if (!await (await MorestachioExpression.GetValue(collectionContext, scopeData)).Exists())
 				{
 					break;
 				}

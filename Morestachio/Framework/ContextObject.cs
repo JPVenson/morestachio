@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Morestachio.Attributes;
 using Morestachio.Formatter.Framework;
+using Morestachio.Formatter.Predefined;
 using Morestachio.Framework.Expression;
 using Morestachio.Helper;
 
@@ -22,7 +23,8 @@ namespace Morestachio.Framework
 		static ContextObject()
 		{
 			DefaultFormatter = new MorestachioFormatterService();
-			DefaultFormatter.AddFromType(typeof(DefaultFormatterClassImpl));
+			DefaultFormatter.AddFromType(typeof(ObjectStringFormatter));
+			DefaultFormatter.AddFromType(typeof(EqualityFormatter));
 			DefaultFormatter.AddFromType(typeof(Number));
 			DefaultDefinitionOfFalse = (value) => value != null &&
 												  value as bool? != false &&
@@ -35,34 +37,6 @@ namespace Morestachio.Framework
 												  (!(value is IEnumerable) || ((IEnumerable)value).Cast<object>().Any()
 												  );
 			DefinitionOfFalse = DefaultDefinitionOfFalse;
-		}
-
-
-		private class DefaultFormatterClassImpl
-		{
-			[MorestachioFormatter(null, null)]
-			public static string Formattable(IFormattable source, string argument, [ExternalData]ParserOptions options)
-			{
-				return source.ToString(argument, options.CultureInfo);
-			}
-
-			[MorestachioFormatter(null, null)]
-			public static string Formattable(IFormattable source)
-			{
-				return source.ToString();
-			}
-
-			[MorestachioFormatter("ToString", null)]
-			public static string FormattableToString(IFormattable source, string argument, [ExternalData]ParserOptions options)
-			{
-				return source.ToString(argument, options.CultureInfo);
-			}
-
-			[MorestachioFormatter("ToString", null)]
-			public static string FormattableToString(IFormattable source)
-			{
-				return source.ToString();
-			}
 		}
 
 		/// <summary>

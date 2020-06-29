@@ -1,10 +1,44 @@
 ﻿using System;
+using System.Linq;
 using Morestachio.Attributes;
 using Morestachio.Formatter.Framework;
 using Morestachio.Helper;
 
 namespace Morestachio.Formatter.Predefined
 {
+	public static class ObjectStringFormatter
+	{
+		[MorestachioFormatter(null, null)]
+		public static string Formattable(IFormattable source, string argument, [ExternalData]ParserOptions options)
+		{
+			return source.ToString(argument, options.CultureInfo);
+		}
+
+		[MorestachioFormatter(null, null)]
+		public static string Formattable(IFormattable source)
+		{
+			return source.ToString();
+		}
+
+		[MorestachioFormatter("ToString", null)]
+		public static string FormattableToString(IFormattable source, string argument, [ExternalData]ParserOptions options)
+		{
+			return source.ToString(argument, options.CultureInfo);
+		}
+
+		[MorestachioFormatter("ToString", null)]
+		public static string FormattableToString(IFormattable source)
+		{
+			return source.ToString();
+		}
+
+		[MorestachioFormatter("Not", null)]
+		public static bool FormattableToString(bool source)
+		{
+			return !source;
+		}
+	}
+
 	/// <summary>
 	///		A list of predefined Morestachio Formatters
 	/// </summary>
@@ -27,22 +61,6 @@ namespace Morestachio.Formatter.Predefined
 			{
 				return false;
 			}
-
-			//if (source is Number srcNumb)
-			//{
-			//	if (target is Number tarNumb)
-			//	{
-			//		return srcNumb.Value == tarNumb.Value;
-			//	}
-
-			//	return IsEquals(srcNumb.Value, target);
-			//}
-
-			//if (target is Number tarNumbA)
-			//{
-			//	return IsEquals(source, tarNumbA.Value);
-			//}
-			
 
 			if (source is IConvertible conv)
 			{
@@ -71,6 +89,30 @@ namespace Morestachio.Formatter.Predefined
 		public static bool Negate([SourceObject]bool value)
 		{
 			return !value;
+		}
+		
+		[MorestachioFormatter("And", "Returns true if all values are true")]
+		public static bool And([SourceObject]bool value, bool other)
+		{
+			return value && other;
+		}
+
+		[MorestachioFormatter("And", "Returns true if all values are true")]
+		public static bool And([SourceObject]bool value, [RestParameter]params object[] values)
+		{
+			return value && values.OfType<bool>().All(f => f);
+		}
+
+		[MorestachioFormatter("Or", "Returns true any value is true")]
+		public static bool Or([SourceObject]bool value, bool other)
+		{
+			return value || other;
+		}
+
+		[MorestachioFormatter("Or", "Returns true any value is true")]
+		public static bool Or([SourceObject]bool value, [RestParameter]params object[] values)
+		{
+			return value || values.OfType<bool>().Any(f => f);
 		}
 
 		/// <summary>

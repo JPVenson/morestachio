@@ -40,14 +40,20 @@ namespace Morestachio.Document
 		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
 			var index = 0;
-			while (ContinueBuilding(outputStream, context) && await (await MorestachioExpression.GetValue(context, scopeData)).Exists())
+			
+			var collectionContext = new ContextCollection(index, false, context.Options, context.Key, context.Parent)
 			{
-				var collectionContext = new ContextCollection(index++, false, context.Options, context.Key, context.Parent)
+				Value = context.Value
+			};
+
+			while (ContinueBuilding(outputStream, context) && await (await MorestachioExpression.GetValue(collectionContext, scopeData)).Exists())
+			{
+				//TODO get a way how to execute this on the caller
+				await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, collectionContext, scopeData);
+				collectionContext = new ContextCollection(++index, false, context.Options, context.Key, context.Parent)
 				{
 					Value = context.Value
 				};
-				//TODO get a way how to execute this on the caller
-				await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, collectionContext, scopeData);
 			}
 			return new DocumentItemExecution[0];
 		}
