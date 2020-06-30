@@ -13,11 +13,14 @@ namespace Morestachio.Helper
 		/// <summary>
 		///		Contains the numeric value
 		/// </summary>
-		public IConvertible Value { get; }
+		public IConvertible Value
+		{
+			get { return _value; }
+		}
 
 		internal Number(IConvertible fullNumber)
 		{
-			Value = fullNumber;
+			_value = fullNumber;
 		}
 
 		/// <summary>
@@ -26,7 +29,7 @@ namespace Morestachio.Helper
 		/// <param name="fullNumber"></param>
 		public Number(long fullNumber)
 		{
-			Value = fullNumber;
+			_value = fullNumber;
 		}
 
 		/// <summary>
@@ -35,7 +38,7 @@ namespace Morestachio.Helper
 		/// <param name="fullNumber"></param>
 		public Number(ulong fullNumber)
 		{
-			Value = fullNumber;
+			_value = fullNumber;
 		}
 
 		/// <summary>
@@ -44,7 +47,7 @@ namespace Morestachio.Helper
 		/// <param name="fullNumber"></param>
 		public Number(int fullNumber)
 		{
-			Value = fullNumber;
+			_value = fullNumber;
 		}
 
 		/// <summary>
@@ -53,7 +56,7 @@ namespace Morestachio.Helper
 		/// <param name="fullNumber"></param>
 		public Number(uint fullNumber)
 		{
-			Value = fullNumber;
+			_value = fullNumber;
 		}
 
 		/// <summary>
@@ -62,7 +65,7 @@ namespace Morestachio.Helper
 		/// <param name="fullNumber"></param>
 		public Number(byte fullNumber)
 		{
-			Value = fullNumber;
+			_value = fullNumber;
 		}
 
 		/// <summary>
@@ -71,7 +74,7 @@ namespace Morestachio.Helper
 		/// <param name="fullNumber"></param>
 		public Number(sbyte fullNumber)
 		{
-			Value = fullNumber;
+			_value = fullNumber;
 		}
 
 		/// <summary>
@@ -80,7 +83,7 @@ namespace Morestachio.Helper
 		/// <param name="fullNumber"></param>
 		public Number(short fullNumber)
 		{
-			Value = fullNumber;
+			_value = fullNumber;
 		}
 
 		/// <summary>
@@ -89,7 +92,7 @@ namespace Morestachio.Helper
 		/// <param name="fullNumber"></param>
 		public Number(ushort fullNumber)
 		{
-			Value = fullNumber;
+			_value = fullNumber;
 		}
 
 		/// <summary>
@@ -98,7 +101,7 @@ namespace Morestachio.Helper
 		/// <param name="fullNumber"></param>
 		public Number(float fullNumber)
 		{
-			Value = fullNumber;
+			_value = fullNumber;
 		}
 
 		/// <summary>
@@ -107,7 +110,7 @@ namespace Morestachio.Helper
 		/// <param name="fullNumber"></param>
 		public Number(double fullNumber)
 		{
-			Value = fullNumber;
+			_value = fullNumber;
 		}
 
 		/// <summary>
@@ -116,12 +119,12 @@ namespace Morestachio.Helper
 		/// <param name="fullNumber"></param>
 		public Number(decimal fullNumber)
 		{
-			Value = fullNumber;
+			_value = fullNumber;
 		}
-
+		
 		private static bool IsIntegral(Number number)
 		{
-			return !(number.Value is decimal) && !(number.Value is double) && !(number.Value is float);
+			return !(number._value is decimal) && !(number._value is double) && !(number._value is float);
 		}
 
 		/// <summary>
@@ -152,25 +155,60 @@ namespace Morestachio.Helper
 			typeof(float)
 		};
 
+		private readonly IConvertible _value;
+
 		private static Type GetOperationTargetType(Number numberLeft, Number numberRight)
 		{
-			if (!IsIntegral(numberLeft) || !IsIntegral(numberRight))
+			if (numberLeft._value is decimal || numberRight._value is decimal)
 			{
-				foreach (var floatingNumber in CsFrameworkFloatingPointNumberTypes)
-				{
-					if (numberLeft.Value.GetType() == floatingNumber || numberRight.Value.GetType() == floatingNumber)
-					{
-						return floatingNumber;
-					}
-				}
-				throw new InvalidOperationException("Cannot determinate the numbers type");
+				return typeof(decimal);
 			}
-			foreach (var integral in CsFrameworkIntegralTypes)
+				
+			if (numberLeft._value is double || numberRight._value is double)
 			{
-				if (numberLeft.Value.GetType() == integral || numberRight.Value.GetType() == integral)
-				{
-					return integral;
-				}
+				return typeof(double);
+			}
+				
+			if (numberLeft._value is float || numberRight._value is float)
+			{
+				return typeof(float);
+			}
+
+			//if (!IsIntegral(numberLeft) || !IsIntegral(numberRight))
+			//{
+			//	throw new InvalidOperationException("Cannot determinate the numbers type");
+			//}
+			if (numberLeft._value is ulong || numberRight._value is ulong)
+			{
+				return typeof(ulong);
+			}
+			if (numberLeft._value is long || numberRight._value is long)
+			{
+				return typeof(long);
+			}
+			if (numberLeft._value is uint || numberRight._value is uint)
+			{
+				return typeof(uint);
+			}
+			if (numberLeft._value is int || numberRight._value is int)
+			{
+				return typeof(int);
+			}
+			if (numberLeft._value is ushort || numberRight._value is ushort)
+			{
+				return typeof(ushort);
+			}
+			if (numberLeft._value is short || numberRight._value is short)
+			{
+				return typeof(short);
+			}
+			if (numberLeft._value is byte || numberRight._value is byte)
+			{
+				return typeof(byte);
+			}
+			if (numberLeft._value is sbyte || numberRight._value is sbyte)
+			{
+				return typeof(sbyte);
 			}
 			throw new InvalidOperationException("Cannot determinate the numbers type");
 		}
@@ -343,7 +381,7 @@ namespace Morestachio.Helper
 		/// <returns></returns>
 		public Number Negate()
 		{
-			var targetType = Value.GetType();
+			var targetType = _value.GetType();
 			if (targetType == typeof(decimal))
 			{
 				return new Number(-ToDecimal(null));
@@ -384,7 +422,7 @@ namespace Morestachio.Helper
 			{
 				return new Number(-ToSByte(null));
 			}
-			throw new InvalidCastException($"Cannot get the absolute value for {Value} ({Value.GetType()})");
+			throw new InvalidCastException($"Cannot get the absolute value for {_value} ({_value.GetType()})");
 		}
 
 		/// <summary>
@@ -393,7 +431,7 @@ namespace Morestachio.Helper
 		/// <returns></returns>
 		public Number Abs()
 		{
-			var targetType = Value.GetType();
+			var targetType = _value.GetType();
 			if (targetType == typeof(decimal))
 			{
 				return new Number(Math.Abs(ToDecimal(null)));
@@ -434,7 +472,7 @@ namespace Morestachio.Helper
 			{
 				return new Number(Math.Abs(ToSByte(null)));
 			}
-			throw new InvalidCastException($"Cannot get the absolute value for {Value} ({Value.GetType()})");
+			throw new InvalidCastException($"Cannot get the absolute value for {_value} ({_value.GetType()})");
 		}
 
 		/// <summary>
@@ -489,7 +527,7 @@ namespace Morestachio.Helper
 			{
 				return new Number(ToSByte(null) + other.ToSByte(null));
 			}
-			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
+			throw new InvalidCastException($"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
 		}
 
 		/// <summary>
@@ -544,7 +582,7 @@ namespace Morestachio.Helper
 			{
 				return new Number(ToSByte(null) - other.ToSByte(null));
 			}
-			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
+			throw new InvalidCastException($"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
 		}
 
 		/// <summary>
@@ -599,7 +637,7 @@ namespace Morestachio.Helper
 			{
 				return new Number(ToSByte(null) * other.ToSByte(null));
 			}
-			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
+			throw new InvalidCastException($"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
 		}
 
 		/// <summary>
@@ -654,7 +692,7 @@ namespace Morestachio.Helper
 			{
 				return new Number(ToSByte(null) / other.ToSByte(null));
 			}
-			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
+			throw new InvalidCastException($"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
 		}
 
 		/// <summary>
@@ -709,7 +747,7 @@ namespace Morestachio.Helper
 			{
 				return new Number(ToSByte(null) % other.ToSByte(null));
 			}
-			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
+			throw new InvalidCastException($"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
 		}
 
 		/// <summary>
@@ -752,7 +790,7 @@ namespace Morestachio.Helper
 			{
 				return new Number(ToSByte(null) >> other.ToInt32(null));
 			}
-			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
+			throw new InvalidCastException($"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
 		}
 
 		/// <summary>
@@ -795,7 +833,7 @@ namespace Morestachio.Helper
 			{
 				return new Number(ToSByte(null) << other.ToInt32(null));
 			}
-			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
+			throw new InvalidCastException($"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
 		}
 
 		/// <summary>
@@ -850,7 +888,7 @@ namespace Morestachio.Helper
 			{
 				return ToSByte(null) > other.ToSByte(null);
 			}
-			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
+			throw new InvalidCastException($"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
 		}
 
 		/// <summary>
@@ -905,7 +943,7 @@ namespace Morestachio.Helper
 			{
 				return ToSByte(null) < other.ToSByte(null);
 			}
-			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
+			throw new InvalidCastException($"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
 		}
 
 		/// <summary>
@@ -915,7 +953,7 @@ namespace Morestachio.Helper
 		/// <returns></returns>
 		public bool Equals(Number other)
 		{
-			if (other.Value.GetType() != Value.GetType())
+			if (other._value.GetType() != _value.GetType())
 			{
 				return false;
 			}
@@ -930,12 +968,12 @@ namespace Morestachio.Helper
 		/// <returns></returns>
 		public bool Same(Number other)
 		{
-			if (other.Value == Value)
+			if (other._value == _value)
 			{
 				return true;
 			}
 
-			var targetType = Value.GetType();
+			var targetType = _value.GetType();
 			if (targetType == typeof(decimal))
 			{
 				return ToDecimal(null) == other.ToDecimal(null);
@@ -980,7 +1018,7 @@ namespace Morestachio.Helper
 			{
 				return ToSByte(null) == other.ToSByte(null);
 			}
-			throw new InvalidCastException($"Cannot convert {other.Value} ({other.Value.GetType()}) or {Value} ({Value.GetType()}) to a numeric type");
+			throw new InvalidCastException($"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
 		}
 
 		///  <summary>
@@ -1175,7 +1213,7 @@ namespace Morestachio.Helper
 		/// <inheritdoc />
 		public override int GetHashCode()
 		{
-			return (Value != null ? Value.GetHashCode() : 0);
+			return (_value != null ? _value.GetHashCode() : 0);
 		}
 
 		#region IConvertable
@@ -1183,190 +1221,190 @@ namespace Morestachio.Helper
 		/// <inheritdoc />
 		public TypeCode GetTypeCode()
 		{
-			return Value.GetTypeCode();
+			return _value.GetTypeCode();
 		}
 
 		/// <inheritdoc />
 		public bool ToBoolean(IFormatProvider provider)
 		{
-			if (Value is bool realVal)
+			if (_value is bool realVal)
 			{
 				return realVal;
 			}
 
-			return Value.ToBoolean(provider);
+			return _value.ToBoolean(provider);
 		}
 
 		/// <inheritdoc />
 		public char ToChar(IFormatProvider provider)
 		{
-			if (Value is char realVal)
+			if (_value is char realVal)
 			{
 				return realVal;
 			}
-			return Value.ToChar(provider);
+			return _value.ToChar(provider);
 		}
 
 		/// <inheritdoc />
 		public sbyte ToSByte(IFormatProvider provider)
 		{
-			if (Value is sbyte realVal)
+			if (_value is sbyte realVal)
 			{
 				return realVal;
 			}
-			return Value.ToSByte(provider);
+			return _value.ToSByte(provider);
 		}
 
 		/// <inheritdoc />
 		public byte ToByte(IFormatProvider provider)
 		{
-			if (Value is byte realVal)
+			if (_value is byte realVal)
 			{
 				return realVal;
 			}
-			return Value.ToByte(provider);
+			return _value.ToByte(provider);
 		}
 
 		/// <inheritdoc />
 		public short ToInt16(IFormatProvider provider)
 		{
-			if (Value is short realVal)
+			if (_value is short realVal)
 			{
 				return realVal;
 			}
-			return Value.ToInt16(provider);
+			return _value.ToInt16(provider);
 		}
 
 		/// <inheritdoc />
 		public ushort ToUInt16(IFormatProvider provider)
 		{
-			if (Value is ushort realVal)
+			if (_value is ushort realVal)
 			{
 				return realVal;
 			}
-			return Value.ToUInt16(provider);
+			return _value.ToUInt16(provider);
 		}
 
 		/// <inheritdoc />
 		public int ToInt32(IFormatProvider provider)
 		{
-			if (Value is int realVal)
+			if (_value is int realVal)
 			{
 				return realVal;
 			}
-			return Value.ToInt32(provider);
+			return _value.ToInt32(provider);
 		}
 
 		/// <inheritdoc />
 		public uint ToUInt32(IFormatProvider provider)
 		{
-			if (Value is uint realVal)
+			if (_value is uint realVal)
 			{
 				return realVal;
 			}
-			return Value.ToUInt32(provider);
+			return _value.ToUInt32(provider);
 		}
 
 		/// <inheritdoc />
 		public long ToInt64(IFormatProvider provider)
 		{
-			if (Value is long realVal)
+			if (_value is long realVal)
 			{
 				return realVal;
 			}
-			return Value.ToInt64(provider);
+			return _value.ToInt64(provider);
 		}
 
 		/// <inheritdoc />
 		public ulong ToUInt64(IFormatProvider provider)
 		{
-			if (Value is ulong realVal)
+			if (_value is ulong realVal)
 			{
 				return realVal;
 			}
-			return Value.ToUInt64(provider);
+			return _value.ToUInt64(provider);
 		}
 
 		/// <inheritdoc />
 		public float ToSingle(IFormatProvider provider)
 		{
-			if (Value is float realVal)
+			if (_value is float realVal)
 			{
 				return realVal;
 			}
-			return Value.ToSingle(provider);
+			return _value.ToSingle(provider);
 		}
 
 		/// <inheritdoc />
 		public double ToDouble(IFormatProvider provider)
 		{
-			if (Value is double realVal)
+			if (_value is double realVal)
 			{
 				return realVal;
 			}
-			return Value.ToDouble(provider);
+			return _value.ToDouble(provider);
 		}
 
 		/// <inheritdoc />
 		public decimal ToDecimal(IFormatProvider provider)
 		{
-			if (Value is decimal realVal)
+			if (_value is decimal realVal)
 			{
 				return realVal;
 			}
-			return Value.ToDecimal(provider);
+			return _value.ToDecimal(provider);
 		}
 
 		/// <inheritdoc />
 		public DateTime ToDateTime(IFormatProvider provider)
 		{
-			if (Value is DateTime realVal)
+			if (_value is DateTime realVal)
 			{
 				return realVal;
 			}
-			return Value.ToDateTime(provider);
+			return _value.ToDateTime(provider);
 		}
 
 		/// <inheritdoc />
 		public string ToString(IFormatProvider provider)
 		{
-			return Value.ToString(provider);
+			return _value.ToString(provider);
 		}
 
 		/// <inheritdoc />
 		public object ToType(Type conversionType, IFormatProvider provider)
 		{
-			if (Value.GetType() == conversionType)
+			if (_value.GetType() == conversionType)
 			{
-				return Value;
+				return _value;
 			}
 
-			return Value.ToType(conversionType, provider);
+			return _value.ToType(conversionType, provider);
 		}
 
 		/// <inheritdoc />
 		public string ToString(string format, IFormatProvider formatProvider)
 		{
-			if (Value is IFormattable formattable)
+			if (_value is IFormattable formattable)
 			{
 				return formattable.ToString(format, formatProvider);
 			}
 
-			return Value.ToString(formatProvider);
+			return _value.ToString(formatProvider);
 		}
 
 		/// <inheritdoc />
 		public override string ToString()
 		{
-			return Value?.ToString();
+			return _value?.ToString();
 		}
 
 		/// <inheritdoc />
 		public int CompareTo(object obj)
 		{
-			if (!(Value is IComparable comparable))
+			if (!(_value is IComparable comparable))
 			{
-				throw new ArgumentException($"Cannot compare '{obj}' with '{Value}'");
+				throw new ArgumentException($"Cannot compare '{obj}' with '{_value}'");
 			}
 
 			return comparable.CompareTo(obj);
@@ -1375,12 +1413,12 @@ namespace Morestachio.Helper
 		/// <inheritdoc />
 		public int CompareTo(Number obj)
 		{
-			if (!(Value is IComparable comparable))
+			if (!(_value is IComparable comparable))
 			{
-				throw new ArgumentException($"Cannot compare '{obj}' with '{Value}'");
+				throw new ArgumentException($"Cannot compare '{obj}' with '{_value}'");
 			}
 
-			return comparable.CompareTo(obj.Value);
+			return comparable.CompareTo(obj._value);
 		}
 
 		#endregion
