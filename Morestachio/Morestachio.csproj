@@ -35,12 +35,6 @@ Fixed minor bugs</PackageReleaseNotes>
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Microsoft.CSharp">
-      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7\Microsoft.CSharp.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="Formatter\Predefined\NumberFormatter.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>NumberFormatter.cs</LastGenOutput>

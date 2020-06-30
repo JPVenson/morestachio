@@ -34,11 +34,10 @@ namespace Morestachio.Helper
 
 				if (task.GetType() != typeof(Task))
 				{
-#if !NETStandard
-					return ((dynamic)task).Result;
-#else
-					return task.GetType().GetTypeInfo().GetProperty(nameof(Task<object>.Result)).GetValue(task);
-#endif
+					return typeof(Task<>)
+						.MakeGenericType(task.GetType().GenericTypeArguments)
+						.GetProperty(nameof(Task<object>.Result))
+						.GetValue(task);
 				}
 
 				return maybeTask;

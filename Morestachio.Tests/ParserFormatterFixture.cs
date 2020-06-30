@@ -10,6 +10,7 @@ using NUnit.Framework;
 namespace Morestachio.Tests
 {
 	[TestFixture]
+	[Parallelizable(ParallelScope.All)]
 	public class ParserFormatterFixture
 	{
 		[Test]

@@ -27,6 +27,14 @@ namespace Morestachio.Tests
 	public class ParserFixture
 	{
 		public static Encoding DefaultEncoding { get; set; } = new UnicodeEncoding(true, false, false);
+		
+		[Test]
+		public async Task TestUnpackCanUnpackTask()
+		{
+			var fromResult = Task.FromResult("string");
+			var unpackFormatterTask = await AsyncHelper.UnpackFormatterTask(fromResult);
+			Assert.That(unpackFormatterTask, Is.EqualTo(fromResult.Result));
+		}
 
 		[Test]
 		[TestCase(".(.('').())")]
