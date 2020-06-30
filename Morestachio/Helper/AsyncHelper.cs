@@ -22,10 +22,11 @@ namespace Morestachio.Helper
 					return task2.Result;
 				}
 
-				if (task.GetType() != typeof(Task))
+				var taskType = task.GetType();
+				if (taskType != typeof(Task))
 				{
 					return typeof(Task<>)
-						.MakeGenericType(task.GetType().GenericTypeArguments)
+						.MakeGenericType(taskType.GenericTypeArguments[0])//this must be done for an strange behavior with async's calls in .net core
 						.GetProperty(nameof(Task<object>.Result))
 						.GetValue(task);
 				}
