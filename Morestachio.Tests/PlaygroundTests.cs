@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Morestachio.Formatter.Framework;
+using Morestachio.Helper;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 
@@ -26,18 +28,28 @@ namespace Morestachio.Tests
 		[Test]
 		public void GenericsTest()
 		{
-			var methodInfo = typeof(PlaygroundTests).GetMethod(nameof(Generic));
+			var x = 0;
+			var y = new Number(0);
 
-			Array value = new int[1];
-			var values = new Dictionary<string, object>()
+			var sw = Stopwatch.StartNew();
+			var runs = 1_000_000;
+			for (int i = 0; i < runs; i++)
 			{
-				{ "value", value },
-			};
-			var endValues = values.Values;
-			methodInfo = MorestachioFormatterService.MakeGenericMethodInfoByValues(methodInfo, values);
-			
-			var parameters = endValues.ToArray();
-			methodInfo.Invoke(this, parameters);
+				x += 1;
+			}
+
+			sw.Stop();
+			Console.WriteLine("Native Operation: " + sw.Elapsed);
+
+			sw = Stopwatch.StartNew();
+
+			for (int i = 0; i < runs; i++)
+			{
+				y += 1;
+			}
+
+			sw.Stop();
+			Console.WriteLine("Number Operation: " + sw.Elapsed);
 		}
 	}
 }

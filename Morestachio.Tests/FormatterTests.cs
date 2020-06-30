@@ -380,18 +380,18 @@ namespace Morestachio.Tests
 		[Test]
 		public void ParserCanChainFormatSubExpressionFromEach()
 		{
-			var data = new
+			var data = new Dictionary<string, object>()
 			{
-				field = "field value",
-				r = new List<dynamic>()
+				{"field", "field value"},
 				{
+					"r", new List<Dictionary<string, object>>()
 					{
-						new
+						new Dictionary<string, object>
 						{
-							d = "display data value",
-							f = "formatter data value",
+							{"d", "display data value"},
+							{"f", "formatter data value"}
 						}
-					},
+					}
 				}
 			};
 			var parsingOptions = new ParserOptions("{{#each d.r}}{{d.('t').('t', f)}}{{/each}}", null, DefaultEncoding);
@@ -405,7 +405,7 @@ namespace Morestachio.Tests
 			{
 				{"d", data},
 			});
-			Assert.That(data.r[0].f, Is.EqualTo(result));
+			Assert.That((data["r"] as List<Dictionary<string, object>>)[0]["f"], Is.EqualTo(result));
 		}
 
 		[Test]
