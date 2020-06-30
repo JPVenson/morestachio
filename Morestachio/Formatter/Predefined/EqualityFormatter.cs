@@ -6,39 +6,6 @@ using Morestachio.Helper;
 
 namespace Morestachio.Formatter.Predefined
 {
-	public static class ObjectStringFormatter
-	{
-		[MorestachioFormatter(null, null)]
-		public static string Formattable(IFormattable source, string argument, [ExternalData]ParserOptions options)
-		{
-			return source.ToString(argument, options.CultureInfo);
-		}
-
-		[MorestachioFormatter(null, null)]
-		public static string Formattable(IFormattable source)
-		{
-			return source.ToString();
-		}
-
-		[MorestachioFormatter("ToString", null)]
-		public static string FormattableToString(IFormattable source, string argument, [ExternalData]ParserOptions options)
-		{
-			return source.ToString(argument, options.CultureInfo);
-		}
-
-		[MorestachioFormatter("ToString", null)]
-		public static string FormattableToString(IFormattable source)
-		{
-			return source.ToString();
-		}
-
-		[MorestachioFormatter("Not", null)]
-		public static bool FormattableToString(bool source)
-		{
-			return !source;
-		}
-	}
-
 	/// <summary>
 	///		A list of predefined Morestachio Formatters
 	/// </summary>
