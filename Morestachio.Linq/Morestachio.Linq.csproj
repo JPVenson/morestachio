@@ -2,7 +2,12 @@
 
   <PropertyGroup>
     <TargetFrameworks>net47;net471;net472;</TargetFrameworks>
-    <Version>2.3.1.0</Version>
+    <Version>4.0.1</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageProjectUrl>https://github.com/JPVenson/morestachio</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/JPVenson/morestachio</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Formatter, C#, Engine, NetStandard</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
