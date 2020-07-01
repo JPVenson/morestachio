@@ -44,35 +44,32 @@ namespace Morestachio
 				throw new ArgumentNullException(nameof(parsingOptions), "The given Stream is null");
 			}
 
-			var profiler = new PerformanceProfiler(parsingOptions.ProfileExecution);
-			Queue<TokenPair> tokens;
-			TokenzierContext context;
-			using (profiler.Begin("Tokenize"))
-			{
-				tokens = new Queue<TokenPair>(Tokenizer.Tokenize(parsingOptions, profiler, out context));
-			}
+			var tokenizerResult = Tokenizer.Tokenize(parsingOptions, out var context);
 
 			//if there are any errors do not parse the template
 			var documentInfo = new MorestachioDocumentInfo(parsingOptions,
-				context.Errors.Any() ? null : Parse(tokens, parsingOptions), context.Errors);
-			documentInfo.Profiler = profiler;
+				context.Errors.Any() ? null : Parse(tokenizerResult, parsingOptions), context.Errors);
+			
 			return documentInfo;
 		}
 
 		/// <summary>
 		///     Parses the Tokens into a Document.
 		/// </summary>
-		/// <param name="tokens">The tokens.</param>
+		/// <param name="tokenizerResult">The result of an Tokenizer.Tokenize call.</param>
+		/// <param name="options">The ParserOptions</param>
 		/// <returns></returns>
-		internal static IDocumentItem Parse(Queue<TokenPair> tokens, ParserOptions options)
+		public static IDocumentItem Parse(TokenizerResult tokenizerResult, ParserOptions options)
 		{
+			var tokenQueue = new Queue<TokenPair>(tokenizerResult.Tokens);
+
 			var buildStack = new Stack<DocumentScope>();
 			//instead of recursive calling the parse function we stack the current document 
 			buildStack.Push(new DocumentScope(new MorestachioDocument()));
 
-			while (tokens.Any())
+			while (tokenQueue.Any())
 			{
-				var currentToken = tokens.Dequeue();
+				var currentToken = tokenQueue.Dequeue();
 				var currentDocumentItem = buildStack.Peek(); //get the latest document
 
 				if (currentToken.Type.Equals(TokenType.Comment))

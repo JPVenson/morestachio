@@ -11,6 +11,23 @@ using Morestachio.ParserErrors;
 
 namespace Morestachio.Framework
 {
+
+	/// <summary>
+	///		Contains the result of an Tokenizer
+	/// </summary>
+	public class TokenizerResult
+	{
+		public TokenizerResult(IEnumerable<TokenPair> tokens)
+		{
+			Tokens = tokens;
+		}
+
+		/// <summary>
+		///		The Tokenized template
+		/// </summary>
+		public IEnumerable<TokenPair> Tokens { get; set; }
+	}
+
 	/// <summary>
 	///     Reads in a mustache template and lexes it into tokens.
 	/// </summary>
@@ -24,7 +41,7 @@ namespace Morestachio.Framework
 			= new Regex("\n", RegexOptions.Compiled);
 
 		private static readonly Regex ExpressionAliasFinder
-			= new Regex(".*(?: AS|as )(.+)", RegexOptions.Compiled);
+			= new Regex(".*(?: AS|as|As|aS )(.+)", RegexOptions.Compiled);
 
 		//private static readonly Regex FindSplitterRegEx
 		//	= new Regex(
@@ -118,16 +135,17 @@ namespace Morestachio.Framework
 			return formatChar == ',';
 		}
 
-		internal static IEnumerable<TokenPair> Tokenize(ParserOptions parserOptions,
-			PerformanceProfiler profiler,
+		/// <summary>
+		///		Goes through the template and evaluates all tokens that are enclosed by {{ }}.
+		/// </summary>
+		/// <param name="parserOptions"></param>
+		/// <param name="tokenzierContext"></param>
+		/// <returns></returns>
+		public static TokenizerResult Tokenize(ParserOptions parserOptions,
 			out TokenzierContext tokenzierContext)
 		{
 			var templateString = parserOptions.Template;
-			MatchCollection matches;
-			using (profiler.Begin("Find Tokens"))
-			{
-				matches = TokenFinder.Matches(templateString);
-			}
+			var matches= TokenFinder.Matches(templateString);
 
 			var scopestack = new Stack<Tuple<string, int>>();
 			var partialsNames = new List<string>(parserOptions.PartialsStore?.GetNames() ?? new string[0]);
@@ -649,7 +667,7 @@ namespace Morestachio.Framework
 				}
 			}
 
-			return tokens;
+			return new TokenizerResult(tokens);
 		}
 
 		internal static Tuple<string, string> EvaluateNameFromToken(string token)
