@@ -126,6 +126,7 @@
     <Compile Include="ViewModels\Formatting\FormatterViewModel.cs" />
     <Compile Include="ViewModels\GeneratedTemplateInfos.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="ViewModels\MorestachioFoldingStrategy.cs" />
     <Compile Include="ViewModels\ParserOptionsViewModel.cs" />
     <Compile Include="ViewModels\StoreMetaModel.cs" />
     <Compile Include="ViewModels\StoreModel.cs" />
