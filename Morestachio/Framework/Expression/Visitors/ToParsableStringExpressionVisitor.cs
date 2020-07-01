@@ -79,6 +79,10 @@ namespace Morestachio.Framework.Expression.Visitors
 						StringBuilder.Append(".");
 						isSelfAssignment = true;
 						break;
+					case PathType.ObjectSelector:
+						StringBuilder.Append("?");
+						isSelfAssignment = true;
+						break;
 					default:
 						throw new ArgumentOutOfRangeException();
 				}
