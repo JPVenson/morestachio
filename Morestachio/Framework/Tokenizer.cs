@@ -139,18 +139,18 @@ namespace Morestachio.Framework
 		///		Goes through the template and evaluates all tokens that are enclosed by {{ }}.
 		/// </summary>
 		/// <param name="parserOptions"></param>
-		/// <param name="tokenzierContext"></param>
+		/// <param name="context"></param>
 		/// <returns></returns>
 		public static TokenizerResult Tokenize(ParserOptions parserOptions,
-			out TokenzierContext tokenzierContext)
+			TokenzierContext context)
 		{
 			var templateString = parserOptions.Template;
 			var matches= TokenFinder.Matches(templateString);
 
 			var scopestack = new Stack<Tuple<string, int>>();
 			var partialsNames = new List<string>(parserOptions.PartialsStore?.GetNames() ?? new string[0]);
-			var context = new TokenzierContext(NewlineFinder.Matches(templateString).OfType<Match>().Select(k => k.Index).ToArray());
-			tokenzierContext = context;
+			//var context = TokenzierContext.FromText(templateString);
+			//tokenzierContext = context;
 			context.SetLocation(0);
 			var tokens = new List<TokenPair>();
 

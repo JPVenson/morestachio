@@ -44,12 +44,13 @@ namespace Morestachio
 				throw new ArgumentNullException(nameof(parsingOptions), "The given Stream is null");
 			}
 
-			var tokenizerResult = Tokenizer.Tokenize(parsingOptions, out var context);
+			var tokenzierContext = TokenzierContext.FromText(parsingOptions.Template);
+			var tokenizerResult = Tokenizer.Tokenize(parsingOptions, tokenzierContext);
 
 			//if there are any errors do not parse the template
 			var documentInfo = new MorestachioDocumentInfo(parsingOptions,
-				context.Errors.Any() ? null : Parse(tokenizerResult, parsingOptions), context.Errors);
-			
+				tokenzierContext.Errors.Any() ? null : Parse(tokenizerResult, parsingOptions), tokenzierContext.Errors);
+
 			return documentInfo;
 		}
 

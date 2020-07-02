@@ -7,8 +7,15 @@ using Morestachio.ParserErrors;
 
 namespace Morestachio.Framework.Expression
 {
+	/// <summary>
+	///		The context for all Tokenizer operations
+	/// </summary>
 	public class TokenzierContext
 	{
+		/// <summary>
+		///		The indices of all linebreaks
+		/// </summary>
+		/// <param name="lines"></param>
 		public TokenzierContext(int[] lines)
 		{
 			Lines = lines;
@@ -16,6 +23,11 @@ namespace Morestachio.Framework.Expression
 			Character = 0;
 		}
 
+		/// <summary>
+		///		Indexes the expression or template and creates a new Context for the given text by indexing all linebreaks
+		/// </summary>
+		/// <param name="expression"></param>
+		/// <returns></returns>
 		public static TokenzierContext FromText(string expression)
 		{
 			var tokenzierContext = new TokenzierContext(
