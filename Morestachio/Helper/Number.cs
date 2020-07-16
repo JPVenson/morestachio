@@ -216,12 +216,14 @@ namespace Morestachio.Helper
 		#region MorestachioFormatter
 
 		[MorestachioFormatter("Add", "Adds two numbers")]
+		[MorestachioFormatter("Plus", "Adds two numbers")]
 		public static Number Add(Number left, Number right)
 		{
 			return left.Add(right);
 		}
 
 		[MorestachioFormatter("Subtract", "Subtracts two numbers")]
+		[MorestachioFormatter("Minus", "Subtracts two numbers")]
 		public static Number Subtract(Number left, Number right)
 		{
 			return left.Subtract(right);
@@ -258,15 +260,17 @@ namespace Morestachio.Helper
 		}
 
 		[MorestachioFormatter("BiggerAs", "Checks if the source number is bigger as the other number")]
-		public static bool BiggerAs(Number left, Number right)
+		[MorestachioFormatter("GreaterThen", "Checks if the source number is bigger as the other number")]
+		public static bool GreaterThen(Number left, Number right)
 		{
-			return left.BiggerAs(right);
+			return left.GreaterThen(right);
 		}
 
 		[MorestachioFormatter("SmallerAs", "Checks if the source number is smaller as the other number")]
-		public static bool SmallerAs(Number left, Number right)
+		[MorestachioFormatter("SmallerThan", "Checks if the source number is smaller as the other number")]
+		public static bool SmallerThan(Number left, Number right)
 		{
-			return left.SmallerAs(right);
+			return left.SmallerThan(right);
 		}
 
 		[MorestachioFormatter("Equals", "Checks if the two numbers are equal to each other")]
@@ -861,7 +865,7 @@ namespace Morestachio.Helper
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		public bool BiggerAs(Number other)
+		public bool GreaterThen(Number other)
 		{
 			var targetType = GetOperationTargetType(this, other);
 			if (targetType == typeof(decimal))
@@ -916,7 +920,7 @@ namespace Morestachio.Helper
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		public bool SmallerAs(Number other)
+		public bool SmallerThan(Number other)
 		{
 			var targetType = GetOperationTargetType(this, other);
 			if (targetType == typeof(decimal))
@@ -1453,10 +1457,10 @@ namespace Morestachio.Helper
 		public static Number operator >>(Number a, int b) => a.ShiftRight(b);
 		public static bool operator ==(Number a, Number b) => a.Equals(b);
 		public static bool operator !=(Number a, Number b) => !a.Equals(b);
-		public static bool operator <(Number a, Number b) => a.SmallerAs(b);
-		public static bool operator >(Number a, Number b) => a.BiggerAs(b);
-		public static bool operator <=(Number a, Number b) => a.Equals(b) || a.SmallerAs(b);
-		public static bool operator >=(Number a, Number b) => a.Equals(b) || a.BiggerAs(b);
+		public static bool operator <(Number a, Number b) => a.SmallerThan(b);
+		public static bool operator >(Number a, Number b) => a.GreaterThen(b);
+		public static bool operator <=(Number a, Number b) => a.Equals(b) || a.SmallerThan(b);
+		public static bool operator >=(Number a, Number b) => a.Equals(b) || a.GreaterThen(b);
 
 		public static Number operator +(Number a, Number b) => a.Add(b);
 		public static Number operator -(Number a, Number b) => a.Subtract(b);
