@@ -132,19 +132,19 @@ namespace Morestachio.Formatter.Predefined
 			return sourceCollection.Contains(arguments);
 		}
 
-		[MorestachioFormatter("min", "Called on a list of numbers it returns the smallest")]
+		[MorestachioFormatter("Min", "Called on a list of numbers it returns the smallest")]
 		public static T Min<T>(IEnumerable<T> sourceCollection)
 		{
 			return sourceCollection.Min();
 		}
 
-		[MorestachioFormatter("max", "Called on a list of numbers it returns the biggest")]
+		[MorestachioFormatter("Max", "Called on a list of numbers it returns the biggest")]
 		public static T Max<T>(IEnumerable<T> sourceCollection)
 		{
 			return sourceCollection.Max();
 		}
 
-		[MorestachioFormatter("flat group", "Flattens the Group returned by group by",
+		[MorestachioFormatter("FlatGroup", "Flattens the Group returned by group by",
 			ReturnHint = "Can be listed with #each")]
 		[MorestachioFormatterInput("Must be Expression to property")]
 		public static IEnumerable<T> GroupByList<TKey, T>(IGrouping<TKey, T> sourceCollection)
