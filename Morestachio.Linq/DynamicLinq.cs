@@ -23,9 +23,6 @@ namespace Morestachio.Linq
 			string predicate,
 			[RestParameter] params object[] arguments)
 		{
-			//var searchHeader = new Regex(@"\[MorestachioFormatter\(""([^""]*)""\s*(?:,\s*""(.*)"")?\)\]\s*public static ([^(]*) [^(]*\(([^)]*)\)");
-			//var matchCollection = searchHeader.Matches("");
-			//matchCollection[0].Groups[1].Value
 			return sourceCollection.AsQueryable().Where(predicate, arguments);
 		}
 

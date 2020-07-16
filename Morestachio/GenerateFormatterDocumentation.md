@@ -75,8 +75,228 @@ Description:
 Checks if two objects are the same  
 ***
 
+### class Linq.cs
+FormatterName: Concat  
+Arguments:  
+- IEnumerable<T>: sourceCollection  
+- IEnumerable<T>: targetCollection  
+
+Returns: IEnumerable  
+Description:  
+Concats two lists together  
+***
+
+FormatterName: Distinct  
+Arguments:  
+- IEnumerable<T>: sourceCollection  
+
+Returns: IEnumerable  
+Description:  
+Filters duplicates from the list  
+***
+
+FormatterName: Union  
+Arguments:  
+- IEnumerable<T>: sourceCollection  
+- IEnumerable<T>: targetCollection  
+
+Returns: IEnumerable  
+Description:  
+Creates a new list that contains all unqiue items from both lists  
+***
+
+FormatterName: Intersect  
+Arguments:  
+- IEnumerable<T>: sourceCollection  
+- IEnumerable<T>: targetCollection  
+
+Returns: IEnumerable  
+Description:  
+Gets the list of all duplicates from both lists  
+***
+
+FormatterName: Except  
+Arguments:  
+- IEnumerable<T>: sourceCollection  
+- IEnumerable<T>: targetCollection  
+
+Returns: IEnumerable  
+Description:  
+Gets all items from the source list except for all items in the target list  
+***
+
+FormatterName: Reverse  
+Arguments:  
+- IEnumerable<T>: sourceCollection  
+
+Returns: IEnumerable  
+Description:  
+Reverses the order of all items in the list  
+***
+
+FormatterName: SequenceEqual  
+Arguments:  
+- IEnumerable<T>: sourceCollection  
+- IEnumerable<T>: targetCollection  
+
+Returns: bool  
+Description:  
+Checks for all items of both lists for equality  
+***
+
+FormatterName: DefaultIfEmpty  
+Arguments:  
+- IEnumerable<T>: sourceCollection  
+- T: defaultValue  
+
+Returns: IEnumerable<T>  
+Description:  
+If the source list is empty, the parameter will be returned instead  
+***
+
+FormatterName: First  
+Arguments:  
+- IEnumerable<T>: sourceCollection  
+
+Returns: T  
+Description:  
+Selects the First item in the list  
+***
+
+FormatterName: FirstOrDefault  
+Arguments:  
+- IEnumerable<T>: sourceCollection  
+
+Returns: T  
+Description:  
+Gets the first item in the list that matches the predicate  
+***
+
+FormatterName: Last  
+Arguments:  
+- IEnumerable<T>: sourceCollection  
+
+Returns: T  
+Description:  
+Selects the Last item in the list  
+***
+
+FormatterName: LastOrDefault  
+Arguments:  
+- IEnumerable<T>: sourceCollection  
+
+Returns: T  
+Description:  
+Gets the Last item in the list that matches the predicate  
+***
+
+FormatterName: Single  
+Arguments:  
+- IEnumerable<T>: sourceCollection  
+
+Returns: T  
+Description:  
+Selects the only item in the list  
+***
+
+FormatterName: ElementAt  
+Arguments:  
+- IEnumerable<T>: sourceCollection  
+- int: index  
+
+Returns: T  
+Description:  
+Gets the item in the list on the position  
+***
+
+FormatterName: ElementAtOrDefault  
+Arguments:  
+- IEnumerable<T>: sourceCollection  
+- int: index  
+
+Returns: T  
+Description:  
+Gets the item in the list on the position  
+***
+
+FormatterName: Range  
+Arguments:  
+- int: start  
+- int: count  
+
+Returns: IEnumerable<int>  
+Description:  
+Generates a list of numbers  
+***
+
+FormatterName: Repeat  
+Arguments:  
+- T: element  
+- int: count  
+
+Returns: IEnumerable<T>  
+Description:  
+Creates a list of the given item  
+***
+
+FormatterName: Any  
+Arguments:  
+- IEnumerable<T>: sourceCollection  
+
+Returns: bool  
+Description:  
+returns if there are any elements in the collection  
+***
+
+FormatterName: Count  
+Arguments:  
+- IEnumerable<T>: sourceCollection  
+
+Returns: decimal  
+Description:  
+Gets the count of the list  
+***
+
+FormatterName: Contains  
+Arguments:  
+- IEnumerable<T>: sourceCollection  
+- T: arguments  
+
+Returns: bool  
+Description:  
+Searches in the list for that the argument  
+***
+
+FormatterName: Min  
+Arguments:  
+- IEnumerable<T>: sourceCollection  
+
+Returns: T  
+Description:  
+Called on a list of numbers it returns the smallest  
+***
+
+FormatterName: Max  
+Arguments:  
+- IEnumerable<T>: sourceCollection  
+
+Returns: T  
+Description:  
+Called on a list of numbers it returns the biggest  
+***
+
+FormatterName: Partition  
+Arguments:  
+- IEnumerable<T>: source  
+- decimal: size  
+
+Returns: IEnumerable<List<T>>  
+Description:  
+Splits the source into a list of lists equals the size of size  
+***
+
 ### class Number.cs
-FormatterName: Add  
+FormatterName: Plus  
 Arguments:  
 - Number: left  
 - Number: right  
@@ -86,7 +306,7 @@ Description:
 Adds two numbers  
 ***
 
-FormatterName: Subtract  
+FormatterName: Minus  
 Arguments:  
 - Number: left  
 - Number: right  
@@ -146,7 +366,7 @@ Description:
 Shift two numbers  
 ***
 
-FormatterName: BiggerAs  
+FormatterName: GreaterThen  
 Arguments:  
 - Number: left  
 - Number: right  
@@ -156,7 +376,7 @@ Description:
 Checks if the source number is bigger as the other number  
 ***
 
-FormatterName: SmallerAs  
+FormatterName: SmallerThan  
 Arguments:  
 - Number: left  
 - Number: right  
@@ -401,107 +621,11 @@ Description:
 Groups a list  
 ***
 
-FormatterName: Concat  
-Arguments:  
-- IEnumerable<T>: sourceCollection  
-- IEnumerable<T>: targetCollection  
-
-Returns: IEnumerable  
-Description:  
-Concats two lists together  
-***
-
-FormatterName: Distinct  
-Arguments:  
-- IEnumerable<T>: sourceCollection  
-
-Returns: IEnumerable  
-Description:  
-Filters duplicates from the list  
-***
-
-FormatterName: Union  
-Arguments:  
-- IEnumerable<T>: sourceCollection  
-- IEnumerable<T>: targetCollection  
-
-Returns: IEnumerable  
-Description:  
-Creates a new list that contains all unqiue items from both lists  
-***
-
-FormatterName: Intersect  
-Arguments:  
-- IEnumerable<T>: sourceCollection  
-- IEnumerable<T>: targetCollection  
-
-Returns: IEnumerable  
-Description:  
-Gets the list of all duplicates from both lists  
-***
-
-FormatterName: Except  
-Arguments:  
-- IEnumerable<T>: sourceCollection  
-- IEnumerable<T>: targetCollection  
-
-Returns: IEnumerable  
-Description:  
-Gets all items from the source list except for all items in the target list  
-***
-
-FormatterName: Reverse  
-Arguments:  
-- IEnumerable<T>: sourceCollection  
-
-Returns: IEnumerable  
-Description:  
-Reverses the order of all items in the list  
-***
-
-FormatterName: SequenceEqual  
-Arguments:  
-- IEnumerable<T>: sourceCollection  
-- IEnumerable<T>: targetCollection  
-
-Returns: bool  
-Description:  
-Checks for all items of both lists for equality  
-***
-
-FormatterName: DefaultIfEmpty  
-Arguments:  
-- IEnumerable<T>: sourceCollection  
-- T: defaultValue  
-
-Returns: IEnumerable<T>  
-Description:  
-If the source list is empty, the parameter will be returned instead  
-***
-
-FormatterName: First  
-Arguments:  
-- IEnumerable<T>: sourceCollection  
-
-Returns: T  
-Description:  
-Selects the First item in the list  
-***
-
 FormatterName: First  
 Arguments:  
 - IEnumerable<T>: sourceCollection  
 - string: predicate  
 - [RestParameter] params object[]: arguments  
-
-Returns: T  
-Description:  
-Gets the first item in the list that matches the predicate  
-***
-
-FormatterName: FirstOrDefault  
-Arguments:  
-- IEnumerable<T>: sourceCollection  
 
 Returns: T  
 Description:  
@@ -522,26 +646,8 @@ Gets the first item in the list that matches the predicate
 FormatterName: Last  
 Arguments:  
 - IEnumerable<T>: sourceCollection  
-
-Returns: T  
-Description:  
-Selects the Last item in the list  
-***
-
-FormatterName: Last  
-Arguments:  
-- IEnumerable<T>: sourceCollection  
 - string: predicate  
 - [RestParameter] params object[]: arguments  
-
-Returns: T  
-Description:  
-Gets the Last item in the list that matches the predicate  
-***
-
-FormatterName: LastOrDefault  
-Arguments:  
-- IEnumerable<T>: sourceCollection  
 
 Returns: T  
 Description:  
@@ -557,15 +663,6 @@ Arguments:
 Returns: T  
 Description:  
 Gets the Last item in the list that matches the predicate  
-***
-
-FormatterName: Single  
-Arguments:  
-- IEnumerable<T>: sourceCollection  
-
-Returns: T  
-Description:  
-Selects the only item in the list  
 ***
 
 FormatterName: Single  
@@ -597,55 +694,6 @@ Arguments:
 Returns: T  
 Description:  
 Gets the only item in the list that matches the predicate  
-***
-
-FormatterName: ElementAt  
-Arguments:  
-- IEnumerable<T>: sourceCollection  
-- int: index  
-
-Returns: T  
-Description:  
-Gets the item in the list on the position  
-***
-
-FormatterName: ElementAtOrDefault  
-Arguments:  
-- IEnumerable<T>: sourceCollection  
-- int: index  
-
-Returns: T  
-Description:  
-Gets the item in the list on the position  
-***
-
-FormatterName: Range  
-Arguments:  
-- int: start  
-- int: count  
-
-Returns: IEnumerable<int>  
-Description:  
-Generates a list of numbers  
-***
-
-FormatterName: Repeat  
-Arguments:  
-- T: element  
-- int: count  
-
-Returns: IEnumerable<T>  
-Description:  
-Creates a list of the given item  
-***
-
-FormatterName: Any  
-Arguments:  
-- IEnumerable<T>: sourceCollection  
-
-Returns: bool  
-Description:  
-returns if there are any elements in the collection  
 ***
 
 FormatterName: Any  
@@ -673,31 +721,12 @@ returns if All elements in the collection matches the condition
 FormatterName: Count  
 Arguments:  
 - IEnumerable<T>: sourceCollection  
-
-Returns: decimal  
-Description:  
-Gets the count of the list  
-***
-
-FormatterName: Count  
-Arguments:  
-- IEnumerable<T>: sourceCollection  
 - string: predicate  
 - [RestParameter] params object[]: arguments  
 
 Returns: decimal  
 Description:  
 Counts all items that matches the predicate  
-***
-
-FormatterName: Contains  
-Arguments:  
-- IEnumerable<T>: sourceCollection  
-- T: arguments  
-
-Returns: bool  
-Description:  
-Searches in the list for that the argument  
 ***
 
 FormatterName: Aggregate  
@@ -720,24 +749,6 @@ Description:
 Aggreates the property in the argument and returns it  
 ***
 
-FormatterName: min  
-Arguments:  
-- IEnumerable<T>: sourceCollection  
-
-Returns: T  
-Description:  
-Called on a list of numbers it returns the smallest  
-***
-
-FormatterName: max  
-Arguments:  
-- IEnumerable<T>: sourceCollection  
-
-Returns: T  
-Description:  
-Called on a list of numbers it returns the biggest  
-***
-
 FormatterName: Average  
 Arguments:  
 - IEnumerable<T>: sourceCollection  
@@ -757,15 +768,5 @@ Arguments:
 Returns: IQueryable  
 Description:  
 casts all elements in the collection into another type  
-***
-
-FormatterName: Partition  
-Arguments:  
-- IEnumerable<T>: source  
-- decimal: size  
-
-Returns: IEnumerable<List<T>>  
-Description:  
-Splits the source into a list of lists equals the size of size  
 ***
 
