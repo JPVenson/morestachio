@@ -28,6 +28,7 @@ namespace Morestachio.Framework
 			DefaultFormatter.AddFromType(typeof(ObjectStringFormatter));
 			DefaultFormatter.AddFromType(typeof(EqualityFormatter));
 			DefaultFormatter.AddFromType(typeof(Number));
+			DefaultFormatter.AddFromType(typeof(Linq));
 			DefaultDefinitionOfFalse = (value) => value != null &&
 												  value as bool? != false &&
 												  // ReSharper disable once CompareOfFloatsByEqualityOperator
