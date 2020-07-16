@@ -27,6 +27,9 @@ namespace Morestachio.Framework
 			DefaultFormatter = new MorestachioFormatterService();
 			DefaultFormatter.AddFromType(typeof(ObjectStringFormatter));
 			DefaultFormatter.AddFromType(typeof(EqualityFormatter));
+			DefaultFormatter.AddFromType(typeof(BooleanFormatter));
+			DefaultFormatter.AddFromType(typeof(DateFormatter));
+			DefaultFormatter.AddFromType(typeof(TimeSpanFormatter));
 			DefaultFormatter.AddFromType(typeof(Number));
 			DefaultFormatter.AddFromType(typeof(Linq));
 			DefaultDefinitionOfFalse = (value) => value != null &&

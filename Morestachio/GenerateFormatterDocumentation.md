@@ -5,17 +5,7 @@ See https://github.com/JPVenson/morestachio/wiki/Formatter#formatter-framework f
 > All PRs updating this Wiki page alone will be rejected
 
 ## Project: Morestachio
-### class EqualityFormatter.cs
-FormatterName: Equals  
-Arguments:  
-- [SourceObject]object: source  
-- object: target  
-
-Returns: bool  
-Description:  
-Checks if two objects are equal  
-***
-
+### class BooleanFormatter.cs
 FormatterName: Negate  
 Arguments:  
 - [SourceObject]bool: value  
@@ -63,6 +53,67 @@ Arguments:
 Returns: bool  
 Description:  
 Returns true any value is true  
+***
+
+### class DateFormatter.cs
+FormatterName: Add  
+Arguments:  
+- [SourceObject]DateTime: timeSpan  
+- TimeSpan: timespan  
+
+Returns: DateTime  
+Description:  
+Adds the TimeSpan to the given timeSpan  
+***
+
+FormatterName: DaysInMonth  
+Arguments:  
+- Number: year  
+- Number: month  
+
+Returns: int  
+Description:  
+Gets the Days in a given Month of the year  
+***
+
+FormatterName: IsLeapYear  
+Arguments:  
+- Number: year  
+
+Returns: bool  
+Description:  
+Gets if the given year is a leap year  
+***
+
+FormatterName: ParseDateTime  
+Arguments:  
+- string: text  
+- [ExternalData] ParserOptions: parserOptions  
+
+Returns: DateTime  
+Description:  
+Converts the string representation of a date and time to its DateTime equivalent.  
+***
+
+FormatterName: ParseExactDateTime  
+Arguments:  
+- string: text  
+- string: format  
+
+Returns: DateTime  
+Description:  
+Converts the string representation of a date and time to its DateTime equivalent using the specified format and culture-specific format information. The format of the string representation must match the specified format exactly.  
+***
+
+### class EqualityFormatter.cs
+FormatterName: Equals  
+Arguments:  
+- [SourceObject]object: source  
+- object: target  
+
+Returns: bool  
+Description:  
+Checks if two objects are equal  
 ***
 
 FormatterName: ReferenceEquals  
@@ -293,6 +344,130 @@ Arguments:
 Returns: IEnumerable<List<T>>  
 Description:  
 Splits the source into a list of lists equals the size of size  
+***
+
+### class TimeSpanFormatter.cs
+FormatterName: ParseTimeSpan  
+Arguments:  
+- [SourceObject]string: timespan  
+- [ExternalData] ParserOptions: parserOptions  
+
+Returns: TimeSpan  
+Description:  
+Parses a string into a TimeSpan  
+***
+
+FormatterName: ParseTimeSpanExact  
+Arguments:  
+- [SourceObject]string: timespan  
+- string: format  
+
+Returns: TimeSpan  
+Description:  
+Converts the string representation of a time interval to its TimeSpan equivalent by using the specified format and culture-specific format information.  
+***
+
+FormatterName: TimeSpanFromDays  
+Arguments:  
+- [SourceObject]Number: days  
+
+Returns: TimeSpan  
+Description:  
+Parses a number of Days into a TimeSpan  
+***
+
+FormatterName: TimeSpanFromHours  
+Arguments:  
+- [SourceObject]Number: days  
+
+Returns: TimeSpan  
+Description:  
+Parses a number of Hours into a TimeSpan  
+***
+
+FormatterName: TimeSpanFromMilliseconds  
+Arguments:  
+- [SourceObject]Number: days  
+
+Returns: TimeSpan  
+Description:  
+Parses a number of Milliseconds into a TimeSpan  
+***
+
+FormatterName: TimeSpanFromMinutes  
+Arguments:  
+- [SourceObject]Number: days  
+
+Returns: TimeSpan  
+Description:  
+Parses a number of Minutes into a TimeSpan  
+***
+
+FormatterName: TimeSpanFromSeconds  
+Arguments:  
+- [SourceObject]Number: days  
+
+Returns: TimeSpan  
+Description:  
+Parses a number of Seconds into a TimeSpan  
+***
+
+FormatterName: TimeSpanFromTicks  
+Arguments:  
+- [SourceObject]Number: days  
+
+Returns: TimeSpan  
+Description:  
+Parses a number of Ticks into a TimeSpan  
+***
+
+FormatterName: Negate  
+Arguments:  
+- [SourceObject]TimeSpan: timeSpan  
+
+Returns: TimeSpan  
+Description:  
+Negate the value of an TimeSpan  
+***
+
+FormatterName: Add  
+Arguments:  
+- [SourceObject]TimeSpan: timeSpan  
+- TimeSpan: timespan  
+
+Returns: TimeSpan  
+Description:  
+Adds the TimeSpan to the given TimeSpan  
+***
+
+FormatterName: Subtract  
+Arguments:  
+- [SourceObject]TimeSpan: timeSpan  
+- TimeSpan: timespan  
+
+Returns: TimeSpan  
+Description:  
+Subtracts the TimeSpan to the given TimeSpan  
+***
+
+FormatterName: Multiply  
+Arguments:  
+- [SourceObject]TimeSpan: timeSpan  
+- Number: factor  
+
+Returns: TimeSpan  
+Description:  
+Multiplies the TimeSpan to the given Number  
+***
+
+FormatterName: Divide  
+Arguments:  
+- [SourceObject]TimeSpan: timeSpan  
+- Number: factor  
+
+Returns: TimeSpan  
+Description:  
+Divides the TimeSpan to the given Number  
 ***
 
 ### class Number.cs
