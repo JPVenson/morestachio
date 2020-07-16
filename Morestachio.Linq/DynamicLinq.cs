@@ -1,7 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Morestachio.Attributes;
 using Morestachio.Formatter.Framework;
@@ -20,6 +23,9 @@ namespace Morestachio.Linq
 			string predicate,
 			[RestParameter] params object[] arguments)
 		{
+			//var searchHeader = new Regex(@"\[MorestachioFormatter\(""([^""]*)""\s*(?:,\s*""(.*)"")?\)\]\s*public static ([^(]*) [^(]*\(([^)]*)\)");
+			//var matchCollection = searchHeader.Matches("");
+			//matchCollection[0].Groups[1].Value
 			return sourceCollection.AsQueryable().Where(predicate, arguments);
 		}
 
@@ -394,6 +400,27 @@ namespace Morestachio.Linq
 		public static IQueryable Cast<T>(IEnumerable<T> sourceCollection, string type)
 		{
 			return sourceCollection.AsQueryable().Cast(type);
+		}
+
+		[MorestachioFormatter("Partition", "Splits the source into a list of lists equals the size of size")]
+		public static IEnumerable<List<T>> Partition<T>(IEnumerable<T> source, decimal size)
+		{
+			IList<T> target;
+			if (source is IList<T>)
+			{
+				target = source as IList<T>;
+			}
+			else
+			{
+				target = source.ToArray();
+			}
+
+			var sizeInt = size;
+
+			for (var i = 0; i < Math.Ceiling(target.Count / (double)sizeInt); i++)
+			{
+				yield return new List<T>(target.Skip((int)(sizeInt * i)).Take((int)sizeInt));
+			}
 		}
 	}
 }

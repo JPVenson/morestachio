@@ -287,6 +287,12 @@ namespace Morestachio.Helper
 			return left.Abs();
 		}
 
+		[MorestachioFormatter("Round", "Rounds a double-precision floating-point value to a specified number of fractional digits.")]
+		public static Number Round(Number left, Number right)
+		{
+			return left.Round(right);
+		}
+
 		[MorestachioFormatter("Negate", "Negates the current value")]
 		public static Number Negate(Number left)
 		{
@@ -475,6 +481,20 @@ namespace Morestachio.Helper
 			throw new InvalidCastException($"Cannot get the absolute value for {_value} ({_value.GetType()})");
 		}
 
+		/// <summary>
+		///		Adds the two numbers together
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		public Number Round(Number other)
+		{
+			if (_value is decimal)
+			{
+				return Math.Round(_value.ToDecimal(null), other.ToInt32(null));
+			}
+			return Math.Round(_value.ToDouble(null), other.ToInt32(null));
+		}
+		
 		/// <summary>
 		///		Adds the two numbers together
 		/// </summary>
