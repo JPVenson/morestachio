@@ -41,7 +41,7 @@ namespace Morestachio.Framework
 			= new Regex("\n", RegexOptions.Compiled);
 
 		private static readonly Regex ExpressionAliasFinder
-			= new Regex(".*(?: AS|as|As|aS )(.+)", RegexOptions.Compiled);
+			= new Regex("(?:\\s+(?:AS|as|As|aS)\\s+)([A-Za-z]+)$", RegexOptions.Compiled);
 
 		//private static readonly Regex FindSplitterRegEx
 		//	= new Regex(
