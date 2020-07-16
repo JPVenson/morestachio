@@ -20,7 +20,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.Tests", "Morest
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.Linq", "Morestachio.Linq\Morestachio.Linq.csproj", "{58A6BE54-5436-4F00-BCE4-127176B4948A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morestachio.ObjectRenderer", "Morestachio.ObjectRenderer\Morestachio.ObjectRenderer.csproj", "{710CEF23-87F5-49D2-941B-A03A071E6597}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.ObjectRenderer", "Morestachio.ObjectRenderer\Morestachio.ObjectRenderer.csproj", "{710CEF23-87F5-49D2-941B-A03A071E6597}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DocumentGenerations", "DocumentGenerations", "{DD3A5646-EA3B-46B4-9730-6305F1A1787B}"
+	ProjectSection(SolutionItems) = preProject
+		GenerateFormatterDocumentation.tt = GenerateFormatterDocumentation.tt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
