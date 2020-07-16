@@ -28,10 +28,8 @@ namespace Morestachio
 		/// </summary>
 		/// <param name="parsingOptions">a set of options</param>
 		/// <returns></returns>
-		[ContractAnnotation("parsingOptions:null => halt")]
 		[NotNull]
 		[MustUseReturnValue("Use return value to create templates. Reuse return value if possible.")]
-		[Pure]
 		public static MorestachioDocumentInfo ParseWithOptions([NotNull] ParserOptions parsingOptions)
 		{
 			if (parsingOptions == null)
