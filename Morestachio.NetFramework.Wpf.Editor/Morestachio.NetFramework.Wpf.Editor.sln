@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JPB.Mustachio.Clinet.Wpf.Co
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio", "..\Morestachio\Morestachio.csproj", "{F7726CD9-1C15-4049-810E-46541537863A}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JPB.Mustachio.Client.Wpf.Core", "JPB.Mustachio.Client.WpfCore\JPB.Mustachio.Client.Wpf.Core.csproj", "{C2590F08-3AB3-4DE5-926C-8AE17BCF21FF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,10 @@ Global
 		{F7726CD9-1C15-4049-810E-46541537863A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7726CD9-1C15-4049-810E-46541537863A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F7726CD9-1C15-4049-810E-46541537863A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2590F08-3AB3-4DE5-926C-8AE17BCF21FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2590F08-3AB3-4DE5-926C-8AE17BCF21FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2590F08-3AB3-4DE5-926C-8AE17BCF21FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2590F08-3AB3-4DE5-926C-8AE17BCF21FF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -50,6 +56,7 @@ Global
 		{9083F2B8-FAC7-4A8F-8A4C-6704BFD91BB9} = {E760507E-76C1-4AC9-B937-35309B9DA2BE}
 		{A1381519-C1D0-42AC-9BEE-F70D725263AF} = {E760507E-76C1-4AC9-B937-35309B9DA2BE}
 		{3CA852D8-0479-4F51-BF70-A7789BECCC9C} = {E760507E-76C1-4AC9-B937-35309B9DA2BE}
+		{C2590F08-3AB3-4DE5-926C-8AE17BCF21FF} = {E760507E-76C1-4AC9-B937-35309B9DA2BE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6135CF20-9E43-4F35-B500-7DF3F03A9C9E}
