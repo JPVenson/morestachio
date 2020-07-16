@@ -250,6 +250,7 @@ namespace Morestachio
 		/// <param name="value"></param>
 		/// <param name="parent"></param>
 		/// <returns></returns>
+		[NotNull]
 		public virtual ContextObject CreateContextObject(string key,
 			CancellationToken token, 
 			object value,
@@ -297,9 +298,9 @@ namespace Morestachio
 			};
 		}
 
-		internal void OnUnresolvedPath(string path, Type type)
+		internal void OnUnresolvedPath(InvalidPathEventArgs args)
 		{
-			UnresolvedPath?.Invoke(path, type);
+			UnresolvedPath?.Invoke(args);
 		}
 	}
 }

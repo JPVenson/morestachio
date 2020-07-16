@@ -147,7 +147,7 @@ namespace Morestachio.Framework.Expression
 		/// <inheritdoc />
 		public async Task<ContextObject> GetValue(ContextObject contextObject, ScopeData scopeData)
 		{
-			var contextForPath = await contextObject.GetContextForPath(PathParts, scopeData);
+			var contextForPath = await contextObject.GetContextForPath(PathParts, scopeData, this);
 			if (!Formats.Any() && FormatterName == null)
 			{
 				return contextForPath;

@@ -38,8 +38,9 @@ namespace Morestachio.Framework
 		public bool Last { get; }
 
 		/// <inheritdoc />
-		protected override ContextObject HandlePathContext(Queue<KeyValuePair<string, PathType>> elements,
-			KeyValuePair<string, PathType> path)
+		protected override ContextObject HandlePathContext(Traversable elements,
+			KeyValuePair<string, PathType> path,
+			IMorestachioExpression expression)
 		{
 			if (path.Value != PathType.DataPath)
 			{

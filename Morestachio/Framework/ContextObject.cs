@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -12,6 +13,7 @@ using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Predefined;
 using Morestachio.Framework.Expression;
 using Morestachio.Helper;
+using PathPartElement = System.Collections.Generic.KeyValuePair<string, Morestachio.Framework.Expression.PathType>;
 
 namespace Morestachio.Framework
 {
@@ -172,24 +174,24 @@ namespace Morestachio.Framework
 		///     if non of that
 		///     <value>null</value>
 		/// </summary>
-		/// <param name="elements"></param>
-		/// <param name="currentElement"></param>
 		/// <returns></returns>
-		protected virtual ContextObject HandlePathContext(Queue<KeyValuePair<string, PathType>> elements,
-			KeyValuePair<string, PathType> currentElement)
+		protected virtual ContextObject HandlePathContext(Traversable elements,
+			PathPartElement currentElement, 
+			IMorestachioExpression morestachioExpression)
 		{
 			return null;
 		}
 
 		private async Task<ContextObject> GetContextForPath(
-			Queue<KeyValuePair<string, PathType>> elements,
-			ScopeData scopeData)
+			Traversable elements,
+			ScopeData scopeData, 
+			IMorestachioExpression morestachioExpression)
 		{
 			var retval = this;
 			if (elements.Any())
 			{
 				var path = elements.Dequeue();
-				var preHandeld = HandlePathContext(elements, path);
+				var preHandeld = HandlePathContext(elements, path, morestachioExpression);
 				if (preHandeld != null)
 				{
 					return preHandeld;
@@ -211,26 +213,26 @@ namespace Morestachio.Framework
 
 					if (lastParent != null)
 					{
-						retval = await lastParent.GetContextForPath(elements, scopeData);
+						retval = await lastParent.GetContextForPath(elements, scopeData, morestachioExpression);
 					}
 				}
 				else if (path.Value == PathType.ParentSelector) //go one level up
 				{
 					if (Parent != null)
 					{
-						var parentsRetVal = (await (FindNextNaturalContextObject()?.Parent?.GetContextForPath(elements, scopeData) ?? Task.FromResult((ContextObject)null)));
+						var parentsRetVal = (await (FindNextNaturalContextObject()?.Parent?.GetContextForPath(elements, scopeData, morestachioExpression) ?? Task.FromResult((ContextObject)null)));
 						if (parentsRetVal != null)
 						{
 							retval = parentsRetVal;
 						}
 						else
 						{
-							retval = await GetContextForPath(elements, scopeData);
+							retval = await GetContextForPath(elements, scopeData, morestachioExpression);
 						}
 					}
 					else
 					{
-						retval = await GetContextForPath(elements, scopeData);
+						retval = await GetContextForPath(elements, scopeData, morestachioExpression);
 					}
 				}
 				else if (path.Value == PathType.ObjectSelector) //enumerate ether an IDictionary, an cs object or an IEnumerable to a KeyValuePair array
@@ -265,7 +267,7 @@ namespace Morestachio.Framework
 							}
 					}
 
-					retval = await innerContext.GetContextForPath(elements, scopeData);
+					retval = await innerContext.GetContextForPath(elements, scopeData, morestachioExpression);
 				}
 				else if (path.Value == PathType.Number)
 				{
@@ -274,7 +276,7 @@ namespace Morestachio.Framework
 					{
 						var contextObject = Options.CreateContextObject(".", CancellationToken, isNumber, this);
 						contextObject.IsNaturalContext = IsNaturalContext;
-						return await contextObject.GetContextForPath(elements, scopeData);
+						return await contextObject.GetContextForPath(elements, scopeData, morestachioExpression);
 					}
 				}
 				else if (path.Value == PathType.Boolean)
@@ -283,7 +285,7 @@ namespace Morestachio.Framework
 					{
 						var booleanContext = Options.CreateContextObject(".", CancellationToken, path.Key == "true", this);
 						booleanContext.IsNaturalContext = IsNaturalContext;
-						return await booleanContext.GetContextForPath(elements, scopeData);
+						return await booleanContext.GetContextForPath(elements, scopeData, morestachioExpression);
 					}
 				}
 				else if (path.Value == PathType.DataPath)
@@ -303,7 +305,7 @@ namespace Morestachio.Framework
 						else
 						{
 							//ALWAYS return the context, even if the value is null.
-							
+
 							var innerContext = Options.CreateContextObject(path.Key, CancellationToken, null, this);
 							if (Options.ValueResolver?.CanResolve(type, Value, path.Key, innerContext) == true)
 							{
@@ -313,7 +315,7 @@ namespace Morestachio.Framework
 							{
 								if (!ctx.TryGetValue(path.Key, out var o))
 								{
-									Options.OnUnresolvedPath(path.Key, type);
+									Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression, path.Key, Value?.GetType()));
 								}
 								innerContext.Value = o;
 							}
@@ -326,11 +328,11 @@ namespace Morestachio.Framework
 								}
 								else
 								{
-									Options.OnUnresolvedPath(path.Key, type);
+									Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression, path.Key, Value?.GetType()));
 								}
 							}
 
-							retval = await innerContext.GetContextForPath(elements, scopeData);
+							retval = await innerContext.GetContextForPath(elements, scopeData, morestachioExpression);
 						}
 					}
 				}
@@ -342,19 +344,20 @@ namespace Morestachio.Framework
 		/// <summary>
 		///     Will walk the path by using the path seperator "." and evaluate the object at the end
 		/// </summary>
-		/// <param name="path"></param>
+		/// <param name="pathParts"></param>
 		/// <param name="scopeData"></param>
+		/// <param name="morestachioExpression"></param>
 		/// <returns></returns>
-		internal async Task<ContextObject> GetContextForPath(
-			IList<KeyValuePair<string, PathType>> pathParts,
-			ScopeData scopeData)
+		internal async Task<ContextObject> GetContextForPath(IList<PathPartElement> pathParts,
+			ScopeData scopeData, 
+			IMorestachioExpression morestachioExpression)
 		{
 			if (Key == "x:null")
 			{
 				return this;
 			}
 
-			var elements = new Queue<KeyValuePair<string, PathType>>(pathParts);
+			var elements = new Traversable(pathParts);
 			//foreach (var m in PathFinder.Matches(path).OfType<Match>())
 			//{
 			//	elements.Enqueue(m.Value);
@@ -374,12 +377,12 @@ namespace Morestachio.Framework
 					if (scopeData.Alias.TryGetValue(peekPathPart.Key, out var alias))
 					{
 						elements.Dequeue();
-						return await alias.GetContextForPath(elements, scopeData);
+						return await alias.GetContextForPath(elements, scopeData, morestachioExpression);
 					}
 				}
 			}
 
-			return await GetContextForPath(elements, scopeData);
+			return await GetContextForPath(elements, scopeData, morestachioExpression);
 		}
 		/// <summary>
 		///     Determines if the value of this context exists.
