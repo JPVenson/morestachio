@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Morestachio.Attributes;
@@ -776,9 +777,31 @@ namespace Morestachio.Formatter.Framework
 			return true;
 		}
 
+		private static Regex ValidateFormatterNameRegEx = new Regex("^[a-zA-Z]*$", RegexOptions.Compiled);
+
+		/// <summary>
+		///		Validates the name for a Formatter
+		/// </summary>
+		/// <param name="formatterName"></param>
+		/// <returns></returns>
+		public static bool ValidateFormatterName(string formatterName)
+		{
+			if (formatterName == null)
+			{
+				return true;
+			}
+
+			return ValidateFormatterNameRegEx.IsMatch(formatterName);
+		}
+
 		/// <inheritdoc />
 		public virtual MorestachioFormatterModel Add(MethodInfo method, MorestachioFormatterAttribute morestachioFormatterAttribute)
 		{
+			if (!ValidateFormatterName(morestachioFormatterAttribute.Name))
+			{
+				throw new InvalidOperationException($"The name '{morestachioFormatterAttribute.Name}' is invalid. An Formatter may only contain letters");
+			}
+
 			var arguments = method.GetParameters().Select((e, index) =>
 				new MultiFormatterInfo(
 					e.ParameterType,

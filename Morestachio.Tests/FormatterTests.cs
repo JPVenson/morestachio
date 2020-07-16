@@ -9,6 +9,7 @@ using Morestachio.Framework.Expression;
 using Morestachio.Helper;
 using Morestachio.Linq;
 using NUnit.Framework;
+using NUnit.Framework.Constraints;
 
 namespace Morestachio.Tests
 {
@@ -27,6 +28,22 @@ namespace Morestachio.Tests
 		{
 			public decimal SomeValue2 { get; set; }
 			public decimal SomeValue3 { get; set; }
+		}
+
+		[Test]
+		[TestCase("", false)]
+		[TestCase(null, false)]
+		[TestCase("Test", false)]
+		[TestCase("Data", false)]
+		[TestCase("d d", true)]
+		[TestCase("Data_Das", true)]
+		[TestCase("Test", false)]
+		[TestCase("?", true)]
+		[TestCase("Any thing else", true)]
+		public void TestFormatterNames(string name, bool expectTobeValid)
+		{
+			Assert.That(() => MorestachioFormatterService.ValidateFormatterName(name),
+				Is.EqualTo(!expectTobeValid));
 		}
 
 		[Test]
