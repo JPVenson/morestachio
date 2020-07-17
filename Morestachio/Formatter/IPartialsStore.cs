@@ -22,7 +22,7 @@ namespace Morestachio.Formatter
 		///		Obtains the Partial if known
 		/// </summary>
 		/// <param name="name"></param>
-		[NotNull] MorestachioDocumentInfo GetPartial([NotNull]string name);
+		[CanBeNull] MorestachioDocumentInfo GetPartial([NotNull]string name);
 
 		/// <summary>
 		///		Gets the list of all known partials

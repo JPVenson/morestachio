@@ -233,6 +233,11 @@ namespace Morestachio.Document.Visitor
 		{
 			StringBuilder.Append("{{#INCLUDE ");
 			StringBuilder.Append(documentItem.Value);
+			if (documentItem.Context != null)
+			{
+				StringBuilder.Append(" WITH ");
+				StringBuilder.Append(ReparseExpression(documentItem.Context));
+			}
 			StringBuilder.Append("}}");
 		}
 

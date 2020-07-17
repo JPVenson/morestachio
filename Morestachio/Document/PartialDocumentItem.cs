@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework;
+using Morestachio.Framework.Expression;
 
 namespace Morestachio.Document
 {
@@ -63,8 +64,10 @@ namespace Morestachio.Document
 		protected override void DeSerializeXml(XmlReader reader)
 		{
 			base.DeSerializeXml(reader);
+
 			AssertElement(reader, nameof(Value));
 			reader.ReadEndElement();
+
 			AssertElement(reader, nameof(Partial));
 			reader.ReadStartElement();
 			var child = DocumentExtenstions.CreateDocumentItemInstance(reader.Name);
@@ -92,6 +95,7 @@ namespace Morestachio.Document
 			return new DocumentItemExecution[0];
 		}
 
+		/// <inheritdoc />
 		public bool Equals(PartialDocumentItem other)
 		{
 			if (ReferenceEquals(null, other))
@@ -106,7 +110,8 @@ namespace Morestachio.Document
 
 			return base.Equals(other) && Partial.Equals(other.Partial);
 		}
-
+		
+		/// <inheritdoc />
 		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj))
@@ -126,7 +131,8 @@ namespace Morestachio.Document
 
 			return Equals((PartialDocumentItem) obj);
 		}
-
+		
+		/// <inheritdoc />
 		public override int GetHashCode()
 		{
 			unchecked

@@ -110,6 +110,19 @@ namespace Morestachio.Tests.SerilalizerTests
 		}
 
 		[Test]
+		public void TestCanSerializePartialWithContext()
+		{
+			var template = "Partial:" +
+			               "{{#DECLARE PartialA}}" +
+						   "I am <Text> {{Data.data('test')}}" +
+			               "{{/DECLARE}}" +
+			               "{{#INCLUDE PartialA WITH data.extra()}}";
+			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
+			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
+			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document);
+		}
+
+		[Test]
 		public void TestCanSerializeWhile()
 		{
 			var template = "{{#VAR condition = true}}" +

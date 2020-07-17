@@ -582,6 +582,44 @@ namespace Morestachio.Tests
 			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
 		}
 
+
+
+		[Test]
+		public async Task ParserCanIncludePartialsWithExplicitScope()
+		{
+			var data = new Dictionary<string, object>();
+			data["Data"] = new List<object>
+			{
+				new Dictionary<string, object>
+				{
+					{
+						"self", new Dictionary<string, object>
+						{
+							{"Test", 1}
+						}
+					}
+				},
+				new Dictionary<string, object>
+				{
+					{
+						"self", new Dictionary<string, object>
+						{
+							{"Test", 2}
+						}
+					}
+				},
+			};
+
+			var template =
+				@"{{#DECLARE TestPartial}}{{self.Test}}{{/DECLARE}}{{#INCLUDE TestPartial WITH Data.ElementAt(1)}}";
+
+			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
+			var parsedTemplate = Parser.ParseWithOptions(parsingOptions);
+			var andStringify = await parsedTemplate.CreateAndStringifyAsync(data);
+			Assert.That(andStringify, Is.EqualTo("2"));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
+		}
+
 		[Test]
 		public async Task ParserCanPartialsOneUp()
 		{

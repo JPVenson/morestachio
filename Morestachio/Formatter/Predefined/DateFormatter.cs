@@ -7,10 +7,10 @@ namespace Morestachio.Formatter.Predefined
 {
 	public static class DateFormatter
 	{
-		[MorestachioFormatter("Add", "Adds the TimeSpan to the given timeSpan")]
-		public static DateTime Add([SourceObject]DateTime timeSpan, TimeSpan timespan)
+		[MorestachioFormatter("Add", "Adds the TimeSpan to the given DateTime")]
+		public static DateTime Add([SourceObject]DateTime dateTime, TimeSpan timespan)
 		{
-			return timeSpan.Add(timespan);
+			return dateTime.Add(timespan);
 		}
 
 		[MorestachioFormatter("DaysInMonth", "Gets the Days in a given Month of the year")]

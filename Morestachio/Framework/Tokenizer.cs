@@ -62,6 +62,7 @@ namespace Morestachio.Framework
 		internal static readonly Regex IsCharRegex = new Regex("\\w|\\d", RegexOptions.Compiled);
 		internal static readonly Regex IsNumberRegex = new Regex("\\d", RegexOptions.Compiled);
 		internal static readonly Regex NegativeCharRegex = new Regex("[^\\w\\d]", RegexOptions.Compiled);
+		internal static readonly Regex PartialIncludeRegEx = new Regex("Include (\\w*)( (?:With) )?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
 		internal static CharacterLocation HumanizeCharacterLocation(int characterIndex, int[] lines)
 		{
@@ -271,9 +272,15 @@ namespace Morestachio.Framework
 				}
 				else if (tokenValue.StartsWith("{{#include ", true, CultureInfo.InvariantCulture))
 				{
-					var token = trimmedToken.TrimStart('#').Trim()
-						.Substring("include ".Length).Trim();
-					if (string.IsNullOrWhiteSpace(token) || !partialsNames.Contains(token))
+					var token = trimmedToken.TrimStart('#').Trim();
+					var partialRegex = PartialIncludeRegEx.Match(token);
+					var partialName = partialRegex.Groups[1].Value;
+					var partialContext = partialRegex.Groups[2].Value;
+					if (!string.IsNullOrWhiteSpace(partialContext))
+					{
+						partialContext = token.Substring(partialRegex.Groups[2].Index + "WITH ".Length);
+					}
+					if (string.IsNullOrWhiteSpace(partialName) || !partialsNames.Contains(partialName))
 					{
 						context.Errors.Add(new MorestachioSyntaxError(
 							context.CurrentLocation
@@ -281,12 +288,18 @@ namespace Morestachio.Framework
 							"use",
 							"include",
 							"{{#include name}}",
-							$" There is no Partial declared '{token}'. Partial names are case sensitive and must be declared before an include."));
+							$" There is no Partial declared '{partialName}'. Partial names are case sensitive and must be declared before an include."));
 					}
 					else
 					{
-						tokens.Add(new TokenPair(TokenType.RenderPartial, token,
-							context.CurrentLocation));
+						var tokenPair = new TokenPair(TokenType.RenderPartial, partialName,
+							context.CurrentLocation);
+						if (!string.IsNullOrWhiteSpace(partialContext))
+						{
+							tokenPair.MorestachioExpression =
+								ExpressionTokenizer.ParseExpressionOrString(partialContext, context);
+						}
+						tokens.Add(tokenPair);
 					}
 				}
 				else if (tokenValue.StartsWith("{{#each", true, CultureInfo.InvariantCulture))
