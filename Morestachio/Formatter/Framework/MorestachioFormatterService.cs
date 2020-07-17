@@ -145,7 +145,7 @@ namespace Morestachio.Formatter.Framework
 		{
 			ServiceCollectionAccess[typeof(T)] = serviceFactory;
 		}
-		
+
 		protected IDictionary<Type, object> ServiceCollectionAccess { get; }
 
 		/// <summary>
@@ -811,12 +811,12 @@ namespace Morestachio.Formatter.Framework
 					e.GetCustomAttribute<ParamArrayAttribute>() != null ||
 					e.GetCustomAttribute<RestParameterAttribute>() != null)
 				{
-					IsSourceObject = e.GetCustomAttribute<SourceObjectAttribute>() != null,
+					IsSourceObject = morestachioFormatterAttribute.IsSourceObjectAware && e.GetCustomAttribute<SourceObjectAttribute>() != null,
 					FormatterValueConverterAttribute = e.GetCustomAttributes<FormatterValueConverterAttribute>().ToArray(),
 					IsInjected = e.GetCustomAttribute<ExternalDataAttribute>() != null,
 				}).ToArray();
 			//if there is no declared SourceObject then check if the first object is of type what we are formatting and use this one.
-			if (!arguments.Any(e => e.IsSourceObject) && arguments.Any())
+			if (!arguments.Any(e => e.IsSourceObject) && arguments.Any() && morestachioFormatterAttribute.IsSourceObjectAware)
 			{
 				arguments[0].IsSourceObject = true;
 			}

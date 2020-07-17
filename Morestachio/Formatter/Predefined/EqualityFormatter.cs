@@ -17,6 +17,7 @@ namespace Morestachio.Formatter.Predefined
 		/// <param name="target"></param>
 		/// <returns></returns>
 		[MorestachioFormatter("Equals", "Checks if two objects are equal")]
+		[MorestachioGlobalFormatter("Equals", "Checks if two objects are equal")]
 		public static bool IsEquals([SourceObject]object source, object target)
 		{
 			if ((source == null && target == null))
@@ -53,6 +54,7 @@ namespace Morestachio.Formatter.Predefined
 		/// <param name="target"></param>
 		/// <returns></returns>
 		[MorestachioFormatter("ReferenceEquals", "Checks if two objects are the same")]
+		[MorestachioGlobalFormatter("ReferenceEquals", "Checks if two objects are the same")]
 		public static bool IsReferenceEquals([SourceObject]object source, object target)
 		{
 			return ReferenceEquals(source, target);

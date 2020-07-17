@@ -26,22 +26,25 @@ namespace Morestachio.Framework
 		{
 			DefaultFormatter = new MorestachioFormatterService();
 			DefaultFormatter.AddFromType(typeof(ObjectStringFormatter));
-			DefaultFormatter.AddFromType(typeof(EqualityFormatter));
+			DefaultFormatter.AddFromType(typeof(Number));
 			DefaultFormatter.AddFromType(typeof(BooleanFormatter));
 			DefaultFormatter.AddFromType(typeof(DateFormatter));
+			DefaultFormatter.AddFromType(typeof(EqualityFormatter));
+			DefaultFormatter.AddFromType(typeof(LinqFormatter));
+			DefaultFormatter.AddFromType(typeof(ListExtensions));
+			DefaultFormatter.AddFromType(typeof(RegexFormatter));
 			DefaultFormatter.AddFromType(typeof(TimeSpanFormatter));
-			DefaultFormatter.AddFromType(typeof(Number));
-			DefaultFormatter.AddFromType(typeof(Linq));
+			DefaultFormatter.AddFromType(typeof(StringFormatter));
 			DefaultDefinitionOfFalse = (value) => value != null &&
-												  value as bool? != false &&
-												  // ReSharper disable once CompareOfFloatsByEqualityOperator
-												  value as double? != 0 &&
-												  value as int? != 0 &&
-												  value as string != string.Empty &&
-												  // We've gotten this far, if it is an object that does NOT cast as enumberable, it exists
-												  // OR if it IS an enumerable and .Any() returns true, then it exists as well
-												  (!(value is IEnumerable) || ((IEnumerable)value).Cast<object>().Any()
-												  );
+			                                      value as bool? != false &&
+			                                      // ReSharper disable once CompareOfFloatsByEqualityOperator
+			                                      value as double? != 0 &&
+			                                      value as int? != 0 &&
+			                                      value as string != string.Empty &&
+			                                      // We've gotten this far, if it is an object that does NOT cast as enumberable, it exists
+			                                      // OR if it IS an enumerable and .Any() returns true, then it exists as well
+			                                      (!(value is IEnumerable) || ((IEnumerable)value).Cast<object>().Any()
+			                                      );
 			DefinitionOfFalse = DefaultDefinitionOfFalse;
 		}
 

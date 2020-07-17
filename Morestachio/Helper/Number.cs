@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Globalization;
 using System.Numerics;
+using System.Runtime.InteropServices;
+using System.Xml;
 using Morestachio.Formatter.Framework;
 
 namespace Morestachio.Helper
@@ -17,7 +19,7 @@ namespace Morestachio.Helper
 		{
 			get { return _value; }
 		}
-
+		
 		internal Number(IConvertible fullNumber)
 		{
 			_value = fullNumber;
@@ -327,9 +329,35 @@ namespace Morestachio.Helper
 			return left.Pow(right);
 		}
 
+		[MorestachioFormatter("IsNaN", "Gets if the current number object is not a number")]
+		public static bool IsNaN(Number left)
+		{
+			return left.IsNaN();
+		}
+
+		[MorestachioGlobalFormatter("ParseNumber", "Parses a string into a number. Returns -1")]
+		public static Number Parse(string text)
+		{
+			if (TryParse(text, null, out var nr))
+			{
+				return nr;
+			}
+
+			return NaN;
+		}
+
 		#endregion
 
+		public static readonly Number Zero = new Number(0);
+		public static readonly Number MinusOne = new Number(-1);
+		public static readonly Number NaN = new Number(double.NaN);
+
 		#region Number Operations
+
+		public bool IsNaN()
+		{
+			return double.IsNaN(ToDouble(null));
+		}
 
 		/// <summary>
 		///		Gets the Absolute value

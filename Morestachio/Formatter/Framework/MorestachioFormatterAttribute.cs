@@ -1,4 +1,5 @@
 ﻿using System;
+using Morestachio.Attributes;
 
 namespace Morestachio.Formatter.Framework
 {
@@ -7,7 +8,7 @@ namespace Morestachio.Formatter.Framework
 	/// </summary>
 	/// <seealso cref="System.Attribute" />
 	[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
-	public sealed class MorestachioFormatterAttribute : Attribute
+	public class MorestachioFormatterAttribute : Attribute
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MorestachioFormatterAttribute"/> class.
@@ -18,7 +19,16 @@ namespace Morestachio.Formatter.Framework
 		{
 			Name = name;
 			Description = description;
+			IsSourceObjectAware = true;
 		}
+
+		/// <summary>
+		///		Gets or Sets whoever an Formatter should apply the <see cref="SourceObjectAttribute"/> to its first argument if not anywhere else present
+		/// <para>If its set to true and no argument has an <see cref="SourceObjectAttribute"/>, the first argument will be used to determinate the source value</para>
+		/// <para>If its set to false the formatter can be called globally without specifying and object first. This ignores the <see cref="SourceObjectAttribute"/></para>
+		/// </summary>
+		/// <value>Default true</value>
+		public bool IsSourceObjectAware { get; set; }
 
 		/// <summary>
 		///		What is the "header" of the function in morestachio.
@@ -45,5 +55,16 @@ namespace Morestachio.Formatter.Framework
 		/// The type of the output.
 		/// </value>
 		public Type OutputType { get; set; }
+	}
+
+	/// <summary>
+	///		Defines an Global Formatter that can be called without the need for specifing an source object
+	/// </summary>
+	public class MorestachioGlobalFormatterAttribute : MorestachioFormatterAttribute
+	{
+		public MorestachioGlobalFormatterAttribute(string name, string description) : base(name, description)
+		{
+			IsSourceObjectAware = false;
+		}
 	}
 }

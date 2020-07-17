@@ -51,10 +51,7 @@ namespace Morestachio.Document
 		protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
 		{
 			base.SerializeBinaryCore(info, context);
-			if (Context != null)
-			{
-				info.AddValue(nameof(Context), Context, Context.GetType());
-			}
+			info.AddValue(nameof(Context), Context);
 		}
 
 		/// <inheritdoc />

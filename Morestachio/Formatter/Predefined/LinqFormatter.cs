@@ -2,12 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Morestachio.Formatter.Framework;
+using Morestachio.Helper;
 
 namespace Morestachio.Formatter.Predefined
 {
-	public static class Linq
+	public static class LinqFormatter
 	{
 		[MorestachioFormatter("Concat", "Concats two lists together")]
 		public static IEnumerable Concat<T>(IEnumerable<T> sourceCollection,
@@ -89,7 +89,7 @@ namespace Morestachio.Formatter.Predefined
 		{
 			return sourceCollection.Single();
 		}
-		
+
 		[MorestachioFormatter("ElementAt", "Gets the item in the list on the position")]
 		public static T ElementAt<T>(IEnumerable<T> sourceCollection, int index)
 		{
@@ -144,8 +144,13 @@ namespace Morestachio.Formatter.Predefined
 			return sourceCollection.Max();
 		}
 
-		[MorestachioFormatter("FlatGroup", "Flattens the Group returned by group by",
-			ReturnHint = "Can be listed with #each")]
+		[MorestachioFormatter("Aggregate", "Joins the element of a list separated by a delimiter string and return the concatenated string.")]
+		public static string Aggregate<T>(IEnumerable<T> sourceCollection, string delimiter)
+		{
+			return string.Join(delimiter, sourceCollection.Select(f => f.ToString()));
+		}
+
+		[MorestachioFormatter("FlatGroup", "Flattens the Group returned by group by")]
 		[MorestachioFormatterInput("Must be Expression to property")]
 		public static IEnumerable<T> GroupByList<TKey, T>(IGrouping<TKey, T> sourceCollection)
 		{
@@ -153,7 +158,7 @@ namespace Morestachio.Formatter.Predefined
 		}
 
 		[MorestachioFormatter("Partition", "Splits the source into a list of lists equals the size of size")]
-		public static IEnumerable<List<T>> Partition<T>(IEnumerable<T> source, decimal size)
+		public static IEnumerable<List<T>> Partition<T>(IEnumerable<T> source, Number size)
 		{
 			IList<T> target;
 			if (source is IList<T>)
@@ -165,12 +170,18 @@ namespace Morestachio.Formatter.Predefined
 				target = source.ToArray();
 			}
 
-			var sizeInt = size;
+			var sizeInt = size.ToInt32(null);
 
 			for (var i = 0; i < Math.Ceiling(target.Count / (double)sizeInt); i++)
 			{
 				yield return new List<T>(target.Skip((int)(sizeInt * i)).Take((int)sizeInt));
 			}
+		}
+
+		[MorestachioFormatter("Compact", "Removes any non-null values from the input list.")]
+		public static IEnumerable<T> Compact<T>(IEnumerable<T> sourceCollection)
+		{
+			return sourceCollection.Where(e => e != null);
 		}
 	}
 }

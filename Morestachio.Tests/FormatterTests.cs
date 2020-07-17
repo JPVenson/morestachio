@@ -291,6 +291,17 @@ namespace Morestachio.Tests
 
 
 		[Test]
+		public void TestCanFormatSourceObjectLessFormatter()
+		{
+			var options = new ParserOptions("{{DateTimeNow().ToString('D')}}", null, DefaultEncoding);
+			var template = Parser.ParseWithOptions(options);
+
+			var andStringify = template.CreateAndStringify(new Dictionary<string, object>());
+			Assert.That(andStringify, Is.EqualTo(DateTime.Now.ToString("D")));
+		}
+
+
+		[Test]
 		public void TestRest()
 		{
 			var options = new ParserOptions("{{data.rest('other', 'and', 'more')}}", null, DefaultEncoding);
