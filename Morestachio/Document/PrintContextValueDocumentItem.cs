@@ -38,7 +38,7 @@ namespace Morestachio.Document
 			if (context != null)
 			{
 				string value = null;
-				await context.EnsureValue();
+				//await context.EnsureValue();
 				if (context.Value != null)
 				{
 					value = await context.RenderToString();

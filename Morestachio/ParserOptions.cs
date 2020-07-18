@@ -252,14 +252,13 @@ namespace Morestachio
 		/// <returns></returns>
 		[NotNull]
 		public virtual ContextObject CreateContextObject(string key,
-			CancellationToken token, 
+			CancellationToken token,
 			object value,
 			ContextObject parent = null)
 		{
-			return new ContextObject(this, key, parent)
+			return new ContextObject(this, key, parent, value)
 			{
 				CancellationToken = token,
-				Value = value
 			};
 		}
 

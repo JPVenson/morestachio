@@ -84,7 +84,7 @@ namespace Morestachio.Document
 			var contextObject = context != null ? (await MorestachioExpression.GetValue(context, scopeData)) : null;
 			if (contextObject != null)
 			{
-				await contextObject.EnsureValue();
+				//await contextObject.EnsureValue();
 				if (EscapeValue && !context.Options.DisableContentEscaping)
 				{
 					outputStream.Write(HtmlEncodeString(await contextObject.RenderToString()));

@@ -21,7 +21,7 @@ namespace Morestachio.Tests
 
 		public static ContextObject StringTestContext()
 		{
-			return new ContextObject(new ParserOptions(""), ".", null);
+			return new ContextObject(new ParserOptions(""), ".", null, null);
 		}
 
 		[Test]

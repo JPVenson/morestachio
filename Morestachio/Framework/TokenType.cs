@@ -101,11 +101,11 @@
 		/// <summary>
 		///		Defines the current Context as the be accessed by an alias
 		/// </summary>
-		VariableDeclaration,
+		VariableVar,
 		/// <summary>
 		///		Defines the current Context as the be accessed by an alias
 		/// </summary>
-		VariableSet,
+		VariableLet,
 
 		/// <summary>
 		///		The start of a while loop

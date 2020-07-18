@@ -42,10 +42,8 @@ namespace Morestachio.Document
 			var index = 0;
 			while (ContinueBuilding(outputStream, context))
 			{
-				var collectionContext = new ContextCollection(index++, false, context.Options, context.Key, context.Parent)
-				{
-					Value = context.Value
-				};
+				var collectionContext = new ContextCollection(index++, false, context.Options, context.Key,
+					context.Parent, context.Value);
 				
 				//TODO get a way how to execute this on the caller
 				await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, collectionContext, scopeData);

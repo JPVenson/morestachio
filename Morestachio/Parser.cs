@@ -63,8 +63,15 @@ namespace Morestachio
 			var tokenQueue = new Queue<TokenPair>(tokenizerResult.Tokens);
 
 			var buildStack = new Stack<DocumentScope>();
+			int variableScope = 1;
+			var getScope = new Func<int>(() => variableScope++);
 			//instead of recursive calling the parse function we stack the current document 
-			buildStack.Push(new DocumentScope(new MorestachioDocument()));
+			buildStack.Push(new DocumentScope(new MorestachioDocument(), () => 0));
+
+			DocumentScope GetVariabeScope()
+			{
+				return buildStack.FirstOrDefault(e => e.VariableScopeNumber != -1);
+			}
 
 			while (tokenQueue.Any())
 			{
@@ -88,7 +95,7 @@ namespace Morestachio
 					{
 						ExpressionStart = currentToken.TokenLocation
 					};
-					buildStack.Push(new DocumentScope(nestedDocument));
+					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					currentDocumentItem.Document.Add(nestedDocument);
 				}
 				else if (currentToken.Type.Equals(TokenType.IfNot))
@@ -97,7 +104,7 @@ namespace Morestachio
 					{
 						ExpressionStart = currentToken.TokenLocation
 					};
-					buildStack.Push(new DocumentScope(nestedDocument));
+					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					currentDocumentItem.Document.Add(nestedDocument);
 				}
 				else if (currentToken.Type.Equals(TokenType.Else))
@@ -106,7 +113,7 @@ namespace Morestachio
 					{
 						ExpressionStart = currentToken.TokenLocation
 					};
-					buildStack.Push(new DocumentScope(nestedDocument));
+					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					currentDocumentItem.Document.Add(nestedDocument);
 				}
 				else if (currentToken.Type.Equals(TokenType.CollectionOpen))
@@ -115,7 +122,7 @@ namespace Morestachio
 					{
 						ExpressionStart = currentToken.TokenLocation
 					};
-					buildStack.Push(new DocumentScope(nestedDocument));
+					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					currentDocumentItem.Document.Add(nestedDocument);
 				}
 				else if (currentToken.Type.Equals(TokenType.WhileLoopOpen))
@@ -124,7 +131,7 @@ namespace Morestachio
 					{
 						ExpressionStart = currentToken.TokenLocation
 					};
-					buildStack.Push(new DocumentScope(nestedDocument));
+					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					currentDocumentItem.Document.Add(nestedDocument);
 				}
 				else if (currentToken.Type.Equals(TokenType.DoLoopOpen))
@@ -133,7 +140,7 @@ namespace Morestachio
 					{
 						ExpressionStart = currentToken.TokenLocation
 					};
-					buildStack.Push(new DocumentScope(nestedDocument));
+					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					currentDocumentItem.Document.Add(nestedDocument);
 				}
 				else if (currentToken.Type.Equals(TokenType.ElementOpen))
@@ -142,7 +149,7 @@ namespace Morestachio
 					{
 						ExpressionStart = currentToken.TokenLocation
 					};
-					buildStack.Push(new DocumentScope(nestedDocument));
+					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					currentDocumentItem.Document.Add(nestedDocument);
 				}
 				else if (currentToken.Type.Equals(TokenType.InvertedElementOpen))
@@ -151,7 +158,7 @@ namespace Morestachio
 					{
 						ExpressionStart = currentToken.TokenLocation
 					};
-					buildStack.Push(new DocumentScope(invertedScope));
+					buildStack.Push(new DocumentScope(invertedScope, getScope));
 					currentDocumentItem.Document.Add(invertedScope);
 				}
 				else if (currentToken.Type.Equals(TokenType.CollectionClose)
@@ -161,10 +168,13 @@ namespace Morestachio
 						|| currentToken.Type.Equals(TokenType.WhileLoopClose)
 						|| currentToken.Type.Equals(TokenType.DoLoopClose))
 				{
-					if (buildStack.Peek().HasAlias) //are we in a alias then remove it
+					DocumentScope scope = buildStack.Peek();
+					if (scope.HasAlias) //are we in a alias then remove it
 					{
-						currentDocumentItem.Document.Add(new RemoveAliasDocumentItem(buildStack.Peek().AliasName));
-						buildStack.Pop();
+						foreach (var scopeLocalVariable in scope.LocalVariables)
+						{
+							currentDocumentItem.Document.Add(new RemoveAliasDocumentItem(scopeLocalVariable, scope.VariableScopeNumber));	
+						}
 					}
 					// remove the last document from the stack and go back to the parents
 					buildStack.Pop();
@@ -184,7 +194,7 @@ namespace Morestachio
 					// to allow recursive calls of partials we first have to declare the partial and then load it as we would parse
 					// -the partial as a whole and then add it to the list would lead to unknown calls of partials inside the partial
 					var nestedDocument = new MorestachioDocument();
-					buildStack.Push(new DocumentScope(nestedDocument));
+					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					currentDocumentItem.Document.Add(new PartialDocumentItem(currentToken.Value, nestedDocument)
 					{
 						ExpressionStart = currentToken.TokenLocation
@@ -207,17 +217,34 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.Alias))
 				{
-					var aliasDocumentItem = new AliasDocumentItem(currentToken.Value)
+					var scope = GetVariabeScope();
+					var aliasDocumentItem = new AliasDocumentItem(currentToken.Value, scope.VariableScopeNumber)
 					{
 						ExpressionStart = currentToken.TokenLocation
 					};
 					currentDocumentItem.Document.Add(aliasDocumentItem);
-					buildStack.Push(new DocumentScope(aliasDocumentItem, currentToken.Value));
+					currentDocumentItem.LocalVariables.Add(currentToken.Value);
 				}
-				else if (currentToken.Type.Equals(TokenType.VariableDeclaration))
+				else if (currentToken.Type.Equals(TokenType.VariableVar))
 				{
-					var evaluateVariableDocumentItem = new EvaluateVariableDocumentItem(currentToken.Value, currentToken.MorestachioExpression);
+					var evaluateVariableDocumentItem = new EvaluateVariableDocumentItem(currentToken.Value,
+						currentToken.MorestachioExpression);
 					currentDocumentItem.Document.Add(evaluateVariableDocumentItem);
+				}
+				else if (currentToken.Type.Equals(TokenType.VariableLet))
+				{
+					var scope = 0;
+					if (buildStack.Count > 1)
+					{
+						scope = GetVariabeScope().VariableScopeNumber;
+					}
+					var evaluateVariableDocumentItem = new EvaluateVariableDocumentItem(currentToken.Value,
+						currentToken.MorestachioExpression, scope);
+					currentDocumentItem.Document.Add(evaluateVariableDocumentItem);
+					if (buildStack.Count > 1)
+					{
+						currentDocumentItem.LocalVariables.Add(currentToken.Value);
+					}
 				}
 				else
 				{

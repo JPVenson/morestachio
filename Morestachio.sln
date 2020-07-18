@@ -20,8 +20,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.Tests", "Morest
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.Linq", "Morestachio.Linq\Morestachio.Linq.csproj", "{58A6BE54-5436-4F00-BCE4-127176B4948A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.ObjectRenderer", "Morestachio.ObjectRenderer\Morestachio.ObjectRenderer.csproj", "{710CEF23-87F5-49D2-941B-A03A071E6597}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DocumentGenerations", "DocumentGenerations", "{DD3A5646-EA3B-46B4-9730-6305F1A1787B}"
 	ProjectSection(SolutionItems) = preProject
 		GenerateFormatterDocumentation.tt = GenerateFormatterDocumentation.tt
@@ -45,10 +43,6 @@ Global
 		{58A6BE54-5436-4F00-BCE4-127176B4948A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{58A6BE54-5436-4F00-BCE4-127176B4948A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{58A6BE54-5436-4F00-BCE4-127176B4948A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{710CEF23-87F5-49D2-941B-A03A071E6597}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{710CEF23-87F5-49D2-941B-A03A071E6597}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{710CEF23-87F5-49D2-941B-A03A071E6597}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{710CEF23-87F5-49D2-941B-A03A071E6597}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

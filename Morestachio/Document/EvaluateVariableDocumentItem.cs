@@ -23,6 +23,7 @@ namespace Morestachio.Document
 		protected EvaluateVariableDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 			Value = info.GetString(nameof(Value));
+			IdVariableScope = info.GetInt32(nameof(IdVariableScope));
 		}
 
 		internal EvaluateVariableDocumentItem()
@@ -31,10 +32,19 @@ namespace Morestachio.Document
 		}
 
 		/// <inheritdoc />
+		public EvaluateVariableDocumentItem(string value, IMorestachioExpression morestachioExpression, int idVariableScope)
+		{
+			MorestachioExpression = morestachioExpression;
+			Value = value;
+			IdVariableScope = idVariableScope;
+		}
+
+		/// <inheritdoc />
 		public EvaluateVariableDocumentItem(string value, IMorestachioExpression morestachioExpression)
 		{
 			MorestachioExpression = morestachioExpression;
 			Value = value;
+			IdVariableScope = 0;
 		}
 		
 		/// <inheritdoc />
@@ -42,12 +52,14 @@ namespace Morestachio.Document
 		{
 			base.SerializeBinaryCore(info, context);
 			info.AddValue(nameof(Value), Value);
+			info.AddValue(nameof(IdVariableScope), IdVariableScope);
 		}
 		
 		/// <inheritdoc />
 		protected override void SerializeXml(XmlWriter writer)
 		{
 			writer.WriteAttributeString(nameof(Value), Value);
+			writer.WriteAttributeString(nameof(IdVariableScope), IdVariableScope.ToString());
 			base.SerializeXml(writer);
 		}
 		
@@ -55,6 +67,7 @@ namespace Morestachio.Document
 		protected override void DeSerializeXml(XmlReader reader)
 		{
 			Value = reader.GetAttribute(nameof(Value));
+			IdVariableScope = int.Parse(reader.GetAttribute(nameof(IdVariableScope)));
 			base.DeSerializeXml(reader);
 		}
 		
@@ -63,7 +76,7 @@ namespace Morestachio.Document
 		{
 			await Task.CompletedTask;
 			context = await MorestachioExpression.GetValue(context, scopeData);
-			scopeData.Alias[Value] = context;
+			scopeData.AddVariable(Value, context, IdVariableScope);
 			return new DocumentItemExecution[0];
 		}
 
@@ -71,6 +84,12 @@ namespace Morestachio.Document
 		///		The name of the Variable
 		/// </summary>
 		public string Value { get; set; }
+		
+		/// <summary>
+		///		Gets or Sets the Scope of the variable
+		/// </summary>
+		public int IdVariableScope { get; set; }
+
 		/// <inheritdoc />
 		public override string Kind { get; } = "EvaluateVariableDocumentItem";
 

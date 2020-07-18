@@ -182,6 +182,37 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		public void ParserCanVariableScope()
+		{
+			var template = "{{#var global = data}}" +
+			               "{{#data}}" +
+			                   "{{global}}" +
+							   "{{#let global = 'Burns '}}" +
+				               "{{global}}" +
+				               "{{#let global = 'Likes '}}" +
+				               "{{global}}" +
+			                   "{{#let local = 'Likes '}}" +
+			                   "{{#var global = 'Miss '}}" +
+			               "{{/data}}" +
+			               "{{local}}" +
+			               "{{global}}" +
+			               "{{#var global = 'Money '}}" +
+			               "{{global}}" +
+			               "{{#let global = 'Alot'}}" +
+			               "{{global}}" ;
+			var parsingOptions = new ParserOptions(template, null,
+				DefaultEncoding);
+			
+			var results =
+				Parser.ParseWithOptions(parsingOptions);
+			var result = results.CreateAndStringify(new Dictionary<string, object>
+			{
+				{ "data", "Mr " },
+			});
+			Assert.That(result, Is.EqualTo("Mr Burns Likes Miss Money Alot"));
+		}
+
+		[Test]
 		public void ParserCanVariableSetToNull()
 		{
 			var parsingOptions = new ParserOptions("{{#var f = data}}" +

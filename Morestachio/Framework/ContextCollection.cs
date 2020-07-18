@@ -20,8 +20,9 @@ namespace Morestachio.Framework
 			bool last, 
 			[NotNull] ParserOptions options, 
 			string key, 
-			[CanBeNull]ContextObject parent) 
-			: base(options, key, parent)
+			[CanBeNull]ContextObject parent,
+			object value) 
+			: base(options, key, parent, value)
 		{
 			Index = index;
 			Last = last;
@@ -47,7 +48,7 @@ namespace Morestachio.Framework
 				return null;
 			}
 
-			var innerContext = new ContextObject(Options, path.Key, this);
+			//new ContextObject(Options, path.Key, this);
 
 			object value = null;
 
@@ -75,19 +76,18 @@ namespace Morestachio.Framework
 			{
 				value = Index % 2 == 0;
 			}
-
-			innerContext.Value = value;
+			
+			var innerContext = Options.CreateContextObject(path.Key, CancellationToken, value, this);
 			return value == null ? null : innerContext;
 		}
 
 		/// <inheritdoc />
 		public override ContextObject CloneForEdit()
 		{
-			var contextClone = new ContextCollection(Index, Last, Options, Key, this)
+			var contextClone = new ContextCollection(Index, Last, Options, Key, this, Value)
 			{
 				CancellationToken = CancellationToken,
 				AbortGeneration = AbortGeneration,
-				Value = Value,
 				IsNaturalContext = false
 			};
 

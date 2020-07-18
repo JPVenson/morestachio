@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using System.Xml;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Visitor;
@@ -25,27 +26,56 @@ namespace Morestachio.Document
 		[UsedImplicitly]
 		protected RemoveAliasDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
+			IdVariableScope = info.GetInt32(nameof(IdVariableScope));
+		}
+
+		/// <inheritdoc />
+		protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
+		{
+			base.SerializeBinaryCore(info, context);
+			info.AddValue(nameof(IdVariableScope), IdVariableScope);
+		}
+		
+		/// <inheritdoc />
+		protected override void SerializeXml(XmlWriter writer)
+		{
+			writer.WriteAttributeString(nameof(IdVariableScope), IdVariableScope.ToString());
+			base.SerializeXml(writer);
+		}
+		
+		/// <inheritdoc />
+		protected override void DeSerializeXml(XmlReader reader)
+		{
+			IdVariableScope = int.Parse(reader.GetAttribute(nameof(IdVariableScope)));
+			base.DeSerializeXml(reader);
 		}
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="aliasName"></param>
-		public RemoveAliasDocumentItem(string aliasName)
+		/// <param name="scopeVariableScopeNumber"></param>
+		public RemoveAliasDocumentItem(string aliasName, int scopeVariableScopeNumber)
 		{
 			Value = aliasName;
+			IdVariableScope = scopeVariableScopeNumber;
 		}
 
 		/// <inheritdoc />
 		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
-			scopeData.Alias.Remove(Value);
+			scopeData.RemoveVariable(Value, IdVariableScope);
 			await Task.CompletedTask;
 			return new DocumentItemExecution[0];
 		}
 
 		/// <inheritdoc />
 		public override string Kind { get; } = "RemoveAlias";
+		
+		/// <summary>
+		///		Gets or Sets the Scope of the variable that should be removed
+		/// </summary>
+		public int IdVariableScope { get; set; }
 		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)
 		{

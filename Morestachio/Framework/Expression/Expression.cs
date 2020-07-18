@@ -153,7 +153,7 @@ namespace Morestachio.Framework.Expression
 				return contextForPath;
 			}
 
-			var argList = new List<KeyValuePair<string, object>>();
+			var argList = new List<Tuple<string, object>>();
 			foreach (var formatterArgument in Formats)
 			{
 				var value = contextObject.FindNextNaturalContextObject().CloneForEdit();
@@ -161,17 +161,17 @@ namespace Morestachio.Framework.Expression
 
 				if (value == null)
 				{
-					argList.Add(new KeyValuePair<string, object>(formatterArgument.Name, null));
+					argList.Add(new Tuple<string, object>(formatterArgument.Name, null));
 				}
 				else
 				{
-					await value.EnsureValue();
-					argList.Add(new KeyValuePair<string, object>(formatterArgument.Name, value.Value));
+					//await value.EnsureValue();
+					argList.Add(new Tuple<string, object>(formatterArgument.Name, value.Value));
 				}
 			}
 
 			var formatterdContext = contextForPath.CloneForEdit();
-			formatterdContext.Value = await formatterdContext.Format(FormatterName, argList.ToArray());
+			formatterdContext.Value = await formatterdContext.Format(FormatterName, argList);
 			return formatterdContext;
 		}
 

@@ -526,8 +526,15 @@ namespace Morestachio.Framework
 				}
 				else if (tokenValue.StartsWith("{{#var ", true, CultureInfo.InvariantCulture))
 				{
-					tokens.AddRange(ExpressionTokenizer.TokenizeVariableAssignment(tokenValue.Trim('{', '}'),
+					tokens.Add(ExpressionTokenizer.TokenizeVariableAssignment(tokenValue.Trim('{', '}'),
 						context));
+				}	
+				else if (tokenValue.StartsWith("{{#let ", true, CultureInfo.InvariantCulture))
+				{
+					var tokenizeVariableAssignment = ExpressionTokenizer.TokenizeVariableAssignment(tokenValue.Trim('{', '}'),
+						context);
+					tokenizeVariableAssignment.Type = TokenType.VariableLet;
+					tokens.Add(tokenizeVariableAssignment);
 				}
 				else if (tokenValue.StartsWith("{{#"))
 				{

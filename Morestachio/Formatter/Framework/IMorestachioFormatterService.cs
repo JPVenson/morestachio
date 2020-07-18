@@ -56,7 +56,7 @@ namespace Morestachio.Formatter.Framework
 		///  <returns></returns>
 		Task<object> CallMostMatchingFormatter(
 			[NotNull]Type type,
-			[NotNull]KeyValuePair<string, object>[] values,
+			[NotNull]List<Tuple<string, object>> values,
 			object sourceValue,
 			[CanBeNull]string name,
 			ParserOptions options);

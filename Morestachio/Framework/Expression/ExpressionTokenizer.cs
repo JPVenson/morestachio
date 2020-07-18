@@ -56,17 +56,21 @@ namespace Morestachio.Framework.Expression
 			writer.WriteEndElement();
 		}
 
-		internal static TokenPair[] TokenizeVariableAssignment(string tokenValue,
+		internal static TokenPair TokenizeVariableAssignment(string tokenValue,
 			TokenzierContext context)
 		{
 			var startOfExpression = context.CurrentLocation;
 			var variableNameIndex = tokenValue.IndexOf("#var ", StringComparison.InvariantCultureIgnoreCase);
 			if (variableNameIndex != 0)
 			{
-				context.Errors.Add(new MorestachioSyntaxError(
-					context.CurrentLocation.AddWindow(new CharacterSnippedLocation(0, 0, tokenValue)),
-					"#var", "", "#var name", "Expected #var"));
-				return new TokenPair[0];
+				variableNameIndex = tokenValue.IndexOf("#let ", StringComparison.InvariantCultureIgnoreCase);
+				if (variableNameIndex != 0)
+				{
+					context.Errors.Add(new MorestachioSyntaxError(
+						context.CurrentLocation.AddWindow(new CharacterSnippedLocation(0, 0, tokenValue)),
+						"#var", "", "#var name", "Expected #var"));
+					return null;
+				}
 			}
 
 			tokenValue = tokenValue.Substring("#var ".Length);
@@ -93,7 +97,7 @@ namespace Morestachio.Framework.Expression
 							.Offset(i)
 							.AddWindow(new CharacterSnippedLocation(0, i, tokenValue)),
 						"#var", "", "#var name", "Invalid character detected. Expected only spaces or letters."));
-					return new TokenPair[0];
+					return null;
 				}
 			}
 
@@ -114,15 +118,13 @@ namespace Morestachio.Framework.Expression
 					context.CurrentLocation
 						.AddWindow(new CharacterSnippedLocation(0, "#var ".Length, tokenValue)),
 					"#var", "", "#var name = ", "expected ether an path expression or an string value"));
-				return new TokenPair[0];
+				return null;
 			}
 
-			var tokens = new List<TokenPair>();
-			tokens.Add(new TokenPair(TokenType.VariableDeclaration, variableName, startOfExpression)
+			return new TokenPair(TokenType.VariableVar, variableName, startOfExpression)
 			{
 				MorestachioExpression = ParseExpressionOrString(expression, context)
-			});
-			return tokens.ToArray();
+			};
 		}
 
 		/// <summary>

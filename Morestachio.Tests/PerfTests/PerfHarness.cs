@@ -54,9 +54,8 @@ namespace Morestachio.Tests.PerfTests
 			var executeTime = Stopwatch.StartNew();
 			for (int i = 0; i < runs; i++)
 			{
-				await morestachioExpression.GetValue(new ContextObject(new ParserOptions(""), ".", null)
+				await morestachioExpression.GetValue(new ContextObject(new ParserOptions(""), ".", null, data)
 				{
-					Value = data
 				}, new ScopeData());
 			}
 			executeTime.Stop();

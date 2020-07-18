@@ -142,7 +142,8 @@ namespace Morestachio.Document.Visitor
 		/// <inheritdoc />
 		public void Visit(EvaluateVariableDocumentItem documentItem)
 		{
-			StringBuilder.Append("{{#VAR ");
+			StringBuilder.Append("{{#");
+			StringBuilder.Append(documentItem.IdVariableScope == 0 ? "VAR " : "LET ");
 			StringBuilder.Append(documentItem.Value);
 			StringBuilder.Append(" = ");
 			StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));

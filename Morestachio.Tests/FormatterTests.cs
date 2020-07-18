@@ -35,6 +35,8 @@ namespace Morestachio.Tests
 		[TestCase(null, false)]
 		[TestCase("Test", false)]
 		[TestCase("Data", false)]
+		[TestCase("69Nice", true)]
+		[TestCase("Nice69", false)]
 		[TestCase("d d", true)]
 		[TestCase("Data_Das", true)]
 		[TestCase("Test", false)]

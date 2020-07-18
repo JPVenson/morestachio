@@ -1,4 +1,6 @@
-﻿using Morestachio.Document;
+﻿using System;
+using System.Collections.Generic;
+using Morestachio.Document;
 using Morestachio.Document.Contracts;
 
 namespace Morestachio
@@ -8,33 +10,34 @@ namespace Morestachio
 	/// </summary>
 	public struct DocumentScope
 	{
+		private readonly Lazy<int> _variableScopeNumber;
+
 		/// <summary>
 		///		Creates a new Document scope that is no formatting and is no alias
 		/// </summary>
 		/// <param name="document"></param>
-		public DocumentScope(IDocumentItem document)
+		public DocumentScope(IDocumentItem document, Func<int> variableScopeNumber)
 		{
 			Document = document;
 			IsFormattingScope = false;
-			HasAlias = false;
-			AliasName = null;
+			_variableScopeNumber = new Lazy<int>(variableScopeNumber);
+			LocalVariables = new List<string>();
 		}
 
-
-		internal DocumentScope(IDocumentItem document, bool isFormattingScope)
+		internal DocumentScope(IDocumentItem document, bool isFormattingScope, Func<int> variableScopeNumber)
 		{
 			Document = document;
 			IsFormattingScope = isFormattingScope;
-			HasAlias = false;
-			AliasName = null;
+			_variableScopeNumber = new Lazy<int>(variableScopeNumber);
+			LocalVariables = new List<string>();
 		}
 
-		internal DocumentScope(IDocumentItem document, string aliasName)
+		internal DocumentScope(IDocumentItem document, int variableScopeNumber)
 		{
 			Document = document;
 			IsFormattingScope = false;
-			HasAlias = true;
-			AliasName = aliasName;
+			_variableScopeNumber = new Lazy<int>(() => variableScopeNumber);
+			LocalVariables = new List<string>();
 		}
 
 		/// <summary>
@@ -47,14 +50,19 @@ namespace Morestachio
 		/// </summary>
 		public bool IsFormattingScope { get; private set; }
 
+		public IList<string> LocalVariables { get; private set; }
+
 		/// <summary>
 		///		Is this an alias
 		/// </summary>
-		public bool HasAlias { get; private set; }
+		public bool HasAlias
+		{
+			get { return LocalVariables.Count > 0; }
+		}
 
-		/// <summary>
-		///		If <see cref="HasAlias"/> what name does the alias have
-		/// </summary>
-		public string AliasName { get; private set; }
+		public int VariableScopeNumber
+		{
+			get { return _variableScopeNumber?.Value ?? -1; }
+		}
 	}
 }
