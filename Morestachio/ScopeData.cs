@@ -76,7 +76,7 @@ namespace Morestachio
 		/// <returns></returns>
 		public ContextObject GetVariable(string name)
 		{
-			if (Alias.TryGetValue(name, out var stack) && stack.Count > 0)
+			if (Alias.TryGetValue(name, out var stack))
 			{
 				return stack.LastOrDefault().Value;
 			}

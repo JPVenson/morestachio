@@ -15,27 +15,17 @@ namespace Morestachio
 		/// <summary>
 		///		Creates a new Document scope that is no formatting and is no alias
 		/// </summary>
-		/// <param name="document"></param>
 		public DocumentScope(IDocumentItem document, Func<int> variableScopeNumber)
 		{
 			Document = document;
-			IsFormattingScope = false;
 			_variableScopeNumber = new Lazy<int>(variableScopeNumber);
 			LocalVariables = new List<string>();
 		}
 
-		internal DocumentScope(IDocumentItem document, bool isFormattingScope, Func<int> variableScopeNumber)
-		{
-			Document = document;
-			IsFormattingScope = isFormattingScope;
-			_variableScopeNumber = new Lazy<int>(variableScopeNumber);
-			LocalVariables = new List<string>();
-		}
 
 		internal DocumentScope(IDocumentItem document, int variableScopeNumber)
 		{
 			Document = document;
-			IsFormattingScope = false;
 			_variableScopeNumber = new Lazy<int>(() => variableScopeNumber);
 			LocalVariables = new List<string>();
 		}
@@ -44,11 +34,6 @@ namespace Morestachio
 		///		The document item that has children
 		/// </summary>
 		public IDocumentItem Document { get; private set; }
-
-		/// <summary>
-		///		Is this a formatted scope
-		/// </summary>
-		public bool IsFormattingScope { get; private set; }
 
 		public IList<string> LocalVariables { get; private set; }
 

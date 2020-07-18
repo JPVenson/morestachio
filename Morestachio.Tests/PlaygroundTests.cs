@@ -86,7 +86,9 @@ namespace Morestachio.Tests
 					Products = _products
 				});
 			}
-			Console.WriteLine("Done in: " + sw.Elapsed);
+
+			var swElapsed = sw.Elapsed;
+			Console.WriteLine("Done in: " + swElapsed + " thats " + new TimeSpan(sw.Elapsed.Ticks / 200) + " per run");
 		}
 
 		[Test]
