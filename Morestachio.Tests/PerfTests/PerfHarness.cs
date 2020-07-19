@@ -14,7 +14,8 @@ namespace Morestachio.Tests.PerfTests
 	public class PerfHarness
 	{
 		[Test]
-		[Ignore("Performance tests")]
+		[Explicit]
+		//[Ignore("Performance tests")]
 		[TestCase("Expression Width", 10, 1, 0, 30000)]
 		[TestCase("Expression Width", 20, 1, 0, 30000)]
 		[TestCase("Expression Width", 10, 1, 10, 30000)]
@@ -107,7 +108,8 @@ namespace Morestachio.Tests.PerfTests
 
 
 		[Test()]
-		[Ignore("Performance tests")]
+		[Explicit]
+		//[Ignore("Performance tests")]
 		//[Category("Explicit")]
 		[TestCase("Model Depth", 5, 30000, 10, 5000)]
 		[TestCase("Model Depth", 10, 30000, 10, 5000)]
@@ -120,7 +122,7 @@ namespace Morestachio.Tests.PerfTests
 		[TestCase("Template Size", 5, 30000, 10, 5000)]
 		[TestCase("Template Size", 5, 50000, 10, 5000)]
 		[TestCase("Template Size", 5, 100000, 10, 5000)]
-		public void TestRuns(string variation, int modelDepth, int sizeOfTemplate, int inserts, int runs)
+		public async Task TestRuns(string variation, int modelDepth, int sizeOfTemplate, int inserts, int runs)
 		{
 			var model = ConstructModelAndPath(modelDepth);
 			var baseTemplate = Enumerable.Range(1, 5)
@@ -145,10 +147,13 @@ namespace Morestachio.Tests.PerfTests
 
 			parseTime.Stop();
 
+			var tmp = template.CreateAndStringifyAsync(model.Item1);
+
 			renderTime = Stopwatch.StartNew();
 			for (var i = 0; i < runs; i++)
 			{
-				using (var f = template.CreateAsync(model.Item1))
+				var morestachioDocumentResult = await template.CreateAsync(model.Item1);
+				using (var f = morestachioDocumentResult.Stream)
 				{
 				}
 			}
@@ -156,7 +161,7 @@ namespace Morestachio.Tests.PerfTests
 			renderTime.Stop();
 			totalTime.Stop();
 
-			PerformanceCounter.PerformanceCounters.Add(new PerformanceCounter.ModelPerformanceCounterEntity(variation)
+			var modelPerformanceCounterEntity = new PerformanceCounter.ModelPerformanceCounterEntity(variation)
 			{
 				TimePerRun = new TimeSpan(totalTime.ElapsedTicks / runs),
 				RunOver = runs,
@@ -166,12 +171,15 @@ namespace Morestachio.Tests.PerfTests
 				ParseTime = parseTime.Elapsed,
 				RenderTime = renderTime.Elapsed,
 				TotalTime = totalTime.Elapsed
-			});
+			};
+			PerformanceCounter.PerformanceCounters.Add(modelPerformanceCounterEntity);
+			Console.WriteLine(PerformanceCounter.ModelPerformanceCounterEntity.Header(" | "));
+			Console.WriteLine(modelPerformanceCounterEntity.PrintAsCsv(" | "));
 		}
 
 		private Tuple<Dictionary<string, object>, string> ConstructModelAndPath(int modelDepth, string path = null)
 		{
-			path = Guid.NewGuid().ToString("n");
+			path = "D380C66729254CA2BAECA9ABFF90EA1C";
 			var model = new Dictionary<string, object>();
 
 			if (modelDepth > 1)

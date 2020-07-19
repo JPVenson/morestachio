@@ -29,25 +29,5 @@ namespace Morestachio.Framework
 		/// </summary>
 		/// <param name="content"></param>
 		void Write(string content);
-
-		///// <summary>
-		///// Writes the specified value.
-		///// </summary>
-		///// <param name="value">The value.</param>
-		///// <param name="sizeOfContent">Content of the size of.</param>
-		//void Write(string value, long sizeOfContent);
-
-		///// <summary>
-		///// Writes the specified value. Without counting its bytes.
-		///// </summary>
-		///// <param name="value">The value.</param>
-		//void Write(string value);
-
-		///// <summary>
-		///// Writes the specified value.
-		///// </summary>
-		///// <param name="value">The value.</param>
-		///// <param name="sizeOfContent">Content of the size of.</param>
-		//void Write(char[] value, long sizeOfContent);
 	}
 }

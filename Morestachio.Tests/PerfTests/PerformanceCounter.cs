@@ -12,7 +12,7 @@ namespace Morestachio.Tests.PerfTests
 	{
 		public interface IPerformanceCounterEntity
 		{
-			string PrintAsCsv();
+			string PrintAsCsv(string delimiter);
 		}
 
 		public class ModelPerformanceCounterEntity : IPerformanceCounterEntity
@@ -32,10 +32,32 @@ namespace Morestachio.Tests.PerfTests
 			public TimeSpan RenderTime { get; set; }
 			public TimeSpan TotalTime { get; set; }
 
-			public string PrintAsCsv()
+			public static string Header(string delimiter)
 			{
 				return
-					$"{Name}, {TimePerRun:c}, {RunOver}, {ModelDepth}, {SubstitutionCount}, {TemplateSize}, {ParseTime:c}, {RenderTime:c}, {TotalTime:c}";
+					$"Variation{delimiter} " +
+					$"Time/Run{delimiter} " +
+					$"Runs{delimiter} " +
+					$"Model Depth{delimiter} " +
+					$"SubstitutionCount{delimiter} " +
+					$"Template Size(byte){delimiter} " +
+					$"ParseTime{delimiter} " +
+					$"RenderTime{delimiter} " +
+					$"Total Time ";
+			}
+
+			public string PrintAsCsv(string delimiter)
+			{
+				return
+					$"{Name}{delimiter}" +
+					$"{TimePerRun:c}{delimiter}" +
+					$"{RunOver}{delimiter}" +
+					$"{ModelDepth}{delimiter}" +
+					$"{SubstitutionCount}{delimiter}" +
+					$"{TemplateSize}{delimiter}" +
+					$"{ParseTime:c}{delimiter}" +
+					$"{RenderTime:c}{delimiter}" +
+					$"{TotalTime:c}";
 			}
 		}
 		public class ExpressionPerformanceCounterEntity : IPerformanceCounterEntity
@@ -55,10 +77,16 @@ namespace Morestachio.Tests.PerfTests
 			public TimeSpan ExecuteTime { get; set; }
 			public TimeSpan TotalTime { get; set; }
 
-			public string PrintAsCsv()
+			public static string Header(string delimiter)
 			{
 				return
-					$"{Name}, {TimePerRun:c}, {RunOver}, {Width}, {Depth}, {NoArguments}, {ParseTime:c}, {ExecuteTime:c}, {TotalTime:c}";
+					$"Variation{delimiter} Time/Run{delimiter} Runs{delimiter} Width{delimiter} Depth{delimiter} NoArguments{delimiter} ParseTime{delimiter} ExecuteTime{delimiter} Total Time";
+			}
+
+			public string PrintAsCsv(string delimiter)
+			{
+				return
+					$"{Name}{delimiter} {TimePerRun:c}{delimiter} {RunOver}{delimiter} {Width}{delimiter} {Depth}{delimiter} {NoArguments}{delimiter} {ParseTime:c}{delimiter} {ExecuteTime:c}{delimiter} {TotalTime:c}";
 			}
 		}
 
@@ -79,21 +107,21 @@ namespace Morestachio.Tests.PerfTests
 			//	" Template Size: {3}, ParseTime: {4}, RenderTime: {5}, Total Time: {6}",
 			//	runs, modelDepth, inserts, sizeOfTemplate, parseTime.Elapsed, renderTime.Elapsed, totalTime.Elapsed,
 			//	totalTime.ElapsedMilliseconds / (double) runs, variation);
-
-			output.AppendLine("Variation, Time/Run, Runs, Model Depth, SubstitutionCount, Template Size(byte), ParseTime, RenderTime, Total Time");
+			var delimiter = " | ";
+			output.AppendLine(ModelPerformanceCounterEntity.Header(delimiter));
 			foreach (var performanceCounter in PerformanceCounters.OfType<ModelPerformanceCounterEntity>())
 			{
-				output.AppendLine(performanceCounter.PrintAsCsv());
+				output.AppendLine(performanceCounter.PrintAsCsv(delimiter));
 			}
-			output.AppendLine("Variation, Time/Run, Runs, Width, Depth, NoArguments, ParseTime, ExecuteTime, Total Time");
+			output.AppendLine(ExpressionPerformanceCounterEntity.Header(delimiter));
 			foreach (var performanceCounter in PerformanceCounters.OfType<ExpressionPerformanceCounterEntity>())
 			{
-				output.AppendLine(performanceCounter.PrintAsCsv());
+				output.AppendLine(performanceCounter.PrintAsCsv(delimiter));
 			}
 
 			Console.WriteLine(output.ToString());
-			TestContext.Progress.WriteLine(output.ToString());
-			File.WriteAllText(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) + @"\MorestachioPerf.csv", output.ToString());
+			//TestContext.Progress.WriteLine(output.ToString());
+			File.WriteAllText(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) + @"\MorestachioPerf.md", output.ToString());
 		}
 	}
 }

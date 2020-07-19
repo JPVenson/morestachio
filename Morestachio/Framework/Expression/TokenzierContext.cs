@@ -31,8 +31,7 @@ namespace Morestachio.Framework.Expression
 		public static TokenzierContext FromText(string expression)
 		{
 			var tokenzierContext = new TokenzierContext(
-				Tokenizer.NewlineFinder.Matches(expression).OfType<Match>().Select(k => k.Index)
-					.ToArray());
+				Tokenizer.FindNewLines(expression).ToArray());
 			tokenzierContext.SetLocation(0);
 			return tokenzierContext;
 		}

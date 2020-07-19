@@ -19,7 +19,7 @@ namespace Morestachio.Helper
 		{
 			get { return _value; }
 		}
-		
+
 		internal Number(IConvertible fullNumber)
 		{
 			_value = fullNumber;
@@ -123,7 +123,7 @@ namespace Morestachio.Helper
 		{
 			_value = fullNumber;
 		}
-		
+
 		private static bool IsIntegral(Number number)
 		{
 			return !(number._value is decimal) && !(number._value is double) && !(number._value is float);
@@ -165,12 +165,12 @@ namespace Morestachio.Helper
 			{
 				return typeof(decimal);
 			}
-				
+
 			if (numberLeft._value is double || numberRight._value is double)
 			{
 				return typeof(double);
 			}
-				
+
 			if (numberLeft._value is float || numberRight._value is float)
 			{
 				return typeof(float);
@@ -526,7 +526,7 @@ namespace Morestachio.Helper
 			}
 			return Math.Round(_value.ToDouble(null), other.ToInt32(null));
 		}
-		
+
 		/// <summary>
 		///		Adds the two numbers together
 		/// </summary>
@@ -1091,107 +1091,116 @@ namespace Morestachio.Helper
 		///  <returns></returns>
 		public static bool TryParse(string input, CultureInfo culture, out Number number)
 		{
-			//according to MSDN folloring literals are allowed
-
-			if (input.EndsWith("u", StringComparison.CurrentCultureIgnoreCase))
+			if (input.Length == 0)
 			{
-				input = input.TrimEnd('u', 'U');
-				//its an unsigned number
-				//evaluate of which type it is
-				if (uint.TryParse(input, NumberStyles.Integer, culture, out var uIntVal))
-				{
-					number = new Number(uIntVal);
-					return true;
-				}
-				if (ushort.TryParse(input, NumberStyles.Integer, culture, out var ushortVal))
-				{
-					number = new Number(ushortVal);
-					return true;
-				}
-				if (ulong.TryParse(input, NumberStyles.Integer, culture, out var uLongVal))
-				{
-					number = new Number(uLongVal);
-					return true;
-				}
-				if (byte.TryParse(input, NumberStyles.Integer, culture, out var byteVal))
-				{
-					number = new Number(byteVal);
-					return true;
-				}
-
-				number = default;
+				number = NaN;
 				return false;
 			}
 
-			if (input.EndsWith("m", StringComparison.CurrentCultureIgnoreCase))
+			if (char.IsLetter(input[input.Length - 1]))
 			{
-				input = input.TrimEnd('m', 'M');
-				//its an unsigned number
-				//evaluate of which type it is
-				if (decimal.TryParse(input, NumberStyles.Number, culture, out var uIntVal))
-				{
-					number = new Number(uIntVal);
-					return true;
-				}
+				//according to MSDN folloring literals are allowed
 
-				number = default;
-				return false;
-			}
-
-			if (input.EndsWith("l", StringComparison.InvariantCultureIgnoreCase))
-			{
-				//its an long
-				if (input.EndsWith("ul", StringComparison.InvariantCultureIgnoreCase))
+				if (input.EndsWith("u", StringComparison.CurrentCultureIgnoreCase))
 				{
-					input = input.TrimEnd('u', 'U', 'l', 'L');
-					//its unsigned
+					input = input.TrimEnd('u', 'U');
+					//its an unsigned number
+					//evaluate of which type it is
+					if (uint.TryParse(input, NumberStyles.Integer, culture, out var uIntVal))
+					{
+						number = new Number(uIntVal);
+						return true;
+					}
+					if (ushort.TryParse(input, NumberStyles.Integer, culture, out var ushortVal))
+					{
+						number = new Number(ushortVal);
+						return true;
+					}
 					if (ulong.TryParse(input, NumberStyles.Integer, culture, out var uLongVal))
 					{
 						number = new Number(uLongVal);
+						return true;
+					}
+					if (byte.TryParse(input, NumberStyles.Integer, culture, out var byteVal))
+					{
+						number = new Number(byteVal);
 						return true;
 					}
 
 					number = default;
 					return false;
 				}
-				input = input.TrimEnd('l', 'L');
-				//its signed
-				if (long.TryParse(input, NumberStyles.Integer, culture, out var explLongVal))
+
+				if (input.EndsWith("m", StringComparison.CurrentCultureIgnoreCase))
 				{
-					number = new Number(explLongVal);
-					return true;
+					input = input.TrimEnd('m', 'M');
+					//its an unsigned number
+					//evaluate of which type it is
+					if (decimal.TryParse(input, NumberStyles.Number, culture, out var uIntVal))
+					{
+						number = new Number(uIntVal);
+						return true;
+					}
+
+					number = default;
+					return false;
 				}
 
-				number = default;
-				return false;
-			}
-
-			if (input.EndsWith("f", StringComparison.InvariantCultureIgnoreCase))
-			{
-				//its an float
-				input = input.TrimEnd('f', 'F');
-				if (float.TryParse(input, NumberStyles.Float | NumberStyles.AllowThousands, culture, out var floatVal))
+				if (input.EndsWith("l", StringComparison.InvariantCultureIgnoreCase))
 				{
-					number = new Number(floatVal);
-					return true;
+					//its an long
+					if (input.EndsWith("ul", StringComparison.InvariantCultureIgnoreCase))
+					{
+						input = input.TrimEnd('u', 'U', 'l', 'L');
+						//its unsigned
+						if (ulong.TryParse(input, NumberStyles.Integer, culture, out var uLongVal))
+						{
+							number = new Number(uLongVal);
+							return true;
+						}
+
+						number = default;
+						return false;
+					}
+					input = input.TrimEnd('l', 'L');
+					//its signed
+					if (long.TryParse(input, NumberStyles.Integer, culture, out var explLongVal))
+					{
+						number = new Number(explLongVal);
+						return true;
+					}
+
+					number = default;
+					return false;
 				}
 
-				number = default;
-				return false;
-			}
-
-			if (input.EndsWith("d", StringComparison.InvariantCultureIgnoreCase))
-			{
-				//its an float
-				input = input.TrimEnd('d', 'D');
-				if (double.TryParse(input, NumberStyles.Float | NumberStyles.AllowThousands, culture, out var doubleVal))
+				if (input.EndsWith("f", StringComparison.InvariantCultureIgnoreCase))
 				{
-					number = new Number(doubleVal);
-					return true;
+					//its an float
+					input = input.TrimEnd('f', 'F');
+					if (float.TryParse(input, NumberStyles.Float | NumberStyles.AllowThousands, culture, out var floatVal))
+					{
+						number = new Number(floatVal);
+						return true;
+					}
+
+					number = default;
+					return false;
 				}
 
-				number = default;
-				return false;
+				if (input.EndsWith("d", StringComparison.InvariantCultureIgnoreCase))
+				{
+					//its an float
+					input = input.TrimEnd('d', 'D');
+					if (double.TryParse(input, NumberStyles.Float | NumberStyles.AllowThousands, culture, out var doubleVal))
+					{
+						number = new Number(doubleVal);
+						return true;
+					}
+
+					number = default;
+					return false;
+				}
 			}
 
 			if (input.StartsWith("0x", StringComparison.InvariantCultureIgnoreCase))
@@ -1206,7 +1215,6 @@ namespace Morestachio.Helper
 				number = default;
 				return false;
 			}
-
 			//we start with parsing an int as its the default for any number in msbuild
 			if (int.TryParse(input, NumberStyles.Integer, culture, out var intVal))
 			{
@@ -1251,7 +1259,7 @@ namespace Morestachio.Helper
 				return true;
 			}
 
-			number = default;
+			number = NaN;
 			return false;
 		}
 

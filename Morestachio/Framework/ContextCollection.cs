@@ -52,31 +52,33 @@ namespace Morestachio.Framework
 
 			object value = null;
 
-			if (path.Key.Equals("$first"))
+			if (path.Key.StartsWith("$"))
 			{
-				value = Index == 0;
+				if (path.Key.Equals("$first"))
+				{
+					value = Index == 0;
+				}
+				else if (path.Key.Equals("$index"))
+				{
+					value = Index;
+				}
+				else if (path.Key.Equals("$middel"))
+				{
+					value = Index != 0 && !Last;
+				}
+				else if (path.Key.Equals("$last"))
+				{
+					value = Last;
+				}
+				else if (path.Key.Equals("$odd"))
+				{
+					value = Index % 2 != 0;
+				}
+				else if (path.Key.Equals("$even"))
+				{
+					value = Index % 2 == 0;
+				}
 			}
-			else if (path.Key.Equals("$index"))
-			{
-				value = Index;
-			}
-			else if (path.Key.Equals("$middel"))
-			{
-				value = Index != 0 && !Last;
-			}
-			else if (path.Key.Equals("$last"))
-			{
-				value = Last;
-			}
-			else if (path.Key.Equals("$odd"))
-			{
-				value = Index % 2 != 0;
-			}
-			else if (path.Key.Equals("$even"))
-			{
-				value = Index % 2 == 0;
-			}
-			
 			var innerContext = Options.CreateContextObject(path.Key, CancellationToken, value, this);
 			return value == null ? null : innerContext;
 		}

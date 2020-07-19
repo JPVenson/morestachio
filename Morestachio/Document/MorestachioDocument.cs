@@ -40,18 +40,12 @@ namespace Morestachio.Document
 		public MorestachioDocument(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 			MorestachioVersion = info.GetValue(nameof(MorestachioVersion), typeof(Version)) as Version;
-			//var serializedHashCode = info.GetInt32(nameof(GetHashCode));
-			//if (serializedHashCode != GetHashCode())
-			//{
-			//	throw new InvalidOperationException("The hashcode check for the Morestachio document failed");
-			//}
 		}
 
 		/// <inheritdoc />
 		protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
 		{
 			info.AddValue(nameof(MorestachioVersion), MorestachioVersion.ToString());
-			//info.AddValue(nameof(GetHashCode), GetHashCode());
 			base.SerializeBinaryCore(info, context);
 		}
 
@@ -59,12 +53,6 @@ namespace Morestachio.Document
 		protected override void DeSerializeXml(XmlReader reader)
 		{
 			MorestachioVersion = Version.Parse(reader.GetAttribute(nameof(MorestachioVersion)));
-			//var attribute = reader.GetAttribute(nameof(GetHashCode));
-			//if (!string.IsNullOrWhiteSpace(attribute))
-			//{
-			//	DeserializedHashCode = int.Parse(attribute);
-			//}
-			
 			base.DeSerializeXml(reader);
 		}
 		
@@ -72,15 +60,9 @@ namespace Morestachio.Document
 		protected override void SerializeXml(XmlWriter writer)
 		{
 			writer.WriteAttributeString(nameof(MorestachioVersion), MorestachioVersion.ToString());
-			//writer.WriteAttributeString(nameof(GetHashCode), GetHashCode().ToString());
 			base.SerializeXml(writer);
 		}
-
-		///// <summary>
-		/////		Will only be set in case of an Serialization. Can be used to check if the current object (this.GetHashCode()) and the written hashcode are the same
-		///// </summary>
-		//public int DeserializedHashCode { get; private set; }
-
+		
 		/// <summary>
 		///		Gets the Version of Morestachio that this Document was parsed with
 		/// </summary>

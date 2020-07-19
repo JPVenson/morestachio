@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using JetBrains.Annotations;
 
@@ -12,34 +13,22 @@ namespace Morestachio.Framework
 	{
 		private readonly ParserOptions _options;
 
-		public ByteCounterStream([NotNull] Stream stream, 
-			[NotNull] Encoding encoding, 
-			int bufferSize, 
+		public ByteCounterStream([NotNull] Stream stream,
+			int bufferSize,
 			bool leaveOpen,
 			ParserOptions options)
 		{
 			_options = options;
-			BaseWriter = new StreamWriter(stream, encoding, bufferSize, leaveOpen);
+			BaseWriter = new StreamWriter(stream, options.Encoding, bufferSize, leaveOpen);
 		}
 
-		private ByteCounterStream()
-		{
-			ReadOnly = true;
-		}
-
-		public bool ReadOnly { get; private set; }
 		public StreamWriter BaseWriter { get; set; }
 
 		public long BytesWritten { get; private set; }
 		public bool ReachedLimit { get; private set; }
-		public static IByteCounterStream ReadOnlyEmpty { get; private set; } = new ByteCounterStream();
 
 		public void Write(string content)
 		{
-			if (ReadOnly)
-			{
-				return;
-			}
 			content = content ?? _options.Null?.ToString();
 
 			var sourceCount = BytesWritten;
@@ -55,7 +44,7 @@ namespace Morestachio.Framework
 				ReachedLimit = true;
 				return;
 			}
-			
+
 			//TODO this is a performance critical operation. As we might deal with variable-length encodings this cannot be compute initial
 			var cl = _options.Encoding.GetByteCount(content);
 

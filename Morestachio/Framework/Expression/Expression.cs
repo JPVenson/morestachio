@@ -30,7 +30,7 @@ namespace Morestachio.Framework.Expression
 		internal MorestachioExpression(CharacterLocation location) : this()
 		{
 			Location = location;
-			PathTokenizer = new PathTokenizer();
+			_pathTokenizer = new PathTokenizer();
 		}
 
 		protected MorestachioExpression(SerializationInfo info, StreamingContext context)
@@ -124,8 +124,6 @@ namespace Morestachio.Framework.Expression
 			}
 		}
 
-		internal PathTokenizer PathTokenizer { get; }
-
 		/// <summary>
 		///		Contains all parts of the path
 		/// </summary>
@@ -189,14 +187,7 @@ namespace Morestachio.Framework.Expression
 			return visitor.StringBuilder.ToString();
 		}
 
-		internal void CompilePath(
-			TokenzierContext context,
-			int index)
-		{
-			PathParts = PathTokenizer.Compile(context, index);
-		}
-
-		private static char?[] _closingChars = { '.', ',', ')' };
+		private readonly PathTokenizer _pathTokenizer;
 
 		/// <summary>
 		///		Parses the text into one or more expressions
@@ -217,13 +208,13 @@ namespace Morestachio.Framework.Expression
 				for (; index < text.Length; index++)
 				{
 					var c = text[index];
-					if (!expression.PathTokenizer.Add(c, context, index))
+					if (!expression._pathTokenizer.Add(c, context, index))
 					{
 						indexVar = 0;
 						return null;
 					}
 				}
-				expression.CompilePath(context, 0);
+				expression.PathParts = expression._pathTokenizer.CompileListWithCurrent(context, 0);
 				indexVar = text.Length;
 				context.AdvanceLocation(text.Length);
 				return expression;
@@ -256,6 +247,10 @@ namespace Morestachio.Framework.Expression
 				var idx = index;
 				if (!includeCurrent)
 				{
+					//if (Eoex())
+					//{
+					//	return -1;
+					//}
 					if (idx + 1 >= text.Length)
 					{
 						return idx;
@@ -314,6 +309,15 @@ namespace Morestachio.Framework.Expression
 			{
 				if ((tryTerminate && tokenScopes.Any()) || !tryTerminate)
 				{
+					var headerTokenMatch = tokenScopes.Peek();
+					//if (headerTokenMatch.BracketsCounter != 0)
+					//{
+					//	context.Errors.Add(new InvalidPathSyntaxError(
+					//		headerTokenMatch.TokenLocation
+					//			.AddWindow(new CharacterSnippedLocation(1, headerTokenMatch.TokenLocation.Character, text)),
+					//		headerTokenMatch.Value.ToString()));
+					//}
+
 					tokenScopes.Pop();
 				}
 			}
@@ -322,11 +326,12 @@ namespace Morestachio.Framework.Expression
 			{
 				var parent = currentScope.Parent?.Parent;
 				char? seekNext;
-				while (_closingChars.Contains(seekNext = SeekNext(out var seekIndex)))
+				while (Tokenizer.IsEndOfFormatterArgument(seekNext = SeekNext(out var seekIndex)))
 				{
 					index = seekIndex;
 					if (seekNext == ')') //the next char is also an closing bracket so there is no next parameter nor an followup expression
 					{
+						tokenScopes.Peek().BracketsCounter--;
 						//there is nothing after this expression so close it
 						TerminateCurrentScope();
 						HeaderTokenMatch scope = null;
@@ -337,6 +342,7 @@ namespace Morestachio.Framework.Expression
 
 						if (scope?.Value is MorestachioExpressionList)//if the parent expression is a list close that list too
 						{
+							tokenScopes.Peek().BracketsCounter--;
 							TerminateCurrentScope();
 							parent = parent?.Parent;
 						}
@@ -448,7 +454,11 @@ namespace Morestachio.Framework.Expression
 
 						break;
 					}
-
+					
+					if (tokenScopes.Count > 0)
+					{
+						tokenScopes.Peek().BracketsCounter = 0;
+					}
 					if (Eoex())
 					{
 						TerminateCurrentScope(true);
@@ -577,8 +587,11 @@ namespace Morestachio.Framework.Expression
 								}
 
 								var currentExpression = currentScope.Value as MorestachioExpression;
-								currentExpression.CompilePath(context, index);
-								if (currentExpression.PathParts.Count == 0)
+
+								//get the last part of the path as the name of the formatter
+								currentExpression.FormatterName = currentExpression._pathTokenizer.GetFormatterName(context, index, out var found);
+								currentExpression.PathParts = currentExpression._pathTokenizer.Compile(context, index);
+								if (currentExpression.PathParts.Count == 0 && !found)
 								{
 									//in this case there are no parts in the path that indicates ether {{(}} or {{data.(())}}
 									context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation.Offset(index)
@@ -589,19 +602,42 @@ namespace Morestachio.Framework.Expression
 									return null;
 								}
 
-								//get the last part of the path as the name of the formatter
-								currentExpression.FormatterName = currentExpression.PathTokenizer.GetFormatterName();
+
 								currentScope.BracketsCounter++;
 								//seek the next non whitespace char. That should be ether " or an expression char
-								index = Seek(f => !Tokenizer.IsWhiteSpaceDelimiter(f), false);
+								var temIndex = Seek(f => !Tokenizer.IsWhiteSpaceDelimiter(f), false);
+								if (temIndex != -1)
+								{
+									index = temIndex;
+								}
 								if (formatChar == ')')
 								{
 									//the only next char is the closing bracket so no arguments
-									currentScope.BracketsCounter--;
+									//currentScope.BracketsCounter--;
 									index = EndParameterBracket();
+								}
+								else if (formatChar == '(')
+								{
+									//in this case there are no parts in the path that indicates ether {{(}} or {{data.(())}}
+									context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation.Offset(index)
+											.AddWindow(new CharacterSnippedLocation(1, index, text)),
+										"Format", "(", "Formatter arguments",
+										"Did not expect to find the start of another formatter here. Use .( if you want to call a formatter on yourself."));
+									indexVar = 0;
+									return null;
 								}
 								else
 								{
+									if (Eoex())
+									{
+										//in this case there are no parts in the path that indicates ether {{(}} or {{data.(())}}
+										context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation.Offset(index)
+												.AddWindow(new CharacterSnippedLocation(1, index, text)),
+											"Format", "(", "Formatter arguments",
+											"Did not expect to find the end of the expression here"));
+										indexVar = 0;
+										return null;
+									}
 									//indicates the start of an argument
 									index--;
 									tokenScopes.Push(new HeaderTokenMatch
@@ -617,10 +653,10 @@ namespace Morestachio.Framework.Expression
 								//TerminateCurrentScope();
 
 								var parentExpression = currentScope.Parent?.Value as MorestachioExpression;
-								currentScope.Parent.BracketsCounter--;
+								//currentScope.Parent.BracketsCounter--;
 								if (currentScope.Value is MorestachioExpression currentScopeValue)
 								{
-									currentScopeValue.CompilePath(context, index);
+									currentScopeValue.PathParts = currentScopeValue._pathTokenizer.CompileListWithCurrent(context, index);
 									if (currentScopeValue != null &&
 										!currentScopeValue.PathParts.Any() && parentExpression?.Formats.Any() == true)
 									{
@@ -638,7 +674,7 @@ namespace Morestachio.Framework.Expression
 							{
 								if (currentScope.Value is MorestachioExpression currentScopeValue)
 								{
-									currentScopeValue.CompilePath(context, index);
+									currentScopeValue.PathParts = currentScopeValue._pathTokenizer.CompileListWithCurrent(context, index);
 									if (currentScopeValue != null &&
 										!currentScopeValue.PathParts.Any())
 									{
@@ -662,7 +698,7 @@ namespace Morestachio.Framework.Expression
 								//we are in an path expression
 								//like data.data.data.data
 
-								if ((currentScope.Value as MorestachioExpression)?.PathTokenizer.Add(formatChar, context, index) == false)
+								if ((currentScope.Value as MorestachioExpression)?._pathTokenizer.Add(formatChar, context, index) == false)
 								{
 									indexVar = 0;
 									return null;
@@ -681,7 +717,8 @@ namespace Morestachio.Framework.Expression
 											"Did not expect a . at the end of an expression without an formatter"));
 									}
 
-									(currentScope.Value as MorestachioExpression).CompilePath(context, index);
+									(currentScope.Value as MorestachioExpression).PathParts =
+										(currentScope.Value as MorestachioExpression)._pathTokenizer.CompileListWithCurrent(context, index);
 									TerminateCurrentScope();
 								}
 							}

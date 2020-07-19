@@ -37,8 +37,8 @@ namespace Morestachio.Framework
 		private static readonly Regex TokenFinder = new Regex("([{]{2}[^{}]+?[}]{2})|([{]{3}[^{}]+?[}]{3})",
 			RegexOptions.Compiled);
 
-		internal static readonly Regex NewlineFinder
-			= new Regex("\n", RegexOptions.Compiled);
+		//internal static readonly Regex NewlineFinder
+		//	= new Regex("\n", RegexOptions.Compiled);
 
 		private static readonly Regex ExpressionAliasFinder
 			= new Regex("(?:\\s+(?:AS|as|As|aS)\\s+)([A-Za-z]+)$", RegexOptions.Compiled);
@@ -59,9 +59,8 @@ namespace Morestachio.Framework
 			new Regex(@"([.]{4,})|([^\w./_$?~]+)|((?<![.]{2})[/])|([.]{2,}($|[^/]))",
 				RegexOptions.Singleline | RegexOptions.Compiled);
 
-		internal static readonly Regex IsCharRegex = new Regex("\\w|\\d", RegexOptions.Compiled);
-		internal static readonly Regex IsNumberRegex = new Regex("\\d", RegexOptions.Compiled);
-		internal static readonly Regex NegativeCharRegex = new Regex("[^\\w\\d]", RegexOptions.Compiled);
+		//internal static readonly Regex IsCharRegex = new Regex("\\w|\\d", RegexOptions.Compiled);
+		//internal static readonly Regex NegativeCharRegex = new Regex("[^\\w\\d]", RegexOptions.Compiled);
 		internal static readonly Regex PartialIncludeRegEx = new Regex("Include (\\w*)( (?:With) )?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
 		internal static CharacterLocation HumanizeCharacterLocation(int characterIndex, int[] lines)
@@ -87,6 +86,20 @@ namespace Morestachio.Framework
 				Character = charIdx + 1
 			};
 			return textLocation;
+		}
+
+		public static List<int> FindNewLines(string text)
+		{
+			var nlIdxes = new List<int>();
+			for (int i = 0; i < text.Length; i++)
+			{
+				if (text[i] == '\n')
+				{
+					nlIdxes.Add(i);
+				}
+			}
+
+			return nlIdxes;
 		}
 
 		internal static bool IsStringDelimiter(char formatChar)
@@ -115,8 +128,14 @@ namespace Morestachio.Framework
 		internal static bool IsSingleExpressionPathChar(char formatChar)
 		{
 			return formatChar == '.'
-				   || formatChar == '~'
-				   || IsCharRegex.IsMatch(formatChar.ToString());
+			       || formatChar == '~'
+			       || IsExpressionDataPathChar(formatChar);
+			//|| IsCharRegex.IsMatch(formatChar.ToString());
+		}
+
+		internal static bool IsExpressionDataPathChar(char formatChar)
+		{
+			return char.IsLetterOrDigit(formatChar) || formatChar == '_';
 		}
 
 		internal static bool IsExpressionChar(char formatChar)
@@ -126,14 +145,14 @@ namespace Morestachio.Framework
 				   formatChar == ')';
 		}
 
-		internal static bool IsNumberExpressionChar(char formatChar)
-		{
-			return IsNumberRegex.IsMatch(formatChar.ToString());
-		}
-
 		internal static bool IsPathDelimiterChar(char formatChar)
 		{
 			return formatChar == ',';
+		}
+
+		internal static bool IsEndOfFormatterArgument(char? formatChar)
+		{
+			return formatChar == ',' || formatChar == '.' || formatChar == ')';
 		}
 
 		/// <summary>

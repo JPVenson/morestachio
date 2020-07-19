@@ -172,9 +172,11 @@ namespace Morestachio.Framework.Expression
 		/// <returns></returns>
 		public static IMorestachioExpression ParseExpressionOrString(string expression, out TokenzierContext context)
 		{
+			//context = 
+			//	new TokenzierContext(Tokenizer.NewlineFinder.Matches(expression).OfType<Match>().Select(k => k.Index)
+			//	.ToArray());
 			context = 
-				new TokenzierContext(Tokenizer.NewlineFinder.Matches(expression).OfType<Match>().Select(k => k.Index)
-				.ToArray());
+				new TokenzierContext(Tokenizer.FindNewLines(expression).ToArray());
 			context.SetLocation(0);
 			return ParseExpressionOrString(expression,
 				context);

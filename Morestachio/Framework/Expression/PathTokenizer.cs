@@ -87,11 +87,85 @@ namespace Morestachio.Framework.Expression
 	{
 		public PathTokenizer()
 		{
-			PathParts = new List<KeyValuePair<string, PathType>>();
+			PathParts = new PathPartsCollection();
 			CurrentPart = "";
 		}
 
-		private IList<KeyValuePair<string, PathType>> PathParts { get; set; }
+		private PathPartsCollection PathParts { get; set; }
+
+		private class PathPartsCollection
+		{
+			public PathPartsCollection()
+			{
+				_parts = new List<KeyValuePair<string, PathType>>();
+			}
+			private IList<KeyValuePair<string, PathType>> _parts;
+
+			public KeyValuePair<string, PathType>? Last
+			{
+				get { return _last; }
+			}
+
+			private bool _any;
+			private bool _hasParentSelector;
+			private bool _isNullValue;
+			private KeyValuePair<string, PathType>? _last;
+			private bool _many;
+
+			public bool Many
+			{
+				get { return _many; }
+			}
+
+			public bool IsNullValue
+			{
+				get { return _isNullValue; }
+			}
+
+			public bool HasParentSelector
+			{
+				get { return _hasParentSelector; }
+			}
+
+			public bool Any
+			{
+				get { return _any; }
+			}
+
+			public void Add(string value, PathType part)
+			{
+				if (!_any)
+				{
+					_hasParentSelector = part == PathType.ParentSelector;
+					_isNullValue = part == PathType.Null;
+				}
+				else
+				{
+					_many = true;
+				}
+				_any = true;
+				if (_last != null)
+				{
+					_parts.Add(_last.Value);
+				}
+				_last = new KeyValuePair<string, PathType>(value, part);
+			}
+
+			public void RemoveLast()
+			{
+				_last = null;
+			}
+
+			public IList<KeyValuePair<string, PathType>> GetList()
+			{
+				if (_last != null)
+				{
+					_parts.Add(_last.Value);
+				}
+
+				return _parts;
+			}
+		}
 
 		public string CurrentPart { get; set; }
 		public bool LastCharWasDelimiter { get; set; }
@@ -99,7 +173,7 @@ namespace Morestachio.Framework.Expression
 
 		public bool Add(char c, TokenzierContext context, int index)
 		{
-			if (!Tokenizer.IsExpressionChar(c))
+			if (!Tokenizer.IsExpressionPathChar(c))
 			{
 				context.Errors.Add(
 					new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
@@ -108,7 +182,7 @@ namespace Morestachio.Framework.Expression
 				return false;
 			}
 
-			if (PathParts.Any(f => f.Value == PathType.Null))
+			if (PathParts.IsNullValue)
 			{
 				context.Errors.Add(
 					new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
@@ -123,7 +197,7 @@ namespace Morestachio.Framework.Expression
 			{
 				if (CurrentPart == "..")
 				{
-					if (PathParts.Any() && PathParts.Any(e => e.Value != PathType.ParentSelector))
+					if (PathParts.Any && !PathParts.HasParentSelector)
 					{
 						context.Errors.Add(
 							new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
@@ -133,8 +207,8 @@ namespace Morestachio.Framework.Expression
 
 						return false;
 					}
-					PathParts.Add(new KeyValuePair<string, PathType>(null, PathType.ParentSelector));
-					CurrentPart = "";
+					PathParts.Add(null, PathType.ParentSelector);
+					CurrentPart = string.Empty;
 					return true;
 				}
 				context.Errors.Add(
@@ -147,7 +221,7 @@ namespace Morestachio.Framework.Expression
 
 			if (c == '~')
 			{
-				if (CurrentPart != string.Empty || PathParts.Any())
+				if (CurrentPart != string.Empty || PathParts.Any)
 				{
 					context.Errors.Add(
 						new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
@@ -158,32 +232,32 @@ namespace Morestachio.Framework.Expression
 					return false;
 				}
 
-				PathParts.Add(new KeyValuePair<string, PathType>(null, PathType.RootSelector));
-				CurrentPart = "";
+				PathParts.Add(null, PathType.RootSelector);
+				CurrentPart = string.Empty;
 				return true;
 			}
 
 			if (c == '?')
 			{
-				PathParts.Add(new KeyValuePair<string, PathType>(null, PathType.ObjectSelector));
-				CurrentPart = "";
+				PathParts.Add(null, PathType.ObjectSelector);
+				CurrentPart = string.Empty;
 				return true;
 			}
 
-			if (c != '.' && CurrentPart == "." && PathParts.Count == 0)
+			if (c != '.' && CurrentPart == "." && !PathParts.Any)
 			{
 				//in this case somebody wrote .data
 				//so ignore the dot
-				CurrentPart = "";
+				CurrentPart = string.Empty;
 			}
 
-			if (CurrentPart != "" && CurrentPart != "." && c == '.')
+			if (CurrentPart != string.Empty && CurrentPart != "." && c == '.')
 			{
 				if (CurrentPartIsNumber)
 				{
 					if (CurrentPart.Contains("."))
 					{
-						PathParts.Add(new KeyValuePair<string, PathType>(CurrentPart, PathType.Number));
+						PathParts.Add(CurrentPart, PathType.Number);
 						CurrentPart = "";
 					}
 					else
@@ -206,7 +280,7 @@ namespace Morestachio.Framework.Expression
 				if (CurrentPart == string.Empty && char.IsDigit(c))
 				{
 					CurrentPartIsNumber = true;
-					if (PathParts.Any())
+					if (PathParts.Any)
 					{
 						context.Errors.Add(
 							new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
@@ -239,7 +313,7 @@ namespace Morestachio.Framework.Expression
 
 			if (CurrentPart == "null")
 			{
-				if (PathParts.Any())
+				if (PathParts.Any)
 				{
 					context.Errors.Add(
 						new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
@@ -249,12 +323,11 @@ namespace Morestachio.Framework.Expression
 
 					return false;
 				}
-
-				PathParts.Add(new KeyValuePair<string, PathType>(null, PathType.Null));
+				PathParts.Add(null, PathType.Null);
 			}
 			else if (CurrentPart == "true" || CurrentPart == "false")
 			{
-				if (PathParts.Any())
+				if (PathParts.Any)
 				{
 					context.Errors.Add(
 						new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
@@ -265,11 +338,11 @@ namespace Morestachio.Framework.Expression
 					return false;
 				}
 
-				PathParts.Add(new KeyValuePair<string, PathType>(CurrentPart, PathType.Boolean));
+				PathParts.Add(CurrentPart, PathType.Boolean);
 			}
 			else
 			{
-				PathParts.Add(new KeyValuePair<string, PathType>(CurrentPart, PathType.DataPath));
+				PathParts.Add(CurrentPart, PathType.DataPath);
 			}
 
 			return true;
@@ -283,78 +356,120 @@ namespace Morestachio.Framework.Expression
 				part = part.Substring(1, part.Length - 1);
 			}
 
-			var match = Tokenizer.NegativeCharRegex.Match(part);
-			if (match.Success)
+			for (int i = 0; i < part.Length; i++)
 			{
-				return match.Index;
+				if (!Tokenizer.IsExpressionDataPathChar(part[i]))
+				{
+					return i;
+				}
 			}
 
 			return -1;
 		}
 
-		public string GetFormatterName()
+		public string GetFormatterName(TokenzierContext context, int index, out bool found)
 		{
-			string lastPartIsFormatterName;//PathParts.LastOrDefault().Key;
-			if (LastCharWasDelimiter)
+			//string lastPartIsFormatterName = null;//PathParts.LastOrDefault().Key;
+			//if (LastCharWasDelimiter)
+			//{
+			//	lastPartIsFormatterName = CurrentPart;
+			//}
+			//else if(PathParts.Last != null)
+			//{
+			//	lastPartIsFormatterName = CurrentPart;
+			//	PathParts.RemoveLast();
+			//}
+			var last = CompileCurrent(context, index);
+
+			if (last == null)
 			{
-				lastPartIsFormatterName = CurrentPart;
-			}
-			else
-			{
-				lastPartIsFormatterName = PathParts.LastOrDefault().Key;
-				PathParts.RemoveAt(PathParts.Count - 1);
+				if (CurrentPart == string.Empty)
+				{
+					last = new KeyValuePair<string, PathType>(string.Empty, PathType.DataPath);
+				}
+				else
+				{
+					found = false;
+					return null;
+				}
 			}
 
-			CurrentPart = "";
-			return lastPartIsFormatterName;
+			found = true;
+
+			if (last.Value.Value != PathType.DataPath)
+			{
+				PathParts.Add(last.Value.Key, last.Value.Value);
+				return string.Empty;
+			}
+			return last.Value.Key;
 		}
 
 		public IList<KeyValuePair<string, PathType>> Compile(TokenzierContext context, int index)
 		{
+			return PathParts.GetList();
+		}
+
+		public IList<KeyValuePair<string, PathType>> CompileListWithCurrent(TokenzierContext context, int index)
+		{
+			var last = CompileCurrent(context, index);
+			if (last == null)
+			{
+				return PathParts.GetList();
+			}
+
+			if (!(PathParts.Many && last.Value.Value == PathType.SelfAssignment))
+			{
+				PathParts.Add(last.Value.Key, last.Value.Value);
+			}
+			return PathParts.GetList();
+		}
+
+		public KeyValuePair<string, PathType>? CompileCurrent(TokenzierContext context, int index)
+		{
 			if (CurrentPart == ".")
 			{
-				PathParts.Add(new KeyValuePair<string, PathType>(null, PathType.SelfAssignment));
+				PathParts.Add(null, PathType.SelfAssignment);
 			}
 			else if (CurrentPart == "../")
 			{
-				PathParts.Add(new KeyValuePair<string, PathType>(null, PathType.ParentSelector));
+				PathParts.Add(null, PathType.ParentSelector);
 			}
 			else if (CurrentPart == "~")
 			{
-				PathParts.Add(new KeyValuePair<string, PathType>(null, PathType.RootSelector));
+				PathParts.Add(null, PathType.RootSelector);
 			}
 			else if (CurrentPart == "?")
 			{
-				PathParts.Add(new KeyValuePair<string, PathType>(null, PathType.ObjectSelector));
+				PathParts.Add(null, PathType.ObjectSelector);
 			}
-			else if (CurrentPart.Trim() != "")
+			else if (CurrentPart.Trim() != string.Empty)
 			{
 				if (CurrentPartIsNumber)
 				{
-					PathParts.Add(new KeyValuePair<string, PathType>(CurrentPart, PathType.Number));
+					PathParts.Add(CurrentPart, PathType.Number);
 				}
 				else
 				{
 					if (!ComputeCurrentPart(context, index))
 					{
-						return new KeyValuePair<string, PathType>[0];
+						return default;
 					}
 				}
 			}
-
-			if (PathParts.Count > 1 && PathParts.Last().Value == PathType.SelfAssignment)
+			else
 			{
-				PathParts.Remove(PathParts.Last());
+				return default;
 			}
 
-			//if (!PathParts.Any())
-			//{
-			//	hasError = 0;
-			//	return PathParts;
-			//}
+			if (PathParts.Last != null)
+			{
+				var pathPartsLast = PathParts.Last.Value;
+				PathParts.RemoveLast();
+				CurrentPart = "";
+				return pathPartsLast;
+			}
 
-			CurrentPart = "";
-			return PathParts;
+			return null;
 		}
 	}
 }

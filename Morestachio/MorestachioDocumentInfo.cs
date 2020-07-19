@@ -102,7 +102,7 @@ namespace Morestachio
 				}
 
 				using (var byteCounterStream = new ByteCounterStream(sourceStream,
-					ParserOptions.Encoding, BufferSize, true, ParserOptions))
+					BufferSize, true, ParserOptions))
 				{
 					var context = ParserOptions.CreateContextObject("", token, data);
 					//var context = new ContextObject(ParserOptions, "", null)
