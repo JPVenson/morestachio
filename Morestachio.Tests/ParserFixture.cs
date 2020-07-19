@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Morestachio.Attributes;
+using Morestachio.Document;
+using Morestachio.Document.Custom;
 using Morestachio.Formatter;
 using Morestachio.Framework;
 using Morestachio.Formatter.Framework;
@@ -17,6 +19,7 @@ using Morestachio.Linq;
 using Morestachio.ParserErrors;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using Morestachio.Document.Contracts;
 
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 
@@ -27,7 +30,7 @@ namespace Morestachio.Tests
 	public class ParserFixture
 	{
 		public static Encoding DefaultEncoding { get; set; } = new UnicodeEncoding(true, false, false);
-		
+
 		[Test]
 		public async Task TestUnpackCanUnpackTask()
 		{
@@ -185,24 +188,24 @@ namespace Morestachio.Tests
 		public void ParserCanVariableScope()
 		{
 			var template = "{{#var global = data}}" +
-			               "{{#data}}" +
-			                   "{{global}}" +
+						   "{{#data}}" +
+							   "{{global}}" +
 							   "{{#let global = 'Burns '}}" +
-				               "{{global}}" +
-				               "{{#let global = 'Likes '}}" +
-				               "{{global}}" +
-			                   "{{#let local = 'Likes '}}" +
-			                   "{{#var global = 'Miss '}}" +
-			               "{{/data}}" +
-			               "{{local}}" +
-			               "{{global}}" +
-			               "{{#var global = 'Money '}}" +
-			               "{{global}}" +
-			               "{{#let global = 'Alot'}}" +
-			               "{{global}}" ;
+							   "{{global}}" +
+							   "{{#let global = 'Likes '}}" +
+							   "{{global}}" +
+							   "{{#let local = 'Likes '}}" +
+							   "{{#var global = 'Miss '}}" +
+						   "{{/data}}" +
+						   "{{local}}" +
+						   "{{global}}" +
+						   "{{#var global = 'Money '}}" +
+						   "{{global}}" +
+						   "{{#let global = 'Alot'}}" +
+						   "{{global}}";
 			var parsingOptions = new ParserOptions(template, null,
 				DefaultEncoding);
-			
+
 			var results =
 				Parser.ParseWithOptions(parsingOptions);
 			var result = results.CreateAndStringify(new Dictionary<string, object>
@@ -1126,6 +1129,48 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		public void ParserCanParseCustomTag()
+		{
+			var parsingOptions = new ParserOptions("{{#PI 3}}", null, DefaultEncoding);
+
+			parsingOptions.CustomDocumentItemProviders.Add(new TagDocumentItemProvider("#PI", async
+			(outputStream,
+				context,
+				scopeData,
+				value) =>
+			{
+				outputStream.Write((Math.PI * int.Parse(value)).ToString());
+				await Task.CompletedTask;
+			}));
+
+			var results = Parser.ParseWithOptions(parsingOptions);
+			//this should not work as the Default settings for DateTime are ToString(Arg) so it should return a string and not an object
+			Assert.That(results.CreateAndStringify(new object()), Is.EqualTo((Math.PI * 3).ToString()));
+		}
+
+		[Test]
+		public void ParserCanParseCustomBlock()
+		{
+			var parsingOptions = new ParserOptions("{{#PI}}3{{/PI}}", null, DefaultEncoding);
+
+			parsingOptions.CustomDocumentItemProviders.Add(new BlockDocumentItemProvider("#PI", "/PI", async
+			 (outputStream,
+				 context,
+				 scopeData,
+				 value,
+				 children) =>
+			{
+				var firstOrDefault = children.OfType<ContentDocumentItem>().FirstOrDefault();
+				outputStream.Write((Math.PI * int.Parse(firstOrDefault.Value)).ToString());
+				return Array.Empty<DocumentItemExecution>();
+			}));
+
+			var results = Parser.ParseWithOptions(parsingOptions);
+			//this should not work as the Default settings for DateTime are ToString(Arg) so it should return a string and not an object
+			Assert.That(results.CreateAndStringify(new object()), Is.EqualTo((Math.PI * 3).ToString()));
+		}
+
+		[Test]
 		public void ParserThrowsParserExceptionForEachWithoutPath()
 		{
 			Assert.That(Parser.ParseWithOptions(new ParserOptions("{{#eachs}}{{name}}{{/each}}")).Errors, Is.Not.Empty);
@@ -1227,8 +1272,8 @@ namespace Morestachio.Tests
 		public void TestWhileLoopContext()
 		{
 			var template = "{{#WHILE $index.SmallerAs(5)}}" +
-			               "{{$index}}," +
-			               "{{/WHILE}}";
+						   "{{$index}}," +
+						   "{{/WHILE}}";
 
 			var parsingOptions = new ParserOptions(template, null, DefaultEncoding)
 			{
@@ -1245,8 +1290,8 @@ namespace Morestachio.Tests
 		public void TestDoLoopContext()
 		{
 			var template = "{{#DO $index.SmallerAs(5)}}" +
-			               "{{$index}}," +
-			               "{{/DO}}";
+						   "{{$index}}," +
+						   "{{/DO}}";
 
 			var parsingOptions = new ParserOptions(template, null, DefaultEncoding)
 			{

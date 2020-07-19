@@ -173,7 +173,7 @@ namespace Morestachio
 					{
 						foreach (var scopeLocalVariable in scope.LocalVariables)
 						{
-							currentDocumentItem.Document.Add(new RemoveAliasDocumentItem(scopeLocalVariable, scope.VariableScopeNumber));	
+							currentDocumentItem.Document.Add(new RemoveAliasDocumentItem(scopeLocalVariable, scope.VariableScopeNumber));
 						}
 					}
 					// remove the last document from the stack and go back to the parents
@@ -236,7 +236,8 @@ namespace Morestachio
 					var scope = 0;
 					if (buildStack.Count > 1)
 					{
-						scope = GetVariabeScope().VariableScopeNumber;
+						scope = GetVariabeScope()
+							.VariableScopeNumber;
 					}
 					var evaluateVariableDocumentItem = new EvaluateVariableDocumentItem(currentToken.Value,
 						currentToken.MorestachioExpression, scope);
@@ -250,9 +251,9 @@ namespace Morestachio
 				{
 					var customDocumentItemProvider =
 						options.CustomDocumentItemProviders.FirstOrDefault(e => e.ShouldParse(currentToken, options));
-					if (customDocumentItemProvider != null)
+					var documentItem = customDocumentItemProvider?.Parse(currentToken, options, buildStack, getScope);
+					if (documentItem != null)
 					{
-						var documentItem = customDocumentItemProvider.Parse(currentToken, options, buildStack);
 						currentDocumentItem.Document.Add(documentItem);
 					}
 				}

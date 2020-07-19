@@ -37,7 +37,7 @@ namespace Morestachio.Document.Custom
 		{
 
 			internal TokenInfo(string token,
-				TokenzierContext context, 
+				TokenzierContext context,
 				Stack<Tuple<string, int>> scopeStack)
 			{
 				TokenizerContext = context;
@@ -45,7 +45,7 @@ namespace Morestachio.Document.Custom
 				Token = token;
 				Errors = new List<IMorestachioError>();
 			}
-			
+
 			/// <summary>
 			///		Provides the current context you document item is created in
 			/// </summary>
@@ -83,13 +83,15 @@ namespace Morestachio.Document.Custom
 		/// <returns></returns>
 		public abstract bool ShouldParse(TokenPair token, ParserOptions options);
 
-		/// <summary>
-		///		Should return an document item that will be invoked when parsing the Template
-		/// </summary>
-		/// <param name="token"></param>
-		/// <param name="options"></param>
-		/// <param name="buildStack"></param>
-		/// <returns></returns>
-		public abstract IDocumentItem Parse(TokenPair token, ParserOptions options, Stack<DocumentScope> buildStack);
+		///  <summary>
+		/// 		Should return an document item that will be invoked when parsing the Template
+		///  </summary>
+		///  <param name="token"></param>
+		///  <param name="options"></param>
+		///  <param name="buildStack"></param>
+		///  <param name="getScope"></param>
+		///  <returns></returns>
+		public abstract IDocumentItem Parse(TokenPair token, ParserOptions options, Stack<DocumentScope> buildStack,
+			Func<int> getScope);
 	}
 }

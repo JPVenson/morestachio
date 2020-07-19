@@ -128,8 +128,8 @@ namespace Morestachio.Framework
 		internal static bool IsSingleExpressionPathChar(char formatChar)
 		{
 			return formatChar == '.'
-			       || formatChar == '~'
-			       || IsExpressionDataPathChar(formatChar);
+				   || formatChar == '~'
+				   || IsExpressionDataPathChar(formatChar);
 			//|| IsCharRegex.IsMatch(formatChar.ToString());
 		}
 
@@ -165,7 +165,7 @@ namespace Morestachio.Framework
 			TokenzierContext context)
 		{
 			var templateString = parserOptions.Template;
-			var matches= TokenFinder.Matches(templateString);
+			var matches = TokenFinder.Matches(templateString);
 
 			var scopestack = new Stack<Tuple<string, int>>();
 			var partialsNames = new List<string>(parserOptions.PartialsStore?.GetNames() ?? new string[0]);
@@ -547,44 +547,13 @@ namespace Morestachio.Framework
 				{
 					tokens.Add(ExpressionTokenizer.TokenizeVariableAssignment(tokenValue.Trim('{', '}'),
 						context));
-				}	
+				}
 				else if (tokenValue.StartsWith("{{#let ", true, CultureInfo.InvariantCulture))
 				{
 					var tokenizeVariableAssignment = ExpressionTokenizer.TokenizeVariableAssignment(tokenValue.Trim('{', '}'),
 						context);
 					tokenizeVariableAssignment.Type = TokenType.VariableLet;
 					tokens.Add(tokenizeVariableAssignment);
-				}
-				else if (tokenValue.StartsWith("{{#"))
-				{
-					//open group
-					var token = trimmedToken.TrimStart('#').Trim();
-
-					var eval = EvaluateNameFromToken(token);
-					token = eval.Item1;
-					var alias = eval.Item2;
-					scopestack.Push(Tuple.Create(alias ?? token, match.Index));
-
-					//if (scopestack.Any() && scopestack.Peek().Item1 == token)
-					//{
-					//	tokens.Add(new TokenPair(TokenType.ElementClose,
-					//		Validated(token, match.Index, lines, context.Errors), context.CurrentLocation));
-					//}
-					//else
-					//{
-					//	scopestack.Push(Tuple.Create(alias ?? token, match.Index));
-					//}
-					tokens.Add(new TokenPair(TokenType.ElementOpen, token, context.CurrentLocation)
-					{
-						MorestachioExpression = ExpressionTokenizer.ParseExpressionOrString(token, context)
-					});
-
-					if (!string.IsNullOrWhiteSpace(alias))
-					{
-						context.AdvanceLocation(3 + alias.Length);
-						tokens.Add(new TokenPair(TokenType.Alias, alias,
-							context.CurrentLocation));
-					}
 				}
 				else if (tokenValue.StartsWith("{{^"))
 				{
@@ -606,23 +575,6 @@ namespace Morestachio.Framework
 							context.CurrentLocation));
 					}
 				}
-				else if (tokenValue.StartsWith("{{/"))
-				{
-					var token = trimmedToken.TrimStart('/').Trim();
-					//close group
-					if (scopestack.Any() && scopestack.Peek().Item1 == token)
-					{
-						scopestack.Pop();
-						tokens.Add(new TokenPair(TokenType.ElementClose, token,
-							context.CurrentLocation));
-					}
-					else
-					{
-						context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
-								.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "/", "{{#path}}",
-							" There are more closing elements then open."));
-					}
-				}
 				else if (tokenValue.StartsWith("{{{") || tokenValue.StartsWith("{{&"))
 				{
 					//escaped single element
@@ -636,13 +588,6 @@ namespace Morestachio.Framework
 				{
 					//it's a comment drop this on the floor, no need to even yield it.
 				}
-				else if (tokenValue.StartsWith("#") || tokenValue.StartsWith("/"))
-				{
-					//catch expression handler
-					context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation
-							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)),
-						$"Unexpected token. Expected an valid Expression but got '{tokenValue}'", tokenValue, ""));
-				}
 				else
 				{
 					//check for custom DocumentItem provider
@@ -652,10 +597,55 @@ namespace Morestachio.Framework
 
 					if (customDocumentProvider != null)
 					{
-						var tokenInfo = new CustomDocumentItemProvider.TokenInfo(tokenValue, context,scopestack);
+						var tokenInfo = new CustomDocumentItemProvider.TokenInfo(tokenValue, context, scopestack);
 						var tokenPairs = customDocumentProvider.Tokenize(tokenInfo, parserOptions);
 						tokens.AddRange(tokenPairs);
 					}
+					else if (tokenValue.StartsWith("{{#"))
+					{
+						//open group
+						var token = trimmedToken.TrimStart('#').Trim();
+
+						var eval = EvaluateNameFromToken(token);
+						token = eval.Item1;
+						var alias = eval.Item2;
+						scopestack.Push(Tuple.Create(alias ?? token, match.Index));
+						tokens.Add(new TokenPair(TokenType.ElementOpen, token, context.CurrentLocation)
+						{
+							MorestachioExpression = ExpressionTokenizer.ParseExpressionOrString(token, context)
+						});
+
+						if (!string.IsNullOrWhiteSpace(alias))
+						{
+							context.AdvanceLocation(3 + alias.Length);
+							tokens.Add(new TokenPair(TokenType.Alias, alias,
+								context.CurrentLocation));
+						}
+					}
+					else if (tokenValue.StartsWith("{{/"))
+					{
+						var token = trimmedToken.TrimStart('/').Trim();
+						//close group
+						if (scopestack.Any() && scopestack.Peek().Item1 == token)
+						{
+							scopestack.Pop();
+							tokens.Add(new TokenPair(TokenType.ElementClose, token,
+								context.CurrentLocation));
+						}
+						else
+						{
+							context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
+									.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "/", "{{#path}}",
+								" There are more closing elements then open."));
+						}
+					}
+					//else if (tokenValue.StartsWith("{{#") || tokenValue.StartsWith("{{/"))
+					//{
+					//	//catch expression handler
+					//	context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation
+					//			.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)),
+					//		$"Unexpected token. Expected an valid Expression but got '{tokenValue}'", tokenValue, ""));
+					//}
 					else
 					{
 						//unsingle value.
