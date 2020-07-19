@@ -35,6 +35,7 @@ namespace Morestachio.Framework
 			DefaultFormatter.AddFromType(typeof(RegexFormatter));
 			DefaultFormatter.AddFromType(typeof(TimeSpanFormatter));
 			DefaultFormatter.AddFromType(typeof(StringFormatter));
+			DefaultFormatter.AddFromType(typeof(Random));
 			DefaultDefinitionOfFalse = (value) => value != null &&
 			                                      value as bool? != false &&
 			                                      // ReSharper disable once CompareOfFloatsByEqualityOperator

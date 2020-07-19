@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -17,13 +16,13 @@ namespace Morestachio.Formatter.Framework
 {
 	public class ServiceCollection
 	{
-		private readonly IDictionary<Type, object> _source;
 		private readonly IDictionary<Type, object> _localSource;
+		private readonly IDictionary<Type, object> _source;
 
 		public ServiceCollection(IDictionary<Type, object> source)
 		{
 			_source = source;
-			_localSource = new Dictionary<Type, object>()
+			_localSource = new Dictionary<Type, object>
 			{
 				{typeof(ServiceCollection), this}
 			};
@@ -58,12 +57,13 @@ namespace Morestachio.Formatter.Framework
 			var found = GetService(typeof(T), out var serviceTem);
 			if (found)
 			{
-				service = (T)serviceTem;
+				service = (T) serviceTem;
 			}
 			else
 			{
 				service = default;
 			}
+
 			return found;
 		}
 
@@ -97,30 +97,60 @@ namespace Morestachio.Formatter.Framework
 	/// </summary>
 	public class MorestachioFormatterService : IMorestachioFormatterService
 	{
+		private static readonly Regex ValidateFormatterNameRegEx =
+			new Regex("^[a-zA-Z]{1}[a-zA-Z0-9]*$", RegexOptions.Compiled);
+
 		/// <summary>
 		///     Initializes a new instance of the <see cref="MorestachioFormatterService" /> class.
 		/// </summary>
 		public MorestachioFormatterService()
 		{
 			Formatters = new Dictionary<string, IList<MorestachioFormatterModel>>();
-			ValueConverter = new List<IFormatterValueConverter>()
+			ValueConverter = new List<IFormatterValueConverter>
 			{
 				NumberConverter.Instance
 			};
 			DefaultConverter = GenericTypeConverter.Instance;
-			ServiceCollectionAccess = new Dictionary<Type, object>()
+			ServiceCollectionAccess = new Dictionary<Type, object>
 			{
 				{typeof(IMorestachioFormatterService), this}
 			};
 		}
 
+		protected IDictionary<Type, object> ServiceCollectionAccess { get; }
+
+		/// <summary>
+		///     Gets the gloabl formatter that are used always for any formatting run.
+		/// </summary>
+		public IDictionary<string, IList<MorestachioFormatterModel>> Formatters { get; }
+
+		/// <summary>
+		///     The fallback Converter that should convert all known mscore lib types
+		/// </summary>
+		public IFormatterValueConverter DefaultConverter { get; set; }
+
+		/// <summary>
+		///     If set writes the Formatters log.
+		/// </summary>
+		[CanBeNull]
+		public TextWriter FormatterLog { get; set; }
+
+		/// <summary>
+		///     List of all Value Converters that can be used to convert formatter arguments
+		/// </summary>
+		public ICollection<IFormatterValueConverter> ValueConverter { get; }
+
+		/// <inheritdoc />
+		public bool AllParametersAllDefaultValue { get; set; }
+
+		/// <inheritdoc />
+		[Obsolete("The Formatter name must now always be in the exact casing as the given name", true)]
+		public StringComparison FormatterNameCompareMode { get; set; } = StringComparison.Ordinal;
+
 		/// <inheritdoc />
 		public IReadOnlyDictionary<Type, object> ServiceCollection
 		{
-			get
-			{
-				return new ReadOnlyDictionary<Type, object>(ServiceCollectionAccess);
-			}
+			get { return new ReadOnlyDictionary<Type, object>(ServiceCollectionAccess); }
 		}
 
 		/// <inheritdoc />
@@ -147,50 +177,6 @@ namespace Morestachio.Formatter.Framework
 			ServiceCollectionAccess[typeof(T)] = serviceFactory;
 		}
 
-		protected IDictionary<Type, object> ServiceCollectionAccess { get; }
-
-		/// <summary>
-		///     Gets the gloabl formatter that are used always for any formatting run.
-		/// </summary>
-		public IDictionary<string, IList<MorestachioFormatterModel>> Formatters { get; }
-
-		/// <summary>
-		///		List of all Value Converters that can be used to convert formatter arguments
-		/// </summary>
-		public ICollection<IFormatterValueConverter> ValueConverter { get; }
-
-		/// <summary>
-		///		The fallback Converter that should convert all known mscore lib types
-		/// </summary>
-		public IFormatterValueConverter DefaultConverter { get; set; }
-
-		/// <summary>
-		///     If set writes the Formatters log.
-		/// </summary>
-		[CanBeNull]
-		public TextWriter FormatterLog { get; set; }
-
-		/// <summary>
-		///     Writes the specified log.
-		/// </summary>
-		/// <param name="log">The log.</param>
-		[Conditional("LOG")]
-		public void Log(Func<string> log)
-		{
-			FormatterLog?.WriteLine(log());
-		}
-
-		/// <summary>
-		///     Can be returned by a Formatter to control what formatter should be used
-		/// </summary>
-		public struct FormatterFlow
-		{
-			/// <summary>
-			///     Return code for all formatters to skip the execution of the current formatter and try another one that could also
-			///     match
-			/// </summary>
-			public static FormatterFlow Skip { get; } = new FormatterFlow();
-		}
 
 		/// <inheritdoc />
 		public IEnumerable<MorestachioFormatterModel> Filter(Func<MorestachioFormatterModel, bool> filter)
@@ -200,9 +186,9 @@ namespace Morestachio.Formatter.Framework
 
 		/// <inheritdoc />
 		public virtual async Task<object> CallMostMatchingFormatter(
-			[NotNull]Type type,
-			[NotNull]List<Tuple<string, object>> values,
-			[NotNull]object sourceValue,
+			[NotNull] Type type,
+			[NotNull] List<Tuple<string, object>> values,
+			[NotNull] object sourceValue,
 			string name,
 			ParserOptions parserOptions)
 		{
@@ -234,6 +220,82 @@ namespace Morestachio.Formatter.Framework
 			return FormatterFlow.Skip;
 		}
 
+		/// <inheritdoc />
+		public virtual MorestachioFormatterModel Add(MethodInfo method,
+			MorestachioFormatterAttribute morestachioFormatterAttribute)
+		{
+			if (!ValidateFormatterName(morestachioFormatterAttribute.Name))
+			{
+				throw new InvalidOperationException(
+					$"The name '{morestachioFormatterAttribute.Name}' is invalid. An Formatter may only contain letters and cannot start with an digit");
+			}
+
+			var arguments = method.GetParameters().Select((e, index) =>
+				new MultiFormatterInfo(
+					e.ParameterType,
+					e.GetCustomAttribute<FormatterArgumentNameAttribute>()?.Name ?? e.Name,
+					e.IsOptional,
+					index,
+					e.GetCustomAttribute<ParamArrayAttribute>() != null ||
+					e.GetCustomAttribute<RestParameterAttribute>() != null)
+				{
+					IsSourceObject = morestachioFormatterAttribute.IsSourceObjectAware &&
+					                 e.GetCustomAttribute<SourceObjectAttribute>() != null,
+					FormatterValueConverterAttribute =
+						e.GetCustomAttributes<FormatterValueConverterAttribute>().ToArray(),
+					IsInjected = e.GetCustomAttribute<ExternalDataAttribute>() != null
+				}).ToArray();
+			//if there is no declared SourceObject then check if the first object is of type what we are formatting and use this one.
+			if (!arguments.Any(e => e.IsSourceObject) && arguments.Any() &&
+			    morestachioFormatterAttribute.IsSourceObjectAware)
+			{
+				arguments[0].IsSourceObject = true;
+			}
+
+			var sourceValue = arguments.FirstOrDefault(e => e.IsSourceObject);
+			if (sourceValue != null)
+			{
+				//if we have a source value in the arguments reduce the index of all following 
+				//this is important as the source value is never in the formatter string so we will not "count" it 
+				for (var i = sourceValue.Index; i < arguments.Length; i++)
+				{
+					arguments[i].Index--;
+				}
+
+				sourceValue.Index = -1;
+			}
+
+			var morestachioFormatterModel = new MorestachioFormatterModel(morestachioFormatterAttribute.Name,
+				morestachioFormatterAttribute.Description,
+				arguments.FirstOrDefault(e => e.IsSourceObject)?.ParameterType ?? typeof(object),
+				morestachioFormatterAttribute.OutputType ?? method.ReturnType,
+				method.GetCustomAttributes<MorestachioFormatterInputAttribute>()
+					.Select(e => new InputDescription(e.Description, e.OutputType, e.Example)).ToArray(),
+				morestachioFormatterAttribute.ReturnHint,
+				method,
+				new MultiFormatterInfoCollection(arguments));
+			var name = morestachioFormatterAttribute.Name ?? "{NULL}";
+
+			if (!Formatters.TryGetValue(name, out var formatters))
+			{
+				formatters = new List<MorestachioFormatterModel>();
+				Formatters[name] = formatters;
+			}
+
+			formatters.Add(morestachioFormatterModel);
+			return morestachioFormatterModel;
+		}
+
+		/// <summary>
+		///     Writes the specified log.
+		/// </summary>
+		/// <param name="log">The log.</param>
+		[Conditional("LOG")]
+		public void Log(Func<string> log)
+		{
+			FormatterLog?.WriteLine(log());
+		}
+
 		/// <summary>
 		///     Executes the specified formatter.
 		/// </summary>
@@ -242,9 +304,9 @@ namespace Morestachio.Formatter.Framework
 		/// <param name="services"></param>
 		/// <param name="templateArguments">The template arguments.</param>
 		/// <returns></returns>
-		public virtual async Task<object> Execute([NotNull]MorestachioFormatterModel formatter,
-			[NotNull]object sourceObject,
-			[NotNull]ServiceCollection services,
+		public virtual async Task<object> Execute([NotNull] MorestachioFormatterModel formatter,
+			[NotNull] object sourceObject,
+			[NotNull] ServiceCollection services,
 			List<Tuple<string, object>> templateArguments)
 		{
 			var values = ComposeValues(formatter, sourceObject, formatter.Function, services, templateArguments);
@@ -256,7 +318,8 @@ namespace Morestachio.Formatter.Framework
 			}
 
 			Log(() => "Execute");
-			var taskAlike = values.MethodInfo.Invoke(formatter.FunctionTarget, values.Arguments.Select(e => e.Value).ToArray());
+			var taskAlike = values.MethodInfo.Invoke(formatter.FunctionTarget,
+				values.Arguments.Select(e => e.Value).ToArray());
 
 			return await taskAlike.UnpackFormatterTask();
 		}
@@ -272,7 +335,9 @@ namespace Morestachio.Formatter.Framework
 		{
 			Log(() =>
 			{
-				var aggregate = arguments.Any() ? arguments.Select(e => $"[{e.Item1}]:\"{e.Item2}\"").Aggregate((e, f) => e + " & " + f) : "";
+				var aggregate = arguments.Any()
+					? arguments.Select(e => $"[{e.Item1}]:\"{e.Item2}\"").Aggregate((e, f) => e + " & " + f)
+					: "";
 				return
 					$"Test Filter for '{typeToFormat}' with arguments '{aggregate}'";
 			});
@@ -293,11 +358,12 @@ namespace Morestachio.Formatter.Framework
 				Log(() => $"Test filter: '{formatTemplateElement.InputType} : {formatTemplateElement.Function.Name}'");
 
 				if (formatTemplateElement.InputType != typeToFormat
-					&& !formatTemplateElement.InputType.GetTypeInfo().IsAssignableFrom(typeToFormat))
+				    && !formatTemplateElement.InputType.GetTypeInfo().IsAssignableFrom(typeToFormat))
 				{
 					if (ValueConverter.All(e => !e.CanConvert(sourceValue, formatTemplateElement.InputType)))
 					{
-						if (formatTemplateElement.MetaData.SourceValue().FormatterValueConverterAttribute.Select(e => e.CreateInstance())
+						if (formatTemplateElement.MetaData.SourceValue().FormatterValueConverterAttribute
+							.Select(e => e.CreateInstance())
 							.All(e => !e.CanConvert(sourceValue, formatTemplateElement.InputType)))
 						{
 							var typeToFormatGenerics = typeToFormat.GetTypeInfo().GetGenericArguments();
@@ -317,7 +383,7 @@ namespace Morestachio.Formatter.Framework
 							var formatterGenerics = formatTemplateElement.InputType.GetTypeInfo().GetGenericArguments();
 
 							if (typeToFormatGenerics.Length <= 0 || formatterGenerics.Length <= 0 ||
-								typeToFormatGenerics.Length != formatterGenerics.Length)
+							    typeToFormatGenerics.Length != formatterGenerics.Length)
 							{
 								Log(() =>
 									$"Exclude because formatter accepts '{formatTemplateElement.InputType}' is not assignable from '{typeToFormat}'");
@@ -331,7 +397,7 @@ namespace Morestachio.Formatter.Framework
 				var mandatoryArguments = formatTemplateElement.MetaData
 					.Where(e => !e.IsRestObject && !e.IsOptional && !e.IsSourceObject && !e.IsInjected).ToArray();
 				if (mandatoryArguments.Length > arguments.Count)
-				//if there are less arguments excluding rest then parameters
+					//if there are less arguments excluding rest then parameters
 				{
 					Log(() =>
 						"Exclude because formatter has " +
@@ -345,14 +411,16 @@ namespace Morestachio.Formatter.Framework
 
 				ulong score = 1L;
 				if (formatTemplateElement.Function.ReturnParameter == null ||
-					formatTemplateElement.Function.ReturnParameter?.ParameterType == typeof(void))
+				    formatTemplateElement.Function.ReturnParameter?.ParameterType == typeof(void))
 				{
 					score++;
 				}
 
-				score += (ulong)(arguments.Count - mandatoryArguments.Length);
-				Log(() => $"Take filter: '{formatTemplateElement.InputType} : {formatTemplateElement.Function}' Score {score}");
-				filteredSourceList.Add(new KeyValuePair<MorestachioFormatterModel, ulong>(formatTemplateElement, score));
+				score += (ulong) (arguments.Count - mandatoryArguments.Length);
+				Log(() =>
+					$"Take filter: '{formatTemplateElement.InputType} : {formatTemplateElement.Function}' Score {score}");
+				filteredSourceList.Add(
+					new KeyValuePair<MorestachioFormatterModel, ulong>(formatTemplateElement, score));
 			}
 
 			if (filteredSourceList.Count > 0)
@@ -367,30 +435,6 @@ namespace Morestachio.Formatter.Framework
 			}
 
 			return Enumerable.Empty<MorestachioFormatterModel>();
-		}
-
-		/// <inheritdoc />
-		public bool AllParametersAllDefaultValue { get; set; }
-
-		/// <inheritdoc />
-		public StringComparison FormatterNameCompareMode { get; set; } = StringComparison.Ordinal;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		public struct FormatterComposingResult
-		{
-			/// <summary>
-			///		The Result Method of the Composing operation. It can be different from the original.
-			/// </summary>
-			[NotNull]
-			public MethodInfo MethodInfo { get; set; }
-
-			/// <summary>
-			///		The list of arguments for the <see cref="MethodInfo"/>
-			/// </summary>
-			[NotNull]
-			public IDictionary<MultiFormatterInfo, object> Arguments { get; set; }
 		}
 
 		//static Type[] GetGenericArgumentsForBaseType(Type givenType, Type genericType)
@@ -422,7 +466,7 @@ namespace Morestachio.Formatter.Framework
 		//	return null;
 		//}
 
-		public static bool IsAssignableToGenericType([NotNull]Type givenType, [NotNull]Type genericType)
+		public static bool IsAssignableToGenericType([NotNull] Type givenType, [NotNull] Type genericType)
 		{
 			var interfaceTypes = givenType.GetInterfaces();
 
@@ -439,7 +483,7 @@ namespace Morestachio.Formatter.Framework
 				return true;
 			}
 
-			Type baseType = givenType.BaseType;
+			var baseType = givenType.BaseType;
 			if (baseType == null)
 			{
 				return false;
@@ -449,13 +493,13 @@ namespace Morestachio.Formatter.Framework
 		}
 
 		/// <summary>
-		///		Internal use only
+		///     Internal use only
 		/// </summary>
 		/// <param name="methodInfo"></param>
 		/// <param name="namedParameter"></param>
 		/// <returns></returns>
-		public static MethodInfo MakeGenericMethodInfoByValues([NotNull]MethodInfo methodInfo,
-			[NotNull]IDictionary<string, object> namedParameter)
+		public static MethodInfo MakeGenericMethodInfoByValues([NotNull] MethodInfo methodInfo,
+			[NotNull] IDictionary<string, object> namedParameter)
 		{
 			var generics = new List<Type>();
 			foreach (var genericArgument in methodInfo.GetGenericArguments())
@@ -470,7 +514,7 @@ namespace Morestachio.Formatter.Framework
 					//in case the parameter is an generic argument directly
 
 					if (parameterInfo.ParameterType.IsGenericParameter &&
-						parameterInfo.ParameterType == genericArgument)
+					    parameterInfo.ParameterType == genericArgument)
 					{
 						found = true;
 						generics.Add(sourceValueType);
@@ -479,8 +523,9 @@ namespace Morestachio.Formatter.Framework
 
 					//this is a hack for T[] to IEnumerable<T> support
 					if (sourceValueType.IsArray &&
-						IsAssignableToGenericType(parameterInfo.ParameterType, typeof(IEnumerable<>)) &&
-						typeof(IEnumerable<>).MakeGenericType(sourceValueType.GetElementType()).IsAssignableFrom(sourceValueType))
+					    IsAssignableToGenericType(parameterInfo.ParameterType, typeof(IEnumerable<>)) &&
+					    typeof(IEnumerable<>).MakeGenericType(sourceValueType.GetElementType())
+						    .IsAssignableFrom(sourceValueType))
 					{
 						found = true;
 						//the source value is an array and the parameter is of type of IEnumerable<>
@@ -649,7 +694,8 @@ namespace Morestachio.Formatter.Framework
 						}
 						else
 						{
-							Log(() => $"Skip: Could not match the parameter at index '{parameter.Index}' nether by name nor by index");
+							Log(() =>
+								$"Skip: Could not match the parameter at index '{parameter.Index}' nether by name nor by index");
 							return default;
 						}
 					}
@@ -657,8 +703,8 @@ namespace Morestachio.Formatter.Framework
 					{
 						givenValue = match.Item2;
 						Log(() => $"Matched '{match.Item1}': '{match.Item2}' by Name/Index");
-
 					}
+
 					matched.Add(parameter, match);
 				}
 
@@ -695,7 +741,7 @@ namespace Morestachio.Formatter.Framework
 			var hasRest = formatter.MetaData.FirstOrDefault(e => e.IsRestObject);
 			if (hasRest == null)
 			{
-				return new FormatterComposingResult()
+				return new FormatterComposingResult
 				{
 					MethodInfo = method,
 					Arguments = values
@@ -724,21 +770,23 @@ namespace Morestachio.Formatter.Framework
 				//unknown type in params argument cannot call
 				return default;
 			}
-			return new FormatterComposingResult()
+
+			return new FormatterComposingResult
 			{
 				MethodInfo = method,
 				Arguments = values
 			};
 		}
 
-		///  <summary>
-		/// 		Should compose the givenValue and/or transform it in any way that it can match the <para>parameter</para>
-		///  </summary>
-		///  <param name="parameter"></param>
-		///  <param name="argumentIndex"></param>
-		///  <param name="services"></param>
-		///  <param name="givenValue"></param>
-		///  <returns></returns>
+		/// <summary>
+		///     Should compose the givenValue and/or transform it in any way that it can match the
+		///     <para>parameter</para>
+		/// </summary>
+		/// <param name="parameter"></param>
+		/// <param name="argumentIndex"></param>
+		/// <param name="services"></param>
+		/// <param name="givenValue"></param>
+		/// <returns></returns>
 		protected virtual bool ComposeArgumentValue(MultiFormatterInfo parameter,
 			int argumentIndex,
 			ServiceCollection services,
@@ -764,7 +812,9 @@ namespace Morestachio.Formatter.Framework
 				var typeConverter =
 					ValueConverter.FirstOrDefault(e => e.CanConvert(o, parameterParameterType));
 				typeConverter = typeConverter ??
-								(DefaultConverter.CanConvert(givenValue, parameterParameterType) ? DefaultConverter : null);
+				                (DefaultConverter.CanConvert(givenValue, parameterParameterType)
+					                ? DefaultConverter
+					                : null);
 				var perParameterConverter = parameter.FormatterValueConverterAttribute
 					.Select(f => f.CreateInstance())
 					.FirstOrDefault(e => e.CanConvert(o, parameterParameterType));
@@ -778,7 +828,7 @@ namespace Morestachio.Formatter.Framework
 					givenValue = typeConverter.Convert(givenValue, parameterParameterType);
 				}
 				else if (givenValue is IConvertible convertible &&
-						 typeof(IConvertible).IsAssignableFrom(parameterParameterType))
+				         typeof(IConvertible).IsAssignableFrom(parameterParameterType))
 				{
 					services.GetService<ParserOptions>(out var parserOptions);
 					givenValue = convertible.ToType(parameterParameterType, parserOptions.CultureInfo);
@@ -796,10 +846,8 @@ namespace Morestachio.Formatter.Framework
 			return true;
 		}
 
-		private static Regex ValidateFormatterNameRegEx = new Regex("^[a-zA-Z]{1}[a-zA-Z0-9]*$", RegexOptions.Compiled);
-
 		/// <summary>
-		///		Validates the name for a Formatter
+		///     Validates the name for a Formatter
 		/// </summary>
 		/// <param name="formatterName"></param>
 		/// <returns></returns>
@@ -813,65 +861,33 @@ namespace Morestachio.Formatter.Framework
 			return ValidateFormatterNameRegEx.IsMatch(formatterName);
 		}
 
-		/// <inheritdoc />
-		public virtual MorestachioFormatterModel Add(MethodInfo method, MorestachioFormatterAttribute morestachioFormatterAttribute)
+		/// <summary>
+		///     Can be returned by a Formatter to control what formatter should be used
+		/// </summary>
+		public struct FormatterFlow
 		{
-			if (!ValidateFormatterName(morestachioFormatterAttribute.Name))
-			{
-				throw new InvalidOperationException($"The name '{morestachioFormatterAttribute.Name}' is invalid. An Formatter may only contain letters and cannot start with an digit");
-			}
+			/// <summary>
+			///     Return code for all formatters to skip the execution of the current formatter and try another one that could also
+			///     match
+			/// </summary>
+			public static FormatterFlow Skip { get; } = new FormatterFlow();
+		}
 
-			var arguments = method.GetParameters().Select((e, index) =>
-				new MultiFormatterInfo(
-					e.ParameterType,
-					e.GetCustomAttribute<FormatterArgumentNameAttribute>()?.Name ?? e.Name,
-					e.IsOptional,
-					index,
-					e.GetCustomAttribute<ParamArrayAttribute>() != null ||
-					e.GetCustomAttribute<RestParameterAttribute>() != null)
-				{
-					IsSourceObject = morestachioFormatterAttribute.IsSourceObjectAware && e.GetCustomAttribute<SourceObjectAttribute>() != null,
-					FormatterValueConverterAttribute = e.GetCustomAttributes<FormatterValueConverterAttribute>().ToArray(),
-					IsInjected = e.GetCustomAttribute<ExternalDataAttribute>() != null,
-				}).ToArray();
-			//if there is no declared SourceObject then check if the first object is of type what we are formatting and use this one.
-			if (!arguments.Any(e => e.IsSourceObject) && arguments.Any() && morestachioFormatterAttribute.IsSourceObjectAware)
-			{
-				arguments[0].IsSourceObject = true;
-			}
+		/// <summary>
+		/// </summary>
+		public struct FormatterComposingResult
+		{
+			/// <summary>
+			///     The Result Method of the Composing operation. It can be different from the original.
+			/// </summary>
+			[NotNull]
+			public MethodInfo MethodInfo { get; set; }
 
-			var sourceValue = arguments.FirstOrDefault(e => e.IsSourceObject);
-			if (sourceValue != null)
-			{
-				//if we have a source value in the arguments reduce the index of all following 
-				//this is important as the source value is never in the formatter string so we will not "count" it 
-				for (var i = sourceValue.Index; i < arguments.Length; i++)
-				{
-					arguments[i].Index--;
-				}
-
-				sourceValue.Index = -1;
-			}
-
-			var morestachioFormatterModel = new MorestachioFormatterModel(morestachioFormatterAttribute.Name,
-				morestachioFormatterAttribute.Description,
-				arguments.FirstOrDefault(e => e.IsSourceObject)?.ParameterType ?? typeof(object),
-				morestachioFormatterAttribute.OutputType ?? method.ReturnType,
-				method.GetCustomAttributes<MorestachioFormatterInputAttribute>()
-					.Select(e => new InputDescription(e.Description, e.OutputType, e.Example)).ToArray(),
-				morestachioFormatterAttribute.ReturnHint,
-				method,
-				new MultiFormatterInfoCollection(arguments));
-			var name = morestachioFormatterAttribute.Name ?? "{NULL}";
-
-			if (!Formatters.TryGetValue(name, out var formatters))
-			{
-				formatters = new List<MorestachioFormatterModel>();
-				Formatters[name] = formatters;
-			}
-
-			formatters.Add(morestachioFormatterModel);
-			return morestachioFormatterModel;
+			/// <summary>
+			///     The list of arguments for the <see cref="MethodInfo" />
+			/// </summary>
+			[NotNull]
+			public IDictionary<MultiFormatterInfo, object> Arguments { get; set; }
 		}
 	}
 }
