@@ -1058,11 +1058,11 @@ namespace Morestachio.Helper
 			{
 				return ToUInt16(null) == other.ToUInt16(null);
 			}
-			if (targetType == typeof(ushort))
+			if (targetType == typeof(short))
 			{
 				return ToInt16(null) == other.ToInt16(null);
 			}
-			if (targetType == typeof(ushort))
+			if (targetType == typeof(byte))
 			{
 				return ToByte(null) == other.ToByte(null);
 			}
@@ -1261,6 +1261,57 @@ namespace Morestachio.Helper
 
 			number = NaN;
 			return false;
+		}
+
+		public string AsParsableString()
+		{
+			var targetType = _value.GetType();
+			if (targetType == typeof(decimal))
+			{
+				return _value + "M";
+			}
+			if (targetType == typeof(double))
+			{
+				return _value + "D";
+			}
+			if (targetType == typeof(float))
+			{
+				return _value + "F";
+			}
+			if (targetType == typeof(ulong))
+			{
+				return _value + "UL";
+			}
+			if (targetType == typeof(long))
+			{
+				return _value + "L";
+			}
+			if (targetType == typeof(uint))
+			{
+				return _value + "U";
+			}
+			if (targetType == typeof(int))
+			{
+				return _value.ToString(null);
+			}
+			if (targetType == typeof(ushort))
+			{
+				return _value.ToString(null) + "U";
+			}
+			if (targetType == typeof(short))
+			{
+				return _value.ToString(null);
+			}
+			if (targetType == typeof(byte))
+			{
+				return "0x" + _value;
+			}
+			if (targetType == typeof(sbyte))
+			{
+				return "0x" + _value + "u";
+			}
+
+			return null;
 		}
 
 		#endregion

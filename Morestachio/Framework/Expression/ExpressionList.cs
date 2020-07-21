@@ -19,18 +19,19 @@ namespace Morestachio.Framework.Expression
 		/// </summary>
 		public IList<IMorestachioExpression> Expressions { get; private set; }
 
-		internal MorestachioExpressionList()
+		public MorestachioExpressionList()
 		{
-
+			Expressions = new List<IMorestachioExpression>();
 		}
 
 		/// <summary>
 		///	
 		/// </summary>
 		/// <param name="expressions"></param>
-		public MorestachioExpressionList(IList<IMorestachioExpression> expressions)
+		public MorestachioExpressionList(IList<IMorestachioExpression> expressions, CharacterLocation location = null)
 		{
 			Expressions = expressions;
+			Location = location;
 		}
 		
 		/// <summary>

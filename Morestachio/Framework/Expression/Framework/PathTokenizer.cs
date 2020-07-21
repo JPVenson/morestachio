@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Morestachio.ParserErrors;
 
-namespace Morestachio.Framework.Expression
+namespace Morestachio.Framework.Expression.Framework
 {
 	/// <summary>
 	///		Defines a part that can be traversed by the <see cref="ContextObject"/>
@@ -62,10 +60,10 @@ namespace Morestachio.Framework.Expression
 		/// </summary>
 		ObjectSelector,
 
-		/// <summary>
-		///		Create a new Number based on the value of <see cref="PathPart.Value"/>
-		/// </summary>
-		Number,
+		///// <summary>
+		/////		Create a new Number based on the value of <see cref="PathPart.Value"/>
+		///// </summary>
+		//Number,
 
 		/// <summary>
 		///		Defines a null value
@@ -169,7 +167,7 @@ namespace Morestachio.Framework.Expression
 
 		public string CurrentPart { get; set; }
 		public bool LastCharWasDelimiter { get; set; }
-		public bool CurrentPartIsNumber { get; set; }
+		//public bool CurrentPartIsNumber { get; set; }
 
 		public bool Add(char c, TokenzierContext context, int index)
 		{
@@ -253,20 +251,20 @@ namespace Morestachio.Framework.Expression
 
 			if (CurrentPart != string.Empty && CurrentPart != "." && c == '.')
 			{
-				if (CurrentPartIsNumber)
-				{
-					if (CurrentPart.Contains("."))
-					{
-						PathParts.Add(CurrentPart, PathType.Number);
-						CurrentPart = "";
-					}
-					else
-					{
-						CurrentPart += c;
-					}
+				//if (CurrentPartIsNumber)
+				//{
+				//	if (CurrentPart.Contains("."))
+				//	{
+				//		PathParts.Add(CurrentPart, PathType.Number);
+				//		CurrentPart = "";
+				//	}
+				//	else
+				//	{
+				//		CurrentPart += c;
+				//	}
 
-					return true;
-				}
+				//	return true;
+				//}
 
 				if (!ComputeCurrentPart(context, index))
 				{
@@ -277,20 +275,20 @@ namespace Morestachio.Framework.Expression
 			}
 			else
 			{
-				if (CurrentPart == string.Empty && char.IsDigit(c))
-				{
-					CurrentPartIsNumber = true;
-					if (PathParts.Any)
-					{
-						context.Errors.Add(
-							new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-									.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
-								CurrentPart,
-								"A number expression must be at the start of the expression and cannot follow on anything else"));
+				//if (CurrentPart == string.Empty && char.IsDigit(c))
+				//{
+				//	CurrentPartIsNumber = true;
+				//	if (PathParts.Any)
+				//	{
+				//		context.Errors.Add(
+				//			new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
+				//					.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
+				//				CurrentPart,
+				//				"A number expression must be at the start of the expression and cannot follow on anything else"));
 
-						return false;
-					}
-				}
+				//		return false;
+				//	}
+				//}
 
 				CurrentPart += c;
 			}
@@ -444,17 +442,17 @@ namespace Morestachio.Framework.Expression
 			}
 			else if (CurrentPart.Trim() != string.Empty)
 			{
-				if (CurrentPartIsNumber)
-				{
-					PathParts.Add(CurrentPart, PathType.Number);
-				}
-				else
-				{
+				//if (CurrentPartIsNumber)
+				//{
+				//	PathParts.Add(CurrentPart, PathType.Number);
+				//}
+				//else
+				//{
 					if (!ComputeCurrentPart(context, index))
 					{
 						return default;
 					}
-				}
+				//}
 			}
 			else
 			{

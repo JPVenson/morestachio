@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
+using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.Visitors;
 using Morestachio.ParserErrors;
 
@@ -204,23 +205,36 @@ namespace Morestachio.Framework.Expression
 			text = text.Trim();
 			if (!text.Contains("("))
 			{
-				var expression = new MorestachioExpression(context.CurrentLocation);
-				for (; index < text.Length; index++)
+				if (text.Length > 0 && char.IsDigit(text[0]))
 				{
-					var c = text[index];
-					if (!expression._pathTokenizer.Add(c, context, index))
-					{
-						indexVar = 0;
-						return null;
-					}
+					var expression = ExpressionNumber.ParseFrom(text, 0, context, out index);
+					context.SetLocation(index);
+					indexVar = index;
+					return expression;
 				}
-				expression.PathParts = expression._pathTokenizer.CompileListWithCurrent(context, 0);
-				indexVar = text.Length;
-				context.AdvanceLocation(text.Length);
-				return expression;
+				else
+				{
+					var expression = new MorestachioExpression(context.CurrentLocation);
+					for (; index < text.Length; index++)
+					{
+						var c = text[index];
+						if (!expression._pathTokenizer.Add(c, context, index))
+						{
+							indexVar = 0;
+							return null;
+						}
+					}
+					expression.PathParts = expression._pathTokenizer.CompileListWithCurrent(context, 0);
+					indexVar = text.Length;
+					context.AdvanceLocation(text.Length);
+					return expression;
+				}
 			}
 
-			IMorestachioExpression morestachioExpressions = null;
+			var morestachioExpressions = new MorestachioExpressionList()
+			{
+				Location = context.CurrentLocation
+			};
 			HeaderTokenMatch currentScope = null;
 			//this COULD be made with regexes, i have made it and rejected it as it was no longer readable in any way.
 			var tokenScopes = new Stack<HeaderTokenMatch>();
@@ -322,10 +336,11 @@ namespace Morestachio.Framework.Expression
 				}
 			}
 
-			int EndParameterBracket()
+			int EndParameterBracket(HeaderTokenMatch currScope)
 			{
-				var parent = currentScope.Parent?.Parent;
+				var parent = currScope.Parent?.Parent;
 				char? seekNext;
+				var currentChar = formatChar;
 				while (Tokenizer.IsEndOfFormatterArgument(seekNext = SeekNext(out var seekIndex)))
 				{
 					index = seekIndex;
@@ -379,6 +394,11 @@ namespace Morestachio.Framework.Expression
 										hasFormat.MorestachioExpression = scope.Value;
 									}
 								}
+								else if (currentChar == ')' && scope.Value is MorestachioExpressionList)
+								{
+									scope = scope.Parent.Parent;
+									TerminateCurrentScope();
+								}
 								parent = scope;
 							}
 							else
@@ -389,6 +409,10 @@ namespace Morestachio.Framework.Expression
 						}
 						else
 						{
+							if (tokenScopes.Any())
+							{
+								parent = tokenScopes.Peek().Parent;
+							}
 							//the next char indicates a new parameter so close this expression and allow next
 							TerminateCurrentScope(true);
 						}
@@ -415,7 +439,7 @@ namespace Morestachio.Framework.Expression
 									context.Errors.Add(new InvalidPathSyntaxError(
 										context.CurrentLocation.Offset(index)
 											.AddWindow(new CharacterSnippedLocation(1, index, text)),
-										currentScope.Value.ToString()));
+										currScope.Value.ToString()));
 									return text.Length;
 								}
 
@@ -426,7 +450,7 @@ namespace Morestachio.Framework.Expression
 										context.Errors.Add(new InvalidPathSyntaxError(
 											context.CurrentLocation.Offset(index)
 												.AddWindow(new CharacterSnippedLocation(1, index, text)),
-											currentScope.Value.ToString()));
+											currScope.Value.ToString()));
 										return text.Length;
 									}
 								}
@@ -464,6 +488,8 @@ namespace Morestachio.Framework.Expression
 						TerminateCurrentScope(true);
 						break;
 					}
+
+					currentChar = seekNext.Value;
 				}
 
 				return index;
@@ -505,6 +531,26 @@ namespace Morestachio.Framework.Expression
 								context.SetLocation(cidx);
 								currentScope.State = TokenState.Expression;
 							}
+							else if (Tokenizer.IsNumberExpressionChar(formatChar))
+							{
+								//this is an string
+								var cidx = context.Character;
+								currentScope.Value = new MorestachioExpressionList(new List<IMorestachioExpression>()
+								{
+									ExpressionNumber.ParseFrom(text, index, context, out index)
+								}, context.CurrentLocation);
+								context.SetLocation(cidx);
+								if (!Eoex())
+								{
+									tokenScopes.Push(new HeaderTokenMatch
+									{
+										State = TokenState.DecideArgumentType,
+										Parent = currentScope,
+										Value = new MorestachioExpression(context.CurrentLocation.Offset(index)),
+										TokenLocation = context.CurrentLocation.Offset(index + 1)
+									});
+								}
+							}
 							else if (Tokenizer.IsExpressionChar(formatChar))
 							{
 								currentScope.State = TokenState.Expression;
@@ -525,47 +571,31 @@ namespace Morestachio.Framework.Expression
 
 							if (currentScope.Parent == null)
 							{
-								if (morestachioExpressions == null)
+								currentScope.Parent = new HeaderTokenMatch()
 								{
-									morestachioExpressions = currentScope.Value;
-								}
-								else
-								{
-									if (morestachioExpressions is MorestachioExpressionList expList)
-									{
-										expList.Add(currentScope.Value);
-									}
-									else
-									{
-										var oldExp = morestachioExpressions;
-										morestachioExpressions = new MorestachioExpressionList(new List<IMorestachioExpression>()
-									{
-										oldExp,
-										currentScope.Value
-									})
-										{
-											Location = oldExp.Location
-										};
-									}
-								}
+									Value = morestachioExpressions
+								};
+								//morestachioExpressions.Add(currentScope.Value);
 							}
-							else
+							if (currentScope.Parent?.Value is MorestachioExpression exp)
 							{
-								if (currentScope.Parent?.Value is MorestachioExpression exp)
-								{
-									exp.Formats.Add(
-										new ExpressionArgument(context.CurrentLocation.Offset(idx))
-										{
-											MorestachioExpression = currentScope.Value,
-											Name = currentScope.ArgumentName
-										});
-								}
-
-								if (currentScope.Parent?.Value is MorestachioExpressionList expList)
-								{
-									expList.Add(currentScope.Value);
-								}
+								exp.Formats.Add(
+									new ExpressionArgument(context.CurrentLocation.Offset(idx))
+									{
+										MorestachioExpression = currentScope.Value,
+										Name = currentScope.ArgumentName
+									});
 							}
+
+							if (currentScope.Parent?.Value is MorestachioExpressionList expList)
+							{
+								expList.Add(currentScope.Value);
+							}
+
+							//if (!(currentScope.Value is MorestachioExpression))
+							//{
+							//	TerminateCurrentScope(true);
+							//}
 						}
 						break;
 					case TokenState.Expression:
@@ -614,7 +644,7 @@ namespace Morestachio.Framework.Expression
 								{
 									//the only next char is the closing bracket so no arguments
 									//currentScope.BracketsCounter--;
-									index = EndParameterBracket();
+									index = EndParameterBracket(currentScope);
 								}
 								else if (formatChar == '(')
 								{
@@ -668,7 +698,7 @@ namespace Morestachio.Framework.Expression
 								}
 
 								TerminateCurrentScope();
-								index = EndParameterBracket();
+								index = EndParameterBracket(tokenScopes.Peek());
 							}
 							else if (formatChar == ',')
 							{

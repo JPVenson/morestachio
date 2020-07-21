@@ -29,7 +29,10 @@ namespace Morestachio.Document.Custom
 			_action = action;
 		}
 
-		private class BlockDocumentItem : ValueDocumentItemBase
+		/// <summary>
+		///		The General purpose block
+		/// </summary>
+		public class BlockDocumentItem : ValueDocumentItemBase
 		{
 			private readonly BlockDocumentProviderFunction _action;
 

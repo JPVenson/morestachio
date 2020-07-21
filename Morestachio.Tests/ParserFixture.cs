@@ -20,6 +20,7 @@ using Morestachio.ParserErrors;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Morestachio.Document.Contracts;
+using Morestachio.Framework.Expression.Framework;
 
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 
@@ -42,6 +43,10 @@ namespace Morestachio.Tests
 		[Test]
 		[TestCase(".(.('').())")]
 		[TestCase(".a(.b(.c().d()))")]
+		[TestCase(".f(.fe().P).Fg()")]
+		[TestCase(".f(.fe().P).Fg().DE()")]
+		[TestCase(".f(.fe().P.Add(' ')).Fg().DE()")]
+		[TestCase(".f(.fe().P.Add(' ')).Fg().DE()")]
 		[TestCase("d.f")]
 		[TestCase("d.f()")]
 		[TestCase("d.f().Test")]
@@ -59,6 +64,7 @@ namespace Morestachio.Tests
 		[TestCase("d.f(fA.('').fB.()).Test.fC()")]
 		[TestCase("d.f(fA.('', e))")]
 		[TestCase("d.f(fA.('', e.()))")]
+		[TestCase("d.f(fA.('', e.('')))")]
 		[TestCase("d.f(fA.('d'))")]
 		[TestCase("d.f(fA.('d').Test)")]
 		[TestCase("d.f(fA.('d').())")]
@@ -78,7 +84,7 @@ namespace Morestachio.Tests
 		public void TestExpressionParser(string query)
 		{
 			var context = TokenzierContext.FromText(query);
-			var expressions = ExpressionTokenizer.ParseExpressionOrString(query, context);
+			var expressions = ExpressionTokenizer.ParseExpression(query, context);
 			Assert.That(expressions, Is.Not.Null);
 
 			var visitor = new ToParsableStringExpressionVisitor();
@@ -88,13 +94,17 @@ namespace Morestachio.Tests
 			Assert.That(context.Errors, Is.Empty, () => context.Errors.GetErrorText());
 		}
 
-		[Test]
-		[TestCase("d.f(fA.('', e.('')))")]
+		//[Test]
 		public void TestExpressionParserDbg(string query)
 		{
 			var context = TokenzierContext.FromText(query);
-			var expressions = ExpressionTokenizer.ParseExpressionOrString(query, context);
+			var expressions = ExpressionTokenizer.ParseExpression(query, context);
 			Assert.That(expressions, Is.Not.Null);
+			
+			var visitor = new ToParsableStringExpressionVisitor();
+			expressions.Accept(visitor);
+
+			Assert.That(visitor.StringBuilder.ToString(), Is.EqualTo(query));
 			Assert.That(context.Errors, Is.Empty, () => context.Errors.GetErrorText());
 		}
 

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Morestachio.Framework;
 using Morestachio.Framework.Expression;
+using Morestachio.Framework.Expression.Framework;
 using NUnit.Framework;
 
 namespace Morestachio.Tests.PerfTests

@@ -3,6 +3,7 @@ using Morestachio.Document;
 using Morestachio.Document.Contracts;
 using Morestachio.Formatter;
 using Morestachio.Framework.Expression;
+using Morestachio.Framework.Expression.Framework;
 using Morestachio.ParserErrors;
 
 #region
@@ -42,7 +43,7 @@ namespace Morestachio
 				throw new ArgumentNullException(nameof(parsingOptions), "The given Stream is null");
 			}
 
-			var tokenzierContext = TokenzierContext.FromText(parsingOptions.Template);
+			var tokenzierContext = TokenzierContext.FromText(parsingOptions.Template, parsingOptions.CultureInfo);
 			var tokenizerResult = Tokenizer.Tokenize(parsingOptions, tokenzierContext);
 
 			//if there are any errors do not parse the template

@@ -1,4 +1,4 @@
-﻿namespace Morestachio.Framework.Expression
+﻿namespace Morestachio.Framework.Expression.Framework
 {
 	/// <summary>
 	///     Defines a Match of Arguments for a Formatter

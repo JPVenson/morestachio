@@ -12,8 +12,9 @@ using Morestachio.Attributes;
 using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Predefined;
 using Morestachio.Framework.Expression;
+using Morestachio.Framework.Expression.Framework;
 using Morestachio.Helper;
-using PathPartElement = System.Collections.Generic.KeyValuePair<string, Morestachio.Framework.Expression.PathType>;
+using PathPartElement = System.Collections.Generic.KeyValuePair<string, Morestachio.Framework.Expression.Framework.PathType>;
 
 namespace Morestachio.Framework
 {
@@ -35,7 +36,7 @@ namespace Morestachio.Framework
 			DefaultFormatter.AddFromType(typeof(RegexFormatter));
 			DefaultFormatter.AddFromType(typeof(TimeSpanFormatter));
 			DefaultFormatter.AddFromType(typeof(StringFormatter));
-			DefaultFormatter.AddFromType(typeof(Random));
+			DefaultFormatter.AddFromType(typeof(RandomFormatter));
 			DefaultDefinitionOfFalse = (value) => value != null &&
 			                                      value as bool? != false &&
 			                                      // ReSharper disable once CompareOfFloatsByEqualityOperator
@@ -290,16 +291,16 @@ namespace Morestachio.Framework
 
 					retval = await innerContext.GetContextForPath(elements, scopeData, morestachioExpression);
 				}
-				else if (path.Value == PathType.Number)
-				{
-					//check if this part of the path can be seen as an number
-					if (Number.TryParse(path.Key, Options.CultureInfo, out var isNumber))
-					{
-						var contextObject = Options.CreateContextObject(".", CancellationToken, isNumber, this);
-						contextObject.IsNaturalContext = IsNaturalContext;
-						return await contextObject.GetContextForPath(elements, scopeData, morestachioExpression);
-					}
-				}
+				//else if (path.Value == PathType.Number)
+				//{
+				//	//check if this part of the path can be seen as an number
+				//	if (Number.TryParse(path.Key, Options.CultureInfo, out var isNumber))
+				//	{
+				//		var contextObject = Options.CreateContextObject(".", CancellationToken, isNumber, this);
+				//		contextObject.IsNaturalContext = IsNaturalContext;
+				//		return await contextObject.GetContextForPath(elements, scopeData, morestachioExpression);
+				//	}
+				//}
 				else if (path.Value == PathType.Boolean)
 				{
 					if (path.Key == "true" || path.Key == "false")

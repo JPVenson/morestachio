@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Morestachio.Document.Custom;
 using Morestachio.Framework.Expression;
+using Morestachio.Framework.Expression.Framework;
 using Morestachio.ParserErrors;
 
 namespace Morestachio.Framework
@@ -136,6 +137,11 @@ namespace Morestachio.Framework
 		internal static bool IsExpressionDataPathChar(char formatChar)
 		{
 			return char.IsLetterOrDigit(formatChar) || formatChar == '_';
+		}
+
+		internal static bool IsNumberExpressionChar(char formatChar)
+		{
+			return char.IsDigit(formatChar);
 		}
 
 		internal static bool IsExpressionChar(char formatChar)
@@ -316,7 +322,7 @@ namespace Morestachio.Framework
 						if (!string.IsNullOrWhiteSpace(partialContext))
 						{
 							tokenPair.MorestachioExpression =
-								ExpressionTokenizer.ParseExpressionOrString(partialContext, context);
+								ExpressionTokenizer.ParseExpression(partialContext, context);
 						}
 						tokens.Add(tokenPair);
 					}
@@ -335,7 +341,7 @@ namespace Morestachio.Framework
 						token = token.Trim();
 						tokens.Add(new TokenPair(TokenType.CollectionOpen, token, context.CurrentLocation)
 						{
-							MorestachioExpression = ExpressionTokenizer.ParseExpressionOrString(token, context)
+							MorestachioExpression = ExpressionTokenizer.ParseExpression(token, context)
 						});
 					}
 					else
@@ -382,7 +388,7 @@ namespace Morestachio.Framework
 						token = token.Trim();
 						tokens.Add(new TokenPair(TokenType.WhileLoopOpen, token, context.CurrentLocation)
 						{
-							MorestachioExpression = ExpressionTokenizer.ParseExpressionOrString(token, context)
+							MorestachioExpression = ExpressionTokenizer.ParseExpression(token, context)
 						});
 					}
 					else
@@ -422,7 +428,7 @@ namespace Morestachio.Framework
 						token = token.Trim();
 						tokens.Add(new TokenPair(TokenType.DoLoopOpen, token, context.CurrentLocation)
 						{
-							MorestachioExpression = ExpressionTokenizer.ParseExpressionOrString(token, context)
+							MorestachioExpression = ExpressionTokenizer.ParseExpression(token, context)
 						});
 					}
 					else
@@ -469,7 +475,7 @@ namespace Morestachio.Framework
 						token = token.Trim();
 						tokens.Add(new TokenPair(TokenType.If, token, context.CurrentLocation)
 						{
-							MorestachioExpression = ExpressionTokenizer.ParseExpressionOrString(token, context)
+							MorestachioExpression = ExpressionTokenizer.ParseExpression(token, context)
 						});
 					}
 					else
@@ -497,7 +503,7 @@ namespace Morestachio.Framework
 						token = token.Trim();
 						tokens.Add(new TokenPair(TokenType.IfNot, token, context.CurrentLocation)
 						{
-							MorestachioExpression = ExpressionTokenizer.ParseExpressionOrString(token, context)
+							MorestachioExpression = ExpressionTokenizer.ParseExpression(token, context)
 						});
 					}
 					else
@@ -565,7 +571,7 @@ namespace Morestachio.Framework
 					scopestack.Push(Tuple.Create(alias ?? token, match.Index));
 					tokens.Add(new TokenPair(TokenType.InvertedElementOpen, token, context.CurrentLocation)
 					{
-						MorestachioExpression = ExpressionTokenizer.ParseExpressionOrString(token, context)
+						MorestachioExpression = ExpressionTokenizer.ParseExpression(token, context)
 					});
 
 					if (!string.IsNullOrWhiteSpace(alias))
@@ -581,7 +587,7 @@ namespace Morestachio.Framework
 					var token = trimmedToken.TrimStart('&').Trim();
 					tokens.Add(new TokenPair(TokenType.UnescapedSingleValue, token, context.CurrentLocation)
 					{
-						MorestachioExpression = ExpressionTokenizer.ParseExpressionOrString(token, context)
+						MorestachioExpression = ExpressionTokenizer.ParseExpression(token, context)
 					});
 				}
 				else if (tokenValue.StartsWith("{{!"))
@@ -612,7 +618,7 @@ namespace Morestachio.Framework
 						scopestack.Push(Tuple.Create(alias ?? token, match.Index));
 						tokens.Add(new TokenPair(TokenType.ElementOpen, token, context.CurrentLocation)
 						{
-							MorestachioExpression = ExpressionTokenizer.ParseExpressionOrString(token, context)
+							MorestachioExpression = ExpressionTokenizer.ParseExpression(token, context)
 						});
 
 						if (!string.IsNullOrWhiteSpace(alias))
@@ -652,7 +658,7 @@ namespace Morestachio.Framework
 						var token = trimmedToken.Trim();
 						tokens.Add(new TokenPair(TokenType.EscapedSingleValue, token, context.CurrentLocation)
 						{
-							MorestachioExpression = ExpressionTokenizer.ParseExpressionOrString(token, context)
+							MorestachioExpression = ExpressionTokenizer.ParseExpression(token, context)
 						});
 					}
 				}

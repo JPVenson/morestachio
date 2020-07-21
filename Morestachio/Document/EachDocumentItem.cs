@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -70,6 +71,18 @@ namespace Morestachio.Document
 						MorestachioExpression.ToString(), base.ExpressionStart, (path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 			}
 
+			//var collectionContext = new ContextCollection(0, false, context.Options, "[]", c, null);
+			//var coll = value.OfType<object>().ToArray();
+			//for (var i = 0; i < coll.Length; i++)
+			//{
+			//	collectionContext.Last = coll.Length == i;
+			//	collectionContext.Index = i;
+			//	collectionContext.Value = coll[i];
+			//	await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, collectionContext, scopeData);
+			//}
+
+			//return Enumerable.Empty<DocumentItemExecution>();
+
 			var scopes = new List<DocumentItemExecution>();
 
 			//Use this "lookahead" enumeration to allow the $last keyword
@@ -77,7 +90,7 @@ namespace Morestachio.Document
 			var enumerator = value.GetEnumerator();
 			if (!enumerator.MoveNext())
 			{
-				return new DocumentItemExecution[0];
+				return Enumerable.Empty<DocumentItemExecution>();
 			}
 
 			var current = enumerator.Current;

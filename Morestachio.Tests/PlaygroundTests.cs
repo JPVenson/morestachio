@@ -58,6 +58,7 @@ namespace Morestachio.Tests
 
 		[Test]
 		[Explicit]
+		[Repeat(5)]
 		public async Task PerformanceDebuggerTest()
 		{
 			var _products = new List<IDictionary<string, object>>(500);
@@ -77,6 +78,13 @@ namespace Morestachio.Tests
 			{
 				Products = _products
 			});
+			for (int i = 0; i < 200; i++)
+			{
+				andStringifyAsync = await parsed.CreateAndStringifyAsync(new
+				{
+					Products = _products
+				});
+			}
 			var sw = new Stopwatch();
 			sw.Start();
 			for (int i = 0; i < 200; i++)

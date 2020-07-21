@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml;
+using Morestachio.Framework.Expression.Framework;
 using Morestachio.ParserErrors;
 
 namespace Morestachio.Framework.Expression
@@ -30,6 +31,9 @@ namespace Morestachio.Framework.Expression
 				case "ExpressionString":
 					exp = new MorestachioExpressionString();
 					break;
+				case "ExpressionNumber":
+					exp = new ExpressionNumber();
+					break;
 			}
 			exp.ReadXml(reader);
 			return exp;
@@ -40,14 +44,17 @@ namespace Morestachio.Framework.Expression
 			writer.WriteStartElement(ExpressionNodeName);
 			switch (morestachioExpression)
 			{
-				case MorestachioExpression expression1:
+				case MorestachioExpression _:
 					writer.WriteAttributeString(ExpressionKindNodeName, "Expression");
 					break;
-				case MorestachioExpressionList expressionList:
+				case MorestachioExpressionList _:
 					writer.WriteAttributeString(ExpressionKindNodeName, "ExpressionList");
 					break;
-				case MorestachioExpressionString expressionString:
+				case MorestachioExpressionString _:
 					writer.WriteAttributeString(ExpressionKindNodeName, "ExpressionString");
+					break;
+				case ExpressionNumber _:
+					writer.WriteAttributeString(ExpressionKindNodeName, "ExpressionNumber");
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(morestachioExpression));
@@ -123,7 +130,7 @@ namespace Morestachio.Framework.Expression
 
 			return new TokenPair(TokenType.VariableVar, variableName, startOfExpression)
 			{
-				MorestachioExpression = ParseExpressionOrString(expression, context)
+				MorestachioExpression = ParseExpression(expression, context)
 			};
 		}
 
@@ -133,7 +140,7 @@ namespace Morestachio.Framework.Expression
 		/// <param name="expression"></param>
 		/// <param name="context"></param>
 		/// <returns></returns>
-		public static IMorestachioExpression ParseExpressionOrString(string expression,
+		public static IMorestachioExpression ParseExpression(string expression,
 			TokenzierContext context)
 		{
 			if (expression.Length == 0)
@@ -158,27 +165,42 @@ namespace Morestachio.Framework.Expression
 
 				return MorestachioExpressionString.ParseFrom(expression, 0, context, out _);
 			}
+			//else if (Tokenizer.IsNumberExpressionChar(expression[0]))
+			//{
+			//	//its a string constant
+			//	if (!Tokenizer.IsStringDelimiter(expression[expression.Length - 1]))
+			//	{
+			//		context.Errors.Add(new MorestachioSyntaxError(
+			//			context.CurrentLocation.AddWindow(new CharacterSnippedLocation(0, expression.Length, expression)),
+			//			"", "", "" + expression[0], "expected " + expression[0]));
+			//		return null;
+			//	}
+
+			//	return MorestachioExpressionString.ParseFrom(expression, 0, context, out _);
+			//}
 			else
 			{
 				return MorestachioExpression.ParseFrom(expression, context, out _);
 			}
 		}
 
-		/// <summary>
-		///		Parses the given text to ether an expression or an string
-		/// </summary>
-		/// <param name="expression"></param>
-		/// <param name="context"></param>
-		/// <returns></returns>
-		public static IMorestachioExpression ParseExpressionOrString(string expression, out TokenzierContext context)
+		///  <summary>
+		/// 		Parses the given text to ether an expression or an string
+		///  </summary>
+		///  <param name="expression"></param>
+		///  <param name="context"></param>
+		///  <param name="cultureInfo"></param>
+		///  <returns></returns>
+		public static IMorestachioExpression ParseExpression(string expression, out TokenzierContext context,
+			CultureInfo cultureInfo = null)
 		{
 			//context = 
 			//	new TokenzierContext(Tokenizer.NewlineFinder.Matches(expression).OfType<Match>().Select(k => k.Index)
 			//	.ToArray());
 			context = 
-				new TokenzierContext(Tokenizer.FindNewLines(expression).ToArray());
+				new TokenzierContext(Tokenizer.FindNewLines(expression).ToArray(), cultureInfo ?? CultureInfo.CurrentCulture);
 			context.SetLocation(0);
-			return ParseExpressionOrString(expression,
+			return ParseExpression(expression,
 				context);
 		}
 	}

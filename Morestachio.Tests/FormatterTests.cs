@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Morestachio.Attributes;
 using Morestachio.Formatter.Framework;
 using Morestachio.Framework.Expression;
+using Morestachio.Framework.Expression.Framework;
 using Morestachio.Helper;
 using Morestachio.Linq;
 using NUnit.Framework;
@@ -300,6 +301,17 @@ namespace Morestachio.Tests
 
 			var andStringify = template.CreateAndStringify(new Dictionary<string, object>());
 			Assert.That(andStringify, Is.EqualTo(DateTime.Now.ToString("D")));
+		}
+
+
+		[Test]
+		public void TestCanFormatSourceObjectLessFormatterAsArgument()
+		{
+			var options = new ParserOptions("{{.TimeSpanFromDays(.DateTimeNow().Day).ToString('g')}}", null, DefaultEncoding);
+			var template = Parser.ParseWithOptions(options);
+
+			var andStringify = template.CreateAndStringify(new Dictionary<string, object>());
+			Assert.That(andStringify, Is.EqualTo(TimeSpan.FromDays(DateTime.Now.Day).ToString("g")));
 		}
 
 
@@ -688,7 +700,9 @@ namespace Morestachio.Tests
 				{"by", 10L}
 			};
 			var exp = "d.(f.('d'), \"t\").('pl', by.(by, 'f'))";
-			Assert.That(exp, Is.EqualTo(MorestachioExpression.ParseFrom(exp, TokenzierContext.FromText(exp), out _).ToString()));
+			var morestachioExpression = MorestachioExpression.ParseFrom(exp, TokenzierContext.FromText(exp), out _);
+			var actual = morestachioExpression.ToString();
+			Assert.That(actual, Is.EqualTo(exp));
 			var parsingOptions = new ParserOptions("{{" + exp + "}}",
 				null, DefaultEncoding);
 			var format = "yyyy.mm";

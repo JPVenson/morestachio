@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -28,7 +29,7 @@ namespace Morestachio.Tests
 		public async Task CanParseString()
 		{
 			var text = "'test'";
-			var result = ExpressionTokenizer.ParseExpressionOrString(text, out var context);
+			var result = ExpressionTokenizer.ParseExpression(text, out var context, CultureInfo.CurrentCulture);
 			Assert.That(context.Errors, Is.Empty, () => context.Errors.Select(f => f.GetException().ToString())
 				.Aggregate((e,f) => e + "\r\n-------------" + f));
 			Assert.That(result, Is.TypeOf<MorestachioExpressionString>());
@@ -42,7 +43,7 @@ namespace Morestachio.Tests
 		public async Task CanParseStringWithEscaptedChars()
 		{
 			var text = "\"a string, with a comma, and other {[]}{§$%& stuff. also a escaped \\\" and \\\\\" and so on\"";
-			var result = ExpressionTokenizer.ParseExpressionOrString(text, out var context);
+			var result = ExpressionTokenizer.ParseExpression(text, out var context, CultureInfo.CurrentCulture);
 			Assert.That(context.Errors, Is.Empty, () => context.Errors.Select(f => f.GetException().ToString())
 				.Aggregate((e,f) => e + "\r\n-------------" + f));
 

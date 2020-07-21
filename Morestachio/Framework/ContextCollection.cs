@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using JetBrains.Annotations;
 using Morestachio.Framework.Expression;
+using Morestachio.Framework.Expression.Framework;
 
 namespace Morestachio.Framework
 {
@@ -31,12 +32,12 @@ namespace Morestachio.Framework
 		/// <summary>
 		///     The current index inside the collection
 		/// </summary>
-		public long Index { get; }
+		public long Index { get; internal set; }
 
 		/// <summary>
 		///     True if its the last item in the current collection
 		/// </summary>
-		public bool Last { get; }
+		public bool Last { get; internal set; }
 
 		/// <inheritdoc />
 		protected override ContextObject HandlePathContext(Traversable elements,

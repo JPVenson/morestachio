@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
+using Morestachio.Framework.Expression.Framework;
 
 namespace Morestachio.Framework.Expression.Visitors
 {
@@ -42,6 +43,9 @@ namespace Morestachio.Framework.Expression.Visitors
 				case MorestachioExpressionString expressionString:
 					Visit(expressionString);
 					break;
+				case ExpressionNumber expressionNumber:
+					Visit(expressionNumber);
+					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(morestachioExpression));
 			}
@@ -57,7 +61,7 @@ namespace Morestachio.Framework.Expression.Visitors
 				switch (expressionPathPart.Value)
 				{
 					case PathType.DataPath:
-					case PathType.Number:
+					//case PathType.Number:
 					case PathType.Boolean:
 						StringBuilder.Append(expressionPathPart.Key);
 
@@ -147,6 +151,11 @@ namespace Morestachio.Framework.Expression.Visitors
 			}
 
 			Visit(expression.MorestachioExpression);
+		}
+
+		public void Visit(ExpressionNumber expression)
+		{
+			StringBuilder.Append(expression.Number.AsParsableString());
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿namespace Morestachio.Framework.Expression
+﻿namespace Morestachio.Framework.Expression.Framework
 {
 	internal enum TokenState
 	{

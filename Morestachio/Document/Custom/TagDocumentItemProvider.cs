@@ -26,7 +26,7 @@ namespace Morestachio.Document.Custom
 			_action = action;
 		}
 
-		private class TagDocumentItem : ValueDocumentItemBase
+		public class TagDocumentItem : ValueDocumentItemBase
 		{
 			private readonly TagDocumentProviderFunction _action;
 

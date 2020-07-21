@@ -4,6 +4,7 @@ using System.Text;
 using Morestachio.Document.Contracts;
 using Morestachio.Framework;
 using Morestachio.Framework.Expression;
+using Morestachio.Framework.Expression.Framework;
 using Morestachio.ParserErrors;
 
 namespace Morestachio.Document.Custom
@@ -22,13 +23,6 @@ namespace Morestachio.Document.Custom
 		///		A Custom stack that keeps track of enclosing tokens such as #IF and /IF
 		/// </summary>
 		public Stack<Tuple<string, int>> ScopeStack { get; }
-
-		/// <summary>
-		///		Should check if the token contains this partial token. If returns true further actions will happen.
-		/// </summary>
-		/// <param name="token"></param>
-		/// <returns></returns>
-		public abstract bool ShouldTokenize(string token);
 
 		/// <summary>
 		///		An helper object that will be given to the Tokenize method
@@ -66,6 +60,13 @@ namespace Morestachio.Document.Custom
 			/// </summary>
 			public ICollection<IMorestachioError> Errors { get; }
 		}
+
+		/// <summary>
+		///		Should check if the token contains this partial token. If returns true further actions will happen.
+		/// </summary>
+		/// <param name="token"></param>
+		/// <returns></returns>
+		public abstract bool ShouldTokenize(string token);
 
 		/// <summary>
 		///		Should return any kind of token Pair that encapsulates the value for the DocumentItem

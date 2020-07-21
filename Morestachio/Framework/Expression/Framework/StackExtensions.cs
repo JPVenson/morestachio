@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Morestachio.Framework.Expression
+namespace Morestachio.Framework.Expression.Framework
 {
 	public static class StackExtensions
 	{

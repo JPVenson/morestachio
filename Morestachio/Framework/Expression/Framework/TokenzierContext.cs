@@ -1,11 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using System.Globalization;
 using System.Text;
-using System.Text.RegularExpressions;
 using Morestachio.ParserErrors;
 
-namespace Morestachio.Framework.Expression
+namespace Morestachio.Framework.Expression.Framework
 {
 	/// <summary>
 	///		The context for all Tokenizer operations
@@ -16,25 +15,27 @@ namespace Morestachio.Framework.Expression
 		///		The indices of all linebreaks
 		/// </summary>
 		/// <param name="lines"></param>
-		public TokenzierContext(int[] lines)
+		public TokenzierContext(int[] lines, CultureInfo culture)
 		{
 			Lines = lines;
 			Errors = new MorestachioErrorCollection();
 			Character = 0;
+			Culture = culture;
 		}
 
 		/// <summary>
 		///		Indexes the expression or template and creates a new Context for the given text by indexing all linebreaks
 		/// </summary>
-		/// <param name="expression"></param>
 		/// <returns></returns>
-		public static TokenzierContext FromText(string expression)
+		public static TokenzierContext FromText(string expression, CultureInfo culture = null)
 		{
 			var tokenzierContext = new TokenzierContext(
-				Tokenizer.FindNewLines(expression).ToArray());
+				Tokenizer.FindNewLines(expression).ToArray(), culture);
 			tokenzierContext.SetLocation(0);
 			return tokenzierContext;
 		}
+
+		public CultureInfo Culture { get; private set; }
 
 		/// <summary>
 		///		The current total character

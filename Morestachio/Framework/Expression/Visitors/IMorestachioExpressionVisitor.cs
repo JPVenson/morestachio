@@ -24,5 +24,10 @@
 		///		Visits an Expression Argument
 		/// </summary>
 		void Visit(ExpressionArgument expression);
+		
+		/// <summary>
+		///		Visits an Expression Number
+		/// </summary>
+		void Visit(ExpressionNumber expression);
 	}
 }
