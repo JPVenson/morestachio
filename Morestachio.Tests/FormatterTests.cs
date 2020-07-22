@@ -45,7 +45,7 @@ namespace Morestachio.Tests
 		[TestCase("Any thing else", true)]
 		public void TestFormatterNames(string name, bool expectTobeValid)
 		{
-			Assert.That(() => MorestachioFormatterService.ValidateFormatterName(name),
+			Assert.That(() => new MorestachioFormatterAttribute(name, "").ValidateFormatterName(),
 				Is.EqualTo(!expectTobeValid));
 		}
 
@@ -877,7 +877,6 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
-		//[Ignore("This behavior is currently desired. Implicit null calls are expected to fail")]
 		public void FormatterCanHandleNullArgument()
 		{
 			var template =
@@ -908,6 +907,170 @@ namespace Morestachio.Tests
 				.Stringify(true, ParserFixture.DefaultEncoding);
 
 			Assert.AreEqual("tset".PadLeft(123), result);
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, parsedTemplate.Document);
+		}
+
+		[Test]
+		public void FormatterCanHandleNumberOperator()
+		{
+			var template =
+				@"{{.ToString(1 + 3)}}";
+
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			var parsedTemplate =
+				Parser.ParseWithOptions(parsingOptions);
+			parsedTemplate.ParserOptions.Formatters.AddSingleGlobal(new Func<int, string>(i => i.ToString("x8")), "ToString");
+
+			var model = new Dictionary<string, object>()
+			{
+				{"dataA", 1 },
+				{"dataB", 3 }
+			};
+
+			var result = parsedTemplate
+				.CreateAndStringify(model);
+			Assert.That(result, Is.EqualTo((1 + 3).ToString("X8")));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, parsedTemplate.Document);
+		}
+
+		[Test]
+		public void FormatterCanHandleNumberOperatorMultipleArgument()
+		{
+			var template =
+				@"{{.ToString(1 + 3, 'X8')}}";
+
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			var parsedTemplate =
+				Parser.ParseWithOptions(parsingOptions);
+			parsedTemplate.ParserOptions.Formatters.AddSingleGlobal(new Func<int, string, string>((nr, txt) => nr.ToString(txt)), "ToString");
+
+			var model = new Dictionary<string, object>()
+			{
+				{"dataA", 1 },
+				{"dataB", 3 }
+			};
+
+			var result = parsedTemplate
+				.CreateAndStringify(model);
+			Assert.That(result, Is.EqualTo((1 + 3).ToString("X8")));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, parsedTemplate.Document);
+		}
+
+		[Test]
+		public void FormatterCanHandleNumberOperatorAsArgument()
+		{
+			var template =
+				@"{{.ToString(3 + .AsInt(1), 'X8')}}{{.ToString(.AsInt(1) + 3, 'X4')}}";
+
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			var parsedTemplate =
+				Parser.ParseWithOptions(parsingOptions);
+			parsedTemplate.ParserOptions.Formatters.AddSingleGlobal(new Func<int, string, string>((nr, txt) => nr.ToString(txt)), "ToString");
+			parsedTemplate.ParserOptions.Formatters.AddSingleGlobal(new Func<int, int>((nr) => nr), "AsInt");
+
+			var model = new Dictionary<string, object>()
+			{
+				{"dataA", 1 },
+				{"dataB", 3 }
+			};
+
+			var result = parsedTemplate
+				.CreateAndStringify(model);
+			Assert.That(result, Is.EqualTo((1 + 3).ToString("X8") + (1 + 3).ToString("X4")));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, parsedTemplate.Document);
+		}
+
+		[Test]
+		public void FormatterCanHandleStringOperator()
+		{
+			var template =
+				@"{{.ToString('*' + 'test')}}";
+
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			var parsedTemplate =
+				Parser.ParseWithOptions(parsingOptions);
+			parsedTemplate.ParserOptions.Formatters.AddSingleGlobal(new Func<string, string>(i => i), "ToString");
+
+			var model = new Dictionary<string, object>()
+			{
+				{"dataA", 1 },
+				{"dataB", 3 }
+			};
+
+			var result = parsedTemplate
+				.CreateAndStringify(model);
+			Assert.That(result, Is.EqualTo("*test"));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, parsedTemplate.Document);
+		}
+
+		[Test]
+		public void FormatterCanHandleStringOperatorMultipleArgument()
+		{
+			var template =
+				@"{{.Pad('te' + 'st', 'X8')}}";
+
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			var parsedTemplate =
+				Parser.ParseWithOptions(parsingOptions);
+			parsedTemplate.ParserOptions.Formatters.AddSingleGlobal(new Func<string, string, string>((nr, txt) => nr + txt), "Pad");
+
+			var model = new Dictionary<string, object>()
+			{
+				{"dataA", 1 },
+				{"dataB", 3 }
+			};
+
+			var result = parsedTemplate
+				.CreateAndStringify(model);
+			Assert.That(result, Is.EqualTo("testX8"));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, parsedTemplate.Document);
+		}
+
+		[Test]
+		//[Ignore("This behavior is currently desired. Implicit null calls are expected to fail")]
+		public void FormatterCanHandleStringOperatorAsArgument()
+		{
+			var template =
+				@"{{.ToString('Te' + .AsString('1'), 'X8')}} {{.ToString(.AsString('8') + 'st', 'X4')}}";
+
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			var parsedTemplate =
+				Parser.ParseWithOptions(parsingOptions);
+			parsedTemplate.ParserOptions.Formatters.AddSingleGlobal(new Func<string, string, string>((nr, txt) => nr + txt), "ToString");
+			parsedTemplate.ParserOptions.Formatters.AddSingleGlobal(new Func<string, string>((nr) => nr), "AsString");
+
+			var model = new Dictionary<string, object>()
+			{
+				{"dataA", 1 },
+				{"dataB", 3 }
+			};
+
+			var result = parsedTemplate
+				.CreateAndStringify(model);
+			Assert.That(result, Is.EqualTo("Te1X8 8stX4"));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, parsedTemplate.Document);
+		}
+
+		[Test]
+		public void FormatterCanHandleStringOperatorCarryOver()
+		{
+			var template =
+				@"{{.ToString('*' + 'test' + '*')}}";
+
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			var parsedTemplate =
+				Parser.ParseWithOptions(parsingOptions);
+			parsedTemplate.ParserOptions.Formatters.AddSingleGlobal(new Func<string, string>(i => i), "ToString");
+
+			var model = new Dictionary<string, object>()
+			{
+				{"dataA", 1 },
+				{"dataB", 3 }
+			};
+
+			var result = parsedTemplate
+				.CreateAndStringify(model);
+			Assert.That(result, Is.EqualTo("*test*"));
 			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, parsedTemplate.Document);
 		}
 	}

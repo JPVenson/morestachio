@@ -19,6 +19,7 @@
 
 		internal TokenState State { get; set; }
 		internal int BracketsCounter { get; set; }
+		public bool Evaluated { get; set; }
 
 		public HeaderTokenMatch Parent { get; set; }
 

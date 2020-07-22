@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.Serialization;
 using System.Text;
@@ -14,6 +15,7 @@ using Morestachio.ParserErrors;
 namespace Morestachio.Framework.Expression
 {
 	[Serializable]
+	[DebuggerTypeProxy(typeof(ExpressionDebuggerDisplay))]
 	public class ExpressionNumber : IMorestachioExpression
 	{
 		public Number Number { get; private set; }
@@ -154,7 +156,7 @@ namespace Morestachio.Framework.Expression
 
 					isFloatingNumber = true;
 				}
-				else if (Tokenizer.IsEndOfFormatterArgument(c))
+				else if (Tokenizer.IsEndOfFormatterArgument(c) || Tokenizer.IsWhiteSpaceDelimiter(c))
 				{
 					index--;
 					break;
@@ -180,6 +182,34 @@ namespace Morestachio.Framework.Expression
 					"", text, "Could not parse the given number"));
 
 				return null;
+			}
+		}
+
+		/// <inheritdoc />
+		public override string ToString()
+		{
+			var visitor = new DebuggerViewExpressionVisitor();
+			Accept(visitor);
+			return visitor.StringBuilder.ToString();
+		}
+
+		private class ExpressionDebuggerDisplay
+		{
+			private readonly ExpressionNumber _exp;
+
+			public ExpressionDebuggerDisplay(ExpressionNumber exp)
+			{
+				_exp = exp;
+			}
+
+			public string Expression
+			{
+				get { return _exp.ToString(); }
+			}
+
+			public Number Number
+			{
+				get { return _exp.Number; }
 			}
 		}
 	}

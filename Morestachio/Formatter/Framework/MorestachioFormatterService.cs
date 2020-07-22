@@ -97,7 +97,7 @@ namespace Morestachio.Formatter.Framework
 	/// </summary>
 	public class MorestachioFormatterService : IMorestachioFormatterService
 	{
-		private static readonly Regex ValidateFormatterNameRegEx =
+		internal static readonly Regex ValidateFormatterNameRegEx =
 			new Regex("^[a-zA-Z]{1}[a-zA-Z0-9]*$", RegexOptions.Compiled);
 
 		/// <summary>
@@ -224,46 +224,13 @@ namespace Morestachio.Formatter.Framework
 		public virtual MorestachioFormatterModel Add(MethodInfo method,
 			MorestachioFormatterAttribute morestachioFormatterAttribute)
 		{
-			if (!ValidateFormatterName(morestachioFormatterAttribute.Name))
+			if (!morestachioFormatterAttribute.ValidateFormatterName())
 			{
 				throw new InvalidOperationException(
 					$"The name '{morestachioFormatterAttribute.Name}' is invalid. An Formatter may only contain letters and cannot start with an digit");
 			}
 
-			var arguments = method.GetParameters().Select((e, index) =>
-				new MultiFormatterInfo(
-					e.ParameterType,
-					e.GetCustomAttribute<FormatterArgumentNameAttribute>()?.Name ?? e.Name,
-					e.IsOptional,
-					index,
-					e.GetCustomAttribute<ParamArrayAttribute>() != null ||
-					e.GetCustomAttribute<RestParameterAttribute>() != null)
-				{
-					IsSourceObject = morestachioFormatterAttribute.IsSourceObjectAware &&
-					                 e.GetCustomAttribute<SourceObjectAttribute>() != null,
-					FormatterValueConverterAttribute =
-						e.GetCustomAttributes<FormatterValueConverterAttribute>().ToArray(),
-					IsInjected = e.GetCustomAttribute<ExternalDataAttribute>() != null
-				}).ToArray();
-			//if there is no declared SourceObject then check if the first object is of type what we are formatting and use this one.
-			if (!arguments.Any(e => e.IsSourceObject) && arguments.Any() &&
-			    morestachioFormatterAttribute.IsSourceObjectAware)
-			{
-				arguments[0].IsSourceObject = true;
-			}
-
-			var sourceValue = arguments.FirstOrDefault(e => e.IsSourceObject);
-			if (sourceValue != null)
-			{
-				//if we have a source value in the arguments reduce the index of all following 
-				//this is important as the source value is never in the formatter string so we will not "count" it 
-				for (var i = sourceValue.Index; i < arguments.Length; i++)
-				{
-					arguments[i].Index--;
-				}
-
-				sourceValue.Index = -1;
-			}
+			var arguments = morestachioFormatterAttribute.GetParameters(method);
 
 			var morestachioFormatterModel = new MorestachioFormatterModel(morestachioFormatterAttribute.Name,
 				morestachioFormatterAttribute.Description,
@@ -831,7 +798,15 @@ namespace Morestachio.Formatter.Framework
 				         typeof(IConvertible).IsAssignableFrom(parameterParameterType))
 				{
 					services.GetService<ParserOptions>(out var parserOptions);
-					givenValue = convertible.ToType(parameterParameterType, parserOptions.CultureInfo);
+					try
+					{
+						givenValue = convertible.ToType(parameterParameterType, parserOptions.CultureInfo);
+					}
+					catch (Exception e)
+					{
+						//this might just not work
+						return false;
+					}
 				}
 				else
 				{
@@ -845,22 +820,7 @@ namespace Morestachio.Formatter.Framework
 
 			return true;
 		}
-
-		/// <summary>
-		///     Validates the name for a Formatter
-		/// </summary>
-		/// <param name="formatterName"></param>
-		/// <returns></returns>
-		public static bool ValidateFormatterName(string formatterName)
-		{
-			if (string.IsNullOrWhiteSpace(formatterName))
-			{
-				return true;
-			}
-
-			return ValidateFormatterNameRegEx.IsMatch(formatterName);
-		}
-
+		
 		/// <summary>
 		///     Can be returned by a Formatter to control what formatter should be used
 		/// </summary>

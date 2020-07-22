@@ -5,30 +5,22 @@ using Morestachio.Framework.Expression.Framework;
 
 namespace Morestachio.Framework.Expression.Visitors
 {
-	/// <summary>
-	///		Visits all Expression in a chain and creates an string inside the StringBuilder property that looks like the original expressions text form
-	/// </summary>
-	public class ToParsableStringExpressionVisitor : IMorestachioExpressionVisitor
+	public class DebuggerViewExpressionVisitor : IMorestachioExpressionVisitor
 	{
-		/// <summary>
-		/// 
-		/// </summary>
-		public ToParsableStringExpressionVisitor()
+		public DebuggerViewExpressionVisitor()
 		{
-			StringBuilder = new StringBuilder();
+			StringBuilder = new StringBuilderInterlaced<NoColor>();
 		}
 
-		/// <summary>
-		///		The created string
-		/// </summary>
-		public StringBuilder StringBuilder { get; set; }
+		public StringBuilderInterlaced<NoColor> StringBuilder { get; set; }
+		public int ExpressionCounter { get; set; }
 
-
-
-		/// <inheritdoc />
 		public void Visit(MorestachioExpression expression)
 		{
 			var isSelfAssignment = false;
+			var exp = ExpressionCounter++;
+			StringBuilder.Append("Exp({");
+
 			for (var index = 0; index < expression.PathParts.Count; index++)
 			{
 				var expressionPathPart = expression.PathParts[index];
@@ -67,54 +59,92 @@ namespace Morestachio.Framework.Expression.Visitors
 			}
 			if (expression.FormatterName != null)
 			{
-				if (!isSelfAssignment)
-				{
-					StringBuilder.Append(".");
-				}
-
+				StringBuilder.Append("} => ");
 				StringBuilder.Append(expression.FormatterName);
 				StringBuilder.Append("(");
+				
 
 				if (expression.Formats.Any())
 				{
+					StringBuilder.Up().AppendLine().AppendInterlaced();
 					for (var index = 0; index < expression.Formats.Count; index++)
 					{
+						//StringBuilder.Up();
 						var expressionArgument = expression.Formats[index];
 						Visit(expressionArgument);
 						if (index != expression.Formats.Count - 1)
 						{
-							StringBuilder.Append(", ");
+							StringBuilder.Append(", ")
+								.AppendLine()
+								.AppendInterlaced();
 						}
 					}
+
+					StringBuilder
+						.Down()
+						.Append(")")
+						.AppendLine()
+						.AppendInterlaced();
 				}
-				StringBuilder.Append(")");
+				else
+				{
+					StringBuilder
+						.Append(")");
+				}
+			}
+			else
+			{
+				StringBuilder.Append("}");
+			}
+			StringBuilder.Append(")");
+		}
+
+		public string Text
+		{
+			get
+			{
+				return StringBuilder.ToString();
 			}
 		}
 
-		/// <inheritdoc />
 		public void Visit(MorestachioExpressionList expression)
 		{
+			var exp = ExpressionCounter++;
+			StringBuilder
+				.AppendLine("List[")
+				.Up()
+				.AppendInterlaced();;
 			for (var index = 0; index < expression.Expressions.Count; index++)
 			{
 				var expressionExpression = expression.Expressions[index];
-				if (index != 0 &&
-					(expressionExpression as MorestachioExpression)?.PathParts.All(f => f.Value == PathType.SelfAssignment) == false)
-				{
-					StringBuilder.Append(".");
-				}
 				this.Visit(expressionExpression);
+				if (index != expression.Expressions.Count - 1)
+				{
+					StringBuilder.AppendLine(",").AppendInterlaced();
+				}
 			}
+
+			StringBuilder.Down()
+				.AppendLine()
+				.AppendInterlaced("]");
 		}
 
-		/// <inheritdoc />
 		public void Visit(MorestachioExpressionString expression)
 		{
-			StringBuilder.Append(expression.Delimiter +
-								 string.Join("", expression.StringParts.Select(f => f.PartText))
-								 + expression.Delimiter);
+			var exp = ExpressionCounter++;
+			StringBuilder.Append("String(");
+			StringBuilder.Append(expression.Delimiter.ToString());
+			foreach (var expressionStringConstPart in expression.StringParts)
+			{
+				var expPart = ExpressionCounter++;
+				StringBuilder.Append("const(");
+				StringBuilder.Append(expressionStringConstPart.PartText);
+				StringBuilder.Append(")");
+			}
+			StringBuilder.Append(expression.Delimiter.ToString());
+			StringBuilder.Append(")");
 		}
 
-		/// <inheritdoc />
 		public void Visit(ExpressionArgument expression)
 		{
 			if (!string.IsNullOrWhiteSpace(expression.Name))
@@ -127,23 +157,43 @@ namespace Morestachio.Framework.Expression.Visitors
 			this.Visit(expression.MorestachioExpression);
 		}
 
-		/// <inheritdoc />
 		public void Visit(ExpressionNumber expression)
 		{
-			StringBuilder.Append(expression.Number.AsParsableString());
+			StringBuilder.Append("Number(");
+			StringBuilder.Append("(" + expression.Number.Value.GetTypeCode() + ")");
+			StringBuilder.Append(expression.Number.Value.ToString());
+			StringBuilder.Append(")");
 		}
 
-		/// <inheritdoc />
 		public void Visit(MorestachioOperatorExpression expression)
 		{
+			var exp = ExpressionCounter++;
+			StringBuilder
+				.Append("op(" + expression.Operator.OperatorText + ")") 
+				.AppendLine("{")
+				.Up()
+				.AppendInterlacedLine("Left")
+				.AppendInterlacedLine("{")
+				.Up()
+				.AppendInterlaced();
+
 			this.Visit(expression.LeftExpression);
-			StringBuilder.Append(" ");
-			StringBuilder.Append(expression.Operator.OperatorText);
+			StringBuilder
+				.Down()
+				.AppendLine()
+				.AppendInterlaced("}");
+
 			if (expression.RightExpression != null)
 			{
-				StringBuilder.Append(" ");
+				StringBuilder.AppendLine(",")
+					.AppendInterlacedLine("Right")
+					.AppendInterlacedLine("{")
+					.Up()
+					.AppendInterlaced();
 				this.Visit(expression.RightExpression);
+				StringBuilder.Down().AppendLine().AppendInterlaced("}");
 			}
+			StringBuilder.Down().AppendLine().AppendInterlaced("}");
 		}
 	}
 }

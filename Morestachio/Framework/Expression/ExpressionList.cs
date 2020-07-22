@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
@@ -12,13 +13,15 @@ namespace Morestachio.Framework.Expression
 	/// <summary>
 	///		Defines a list of Expressions 
 	/// </summary>
+	[DebuggerTypeProxy(typeof(ExpressionDebuggerDisplay))]
 	public class MorestachioExpressionList : IMorestachioExpression
 	{
 		/// <summary>
 		///		The list of Expressions
 		/// </summary>
 		public IList<IMorestachioExpression> Expressions { get; private set; }
-
+		
+		/// <inheritdoc />
 		public MorestachioExpressionList()
 		{
 			Expressions = new List<IMorestachioExpression>();
@@ -33,7 +36,7 @@ namespace Morestachio.Framework.Expression
 			Expressions = expressions;
 			Location = location;
 		}
-		
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -44,7 +47,7 @@ namespace Morestachio.Framework.Expression
 			Location = CharacterLocation.FromFormatString(info.GetString(nameof(Location)));
 			Expressions = (IMorestachioExpression[])info.GetValue(nameof(Expressions), typeof(IMorestachioExpression[]));
 		}
-		
+
 		/// <inheritdoc />
 		public CharacterLocation Location { get; set; }
 		/// <inheritdoc />
@@ -58,20 +61,20 @@ namespace Morestachio.Framework.Expression
 
 			return contextObject;
 		}
-		
+
 		/// <inheritdoc />
 		public void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			info.AddValue(nameof(Location), Location.ToFormatString());
 			info.AddValue(nameof(Expressions), Expressions.ToArray());
 		}
-		
+
 		/// <inheritdoc />
 		public XmlSchema GetSchema()
 		{
 			throw new System.NotImplementedException();
 		}
-		
+
 		/// <inheritdoc />
 		public void ReadXml(XmlReader reader)
 		{
@@ -102,28 +105,19 @@ namespace Morestachio.Framework.Expression
 				writer.WriteExpressionToXml(expression);
 			}
 		}
-		
-		/// <inheritdoc />
-		public override string ToString()
-		{
-			var visitor = new ToParsableStringExpressionVisitor();
-			Accept(visitor);
-			return visitor.StringBuilder.ToString();
-		}
-
 
 		/// <inheritdoc />
 		public void Accept(IMorestachioExpressionVisitor visitor)
 		{
 			visitor.Visit(this);
 		}
-		
+
 		/// <inheritdoc />
 		public bool Equals(IMorestachioExpression other)
 		{
 			return Equals((object)other);
 		}
-		
+
 		/// <inheritdoc />
 		protected bool Equals(MorestachioExpressionList other)
 		{
@@ -148,7 +142,7 @@ namespace Morestachio.Framework.Expression
 			}
 			return true;
 		}
-		
+
 		/// <inheritdoc />
 		public override bool Equals(object obj)
 		{
@@ -167,9 +161,9 @@ namespace Morestachio.Framework.Expression
 				return false;
 			}
 
-			return Equals((MorestachioExpressionList) obj);
+			return Equals((MorestachioExpressionList)obj);
 		}
-		
+
 		/// <inheritdoc />
 		public override int GetHashCode()
 		{
@@ -182,6 +176,29 @@ namespace Morestachio.Framework.Expression
 		protected internal void Add(IMorestachioExpression currentScopeValue)
 		{
 			Expressions.Add(currentScopeValue);
+		}
+
+		/// <inheritdoc />
+		public override string ToString()
+		{
+			var visitor = new DebuggerViewExpressionVisitor();
+			Accept(visitor);
+			return visitor.StringBuilder.ToString();
+		}
+
+		private class ExpressionDebuggerDisplay
+		{
+			private readonly MorestachioExpressionList _exp;
+
+			public ExpressionDebuggerDisplay(MorestachioExpressionList exp)
+			{
+				_exp = exp;
+			}
+
+			public string Expression
+			{
+				get { return _exp.ToString(); }
+			}
 		}
 	}
 }

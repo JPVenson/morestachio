@@ -94,18 +94,43 @@ namespace Morestachio.Tests
 			Assert.That(context.Errors, Is.Empty, () => context.Errors.GetErrorText());
 		}
 
-		//[Test]
+		[Test]
+		[TestCase("a + b")]
 		public void TestExpressionParserDbg(string query)
 		{
 			var context = TokenzierContext.FromText(query);
 			var expressions = ExpressionTokenizer.ParseExpression(query, context);
 			Assert.That(expressions, Is.Not.Null);
-			
+
 			var visitor = new ToParsableStringExpressionVisitor();
 			expressions.Accept(visitor);
 
 			Assert.That(visitor.StringBuilder.ToString(), Is.EqualTo(query));
 			Assert.That(context.Errors, Is.Empty, () => context.Errors.GetErrorText());
+		}
+
+		[Test]
+		[TestCase("a + b", 5, 10, 5 + 10)]
+		public async Task TestExpressionCanParseOperators(string query, object valA, object valB, object valExp)
+		{
+			var context = TokenzierContext.FromText(query);
+			var expressions = ExpressionTokenizer.ParseExpression(query, context);
+			Assert.That(expressions, Is.Not.Null);
+
+			var visitor = new ToParsableStringExpressionVisitor();
+			expressions.Accept(visitor);
+
+			Assert.That(visitor.StringBuilder.ToString(), Is.EqualTo(query));
+			Assert.That(context.Errors, Is.Empty, () => context.Errors.GetErrorText());
+
+			var temp = Parser.ParseWithOptions(new ParserOptions("{{" + query + "}}", null,
+				DefaultEncoding));
+			var andStringifyAsync = await temp.CreateAndStringifyAsync(new
+			{
+				A = valA,
+				B = valB
+			});
+			Assert.That(andStringifyAsync, Is.EqualTo((5 + 10).ToString()));
 		}
 
 		[Test]

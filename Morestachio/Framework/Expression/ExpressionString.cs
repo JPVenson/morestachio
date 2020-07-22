@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
@@ -7,76 +7,16 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 using Morestachio.Framework.Expression.Framework;
+using Morestachio.Framework.Expression.StringParts;
 using Morestachio.Framework.Expression.Visitors;
 using Morestachio.ParserErrors;
 
 namespace Morestachio.Framework.Expression
 {
 	/// <summary>
-	///		A constant part of an string
-	/// </summary>
-	public class ExpressionStringConstPart : IEquatable<ExpressionStringConstPart>
-	{
-		/// <summary>
-		///		The content of the Text Part
-		/// </summary>
-		public string PartText { get; set; }
-
-		/// <summary>
-		///		Where in the string is this part located
-		/// </summary>
-		public CharacterLocation Location { get; set; }
-
-		/// <inheritdoc />
-		public bool Equals(ExpressionStringConstPart other)
-		{
-			if (ReferenceEquals(null, other))
-			{
-				return false;
-			}
-
-			if (ReferenceEquals(this, other))
-			{
-				return true;
-			}
-
-			return PartText == other.PartText && Location.Equals(other.Location);
-		}
-
-		/// <inheritdoc />
-		public override bool Equals(object obj)
-		{
-			if (ReferenceEquals(null, obj))
-			{
-				return false;
-			}
-
-			if (ReferenceEquals(this, obj))
-			{
-				return true;
-			}
-
-			if (obj.GetType() != this.GetType())
-			{
-				return false;
-			}
-
-			return Equals((ExpressionStringConstPart)obj);
-		}
-
-		/// <inheritdoc />
-		public override int GetHashCode()
-		{
-			unchecked
-			{
-				return ((PartText != null ? PartText.GetHashCode() : 0) * 397) ^ (Location != null ? Location.GetHashCode() : 0);
-			}
-		}
-	}
-
-	/// <summary>
 	///		Defines a string as or inside an expression
 	/// </summary>
+	[DebuggerTypeProxy(typeof(ExpressionDebuggerDisplay))]
 	public class MorestachioExpressionString : IMorestachioExpression
 	{
 		public MorestachioExpressionString()
@@ -236,14 +176,6 @@ namespace Morestachio.Framework.Expression
 		}
 
 		/// <inheritdoc />
-		public override string ToString()
-		{
-			var visitor = new ToParsableStringExpressionVisitor();
-			Accept(visitor);
-			return visitor.StringBuilder.ToString();
-		}
-
-		/// <inheritdoc />
 		public bool Equals(IMorestachioExpression other)
 		{
 			return Equals((object)other);
@@ -303,6 +235,34 @@ namespace Morestachio.Framework.Expression
 				hashCode = (hashCode * 397) ^ (Location != null ? Location.GetHashCode() : 0);
 				hashCode = (hashCode * 397) ^ Delimiter.GetHashCode();
 				return hashCode;
+			}
+		}
+
+		/// <inheritdoc />
+		public override string ToString()
+		{
+			var visitor = new DebuggerViewExpressionVisitor();
+			Accept(visitor);
+			return visitor.StringBuilder.ToString();
+		}
+
+		private class ExpressionDebuggerDisplay
+		{
+			private readonly MorestachioExpressionString _exp;
+
+			public ExpressionDebuggerDisplay(MorestachioExpressionString exp)
+			{
+				_exp = exp;
+			}
+
+			public string Expression
+			{
+				get { return _exp.ToString(); }
+			}
+
+			public char Delimiter
+			{
+				get { return _exp.Delimiter; }
 			}
 		}
 	}

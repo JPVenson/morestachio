@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Morestachio.Attributes;
+using Morestachio.Framework.Expression;
 
 namespace Morestachio.Formatter.Framework
 {
@@ -55,6 +59,72 @@ namespace Morestachio.Formatter.Framework
 		/// The type of the output.
 		/// </value>
 		public Type OutputType { get; set; }
+
+		public virtual bool ValidateFormatterName()
+		{
+			if (string.IsNullOrWhiteSpace(Name))
+			{
+				return true;
+			}
+
+			return MorestachioFormatterService.ValidateFormatterNameRegEx.IsMatch(Name);
+		}
+
+		public virtual MultiFormatterInfo[] GetParameters(MethodInfo method)
+		{
+			var arguments = method.GetParameters().Select((e, index) =>
+				new MultiFormatterInfo(
+					e.ParameterType,
+					e.GetCustomAttribute<FormatterArgumentNameAttribute>()?.Name ?? e.Name,
+					e.IsOptional,
+					index,
+					e.GetCustomAttribute<ParamArrayAttribute>() != null ||
+					e.GetCustomAttribute<RestParameterAttribute>() != null)
+				{
+					IsSourceObject = IsSourceObjectAware &&
+					                 e.GetCustomAttribute<SourceObjectAttribute>() != null,
+					FormatterValueConverterAttribute =
+						e.GetCustomAttributes<FormatterValueConverterAttribute>().ToArray(),
+					IsInjected = e.GetCustomAttribute<ExternalDataAttribute>() != null
+				}).ToArray();
+
+			//if there is no declared SourceObject then check if the first object is of type what we are formatting and use this one.
+			if (!arguments.Any(e => e.IsSourceObject) && arguments.Any() && IsSourceObjectAware)
+			{
+				arguments[0].IsSourceObject = true;
+			}
+
+			var sourceValue = arguments.FirstOrDefault(e => e.IsSourceObject);
+			if (sourceValue != null)
+			{
+				//if we have a source value in the arguments reduce the index of all following 
+				//this is important as the source value is never in the formatter string so we will not "count" it 
+				for (var i = sourceValue.Index; i < arguments.Length; i++)
+				{
+					arguments[i].Index--;
+				}
+
+				sourceValue.Index = -1;
+			}
+
+			return arguments;
+		}
+	}
+
+	public class MorestachioOperatorAttribute : MorestachioFormatterAttribute
+	{
+		public MorestachioOperatorAttribute(string name, string description) : base(name, description)
+		{
+		}
+		
+		public override bool ValidateFormatterName()
+		{
+			if (string.IsNullOrWhiteSpace(Name))
+			{
+				return false;
+			}
+			return MorestachioOperator.Operators.ContainsKey(Name);
+		}
 	}
 
 	/// <summary>

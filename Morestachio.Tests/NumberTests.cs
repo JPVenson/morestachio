@@ -11,6 +11,34 @@ namespace Morestachio.Tests
 {
 	[TestFixture]
 	[Parallelizable(ParallelScope.All)]
+	public class BooleanTests
+	{
+		public BooleanTests()
+		{
+			
+		}
+		
+		[Test]	
+		[TestCase(true, true, "&&", true && true)]
+		[TestCase(true, true, "||", true || true)]
+		[TestCase(true, false, "||", true || false)]
+		[TestCase(true, false, "&&", true && false)]
+		public async Task CanUseBooleanOperationsOnData(object realData, object templateData, string operation, object expected)
+		{
+			var template = $"{{{{data {operation} templateData}}}}";
+			var data = new
+			{
+				data = realData,
+				templateData = templateData
+			};
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			var result = await Parser.ParseWithOptions(parsingOptions).CreateAndStringifyAsync(data);
+			Assert.That(result, Is.EqualTo(expected.ToString()));
+		}
+	}
+
+	[TestFixture]
+	[Parallelizable(ParallelScope.All)]
 	public class NumberTests
 	{
 		[Test]
@@ -155,6 +183,59 @@ namespace Morestachio.Tests
 			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
 			var result = await Parser.ParseWithOptions(parsingOptions).CreateAndStringifyAsync(data);
 			Assert.That(result, Is.EqualTo(expected));
+		}
+
+		[Test]
+		[TestCase(5L, 5, "+", 5L + 5)]
+		[TestCase(5UL, 5, "+", 5UL + 5)]
+		[TestCase(5, 5, "+", 5 + 5)]
+		[TestCase(5U, 5, "+", 5U + 5)]
+		[TestCase(0x5, 5, "+", 0x5 + 5)]
+		[TestCase(5F, 5, "+", 5F + 5)]
+		[TestCase(5D, 5, "+", 5D + 5)]
+
+		[TestCase(5L, 5, "-", 5L - 5)]
+		[TestCase(5UL, 5, "-", 5UL - 5)]
+		[TestCase(5, 5, "-", 5 - 5)]
+		[TestCase(5U, 5, "-", 5U - 5)]
+		[TestCase(0x5, 5, "-", 0x5 - 5)]
+		[TestCase(5F, 5, "-", 5F - 5)]
+		[TestCase(5D, 5, "-", 5D - 5)]
+
+		[TestCase(5L, 5, "/", 5L / 5)]
+		[TestCase(5UL, 5, "/", 5UL / 5)]
+		[TestCase(5, 5, "/", 5 / 5)]
+		[TestCase(5U, 5, "/", 5U / 5)]
+		[TestCase(0x5, 5, "/", 0x5 / 5)]
+		[TestCase(5F, 5, "/", 5F / 5)]
+		[TestCase(5D, 5, "/", 5D / 5)]
+
+		[TestCase(5L, 5, "*", 5L * 5)]
+		[TestCase(5UL, 5, "*", 5UL * 5)]
+		[TestCase(5, 5, "*", 5 * 5)]
+		[TestCase(5U, 5, "*", 5U * 5)]
+		[TestCase(0x5, 5, "*", 0x5 * 5)]
+		[TestCase(5F, 5, "*", 5F * 5)]
+		[TestCase(5D, 5, "*", 5D * 5)]
+
+		[TestCase(5L, 5, "<", 5L < 5)]
+		[TestCase(5UL, 5, "<", 5UL < 5)]
+		[TestCase(5, 5, "<", 5 < 5)]
+		[TestCase(5U, 5, "<", 5U < 5)]
+		[TestCase(0x5, 5, "<", 0x5 < 5)]
+		[TestCase(5F, 5, "<", 5F < 5)]
+		[TestCase(5D, 5, "<", 5D < 5)]
+		public async Task CanUseNumberOperationsOnData(object realData, object templateData, string operation, object expected)
+		{
+			var template = $"{{{{data {operation} templateData}}}}";
+			var data = new
+			{
+				data = realData,
+				templateData = templateData
+			};
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			var result = await Parser.ParseWithOptions(parsingOptions).CreateAndStringifyAsync(data);
+			Assert.That(result, Is.EqualTo(expected.ToString()));
 		}
 		
 		[Test]

@@ -462,6 +462,44 @@ namespace Morestachio.Framework
 		}
 
 		/// <summary>
+		///     Parses the current object by using the given argument
+		/// </summary>
+		public virtual async Task<object> Operator([CanBeNull] string name, [CanBeNull] ContextObject other)
+		{
+			//await EnsureValue();
+			var retval = _value;
+			if (_value == null)
+			{
+				return retval;
+			}
+
+			if (string.IsNullOrWhiteSpace(name))
+			{
+				return Value;
+			}
+
+			//name =  name;
+
+			//call formatters that are given by the Options for this run
+			var values = new List<Tuple<string, object>>();
+			values.Add(Tuple.Create((string)null, other.Value));
+			retval = await Options.Formatters.CallMostMatchingFormatter(_value.GetType(), values, _value, name, Options);
+			if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
+			{
+				//one formatter has returned a valid value so use this one.
+				return retval;
+			}
+
+			//all formatters in the options object have rejected the value so try use the global ones
+			retval = await DefaultFormatter.CallMostMatchingFormatter(_value.GetType(), values, _value, name, Options);
+			if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
+			{
+				return retval;
+			}
+			return _value;
+		}
+
+		/// <summary>
 		///     Clones the ContextObject into a new Detached object
 		/// </summary>
 		/// <returns></returns>
