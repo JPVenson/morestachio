@@ -277,10 +277,10 @@ namespace Morestachio.Runner
 				var template = File.ReadAllText(templateData);
 				using (var sourceFs = new FileStream(targetPath, FileMode.OpenOrCreate))
 				{
-					var document = Parser.ParseWithOptions(new ParserOptions(template, () => sourceFs)
+					var document = Parser.ParseWithOptions(new ParserOptions(template, () => sourceFs, Encoding.UTF8, true)
 					{
 						Timeout = TimeSpan.FromMinutes(1),
-						ValueResolver = resolver
+						ValueResolver = resolver,
 					});
 
 					if (document.Errors.Any())
