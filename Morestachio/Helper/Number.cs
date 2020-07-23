@@ -4,6 +4,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Xml;
 using Morestachio.Formatter.Framework;
+using Morestachio.Framework.Expression;
 
 namespace Morestachio.Helper
 {
@@ -219,7 +220,7 @@ namespace Morestachio.Helper
 
 		[MorestachioFormatter("Add", "Adds two numbers")]
 		[MorestachioFormatter("Plus", "Adds two numbers")]
-		[MorestachioOperator("+", "Adds two numbers")]
+		[MorestachioOperator(OperatorTypes.Add, "Adds two numbers")]
 		public static Number Add(Number left, Number right)
 		{
 			return left.Add(right);
@@ -227,42 +228,42 @@ namespace Morestachio.Helper
 
 		[MorestachioFormatter("Subtract", "Subtracts two numbers")]
 		[MorestachioFormatter("Minus", "Subtracts two numbers")]
-		[MorestachioOperator("-", "Subtracts two numbers")]
+		[MorestachioOperator(OperatorTypes.Substract, "Subtracts two numbers")]
 		public static Number Subtract(Number left, Number right)
 		{
 			return left.Subtract(right);
 		}
 
 		[MorestachioFormatter("Multiply", "Multiplies two numbers")]
-		[MorestachioOperator("*", "Multiplies two numbers")]
+		[MorestachioOperator(OperatorTypes.Multiply, "Multiplies two numbers")]
 		public static Number Multiply(Number left, Number right)
 		{
 			return left.Multiply(right);
 		}
 
 		[MorestachioFormatter("Divide", "Divides two numbers")]
-		[MorestachioOperator("/", "Divides two numbers")]
+		[MorestachioOperator(OperatorTypes.Divide, "Divides two numbers")]
 		public static Number Divide(Number left, Number right)
 		{
 			return left.Divide(right);
 		}
 
 		[MorestachioFormatter("Modulo", "Modulo two numbers")]
-		[MorestachioOperator("%", "Modulo two numbers")]
+		[MorestachioOperator(OperatorTypes.Remainder, "Modulo two numbers")]
 		public static Number Modulo(Number left, Number right)
 		{
 			return left.Divide(right);
 		}
 
 		[MorestachioFormatter("ShiftLeft", "Shift two numbers")]
-		[MorestachioOperator("<<", "Shift two numbers")]
+		[MorestachioOperator(OperatorTypes.ShiftLeft, "Shift two numbers")]
 		public static Number ShiftLeft(Number left, Number right)
 		{
 			return left.ShiftLeft(right);
 		}
 
 		[MorestachioFormatter("ShiftRight", "Shift two numbers")]
-		[MorestachioOperator(">>", "Shift two numbers")]
+		[MorestachioOperator(OperatorTypes.ShiftRight, "Shift two numbers")]
 		public static Number ShiftRight(Number left, Number right)
 		{
 			return left.ShiftRight(right);
@@ -270,7 +271,7 @@ namespace Morestachio.Helper
 
 		[MorestachioFormatter("BiggerAs", "Checks if the source number is bigger as the other number")]
 		[MorestachioFormatter("GreaterThen", "Checks if the source number is bigger as the other number")]
-		[MorestachioOperator(">", "Checks if the source number is bigger as the other number")]
+		[MorestachioOperator(OperatorTypes.GreaterThen, "Checks if the source number is bigger as the other number")]
 		public static bool GreaterThen(Number left, Number right)
 		{
 			return left.GreaterThen(right);
@@ -278,17 +279,38 @@ namespace Morestachio.Helper
 
 		[MorestachioFormatter("SmallerAs", "Checks if the source number is smaller as the other number")]
 		[MorestachioFormatter("SmallerThan", "Checks if the source number is smaller as the other number")]
-		[MorestachioOperator("<", "Checks if the source number is bigger as the other number")]
+		[MorestachioOperator(OperatorTypes.LessThen, "Checks if the source number is smaller as the other number")]
 		public static bool SmallerThan(Number left, Number right)
 		{
 			return left.SmallerThan(right);
 		}
 
+		[MorestachioFormatter("GreaterOrEquals", "Checks if the source number is bigger as the other number")]
+		[MorestachioOperator(OperatorTypes.GreaterOrEquals, "Checks if the source number is bigger as the other number")]
+		public static bool GreaterOrEquals(Number left, Number right)
+		{
+			return left.GreaterThen(right) || left.Same(right);
+		}
+
+		[MorestachioFormatter("SmallerOrEquals", "Checks if the source number is smaller as the other number")]
+		[MorestachioOperator(OperatorTypes.LessOrEquals, "Checks if the source number is smaller as the other number")]
+		public static bool SmallerOrEquals(Number left, Number right)
+		{
+			return left.SmallerThan(right) || left.Same(right);
+		}
+
 		[MorestachioFormatter("Equals", "Checks if the two numbers are equal to each other")]
-		[MorestachioOperator("==", "Checks if the source number is bigger as the other number")]
+		[MorestachioOperator(OperatorTypes.Equals, "Checks if the two numbers are equal to each other")]
 		public static bool Equals(Number left, Number right)
 		{
 			return left.Equals(right);
+		}
+
+		[MorestachioFormatter("UnEquals", "Checks if the two numbers are equal to each other")]
+		[MorestachioOperator(OperatorTypes.UnEquals, "Checks if the two numbers are equal to each other")]
+		public static bool UnEquals(Number left, Number right)
+		{
+			return !left.Equals(right);
 		}
 
 		[MorestachioFormatter("Same", "Checks if the two numbers are the same")]
@@ -322,21 +344,21 @@ namespace Morestachio.Helper
 		}
 
 		[MorestachioFormatter("Max", "Returns the bigger of the two numbers")]
-		[MorestachioOperator(">?", "Returns the bigger of the two numbers")]
+		[MorestachioOperator(OperatorTypes.Bigger, "Returns the bigger of the two numbers")]
 		public static Number Max(Number left, Number right)
 		{
 			return left.Max(right);
 		}
 
 		[MorestachioFormatter("Min", "Returns the smaller of the two numbers")]
-		[MorestachioOperator("<?", "Returns the smaller of the two numbers")]
+		[MorestachioOperator(OperatorTypes.Smaller, "Returns the smaller of the two numbers")]
 		public static Number Min(Number left, Number right)
 		{
 			return left.Max(right);
 		}
 
 		[MorestachioFormatter("Pow", "Gets this number power the times of the other number")]
-		[MorestachioOperator("^", "Gets this number power the times of the other number")]
+		[MorestachioOperator(OperatorTypes.Pow, "Gets this number power the times of the other number")]
 		public static Number Pow(Number left, Number right)
 		{
 			return left.Pow(right);

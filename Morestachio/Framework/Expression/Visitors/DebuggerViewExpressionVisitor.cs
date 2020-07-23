@@ -60,7 +60,14 @@ namespace Morestachio.Framework.Expression.Visitors
 			if (expression.FormatterName != null)
 			{
 				StringBuilder.Append("} => ");
-				StringBuilder.Append(expression.FormatterName);
+				if (expression.FormatterName == string.Empty)
+				{
+					StringBuilder.Append("[None]");
+				}
+				else
+				{
+					StringBuilder.Append(expression.FormatterName);	
+				}
 				StringBuilder.Append("(");
 				
 

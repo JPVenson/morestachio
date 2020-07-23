@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Morestachio.Attributes;
 using Morestachio.Formatter.Framework;
+using Morestachio.Framework.Expression;
 
 namespace Morestachio.Formatter.Predefined
 {
@@ -18,7 +19,7 @@ namespace Morestachio.Formatter.Predefined
 		}
 
 		[MorestachioFormatter("And", "Returns true if all values are true")]
-		[MorestachioOperator("&&", "Returns true if all values are true")]
+		[MorestachioOperator(OperatorTypes.And, "Returns true if all values are true")]
 		public static bool And([SourceObject]bool value, bool other)
 		{
 			return value && other;
@@ -31,7 +32,7 @@ namespace Morestachio.Formatter.Predefined
 		}
 
 		[MorestachioFormatter("Or", "Returns true any value is true")]
-		[MorestachioOperator("||", "Returns true any value is true")]
+		[MorestachioOperator(OperatorTypes.Or, "Returns true any value is true")]
 		public static bool Or([SourceObject]bool value, bool other)
 		{
 			return value || other;

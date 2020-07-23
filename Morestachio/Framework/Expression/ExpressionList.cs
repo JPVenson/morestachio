@@ -85,7 +85,7 @@ namespace Morestachio.Framework.Expression
 			}
 			reader.ReadStartElement();
 			var expression = new List<IMorestachioExpression>();
-			while (reader.NodeType != XmlNodeType.EndElement)
+			while (reader.NodeType == XmlNodeType.Element)
 			{
 				var childTree = reader.ReadSubtree();
 				childTree.Read();

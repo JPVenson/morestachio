@@ -135,7 +135,7 @@ namespace Morestachio.Framework.Expression
 		/// <inheritdoc />
 		public bool Equals(IMorestachioExpression other)
 		{
-			return Equals((MorestachioOperatorExpression)other);
+			return Equals((object)other);
 		}
 
 		/// <inheritdoc />

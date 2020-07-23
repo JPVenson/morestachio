@@ -700,9 +700,6 @@ namespace Morestachio.Tests
 				{"by", 10L}
 			};
 			var exp = "d.(f.('d'), \"t\").('pl', by.(by, 'f'))";
-			var morestachioExpression = MorestachioExpression.ParseFrom(exp, TokenzierContext.FromText(exp), out _);
-			var actual = morestachioExpression.ToString();
-			Assert.That(actual, Is.EqualTo(exp));
 			var parsingOptions = new ParserOptions("{{" + exp + "}}",
 				null, DefaultEncoding);
 			var format = "yyyy.mm";
@@ -749,6 +746,7 @@ namespace Morestachio.Tests
 			Assert.That(formatter2Called, Is.True, "The Date formatter was not called");
 			Assert.That(formatter3Called, Is.True, "The Pad formatter was not called");
 			Assert.That(andStringify, Is.EqualTo(dt.ToString(format).PadLeft(int.Parse(dictionary["by"].ToString()))));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate("{{" + exp + "}}", extendedParseInformation.Document);
 		}
 
 		[Test]
@@ -1071,6 +1069,30 @@ namespace Morestachio.Tests
 			var result = parsedTemplate
 				.CreateAndStringify(model);
 			Assert.That(result, Is.EqualTo("*test*"));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, parsedTemplate.Document);
+		}
+
+		[Test]
+		public void FormatterCanHandleDataOperatorCarryOver()
+		{
+			var template =
+				@"{{.ToString(dataA + dataB + dataC)}}";
+
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			var parsedTemplate =
+				Parser.ParseWithOptions(parsingOptions);
+			parsedTemplate.ParserOptions.Formatters.AddSingleGlobal(new Func<string, string>(i => i), "ToString");
+
+			var model = new Dictionary<string, object>()
+			{
+				{"dataA", "*" },
+				{"dataB", "test" },
+				{"dataC", "!*" },
+			};
+
+			var result = parsedTemplate
+				.CreateAndStringify(model);
+			Assert.That(result, Is.EqualTo("*test!*"));
 			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, parsedTemplate.Document);
 		}
 	}

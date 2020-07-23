@@ -464,7 +464,7 @@ namespace Morestachio.Framework
 		/// <summary>
 		///     Parses the current object by using the given argument
 		/// </summary>
-		public virtual async Task<object> Operator([CanBeNull] string name, [CanBeNull] ContextObject other)
+		public virtual async Task<object> Operator([CanBeNull] OperatorTypes name, [CanBeNull] ContextObject other)
 		{
 			//await EnsureValue();
 			var retval = _value;
@@ -473,17 +473,12 @@ namespace Morestachio.Framework
 				return retval;
 			}
 
-			if (string.IsNullOrWhiteSpace(name))
-			{
-				return Value;
-			}
-
-			//name =  name;
+			var operatorFormatterName = "op_" + name;
 
 			//call formatters that are given by the Options for this run
 			var values = new List<Tuple<string, object>>();
 			values.Add(Tuple.Create((string)null, other.Value));
-			retval = await Options.Formatters.CallMostMatchingFormatter(_value.GetType(), values, _value, name, Options);
+			retval = await Options.Formatters.CallMostMatchingFormatter(_value.GetType(), values, _value, operatorFormatterName, Options);
 			if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
 			{
 				//one formatter has returned a valid value so use this one.
@@ -491,7 +486,7 @@ namespace Morestachio.Framework
 			}
 
 			//all formatters in the options object have rejected the value so try use the global ones
-			retval = await DefaultFormatter.CallMostMatchingFormatter(_value.GetType(), values, _value, name, Options);
+			retval = await DefaultFormatter.CallMostMatchingFormatter(_value.GetType(), values, _value, operatorFormatterName, Options);
 			if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
 			{
 				return retval;

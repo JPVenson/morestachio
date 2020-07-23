@@ -207,16 +207,22 @@ namespace Morestachio.Framework.Expression
 				else
 				{
 					var expression = new MorestachioExpression(context.CurrentLocation);
+					Func<IMorestachioError> errFunc = null;
 					for (; index < text.Length; index++)
 					{
 						var c = text[index];
-						if (!expression._pathTokenizer.Add(c, context, index))
+						if (!expression._pathTokenizer.Add(c, context, index, out errFunc))
 						{
+							context.Errors.Add(errFunc());
 							indexVar = 0;
 							return null;
 						}
 					}
-					expression.PathParts = expression._pathTokenizer.CompileListWithCurrent(context, 0);
+					expression.PathParts = expression._pathTokenizer.CompileListWithCurrent(context, 0, out errFunc);
+					if (errFunc != null)
+					{
+						context.Errors.Add(errFunc());
+					}
 					indexVar = text.Length;
 					context.AdvanceLocation(text.Length);
 					return expression;
@@ -287,7 +293,7 @@ namespace Morestachio.Framework.Expression
 				nIndex = Seek(f => Tokenizer.IsExpressionChar(f) ||
 								   Tokenizer.IsPathDelimiterChar(f) ||
 								   Tokenizer.IsOperationChar(f), false);
-				if (nIndex != -1)
+				if (nIndex != -1 && index < text.Length)
 				{
 					return text[nIndex];
 				}
@@ -300,6 +306,11 @@ namespace Morestachio.Framework.Expression
 				nIndex = Seek(f => !Tokenizer.IsWhiteSpaceDelimiter(f), false);
 				if (nIndex != -1)
 				{
+					if (nIndex > text.Length - 1)
+					{
+						return false;
+					}
+
 					return Tokenizer.IsOperationChar(text[nIndex]);
 				}
 				return nIndex != -1;
@@ -507,7 +518,7 @@ namespace Morestachio.Framework.Expression
 					context.Errors.Add(new InvalidPathSyntaxError(
 						context.CurrentLocation.Offset(index)
 							.AddWindow(new CharacterSnippedLocation(1, index, text)),
-						currentScope.Value.ToString()));
+						currentScope.Value?.ToString()));
 					morestachioOperator = null;
 					return false;
 				}
@@ -534,6 +545,7 @@ namespace Morestachio.Framework.Expression
 
 				if (opList.Length > 0)
 				{
+					//index = index + 1;
 					if (!GetMatchingOperator(opList, out var op))
 					{
 						return false;
@@ -547,6 +559,8 @@ namespace Morestachio.Framework.Expression
 					{
 						//in this case we have a carry over
 						morestachioOperatorExpression = new MorestachioOperatorExpression(op, opExpression, context.CurrentLocation.Offset(index));
+
+						//AddCurrentScopeToParent(index, morestachioOperatorExpression, currentScope.Parent.Value);
 
 						if (currentScope.Parent.Value is MorestachioExpressionList morestachioExpressionList)
 						{
@@ -564,6 +578,8 @@ namespace Morestachio.Framework.Expression
 					{
 						//remove the current scope and the operator will replace it
 						morestachioOperatorExpression = new MorestachioOperatorExpression(op, currentScope.Value, context.CurrentLocation.Offset(index));
+						//AddCurrentScopeToParent(index, morestachioOperatorExpression, currentScope.Parent.Value);
+
 						if (currentScope.Parent.Value is MorestachioExpressionList morestachioExpressionList)
 						{
 							morestachioExpressionList.Expressions.Remove(currentScope.Value);
@@ -596,6 +612,28 @@ namespace Morestachio.Framework.Expression
 				}
 
 				return null;
+			}
+
+			void AddCurrentScopeToParent(int idx1, IMorestachioExpression value, IMorestachioExpression parent)
+			{
+				if (parent is MorestachioExpression exp)
+				{
+					exp.Formats.Add(
+						new ExpressionArgument(context.CurrentLocation.Offset(idx1))
+						{
+							MorestachioExpression = value,
+							Name = currentScope.ArgumentName
+						});
+				}
+				else if (parent is MorestachioExpressionList expList)
+				{
+					expList.Add(value);
+				}
+				else if (parent is MorestachioOperatorExpression mOperator)
+				{
+					mOperator.RightExpression = value;
+					currentScope.Parent = currentScope.Parent.Parent;
+				}
 			}
 
 			for (index = 0; index < text.Length; index++)
@@ -631,26 +669,55 @@ namespace Morestachio.Framework.Expression
 								//this is an string
 								var cidx = context.Character;
 								currentScope.Value = MorestachioExpressionString.ParseFrom(text, index, context, out index);
-								context.SetLocation(cidx);
 								currentScope.State = TokenState.Expression;
-								if (IsNextCharOperator(out var nIndex))
+								context.SetLocation(cidx);
+
+								if (SeekNext(out _) == '.')
 								{
-									currentScope.State = TokenState.DecideArgumentType;
+									var morestachioExpressionList = new MorestachioExpressionList(new List<IMorestachioExpression>()
+									{
+										currentScope.Value
+									}, context.CurrentLocation.Offset(index));
+									currentScope.Value = morestachioExpressionList;
+
+									TerminateCurrentScope();
+									var morestachioExpression = new MorestachioExpression(context.CurrentLocation.Offset(index));
+									morestachioExpressionList.Add(morestachioExpression);
+									tokenScopes.Push(new HeaderTokenMatch
+									{
+										State = TokenState.Expression,
+										Parent = currentScope.Parent,
+										TokenLocation = context.CurrentLocation.Offset(index + 1),
+										Value = morestachioExpression
+									});
 								}
 							}
 							else if (Tokenizer.IsNumberExpressionChar(formatChar))
 							{
 								//this is an string
 								var cidx = context.Character;
-								currentScope.Value = new MorestachioExpressionList(new List<IMorestachioExpression>()
-								{
-									ExpressionNumber.ParseFrom(text, index, context, out index)
-								}, context.CurrentLocation);
+								currentScope.Value = ExpressionNumber.ParseFrom(text, index, context, out index);
 								currentScope.State = TokenState.Expression;
 								context.SetLocation(cidx);
-								if (IsNextCharOperator(out var nIndex))
+
+								if (SeekNext(out _) == '.')
 								{
-									currentScope.State = TokenState.DecideArgumentType;
+									var morestachioExpressionList = new MorestachioExpressionList(new List<IMorestachioExpression>()
+									{
+										currentScope.Value
+									}, context.CurrentLocation.Offset(index));
+									currentScope.Value = morestachioExpressionList;
+
+									TerminateCurrentScope();
+									var morestachioExpression = new MorestachioExpression(context.CurrentLocation.Offset(index));
+									morestachioExpressionList.Add(morestachioExpression);
+									tokenScopes.Push(new HeaderTokenMatch
+									{
+										State = TokenState.Expression,
+										Parent = currentScope.Parent,
+										TokenLocation = context.CurrentLocation.Offset(index + 1),
+										Value = morestachioExpression
+									});
 								}
 							}
 							else if (Tokenizer.IsExpressionChar(formatChar))
@@ -660,20 +727,13 @@ namespace Morestachio.Framework.Expression
 								index--;
 								currentScope.Value = new MorestachioExpression(context.CurrentLocation.Offset(index));
 							}
-							else if (Tokenizer.IsOperationChar(formatChar))
-							{
-								//TerminateCurrentScope();
-								//currentScope = tokenScopes.Peek();
-								ParseOperationCall();
-								break;
-							}
 							else
 							{
 								//this is not the start of an expression and not a string
 								context.Errors.Add(new InvalidPathSyntaxError(
 									context.CurrentLocation.Offset(index)
 										.AddWindow(new CharacterSnippedLocation(1, index, text)),
-									currentScope.Value.ToString()));
+									currentScope.Value?.ToString()));
 								indexVar = 0;
 								return null;
 							}
@@ -685,23 +745,11 @@ namespace Morestachio.Framework.Expression
 									Value = morestachioExpressions
 								};
 							}
-							if (currentScope.Parent?.Value is MorestachioExpression exp)
+							AddCurrentScopeToParent(idx, currentScope.Value, currentScope.Parent.Value);
+							if (IsNextCharOperator(out var nIndex))
 							{
-								exp.Formats.Add(
-									new ExpressionArgument(context.CurrentLocation.Offset(idx))
-									{
-										MorestachioExpression = currentScope.Value,
-										Name = currentScope.ArgumentName
-									});
-							}
-							else if (currentScope.Parent?.Value is MorestachioExpressionList expList)
-							{
-								expList.Add(currentScope.Value);
-							}
-							else if (currentScope.Parent?.Value is MorestachioOperatorExpression mOperator)
-							{
-								mOperator.RightExpression = currentScope.Value;
-								currentScope.Parent = currentScope.Parent.Parent;
+								ParseOperationCall();
+								index = nIndex;
 							}
 						}
 						break;
@@ -724,9 +772,15 @@ namespace Morestachio.Framework.Expression
 								}
 
 								var currentExpression = currentScope.Value as MorestachioExpression;
-
 								//get the last part of the path as the name of the formatter
-								currentExpression.FormatterName = currentExpression._pathTokenizer.GetFormatterName(context, index, out var found);
+								currentExpression.FormatterName = currentExpression._pathTokenizer.GetFormatterName(context, index, out var found, out var errProducer);
+								if (errProducer != null)
+								{
+									context.Errors.Add(errProducer());
+
+									indexVar = 0;
+									return null;
+								}
 								currentExpression.PathParts = currentExpression._pathTokenizer.Compile(context, index);
 								currentScope.Evaluated = true;
 								if (currentExpression.PathParts.Count == 0 && !found)
@@ -739,7 +793,6 @@ namespace Morestachio.Framework.Expression
 									indexVar = 0;
 									return null;
 								}
-
 
 								currentScope.BracketsCounter++;
 								//seek the next non whitespace char. That should be ether " or an expression char
@@ -795,7 +848,14 @@ namespace Morestachio.Framework.Expression
 								if (currentScope.Value is MorestachioExpression currentScopeValue)
 								{
 									currentScope.Evaluated = true;
-									currentScopeValue.PathParts = currentScopeValue._pathTokenizer.CompileListWithCurrent(context, index);
+									currentScopeValue.PathParts = currentScopeValue._pathTokenizer.CompileListWithCurrent(context, index, out var errProducer);
+									if (errProducer != null)
+									{
+										context.Errors.Add(errProducer());
+
+										indexVar = 0;
+										return null;
+									}
 									if (currentScopeValue != null &&
 										!currentScopeValue.PathParts.Any() && parentExpression?.Formats.Any() == true)
 									{
@@ -803,6 +863,9 @@ namespace Morestachio.Framework.Expression
 											context.CurrentLocation.Offset(index)
 												.AddWindow(new CharacterSnippedLocation(1, index, text)),
 											currentScope.Value.ToString()));
+
+										indexVar = 0;
+										return null;
 									}
 								}
 
@@ -814,7 +877,14 @@ namespace Morestachio.Framework.Expression
 								if (currentScope.Value is MorestachioExpression currentScopeValue)
 								{
 									currentScope.Evaluated = true;
-									currentScopeValue.PathParts = currentScopeValue._pathTokenizer.CompileListWithCurrent(context, index);
+									currentScopeValue.PathParts = currentScopeValue._pathTokenizer.CompileListWithCurrent(context, index, out var errProducer);
+									if (errProducer != null)
+									{
+										context.Errors.Add(errProducer());
+
+										indexVar = 0;
+										return null;
+									}
 									if (currentScopeValue != null &&
 										!currentScopeValue.PathParts.Any())
 									{
@@ -822,6 +892,9 @@ namespace Morestachio.Framework.Expression
 											new InvalidPathSyntaxError(currentScopeValue.Location
 													.AddWindow(new CharacterSnippedLocation(1, index, text)),
 												","));
+
+										indexVar = 0;
+										return null;
 									}
 								}
 
@@ -835,52 +908,58 @@ namespace Morestachio.Framework.Expression
 							}
 							else
 							{
-								var parseOp = ParseOperationCall();
-								if (parseOp == true)
+								Func<IMorestachioError> errFunc = null;
+								if ((currentScope.Value as MorestachioExpression)?._pathTokenizer.Add(formatChar, context, index, out errFunc) == false)
 								{
-									if (!currentScope.Evaluated)
+									var parseOp = ParseOperationCall();
+									if (parseOp == true)
 									{
-										currentScope.Evaluated = true;
-										(currentScope.Value as MorestachioExpression).PathParts =
-											(currentScope.Value as MorestachioExpression)._pathTokenizer.CompileListWithCurrent(context, index);
+										if (!currentScope.Evaluated)
+										{
+											currentScope.Evaluated = true;
+											(currentScope.Value as MorestachioExpression).PathParts =
+												(currentScope.Value as MorestachioExpression)._pathTokenizer.CompileListWithCurrent(context, index, out var errProducer);
+											if (errProducer != null)
+											{
+												context.Errors.Add(errProducer());
+												indexVar = 0;
+												return null;
+											}
+										}
+										//TerminateCurrentScope();
+										break;
 									}
-									//TerminateCurrentScope();
-									break;
-								}
-								if (parseOp == false)
-								{
+									else if (parseOp == false)
+									{
+										context.Errors.Add(errFunc());
+										indexVar = 0;
+										return null;
+									}
+									context.Errors.Add(errFunc());
 									indexVar = 0;
 									return null;
 								}
 
-								if (currentScope.BracketsCounter == 0)
+								if (Eoex())
 								{
-									//we are in an path expression
-									//like data.data.data.data
+									//an expression can be ended just at any time
+									//it just should not end with an .
 
-									if ((currentScope.Value as MorestachioExpression)?._pathTokenizer.Add(formatChar, context, index) == false)
+									if (formatChar == '.')
 									{
-										indexVar = 0;
-										return null;
+										context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation.Offset(index)
+												.AddWindow(new CharacterSnippedLocation(1, index, text)),
+											"Format", "(", "Name of Formatter",
+											"Did not expect a . at the end of an expression without an formatter"));
 									}
-
-									if (Eoex())
+									currentScope.Evaluated = true;
+									(currentScope.Value as MorestachioExpression).PathParts =
+										(currentScope.Value as MorestachioExpression)._pathTokenizer.CompileListWithCurrent(context, index, out var errProducer);
+									if (errProducer != null)
 									{
-										//an expression can be ended just at any time
-										//it just should not end with an .
-
-										if (formatChar == '.')
-										{
-											context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation.Offset(index)
-													.AddWindow(new CharacterSnippedLocation(1, index, text)),
-												"Format", "(", "Name of Formatter",
-												"Did not expect a . at the end of an expression without an formatter"));
-										}
-										currentScope.Evaluated = true;
-										(currentScope.Value as MorestachioExpression).PathParts =
-											(currentScope.Value as MorestachioExpression)._pathTokenizer.CompileListWithCurrent(context, index);
-										TerminateCurrentScope();
+										context.Errors.Add(errProducer());
 									}
+									TerminateCurrentScope();
 								}
 							}
 						}
@@ -985,7 +1064,7 @@ namespace Morestachio.Framework.Expression
 				return hashCode;
 			}
 		}
-		
+
 		/// <inheritdoc />
 		public override string ToString()
 		{

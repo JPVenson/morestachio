@@ -1,6 +1,7 @@
 ﻿using System;
 using Morestachio.Attributes;
 using Morestachio.Formatter.Framework;
+using Morestachio.Framework.Expression;
 using Morestachio.Helper;
 
 namespace Morestachio.Formatter.Predefined
@@ -32,6 +33,7 @@ namespace Morestachio.Formatter.Predefined
 		}
 		
 		[MorestachioFormatter("Add", "Adds the TimeSpan to the given DateTime")]
+		[MorestachioOperator(OperatorTypes.Add, "Adds the TimeSpan to the given DateTime")]
 		public static DateTime Add([SourceObject]DateTime dateTime, TimeSpan timespan)
 		{
 			return dateTime.Add(timespan);
@@ -52,6 +54,7 @@ namespace Morestachio.Formatter.Predefined
 		}
 
 		[MorestachioFormatter("Add", "Adds the TimeSpan to the given DateTime")]
+		[MorestachioOperator(OperatorTypes.Add, "Adds the TimeSpan to the given DateTime")]
 		public static DateTimeOffset Add([SourceObject]DateTimeOffset dateTime, TimeSpan timespan)
 		{
 			return dateTime.Add(timespan);

@@ -2,6 +2,7 @@
 using Morestachio.Attributes;
 using Morestachio.Formatter.Framework;
 using Morestachio.Framework;
+using Morestachio.Framework.Expression;
 
 namespace Morestachio.Formatter.Predefined
 {
@@ -18,6 +19,7 @@ namespace Morestachio.Formatter.Predefined
 		/// <returns></returns>
 		[MorestachioFormatter("Equals", "Checks if two objects are equal")]
 		[MorestachioGlobalFormatter("Equals", "Checks if two objects are equal")]
+		[MorestachioOperator(OperatorTypes.Equals, "Checks if two objects are equal")]
 		public static bool IsEquals([SourceObject]object source, object target)
 		{
 			if ((source == null && target == null))
@@ -45,6 +47,12 @@ namespace Morestachio.Formatter.Predefined
 			}
 
 			return source == target || source.Equals(target) || Equals(source, target);
+		}
+
+		[MorestachioOperator(OperatorTypes.UnEquals, "Checks if two objects are not equal")]
+		public static bool IsNotEquals([SourceObject]object source, object target)
+		{
+			return !Equals(source, target);
 		}
 
 		/// <summary>

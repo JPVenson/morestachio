@@ -3,25 +3,26 @@ using System.Linq;
 using System.Text;
 using Morestachio.Attributes;
 using Morestachio.Formatter.Framework;
+using Morestachio.Framework.Expression;
 
 namespace Morestachio.Formatter.Predefined
 {
 	public static class StringFormatter
 	{
 		[MorestachioFormatter("Append", "Concatenates two strings")]
-		[MorestachioOperator("+", "Concatenates two strings")]
+		[MorestachioOperator(OperatorTypes.Add, "Concatenates two strings")]
 		public static string Append(string source, string target)
 		{
 			return source + target;
 		}
 		
-		[MorestachioOperator("+", "Concatenates two strings")]
+		[MorestachioOperator(OperatorTypes.Add, "Concatenates two strings")]
 		public static string Append(object source, string target)
 		{
 			return source + target;
 		}
 
-		[MorestachioOperator("+", "Concatenates two strings")]
+		[MorestachioOperator(OperatorTypes.Add, "Concatenates two strings")]
 		public static string Append(string source, object target)
 		{
 			return source + target;

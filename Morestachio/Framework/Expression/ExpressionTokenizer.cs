@@ -34,6 +34,9 @@ namespace Morestachio.Framework.Expression
 				case "ExpressionNumber":
 					exp = new ExpressionNumber();
 					break;
+				case "OperatorExpression":
+					exp = new MorestachioOperatorExpression();
+					break;
 			}
 			exp.ReadXml(reader);
 			return exp;
@@ -55,6 +58,9 @@ namespace Morestachio.Framework.Expression
 					break;
 				case ExpressionNumber _:
 					writer.WriteAttributeString(ExpressionKindNodeName, "ExpressionNumber");
+					break;
+				case MorestachioOperatorExpression _:
+					writer.WriteAttributeString(ExpressionKindNodeName, "OperatorExpression");
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(morestachioExpression));

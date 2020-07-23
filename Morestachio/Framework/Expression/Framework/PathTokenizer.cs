@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Morestachio.ParserErrors;
 
 namespace Morestachio.Framework.Expression.Framework
@@ -169,24 +170,24 @@ namespace Morestachio.Framework.Expression.Framework
 		public bool LastCharWasDelimiter { get; set; }
 		//public bool CurrentPartIsNumber { get; set; }
 
-		public bool Add(char c, TokenzierContext context, int index)
+		public bool Add(char c, TokenzierContext context, int index, out Func<IMorestachioError> errProducer)
 		{
+			errProducer = null;
 			if (!Tokenizer.IsExpressionPathChar(c))
 			{
-				context.Errors.Add(
-					new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-							.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
-						CurrentPart));
+				errProducer = () => new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
+						.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
+					CurrentPart);
 				return false;
 			}
 
 			if (PathParts.IsNullValue)
 			{
-				context.Errors.Add(
-					new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-							.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
-						CurrentPart,
-						"Nothing can follow on a null"));
+				errProducer = () => new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
+						.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
+					CurrentPart,
+					"Nothing can follow on a null");
+				return false;
 			}
 
 			LastCharWasDelimiter = c == '.';
@@ -197,11 +198,10 @@ namespace Morestachio.Framework.Expression.Framework
 				{
 					if (PathParts.Any && !PathParts.HasParentSelector)
 					{
-						context.Errors.Add(
-							new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-									.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
-								CurrentPart,
-								"An Parent selector '..\\' can only follow on another parent selector like and never on an root or an data selector"));
+						errProducer = () => new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
+								.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
+							CurrentPart,
+							"An Parent selector '..\\' can only follow on another parent selector like and never on an root or an data selector");
 
 						return false;
 					}
@@ -209,11 +209,10 @@ namespace Morestachio.Framework.Expression.Framework
 					CurrentPart = string.Empty;
 					return true;
 				}
-				context.Errors.Add(
-					new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-							.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
-						CurrentPart,
-						"Unexpected '/'. Expected ether the start of an expression or an './'"));
+				errProducer = () => new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
+						.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
+					CurrentPart,
+					"Unexpected '/'. Expected ether the start of an expression or an './'");
 				return false;
 			}
 
@@ -221,11 +220,10 @@ namespace Morestachio.Framework.Expression.Framework
 			{
 				if (CurrentPart != string.Empty || PathParts.Any)
 				{
-					context.Errors.Add(
-						new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-								.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
-							CurrentPart,
-							"An root selector '~' must be at the start of an expression"));
+					errProducer = () => new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
+							.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
+						CurrentPart,
+						"An root selector '~' must be at the start of an expression");
 
 					return false;
 				}
@@ -251,22 +249,7 @@ namespace Morestachio.Framework.Expression.Framework
 
 			if (CurrentPart != string.Empty && CurrentPart != "." && c == '.')
 			{
-				//if (CurrentPartIsNumber)
-				//{
-				//	if (CurrentPart.Contains("."))
-				//	{
-				//		PathParts.Add(CurrentPart, PathType.Number);
-				//		CurrentPart = "";
-				//	}
-				//	else
-				//	{
-				//		CurrentPart += c;
-				//	}
-
-				//	return true;
-				//}
-
-				if (!ComputeCurrentPart(context, index))
+				if (!ComputeCurrentPart(context, index, out errProducer))
 				{
 					return false;
 				}
@@ -275,33 +258,19 @@ namespace Morestachio.Framework.Expression.Framework
 			}
 			else
 			{
-				//if (CurrentPart == string.Empty && char.IsDigit(c))
-				//{
-				//	CurrentPartIsNumber = true;
-				//	if (PathParts.Any)
-				//	{
-				//		context.Errors.Add(
-				//			new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-				//					.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
-				//				CurrentPart,
-				//				"A number expression must be at the start of the expression and cannot follow on anything else"));
-
-				//		return false;
-				//	}
-				//}
-
 				CurrentPart += c;
 			}
 
 			return true;
 		}
 
-		private bool ComputeCurrentPart(TokenzierContext context, int index)
+		private bool ComputeCurrentPart(TokenzierContext context, int index, out Func<IMorestachioError> errProducer)
 		{
+			errProducer = null;
 			var checkPathPart = CheckPathPart();
 			if (checkPathPart != -1)
 			{
-				context.Errors.Add(
+				errProducer = () => (
 					new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
 							.AddWindow(new CharacterSnippedLocation(1, checkPathPart, CurrentPart)),
 						CurrentPart));
@@ -313,7 +282,7 @@ namespace Morestachio.Framework.Expression.Framework
 			{
 				if (PathParts.Any)
 				{
-					context.Errors.Add(
+					errProducer = () => (
 						new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
 								.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
 							CurrentPart,
@@ -322,12 +291,13 @@ namespace Morestachio.Framework.Expression.Framework
 					return false;
 				}
 				PathParts.Add(null, PathType.Null);
+				return true;
 			}
 			else if (CurrentPart == "true" || CurrentPart == "false")
 			{
 				if (PathParts.Any)
 				{
-					context.Errors.Add(
+					errProducer = () => (
 						new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
 								.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
 							CurrentPart,
@@ -337,13 +307,30 @@ namespace Morestachio.Framework.Expression.Framework
 				}
 
 				PathParts.Add(CurrentPart, PathType.Boolean);
+				return true;
+			}
+			else if (CurrentPart == "../")
+			{
+				PathParts.Add(null, PathType.ParentSelector);
+				return true;
+			}
+			else if (CurrentPart == "~")
+			{
+				PathParts.Add(null, PathType.RootSelector);
+				return true;
+			}
+			else if (CurrentPart == "?")
+			{
+				PathParts.Add(null, PathType.ObjectSelector);
+				return true;
 			}
 			else
 			{
 				PathParts.Add(CurrentPart, PathType.DataPath);
+				return true;
 			}
 
-			return true;
+			return false;
 		}
 
 		private int CheckPathPart()
@@ -352,6 +339,28 @@ namespace Morestachio.Framework.Expression.Framework
 			if (part.StartsWith("$") && part != "$")
 			{
 				part = part.Substring(1, part.Length - 1);
+			}
+
+			if (part.StartsWith("."))
+			{
+				if (part.Equals("../"))
+				{
+					return -1;
+				}
+				if (part.Equals("."))
+				{
+					return -1;
+				}
+
+				return 0;
+			}
+			if (part.Equals("~"))
+			{
+				return -1;
+			}
+			if (part.Equals("?"))
+			{
+				return -1;
 			}
 
 			for (int i = 0; i < part.Length; i++)
@@ -365,19 +374,9 @@ namespace Morestachio.Framework.Expression.Framework
 			return -1;
 		}
 
-		public string GetFormatterName(TokenzierContext context, int index, out bool found)
+		public string GetFormatterName(TokenzierContext context, int index, out bool found, out Func<IMorestachioError> errProducer)
 		{
-			//string lastPartIsFormatterName = null;//PathParts.LastOrDefault().Key;
-			//if (LastCharWasDelimiter)
-			//{
-			//	lastPartIsFormatterName = CurrentPart;
-			//}
-			//else if(PathParts.Last != null)
-			//{
-			//	lastPartIsFormatterName = CurrentPart;
-			//	PathParts.RemoveLast();
-			//}
-			var last = CompileCurrent(context, index);
+			var last = CompileCurrent(context, index, out errProducer);
 
 			if (last == null)
 			{
@@ -407,9 +406,9 @@ namespace Morestachio.Framework.Expression.Framework
 			return PathParts.GetList();
 		}
 
-		public IList<KeyValuePair<string, PathType>> CompileListWithCurrent(TokenzierContext context, int index)
+		public IList<KeyValuePair<string, PathType>> CompileListWithCurrent(TokenzierContext context, int index, out Func<IMorestachioError> errProducer)
 		{
-			var last = CompileCurrent(context, index);
+			var last = CompileCurrent(context, index, out errProducer);
 			if (last == null)
 			{
 				return PathParts.GetList();
@@ -422,7 +421,7 @@ namespace Morestachio.Framework.Expression.Framework
 			return PathParts.GetList();
 		}
 
-		public KeyValuePair<string, PathType>? CompileCurrent(TokenzierContext context, int index)
+		public KeyValuePair<string, PathType>? CompileCurrent(TokenzierContext context, int index, out Func<IMorestachioError> errProducer)
 		{
 			if (CurrentPart == ".")
 			{
@@ -442,20 +441,19 @@ namespace Morestachio.Framework.Expression.Framework
 			}
 			else if (CurrentPart.Trim() != string.Empty)
 			{
-				//if (CurrentPartIsNumber)
-				//{
-				//	PathParts.Add(CurrentPart, PathType.Number);
-				//}
-				//else
-				//{
-					if (!ComputeCurrentPart(context, index))
-					{
-						return default;
-					}
-				//}
+				if (!ComputeCurrentPart(context, index, out errProducer))
+				{
+					errProducer = () => (
+						new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
+								.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
+							CurrentPart,
+							"Invalid character"));
+					return default;
+				}
 			}
 			else
 			{
+				errProducer = null;
 				return default;
 			}
 
@@ -464,9 +462,15 @@ namespace Morestachio.Framework.Expression.Framework
 				var pathPartsLast = PathParts.Last.Value;
 				PathParts.RemoveLast();
 				CurrentPart = "";
+				errProducer = null;
 				return pathPartsLast;
 			}
-
+			
+			errProducer = () => (
+				new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
+						.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
+					CurrentPart,
+					"Invalid character"));
 			return null;
 		}
 	}

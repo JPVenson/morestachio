@@ -1,6 +1,7 @@
 ﻿using System;
 using Morestachio.Attributes;
 using Morestachio.Formatter.Framework;
+using Morestachio.Framework.Expression;
 using Morestachio.Helper;
 
 namespace Morestachio.Formatter.Predefined
@@ -70,27 +71,73 @@ namespace Morestachio.Formatter.Predefined
 		}
 
 		[MorestachioFormatter("Add", "Adds the TimeSpan to the given TimeSpan")]
+		[MorestachioOperator(OperatorTypes.Add, "Adds the TimeSpan to the given TimeSpan")]
 		public static TimeSpan Add([SourceObject]TimeSpan timeSpan, TimeSpan timespan)
 		{
 			return timeSpan.Add(timespan);
 		}
 
 		[MorestachioFormatter("Subtract", "Subtracts the TimeSpan to the given TimeSpan")]
+		[MorestachioOperator(OperatorTypes.Substract, "Subtracts the TimeSpan to the given TimeSpan")]
 		public static TimeSpan Subtract([SourceObject]TimeSpan timeSpan, TimeSpan timespan)
 		{
 			return timeSpan.Subtract(timespan);
 		}
 
 		[MorestachioFormatter("Multiply", "Multiplies the TimeSpan to the given Number")]
+		[MorestachioOperator(OperatorTypes.Multiply, "Multiplies the TimeSpan to the given Number")]
 		public static TimeSpan Multiply([SourceObject]TimeSpan timeSpan, Number factor)
 		{
 			return new TimeSpan((long)(timeSpan.Ticks * factor.ToDouble(null)));
 		}
 
 		[MorestachioFormatter("Divide", "Divides the TimeSpan to the given Number")]
+		[MorestachioOperator(OperatorTypes.Divide, "Divides the TimeSpan to the given Number")]
 		public static TimeSpan Divide([SourceObject]TimeSpan timeSpan, Number factor)
 		{
 			return new TimeSpan((long)(timeSpan.Ticks / factor.ToDouble(null)));
+		}
+
+		[MorestachioFormatter("GreaterThen", "Checks if the source TimeSpan is bigger as the other TimeSpan")]
+		[MorestachioOperator(OperatorTypes.GreaterThen, "Checks if the source TimeSpan is bigger as the other TimeSpan")]
+		public static bool GreaterThen([SourceObject]TimeSpan timeSpan, TimeSpan timespan)
+		{
+			return timeSpan > timespan;
+		}
+
+		[MorestachioFormatter("LessThen", "Checks if the source TimeSpan is smaller as the other TimeSpan")]
+		[MorestachioOperator(OperatorTypes.LessThen, "Checks if the source TimeSpan is bigger as the other TimeSpan")]
+		public static bool LessThen([SourceObject]TimeSpan timeSpan, TimeSpan timespan)
+		{
+			return timeSpan < timespan;
+		}
+
+		[MorestachioFormatter("GreaterOrEquals", "Checks if the source TimeSpan is bigger or equals as the other TimeSpan")]
+		[MorestachioOperator(OperatorTypes.GreaterOrEquals, "Checks if the source TimeSpan is bigger as the other TimeSpan")]
+		public static bool GreaterOrEquals([SourceObject]TimeSpan timeSpan, TimeSpan timespan)
+		{
+			return timeSpan >= timespan;
+		}
+
+		[MorestachioFormatter("LessOrEquals", "Checks if the source TimeSpan is bigger or equals as the other TimeSpan")]
+		[MorestachioOperator(OperatorTypes.LessOrEquals, "Checks if the source TimeSpan is bigger as the other TimeSpan")]
+		public static bool LessOrEquals([SourceObject]TimeSpan timeSpan, TimeSpan timespan)
+		{
+			return timeSpan <= timespan;
+		}
+
+		[MorestachioFormatter("Equals", "Checks if the two TimeSpan are equal to each other")]
+		[MorestachioOperator(OperatorTypes.Equals, "Checks if the two TimeSpan are equal to each other")]
+		public static bool Equals([SourceObject]TimeSpan timeSpan, TimeSpan timespan)
+		{
+			return timeSpan == timespan;
+		}
+
+		[MorestachioFormatter("UnEquals", "Checks if the two TimeSpan are not equal to each other")]
+		[MorestachioOperator(OperatorTypes.UnEquals, "Checks if the two TimeSpan are not equal to each other")]
+		public static bool UnEquals([SourceObject]TimeSpan timeSpan, TimeSpan timespan)
+		{
+			return timeSpan != timespan;
 		}
 	}
 }

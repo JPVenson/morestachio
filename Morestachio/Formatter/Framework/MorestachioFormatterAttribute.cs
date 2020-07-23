@@ -111,19 +111,25 @@ namespace Morestachio.Formatter.Framework
 		}
 	}
 
+	/// <summary>
+	///		Defines an function as an operator for one of the given <see cref="OperatorTypes"/>
+	/// </summary>
 	public class MorestachioOperatorAttribute : MorestachioFormatterAttribute
 	{
-		public MorestachioOperatorAttribute(string name, string description) : base(name, description)
+		public MorestachioOperatorAttribute(OperatorTypes name, string description) 
+			: base("op_" + name.ToString(), description)
 		{
+			OperatorType = name;
 		}
+
+		/// <summary>
+		///		The Operator
+		/// </summary>
+		public OperatorTypes OperatorType { get; set; }
 		
 		public override bool ValidateFormatterName()
 		{
-			if (string.IsNullOrWhiteSpace(Name))
-			{
-				return false;
-			}
-			return MorestachioOperator.Operators.ContainsKey(Name);
+			return MorestachioOperator.Operators.ContainsKey(OperatorType);
 		}
 	}
 
