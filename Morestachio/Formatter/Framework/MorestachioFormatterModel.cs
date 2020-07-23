@@ -26,7 +26,8 @@ namespace Morestachio.Formatter.Framework
 			InputDescription[] inputDescription,
 			string output,
 			MethodInfo function,
-			MultiFormatterInfoCollection metaData)
+			MultiFormatterInfoCollection metaData, 
+			bool isGlobalFormatter)
 		{
 			Name = name;
 			Description = description;
@@ -35,6 +36,7 @@ namespace Morestachio.Formatter.Framework
 			Function = function;
 			InputType = inputType;
 			MetaData = metaData;
+			IsGlobalFormatter = isGlobalFormatter;
 		}
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MorestachioFormatterModel"/> class.
@@ -52,11 +54,17 @@ namespace Morestachio.Formatter.Framework
 			InputDescription[] inputDescription,
 			string output,
 			MethodInfo function,
-			MultiFormatterInfoCollection metaData)
-			: this(name, description, inputType, inputDescription, output, function, metaData)
+			MultiFormatterInfoCollection metaData, 
+			bool isGlobalFormatter)
+			: this(name, description, inputType, inputDescription, output, function, metaData, isGlobalFormatter)
 		{
 			OutputType = outputType;
 		}
+
+		/// <summary>
+		///		Gets if this is an SourceObject less formatter
+		/// </summary>
+		public bool IsGlobalFormatter { get; }
 
 		/// <summary>
 		/// Gets the name.

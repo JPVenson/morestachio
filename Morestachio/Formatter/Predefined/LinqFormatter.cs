@@ -66,6 +66,7 @@ namespace Morestachio.Formatter.Predefined
 		{
 			return sourceCollection.First();
 		}
+
 		[MorestachioFormatter("FirstOrDefault", "Gets the first item in the list that matches the predicate")]
 		public static T FirstOrDefault<T>(IEnumerable<T> sourceCollection)
 		{

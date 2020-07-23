@@ -240,7 +240,8 @@ namespace Morestachio.Formatter.Framework
 					.Select(e => new InputDescription(e.Description, e.OutputType, e.Example)).ToArray(),
 				morestachioFormatterAttribute.ReturnHint,
 				method,
-				new MultiFormatterInfoCollection(arguments));
+				new MultiFormatterInfoCollection(arguments),
+				!morestachioFormatterAttribute.IsSourceObjectAware);
 			var name = morestachioFormatterAttribute.Name ?? "{NULL}";
 
 			if (!Formatters.TryGetValue(name, out var formatters))

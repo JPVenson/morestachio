@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "Morestachio.Runner": {
+      "commandName": "Project"
+    },
+    "CreateDocuFromJson": {
+      "commandName": "Project",
+      "commandLineArgs": "--source-type Json --source-data \"documentation.json\" --target-path \"documentation-out-b.md\" --template-data \"documentation.md\""
+    },
+    "CreateDocuFromMethod": {
+      "commandName": "Project",
+      "commandLineArgs": "--source-type NetFunction --source-data \"Morestachio.Runner.dll\" --source-data-net-type \"Morestachio.Runner.Program\" --source-data-net-function \"GetMorestachioFormatterDocumentation\" --target-path \"documentation-out.md\" --template-data \"documentation.md\""
+    }
+  }
+}

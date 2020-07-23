@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Morestachio.Attributes;
@@ -130,6 +131,12 @@ namespace Morestachio.Formatter.Predefined
 		{
 			var separator = delimiters.Select(f => f.ToString()).ToArray();
 			return source.Split(separator, StringSplitOptions.None);
+		}
+
+		[MorestachioFormatter("Join", "Joins an Array of string together by using a seperator")]
+		public static string Split(IEnumerable<string> source, string seperator)
+		{
+			return string.Join(seperator, source);
 		}
 
 		[MorestachioFormatter("Truncate", "Truncates a string down to the number of characters passed as the first parameter. An ellipsis (...) is appended to the truncated string and is included in the character count")]
