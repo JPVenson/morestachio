@@ -3,6 +3,16 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.0</TargetFramework>
+    <Version>4.0.2</Version>
+    <Authors>Jean-Pierre Bachmann</Authors>
+    <Company>Jean-Pierre Bachmann</Company>
+    <Description>An exe wrapper for Morestachio that can pull data from Json, Xml or an .Net assembly and combine it with an Template</Description>
+    <PackageProjectUrl>https://github.com/JPVenson/morestachio</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/JPVenson/morestachio</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Formatter, C#, Engine, NetStandard, Morestachio</PackageTags>
+    <PackageIcon>Morestachio.png</PackageIcon>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,6 +29,10 @@
   <ItemGroup>
     <None Update="documentation.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\Morestachio\Morestachio.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
     </None>
   </ItemGroup>
 
