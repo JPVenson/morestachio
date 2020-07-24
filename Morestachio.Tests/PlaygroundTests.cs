@@ -11,6 +11,12 @@ using Morestachio.Helper;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 
+#if ValueTask
+using Promise = System.Threading.Tasks.ValueTask;
+#else
+using Promise = System.Threading.Tasks.Task;
+#endif
+
 namespace Morestachio.Tests
 {
 	[TestFixture(Category = "Playground")]

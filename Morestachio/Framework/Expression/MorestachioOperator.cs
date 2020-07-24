@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+#if ValueTask
+using ObjectPromise = System.Threading.Tasks.ValueTask<object>;
+#else
+using ObjectPromise = System.Threading.Tasks.Task<object>;
+#endif
 
 namespace Morestachio.Framework.Expression
 {
@@ -106,15 +111,19 @@ namespace Morestachio.Framework.Expression
 		/// <param name="contextObject"></param>
 		/// <param name="scopeData"></param>
 		/// <returns></returns>
-		public virtual async Task<object> Execute(
+		public virtual async ObjectPromise Execute(
 			IMorestachioExpression left,
 			IMorestachioExpression right,
 			ContextObject contextObject,
 			ScopeData scopeData)
 		{
 			var leftValue = await left.GetValue(contextObject, scopeData);
-			return await leftValue.Operator(OperatorType,
-				await (right?.GetValue(contextObject, scopeData) ?? Task.FromResult<ContextObject>(null)));
+			ContextObject rightValue = null;
+			if (right != null)
+			{
+				rightValue = await right.GetValue(contextObject, scopeData);
+			}
+			return await leftValue.Operator(OperatorType, rightValue);
 		}
 
 		/// <summary>

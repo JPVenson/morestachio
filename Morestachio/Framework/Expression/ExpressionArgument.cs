@@ -5,6 +5,11 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 using Morestachio.Framework.Expression.Visitors;
+#if ValueTask
+using ContextObjectPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.ContextObject>;
+#else
+using ContextObjectPromise = System.Threading.Tasks.Task<Morestachio.Framework.ContextObject>;
+#endif
 
 namespace Morestachio.Framework.Expression
 {
@@ -76,7 +81,7 @@ namespace Morestachio.Framework.Expression
 		/// <param name="contextObject"></param>
 		/// <param name="scopeData"></param>
 		/// <returns></returns>
-		public async Task<ContextObject> GetValue(ContextObject contextObject, ScopeData scopeData)
+		public async ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
 		{
 			return await MorestachioExpression.GetValue(contextObject, scopeData);
 		}

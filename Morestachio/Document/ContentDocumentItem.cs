@@ -6,6 +6,14 @@ using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework;
+using Morestachio.Helper;
+#if ValueTask
+using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using Promise = System.Threading.Tasks.ValueTask;
+#else
+using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using Promise = System.Threading.Tasks.Task;
+#endif
 
 namespace Morestachio.Document
 {
@@ -39,12 +47,11 @@ namespace Morestachio.Document
 		public override string Kind { get; } = "Content";
 
 		/// <inheritdoc />
-		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context,
+		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
 			ScopeData scopeData)
 		{
 			outputStream.Write(Value);
-			await Task.CompletedTask;
-			return Children.WithScope(context);
+			return Children.WithScope(context).ToPromise();
 		}
 		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)

@@ -11,81 +11,14 @@ using JetBrains.Annotations;
 using Morestachio.Attributes;
 using Morestachio.Formatter.Framework.Converter;
 using Morestachio.Helper;
+#if ValueTask
+using ObjectPromise = System.Threading.Tasks.ValueTask<object>;
+#else
+using ObjectPromise = System.Threading.Tasks.Task<object>;
+#endif
 
 namespace Morestachio.Formatter.Framework
 {
-	public class ServiceCollection
-	{
-		private readonly IDictionary<Type, object> _localSource;
-		private readonly IDictionary<Type, object> _source;
-
-		public ServiceCollection(IDictionary<Type, object> source)
-		{
-			_source = source;
-			_localSource = new Dictionary<Type, object>
-			{
-				{typeof(ServiceCollection), this}
-			};
-		}
-
-		/// <inheritdoc />
-		public void AddService<T, TE>(TE service) where TE : T
-		{
-			_localSource[typeof(TE)] = service;
-		}
-
-		/// <inheritdoc />
-		public void AddService<T>(T service)
-		{
-			_localSource[typeof(T)] = service;
-		}
-
-		/// <inheritdoc />
-		public void AddService<T, TE>(Func<TE> serviceFactory) where TE : T
-		{
-			_localSource[typeof(TE)] = serviceFactory;
-		}
-
-		/// <inheritdoc />
-		public void AddService<T>(Func<T> serviceFactory)
-		{
-			_localSource[typeof(T)] = serviceFactory;
-		}
-
-		public bool GetService<T>(out T service)
-		{
-			var found = GetService(typeof(T), out var serviceTem);
-			if (found)
-			{
-				service = (T) serviceTem;
-			}
-			else
-			{
-				service = default;
-			}
-
-			return found;
-		}
-
-		public bool GetService(Type serviceType, out object service)
-		{
-			if (!_localSource.TryGetValue(serviceType, out service))
-			{
-				if (!_source.TryGetValue(serviceType, out service))
-				{
-					return false;
-				}
-			}
-
-			if (service is Delegate factory)
-			{
-				service = factory.DynamicInvoke();
-			}
-
-			return true;
-		}
-	}
-
 	/// <summary>
 	///     The Formatter service that can be used to interpret the Native C# formatter.
 	///     To use this kind of formatter you must create a public static class where all formatting functions are located.
@@ -185,7 +118,7 @@ namespace Morestachio.Formatter.Framework
 		}
 
 		/// <inheritdoc />
-		public virtual async Task<object> CallMostMatchingFormatter(
+		public virtual async ObjectPromise CallMostMatchingFormatter(
 			[NotNull] Type type,
 			[NotNull] List<Tuple<string, object>> values,
 			[NotNull] object sourceValue,
@@ -272,7 +205,7 @@ namespace Morestachio.Formatter.Framework
 		/// <param name="services"></param>
 		/// <param name="templateArguments">The template arguments.</param>
 		/// <returns></returns>
-		public virtual async Task<object> Execute([NotNull] MorestachioFormatterModel formatter,
+		public virtual async ObjectPromise Execute([NotNull] MorestachioFormatterModel formatter,
 			[NotNull] object sourceObject,
 			[NotNull] ServiceCollection services,
 			List<Tuple<string, object>> templateArguments)

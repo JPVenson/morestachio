@@ -10,6 +10,11 @@ using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.StringParts;
 using Morestachio.Framework.Expression.Visitors;
 using Morestachio.ParserErrors;
+#if ValueTask
+using ContextObjectPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.ContextObject>;
+#else
+using ContextObjectPromise = System.Threading.Tasks.Task<Morestachio.Framework.ContextObject>;
+#endif
 
 namespace Morestachio.Framework.Expression
 {
@@ -90,7 +95,7 @@ namespace Morestachio.Framework.Expression
 		public char Delimiter { get; set; }
 
 		/// <inheritdoc />
-		public async Task<ContextObject> GetValue(ContextObject contextObject, ScopeData scopeData)
+		public async ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
 		{
 			await Task.CompletedTask;
 			return contextObject.Options.CreateContextObject(".", contextObject.CancellationToken,

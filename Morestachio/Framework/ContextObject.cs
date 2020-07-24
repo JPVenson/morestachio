@@ -15,6 +15,17 @@ using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Helper;
 using PathPartElement = System.Collections.Generic.KeyValuePair<string, Morestachio.Framework.Expression.Framework.PathType>;
+#if ValueTask
+using Promise = System.Threading.Tasks.ValueTask;
+using ContextObjectPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.ContextObject>;
+using StringPromise = System.Threading.Tasks.ValueTask<string>;
+using ObjectPromise = System.Threading.Tasks.ValueTask<object>;
+#else
+using Promise = System.Threading.Tasks.Task;
+using ContextObjectPromise = System.Threading.Tasks.Task<Morestachio.Framework.ContextObject>;
+using StringPromise = System.Threading.Tasks.Task<string>;
+using ObjectPromise = System.Threading.Tasks.Task<object>;
+#endif
 
 namespace Morestachio.Framework
 {
@@ -87,9 +98,6 @@ namespace Morestachio.Framework
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ContextObject"/> class.
 		/// </summary>
-		/// <param name="options">The options.</param>
-		/// <param name="key">The key as seen in the Template</param>
-		/// <param name="parent">The Logical parent of this ContextObject</param>
 		public ContextObject([NotNull]ParserOptions options, [NotNull]string key, [CanBeNull]ContextObject parent, object value)
 		{
 			Options = options ?? throw new ArgumentNullException(nameof(options));
@@ -204,7 +212,7 @@ namespace Morestachio.Framework
 			return null;
 		}
 
-		private async Task<ContextObject> GetContextForPath(
+		private async ContextObjectPromise GetContextForPath(
 			Traversable elements,
 			ScopeData scopeData, 
 			IMorestachioExpression morestachioExpression)
@@ -242,7 +250,14 @@ namespace Morestachio.Framework
 				{
 					if (_parent != null)
 					{
-						var parentsRetVal = (await (FindNextNaturalContextObject()?._parent?.GetContextForPath(elements, scopeData, morestachioExpression) ?? Task.FromResult((ContextObject)null)));
+						var parent = FindNextNaturalContextObject();
+						ContextObject parentsRetVal = null;
+						if (parent != null && parent._parent != null)
+						{
+							parentsRetVal = await (parent._parent
+								.GetContextForPath(elements, scopeData, morestachioExpression));
+						}
+
 						if (parentsRetVal != null)
 						{
 							retval = parentsRetVal;
@@ -370,7 +385,7 @@ namespace Morestachio.Framework
 		/// <param name="scopeData"></param>
 		/// <param name="morestachioExpression"></param>
 		/// <returns></returns>
-		internal async Task<ContextObject> GetContextForPath(IList<PathPartElement> pathParts,
+		internal async ContextObjectPromise GetContextForPath(IList<PathPartElement> pathParts,
 			ScopeData scopeData, 
 			IMorestachioExpression morestachioExpression)
 		{
@@ -411,9 +426,8 @@ namespace Morestachio.Framework
 		///     Determines if the value of this context exists.
 		/// </summary>
 		/// <returns></returns>
-		public virtual async Task<bool> Exists()
+		public virtual bool Exists()
 		{
-			//await EnsureValue();
 			return DefinitionOfFalse(_value);
 		}
 
@@ -421,18 +435,16 @@ namespace Morestachio.Framework
 		///		Renders the Current value to a string or if null to the Null placeholder in the Options
 		/// </summary>
 		/// <returns></returns>
-		public virtual async Task<string> RenderToString()
+		public virtual async StringPromise RenderToString()
 		{
-			//await EnsureValue();
 			return _value?.ToString() ?? (Options.Null?.ToString());
 		}
 
 		/// <summary>
 		///     Parses the current object by using the given argument
 		/// </summary>
-		public virtual async Task<object> Format([CanBeNull] string name, [NotNull] List<Tuple<string, object>> argument)
+		public virtual async ObjectPromise Format([CanBeNull] string name, [NotNull] List<Tuple<string, object>> argument)
 		{
-			//await EnsureValue();
 			var retval = _value;
 			if (_value == null)
 			{
@@ -464,7 +476,7 @@ namespace Morestachio.Framework
 		/// <summary>
 		///     Parses the current object by using the given argument
 		/// </summary>
-		public virtual async Task<object> Operator([CanBeNull] OperatorTypes name, [CanBeNull] ContextObject other)
+		public virtual async ObjectPromise Operator([CanBeNull] OperatorTypes name, [CanBeNull] ContextObject other)
 		{
 			//await EnsureValue();
 			var retval = _value;

@@ -11,6 +11,11 @@ using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.Visitors;
 using Morestachio.Helper;
 using Morestachio.ParserErrors;
+#if ValueTask
+using ContextObjectPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.ContextObject>;
+#else
+using ContextObjectPromise = System.Threading.Tasks.Task<Morestachio.Framework.ContextObject>;
+#endif
 
 namespace Morestachio.Framework.Expression
 {
@@ -111,7 +116,7 @@ namespace Morestachio.Framework.Expression
 		}
 
 		public CharacterLocation Location { get; set; }
-		public async Task<ContextObject> GetValue(ContextObject contextObject, ScopeData scopeData)
+		public async ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
 		{
 			return contextObject.Options.CreateContextObject(".", contextObject.CancellationToken, Number,
 				contextObject);

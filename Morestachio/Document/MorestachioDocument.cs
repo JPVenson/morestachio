@@ -8,6 +8,14 @@ using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework;
+using Morestachio.Helper;
+#if ValueTask
+using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using Promise = System.Threading.Tasks.ValueTask;
+#else
+using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using Promise = System.Threading.Tasks.Task;
+#endif
 
 namespace Morestachio.Document
 {
@@ -72,11 +80,10 @@ namespace Morestachio.Document
 		public override string Kind { get; } = "Document";
 
 		/// <inheritdoc />
-		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context,
+		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
 			ScopeData scopeData)
 		{
-			await Task.CompletedTask;
-			return Children.WithScope(context);
+			return Children.WithScope(context).ToPromise();
 		}
 
 		/// <summary>
@@ -87,7 +94,7 @@ namespace Morestachio.Document
 		/// <param name="context">The context.</param>
 		/// <param name="scopeData">The scope data.</param>
 		/// <returns></returns>
-		public static async Task ProcessItemsAndChildren(IEnumerable<IDocumentItem> documentItems, 
+		public static async Promise ProcessItemsAndChildren(IEnumerable<IDocumentItem> documentItems, 
 			IByteCounterStream outputStream, 
 			ContextObject context,
 			ScopeData scopeData)

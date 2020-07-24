@@ -1,10 +1,19 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework;
+using Morestachio.Helper;
+#if ValueTask
+using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using Promise = System.Threading.Tasks.ValueTask;
+#else
+using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using Promise = System.Threading.Tasks.Task;
+#endif
 
 namespace Morestachio.Document
 {
@@ -28,17 +37,16 @@ namespace Morestachio.Document
 		}
 		
 		/// <inheritdoc />
-		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
-			await Task.CompletedTask;
 			if (scopeData.ExecuteElse)
 			{
 				scopeData.ExecuteElse = false;
-				return Children.WithScope(context);
+				return Children.WithScope(context).ToPromise();
 			}
 
 			scopeData.ExecuteElse = false;
-			return new DocumentItemExecution[0];
+			return Enumerable.Empty<DocumentItemExecution>().ToPromise();
 		}
 		
 		/// <inheritdoc />

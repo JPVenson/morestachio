@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -7,6 +8,13 @@ using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Framework.Expression;
 
+#if ValueTask
+using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using Promise = System.Threading.Tasks.ValueTask;
+#else
+using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using Promise = System.Threading.Tasks.Task;
+#endif
 namespace Morestachio.Document
 {
 	/// <summary>
@@ -38,7 +46,7 @@ namespace Morestachio.Document
 		public override string Kind { get; } = "IFNotExpressionScope";
 
 		/// <inheritdoc />
-		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, 
+		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, 
 			ContextObject context, 
 			ScopeData scopeData)
 		{
@@ -47,14 +55,14 @@ namespace Morestachio.Document
 
 			//var c = await context.GetContextForPath(Value, scopeData);
 			var c = await MorestachioExpression.GetValue(contextObject, scopeData);
-			if (!await c.Exists())
+			if (!c.Exists())
 			{
 				scopeData.ExecuteElse = false;
 				return Children.WithScope(contextObject.FindNextNaturalContextObject());
 			}
 
 			scopeData.ExecuteElse = true;
-			return new DocumentItemExecution[0];
+			return Enumerable.Empty<DocumentItemExecution>();
 		}
 		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)

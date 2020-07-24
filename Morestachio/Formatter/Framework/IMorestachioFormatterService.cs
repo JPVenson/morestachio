@@ -4,6 +4,11 @@ using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Morestachio.Formatter.Framework.Converter;
+#if ValueTask
+using ObjectPromise = System.Threading.Tasks.ValueTask<object>;
+#else
+using ObjectPromise = System.Threading.Tasks.Task<object>;
+#endif
 
 namespace Morestachio.Formatter.Framework
 {
@@ -54,7 +59,7 @@ namespace Morestachio.Formatter.Framework
 		///  <param name="name"></param>
 		///  <param name="options"></param>
 		///  <returns></returns>
-		Task<object> CallMostMatchingFormatter(
+		ObjectPromise CallMostMatchingFormatter(
 			[NotNull]Type type,
 			[NotNull]List<Tuple<string, object>> values,
 			object sourceValue,

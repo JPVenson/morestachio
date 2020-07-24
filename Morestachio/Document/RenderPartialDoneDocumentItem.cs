@@ -1,11 +1,19 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework;
-
+using Morestachio.Helper;
+#if ValueTask
+using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using Promise = System.Threading.Tasks.ValueTask;
+#else
+using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using Promise = System.Threading.Tasks.Task;
+#endif
 namespace Morestachio.Document
 {
 	/// <summary>
@@ -37,11 +45,10 @@ namespace Morestachio.Document
 		public override string Kind { get; } = "EndPartial";
 		
 		/// <inheritdoc />
-		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
-			await Task.CompletedTask;
 			scopeData.PartialDepth.Pop();
-			return new DocumentItemExecution[0];
+			return Enumerable.Empty<DocumentItemExecution>().ToPromise();
 		}
 		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)

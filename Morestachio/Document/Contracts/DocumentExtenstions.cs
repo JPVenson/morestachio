@@ -51,24 +51,6 @@ namespace Morestachio.Document.Contracts
 			return docItem();
 		}
 
-		internal static IValueDocumentItem CreateDocumentValueItemInstance(string name)
-		{
-			var docItem =
-				DocumentItems.FirstOrDefault(e => e.Key.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase))
-					.Value;
-			if (docItem == null)
-			{
-				throw new InvalidOperationException($"There is no known DocumentType with the name of '{name}'");
-			}
-
-			var valueDocumentItem = docItem() as IValueDocumentItem;
-			if (valueDocumentItem == null)
-			{
-				throw new InvalidOperationException($"There is no known DocumentType with the name of '{name}'");
-			}
-			return valueDocumentItem;
-		}
-
 		/// <summary>
 		///		
 		/// </summary>

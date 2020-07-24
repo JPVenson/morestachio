@@ -5,6 +5,14 @@ using JetBrains.Annotations;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 
+#if ValueTask
+using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using Promise = System.Threading.Tasks.ValueTask;
+#else
+using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using Promise = System.Threading.Tasks.Task;
+#endif
+
 namespace Morestachio.Document.Contracts
 {
 	/// <summary>
@@ -20,7 +28,7 @@ namespace Morestachio.Document.Contracts
 		/// <param name="context">The context.</param>
 		/// <param name="scopeData">The scope data.</param>
 		/// <returns></returns>
-		Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context,
+		ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
 			ScopeData scopeData);
 
 		/// <summary>

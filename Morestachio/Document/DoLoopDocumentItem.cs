@@ -6,6 +6,13 @@ using Morestachio.Document.Contracts;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Framework.Expression;
+#if ValueTask
+using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using Promise = System.Threading.Tasks.ValueTask;
+#else
+using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using Promise = System.Threading.Tasks.Task;
+#endif
 
 namespace Morestachio.Document
 {
@@ -37,7 +44,7 @@ namespace Morestachio.Document
 		}
 		
 		/// <inheritdoc />
-		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
 			var index = 0;
 			while (ContinueBuilding(outputStream, context))
@@ -48,7 +55,7 @@ namespace Morestachio.Document
 				//TODO get a way how to execute this on the caller
 				await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, collectionContext, scopeData);
 
-				if (!await (await MorestachioExpression.GetValue(collectionContext, scopeData)).Exists())
+				if (!(await MorestachioExpression.GetValue(collectionContext, scopeData)).Exists())
 				{
 					break;
 				}

@@ -10,6 +10,14 @@ using Morestachio.Framework;
 using Morestachio.Helper;
 using Morestachio.ParserErrors;
 
+#if ValueTask
+using MorestachioDocumentResultPromise = System.Threading.Tasks.ValueTask<Morestachio.MorestachioDocumentResult>;
+using StringPromise = System.Threading.Tasks.ValueTask<string>;
+#else
+using MorestachioDocumentResultPromise = System.Threading.Tasks.Task<Morestachio.MorestachioDocumentResult>;
+using StringPromise = System.Threading.Tasks.Task<string>;
+#endif
+
 namespace Morestachio
 {
 	/// <summary>
@@ -65,7 +73,7 @@ namespace Morestachio
 		/// <returns></returns>
 		[MustUseReturnValue("The Stream contains the template. Use CreateAndStringify() to get the string of it")]
 		[NotNull]
-		public async Task<MorestachioDocumentResult> CreateAsync([NotNull]object data, CancellationToken token)
+		public async MorestachioDocumentResultPromise CreateAsync([NotNull]object data, CancellationToken token)
 		{
 			if (Errors.Any())
 			{
@@ -145,7 +153,7 @@ namespace Morestachio
 		[MustUseReturnValue("The Stream contains the template. Use CreateAndStringify() to get the string of it")]
 		[NotNull]
 		[PublicAPI]
-		public async Task<MorestachioDocumentResult> CreateAsync([NotNull]object data)
+		public async MorestachioDocumentResultPromise CreateAsync([NotNull]object data)
 		{
 			return await CreateAsync(data, CancellationToken.None);
 		}
@@ -157,7 +165,7 @@ namespace Morestachio
 		/// <returns></returns>
 		[NotNull]
 		[PublicAPI]
-		public async Task<string> CreateAndStringifyAsync([NotNull]object source)
+		public async StringPromise CreateAndStringifyAsync([NotNull]object source)
 		{
 			return await CreateAndStringifyAsync(source, CancellationToken.None);
 		}
@@ -170,7 +178,7 @@ namespace Morestachio
 		/// <returns></returns>
 		[NotNull]
 		[PublicAPI]
-		public async Task<string> CreateAndStringifyAsync([NotNull]object source, CancellationToken token)
+		public async StringPromise CreateAndStringifyAsync([NotNull]object source, CancellationToken token)
 		{
 			using (var stream = (await CreateAsync(source, token)).Stream)
 			{

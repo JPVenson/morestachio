@@ -1,12 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
 using System.Xml;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Framework.Expression;
+using Morestachio.Helper;
+#if ValueTask
+using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using Promise = System.Threading.Tasks.ValueTask;
+#else
+using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using Promise = System.Threading.Tasks.Task;
+#endif
 
 namespace Morestachio.Document
 {
@@ -32,7 +39,7 @@ namespace Morestachio.Document
 		/// </summary>
 		internal AliasDocumentItem()
 		{
-			
+
 		}
 
 		/// <inheritdoc />
@@ -48,14 +55,14 @@ namespace Morestachio.Document
 			base.SerializeBinaryCore(info, context);
 			info.AddValue(nameof(IdVariableScope), IdVariableScope);
 		}
-		
+
 		/// <inheritdoc />
 		protected override void SerializeXml(XmlWriter writer)
 		{
 			writer.WriteAttributeString(nameof(IdVariableScope), IdVariableScope.ToString());
 			base.SerializeXml(writer);
 		}
-		
+
 		/// <inheritdoc />
 		protected override void DeSerializeXml(XmlReader reader)
 		{
@@ -64,17 +71,15 @@ namespace Morestachio.Document
 		}
 
 		/// <inheritdoc />
-		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
 			scopeData.AddVariable(Value, context.CloneForEdit(), IdVariableScope);
-
-			await Task.CompletedTask;
-			return Children.WithScope(context);
+			return Children.WithScope(context).ToPromise();
 		}
 
 		/// <inheritdoc />
 		public override string Kind { get; } = "Alias";
-		
+
 		/// <summary>
 		///		Gets or Sets the Scope of the variable
 		/// </summary>

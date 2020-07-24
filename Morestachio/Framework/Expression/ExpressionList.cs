@@ -7,6 +7,11 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 using Morestachio.Framework.Expression.Visitors;
+#if ValueTask
+using ContextObjectPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.ContextObject>;
+#else
+using ContextObjectPromise = System.Threading.Tasks.Task<Morestachio.Framework.ContextObject>;
+#endif
 
 namespace Morestachio.Framework.Expression
 {
@@ -51,7 +56,7 @@ namespace Morestachio.Framework.Expression
 		/// <inheritdoc />
 		public CharacterLocation Location { get; set; }
 		/// <inheritdoc />
-		public async Task<ContextObject> GetValue(ContextObject contextObject, ScopeData scopeData)
+		public async ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
 		{
 			contextObject = contextObject.CloneForEdit();
 			foreach (var expression in Expressions)

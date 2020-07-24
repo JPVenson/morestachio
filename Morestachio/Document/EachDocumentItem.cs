@@ -12,6 +12,14 @@ using Morestachio.Framework;
 using Morestachio.Framework.Expression;
 using Morestachio.ParserErrors;
 
+#if ValueTask
+using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using Promise = System.Threading.Tasks.ValueTask;
+#else
+using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using Promise = System.Threading.Tasks.Task;
+#endif
+
 namespace Morestachio.Document
 {
 	/// <summary>
@@ -45,13 +53,13 @@ namespace Morestachio.Document
 
 		/// <exception cref="IndexedParseException"></exception>
 		/// <inheritdoc />
-		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
 			//if we're in the same scope, just negating, then we want to use the same object
 			//var c = await context.GetContextForPath(Value, scopeData);
 			var c = await MorestachioExpression.GetValue(context, scopeData);
 
-			if (!await c.Exists())
+			if (!c.Exists())
 			{
 				return new DocumentItemExecution[0];
 			}

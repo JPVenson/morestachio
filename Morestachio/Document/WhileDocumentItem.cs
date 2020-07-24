@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -6,7 +7,14 @@ using Morestachio.Document.Contracts;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Framework.Expression;
-
+using Morestachio.Helper;
+#if ValueTask
+using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using Promise = System.Threading.Tasks.ValueTask;
+#else
+using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using Promise = System.Threading.Tasks.Task;
+#endif
 namespace Morestachio.Document
 {
 	/// <summary>
@@ -37,20 +45,20 @@ namespace Morestachio.Document
 		}
 		
 		/// <inheritdoc />
-		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
 			var index = 0;
 
 			var collectionContext = new ContextCollection(index, false, context.Options, context.Key, context.Parent,
 				context.Value);
 
-			while (ContinueBuilding(outputStream, context) && await (await MorestachioExpression.GetValue(collectionContext, scopeData)).Exists())
+			while (ContinueBuilding(outputStream, context) && (await MorestachioExpression.GetValue(collectionContext, scopeData)).Exists())
 			{
 				//TODO get a way how to execute this on the caller
 				await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, collectionContext, scopeData);
 				collectionContext = new ContextCollection(++index, false, context.Options, context.Key, context.Parent, context.Value);
 			}
-			return new DocumentItemExecution[0];
+			return Enumerable.Empty<DocumentItemExecution>();
 		}
 
 		/// <inheritdoc />
@@ -60,6 +68,5 @@ namespace Morestachio.Document
 		{
 			visitor.Visit(this);
 		}
-
 	}
 }
