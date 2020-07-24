@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -24,7 +25,7 @@ namespace Morestachio.Runner
 		static int Main(string[] args)
 		{
 			var prog = new Program();
-			var result =  prog.RootHandler(args);
+			var result = prog.RootHandler(args);
 			return result;
 		}
 
@@ -79,7 +80,7 @@ namespace Morestachio.Runner
 			{
 				var formatter = new FormatterData();
 				formatter.DeclaringType = formatterServiceFormatter.Key;
-				
+
 				var methods = new List<FormatterData.FormatterMethod>();
 				formatter.Methods = methods;
 				foreach (var formatterMethod in formatterServiceFormatter
@@ -93,8 +94,8 @@ namespace Morestachio.Runner
 						var methodFunctions = new List<FormatterData.FormatterMethod.MethodFunction>();
 						foreach (var fncGrouped in morestachioFormatterModel)
 						{
-							var function = new FormatterData.FormatterMethod.MethodFunction();	
-							function.FormatterName = string.IsNullOrWhiteSpace(fncGrouped.Name) ? "{Null}" : fncGrouped.Name ;
+							var function = new FormatterData.FormatterMethod.MethodFunction();
+							function.FormatterName = string.IsNullOrWhiteSpace(fncGrouped.Name) ? "{Null}" : fncGrouped.Name;
 							var mOperator = MorestachioOperator.Operators.FirstOrDefault(f => ("op_" + f.Key.ToString()) == function.FormatterName).Value;
 							if (mOperator != null)
 							{
@@ -104,8 +105,8 @@ namespace Morestachio.Runner
 							function.Description = fncGrouped.Description;
 							methodFunctions.Add(function);
 						}
-					
-					
+
+
 						methodMeta.Functions = methodFunctions;
 						var parameters = new List<FormatterData.FormatterMethod.MethodParameter>();
 						var metaData = morestachioFormatterModel.First();
@@ -161,7 +162,7 @@ namespace Morestachio.Runner
 				},
 				new Option<string>("--build-log", "If set a log of everything written to the console will be saved at the location and the console will never break")
 				{
-					
+
 				},
 			};
 			rootCommand.Handler = CommandHandler.Create<SourceTypes, string, string, string, string, string, string>(Invoke);
@@ -176,136 +177,234 @@ namespace Morestachio.Runner
 			Console.WriteLine(logEntry);
 		}
 
+		public void WriteErrorLine(string logEntry)
+		{
+			var color = Console.ForegroundColor;
+			Console.ForegroundColor = ConsoleColor.Red;
+			BuildLog?.WriteLine(logEntry);
+			Console.WriteLine(logEntry);
+			Console.ForegroundColor = color;
+		}
+
 		public void CloseMessage()
 		{
 			if (BuildLog == null)
 			{
-				Console.WriteLine();
+				Console.WriteLine("Press any key to close the program...");
 				Console.ReadKey();
 			}
 		}
 
+		public void Hr()
+		{
+			WriteLine(Enumerable.Repeat("-", Console.BufferWidth).Aggregate((e, f) => e + f));
+		}
+
+		public void WriteHeader()
+		{
+			Hr();
+			WriteLine("Morestachio.Runner");
+			WriteLine("\t Runner Version: " + typeof(Program).Assembly.GetName().Version);
+			WriteLine("\t Morestachio Version: " + typeof(Parser).Assembly.GetName().Version);
+			WriteLine("\t Morestachio.Linq Version: " + typeof(DynamicLinq).Assembly.GetName().Version);
+			WriteLine("\t Morestachio.Newtonsoft.Json Version: " + typeof(JsonNetValueResolver).Assembly.GetName().Version);
+			//Console.WriteLine("\t Usage:");
+			//Console.WriteLine("\t\t Define a --source-type. This can be any of " 
+			//                  + Enum.GetValues(typeof(SourceTypes))
+			//	                  .OfType<SourceTypes>()
+			//	                  .Select(f => f.ToString())
+			//	                  .Aggregate((e, f) => e + "," + f));
+			//Console.WriteLine($"\t\t If you are using {SourceTypes.Json} or {SourceTypes.Xml}[Currently Unsupported]");
+			Hr();
+		}
+
+		IDictionary<string, PerformanceMetric> PerformanceMetrics { get; set; }
+
+		class PerformanceMetric : IDisposable
+		{
+			public PerformanceMetric()
+			{
+				Stopwatch = Stopwatch.StartNew();
+			}
+			public string Name { get; set; }
+			public Stopwatch Stopwatch { get; set; }
+
+			public void Dispose()
+			{
+				Stopwatch.Stop();
+			}
+		}
+
+		private IDisposable StartMetric(string name)
+		{
+			var metric = new PerformanceMetric()
+			{
+				Name = name
+			};
+			PerformanceMetrics[name] = metric;
+			return metric;
+		}
+
 		private int Invoke(SourceTypes sourceType, string sourceData, string templateData, string targetPath, string buildLog, string sourceDataNetType, string sourceDataNetFunction)
 		{
-			try
+			PerformanceMetrics = new Dictionary<string, PerformanceMetric>();
+			using (StartMetric("Whole Operation"))
 			{
-				ContextObject.DefaultFormatter.AddFromType(typeof(DynamicLinq));
-				if (buildLog != null)
-				{
-					BuildLog = new StreamWriter(new FileStream(buildLog, FileMode.OpenOrCreate));
-				}
-				WriteLine("Take '" + sourceType + "' from '" + sourceData + "', put it into '" + templateData + "' and store the result at '" + targetPath + "'");
-
-				if (!File.Exists(sourceData))
-				{
-					WriteLine($"The source file at '{sourceData}' does not exist");
-					CloseMessage();
-					return -1;
-				}
-				if (!File.Exists(templateData))
-				{
-					WriteLine($"The template file at '{templateData}' does not exist");
-					CloseMessage();
-					return -1;
-				}
-
-				object data = null;
-				IValueResolver resolver = null;
 				try
 				{
-					switch (sourceType)
+					ContextObject.DefaultFormatter.AddFromType(typeof(DynamicLinq));
+					if (buildLog != null)
 					{
-						case SourceTypes.Json:
-							data = JsonConvert.DeserializeObject(File.ReadAllText(sourceData));
-							resolver = new JsonNetValueResolver();
-							break;
-						case SourceTypes.Xml:
-							throw new NotSupportedException("The XML deserialisation is currently not supported");
-							break;
-						case SourceTypes.NetFunction:
-							if (sourceDataNetType == null)
-							{
-								WriteLine("Expected the --source-data-net-type argument to contain an valid type");
-								CloseMessage();
-								return -1;
-							}
-							if (sourceDataNetFunction == null)
-							{
-								WriteLine("Expected the --source-data-net-function argument to contain an valid type");
-								CloseMessage();
-								return -1;
-							}
-
-							var assembly = Assembly.LoadFrom(sourceData);
-							var type = assembly.GetType(sourceDataNetType);
-
-							if (type == null)
-							{
-								WriteLine($"The type '{sourceDataNetType}' was not found");
-								CloseMessage();
-								return -1;
-							}
-
-							var method = type.GetMethods(BindingFlags.Public | BindingFlags.Static)
-								.Where(e => e.ReturnType != typeof(void))
-								.Where(e => e.GetParameters().Length == 0)
-								.FirstOrDefault(e => e.Name.Equals(sourceDataNetFunction));
-
-							if (method == null)
-							{
-								WriteLine($"The method '{sourceDataNetFunction}' was not found in type '{type}'. Expected to find a public static void Method without parameters.");
-								CloseMessage();
-								return -1;
-							}
-
-							data = method.Invoke(null, null);
-							//File.WriteAllText("documentation.json", JsonConvert.SerializeObject(data));
-							break;
-						default:
-							throw new ArgumentOutOfRangeException(nameof(sourceType), sourceType, null);
+						BuildLog = new StreamWriter(new FileStream(buildLog, FileMode.OpenOrCreate));
 					}
-				}
-				catch (Exception e)
-				{
-					WriteLine("Error while loading the source file");
-					WriteLine("----");
-					WriteLine(e.ToString());
-					CloseMessage();
-					return -1;
-				}
 
-				var template = File.ReadAllText(templateData);
-				using (var sourceFs = new FileStream(targetPath, FileMode.OpenOrCreate))
-				{
-					var document = Parser.ParseWithOptions(new ParserOptions(template, () => sourceFs, Encoding.UTF8, true)
-					{
-						Timeout = TimeSpan.FromMinutes(1),
-						ValueResolver = resolver,
-					});
+					WriteHeader();
+					WriteLine("- Take '" + sourceType + "' from '" + sourceData + "', put it into '" + templateData + "' and store the result at '" + targetPath + "'");
 
-					if (document.Errors.Any())
+					if (!File.Exists(sourceData))
 					{
-						var sb = new StringBuilder();
-						sb.AppendLine("Template Errors: ");
-						foreach (var morestachioError in document.Errors)
-						{
-							morestachioError.Format(sb);
-							sb.AppendLine();
-							sb.AppendLine("----");
-						}
-						WriteLine(sb.ToString());
+						WriteErrorLine($"- The source file at '{sourceData}' does not exist");
+						CloseMessage();
+						return -1;
+					}
+					if (!File.Exists(templateData))
+					{
+						WriteErrorLine($"- The template file at '{templateData}' does not exist");
 						CloseMessage();
 						return -1;
 					}
 
-					document.Create(data);
-					return 0;
+					object data = null;
+					IValueResolver resolver = null;
+					using (StartMetric("Get Data"))
+					{
+						try
+						{
+							switch (sourceType)
+							{
+								case SourceTypes.Json:
+									WriteLine($"- Load file '{sourceData}' and parse Json from it");
+									data = JsonConvert.DeserializeObject(File.ReadAllText(sourceData));
+									resolver = new JsonNetValueResolver();
+									break;
+								case SourceTypes.Xml:
+									throw new NotSupportedException("The XML deserialisation is currently not supported");
+									break;
+								case SourceTypes.NetFunction:
+									Console.WriteLine($"- Load Assembly '{sourceData}', search for type '{sourceDataNetType}'" +
+									                  $" and run public static object {sourceDataNetFunction}(); to obtain data");
+									if (sourceDataNetType == null)
+									{
+										WriteErrorLine("- Expected the --source-data-net-type argument to contain an valid type");
+										CloseMessage();
+										return -1;
+									}
+									if (sourceDataNetFunction == null)
+									{
+										WriteErrorLine("- Expected the --source-data-net-function argument to contain an valid type");
+										CloseMessage();
+										return -1;
+									}
+
+									var assembly = Assembly.LoadFrom(sourceData);
+									var type = assembly.GetType(sourceDataNetType);
+
+									if (type == null)
+									{
+										WriteErrorLine($"- The type '{sourceDataNetType}' was not found");
+										CloseMessage();
+										return -1;
+									}
+
+									var method = type.GetMethods(BindingFlags.Public | BindingFlags.Static)
+										.Where(e => e.ReturnType != typeof(void))
+										.Where(e => e.GetParameters().Length == 0)
+										.FirstOrDefault(e => e.Name.Equals(sourceDataNetFunction));
+
+									if (method == null)
+									{
+										WriteErrorLine($"- The method '{sourceDataNetFunction}' was not found in type '{type}'. Expected to find a public static void Method without parameters.");
+										CloseMessage();
+										return -1;
+									}
+
+									data = method.Invoke(null, null);
+									//File.WriteAllText("documentation.json", JsonConvert.SerializeObject(data));
+									break;
+								default:
+									throw new ArgumentOutOfRangeException(nameof(sourceType), sourceType, null);
+							}
+						}
+						catch (Exception e)
+						{
+							WriteErrorLine("- Error while loading the source file");
+							WriteErrorLine("----");
+							WriteErrorLine(e.ToString());
+							CloseMessage();
+							return -1;
+						}
+					}
+
+					string template;
+					using (StartMetric("Get Template Content"))
+					{
+						WriteLine($"- Read all contents from file '{templateData}'");
+						template = File.ReadAllText(templateData);
+						WriteLine($"- Read '{template.Length}' chars from file");
+					}
+					using (var sourceFs = new FileStream(targetPath, FileMode.OpenOrCreate))
+					{
+						MorestachioDocumentInfo document;
+						WriteLine("- Parse the template");
+						using (StartMetric("Parse Template"))
+						{
+							document = Parser.ParseWithOptions(new ParserOptions(template, () => sourceFs, Encoding.UTF8, true)
+							{
+								Timeout = TimeSpan.FromMinutes(1),
+								ValueResolver = resolver,
+							});
+						}
+						
+						if (document.Errors.Any())
+						{
+							var sb = new StringBuilder();
+							sb.AppendLine("- Template Errors: ");
+							foreach (var morestachioError in document.Errors)
+							{
+								morestachioError.Format(sb);
+								sb.AppendLine();
+								sb.AppendLine("----");
+							}
+							WriteErrorLine(sb.ToString());
+							CloseMessage();
+							return -1;
+						}
+
+						WriteLine("- Execute the parsed template");
+						using (StartMetric("Create Document"))
+						{
+							document.Create(data);	
+						}
+
+						WriteLine("- Done");
+						Hr();
+					}
+				}
+				finally
+				{
+					BuildLog?.Dispose();
 				}
 			}
-			finally
+
+			WriteLine("Performance Metrics: ");
+			foreach (var performanceMetric in PerformanceMetrics)
 			{
-				BuildLog?.Dispose();
+				WriteLine("\t Name: " + performanceMetric.Key);
+				WriteLine("\t Time: " + performanceMetric.Value.Stopwatch.Elapsed.ToString("g"));
+				Hr();
 			}
+			CloseMessage();
+			return 1;
 		}
 	}
 
