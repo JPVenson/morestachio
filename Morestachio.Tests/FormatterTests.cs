@@ -1095,5 +1095,77 @@ namespace Morestachio.Tests
 			Assert.That(result, Is.EqualTo("*test!*"));
 			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, parsedTemplate.Document);
 		}
+
+		[Test]
+		public void FormatterCanHandleDataDevideOperatorCarryOver()
+		{
+			var template =
+				@"{{.ToString(dataA / dataB + dataC)}}";
+
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			var parsedTemplate =
+				Parser.ParseWithOptions(parsingOptions);
+			parsedTemplate.ParserOptions.Formatters.AddSingleGlobal(new Func<string, string>(i => i), "ToString");
+
+			var model = new Dictionary<string, object>()
+			{
+				{"dataA", 50 },
+				{"dataB", 60 },
+				{"dataC", 10 },
+			};
+
+			var result = parsedTemplate
+				.CreateAndStringify(model);
+			Assert.That(result, Is.EqualTo((50 / 60 + 10).ToString()));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, parsedTemplate.Document);
+		}
+
+		[Test]
+		public void FormatterCanHandleDataDevideOperatorCarryOverFromOtherMethod()
+		{
+			var template =
+				@"{{.ToString(dataA.Add(2) / dataB + dataC)}}";
+
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			var parsedTemplate =
+				Parser.ParseWithOptions(parsingOptions);
+			parsedTemplate.ParserOptions.Formatters.AddSingleGlobal(new Func<string, string>(i => i), "ToString");
+
+			var model = new Dictionary<string, object>()
+			{
+				{"dataA", 50 },
+				{"dataB", 60 },
+				{"dataC", 10 },
+			};
+
+			var result = parsedTemplate
+				.CreateAndStringify(model);
+			Assert.That(result, Is.EqualTo(((50 + 2) / 60 + 10).ToString()));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, parsedTemplate.Document);
+		}
+
+		[Test]
+		public void FormatterCanHandleDataDevideOperatorCarryOverFromOtherRightHandOperatorMethod()
+		{
+			var template =
+				@"{{.ToString(dataB / dataA.Add(2) + dataC)}}";
+
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			var parsedTemplate =
+				Parser.ParseWithOptions(parsingOptions);
+			parsedTemplate.ParserOptions.Formatters.AddSingleGlobal(new Func<string, string>(i => i), "ToString");
+
+			var model = new Dictionary<string, object>()
+			{
+				{"dataA", 50 },
+				{"dataB", 60 },
+				{"dataC", 10 },
+			};
+
+			var result = parsedTemplate
+				.CreateAndStringify(model);
+			Assert.That(result, Is.EqualTo((60 / (50 + 2) + 10).ToString()));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, parsedTemplate.Document);
+		}
 	}
 }
