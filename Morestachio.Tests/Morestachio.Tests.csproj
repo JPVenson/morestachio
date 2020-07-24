@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netcoreapp2.0;netcoreapp2.1;netcoreapp2.2;netcoreapp3.0;net46;net461;net462;net47;net471;net472;</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netcoreapp2.0;netcoreapp2.1;netcoreapp2.2;netcoreapp3.0;netcoreapp3.1;net46;net461;net462;net47;net471;net472;</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,6 +27,10 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'" >
+    <DefineConstants>ValueTask; ValueTaskFromResult</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'" >
     <DefineConstants>ValueTask; ValueTaskFromResult</DefineConstants>
   </PropertyGroup>
 </Project>
