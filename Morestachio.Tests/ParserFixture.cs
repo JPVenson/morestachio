@@ -1339,6 +1339,24 @@ namespace Morestachio.Tests
 			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
 		}
 
+		[Test]
+		public void TestCanRemoveLineBreaks()
+		{
+			var template = @"{{#TNLS}}
+
+Test{{#NL}}";
+
+			var parsingOptions = new ParserOptions(template, null, DefaultEncoding)
+			{
+				//Timeout = TimeSpan.FromSeconds(5)
+			};
+			parsingOptions.Formatters.AddFromType(typeof(EqualityFormatter));
+			var parsedTemplate = Parser.ParseWithOptions(parsingOptions);
+			var genTemplate = parsedTemplate.CreateAndStringify(new object());
+			Assert.That(genTemplate, Is.EqualTo(@"Test
+"));
+		}
+
 		private class CollectionContextInfo
 		{
 			public int IndexProp { private get; set; }

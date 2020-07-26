@@ -599,6 +599,18 @@ namespace Morestachio.Framework
 				{
 					//it's a comment drop this on the floor, no need to even yield it.
 				}
+				else if (tokenValue.Equals("{{#NL}}", StringComparison.InvariantCultureIgnoreCase))
+				{
+					tokens.Add(new TokenPair(TokenType.WriteLineBreak, tokenValue, context.CurrentLocation));
+				}
+				else if (tokenValue.Equals("{{#TNL}}", StringComparison.InvariantCultureIgnoreCase))
+				{
+					tokens.Add(new TokenPair(TokenType.TrimLineBreak, tokenValue, context.CurrentLocation));
+				}
+				else if (tokenValue.Equals("{{#TNLS}}", StringComparison.InvariantCultureIgnoreCase))
+				{
+					tokens.Add(new TokenPair(TokenType.TrimLineBreaks, tokenValue, context.CurrentLocation));
+				}
 				else
 				{
 					//check for custom DocumentItem provider

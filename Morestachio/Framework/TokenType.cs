@@ -126,5 +126,20 @@
 		///		The end of a while loop
 		/// </summary>
 		DoLoopClose,
+
+		/// <summary>
+		///		Writes a linebreak on the given position
+		/// </summary>
+		WriteLineBreak,
+
+		/// <summary>
+		///		Trims one linebreak from the following content at its start
+		/// </summary>
+		TrimLineBreak,
+
+		/// <summary>
+		///		Trims all occuring linebreaks from the following content at its start
+		/// </summary>
+		TrimLineBreaks,
 	}
 }

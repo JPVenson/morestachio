@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Xml;
@@ -50,7 +51,22 @@ namespace Morestachio.Document
 		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
 			ScopeData scopeData)
 		{
-			outputStream.Write(Value);
+			if (scopeData.CustomData.TryGetValue("TextOperationData", out var textOperations) && textOperations is IList<TextOperation> textOps)
+			{
+				foreach (var textOperation in textOps.ToArray())
+				{
+					Value = textOperation.Apply(Value);
+					if (textOperation.TransientEdit)
+					{
+						textOps.Remove(textOperation);
+					}
+				}
+			}
+
+			if (Value != string.Empty)
+			{
+				outputStream.Write(Value);
+			}
 			return Children.WithScope(context).ToPromise();
 		}
 		/// <inheritdoc />

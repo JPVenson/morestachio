@@ -233,6 +233,18 @@ namespace Morestachio
 						currentToken.MorestachioExpression);
 					currentDocumentItem.Document.Add(evaluateVariableDocumentItem);
 				}
+				else if (currentToken.Type.Equals(TokenType.WriteLineBreak))
+				{
+					currentDocumentItem.Document.Add(new TextEditDocumentItem(TextOperation.LineBreakOperation()));
+				}
+				else if (currentToken.Type.Equals(TokenType.TrimLineBreak))
+				{
+					currentDocumentItem.Document.Add(new TextEditDocumentItem(TextOperation.TrimLineBreakOperation(1)));
+				}
+				else if (currentToken.Type.Equals(TokenType.TrimLineBreaks))
+				{
+					currentDocumentItem.Document.Add(new TextEditDocumentItem(TextOperation.TrimLineBreakOperation(-1)));
+				}
 				else if (currentToken.Type.Equals(TokenType.VariableLet))
 				{
 					var scope = 0;

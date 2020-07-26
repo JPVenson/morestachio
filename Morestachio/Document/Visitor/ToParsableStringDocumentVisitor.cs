@@ -253,6 +253,28 @@ namespace Morestachio.Document.Visitor
 			Visit(documentItem, "WHILE ");
 		}
 
+		public void Visit(TextEditDocumentItem documentItem)
+		{
+			switch (documentItem.Operation.TextOperationType)
+			{
+				case TextOperationTypes.LineBreak:
+					StringBuilder.Append("{{#NL}}");
+					break;
+				case TextOperationTypes.TrimLineBreaks:
+					if (documentItem.Operation.LineBreaks == 1)
+					{
+						StringBuilder.Append("{{#TNL}}");
+					}
+					else if (documentItem.Operation.LineBreaks == -1)
+					{
+						StringBuilder.Append("{{#TNLS}}");
+					}
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
+
 		/// <inheritdoc />
 		public void Visit(IDocumentItem documentItem)
 		{
