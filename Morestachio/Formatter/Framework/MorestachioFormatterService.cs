@@ -263,7 +263,7 @@ namespace Morestachio.Formatter.Framework
 				{
 					if (ValueConverter.All(e => !e.CanConvert(sourceValue, formatTemplateElement.InputType)))
 					{
-						if (formatTemplateElement.MetaData.SourceValue().FormatterValueConverterAttribute
+						if (formatTemplateElement.MetaData.SourceObject.FormatterValueConverterAttribute
 							.Select(e => e.CreateInstance())
 							.All(e => !e.CanConvert(sourceValue, formatTemplateElement.InputType)))
 						{
@@ -295,14 +295,14 @@ namespace Morestachio.Formatter.Framework
 				}
 
 				//count rest arguments
-				var mandatoryArguments = formatTemplateElement.MetaData
-					.Where(e => !e.IsRestObject && !e.IsOptional && !e.IsSourceObject && !e.IsInjected).ToArray();
-				if (mandatoryArguments.Length > arguments.Count)
+				//var mandatoryArguments = formatTemplateElement.MetaData
+				//	.Where(e => !e.IsRestObject && !e.IsOptional && !e.IsSourceObject && !e.IsInjected).ToArray();
+				if (formatTemplateElement.MetaData.MandetoryArguments.Count > arguments.Count)
 					//if there are less arguments excluding rest then parameters
 				{
 					Log(() =>
 						"Exclude because formatter has " +
-						$"'{mandatoryArguments.Length}' " +
+						$"'{formatTemplateElement.MetaData.MandetoryArguments.Count}' " +
 						"parameter and " +
 						$"'{formatTemplateElement.MetaData.Count(e => e.IsRestObject)}' " +
 						"rest parameter but needs less or equals" +
@@ -317,7 +317,7 @@ namespace Morestachio.Formatter.Framework
 					score++;
 				}
 
-				score += (ulong) (arguments.Count - mandatoryArguments.Length);
+				score += (ulong) (arguments.Count - formatTemplateElement.MetaData.MandetoryArguments.Count);
 				Log(() =>
 					$"Take filter: '{formatTemplateElement.InputType} : {formatTemplateElement.Function}' Score {score}");
 				filteredSourceList.Add(
@@ -519,7 +519,8 @@ namespace Morestachio.Formatter.Framework
 		/// <summary>
 		///     Composes the values into a Dictionary for each formatter. If returns null, the formatter will not be called.
 		/// </summary>
-		public virtual FormatterComposingResult ComposeValues([NotNull] MorestachioFormatterModel formatter,
+		public virtual FormatterComposingResult ComposeValues(
+			[NotNull] MorestachioFormatterModel formatter,
 			[CanBeNull] object sourceObject,
 			[NotNull] MethodInfo method,
 			[NotNull] ServiceCollection services,
@@ -531,11 +532,10 @@ namespace Morestachio.Formatter.Framework
 			var matched = new Dictionary<MultiFormatterInfo, Tuple<string, object>>();
 
 			//var templateArgumentsQueue = templateArguments.Select(e => Tuple.Create(e.Key, e.Value)).ToList();
-
-			var argumentIndex = 0;
-			foreach (var parameter in formatter.MetaData.Where(e => !e.IsRestObject))
+			
+			for (var i = 0; i < formatter.MetaData.NonParamsArguments.Count; i++)
 			{
-				argumentIndex++;
+				var parameter = formatter.MetaData.NonParamsArguments[i];
 				Log(() => $"Match parameter '{parameter.ParameterType}' [{parameter.Name}]");
 				object givenValue;
 				//set ether the source object or the value from the given arguments
@@ -575,7 +575,9 @@ namespace Morestachio.Formatter.Framework
 					//match by index or name
 					Log(() => "Try Match by Name");
 					//match by name
-					var match = templateArguments.FirstOrDefault(e =>
+					Tuple<string, object> match = null;
+
+					match = templateArguments.FirstOrDefault(e =>
 						!string.IsNullOrWhiteSpace(e.Item1) && e.Item1.Equals(parameter.Name));
 
 					if (match == null)
@@ -610,7 +612,7 @@ namespace Morestachio.Formatter.Framework
 				}
 
 				//check for matching types
-				if (!parameter.IsOptional && !ComposeArgumentValue(parameter, argumentIndex, services, ref givenValue))
+				if (!parameter.IsOptional && !ComposeArgumentValue(parameter, i, services, ref givenValue))
 				{
 					return default;
 				}
@@ -639,7 +641,7 @@ namespace Morestachio.Formatter.Framework
 				}
 			}
 
-			var hasRest = formatter.MetaData.FirstOrDefault(e => e.IsRestObject);
+			var hasRest = formatter.MetaData.ParamsArgument;
 			if (hasRest == null)
 			{
 				return new FormatterComposingResult

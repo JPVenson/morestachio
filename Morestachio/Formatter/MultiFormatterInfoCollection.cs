@@ -13,6 +13,10 @@ namespace Morestachio.Formatter
 		public MultiFormatterInfoCollection(IEnumerable<MultiFormatterInfo> source)
 		{
 			_source = source.ToArray();
+			SourceObject = source.FirstOrDefault(e => e.IsSourceObject);
+			ParamsArgument = source.FirstOrDefault(e => e.IsRestObject);
+			NonParamsArguments = this.Except(new[] {ParamsArgument}).ToArray();
+			MandetoryArguments = this.Where(e => !e.IsRestObject && !e.IsOptional && !e.IsSourceObject && !e.IsInjected).ToArray();
 		}
 
 		/// <inheritdoc />
@@ -55,6 +59,11 @@ namespace Morestachio.Formatter
 			return this;
 		}
 
+		public MultiFormatterInfo SourceObject { get; private set; }
+		public MultiFormatterInfo ParamsArgument { get; private set; }
+		public IReadOnlyList<MultiFormatterInfo> NonParamsArguments { get; private set; }
+		public IReadOnlyList<MultiFormatterInfo> MandetoryArguments { get; private set; }
+
 		/// <summary>
 		///		When called and the last parameter is an object array, it will be used as an params parameter.
 		///		This is quite helpful as you cannot annotate Lambdas.
@@ -62,23 +71,25 @@ namespace Morestachio.Formatter
 		/// <returns></returns>
 		public MultiFormatterInfoCollection LastIsParams()
 		{
-			var multiFormatterInfo = this.LastOrDefault();
-			if (multiFormatterInfo == null)
+			if (ParamsArgument != null)
 			{
 				return this;
 			}
 
-			if (multiFormatterInfo.ParameterType == typeof(object[]))
+			ParamsArgument = this.LastOrDefault();
+			
+			if (ParamsArgument == null)
 			{
-				multiFormatterInfo.IsRestObject = true;
+				return this;
 			}
 
-			return this;
-		}
+			if (ParamsArgument.ParameterType == typeof(object[]))
+			{
+				ParamsArgument.IsRestObject = true;
+			}
 
-		public MultiFormatterInfo SourceValue()
-		{
-			return this.FirstOrDefault(e => e.IsSourceObject);
+			NonParamsArguments = this.Except(new[] {ParamsArgument}).ToArray();
+			return this;
 		}
 	}
 }

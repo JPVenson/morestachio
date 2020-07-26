@@ -11,7 +11,7 @@
     <RepositoryUrl>https://github.com/JPVenson/morestachio</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Formatter, C#, Engine, NetStandard, Morestachio</PackageTags>
-    <PackageIcon>Morestachio.png</PackageIcon>
+    <PackageIconUrl>https://github.com/JPVenson/morestachio/raw/master/Morestachio/Morestachio%20248x248.png?raw=true</PackageIconUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
