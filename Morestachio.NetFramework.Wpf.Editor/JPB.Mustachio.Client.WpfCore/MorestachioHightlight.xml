@@ -26,10 +26,10 @@
 
         <Keywords color="Keyword">
           <Word>#if</Word>
-          <Word>#if</Word>
           <Word>^if</Word>
           <Word>/if</Word>
           <Word>#else</Word>
+          <Word>#ifelse</Word>
           <Word>/else</Word>
           <Word>#each</Word>
           <Word>/each</Word>
@@ -38,6 +38,10 @@
           <Word>#while</Word>
           <Word>/while</Word>
           <Word>#var</Word>
+          <Word>#let</Word>
+          <Word>#NL</Word>
+          <Word>#TNL</Word>
+          <Word>#TNLS</Word>
           <Word>#declare</Word>
           <Word>/declare</Word>
           <Word>#include</Word>

@@ -25,9 +25,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DocumentGenerations", "Docu
 		GenerateFormatterDocumentation.tt = GenerateFormatterDocumentation.tt
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morestachio.Runner", "Morestachio.Runner\Morestachio.Runner.csproj", "{586BAEB9-862E-457D-AE13-A19E67C03B26}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.Runner", "Morestachio.Runner\Morestachio.Runner.csproj", "{586BAEB9-862E-457D-AE13-A19E67C03B26}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morestachio.Newtonsoft.Json", "Morestachio.Newtonsoft.Json\Morestachio.Newtonsoft.Json.csproj", "{B3692F2F-B295-46BC-B0F1-D4679C172142}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.Newtonsoft.Json", "Morestachio.Newtonsoft.Json\Morestachio.Newtonsoft.Json.csproj", "{B3692F2F-B295-46BC-B0F1-D4679C172142}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morestachio.Examples", "Morestachio.Examples\Morestachio.Examples.csproj", "{B38420AB-6681-4A6D-B9C1-BBA67DD2307E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +57,10 @@ Global
 		{B3692F2F-B295-46BC-B0F1-D4679C172142}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B3692F2F-B295-46BC-B0F1-D4679C172142}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B3692F2F-B295-46BC-B0F1-D4679C172142}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B38420AB-6681-4A6D-B9C1-BBA67DD2307E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B38420AB-6681-4A6D-B9C1-BBA67DD2307E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B38420AB-6681-4A6D-B9C1-BBA67DD2307E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B38420AB-6681-4A6D-B9C1-BBA67DD2307E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
