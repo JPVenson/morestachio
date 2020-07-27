@@ -29,12 +29,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.Runner", "Mores
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.Newtonsoft.Json", "Morestachio.Newtonsoft.Json\Morestachio.Newtonsoft.Json.csproj", "{B3692F2F-B295-46BC-B0F1-D4679C172142}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morestachio.Examples", "Morestachio.Examples\Morestachio.Examples.csproj", "{B38420AB-6681-4A6D-B9C1-BBA67DD2307E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.Examples", "Morestachio.Examples\Morestachio.Examples.csproj", "{B38420AB-6681-4A6D-B9C1-BBA67DD2307E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B18FBBF7-EBC2-4D4C-8CDA-3B8FB89B2381}"
-	ProjectSection(SolutionItems) = preProject
-		examples.json = examples.json
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

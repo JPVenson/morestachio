@@ -1,14 +1,24 @@
 [
   {
-    "FolderName": "HelloWorld",
-    "Titel": "Hello World"
+    "Titel": "Hello World",
+    "FolderName": "HelloWorld"
   },
   {
-    "FolderName": "EachExample",
-    "Titel": "Collections"
+    "Titel": "Collections",
+    "FolderName": "EachExample"
   },
   {
-    "FolderName": "CustomFormatterExample",
-    "Titel": "Custom Formatter"
+    "Titel": "Custom Formatter",
+    "FolderName": "CustomFormatterExample"
+  },
+  {
+    "Titel": "How to use - Dictionary",
+    "DataCsCode": "@ExampleRepro/HowToUse/DataGenerationDictionary.cs",
+    "Template": "@ExampleRepro/HowToUse/Template.html"
+  },
+  {
+    "Titel": "How to use - Objects",
+    "DataCsCode": "@ExampleRepro/HowToUse/DataGenerationAnonObject.cs",
+    "Template": "@ExampleRepro/HowToUse/Template.html"
   }
 ]
