@@ -21,7 +21,7 @@ namespace Morestachio.Examples.CustomFormatterExample
 		}
 
 		[MorestachioGlobalFormatter("HttpGet", "Gets an string value from the url")]
-		private static async Task<string> GetHttpValue(string source)
+		public static async Task<string> GetHttpValue(string source)
 		{
 			var httpClient = new HttpClient();
 			return await httpClient.GetStringAsync(source);
