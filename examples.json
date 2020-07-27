@@ -1,5 +1,14 @@
 [
   {
-    "FolderName": "HelloWorld"
+    "FolderName": "HelloWorld",
+    "Titel": "Hello World"
+  },
+  {
+    "FolderName": "EachExample",
+    "Titel": "Collections"
+  },
+  {
+    "FolderName": "CustomFormatterExample",
+    "Titel": "Custom Formatter"
   }
 ]

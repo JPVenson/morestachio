@@ -1,0 +1,11 @@
+﻿This is a Collection example.
+
+<!-- this will output each value within data. The each scopes its children to the item-->
+{{#each Data}}
+{{.}}
+{{/each}}
+
+<!-- Alternative you could use an alias and access it with the alias. The scope will still change -->
+{{#each Data AS item}}
+{{item}}
+{{/each}}
