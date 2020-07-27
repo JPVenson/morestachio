@@ -1,6 +1,6 @@
-﻿This is a Collection example.
+﻿This is a Custom Formatter example.
 
 <!-- this will invoke an HttpCall with the formatter added in code and save it into a variable-->
 {{#var img = HttpGet("https://raw.githubusercontent.com/JPVenson/morestachio/master/Morestachio/Morestachio%20248x248.png").ToBase64()}}
 
-<img src="base64: {{img}}"/>
+<img src="data:image/png;base64: {{img}}"/>
