@@ -40,30 +40,39 @@ namespace Morestachio.Document.Custom
 		{
 			private readonly BlockDocumentProviderFunction _action;
 
+			/// <summary>
+			/// 
+			/// </summary>
 			public BlockDocumentItem()
 			{
 
 			}
 
+			/// <inheritdoc />
 			public BlockDocumentItem(string kind, BlockDocumentProviderFunction action, string value)
 			{
 				_action = action;
 				Kind = kind;
 				Value = value;
 			}
+			
+			/// <inheritdoc />
 			public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 			{
 				return await _action(outputStream, context, scopeData, Value, Children);
 				//return Array.Empty<DocumentItemExecution>();
 			}
 
+			/// <inheritdoc />
 			public override string Kind { get; }
+			/// <inheritdoc />
 			public override void Accept(IDocumentItemVisitor visitor)
 			{
 				visitor.Visit(this);
 			}
 		}
 
+		/// <inheritdoc />
 		public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token, ParserOptions options)
 		{
 			return new BlockDocumentItem(tag, _action, value);
@@ -89,6 +98,9 @@ namespace Morestachio.Document.Custom
 			_tagClose = tagClose;
 		}
 
+		/// <summary>
+		///		Will be called to produce an Document item that must be executed
+		/// </summary>
 		public abstract IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token, ParserOptions options);
 
 		/// <inheritdoc />
