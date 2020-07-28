@@ -49,15 +49,15 @@ namespace Morestachio.Framework
 			DefaultFormatter.AddFromType(typeof(StringFormatter));
 			DefaultFormatter.AddFromType(typeof(RandomFormatter));
 			DefaultDefinitionOfFalse = (value) => value != null &&
-			                                      value as bool? != false &&
-			                                      // ReSharper disable once CompareOfFloatsByEqualityOperator
-			                                      value as double? != 0 &&
-			                                      value as int? != 0 &&
-			                                      value as string != string.Empty &&
-			                                      // We've gotten this far, if it is an object that does NOT cast as enumberable, it exists
-			                                      // OR if it IS an enumerable and .Any() returns true, then it exists as well
-			                                      (!(value is IEnumerable) || ((IEnumerable)value).Cast<object>().Any()
-			                                      );
+												  value as bool? != false &&
+												  // ReSharper disable once CompareOfFloatsByEqualityOperator
+												  value as double? != 0 &&
+												  value as int? != 0 &&
+												  value as string != string.Empty &&
+												  // We've gotten this far, if it is an object that does NOT cast as enumberable, it exists
+												  // OR if it IS an enumerable and .Any() returns true, then it exists as well
+												  (!(value is IEnumerable) || ((IEnumerable)value).Cast<object>().Any()
+												  );
 			DefinitionOfFalse = DefaultDefinitionOfFalse;
 		}
 
@@ -206,7 +206,7 @@ namespace Morestachio.Framework
 		/// </summary>
 		/// <returns></returns>
 		protected virtual ContextObject HandlePathContext(Traversable elements,
-			PathPartElement currentElement, 
+			PathPartElement currentElement,
 			IMorestachioExpression morestachioExpression)
 		{
 			return null;
@@ -214,7 +214,7 @@ namespace Morestachio.Framework
 
 		private async ContextObjectPromise GetContextForPath(
 			Traversable elements,
-			ScopeData scopeData, 
+			ScopeData scopeData,
 			IMorestachioExpression morestachioExpression)
 		{
 			var retval = this;
@@ -306,16 +306,6 @@ namespace Morestachio.Framework
 
 					retval = await innerContext.GetContextForPath(elements, scopeData, morestachioExpression);
 				}
-				//else if (path.Value == PathType.Number)
-				//{
-				//	//check if this part of the path can be seen as an number
-				//	if (Number.TryParse(path.Key, Options.CultureInfo, out var isNumber))
-				//	{
-				//		var contextObject = Options.CreateContextObject(".", CancellationToken, isNumber, this);
-				//		contextObject.IsNaturalContext = IsNaturalContext;
-				//		return await contextObject.GetContextForPath(elements, scopeData, morestachioExpression);
-				//	}
-				//}
 				else if (path.Value == PathType.Boolean)
 				{
 					if (path.Key == "true" || path.Key == "false")
@@ -386,7 +376,7 @@ namespace Morestachio.Framework
 		/// <param name="morestachioExpression"></param>
 		/// <returns></returns>
 		internal async ContextObjectPromise GetContextForPath(IList<PathPartElement> pathParts,
-			ScopeData scopeData, 
+			ScopeData scopeData,
 			IMorestachioExpression morestachioExpression)
 		{
 			if (Key == "x:null")
@@ -435,15 +425,18 @@ namespace Morestachio.Framework
 		///		Renders the Current value to a string or if null to the Null placeholder in the Options
 		/// </summary>
 		/// <returns></returns>
-		public virtual async StringPromise RenderToString()
+		public virtual StringPromise RenderToString()
 		{
-			return _value?.ToString() ?? (Options.Null?.ToString());
+			return (_value?.ToString() ?? (Options.Null?.ToString())).ToPromise();
 		}
 
 		/// <summary>
 		///     Parses the current object by using the given argument
 		/// </summary>
-		public virtual async ObjectPromise Format([CanBeNull] string name, [NotNull] List<Tuple<string, object>> argument)
+		public virtual async ObjectPromise Format(
+			[CanBeNull] string name,
+			[NotNull] List<Tuple<string, object>> argument,
+			ScopeData scopeData)
 		{
 			var retval = _value;
 			if (_value == null)
@@ -457,7 +450,7 @@ namespace Morestachio.Framework
 			}
 
 			//call formatters that are given by the Options for this run
-			retval = await Options.Formatters.CallMostMatchingFormatter(_value.GetType(), argument, _value, name, Options);
+			retval = await Options.Formatters.CallMostMatchingFormatter(_value.GetType(), argument, _value, name, Options, scopeData);
 			if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
 			{
 				//one formatter has returned a valid value so use this one.
@@ -465,7 +458,7 @@ namespace Morestachio.Framework
 			}
 
 			//all formatters in the options object have rejected the value so try use the global ones
-			retval = await DefaultFormatter.CallMostMatchingFormatter(_value.GetType(), argument, _value, name, Options);
+			retval = await DefaultFormatter.CallMostMatchingFormatter(_value.GetType(), argument, _value, name, Options, scopeData);
 			if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
 			{
 				return retval;
@@ -476,7 +469,10 @@ namespace Morestachio.Framework
 		/// <summary>
 		///     Parses the current object by using the given argument
 		/// </summary>
-		public virtual async ObjectPromise Operator([CanBeNull] OperatorTypes name, [CanBeNull] ContextObject other)
+		public virtual async ObjectPromise Operator(
+			[CanBeNull] OperatorTypes name,
+			[CanBeNull] ContextObject other,
+				ScopeData scopeData)
 		{
 			//await EnsureValue();
 			var retval = _value;
@@ -490,7 +486,7 @@ namespace Morestachio.Framework
 			//call formatters that are given by the Options for this run
 			var values = new List<Tuple<string, object>>();
 			values.Add(Tuple.Create((string)null, other.Value));
-			retval = await Options.Formatters.CallMostMatchingFormatter(_value.GetType(), values, _value, operatorFormatterName, Options);
+			retval = await Options.Formatters.CallMostMatchingFormatter(_value.GetType(), values, _value, operatorFormatterName, Options, scopeData);
 			if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
 			{
 				//one formatter has returned a valid value so use this one.
@@ -498,7 +494,7 @@ namespace Morestachio.Framework
 			}
 
 			//all formatters in the options object have rejected the value so try use the global ones
-			retval = await DefaultFormatter.CallMostMatchingFormatter(_value.GetType(), values, _value, operatorFormatterName, Options);
+			retval = await DefaultFormatter.CallMostMatchingFormatter(_value.GetType(), values, _value, operatorFormatterName, Options, scopeData);
 			if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
 			{
 				return retval;

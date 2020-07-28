@@ -37,6 +37,8 @@ namespace Morestachio.Framework.Expression
 				case "OperatorExpression":
 					exp = new MorestachioOperatorExpression();
 					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(ExpressionKindNodeName));
 			}
 			exp.ReadXml(reader);
 			return exp;
@@ -69,25 +71,51 @@ namespace Morestachio.Framework.Expression
 			writer.WriteEndElement();
 		}
 
-		internal static TokenPair TokenizeVariableAssignment(string tokenValue,
-			TokenzierContext context)
+		internal static string StringifyVariableAssignmentType(TokenType type)
+		{
+			switch (type)
+			{
+				case TokenType.VariableLet:
+					return "#let";
+				case TokenType.VariableVar:
+					return "#var";
+				default:
+					return "???";
+			}
+		}
+
+		internal static TokenPair TokenizeVariableAssignment(
+			string tokenValue,
+			TokenzierContext context,
+			TokenType type)
 		{
 			var startOfExpression = context.CurrentLocation;
-			var variableNameIndex = tokenValue.IndexOf("#var ", StringComparison.InvariantCultureIgnoreCase);
-			if (variableNameIndex != 0)
+			switch (type)
 			{
-				variableNameIndex = tokenValue.IndexOf("#let ", StringComparison.InvariantCultureIgnoreCase);
-				if (variableNameIndex != 0)
-				{
+				case TokenType.VariableLet:
+					break;
+				case TokenType.VariableVar:
+					break;
+				default:
 					context.Errors.Add(new MorestachioSyntaxError(
 						context.CurrentLocation.AddWindow(new CharacterSnippedLocation(0, 0, tokenValue)),
-						"#var", "", "#var name", "Expected #var"));
-					return null;
-				}
+						"#var", "", "#var name", "Expected #var or #let"));
+					break;
 			}
 
-			tokenValue = tokenValue.Substring("#var ".Length);
-			context.AdvanceLocation("#var ".Length);
+			var strVarType = StringifyVariableAssignmentType(type) + " ";
+
+			var variableNameIndex = tokenValue.IndexOf(strVarType, StringComparison.InvariantCultureIgnoreCase);
+			if (variableNameIndex != 0)
+			{
+				context.Errors.Add(new MorestachioSyntaxError(
+					context.CurrentLocation.AddWindow(new CharacterSnippedLocation(0, 0, tokenValue)),
+					strVarType, "", strVarType + "name", "Expected #var"));
+				return default;
+			}
+
+			tokenValue = tokenValue.Substring(strVarType.Length);
+			context.AdvanceLocation(strVarType.Length);
 			string variableName = null;
 			int i = 0;
 			var lengthToExpression = 0;
@@ -109,8 +137,8 @@ namespace Morestachio.Framework.Expression
 							.CurrentLocation
 							.Offset(i)
 							.AddWindow(new CharacterSnippedLocation(0, i, tokenValue)),
-						"#var", "", "#var name", "Invalid character detected. Expected only spaces or letters."));
-					return null;
+						strVarType, "", strVarType + "name", "Invalid character detected. Expected only spaces or letters."));
+					return default;
 				}
 			}
 
@@ -120,8 +148,8 @@ namespace Morestachio.Framework.Expression
 				context.Errors.Add(new MorestachioSyntaxError(
 					context
 						.CurrentLocation
-						.AddWindow(new CharacterSnippedLocation(0, "#var ".Length, tokenValue)),
-					"#var", "", "#var name", "expected variable name"));
+						.AddWindow(new CharacterSnippedLocation(0, strVarType.Length, tokenValue)),
+					strVarType, "", strVarType + "name", "expected variable name"));
 			}
 
 			var expression = tokenValue.Substring(tokenValue.IndexOf('=')).Trim(' ', '=');
@@ -129,15 +157,12 @@ namespace Morestachio.Framework.Expression
 			{
 				context.Errors.Add(new MorestachioSyntaxError(
 					context.CurrentLocation
-						.AddWindow(new CharacterSnippedLocation(0, "#var ".Length, tokenValue)),
-					"#var", "", "#var name = ", "expected ether an path expression or an string value"));
-				return null;
+						.AddWindow(new CharacterSnippedLocation(0, strVarType.Length, tokenValue)),
+					strVarType, "", strVarType + "name = ", "expected ether an path expression or an string value"));
+				return default;
 			}
 
-			return new TokenPair(TokenType.VariableVar, variableName, startOfExpression)
-			{
-				MorestachioExpression = ParseExpression(expression, context)
-			};
+			return new TokenPair(type, variableName, ParseExpression(expression, context), startOfExpression);
 		}
 
 		/// <summary>
@@ -203,7 +228,7 @@ namespace Morestachio.Framework.Expression
 			//context = 
 			//	new TokenzierContext(Tokenizer.NewlineFinder.Matches(expression).OfType<Match>().Select(k => k.Index)
 			//	.ToArray());
-			context = 
+			context =
 				new TokenzierContext(Tokenizer.FindNewLines(expression).ToArray(), cultureInfo ?? CultureInfo.CurrentCulture);
 			context.SetLocation(0);
 			return ParseExpression(expression,

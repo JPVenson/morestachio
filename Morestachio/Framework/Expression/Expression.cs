@@ -158,25 +158,15 @@ namespace Morestachio.Framework.Expression
 			}
 
 			var argList = new List<Tuple<string, object>>();
+			var naturalValue = contextObject.FindNextNaturalContextObject().CloneForEdit();
 			foreach (var formatterArgument in Formats)
 			{
-				var value = contextObject.FindNextNaturalContextObject().CloneForEdit();
-				value = await formatterArgument.MorestachioExpression.GetValue(value, scopeData);
-
-				if (value == null)
-				{
-					argList.Add(new Tuple<string, object>(formatterArgument.Name, null));
-				}
-				else
-				{
-					//await value.EnsureValue();
-					argList.Add(new Tuple<string, object>(formatterArgument.Name, value.Value));
-				}
+				var value = await formatterArgument.MorestachioExpression.GetValue(naturalValue, scopeData);
+				argList.Add(new Tuple<string, object>(formatterArgument.Name, value?.Value));
 			}
 
-			var formatterdContext = contextForPath.CloneForEdit();
-			formatterdContext.Value = await formatterdContext.Format(FormatterName, argList);
-			return formatterdContext;
+			contextForPath.Value = await contextForPath.Format(FormatterName, argList, scopeData);
+			return contextForPath;
 		}
 
 		/// <inheritdoc />

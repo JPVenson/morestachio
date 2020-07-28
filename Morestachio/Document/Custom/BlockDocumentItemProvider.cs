@@ -17,10 +17,8 @@ namespace Morestachio.Document.Custom
 	/// <summary>
 	///		The Standard Block that is enclosed with an opening tag <code>{{#Anything}}</code> and closed with an closing tag <code>{{/Anything}}</code>
 	/// </summary>
-	public class BlockDocumentItemProvider : CustomDocumentItemProvider
+	public class BlockDocumentItemProvider : BlockDocumentItemProviderBase
 	{
-		private readonly string _tagOpen;
-		private readonly string _tagClose;
 		private readonly BlockDocumentProviderFunction _action;
 
 		/// <summary>
@@ -30,9 +28,8 @@ namespace Morestachio.Document.Custom
 		/// <param name="tagClose">Should contain full tag like <code>/Anything</code> excluding the brackets and any parameter</param>
 		/// <param name="action"></param>
 		public BlockDocumentItemProvider(string tagOpen, string tagClose, BlockDocumentProviderFunction action)
+			: base(tagOpen, tagClose)
 		{
-			_tagOpen = tagOpen;
-			_tagClose = tagClose;
 			_action = action;
 		}
 
@@ -67,6 +64,34 @@ namespace Morestachio.Document.Custom
 			}
 		}
 
+		public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token, ParserOptions options)
+		{
+			return new BlockDocumentItem(tag, _action, value);
+		}
+	}
+
+	/// <summary>
+	///		The Standard Block that is enclosed with an opening tag <code>{{#Anything}}</code> and closed with an closing tag <code>{{/Anything}}</code>
+	/// </summary>
+	public abstract class BlockDocumentItemProviderBase : CustomDocumentItemProvider
+	{
+		private readonly string _tagOpen;
+		private readonly string _tagClose;
+
+		/// <summary>
+		///		Creates a new Block
+		/// </summary>
+		/// <param name="tagOpen">Should contain full tag like <code>#Anything</code> excluding the brackets and any parameter</param>
+		/// <param name="tagClose">Should contain full tag like <code>/Anything</code> excluding the brackets and any parameter</param>
+		public BlockDocumentItemProviderBase(string tagOpen, string tagClose)
+		{
+			_tagOpen = tagOpen;
+			_tagClose = tagClose;
+		}
+
+		public abstract IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token, ParserOptions options);
+
+		/// <inheritdoc />
 		public override IEnumerable<TokenPair> Tokenize(TokenInfo token, ParserOptions options)
 		{
 			var trim = token.Token.Trim('{', '}');
@@ -80,17 +105,21 @@ namespace Morestachio.Document.Custom
 			}
 		}
 
+		/// <inheritdoc />
 		public override bool ShouldParse(TokenPair token, ParserOptions options)
 		{
 			return token.Type.Equals(_tagOpen) || token.Type.Equals(_tagClose);
 		}
 
+		/// <inheritdoc />
 		public override IDocumentItem Parse(TokenPair token, ParserOptions options, Stack<DocumentScope> buildStack,
 			Func<int> getScope)
 		{
 			if (token.Value == _tagOpen)
 			{
-				var tagDocumentItem = new BlockDocumentItem(_tagOpen, _action, token.Value?.Remove(0, _tagOpen.Length).Trim());
+				var tagDocumentItem = CreateDocumentItem(_tagOpen, 
+					token.Value?.Remove(0, _tagOpen.Length).Trim(),
+					token, options);
 				buildStack.Push(new DocumentScope(tagDocumentItem, getScope));
 				return tagDocumentItem;
 			}
@@ -101,10 +130,11 @@ namespace Morestachio.Document.Custom
 			return null;
 		}
 
+		/// <inheritdoc />
 		public override bool ShouldTokenize(string token)
 		{
 			return token.StartsWith("{{" + _tagOpen, StringComparison.InvariantCultureIgnoreCase)
-			       || token.StartsWith("{{" + _tagClose, StringComparison.InvariantCultureIgnoreCase);
+				   || token.StartsWith("{{" + _tagClose, StringComparison.InvariantCultureIgnoreCase);
 		}
 	}
 }

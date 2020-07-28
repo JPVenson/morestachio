@@ -58,13 +58,15 @@ namespace Morestachio.Formatter.Framework
 		///  <param name="sourceValue"></param>
 		///  <param name="name"></param>
 		///  <param name="options"></param>
+		///  <param name="scope"></param>
 		///  <returns></returns>
 		ObjectPromise CallMostMatchingFormatter(
 			[NotNull]Type type,
 			[NotNull]List<Tuple<string, object>> values,
 			object sourceValue,
 			[CanBeNull]string name,
-			ParserOptions options);
+			ParserOptions options,
+			ScopeData scope);
 
 		/// <summary>
 		///		Adds a new Formatter

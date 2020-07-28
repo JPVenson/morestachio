@@ -146,8 +146,6 @@ namespace Morestachio.Framework.Expression.Visitors
 		/// <summary>
 		///     Appends the interlaced line.
 		/// </summary>
-		/// <param name="value">The value.</param>
-		/// <param name="color">The color.</param>
 		/// <returns></returns>
 		public virtual IStringBuilderInterlaced<TColor> AppendInterlacedLine()
 		{
@@ -158,8 +156,6 @@ namespace Morestachio.Framework.Expression.Visitors
 		/// <summary>
 		///     Appends the interlaced.
 		/// </summary>
-		/// <param name="value">The value.</param>
-		/// <param name="color">The color.</param>
 		/// <returns></returns>
 		public virtual IStringBuilderInterlaced<TColor> AppendInterlaced()
 		{

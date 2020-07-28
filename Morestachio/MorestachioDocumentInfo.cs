@@ -61,8 +61,6 @@ namespace Morestachio
 		[NotNull]
 		public IEnumerable<IMorestachioError> Errors { get; private set; }
 
-		internal PerformanceProfiler Profiler { get; set; }
-
 		private const int BufferSize = 2024;
 
 		/// <summary>
@@ -97,6 +95,7 @@ namespace Morestachio
 				token = anyCancellationToken.Token;
 			}
 			var sourceStream = ParserOptions.SourceFactory();
+			PerformanceProfiler profiler = null;
 			try
 			{
 				if (sourceStream == null)
@@ -113,14 +112,12 @@ namespace Morestachio
 					BufferSize, true, ParserOptions))
 				{
 					var context = ParserOptions.CreateContextObject("", token, data);
-					//var context = new ContextObject(ParserOptions, "", null)
-					//{
-					//	Value = data,
-					//	CancellationToken = token
-					//};
-
 					using (var scopeData = new ScopeData())
 					{
+						if (ParserOptions.ProfileExecution)
+						{
+							scopeData.Profiler = profiler = new PerformanceProfiler(true);
+						}
 						await MorestachioDocument.ProcessItemsAndChildren(new[] { Document }, byteCounterStream,
 							context, scopeData);
 					}
@@ -141,7 +138,8 @@ namespace Morestachio
 			}
 			return new MorestachioDocumentResult()
 			{
-				Stream = sourceStream
+				Stream = sourceStream,
+				Profiler = profiler
 			};
 		}
 

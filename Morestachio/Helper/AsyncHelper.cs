@@ -39,6 +39,14 @@ namespace Morestachio.Helper
 			return Promise.FromResult(data);
 #endif
 		}
+		public static StringPromise ToPromise(this string data)
+		{
+#if ValueTask
+			return new StringPromise(data);
+#else
+			return Promise.FromResult(data);
+#endif
+		}
 
 
 		/// <summary>

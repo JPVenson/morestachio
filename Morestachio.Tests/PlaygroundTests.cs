@@ -79,12 +79,14 @@ namespace Morestachio.Tests
 			}
 
 			var parsingOptions = new Morestachio.ParserOptions(TextTemplateMorestachio);
+			parsingOptions.ProfileExecution = true;
 			var parsed = Morestachio.Parser.ParseWithOptions(parsingOptions);
 			var andStringifyAsync = await parsed.CreateAndStringifyAsync(new
 			{
 				Products = _products
 			});
-			for (int i = 0; i < 200; i++)
+			var runs = 200;
+			for (int i = 0; i < runs; i++)
 			{
 				andStringifyAsync = await parsed.CreateAndStringifyAsync(new
 				{
@@ -92,18 +94,32 @@ namespace Morestachio.Tests
 				});
 			}
 			var sw = new Stopwatch();
+			var profiler = new List<PerformanceProfiler>();
 			sw.Start();
-			for (int i = 0; i < 200; i++)
+			for (int i = 0; i < runs; i++)
 			{
-				andStringifyAsync = await parsed.CreateAndStringifyAsync(new
+				var f = await parsed.CreateAsync(new
 				{
 					Products = _products
 				});
+				profiler.Add(f.Profiler);
 			}
 
 			var swElapsed = sw.Elapsed;
-			Console.WriteLine("Done in: " + swElapsed + " thats " + new TimeSpan(sw.Elapsed.Ticks / 200) + " per run");
+			Console.WriteLine("Done in: " + swElapsed + " thats " + new TimeSpan(sw.Elapsed.Ticks / runs) + " per run");
+			//PrintPerformanceGroup(profiler.SelectMany(f => f.))
 		}
+
+		//private void PrintPerformanceGroup(IEnumerable<PerformanceProfiler.PerformanceKey> key, int intention = 0)
+		//{
+		//	foreach (var performanceKey in key)
+		//	{
+		//		var entry = performanceKey.Key;
+		//		var time = perfGroup.Select(e => e.Time.Ticks).Average();
+
+		//		Console.WriteLine($"- {entry} took '{TimeSpan.FromTicks((long) time)}' thats '{new TimeSpan((long) (time / runs))}'");
+		//	}
+		//}
 
 		[Test]
 		[Explicit]

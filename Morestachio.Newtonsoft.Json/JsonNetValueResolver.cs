@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using Morestachio.Attributes;
 using Morestachio.Framework;
@@ -73,7 +74,7 @@ namespace Morestachio.Newtonsoft.Json
 
 		public IDictionary<string, object> EvalJObject(JObject obj)
 		{
-			var dict = new Dictionary<string, object>();
+			var dict = (IDictionary<string, object>)new ExpandoObject();
 			foreach (var property in obj.Properties())
 			{
 				dict[property.Name] = EvalJToken(property.Value);

@@ -8,8 +8,6 @@
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="message"></param>
-		/// <param name="replacements"></param>
 		public MustachioStackOverflowException(string message) : base(message)
 		{
 		}

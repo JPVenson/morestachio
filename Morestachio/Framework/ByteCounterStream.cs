@@ -9,46 +9,56 @@ namespace Morestachio.Framework
 	///		Internal class to ensure that the given limit of bytes to write is never extended to ensure template quotas
 	/// </summary>
 	/// <seealso cref="System.IDisposable" />
-	internal class ByteCounterStream : IByteCounterStream
+	public class ByteCounterStream : IByteCounterStream
 	{
-		private readonly ParserOptions _options;
+		/// <summary>
+		/// 
+		/// </summary>
+		protected ParserOptions Options { get; }
 
+		/// <inheritdoc />
 		public ByteCounterStream([NotNull] Stream stream,
 			int bufferSize,
 			bool leaveOpen,
 			ParserOptions options)
 		{
-			_options = options;
+			Options = options;
 			BaseWriter = new StreamWriter(stream, options.Encoding, bufferSize, leaveOpen);
 		}
 
-		public StreamWriter BaseWriter { get; set; }
+		/// <summary>
+		///		The target writer
+		/// </summary>
+		protected StreamWriter BaseWriter { get; set; }
 
-		public long BytesWritten { get; private set; }
-		public bool ReachedLimit { get; private set; }
+		/// <inheritdoc />
+		public long BytesWritten { get; protected set; }
+		/// <inheritdoc />
+		public bool ReachedLimit { get; protected set; }
 
+		/// <inheritdoc />
 		public void Write(string content)
 		{
-			content = content ?? _options.Null?.ToString();
+			content = content ?? Options.Null?.ToString();
 
 			var sourceCount = BytesWritten;
 
-			if (_options.MaxSize == 0)
+			if (Options.MaxSize == 0)
 			{
 				BaseWriter.Write(content);
 				return;
 			}
 
-			if (sourceCount >= _options.MaxSize - 1)
+			if (sourceCount >= Options.MaxSize - 1)
 			{
 				ReachedLimit = true;
 				return;
 			}
 
 			//TODO this is a performance critical operation. As we might deal with variable-length encodings this cannot be compute initial
-			var cl = _options.Encoding.GetByteCount(content);
+			var cl = Options.Encoding.GetByteCount(content);
 
-			var overflow = sourceCount + cl - _options.MaxSize;
+			var overflow = sourceCount + cl - Options.MaxSize;
 			if (overflow <= 0)
 			{
 				BytesWritten += cl;
@@ -68,6 +78,7 @@ namespace Morestachio.Framework
 			}
 		}
 
+		/// <inheritdoc />
 		public void Dispose()
 		{
 			BaseWriter?.Flush();

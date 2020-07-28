@@ -23,10 +23,13 @@ namespace Morestachio.Formatter.Framework
 	///     The Formatter service that can be used to interpret the Native C# formatter.
 	///     To use this kind of formatter you must create a public static class where all formatting functions are located.
 	///     Then create a public static function that accepts n arguments of the type you want to format. For Example:
-	///     If the formatter should be only used for int formatting and the argument will always be a string you have to create
+	/// <example>
+	///		If the formatter should be only used for int formatting and the argument will always be a string you have to create
 	///     a function that has this header.
 	///     It must not return a value.
 	///     The functions must be annotated with the MorestachioFormatter attribute
+	/// </example>
+	///     
 	/// </summary>
 	public class MorestachioFormatterService : IMorestachioFormatterService
 	{
@@ -50,6 +53,9 @@ namespace Morestachio.Formatter.Framework
 			};
 		}
 
+		/// <summary>
+		///		Container for Services
+		/// </summary>
 		protected IDictionary<Type, object> ServiceCollectionAccess { get; }
 
 		/// <summary>
@@ -109,8 +115,7 @@ namespace Morestachio.Formatter.Framework
 		{
 			ServiceCollectionAccess[typeof(T)] = serviceFactory;
 		}
-
-
+		
 		/// <inheritdoc />
 		public IEnumerable<MorestachioFormatterModel> Filter(Func<MorestachioFormatterModel, bool> filter)
 		{
@@ -123,7 +128,8 @@ namespace Morestachio.Formatter.Framework
 			[NotNull] List<Tuple<string, object>> values,
 			[NotNull] object sourceValue,
 			string name,
-			ParserOptions parserOptions)
+			ParserOptions parserOptions,
+			ScopeData scope)
 		{
 			Log(() => "---------------------------------------------------------------------------------------------");
 			Log(() => $"Call Formatter for Type '{type}' on '{sourceValue}'");
@@ -133,6 +139,7 @@ namespace Morestachio.Formatter.Framework
 
 			var services = new ServiceCollection(ServiceCollectionAccess);
 			services.AddService(parserOptions);
+			services.AddService(scope.Profiler);
 			foreach (var formatTemplateElement in hasFormatter)
 			{
 				services.AddService(formatTemplateElement);
@@ -197,6 +204,20 @@ namespace Morestachio.Formatter.Framework
 			FormatterLog?.WriteLine(log());
 		}
 
+		//private readonly struct ExecuteCacheItem
+		//{
+		//	public ExecuteCacheItem(MorestachioFormatterModel model, IEnumerable<Type> testedTypes)
+		//	{
+		//		Model = model;
+		//		TestedTypes = testedTypes;
+		//	}
+
+		//	public MorestachioFormatterModel Model { get; }
+		//	public IEnumerable<Type> TestedTypes { get; }
+		//}
+
+		//private IDictionary<string, ExecuteCacheItem> ExecuteCache { get; set; }
+
 		/// <summary>
 		///     Executes the specified formatter.
 		/// </summary>
@@ -210,19 +231,23 @@ namespace Morestachio.Formatter.Framework
 			[NotNull] ServiceCollection services,
 			List<Tuple<string, object>> templateArguments)
 		{
-			var values = ComposeValues(formatter, sourceObject, formatter.Function, services, templateArguments);
-
-			if (values.Equals(new FormatterComposingResult()))
+			using (services.TryGetService<PerformanceProfiler>().BeginSafe("FormatterExecution"))
 			{
-				Log(() => "Skip: Execute skip as Compose Values returned an invalid value");
-				return FormatterFlow.Skip;
+				var values = ComposeValues(formatter, sourceObject, formatter.Function, services, templateArguments);
+
+				if (values.Equals(new FormatterComposingResult()))
+				{
+					Log(() => "Skip: Execute skip as Compose Values returned an invalid value");
+					return FormatterFlow.Skip;
+				}
+
+				Log(() => "Execute");
+				var parameters = values.Arguments.Select(e => e.Value).ToArray();
+				var taskAlike = values.MethodInfo.Invoke(formatter.FunctionTarget,
+					parameters);
+
+				return await taskAlike.UnpackFormatterTask();
 			}
-
-			Log(() => "Execute");
-			var taskAlike = values.MethodInfo.Invoke(formatter.FunctionTarget,
-				values.Arguments.Select(e => e.Value).ToArray());
-
-			return await taskAlike.UnpackFormatterTask();
 		}
 
 		/// <summary>
@@ -549,7 +574,7 @@ namespace Morestachio.Formatter.Framework
 				{
 					//match by index or name
 					Log(() => "Get the injected service");
-					if (services.GetService(parameter.ParameterType, out var service))
+					if (services.TryGetService(parameter.ParameterType, out var service))
 					{
 						if (service is Delegate factory)
 						{
@@ -733,10 +758,9 @@ namespace Morestachio.Formatter.Framework
 				else if (givenValue is IConvertible convertible &&
 				         typeof(IConvertible).IsAssignableFrom(parameterParameterType))
 				{
-					services.GetService<ParserOptions>(out var parserOptions);
 					try
 					{
-						givenValue = convertible.ToType(parameterParameterType, parserOptions.CultureInfo);
+						givenValue = convertible.ToType(parameterParameterType, services.GetRequiredService<ParserOptions>().CultureInfo);
 					}
 					catch (Exception e)
 					{

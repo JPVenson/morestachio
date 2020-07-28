@@ -23,7 +23,7 @@ using Promise = System.Threading.Tasks.Task;
 namespace Morestachio.Document
 {
 	/// <summary>
-	///		Emits N items that are in the <see cref="Value"/>
+	///		Emits N items that are in the collection
 	/// </summary>
 	[System.Serializable]
 	public class EachDocumentItem : ExpressionDocumentItemBase

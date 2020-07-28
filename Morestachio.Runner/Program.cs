@@ -290,7 +290,6 @@ namespace Morestachio.Runner
 									break;
 								case SourceTypes.Xml:
 									throw new NotSupportedException("The XML deserialisation is currently not supported");
-									break;
 								case SourceTypes.NetFunction:
 									Console.WriteLine($"- Load Assembly '{sourceData}', search for type '{sourceDataNetType}'" +
 									                  $" and run public static object {sourceDataNetFunction}(); to obtain data");

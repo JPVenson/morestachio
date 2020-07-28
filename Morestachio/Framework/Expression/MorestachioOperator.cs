@@ -123,7 +123,7 @@ namespace Morestachio.Framework.Expression
 			{
 				rightValue = await right.GetValue(contextObject, scopeData);
 			}
-			return await leftValue.Operator(OperatorType, rightValue);
+			return await leftValue.Operator(OperatorType, rightValue, scopeData);
 		}
 
 		/// <summary>

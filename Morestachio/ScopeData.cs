@@ -34,10 +34,6 @@ namespace Morestachio
 		///  <summary>
 		/// 		Adds a new variable or alias. An alias is bound to its scope and will be reset when the scoping <see cref="IDocumentItem"/> is closed. An Variable is global
 		///  </summary>
-		///  <param name="name"></param>
-		///  <param name="value"></param>
-		///  <param name="scope"></param>
-		///  <param name="idVariableScope"></param>
 		public void AddVariable(string name, ContextObject value, int idVariableScope)
 		{
 			if (idVariableScope == 0)
@@ -114,6 +110,8 @@ namespace Morestachio
 		///		Will be set by any preceding If statement if the expression was not rendered to true
 		/// </summary>
 		public bool ExecuteElse { get; set; }
+
+		internal PerformanceProfiler Profiler { get; set; }
 
 		/// <inheritdoc />
 		public void Dispose()

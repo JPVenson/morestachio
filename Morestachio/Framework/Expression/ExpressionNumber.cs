@@ -23,18 +23,27 @@ namespace Morestachio.Framework.Expression
 	[DebuggerTypeProxy(typeof(ExpressionDebuggerDisplay))]
 	public class ExpressionNumber : IMorestachioExpression
 	{
+		/// <summary>
+		///		The number of the Expression
+		/// </summary>
 		public Number Number { get; private set; }
 
 		internal ExpressionNumber()
 		{
 			
 		}
-
+		
+		/// <summary>
+		/// 
+		/// </summary>
 		public ExpressionNumber(in Number number)
 		{
 			Number = number;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
 		protected ExpressionNumber(SerializationInfo info, StreamingContext context)
 		{
 			Number.TryParse(info.GetValue(nameof(Number), typeof(string)).ToString(), CultureInfo.CurrentCulture,
@@ -42,25 +51,29 @@ namespace Morestachio.Framework.Expression
 			Number = nr;
 			Location = CharacterLocation.FromFormatString(info.GetString(nameof(Location)));
 		}
-
+		
+		/// <inheritdoc />
 		public void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			info.AddValue(nameof(Number), Number.AsParsableString());
 			info.AddValue(nameof(Location), Location.ToFormatString());
 		}
-
+		
+		/// <inheritdoc />
 		public XmlSchema GetSchema()
 		{
 			throw new NotImplementedException();
 		}
-
+		
+		/// <inheritdoc />
 		public void ReadXml(XmlReader reader)
 		{
 			Location = CharacterLocation.FromFormatString(reader.GetAttribute(nameof(Location)));
 			Number.TryParse(reader.GetAttribute(nameof(Number)), CultureInfo.CurrentCulture, out var nr);
 			Number = nr;
 		}
-
+		
+		/// <inheritdoc />
 		public void WriteXml(XmlWriter writer)
 		{
 			writer.WriteAttributeString(nameof(Location), Location.ToFormatString());
@@ -72,7 +85,8 @@ namespace Morestachio.Framework.Expression
 		{
 			return Equals((object)other);
 		}
-
+		
+		/// <inheritdoc />
 		public bool Equals(ExpressionNumber other)
 		{
 			if (!Location.Equals(other.Location))
@@ -115,18 +129,25 @@ namespace Morestachio.Framework.Expression
 			}
 		}
 
+		/// <inheritdoc />
 		public CharacterLocation Location { get; set; }
-		public async ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
+
+		/// <inheritdoc />
+		public ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
 		{
 			return contextObject.Options.CreateContextObject(".", contextObject.CancellationToken, Number,
-				contextObject);
+				contextObject).ToPromise();
 		}
 
+		/// <inheritdoc />
 		public void Accept(IMorestachioExpressionVisitor visitor)
 		{
 			visitor.Visit(this);
 		}
 
+		/// <summary>
+		///		Parses the text and returns an Expression number
+		/// </summary>
 		public static ExpressionNumber ParseFrom(string text,
 			int offset,
 			TokenzierContext context,
@@ -178,16 +199,14 @@ namespace Morestachio.Framework.Expression
 					Location = context.CurrentLocation.Offset(offset)
 				};
 			}
-			else
-			{
-				context.Errors.Add(new MorestachioSyntaxError(
-					context
-						.CurrentLocation
-						.AddWindow(new CharacterSnippedLocation(0, index, text)),
-					"", text, "Could not parse the given number"));
 
-				return null;
-			}
+			context.Errors.Add(new MorestachioSyntaxError(
+				context
+					.CurrentLocation
+					.AddWindow(new CharacterSnippedLocation(0, index, text)),
+				"", text, "Could not parse the given number"));
+
+			return null;
 		}
 
 		/// <inheritdoc />

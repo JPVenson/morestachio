@@ -293,7 +293,8 @@ namespace Morestachio.Framework.Expression.Framework
 				PathParts.Add(null, PathType.Null);
 				return true;
 			}
-			else if (CurrentPart == "true" || CurrentPart == "false")
+
+			if (CurrentPart == "true" || CurrentPart == "false")
 			{
 				if (PathParts.Any)
 				{
@@ -309,28 +310,23 @@ namespace Morestachio.Framework.Expression.Framework
 				PathParts.Add(CurrentPart, PathType.Boolean);
 				return true;
 			}
-			else if (CurrentPart == "../")
+			if (CurrentPart == "../")
 			{
 				PathParts.Add(null, PathType.ParentSelector);
 				return true;
 			}
-			else if (CurrentPart == "~")
+			if (CurrentPart == "~")
 			{
 				PathParts.Add(null, PathType.RootSelector);
 				return true;
 			}
-			else if (CurrentPart == "?")
+			if (CurrentPart == "?")
 			{
 				PathParts.Add(null, PathType.ObjectSelector);
 				return true;
 			}
-			else
-			{
-				PathParts.Add(CurrentPart, PathType.DataPath);
-				return true;
-			}
-
-			return false;
+			PathParts.Add(CurrentPart, PathType.DataPath);
+			return true;
 		}
 
 		private int CheckPathPart()

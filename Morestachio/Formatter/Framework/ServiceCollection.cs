@@ -41,12 +41,12 @@ namespace Morestachio.Formatter.Framework
 			_localSource[typeof(T)] = serviceFactory;
 		}
 
-		public bool GetService<T>(out T service)
+		public bool TryGetService<T>(out T service)
 		{
-			var found = GetService(typeof(T), out var serviceTem);
+			var found = TryGetService(typeof(T), out var serviceTem);
 			if (found)
 			{
-				service = (T) serviceTem;
+				service = (T)serviceTem;
 			}
 			else
 			{
@@ -56,7 +56,23 @@ namespace Morestachio.Formatter.Framework
 			return found;
 		}
 
-		public bool GetService(Type serviceType, out object service)
+		public T TryGetService<T>() where T : class
+		{
+			var found = TryGetService(typeof(T), out var serviceTem);
+			return serviceTem as T;
+		}
+
+		public T GetRequiredService<T>()
+		{
+			var found = TryGetService(typeof(T), out var serviceTem);
+			if (found)
+			{
+				return (T)serviceTem;
+			}
+			throw new InvalidOperationException($"The required service {typeof(T)} was not found");
+		}
+
+		public bool TryGetService(Type serviceType, out object service)
 		{
 			if (!_localSource.TryGetValue(serviceType, out service))
 			{

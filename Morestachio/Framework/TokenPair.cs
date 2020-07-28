@@ -11,7 +11,7 @@ namespace Morestachio.Framework
 	///     The token that has been lexed out of template content.
 	/// </summary>
 	[DebuggerTypeProxy(typeof(TokenPairDebuggerProxy))]
-	public class TokenPair
+	public readonly struct TokenPair
 	{
 		[PublicAPI]
 		private class TokenPairDebuggerProxy
@@ -46,35 +46,58 @@ namespace Morestachio.Framework
 		/// <summary>
 		///		Creates a new Token Pair
 		/// </summary>
-		/// <param name="type"></param>
-		/// <param name="value"></param>
-		/// <param name="tokenLocation"></param>
-		public TokenPair(IComparable type, string value, CharacterLocation tokenLocation)
+		public TokenPair(IComparable type, string value, CharacterLocation tokenLocation, bool noScope = false)
+			: this(type, value, null, tokenLocation, noScope)
+		{
+			Value = value;
+		}
+
+
+		/// <summary>
+		///		Creates a new Token Pair
+		/// </summary>
+		public TokenPair(IComparable type, IMorestachioExpression expression, CharacterLocation tokenLocation, bool noScope = false)
+			: this(type, null, expression, tokenLocation, noScope)
+		{
+		}
+
+
+		/// <summary>
+		///		Creates a new Token Pair
+		/// </summary>
+		public TokenPair(IComparable type, string value, IMorestachioExpression expression, CharacterLocation tokenLocation, bool noScope = false)
 		{
 			Type = type;
-			Value = value;
+			MorestachioExpression = expression;
 			TokenLocation = tokenLocation;
+			NoScope = noScope;
+			Value = value;
 		}
 
 		/// <summary>
 		///		The type of this Token
 		/// </summary>
-		public IComparable Type { get; set; }
+		public IComparable Type { get; }
 
 		/// <summary>
 		///		With what format should this token be evaluated
 		/// </summary>
-		internal IMorestachioExpression MorestachioExpression { get; set; }
-		
+		internal IMorestachioExpression MorestachioExpression { get; }
+
 		/// <summary>
 		///		What is the Value of this token
 		/// </summary>
 		[CanBeNull]
-		public string Value { get; set; }
+		public string Value { get; }
 
 		/// <summary>
 		///		Where does this token occure in the Template
 		/// </summary>
-		public CharacterLocation TokenLocation { get; set; }
+		public CharacterLocation TokenLocation { get; }
+
+		/// <summary>
+		///		IF set an otherwise scopeing block does not perform the scopeing
+		/// </summary>
+		public bool NoScope { get; }
 	}
 }

@@ -1188,7 +1188,7 @@ namespace Morestachio.Tests
 		{
 			var parsingOptions = new ParserOptions("{{#PI}}3{{/PI}}", null, DefaultEncoding);
 
-			parsingOptions.CustomDocumentItemProviders.Add(new BlockDocumentItemProvider("#PI", "/PI", async
+			parsingOptions.CustomDocumentItemProviders.Add(new BlockDocumentItemProvider("#PI", "/PI", 
 			 (outputStream,
 				 context,
 				 scopeData,
@@ -1197,7 +1197,7 @@ namespace Morestachio.Tests
 			{
 				var firstOrDefault = children.OfType<ContentDocumentItem>().FirstOrDefault();
 				outputStream.Write((Math.PI * int.Parse(firstOrDefault.Value)).ToString());
-				return Array.Empty<DocumentItemExecution>();
+				return Array.Empty<DocumentItemExecution>().ToPromise();
 			}));
 
 			var results = Parser.ParseWithOptions(parsingOptions);

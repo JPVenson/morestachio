@@ -26,6 +26,7 @@ namespace Morestachio.Tests.Json
 			var document = Parser.ParseWithOptions(options);
 			Assert.That(document.CreateAndStringify(JsonConvert.DeserializeObject(data)), Is.EqualTo("Test"));
 		}
+
 		[Test]
 		public void TestValueResolverCanGetPropertyList()
 		{

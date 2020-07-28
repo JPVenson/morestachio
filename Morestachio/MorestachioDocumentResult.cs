@@ -11,5 +11,7 @@ namespace Morestachio
 		///		The Result of the CreateAsync call
 		/// </summary>
 		public Stream Stream { get; set; }
+
+		public PerformanceProfiler Profiler { get; set; }
 	}
 }
