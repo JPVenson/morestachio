@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using Morestachio.Formatter.Framework;
 #if ValueTask
 using ObjectPromise = System.Threading.Tasks.ValueTask<object>;
 #else
@@ -103,6 +104,7 @@ namespace Morestachio.Framework.Expression
 		/// </summary>
 		public static IDictionary<OperatorTypes, MorestachioOperator> Operators { get; }
 
+
 		/// <summary>
 		///     Executes the operator
 		/// </summary>
@@ -117,13 +119,9 @@ namespace Morestachio.Framework.Expression
 			ContextObject contextObject,
 			ScopeData scopeData)
 		{
-			var leftValue = await left.GetValue(contextObject, scopeData);
-			ContextObject rightValue = null;
-			if (right != null)
-			{
-				rightValue = await right.GetValue(contextObject, scopeData);
-			}
-			return await leftValue.Operator(OperatorType, rightValue, scopeData);
+			
+
+			return null;
 		}
 
 		/// <summary>

@@ -51,20 +51,40 @@ namespace Morestachio.Formatter.Framework
 		ICollection<IFormatterValueConverter> ValueConverter { get; }
 
 		///  <summary>
-		/// 		Searches for the formatter that matches the type and the given values
+		/// 		Searches for the formatter that matches the type and the given values and returns an struct that can be used to call an optimized formatter multiple times
 		///  </summary>
-		///  <param name="type"></param>
-		///  <param name="values"></param>
-		///  <param name="sourceValue"></param>
-		///  <param name="name"></param>
-		///  <param name="options"></param>
-		///  <param name="scope"></param>
-		///  <returns></returns>
-		ObjectPromise CallMostMatchingFormatter(
+		FormatterCache? PrepareCallMostMatchingFormatter(
 			[NotNull]Type type,
-			[NotNull]List<Tuple<string, object>> values,
-			object sourceValue,
+			[NotNull]FormatterArgumentType[] arguments,
 			[CanBeNull]string name,
+			ParserOptions options,
+			ScopeData scope);
+
+		/// <summary>
+		///		Executes an formatter that must match the definition that it was created with
+		/// </summary>
+		/// <param name="formatter"></param>
+		/// <param name="sourceType"></param>
+		/// <param name="args"></param>
+		/// <returns></returns>
+		ObjectPromise Execute(
+			[NotNull] FormatterCache formatter,
+			object sourceType,
+			FormatterArgumentType[] args);
+
+		/// <summary>
+		///		Searches for an cached and prepared formatter call and executes it
+		/// </summary>
+		/// <param name="args"></param>
+		/// <param name="sourceValue"></param>
+		/// <param name="name"></param>
+		/// <param name="options"></param>
+		/// <param name="scope"></param>
+		/// <returns></returns>
+		ObjectPromise Execute(
+			[NotNull] FormatterArgumentType[] args,
+			object sourceValue,
+			[CanBeNull] string name,
 			ParserOptions options,
 			ScopeData scope);
 

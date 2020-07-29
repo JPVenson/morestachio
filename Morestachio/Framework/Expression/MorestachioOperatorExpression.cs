@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
+using Morestachio.Formatter.Framework;
 using Morestachio.Framework.Expression.Visitors;
 #if ValueTask
 using ContextObjectPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.ContextObject>;
@@ -168,12 +169,49 @@ namespace Morestachio.Framework.Expression
 		/// <inheritdoc />
 		public CharacterLocation Location { get; set; }
 
+		/// <summary>
+		///		If the operator was called once this contains the exact formatter match that was executed and can be reused for execution
+		/// </summary>
+		protected FormatterCache? Cache { get; private set; }
+
 		/// <inheritdoc />
 		public async ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
 		{
-			var val = await Operator.Execute(LeftExpression, RightExpression, contextObject, scopeData);
-			return contextObject.Options.CreateContextObject(".", contextObject.CancellationToken, val,
-				contextObject.Parent);
+			var leftValue = await LeftExpression.GetValue(contextObject, scopeData);
+			FormatterArgumentType[] arguments;
+			if (RightExpression != null)
+			{
+				arguments = new[]
+				{
+					new FormatterArgumentType(0, null, (await RightExpression.GetValue(contextObject, scopeData)).Value)
+				};
+			}
+			else
+			{
+				arguments = new FormatterArgumentType[0];
+			}
+
+			
+			var operatorFormatterName = "op_" + Operator.OperatorType;
+
+			if (Cache == null)
+			{
+				Cache = leftValue.PrepareFormatterCall(
+					leftValue.Value?.GetType() ?? typeof(object),
+					operatorFormatterName,
+					arguments,
+					scopeData);
+			}
+			
+			if (Cache != null && !Equals(Cache.Value, default(FormatterCache)))
+			{
+				return contextObject.Options.CreateContextObject(".",
+					contextObject.CancellationToken,
+					await contextObject.Options.Formatters.Execute(Cache.Value, leftValue.Value, arguments),
+					contextObject.Parent);
+			}
+
+			return null;
 		}
 
 		/// <inheritdoc />

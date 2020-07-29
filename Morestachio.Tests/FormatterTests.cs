@@ -323,7 +323,7 @@ namespace Morestachio.Tests
 			var template = Parser.ParseWithOptions(options);
 
 			var andStringify = template.CreateAndStringify(new Dictionary<string, object>() { { "data", "Test" } });
-			Assert.That(andStringify, Is.EqualTo("ORIGINAL: Test REST:andmore"));
+			Assert.That(andStringify, Is.EqualTo("ORIGINAL: Test REST:otherandmore"));
 		}
 
 		[Test]

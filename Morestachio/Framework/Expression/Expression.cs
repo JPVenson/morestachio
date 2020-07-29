@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
+using Morestachio.Formatter.Framework;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.Visitors;
 using Morestachio.ParserErrors;
@@ -148,6 +149,8 @@ namespace Morestachio.Framework.Expression
 		/// <inheritdoc />
 		public CharacterLocation Location { get; set; }
 
+		public FormatterCache? Cache { get; set; }
+
 		/// <inheritdoc />
 		public async ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
 		{
@@ -157,15 +160,29 @@ namespace Morestachio.Framework.Expression
 				return contextForPath;
 			}
 
-			var argList = new List<Tuple<string, object>>();
+			var arguments = new FormatterArgumentType[Formats.Count];
 			var naturalValue = contextObject.FindNextNaturalContextObject().CloneForEdit();
-			foreach (var formatterArgument in Formats)
+			for (var index = 0; index < Formats.Count; index++)
 			{
+				var formatterArgument = Formats[index];
 				var value = await formatterArgument.MorestachioExpression.GetValue(naturalValue, scopeData);
-				argList.Add(new Tuple<string, object>(formatterArgument.Name, value?.Value));
+				arguments[index] = new FormatterArgumentType(index, formatterArgument.Name, value?.Value);
+			}
+			//contextForPath.Value = await contextForPath.Format(FormatterName, argList, scopeData);
+
+			if (Cache == null)
+			{
+				Cache = contextForPath.PrepareFormatterCall(
+					contextForPath.Value?.GetType() ?? typeof(object),
+					FormatterName,
+					arguments,
+					scopeData);
 			}
 
-			contextForPath.Value = await contextForPath.Format(FormatterName, argList, scopeData);
+			if (Cache != null && !Equals(Cache.Value, default(FormatterCache)))
+			{
+				contextForPath.Value = await contextObject.Options.Formatters.Execute(Cache.Value, contextForPath.Value, arguments);
+			}
 			return contextForPath;
 		}
 

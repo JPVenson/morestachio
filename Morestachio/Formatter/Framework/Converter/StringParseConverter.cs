@@ -12,6 +12,11 @@ namespace Morestachio.Formatter.Framework.Converter
 
 		public StringConverter StringConverter { get; set; }
 
+		public bool CanConvert(Type sourceType, Type requestedType)
+		{
+			return sourceType == typeof(string);
+		}
+
 		public bool CanConvert(object value, Type requestedType)
 		{
 			return StringConverter.CanConvertTo(requestedType);

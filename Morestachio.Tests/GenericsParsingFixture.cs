@@ -23,8 +23,8 @@ namespace Morestachio.Tests
 		private void CallWithResult(string methodName, IDictionary<string, object> values, object expected)
 		{
 			Assert.That(Result, Is.Null);
-			MorestachioFormatterService.MakeGenericMethodInfoByValues(GetType()
-					.GetMethod(methodName), values)
+			MorestachioFormatterService.PrepareMakeGenericMethodInfoByValues(GetType()
+					.GetMethod(methodName), values.Select(e => e.Value).ToArray())
 				.Invoke(this, values.Values.ToArray());	
 			Assert.That(Result, Is.EqualTo(expected));
 			Result = null;

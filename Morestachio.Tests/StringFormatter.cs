@@ -23,9 +23,9 @@ namespace Morestachio.Tests
 
 		public class TestToExpectedObjectConverter : IFormatterValueConverter
 		{
-			public bool CanConvert(object value, Type requestedType)
+			public bool CanConvert(Type sourceType, Type requestedType)
 			{
-				return requestedType == typeof(ExpectedObject) && value is TestObject;
+				return requestedType == typeof(ExpectedObject) && sourceType == typeof(TestObject);
 			}
 
 			public object Convert(object value, Type requestedType)
@@ -84,7 +84,7 @@ namespace Morestachio.Tests
 		}
 
 		[MorestachioFormatter("rest", "XXX")]
-		public static string Rest(string originalObject, string fix, [RestParameter]object[] rest)
+		public static string Rest(string originalObject, [RestParameter]object[] rest)
 		{
 			return "ORIGINAL: " + originalObject + " REST:" + rest.Select(f => f.ToString()).Aggregate((e, f) => e + f);
 		}

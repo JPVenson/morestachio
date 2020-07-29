@@ -78,8 +78,8 @@ namespace Morestachio.Tests
 				});
 			}
 
-			var parsingOptions = new Morestachio.ParserOptions(TextTemplateMorestachio);
-			parsingOptions.ProfileExecution = true;
+			var parsingOptions = new Morestachio.ParserOptions(TextTemplateMorestachio, null, Encoding.UTF8, true);
+			parsingOptions.ProfileExecution = false;
 			var parsed = Morestachio.Parser.ParseWithOptions(parsingOptions);
 			var andStringifyAsync = await parsed.CreateAndStringifyAsync(new
 			{

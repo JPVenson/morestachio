@@ -36,7 +36,7 @@ namespace Morestachio.Framework
 	{
 		static ContextObject()
 		{
-			DefaultFormatter = new MorestachioFormatterService();
+			DefaultFormatter = new MorestachioFormatterService(false);
 			DefaultFormatter.AddFromType(typeof(ObjectStringFormatter));
 			DefaultFormatter.AddFromType(typeof(Number));
 			DefaultFormatter.AddFromType(typeof(BooleanFormatter));
@@ -431,11 +431,41 @@ namespace Morestachio.Framework
 		}
 
 		/// <summary>
+		///		Gets an FormatterCache from ether the custom formatter or the global one
+		/// </summary>
+		/// <param name="type"></param>
+		/// <param name="name"></param>
+		/// <param name="arguments"></param>
+		/// <param name="scope"></param>
+		/// <returns></returns>
+		public virtual FormatterCache? PrepareFormatterCall(Type type,
+			[CanBeNull] string name,
+			[NotNull] FormatterArgumentType[] arguments,
+			ScopeData scope)
+		{
+			if (string.IsNullOrWhiteSpace(name))
+			{
+				name = null;
+			}
+
+			//call formatters that are given by the Options for this run
+			var cache = Options.Formatters.PrepareCallMostMatchingFormatter(type, arguments, name, Options, scope);
+			if (cache != null)
+			{
+				//one formatter has returned a valid value so use this one.
+				return cache;
+			}
+
+			//all formatters in the options object have rejected the value so try use the global ones
+			return DefaultFormatter.PrepareCallMostMatchingFormatter(type, arguments, name, Options, scope);
+		}
+
+		/// <summary>
 		///     Parses the current object by using the given argument
 		/// </summary>
 		public virtual async ObjectPromise Format(
 			[CanBeNull] string name,
-			[NotNull] List<Tuple<string, object>> argument,
+			[NotNull] FormatterArgumentType[] arguments,
 			ScopeData scopeData)
 		{
 			var retval = _value;
@@ -450,7 +480,7 @@ namespace Morestachio.Framework
 			}
 
 			//call formatters that are given by the Options for this run
-			retval = await Options.Formatters.CallMostMatchingFormatter(_value.GetType(), argument, _value, name, Options, scopeData);
+			retval = await Options.Formatters.Execute(arguments, _value, name, Options, scopeData);
 			if (!Equals(retval, FormatterFlow.Skip))
 			{
 				//one formatter has returned a valid value so use this one.
@@ -458,7 +488,7 @@ namespace Morestachio.Framework
 			}
 
 			//all formatters in the options object have rejected the value so try use the global ones
-			retval = await DefaultFormatter.CallMostMatchingFormatter(_value.GetType(), argument, _value, name, Options, scopeData);
+			retval = await DefaultFormatter.Execute(arguments, _value, name, Options, scopeData);
 			if (!Equals(retval, FormatterFlow.Skip))
 			{
 				return retval;
@@ -477,7 +507,7 @@ namespace Morestachio.Framework
 		public virtual async ObjectPromise Operator(
 			[CanBeNull] OperatorTypes name,
 			[CanBeNull] ContextObject other,
-				ScopeData scopeData)
+			ScopeData scopeData)
 		{
 			//await EnsureValue();
 			var retval = _value;
@@ -489,9 +519,11 @@ namespace Morestachio.Framework
 			var operatorFormatterName = "op_" + name;
 
 			//call formatters that are given by the Options for this run
-			var values = new List<Tuple<string, object>>();
-			values.Add(Tuple.Create((string)null, other.Value));
-			retval = await Options.Formatters.CallMostMatchingFormatter(_value.GetType(), values, _value, operatorFormatterName, Options, scopeData);
+			var arguments = new FormatterArgumentType[]
+			{
+				new FormatterArgumentType(0, null, other.Value)
+			};
+			retval = await Options.Formatters.Execute(arguments, _value, operatorFormatterName, Options, scopeData);
 			if (!Equals(retval, FormatterFlow.Skip))
 			{
 				//one formatter has returned a valid value so use this one.
@@ -499,7 +531,7 @@ namespace Morestachio.Framework
 			}
 
 			//all formatters in the options object have rejected the value so try use the global ones
-			retval = await DefaultFormatter.CallMostMatchingFormatter(_value.GetType(), values, _value, operatorFormatterName, Options, scopeData);
+			retval = await DefaultFormatter.Execute(arguments, _value, operatorFormatterName, Options, scopeData);
 			if (!Equals(retval, FormatterFlow.Skip))
 			{
 				return retval;

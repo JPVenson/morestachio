@@ -147,7 +147,20 @@ namespace Morestachio.Framework
 
 		internal static bool IsOperationChar(char formatChar)
 		{
-			return MorestachioOperator.Yield().Any(f => f.OperatorText[0] == formatChar);
+			return
+				formatChar == '+' ||
+				formatChar == '-' ||
+				formatChar == '*' ||
+				formatChar == '/' ||
+				formatChar == '^' ||
+				formatChar == '%' ||
+				formatChar == '<' ||
+				formatChar == '>' ||
+				formatChar == '=' ||
+				formatChar == '!' ||
+				formatChar == '&' ||
+				formatChar == '|';
+			//return MorestachioOperator.Yield().Any(f => f.OperatorText[0] == formatChar);
 		}
 
 		internal static bool IsEndOfFormatterArgument(char? formatChar)
