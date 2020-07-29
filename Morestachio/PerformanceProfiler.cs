@@ -50,7 +50,8 @@ namespace Morestachio
 
 		public IDisposable Begin(string name)
 		{
-			var performanceKey = (OperationStack.Peek()?.Children ?? PerformanceKeys)
+			var performanceKey =
+				((OperationStack.Count > 0 ? OperationStack.Peek()?.Children : null) ?? PerformanceKeys)
 				.AddOrGet(new PerformanceKey(name, name, () => OperationStack.Pop()));
 			OperationStack.Push(performanceKey);
 			return performanceKey.Start();

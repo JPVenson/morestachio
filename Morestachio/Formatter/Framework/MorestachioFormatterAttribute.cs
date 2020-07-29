@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Morestachio.Attributes;
-using Morestachio.Framework.Expression;
 
 namespace Morestachio.Formatter.Framework
 {
@@ -108,39 +107,6 @@ namespace Morestachio.Formatter.Framework
 			}
 
 			return arguments;
-		}
-	}
-
-	/// <summary>
-	///		Defines an function as an operator for one of the given <see cref="OperatorTypes"/>
-	/// </summary>
-	public class MorestachioOperatorAttribute : MorestachioFormatterAttribute
-	{
-		public MorestachioOperatorAttribute(OperatorTypes name, string description) 
-			: base("op_" + name.ToString(), description)
-		{
-			OperatorType = name;
-		}
-
-		/// <summary>
-		///		The Operator
-		/// </summary>
-		public OperatorTypes OperatorType { get; set; }
-		
-		public override bool ValidateFormatterName()
-		{
-			return MorestachioOperator.Operators.ContainsKey(OperatorType);
-		}
-	}
-
-	/// <summary>
-	///		Defines an Global Formatter that can be called without the need for specifing an source object
-	/// </summary>
-	public class MorestachioGlobalFormatterAttribute : MorestachioFormatterAttribute
-	{
-		public MorestachioGlobalFormatterAttribute(string name, string description) : base(name, description)
-		{
-			IsSourceObjectAware = false;
 		}
 	}
 }

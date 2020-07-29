@@ -79,20 +79,7 @@ namespace Morestachio.Document
 						MorestachioExpression.ToString(), base.ExpressionStart, (path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 			}
 
-			//var collectionContext = new ContextCollection(0, false, context.Options, "[]", c, null);
-			//var coll = value.OfType<object>().ToArray();
-			//for (var i = 0; i < coll.Length; i++)
-			//{
-			//	collectionContext.Last = coll.Length == i;
-			//	collectionContext.Index = i;
-			//	collectionContext.Value = coll[i];
-			//	await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, collectionContext, scopeData);
-			//}
-
-			//return Enumerable.Empty<DocumentItemExecution>();
-
 			var scopes = new List<DocumentItemExecution>();
-
 			//Use this "lookahead" enumeration to allow the $last keyword
 			var index = 0;
 			var enumerator = value.GetEnumerator();
@@ -102,12 +89,15 @@ namespace Morestachio.Document
 			}
 
 			var current = enumerator.Current;
+
 			do
 			{
 				var next = enumerator.MoveNext() ? enumerator.Current : null;
+				
 				var innerContext =
-					new ContextCollection(index, next == null, context.Options, $"[{index}]", c, current);
-				scopes.AddRange(Children.WithScope(innerContext.MakeNatural()));
+					new ContextCollection(index, next == null, context.Options, $"[{index}]", c, current)
+						.MakeNatural();
+				scopes.AddRange(Children.WithScope(innerContext));
 				index++;
 				current = next;
 			} while (current != null && ContinueBuilding(outputStream, context));

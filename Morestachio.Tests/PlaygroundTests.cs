@@ -106,7 +106,10 @@ namespace Morestachio.Tests
 			}
 
 			var swElapsed = sw.Elapsed;
-			Console.WriteLine("Done in: " + swElapsed + " thats " + new TimeSpan(sw.Elapsed.Ticks / runs) + " per run");
+			Console.WriteLine("Done in: " + swElapsed + " thats " + new TimeSpan(sw.Elapsed.Ticks / runs) + " per run ");
+			#if NETCOREAPP
+			Console.WriteLine("- Mem: " + Process.GetCurrentProcess().PrivateMemorySize64);
+			#endif
 			//PrintPerformanceGroup(profiler.SelectMany(f => f.))
 		}
 

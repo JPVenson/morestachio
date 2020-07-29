@@ -451,7 +451,7 @@ namespace Morestachio.Framework
 
 			//call formatters that are given by the Options for this run
 			retval = await Options.Formatters.CallMostMatchingFormatter(_value.GetType(), argument, _value, name, Options, scopeData);
-			if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
+			if (!Equals(retval, FormatterFlow.Skip))
 			{
 				//one formatter has returned a valid value so use this one.
 				return retval;
@@ -459,9 +459,14 @@ namespace Morestachio.Framework
 
 			//all formatters in the options object have rejected the value so try use the global ones
 			retval = await DefaultFormatter.CallMostMatchingFormatter(_value.GetType(), argument, _value, name, Options, scopeData);
-			if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
+			if (!Equals(retval, FormatterFlow.Skip))
 			{
 				return retval;
+			}
+
+			if (Options.UnmatchedFormatterBehavior == UnmatchedFormatterBehavior.Null)
+			{
+				return null;
 			}
 			return _value;
 		}
@@ -487,7 +492,7 @@ namespace Morestachio.Framework
 			var values = new List<Tuple<string, object>>();
 			values.Add(Tuple.Create((string)null, other.Value));
 			retval = await Options.Formatters.CallMostMatchingFormatter(_value.GetType(), values, _value, operatorFormatterName, Options, scopeData);
-			if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
+			if (!Equals(retval, FormatterFlow.Skip))
 			{
 				//one formatter has returned a valid value so use this one.
 				return retval;
@@ -495,9 +500,13 @@ namespace Morestachio.Framework
 
 			//all formatters in the options object have rejected the value so try use the global ones
 			retval = await DefaultFormatter.CallMostMatchingFormatter(_value.GetType(), values, _value, operatorFormatterName, Options, scopeData);
-			if (!Equals(retval, MorestachioFormatterService.FormatterFlow.Skip))
+			if (!Equals(retval, FormatterFlow.Skip))
 			{
 				return retval;
+			}
+			if (Options.UnmatchedFormatterBehavior == UnmatchedFormatterBehavior.Null)
+			{
+				return null;
 			}
 			return _value;
 		}

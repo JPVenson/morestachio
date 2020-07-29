@@ -576,11 +576,6 @@ namespace Morestachio.Formatter.Framework
 					Log(() => "Get the injected service");
 					if (services.TryGetService(parameter.ParameterType, out var service))
 					{
-						if (service is Delegate factory)
-						{
-							service = factory.DynamicInvoke();
-						}
-
 						givenValue = service;
 
 						if (!parameter.ParameterType.IsInstanceOfType(givenValue))
@@ -779,35 +774,6 @@ namespace Morestachio.Formatter.Framework
 			}
 
 			return true;
-		}
-		
-		/// <summary>
-		///     Can be returned by a Formatter to control what formatter should be used
-		/// </summary>
-		public struct FormatterFlow
-		{
-			/// <summary>
-			///     Return code for all formatters to skip the execution of the current formatter and try another one that could also
-			///     match
-			/// </summary>
-			public static FormatterFlow Skip { get; } = new FormatterFlow();
-		}
-
-		/// <summary>
-		/// </summary>
-		public struct FormatterComposingResult
-		{
-			/// <summary>
-			///     The Result Method of the Composing operation. It can be different from the original.
-			/// </summary>
-			[NotNull]
-			public MethodInfo MethodInfo { get; set; }
-
-			/// <summary>
-			///     The list of arguments for the <see cref="MethodInfo" />
-			/// </summary>
-			[NotNull]
-			public IDictionary<MultiFormatterInfo, object> Arguments { get; set; }
 		}
 	}
 }

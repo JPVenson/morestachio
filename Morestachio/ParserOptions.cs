@@ -34,6 +34,22 @@ namespace Morestachio
 	}
 
 	/// <summary>
+	///		Defines the behavior how to react to a call of a formatter that does not exist
+	/// </summary>
+	public enum UnmatchedFormatterBehavior
+	{
+		/// <summary>
+		///		If the Option is set to null and no formatter that matches is found the result of that operation is null
+		/// </summary>
+		Null,
+
+		/// <summary>
+		///		If the option is set to ParentValue and no formatter that matches is found the result of that operation is the last non-null value
+		/// </summary>
+		ParentValue
+	}
+
+	/// <summary>
 	///     Options for Parsing run
 	/// </summary>
 	[PublicAPI]
@@ -129,13 +145,7 @@ namespace Morestachio
 		///		The list of provider that emits custom document items
 		/// </summary>
 		public IList<CustomDocumentItemProvider> CustomDocumentItemProviders { get; private set; }
-
-		/// <summary>
-		///		Enables the Legacy resolver for Formatters names that formatters should contain the name of the formatter as the first argument.
-		/// </summary>
-		[Obsolete("Enables Legacy behavior for the resolving of formatters. This behavior will be removed completely in later versions", true)]
-		public bool LegacyFormatterResolving { get; set; }
-
+		
 		/// <summary>
 		///		If set to True morestachio will profile the execution and report the result in both <seealso cref="MorestachioDocumentInfo"/>
 		/// </summary>
@@ -184,6 +194,12 @@ namespace Morestachio
 		///		Default is <see cref="PartialStackOverflowBehavior.FailWithException"/>
 		/// </summary>
 		public PartialStackOverflowBehavior StackOverflowBehavior { get; set; }
+
+		/// <summary>
+		///		Defines how the Parser should behave when encountering a formatter call that cannot be resolved
+		///		Default is <see cref="UnmatchedFormatterBehavior.ParentValue"/>
+		/// </summary>
+		public UnmatchedFormatterBehavior UnmatchedFormatterBehavior { get; set; }
 
 		/// <summary>
 		///		Gets or sets the timeout. After the timeout is reached and the Template has not finished Processing and Exception is thrown.
