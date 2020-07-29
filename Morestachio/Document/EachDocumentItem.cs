@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
@@ -51,6 +52,28 @@ namespace Morestachio.Document
 		/// <inheritdoc />
 		public override string Kind { get; } = "OpenCollection";
 
+		//private class WrapperCounterStream : ByteCounterStream
+		//{
+		//	private readonly IByteCounterStream _source;
+
+		//	public WrapperCounterStream(
+		//		IByteCounterStream source,
+		//		ParserOptions options)
+		//		: base(new MemoryStream(), 2024, false, options)
+		//	{
+		//		_source = source;
+		//		BytesWritten = _source.BytesWritten;
+		//		ReachedLimit = _source.ReachedLimit;
+		//	}
+
+		//	public string Read()
+		//	{
+		//		BaseWriter.Flush();
+		//		return Options.Encoding.GetString((BaseWriter.BaseStream as MemoryStream).ToArray());
+		//	}
+		//}
+
+
 		/// <exception cref="IndexedParseException"></exception>
 		/// <inheritdoc />
 		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
@@ -80,6 +103,26 @@ namespace Morestachio.Document
 			}
 
 			var scopes = new List<DocumentItemExecution>();
+
+			//var items = value.OfType<object>().ToArray();
+			//var result = new WrapperCounterStream[items.Length];
+
+			//Parallel.ForEach(items, async (item, state, index) =>
+			//{
+			//	var innerContext =
+			//		new ContextCollection(index, items.Length == index, context.Options, $"[{index}]", c, item)
+			//			.MakeNatural();
+			//	var stream = new WrapperCounterStream(outputStream, context.Options);
+			//	await MorestachioDocument.ProcessItemsAndChildren(Children, stream, innerContext, scopeData);
+			//	result[index] = stream;
+			//});
+
+			//foreach (var byteCounterStream in result)
+			//{
+			//	byteCounterStream.Write(byteCounterStream.Read());
+			//}
+
+			//return Enumerable.Empty<DocumentItemExecution>();
 			//Use this "lookahead" enumeration to allow the $last keyword
 			var index = 0;
 			var enumerator = value.GetEnumerator();
@@ -89,11 +132,10 @@ namespace Morestachio.Document
 			}
 
 			var current = enumerator.Current;
-
 			do
 			{
 				var next = enumerator.MoveNext() ? enumerator.Current : null;
-				
+
 				var innerContext =
 					new ContextCollection(index, next == null, context.Options, $"[{index}]", c, current)
 						.MakeNatural();

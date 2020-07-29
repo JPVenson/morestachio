@@ -111,12 +111,12 @@ namespace Morestachio.Tests.PerfTests
 			output.AppendLine(ModelPerformanceCounterEntity.Header(delimiter));
 			foreach (var performanceCounter in PerformanceCounters.OfType<ModelPerformanceCounterEntity>())
 			{
-				output.AppendLine(performanceCounter.PrintAsCsv(delimiter));
+				output.AppendLine("| " + performanceCounter.PrintAsCsv(delimiter) + "|");
 			}
 			output.AppendLine(ExpressionPerformanceCounterEntity.Header(delimiter));
 			foreach (var performanceCounter in PerformanceCounters.OfType<ExpressionPerformanceCounterEntity>())
 			{
-				output.AppendLine(performanceCounter.PrintAsCsv(delimiter));
+				output.AppendLine("| " + performanceCounter.PrintAsCsv(delimiter) + "|");
 			}
 
 			Console.WriteLine(output.ToString());
