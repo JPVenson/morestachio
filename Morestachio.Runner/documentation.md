@@ -9,8 +9,12 @@ See https://github.com/JPVenson/morestachio/wiki/Formatter#formatter-framework f
 > Template: https://github.com/JPVenson/morestachio/blob/master/Morestachio.Runner/documentation.md
 # Overview
 
-{{#each Data AS formatter}}- [`{{formatter.DeclaringType.Name.Remove("Formatter")}}` functions](#class-{{formatter.DeclaringType.Name}}){{#each formatter.Methods.OrderBy("MethodName").GroupBy('MethodName') AS methods}}{{#var method = methods.FlatGroup().First()}}
-    - [`{{method.MethodName}}` function{{#IF methods.FlatGroup().Count().GreaterThen(1)}}s{{/IF}}](#{{formatter.DeclaringType.Name}}{{method.MethodName}}){{/each}}
+{{#each Data AS formatter}}{{#TNLS}}
+- [`{{formatter.DeclaringType.Name.Remove("Formatter")}}` functions](#class-{{formatter.DeclaringType.Name}})
+{{#each formatter.Methods.OrderBy("MethodName").GroupBy('MethodName') AS methods}}{{#TNLS}}
+{{#var method = methods.FlatGroup().First()}}{{#TNLS}}
+    - [`{{method.MethodName}}` function{{#IF methods.FlatGroup().Count().GreaterThen(1)}}s{{/IF}}](#{{formatter.DeclaringType.Name}}{{method.MethodName}})
+{{/each}}
 {{/each}}
 
 {{#each Data AS formatter}}
@@ -20,11 +24,18 @@ See https://github.com/JPVenson/morestachio/wiki/Formatter#formatter-framework f
 ### {{formatter.DeclaringType.Name}}.{{method.MethodName}}
 Example: `{{#IF sourceParam}}({{sourceParam.Type}}).{{/IF}}{{method.MethodName}}({{method.Parameters.Where("IsSourceObject == false && IsInjected == false").Select('Type + " " + Name').Join(", ")}})`   
 FormatterName: {{method.Functions.Select('"`" + FormatterName + "`"').Join(" | ")}}   
-{{#IF method.Parameters}}Arguments:  
-{{#each method.Parameters.Where("IsInjected == false") AS param}}- {{#IF param.IsSourceObject}}[SourceObject]{{/IF}}{{#IF param.IsRestObject}}[RestParameter]{{/IF}}`{{param.Type}}`{{#IF param.IsOptional}}[Optional]{{/IF}}: {{param.Name}}  
-{{/each}}
-{{/IF}}
+{{#IF method.Parameters}}{{#TNLS}}
+Arguments:  
+{{#each method.Parameters.Where("IsInjected == false") AS param}}{{#TNLS}}
+- {{#IF param.IsSourceObject}}[SourceObject]{{/IF}}{{#TNLS}}
+{{#IF param.IsRestObject}}[RestParameter]{{/IF}}{{#TNLS}}
+`{{param.Type}}`{{#TNLS}}
+{{#IF param.IsOptional}}[Optional]{{/IF}}: {{param.Name}}  
+{{/each}}{{#TNLS}}
+{{/IF}}   
 Returns: `{{method.Returns}}`   
 {{#IF method.Functions.FirstOrDefault().Description}}Description:  
-{{method.Functions.FirstOrDefault().Description}}{{/IF}}   
-{{/each}}{{/each}}
+> {{method.Functions.FirstOrDefault().Description}}{{#TNLS}}
+{{/IF}}   
+{{/each}}{{#TNLS}}
+{{/each}}
