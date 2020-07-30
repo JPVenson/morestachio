@@ -20,20 +20,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.Tests", "Morest
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.Linq", "Morestachio.Linq\Morestachio.Linq.csproj", "{58A6BE54-5436-4F00-BCE4-127176B4948A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DocumentGenerations", "DocumentGenerations", "{DD3A5646-EA3B-46B4-9730-6305F1A1787B}"
-	ProjectSection(SolutionItems) = preProject
-		GenerateFormatterDocumentation.tt = GenerateFormatterDocumentation.tt
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.Runner", "Morestachio.Runner\Morestachio.Runner.csproj", "{586BAEB9-862E-457D-AE13-A19E67C03B26}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.Newtonsoft.Json", "Morestachio.Newtonsoft.Json\Morestachio.Newtonsoft.Json.csproj", "{B3692F2F-B295-46BC-B0F1-D4679C172142}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.Examples", "Morestachio.Examples\Morestachio.Examples.csproj", "{B38420AB-6681-4A6D-B9C1-BBA67DD2307E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B18FBBF7-EBC2-4D4C-8CDA-3B8FB89B2381}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morestachio.LessCompiler", "Morestachio.LessCompiler\Morestachio.LessCompiler.csproj", "{3D97A54D-A724-40B8-9155-3B8FE28CA80E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.LessCompiler", "Morestachio.LessCompiler\Morestachio.LessCompiler.csproj", "{3D97A54D-A724-40B8-9155-3B8FE28CA80E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
