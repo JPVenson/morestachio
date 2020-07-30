@@ -25,6 +25,7 @@ namespace Morestachio.LessCompiler
 	/// <summary>
 	///		Wraps the dotless into an Document provider 
 	/// </summary>
+	[Serializable]
 	public class CompileLessDocumentItem : DocumentItemBase
 	{
 		public CompileLessDocumentItem()
@@ -76,7 +77,7 @@ namespace Morestachio.LessCompiler
 		public override string Kind { get; } = nameof(CompileLessDocumentItem);
 		public override void Accept(IDocumentItemVisitor visitor)
 		{
-			throw new NotImplementedException();
+			visitor.Visit(this);
 		}
 	}
 }
