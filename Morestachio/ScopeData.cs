@@ -21,8 +21,8 @@ namespace Morestachio
 		{
 			Partials = new Dictionary<string, IDocumentItem>();
 			PartialDepth = new Stack<string>();
-			Alias = new Dictionary<string, IDictionary<int, ContextObject>>();
-			Variables = new Dictionary<string, ContextObject>();
+			Alias = new Dictionary<string, IDictionary<int, object>>();
+			Variables = new Dictionary<string, object>();
 			CustomData = new Dictionary<string, object>();
 		}
 
@@ -34,7 +34,7 @@ namespace Morestachio
 		///  <summary>
 		/// 		Adds a new variable or alias. An alias is bound to its scope and will be reset when the scoping <see cref="IDocumentItem"/> is closed. An Variable is global
 		///  </summary>
-		public void AddVariable(string name, ContextObject value, int idVariableScope)
+		private void AddVariableInternal(string name, object value, int idVariableScope)
 		{
 			if (idVariableScope == 0)
 			{
@@ -44,12 +44,42 @@ namespace Morestachio
 			{
 				if (!Alias.TryGetValue(name, out var stack))
 				{
-					stack = new Dictionary<int, ContextObject>();
+					stack = new Dictionary<int, object>();
 					Alias.Add(name, stack);
 				}
 
 				stack[idVariableScope] = value;
 			}
+		}
+
+		private ContextObject GetFromVariable(object variableValue)
+		{
+			if (variableValue is ContextObject ctx)
+			{
+				return ctx;
+			}
+
+			if (variableValue is Func<ScopeData, ContextObject> fnc)
+			{
+				return fnc(this);
+			}
+			throw new InvalidOperationException("Cannot evaluate the variable or factory: " + variableValue);
+		}
+
+		///  <summary>
+		/// 		Adds a new variable or alias. An alias is bound to its scope and will be reset when the scoping <see cref="IDocumentItem"/> is closed. An Variable is global
+		///  </summary>
+		public void AddVariable(string name, ContextObject value, int idVariableScope)
+		{
+			AddVariableInternal(name, value, idVariableScope);
+		}
+
+		///  <summary>
+		/// 		Adds a new variable or alias. An alias is bound to its scope and will be reset when the scoping <see cref="IDocumentItem"/> is closed. An Variable is global
+		///  </summary>
+		public void AddVariable(string name, Func<ScopeData, ContextObject> value, int idVariableScope)
+		{
+			AddVariableInternal(name, value, idVariableScope);
 		}
 
 		/// <summary>
@@ -74,12 +104,12 @@ namespace Morestachio
 		{
 			if (Alias.TryGetValue(name, out var stack) && stack.Count > 0)
 			{
-				return stack.LastOrDefault().Value;
+				return GetFromVariable(stack.LastOrDefault().Value);
 			}
 
 			if (Variables.TryGetValue(name, out var value))
 			{
-				return value;
+				return GetFromVariable(value);
 			}
 
 			return null;
@@ -93,12 +123,12 @@ namespace Morestachio
 		/// <summary>
 		///		Lists all Alias objects
 		/// </summary>
-		public IDictionary<string, IDictionary<int, ContextObject>> Alias { get; private set; }
+		public IDictionary<string, IDictionary<int, object>> Alias { get; private set; }
 
 		/// <summary>
 		///		Lists all Alias objects
 		/// </summary>
-		public IDictionary<string, ContextObject> Variables { get; private set; }
+		public IDictionary<string, object> Variables { get; private set; }
 
 		/// <summary>
 		///		Can be used by 3rd party document items to store data.

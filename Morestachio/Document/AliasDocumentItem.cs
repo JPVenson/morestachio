@@ -73,7 +73,7 @@ namespace Morestachio.Document
 		/// <inheritdoc />
 		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
-			scopeData.AddVariable(Value, context.CloneForEdit(), IdVariableScope);
+			scopeData.AddVariable(Value, context, IdVariableScope);
 			return Children.WithScope(context).ToPromise();
 		}
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Morestachio.Document.Contracts;
+using Morestachio.Document.TextOperations;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Visitors;
 
@@ -255,17 +256,17 @@ namespace Morestachio.Document.Visitor
 
 		public void Visit(TextEditDocumentItem documentItem)
 		{
-			switch (documentItem.Operation.TextOperationType)
+			switch (documentItem.Operation)
 			{
-				case TextOperationTypes.LineBreak:
+				case AppendLineBreakTextOperation _:
 					StringBuilder.Append("{{#NL}}");
 					break;
-				case TextOperationTypes.TrimLineBreaks:
-					if (documentItem.Operation.LineBreaks == 1)
+				case TrimLineBreakTextOperation op:
+					if (op.LineBreaks == 1)
 					{
 						StringBuilder.Append("{{#TNL}}");
 					}
-					else if (documentItem.Operation.LineBreaks == -1)
+					else if (op.LineBreaks == -1)
 					{
 						StringBuilder.Append("{{#TNLS}}");
 					}

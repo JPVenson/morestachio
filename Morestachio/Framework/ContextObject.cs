@@ -1,20 +1,17 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization;
 using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Morestachio.Attributes;
 using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Predefined;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Helper;
-using PathPartElement = System.Collections.Generic.KeyValuePair<string, Morestachio.Framework.Expression.Framework.PathType>;
+using PathPartElement =
+	System.Collections.Generic.KeyValuePair<string, Morestachio.Framework.Expression.Framework.PathType>;
 #if ValueTask
 using Promise = System.Threading.Tasks.ValueTask;
 using ContextObjectPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.ContextObject>;
@@ -25,6 +22,7 @@ using Promise = System.Threading.Tasks.Task;
 using ContextObjectPromise = System.Threading.Tasks.Task<Morestachio.Framework.ContextObject>;
 using StringPromise = System.Threading.Tasks.Task<string>;
 using ObjectPromise = System.Threading.Tasks.Task<object>;
+
 #endif
 
 namespace Morestachio.Framework
@@ -34,9 +32,24 @@ namespace Morestachio.Framework
 	/// </summary>
 	public class ContextObject
 	{
+		/// <summary>
+		///     <para>Gets the Default Definition of false.</para>
+		///     This is ether:
+		///     <para>- Null</para>
+		///     <para>- boolean false</para>
+		///     <para>- 0 double or int</para>
+		///     <para>- string.Empty (whitespaces are allowed)</para>
+		///     <para>- collection not Any().</para>
+		///     This field can be used to define your own <see cref="DefinitionOfFalse" /> and then fallback to the default logic
+		/// </summary>
+		public static readonly Func<object, bool> DefaultDefinitionOfFalse;
+
+		private static Func<object, bool> _definitionOfFalse;
+		[CanBeNull] private object _value;
+
 		static ContextObject()
 		{
-			DefaultFormatter = new MorestachioFormatterService(false);
+			DefaultFormatter = new MorestachioFormatterService();
 			DefaultFormatter.AddFromType(typeof(ObjectStringFormatter));
 			DefaultFormatter.AddFromType(typeof(Number));
 			DefaultFormatter.AddFromType(typeof(BooleanFormatter));
@@ -48,86 +61,58 @@ namespace Morestachio.Framework
 			DefaultFormatter.AddFromType(typeof(TimeSpanFormatter));
 			DefaultFormatter.AddFromType(typeof(StringFormatter));
 			DefaultFormatter.AddFromType(typeof(RandomFormatter));
-			DefaultDefinitionOfFalse = (value) => value != null &&
-												  value as bool? != false &&
-												  // ReSharper disable once CompareOfFloatsByEqualityOperator
-												  value as double? != 0 &&
-												  value as int? != 0 &&
-												  value as string != string.Empty &&
-												  // We've gotten this far, if it is an object that does NOT cast as enumberable, it exists
-												  // OR if it IS an enumerable and .Any() returns true, then it exists as well
-												  (!(value is IEnumerable) || ((IEnumerable)value).Cast<object>().Any()
-												  );
+			DefaultDefinitionOfFalse = value => value != null &&
+												value as bool? != false &&
+												// ReSharper disable once CompareOfFloatsByEqualityOperator
+												value as double? != 0 &&
+												value as int? != 0 &&
+												value as string != string.Empty &&
+												// We've gotten this far, if it is an object that does NOT cast as enumberable, it exists
+												// OR if it IS an enumerable and .Any() returns true, then it exists as well
+												(!(value is IEnumerable) || ((IEnumerable)value).Cast<object>().Any()
+												);
 			DefinitionOfFalse = DefaultDefinitionOfFalse;
 		}
 
 		/// <summary>
-		///		<para>Gets the Default Definition of false.</para>
-		///		This is ether:
-		///		<para>- Null</para>
-		///		<para>- boolean false</para>
-		///		<para>- 0 double or int</para>
-		///		<para>- string.Empty (whitespaces are allowed)</para>
-		///		<para>- collection not Any().</para>
-		///		This field can be used to define your own <see cref="DefinitionOfFalse"/> and then fallback to the default logic
+		///     Initializes a new instance of the <see cref="ContextObject" /> class.
 		/// </summary>
-		public static readonly Func<object, bool> DefaultDefinitionOfFalse;
+		public ContextObject([NotNull] ParserOptions options, [NotNull] string key, [CanBeNull] ContextObject parent,
+			object value)
+		{
+			Options = options ?? throw new ArgumentNullException(nameof(options));
+			Key = key;
+			Parent = parent;
+			Value = value;
+			if (Parent != null)
+			{
+				CancellationToken = Parent.CancellationToken;
+				AbortGeneration = Parent.AbortGeneration;
+			}
+
+			IsNaturalContext = Parent?.IsNaturalContext ?? true;
+		}
 
 
 		/// <summary>
-		///		Gets the Definition of false on your Template.
+		///     Gets the Definition of false on your Template.
 		/// </summary>
 		/// <value>
-		///		Must no be null
+		///     Must no be null
 		/// </value>
 		/// <exception cref="InvalidOperationException">If the value is null</exception>
 		[NotNull]
 		public static Func<object, bool> DefinitionOfFalse
 		{
 			get { return _definitionOfFalse; }
-			set
-			{
-				_definitionOfFalse = value ?? throw new InvalidOperationException("The value must not be null");
-			}
-		}
-
-		private static Func<object, bool> _definitionOfFalse;
-		[CanBeNull] private object _value;
-		[CanBeNull] private readonly ContextObject _parent;
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="ContextObject"/> class.
-		/// </summary>
-		public ContextObject([NotNull]ParserOptions options, [NotNull]string key, [CanBeNull]ContextObject parent, object value)
-		{
-			Options = options ?? throw new ArgumentNullException(nameof(options));
-			Key = key;
-			_parent = parent;
-			_value = value;
-			if (_parent != null)
-			{
-				CancellationToken = _parent.CancellationToken;
-				AbortGeneration = _parent.AbortGeneration;
-			}
-			IsNaturalContext = _parent?.IsNaturalContext ?? true;
+			set { _definitionOfFalse = value ?? throw new InvalidOperationException("The value must not be null"); }
 		}
 
 		/// <summary>
-		///		Gets a value indicating whether this instance is natural context.
-		///		A Natural context is a context outside an Isolated scope
+		///     Gets a value indicating whether this instance is natural context.
+		///     A Natural context is a context outside an Isolated scope
 		/// </summary>
 		public bool IsNaturalContext { get; protected set; }
-
-		internal ContextObject FindNextNaturalContextObject()
-		{
-			var context = this;
-			while (context != null && !context.IsNaturalContext)
-			{
-				context = context._parent;
-			}
-
-			return context;
-		}
 
 		/// <summary>
 		///     The set of allowed types that may be printed. Complex types (such as arrays and dictionaries)
@@ -135,16 +120,13 @@ namespace Morestachio.Framework
 		///     Add an typeof(object) entry as Type to define a Default Output
 		/// </summary>
 		[NotNull]
-		public static IMorestachioFormatterService DefaultFormatter { get; private set; }
+		public static IMorestachioFormatterService DefaultFormatter { get; }
 
 		/// <summary>
 		///     The parent of the current context or null if its the root context
 		/// </summary>
 		[CanBeNull]
-		public ContextObject Parent
-		{
-			get { return _parent; }
-		}
+		public ContextObject Parent { get; }
 
 		/// <summary>
 		///     The evaluated value of the expression
@@ -154,16 +136,6 @@ namespace Morestachio.Framework
 		{
 			get { return _value; }
 			set { _value = value; }
-		}
-
-		/// <summary>
-		///		Makes this instance natural
-		/// </summary>
-		/// <returns></returns>
-		internal ContextObject MakeNatural()
-		{
-			this.IsNaturalContext = true;
-			return this;
 		}
 
 		///// <summary>
@@ -199,6 +171,37 @@ namespace Morestachio.Framework
 		/// </summary>
 		public CancellationToken CancellationToken { get; set; }
 
+		internal ContextObject FindNextNaturalContextObject()
+		{
+			var context = this;
+			while (context != null && !context.IsNaturalContext)
+			{
+				context = context.Parent;
+			}
+
+			return context;
+		}
+
+		/// <summary>
+		///     Makes this instance natural
+		/// </summary>
+		/// <returns></returns>
+		internal ContextObject MakeNatural()
+		{
+			IsNaturalContext = true;
+			return this;
+		}
+
+		/// <summary>
+		///     Makes this instance natural
+		/// </summary>
+		/// <returns></returns>
+		internal ContextObject MakeSyntetic()
+		{
+			IsNaturalContext = false;
+			return this;
+		}
+
 		/// <summary>
 		///     if overwritten by a class it returns a context object for any non standard key or operation.
 		///     if non of that
@@ -207,162 +210,178 @@ namespace Morestachio.Framework
 		/// <returns></returns>
 		protected virtual ContextObject HandlePathContext(Traversable elements,
 			PathPartElement currentElement,
-			IMorestachioExpression morestachioExpression)
+			IMorestachioExpression morestachioExpression, ScopeData scopeData)
 		{
 			return null;
 		}
 
-		private async ContextObjectPromise GetContextForPath(
+		private async ContextObjectPromise GetContextForPathInternal(
 			Traversable elements,
 			ScopeData scopeData,
 			IMorestachioExpression morestachioExpression)
 		{
 			var retval = this;
-			if (elements.Any())
+			if (elements == null)
 			{
-				var path = elements.Dequeue();
-				var preHandeld = HandlePathContext(elements, path, morestachioExpression);
-				if (preHandeld != null)
-				{
-					return preHandeld;
-				}
-				var type = _value?.GetType();
+				return retval;
+			}
 
-				if (path.Value == PathType.RootSelector) //go the root object
-				{
-					var parent = _parent ?? this;
-					var lastParent = parent;
-					while (parent != null)
-					{
-						parent = parent._parent;
-						if (parent != null)
-						{
-							lastParent = parent;
-						}
-					}
+			var preHandeld = HandlePathContext(elements, elements.Current, morestachioExpression, scopeData);
+			if (preHandeld != null)
+			{
+				return preHandeld;
+			}
 
-					if (lastParent != null)
+			var type = Value?.GetType();
+
+			if (elements.Current.Value == PathType.RootSelector) //go the root object
+			{
+				var parent = Parent ?? this;
+				var lastParent = parent;
+				while (parent != null)
+				{
+					parent = parent.Parent;
+					if (parent != null)
 					{
-						retval = await lastParent.GetContextForPath(elements, scopeData, morestachioExpression);
+						lastParent = parent;
 					}
 				}
-				else if (path.Value == PathType.ParentSelector) //go one level up
-				{
-					if (_parent != null)
-					{
-						var parent = FindNextNaturalContextObject();
-						ContextObject parentsRetVal = null;
-						if (parent != null && parent._parent != null)
-						{
-							parentsRetVal = await (parent._parent
-								.GetContextForPath(elements, scopeData, morestachioExpression));
-						}
 
-						if (parentsRetVal != null)
-						{
-							retval = parentsRetVal;
-						}
-						else
-						{
-							retval = await GetContextForPath(elements, scopeData, morestachioExpression);
-						}
+				if (lastParent != null)
+				{
+					retval = await lastParent.GetContextForPathInternal(elements.Dequeue(), scopeData,
+						morestachioExpression);
+				}
+			}
+			else if (elements.Current.Value == PathType.ParentSelector) //go one level up
+			{
+				if (Parent != null)
+				{
+					var parent = FindNextNaturalContextObject();
+					ContextObject parentsRetVal = null;
+					if (parent != null && parent.Parent != null)
+					{
+						parentsRetVal = await parent.Parent
+							.GetContextForPathInternal(elements.Dequeue(), scopeData, morestachioExpression);
+					}
+
+					if (parentsRetVal != null)
+					{
+						retval = parentsRetVal;
 					}
 					else
 					{
-						retval = await GetContextForPath(elements, scopeData, morestachioExpression);
+						retval = await GetContextForPathInternal(elements.Dequeue(), scopeData, morestachioExpression);
 					}
 				}
-				else if (path.Value == PathType.ObjectSelector) //enumerate ether an IDictionary, an cs object or an IEnumerable to a KeyValuePair array
+				else
 				{
-					//await EnsureValue();
-					if (_value is null)
-					{
-						return Options.CreateContextObject("x:null", CancellationToken, null);
-					}
-					//ALWAYS return the context, even if the value is null.
-					ContextObject innerContext = null;
-					switch (_value)
-					{
-						case IDictionary<string, object> dictList:
-							innerContext = Options.CreateContextObject(path.Key, CancellationToken,
-								dictList.Select(e => e), this);
+					retval = await GetContextForPathInternal(elements.Dequeue(), scopeData, morestachioExpression);
+				}
+			}
+			else if (elements.Current.Value == PathType.ObjectSelector
+			) //enumerate ether an IDictionary, an cs object or an IEnumerable to a KeyValuePair array
+			{
+				//await EnsureValue();
+				if (Value is null)
+				{
+					return Options.CreateContextObject("x:null", CancellationToken, null);
+				}
+
+				//ALWAYS return the context, even if the value is null.
+				ContextObject innerContext = null;
+				switch (Value)
+				{
+					case IDictionary<string, object> dictList:
+						innerContext = Options.CreateContextObject(elements.Current.Key, CancellationToken,
+							dictList.Select(e => e), this);
+						break;
+					default:
+						{
+							if (Value != null)
+							{
+								innerContext = Options.CreateContextObject(elements.Current.Key, CancellationToken,
+									type
+										.GetTypeInfo()
+										.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+										.Where(e => !e.IsSpecialName && !e.GetIndexParameters().Any())
+										.Select(e => new KeyValuePair<string, object>(e.Name, e.GetValue(Value))),
+									this);
+							}
+
 							break;
-						default:
-							{
-								if (_value != null)
-								{
-									innerContext = Options.CreateContextObject(path.Key, CancellationToken,
-										type
-											.GetTypeInfo()
-											.GetProperties(BindingFlags.Instance | BindingFlags.Public)
-											.Where(e => !e.IsSpecialName && !e.GetIndexParameters().Any())
-											.Select(e => new KeyValuePair<string, object>(e.Name, e.GetValue(_value))),
-										this);
-								}
+						}
+				}
 
-								break;
-							}
+				retval = await innerContext.GetContextForPathInternal(elements.Dequeue(), scopeData,
+					morestachioExpression);
+			}
+			else if (elements.Current.Value == PathType.Boolean)
+			{
+				if (elements.Current.Key == "true" || elements.Current.Key == "false")
+				{
+					var booleanContext =
+						Options.CreateContextObject(".", CancellationToken, elements.Current.Key == "true", this);
+					booleanContext.IsNaturalContext = IsNaturalContext;
+					return await booleanContext.GetContextForPathInternal(elements.Dequeue(), scopeData,
+						morestachioExpression);
+				}
+			}
+			else if (elements.Current.Value == PathType.Null)
+			{
+				return Options.CreateContextObject("x:null", CancellationToken, null, null);
+			}
+			else if (elements.Current.Value == PathType.DataPath)
+			{
+				//await EnsureValue();
+				if (Value is null)
+				{
+					return Options.CreateContextObject("x:null", CancellationToken, null);
+				}
+				//TODO: handle array accessors and maybe "special" keys.
+				//ALWAYS return the context, even if the value is null.
+
+				var innerContext = Options.CreateContextObject(elements.Current.Key, CancellationToken, null, this);
+				if (Options.ValueResolver?.CanResolve(type, Value, elements.Current.Key, innerContext) == true)
+				{
+					innerContext.Value = Options.ValueResolver.Resolve(type, Value, elements.Current.Key, innerContext);
+				}
+				else if (Value is IDictionary<string, object> ctx)
+				{
+					if (!ctx.TryGetValue(elements.Current.Key, out var o))
+					{
+						Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+							elements.Current.Key, Value?.GetType()));
 					}
 
-					retval = await innerContext.GetContextForPath(elements, scopeData, morestachioExpression);
+					innerContext.Value = o;
 				}
-				else if (path.Value == PathType.Boolean)
+				else if (Value is IMorestachioPropertyResolver cResolver)
 				{
-					if (path.Key == "true" || path.Key == "false")
+					if (!cResolver.TryGetValue(elements.Current.Key, out var o))
 					{
-						var booleanContext = Options.CreateContextObject(".", CancellationToken, path.Key == "true", this);
-						booleanContext.IsNaturalContext = IsNaturalContext;
-						return await booleanContext.GetContextForPath(elements, scopeData, morestachioExpression);
+						Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+							elements.Current.Key, Value?.GetType()));
 					}
+
+					innerContext.Value = o;
 				}
-				else if (path.Value == PathType.DataPath)
+				else if (Value != null)
 				{
-					if (path.Key.Equals("$recursion")) //go the root object
+					var propertyInfo = type.GetTypeInfo().GetProperty(elements.Current.Key);
+					if (propertyInfo != null)
 					{
-						retval = Options.CreateContextObject(path.Key, CancellationToken, scopeData.PartialDepth.Count, this);
+						innerContext.Value = propertyInfo.GetValue(Value);
 					}
 					else
 					{
-						//await EnsureValue();
-						if (_value is null)
-						{
-							return Options.CreateContextObject("x:null", CancellationToken, null);
-						}
-						//TODO: handle array accessors and maybe "special" keys.
-						else
-						{
-							//ALWAYS return the context, even if the value is null.
-
-							var innerContext = Options.CreateContextObject(path.Key, CancellationToken, null, this);
-							if (Options.ValueResolver?.CanResolve(type, _value, path.Key, innerContext) == true)
-							{
-								innerContext._value = Options.ValueResolver.Resolve(type, _value, path.Key, innerContext);
-							}
-							else if (_value is IDictionary<string, object> ctx)
-							{
-								if (!ctx.TryGetValue(path.Key, out var o))
-								{
-									Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression, path.Key, _value?.GetType()));
-								}
-								innerContext._value = o;
-							}
-							else if (_value != null)
-							{
-								var propertyInfo = type.GetTypeInfo().GetProperty(path.Key);
-								if (propertyInfo != null)
-								{
-									innerContext._value = propertyInfo.GetValue(_value);
-								}
-								else
-								{
-									Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression, path.Key, _value?.GetType()));
-								}
-							}
-
-							retval = await innerContext.GetContextForPath(elements, scopeData, morestachioExpression);
-						}
+						Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+							elements.Current.Key, Value?.GetType()));
 					}
 				}
+
+				retval = await innerContext.GetContextForPathInternal(elements.Dequeue(), scopeData,
+					morestachioExpression);
 			}
 
 			return retval;
@@ -371,67 +390,55 @@ namespace Morestachio.Framework
 		/// <summary>
 		///     Will walk the path by using the path seperator "." and evaluate the object at the end
 		/// </summary>
-		/// <param name="pathParts"></param>
-		/// <param name="scopeData"></param>
-		/// <param name="morestachioExpression"></param>
 		/// <returns></returns>
-		internal async ContextObjectPromise GetContextForPath(IList<PathPartElement> pathParts,
+		internal async ContextObjectPromise GetContextForPath(Traversable elements,
 			ScopeData scopeData,
 			IMorestachioExpression morestachioExpression)
 		{
-			if (Key == "x:null")
+			if (Key == "x:null" || !elements.HasValue)
 			{
 				return this;
 			}
-
-			var elements = new Traversable(pathParts);
-			//foreach (var m in PathFinder.Matches(path).OfType<Match>())
-			//{
-			//	elements.Enqueue(m.Value);
-			//}
-
-			if (elements.Any())
+			//look at the first element if its an alias switch to that alias
+			//var peekPathPart = elements.Peek();
+			if (elements.Count == 1 && elements.Current.Value == PathType.Null)
 			{
-				//look at the first element if its an alias switch to that alias
-				var peekPathPart = elements.Peek();
-				if (elements.Count == 1 && peekPathPart.Value == PathType.Null)
-				{
-					return Options.CreateContextObject("x:null", CancellationToken, null);
-				}
+				return Options.CreateContextObject("x:null", CancellationToken, null);
+			}
 
-				if (peekPathPart.Value == PathType.DataPath)
+			if (elements.Current.Value == PathType.DataPath)
+			{
+				var getFromAlias = scopeData.GetVariable(elements.Current.Key);
+				if (getFromAlias != null)
 				{
-					var getFromAlias = scopeData.GetVariable(peekPathPart.Key);
-					if (getFromAlias != null)
-					{
-						elements.Dequeue();
-						return await getFromAlias.GetContextForPath(elements, scopeData, morestachioExpression);
-					}
+					elements = elements.Dequeue();
+					return await getFromAlias.GetContextForPathInternal(elements, scopeData, morestachioExpression);
 				}
 			}
 
-			return await GetContextForPath(elements, scopeData, morestachioExpression);
+			return await GetContextForPathInternal(elements, scopeData, morestachioExpression);
 		}
+
 		/// <summary>
 		///     Determines if the value of this context exists.
 		/// </summary>
 		/// <returns></returns>
 		public virtual bool Exists()
 		{
-			return DefinitionOfFalse(_value);
+			return DefinitionOfFalse(Value);
 		}
 
 		/// <summary>
-		///		Renders the Current value to a string or if null to the Null placeholder in the Options
+		///     Renders the Current value to a string or if null to the Null placeholder in the Options
 		/// </summary>
 		/// <returns></returns>
 		public virtual StringPromise RenderToString()
 		{
-			return (_value?.ToString() ?? (Options.Null?.ToString())).ToPromise();
+			return (Value?.ToString() ?? Options.Null).ToPromise();
 		}
 
 		/// <summary>
-		///		Gets an FormatterCache from ether the custom formatter or the global one
+		///     Gets an FormatterCache from ether the custom formatter or the global one
 		/// </summary>
 		/// <param name="type"></param>
 		/// <param name="name"></param>
@@ -458,89 +465,6 @@ namespace Morestachio.Framework
 
 			//all formatters in the options object have rejected the value so try use the global ones
 			return DefaultFormatter.PrepareCallMostMatchingFormatter(type, arguments, name, Options, scope);
-		}
-
-		/// <summary>
-		///     Parses the current object by using the given argument
-		/// </summary>
-		public virtual async ObjectPromise Format(
-			[CanBeNull] string name,
-			[NotNull] FormatterArgumentType[] arguments,
-			ScopeData scopeData)
-		{
-			var retval = _value;
-			if (_value == null)
-			{
-				return retval;
-			}
-
-			if (string.IsNullOrWhiteSpace(name))
-			{
-				name = null;
-			}
-
-			//call formatters that are given by the Options for this run
-			retval = await Options.Formatters.Execute(arguments, _value, name, Options, scopeData);
-			if (!Equals(retval, FormatterFlow.Skip))
-			{
-				//one formatter has returned a valid value so use this one.
-				return retval;
-			}
-
-			//all formatters in the options object have rejected the value so try use the global ones
-			retval = await DefaultFormatter.Execute(arguments, _value, name, Options, scopeData);
-			if (!Equals(retval, FormatterFlow.Skip))
-			{
-				return retval;
-			}
-
-			if (Options.UnmatchedFormatterBehavior == UnmatchedFormatterBehavior.Null)
-			{
-				return null;
-			}
-			return _value;
-		}
-
-		/// <summary>
-		///     Parses the current object by using the given argument
-		/// </summary>
-		public virtual async ObjectPromise Operator(
-			[CanBeNull] OperatorTypes name,
-			[CanBeNull] ContextObject other,
-			ScopeData scopeData)
-		{
-			//await EnsureValue();
-			var retval = _value;
-			if (_value == null)
-			{
-				return retval;
-			}
-
-			var operatorFormatterName = "op_" + name;
-
-			//call formatters that are given by the Options for this run
-			var arguments = new FormatterArgumentType[]
-			{
-				new FormatterArgumentType(0, null, other.Value)
-			};
-			retval = await Options.Formatters.Execute(arguments, _value, operatorFormatterName, Options, scopeData);
-			if (!Equals(retval, FormatterFlow.Skip))
-			{
-				//one formatter has returned a valid value so use this one.
-				return retval;
-			}
-
-			//all formatters in the options object have rejected the value so try use the global ones
-			retval = await DefaultFormatter.Execute(arguments, _value, operatorFormatterName, Options, scopeData);
-			if (!Equals(retval, FormatterFlow.Skip))
-			{
-				return retval;
-			}
-			if (Options.UnmatchedFormatterBehavior == UnmatchedFormatterBehavior.Null)
-			{
-				return null;
-			}
-			return _value;
 		}
 
 		/// <summary>
@@ -579,7 +503,7 @@ namespace Morestachio.Framework
 		/// <returns></returns>
 		public virtual ContextObject Copy()
 		{
-			var contextClone = new ContextObject(Options, Key, _parent, _value) //note: Parent must be the original context so we can traverse up to an unmodified context
+			var contextClone = new ContextObject(Options, Key, Parent, _value) //note: Parent must be the original context so we can traverse up to an unmodified context
 			{
 				IsNaturalContext = true,
 				AbortGeneration = AbortGeneration
@@ -587,5 +511,16 @@ namespace Morestachio.Framework
 
 			return contextClone;
 		}
+	}
+
+	/// <summary>
+	///     Can be implemented by an object to provide custom resolving logic
+	/// </summary>
+	public interface IMorestachioPropertyResolver
+	{
+		/// <summary>
+		///     Gets the value of the property from this object
+		/// </summary>
+		bool TryGetValue(string name, out object found);
 	}
 }

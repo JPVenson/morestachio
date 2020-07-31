@@ -85,7 +85,7 @@ namespace Morestachio.Tests
 		{
 			var context = TokenzierContext.FromText(query);
 			var expressions = ExpressionTokenizer.ParseExpression(query, context);
-			Assert.That(expressions, Is.Not.Null);
+			Assert.That(expressions, Is.Not.Null, () => context.Errors.GetErrorText());
 
 			var visitor = new ToParsableStringExpressionVisitor();
 			expressions.Accept(visitor);

@@ -122,6 +122,10 @@ namespace Morestachio.Document
 				cnxt = (await Context.GetValue(context, scopeData));
 			}
 
+			scopeData.AddVariable("$recursion",
+				(scope) => cnxt.Options.CreateContextObject("$recursion", context.CancellationToken,
+					scope.PartialDepth.Count, cnxt), 0);
+
 			if (scopeData.Partials.TryGetValue(partialName, out var partialWithContext))
 			{
 				return new[]

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Morestachio.Framework.Expression.Framework;
@@ -29,9 +30,10 @@ namespace Morestachio.Framework.Expression.Visitors
 		public void Visit(MorestachioExpression expression)
 		{
 			var isSelfAssignment = false;
-			for (var index = 0; index < expression.PathParts.Count; index++)
+			var expressionPathParts = expression.PathParts.ToArray();
+			for (var index = 0; index < expressionPathParts.Length; index++)
 			{
-				var expressionPathPart = expression.PathParts[index];
+				var expressionPathPart = expressionPathParts[index];
 				switch (expressionPathPart.Value)
 				{
 					case PathType.DataPath:
@@ -39,7 +41,7 @@ namespace Morestachio.Framework.Expression.Visitors
 					case PathType.Boolean:
 						StringBuilder.Append(expressionPathPart.Key);
 
-						if (index != expression.PathParts.Count - 1)
+						if (index != expressionPathParts.Length - 1)
 						{
 							StringBuilder.Append(".");
 						}
@@ -98,7 +100,10 @@ namespace Morestachio.Framework.Expression.Visitors
 			{
 				var expressionExpression = expression.Expressions[index];
 				if (index != 0 &&
-					(expressionExpression as MorestachioExpression)?.PathParts.All(f => f.Value == PathType.SelfAssignment) == false)
+					(expressionExpression as MorestachioExpression)?
+					.PathParts
+					.ToArray()
+					.All(f => f.Value == PathType.SelfAssignment || Equals(f, default(KeyValuePair<string, PathType>))) == false)
 				{
 					StringBuilder.Append(".");
 				}

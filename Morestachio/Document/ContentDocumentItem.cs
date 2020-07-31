@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
+using Morestachio.Document.TextOperations;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Helper;
@@ -51,7 +52,8 @@ namespace Morestachio.Document
 		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
 			ScopeData scopeData)
 		{
-			if (scopeData.CustomData.TryGetValue("TextOperationData", out var textOperations) && textOperations is IList<TextOperation> textOps)
+			if (scopeData.CustomData.TryGetValue("TextOperationData", out var textOperations) 
+			    && textOperations is IList<ITextOperation> textOps)
 			{
 				foreach (var textOperation in textOps.ToArray())
 				{

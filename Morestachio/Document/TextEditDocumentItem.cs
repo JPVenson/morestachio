@@ -9,6 +9,7 @@ using System.Xml.Schema;
 using System.Xml.Serialization;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
+using Morestachio.Document.TextOperations;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Helper;
@@ -22,149 +23,22 @@ using Promise = System.Threading.Tasks.Task;
 
 namespace Morestachio.Document
 {
-	public enum TextOperationTypes
-	{
-		LineBreak,
-		TrimLineBreaks
-	}
-
-	[Serializable]
-	public class TextOperation : IXmlSerializable
-	{
-		public TextOperation()
-		{
-
-		}
-
-		protected TextOperation(SerializationInfo info, StreamingContext c)
-		{
-			TextOperationType = (TextOperationTypes)info.GetValue(nameof(TextOperationType), typeof(TextOperationTypes));
-			switch (TextOperationType)
-			{
-				case TextOperationTypes.TrimLineBreaks:
-					LineBreaks = info.GetInt32(nameof(LineBreaks));
-					TransientEdit = true;
-					IsModificator = true;
-					break;
-				case TextOperationTypes.LineBreak:
-					TransientEdit = true;
-					IsModificator = false;
-					break;
-				default:
-					throw new ArgumentOutOfRangeException();
-			}
-		}
-
-		public TextOperationTypes TextOperationType { get; private set; }
-		public int LineBreaks { get; private set; }
-
-		public bool TransientEdit { get; private set; }
-		public bool IsModificator { get; set; }
-
-		public static TextOperation LineBreakOperation()
-		{
-			return new TextOperation()
-			{
-				TextOperationType = TextOperationTypes.LineBreak,
-				TransientEdit = true,
-				IsModificator = false
-			};
-		}
-
-		public static TextOperation TrimLineBreakOperation(int number)
-		{
-			return new TextOperation()
-			{
-				TextOperationType = TextOperationTypes.TrimLineBreaks,
-				LineBreaks = number,
-				TransientEdit = true,
-				IsModificator = true
-			};
-		}
-
-		public XmlSchema GetSchema()
-		{
-			throw new NotImplementedException();
-		}
-
-		public void ReadXml(XmlReader reader)
-		{
-			TextOperationType = (TextOperationTypes)Enum.Parse(typeof(TextOperationTypes), reader.GetAttribute(nameof(TextOperationType)));
-			switch (TextOperationType)
-			{
-				case TextOperationTypes.TrimLineBreaks:
-					{
-						LineBreaks = int.Parse(reader.GetAttribute(nameof(LineBreaks)));
-						TransientEdit = true;
-						IsModificator = true;
-						break;
-					}
-				case TextOperationTypes.LineBreak:
-					{
-						TransientEdit = true;
-						IsModificator = false;
-						break;
-					}
-
-				default:
-					throw new ArgumentOutOfRangeException();
-			}
-		}
-
-		public void WriteXml(XmlWriter writer)
-		{
-			writer.WriteAttributeString(nameof(TextOperationType), TextOperationType.ToString());
-			if (TextOperationType == TextOperationTypes.TrimLineBreaks)
-			{
-				writer.WriteAttributeString(nameof(LineBreaks), LineBreaks.ToString());
-			}
-		}
-
-		public string Apply(string value)
-		{
-			switch (TextOperationType)
-			{
-				case TextOperationTypes.LineBreak:
-					{
-						return value + Environment.NewLine;
-					}
-				case TextOperationTypes.TrimLineBreaks:
-					{
-						var breaksFound = 0;
-						for (int i = 0; i < value.Length; i++)
-						{
-							var c = value[i];
-							if (c == '\r' || c == '\n')
-							{
-								if (LineBreaks != -1 && LineBreaks == ++breaksFound)
-								{
-									if (value.Length + 1 >= i)
-									{
-										return value.Substring(i + 1);
-									}
-
-									return string.Empty;
-								}
-							}
-							else
-							{
-								return value.Substring(i);
-							}
-						}
-						return string.Empty;
-					}
-				default:
-					throw new ArgumentOutOfRangeException();
-			}
-		}
-	}
-
+	/// <summary>
+	/// 
+	/// </summary>
 	[Serializable]
 	public class TextEditDocumentItem : DocumentItemBase
 	{
-		public TextOperation Operation { get; private set; }
+		/// <summary>
+		///		The TextOperation
+		/// </summary>
+		public ITextOperation Operation { get; private set; }
 
-		public TextEditDocumentItem(TextOperation operation)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="operation"></param>
+		public TextEditDocumentItem(ITextOperation operation)
 		{
 			Operation = operation;
 		}
@@ -179,7 +53,8 @@ namespace Morestachio.Document
 		protected TextEditDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}
-
+		
+		/// <inheritdoc />
 		public override ItemExecutionPromise Render(
 			IByteCounterStream outputStream,
 			ContextObject context,
@@ -189,10 +64,10 @@ namespace Morestachio.Document
 			{
 				if (!scopeData.CustomData.TryGetValue("TextOperationData", out var operationList))
 				{
-					operationList = new List<TextOperation>();
+					operationList = new List<ITextOperation>();
 					scopeData.CustomData["TextOperationData"] = operationList;
 				}
-				(operationList as IList<TextOperation>).Add(Operation);
+				(operationList as IList<ITextOperation>).Add(Operation);
 			}
 			else
 			{
@@ -202,27 +77,51 @@ namespace Morestachio.Document
 			
 			return Enumerable.Empty<DocumentItemExecution>().ToPromise();
 		}
-
+		
+		/// <inheritdoc />
 		protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
 		{
 			base.SerializeBinaryCore(info, context);
 			info.AddValue(nameof(Operation), Operation);
 		}
-
+		
+		/// <inheritdoc />
 		protected override void SerializeXml(XmlWriter writer)
 		{
 			base.SerializeXml(writer);
+			writer.WriteStartElement("TextOperation");
+			writer.WriteAttributeString(nameof(ITextOperation.TextOperationType), Operation.TextOperationType.ToString());
 			Operation.WriteXml(writer);
+			writer.WriteEndElement();//</TextOperation>
 		}
-
+		
+		/// <inheritdoc />
 		protected override void DeSerializeXml(XmlReader reader)
 		{
 			base.DeSerializeXml(reader);
-			Operation = new TextOperation();
-			Operation.ReadXml(reader);
-		}
+			reader.ReadStartElement();//<TextOperation>
+			AssertElement(reader, "TextOperation");
+			var attribute = reader.GetAttribute(nameof(ITextOperation.TextOperationType));
+			switch (attribute)
+			{
+				case "LineBreak":
+					Operation = new AppendLineBreakTextOperation();
+					break;
+				case "TrimLineBreaks":
+					Operation = new TrimLineBreakTextOperation();
+					break;
+				default:
+					throw new InvalidOperationException($"The TextOperation '{attribute}' is invalid");
+			}
 
+			Operation.ReadXml(reader);
+			reader.ReadEndElement();//</TextOperation>
+		}
+		
+		/// <inheritdoc />
 		public override string Kind { get; } = "TextOperation";
+
+		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)
 		{
 			visitor.Visit(this);

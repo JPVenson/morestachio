@@ -58,7 +58,6 @@ namespace Morestachio.Framework.Expression
 		/// <inheritdoc />
 		public async ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
 		{
-			contextObject = contextObject.CloneForEdit();
 			foreach (var expression in Expressions)
 			{
 				contextObject = await expression.GetValue(contextObject, scopeData);

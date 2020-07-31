@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
 
@@ -9,31 +10,88 @@ namespace Morestachio.Framework
 	/// <summary>
 	///		Creates a Traversable collection that keeps track of the current element while still providing the whole list
 	/// </summary>
-	public class Traversable : IEnumerator<KeyValuePair<string, PathType>>
+	public class Traversable //: IEnumerator<KeyValuePair<string, PathType>>
 	{
+		/// <summary>
+		///		An empty Traversable
+		/// </summary>
+		public static Traversable Empty { get; } = new Traversable(Enumerable.Empty<KeyValuePair<string, PathType>>());
+
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="parts"></param>
 		public Traversable(IEnumerable<KeyValuePair<string, PathType>> parts)
 		{
-			_list = new LinkedList<KeyValuePair<string, PathType>>(parts);
-			_node = _list.First;
-			_current = default;
-			_index = 0;
+			Load(parts);
 		}
 
-		private readonly LinkedList<KeyValuePair<string, PathType>> _list;
-		private LinkedListNode<KeyValuePair<string, PathType>> _node;
-		private KeyValuePair<string, PathType> _current;
-		private int _index;
-
-		public IEnumerable<KeyValuePair<string, PathType>> List
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="parts"></param>
+		public Traversable(string serialisedText)
 		{
-			get
+			Load(serialisedText.Split(',').Select(f =>
 			{
-				return _list;
+				var parts = f.Trim('{', '}').Split(';');
+				return new KeyValuePair<string, PathType>(parts.ElementAtOrDefault(1),
+					(PathType)Enum.Parse(typeof(PathType), parts[0]));
+			}));
+		}
+
+		private void Load(IEnumerable<KeyValuePair<string, PathType>> parts)
+		{
+			var node = this;
+			var values = parts.ToArray();
+			for (var index = 0; index < values.Length; index++)
+			{
+				var keyValuePair = values[index];
+				node.Count = values.Length - index - 1;
+				node.Current = keyValuePair;
+				if (index + 1 < values.Length)
+				{
+					node._next = new Traversable(keyValuePair);
+					node = node._next;
+				}
 			}
+		}
+
+		public string Serialize()
+		{
+			return string.Join(",", ToArray().Select(f =>
+			{
+				if (f.Key != null)
+				{
+					return "{" + f.Value + ";" + f.Key + "}";
+				}
+
+				return "{" + f.Value + "}";
+			}));
+		}
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="parts"></param>
+		private Traversable(KeyValuePair<string, PathType> value)
+		{
+			Current = value;
+		}
+
+		private Traversable _next;
+
+		public KeyValuePair<string, PathType>[] ToArray()
+		{
+			var list = new KeyValuePair<string, PathType>[Count + 1];
+			var node = this;
+			for (int i = 0; i < list.Length; i++)
+			{
+				list[i] = node.Current;
+				node = node._next;
+			}
+
+			return list;
 		}
 
 		/// <summary>
@@ -41,10 +99,8 @@ namespace Morestachio.Framework
 		/// </summary>
 		public int Count
 		{
-			get
-			{
-				return _list.Count;
-			}
+			get;
+			private set;
 		}
 
 		/// <summary>
@@ -53,7 +109,7 @@ namespace Morestachio.Framework
 		/// <returns></returns>
 		public KeyValuePair<string, PathType> Peek()
 		{
-			return _node?.Value ?? default;
+			return _next?.Current ?? default;
 		}
 
 		/// <summary>
@@ -62,72 +118,30 @@ namespace Morestachio.Framework
 		/// <returns></returns>
 		public bool Any()
 		{
-			return _node != null;
+			return HasValue || _next != null;
 		}
 
 		/// <summary>
 		///		Gets the next element and returns it
 		/// </summary>
 		/// <returns></returns>
-		public KeyValuePair<string, PathType> Dequeue()
+		public Traversable Dequeue()
 		{
-			MoveNext();
-			return Current;
+			return _next;
 		}
-
-		/// <summary>
-		///		Gets the next element
-		/// </summary>
-		/// <returns></returns>
-		public bool MoveNext()
-		{
-			if (_node == null)
-			{
-				_index = _list.Count + 1;
-				return false;
-			}
-
-			++_index;
-			_current = _node.Value;
-			_node = _node.Next;
-			if (_node == _list.First)
-			{
-				_node = null;
-			}
-			return true;
-		}
-
-		/// <summary>
-		///		Resets the traversable
-		/// </summary>
-		public void Reset()
-		{
-			_current = default;
-			_node = _list.First;
-			_index = 0;
-		}
-
+		
 		public KeyValuePair<string, PathType> Current
 		{
-			get { return _current; }
+			get;
+			private set;
 		}
 
-		object IEnumerator.Current
+		public bool HasValue
 		{
 			get
 			{
-				if (_index == 0 || (_index == _list.Count + 1))
-				{
-					throw new InvalidOperationException();
-				}
-
-				return Current;
+				return !Equals(Current, default(KeyValuePair<string, PathType>));
 			}
-		}
-
-		public void Dispose()
-		{
-
 		}
 	}
 }

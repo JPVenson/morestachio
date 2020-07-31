@@ -6,6 +6,36 @@ using Morestachio.Framework.Expression.Framework;
 namespace Morestachio.Framework
 {
 	/// <summary>
+	///		The context object that will be used for the root of 
+	/// </summary>
+	public class PartialContextObject : ContextObject
+	{
+		/// <inheritdoc />
+		public PartialContextObject([NotNull] ParserOptions options, [NotNull] string key, [CanBeNull] ContextObject parent, object value) : base(options, key, parent, value)
+		{
+		}
+
+		/// <inheritdoc />
+		protected override ContextObject HandlePathContext(
+			Traversable elements,
+			KeyValuePair<string, PathType> currentElement,
+			IMorestachioExpression morestachioExpression, 
+			ScopeData scopeData)
+		{
+			if (currentElement.Value != PathType.DataPath || !currentElement.Key.StartsWith("$"))
+			{
+				return null;
+			}
+			object value = null;
+			if (currentElement.Key.Equals("$first"))
+			{
+				value = scopeData.PartialDepth.Count;
+			}
+			return value == null ? null : Options.CreateContextObject(currentElement.Key, CancellationToken, value, this);
+		}
+	}
+
+	/// <summary>
 	///     A context object for collections that is generated for each item inside a collection
 	/// </summary>
 	public class ContextCollection : ContextObject
@@ -42,59 +72,39 @@ namespace Morestachio.Framework
 		/// <inheritdoc />
 		protected override ContextObject HandlePathContext(Traversable elements,
 			KeyValuePair<string, PathType> path,
-			IMorestachioExpression expression)
+			IMorestachioExpression expression, ScopeData scopeData)
 		{
-			if (path.Value != PathType.DataPath)
+			if (path.Value != PathType.DataPath || !path.Key.StartsWith("$"))
 			{
 				return null;
 			}
-
-			//new ContextObject(Options, path.Key, this);
-
+			
 			object value = null;
-
-			if (path.Key.StartsWith("$"))
+			if (path.Key.Equals("$first"))
 			{
-				if (path.Key.Equals("$first"))
-				{
-					value = Index == 0;
-				}
-				else if (path.Key.Equals("$index"))
-				{
-					value = Index;
-				}
-				else if (path.Key.Equals("$middel"))
-				{
-					value = Index != 0 && !Last;
-				}
-				else if (path.Key.Equals("$last"))
-				{
-					value = Last;
-				}
-				else if (path.Key.Equals("$odd"))
-				{
-					value = Index % 2 != 0;
-				}
-				else if (path.Key.Equals("$even"))
-				{
-					value = Index % 2 == 0;
-				}
+				value = Index == 0;
 			}
-			var innerContext = Options.CreateContextObject(path.Key, CancellationToken, value, this);
-			return value == null ? null : innerContext;
-		}
-
-		/// <inheritdoc />
-		public override ContextObject CloneForEdit()
-		{
-			var contextClone = new ContextCollection(Index, Last, Options, Key, this, Value)
+			else if (path.Key.Equals("$index"))
 			{
-				CancellationToken = CancellationToken,
-				AbortGeneration = AbortGeneration,
-				IsNaturalContext = false
-			};
-
-			return contextClone;
+				value = Index;
+			}
+			else if (path.Key.Equals("$middel"))
+			{
+				value = Index != 0 && !Last;
+			}
+			else if (path.Key.Equals("$last"))
+			{
+				value = Last;
+			}
+			else if (path.Key.Equals("$odd"))
+			{
+				value = Index % 2 != 0;
+			}
+			else if (path.Key.Equals("$even"))
+			{
+				value = Index % 2 == 0;
+			}
+			return value == null ? null : Options.CreateContextObject(path.Key, CancellationToken, value, this);
 		}
 	}
 }

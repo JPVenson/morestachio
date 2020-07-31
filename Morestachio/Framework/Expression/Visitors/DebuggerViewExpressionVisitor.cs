@@ -21,9 +21,10 @@ namespace Morestachio.Framework.Expression.Visitors
 			var exp = ExpressionCounter++;
 			StringBuilder.Append("Exp({");
 
-			for (var index = 0; index < expression.PathParts.Count; index++)
+			var expressionPathParts = expression.PathParts.ToArray();
+			for (var index = 0; index < expressionPathParts.Length; index++)
 			{
-				var expressionPathPart = expression.PathParts[index];
+				var expressionPathPart = expressionPathParts[index];
 				switch (expressionPathPart.Value)
 				{
 					case PathType.DataPath:
@@ -31,7 +32,7 @@ namespace Morestachio.Framework.Expression.Visitors
 					case PathType.Boolean:
 						StringBuilder.Append(expressionPathPart.Key);
 
-						if (index != expression.PathParts.Count - 1)
+						if (index != expressionPathParts.Length - 1)
 						{
 							StringBuilder.Append(".");
 						}

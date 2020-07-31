@@ -115,7 +115,7 @@ namespace Morestachio.Framework.Expression.Visitors
 			lock (SyncRoot)
 			{
 				_source.Add(text);
-				Count += text.Text.Length;
+				Count += text.Text?.Length ?? 0;
 			}
 		}
 

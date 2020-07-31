@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using Morestachio.Document;
 using Morestachio.Document.Contracts;
+using Morestachio.Document.TextOperations;
 using Morestachio.Formatter;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
@@ -235,15 +236,15 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.WriteLineBreak))
 				{
-					currentDocumentItem.Document.Add(new TextEditDocumentItem(TextOperation.LineBreakOperation()));
+					currentDocumentItem.Document.Add(new TextEditDocumentItem(new AppendLineBreakTextOperation()));
 				}
 				else if (currentToken.Type.Equals(TokenType.TrimLineBreak))
 				{
-					currentDocumentItem.Document.Add(new TextEditDocumentItem(TextOperation.TrimLineBreakOperation(1)));
+					currentDocumentItem.Document.Add(new TextEditDocumentItem(new TrimLineBreakTextOperation() { LineBreaks = 1 }));
 				}
 				else if (currentToken.Type.Equals(TokenType.TrimLineBreaks))
 				{
-					currentDocumentItem.Document.Add(new TextEditDocumentItem(TextOperation.TrimLineBreakOperation(-1)));
+					currentDocumentItem.Document.Add(new TextEditDocumentItem(new TrimLineBreakTextOperation() { LineBreaks = -1 }));
 				}
 				else if (currentToken.Type.Equals(TokenType.VariableLet))
 				{

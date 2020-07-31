@@ -30,7 +30,7 @@ namespace Morestachio.Framework.Expression
 	{
 		internal MorestachioExpression()
 		{
-			PathParts = new List<KeyValuePair<string, PathType>>();
+			PathParts = Traversable.Empty;
 			Formats = new List<ExpressionArgument>();
 		}
 
@@ -42,8 +42,7 @@ namespace Morestachio.Framework.Expression
 
 		protected MorestachioExpression(SerializationInfo info, StreamingContext context)
 		{
-			PathParts = info.GetValue(nameof(PathParts), typeof(IList<KeyValuePair<string, PathType>>))
-				as IList<KeyValuePair<string, PathType>>;
+			PathParts = new Traversable(info.GetString(nameof(PathParts)));
 			Formats = info.GetValue(nameof(Formats), typeof(IList<ExpressionArgument>))
 				as IList<ExpressionArgument>;
 			FormatterName = info.GetString(nameof(FormatterName));
@@ -53,7 +52,7 @@ namespace Morestachio.Framework.Expression
 		/// <inheritdoc />
 		public void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
-			info.AddValue(nameof(PathParts), PathParts);
+			info.AddValue(nameof(PathParts), PathParts.Serialize());
 			info.AddValue(nameof(Formats), Formats);
 			info.AddValue(nameof(FormatterName), FormatterName);
 			info.AddValue(nameof(Location), Location.ToFormatString());
@@ -73,12 +72,7 @@ namespace Morestachio.Framework.Expression
 			var pathParts = reader.GetAttribute(nameof(PathParts));
 			if (pathParts != null)
 			{
-				PathParts = pathParts.Split(',').Select(f =>
-				{
-					var parts = f.Trim('{', '}').Split(';');
-					return new KeyValuePair<string, PathType>(parts.ElementAtOrDefault(1),
-						(PathType)Enum.Parse(typeof(PathType), parts[0]));
-				}).ToList();
+				PathParts = new Traversable(pathParts);
 			}
 
 			if (reader.IsEmptyElement)
@@ -113,15 +107,7 @@ namespace Morestachio.Framework.Expression
 
 			if (PathParts.Any())
 			{
-				var pathStr = string.Join(",", PathParts.Select(f =>
-				{
-					if (f.Key != null)
-					{
-						return "{" + f.Value + ";" + f.Key + "}";
-					}
-					return "{" + f.Value + "}";
-				}));
-				writer.WriteAttributeString(nameof(PathParts), pathStr);
+				writer.WriteAttributeString(nameof(PathParts), PathParts.Serialize());
 			}
 			foreach (var expressionArgument in Formats)
 			{
@@ -134,7 +120,7 @@ namespace Morestachio.Framework.Expression
 		/// <summary>
 		///		Contains all parts of the path
 		/// </summary>
-		public IList<KeyValuePair<string, PathType>> PathParts { get; private set; }
+		public Traversable PathParts { get; private set; }
 
 		/// <summary>
 		///		If filled contains the arguments to be used to format the value located at PathParts
@@ -160,8 +146,13 @@ namespace Morestachio.Framework.Expression
 				return contextForPath;
 			}
 
+			if (contextForPath == contextObject)
+			{
+				contextForPath = contextObject.CloneForEdit();
+			}
+
 			var arguments = new FormatterArgumentType[Formats.Count];
-			var naturalValue = contextObject.FindNextNaturalContextObject().CloneForEdit();
+			var naturalValue = contextObject.FindNextNaturalContextObject();
 			for (var index = 0; index < Formats.Count; index++)
 			{
 				var formatterArgument = Formats[index];
@@ -182,6 +173,7 @@ namespace Morestachio.Framework.Expression
 			if (Cache != null && !Equals(Cache.Value, default(FormatterCache)))
 			{
 				contextForPath.Value = await contextObject.Options.Formatters.Execute(Cache.Value, contextForPath.Value, arguments);
+				contextForPath.MakeSyntetic();
 			}
 			return contextForPath;
 		}
@@ -230,7 +222,7 @@ namespace Morestachio.Framework.Expression
 							return null;
 						}
 					}
-					expression.PathParts = expression._pathTokenizer.CompileListWithCurrent(context, 0, out errFunc);
+					expression.PathParts = new Traversable(expression._pathTokenizer.CompileListWithCurrent(context, 0, out errFunc));
 					if (errFunc != null)
 					{
 						context.Errors.Add(errFunc());
@@ -793,7 +785,7 @@ namespace Morestachio.Framework.Expression
 									indexVar = 0;
 									return null;
 								}
-								currentExpression.PathParts = currentExpression._pathTokenizer.Compile(context, index);
+								currentExpression.PathParts = new Traversable(currentExpression._pathTokenizer.Compile(context, index));
 								currentScope.Evaluated = true;
 								if (currentExpression.PathParts.Count == 0 && !found)
 								{
@@ -860,7 +852,7 @@ namespace Morestachio.Framework.Expression
 								if (currentScope.Value is MorestachioExpression currentScopeValue)
 								{
 									currentScope.Evaluated = true;
-									currentScopeValue.PathParts = currentScopeValue._pathTokenizer.CompileListWithCurrent(context, index, out var errProducer);
+									currentScopeValue.PathParts = new Traversable(currentScopeValue._pathTokenizer.CompileListWithCurrent(context, index, out var errProducer));
 									if (errProducer != null)
 									{
 										context.Errors.Add(errProducer());
@@ -889,7 +881,7 @@ namespace Morestachio.Framework.Expression
 								if (currentScope.Value is MorestachioExpression currentScopeValue)
 								{
 									currentScope.Evaluated = true;
-									currentScopeValue.PathParts = currentScopeValue._pathTokenizer.CompileListWithCurrent(context, index, out var errProducer);
+									currentScopeValue.PathParts = new Traversable(currentScopeValue._pathTokenizer.CompileListWithCurrent(context, index, out var errProducer));
 									if (errProducer != null)
 									{
 										context.Errors.Add(errProducer());
@@ -921,7 +913,7 @@ namespace Morestachio.Framework.Expression
 							else
 							{
 								Func<IMorestachioError> errFunc = null;
-								if ((currentScope.Value as MorestachioExpression)?._pathTokenizer.Add(formatChar, context, index, out errFunc) == false)
+								if ((currentScope.Value is MorestachioExpression exp) && exp._pathTokenizer.Add(formatChar, context, index, out errFunc) == false)
 								{
 									var parseOp = ParseOperationCall();
 									if (parseOp == true)
@@ -929,8 +921,8 @@ namespace Morestachio.Framework.Expression
 										if (!currentScope.Evaluated)
 										{
 											currentScope.Evaluated = true;
-											(currentScope.Value as MorestachioExpression).PathParts =
-												(currentScope.Value as MorestachioExpression)._pathTokenizer.CompileListWithCurrent(context, index, out var errProducer);
+											exp.PathParts =
+												new Traversable(exp._pathTokenizer.CompileListWithCurrent(context, index, out var errProducer));
 											if (errProducer != null)
 											{
 												context.Errors.Add(errProducer());
@@ -965,8 +957,9 @@ namespace Morestachio.Framework.Expression
 											"Did not expect a . at the end of an expression without an formatter"));
 									}
 									currentScope.Evaluated = true;
-									(currentScope.Value as MorestachioExpression).PathParts =
-										(currentScope.Value as MorestachioExpression)._pathTokenizer.CompileListWithCurrent(context, index, out var errProducer);
+									var expr = (currentScope.Value as MorestachioExpression);
+									expr.PathParts =
+										new Traversable(expr._pathTokenizer.CompileListWithCurrent(context, index, out var errProducer));
 									if (errProducer != null)
 									{
 										context.Errors.Add(errProducer());
@@ -1014,10 +1007,17 @@ namespace Morestachio.Framework.Expression
 				return false;
 			}
 
-			for (var index = 0; index < PathParts.Count; index++)
+			var parts = PathParts.ToArray();
+			var otherParts = other.PathParts.ToArray();
+			if (parts.Length != otherParts.Length || Formats.Count != other.Formats.Count)
 			{
-				var thisPart = PathParts[index];
-				var thatPart = other.PathParts[index];
+				return false;
+			}
+
+			for (var index = 0; index < parts.Length; index++)
+			{
+				var thisPart = parts[index];
+				var thatPart = otherParts[index];
 				if (thatPart.Value != thisPart.Value || thatPart.Key != thisPart.Key)
 				{
 					return false;

@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using JetBrains.dotMemoryUnit;
 using Morestachio.Formatter.Framework;
+using Morestachio.Framework;
 using Morestachio.Helper;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
@@ -46,8 +47,13 @@ namespace Morestachio.Tests
 ";
 		private const string Lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
 
-		public class Product
+		public class Product// : IMorestachioPropertyResolver
 		{
+			public Product()
+			{
+				
+			}
+
 			public Product(string name, float price, string description)
 			{
 				Name = name;
@@ -60,6 +66,28 @@ namespace Morestachio.Tests
 			public float Price { get; set; }
 
 			public string Description { get; set; }
+
+			public bool TryGetValue(string name, out object found)
+			{
+				if (name == nameof(Name))
+				{
+					found = Name;
+					return true;
+				}
+				if (name == nameof(Price))
+				{
+					found = Price;
+					return true;
+				}
+				if (name == nameof(Description))
+				{
+					found = Description;
+					return true;
+				}
+
+				found = null;
+				return false;
+			}
 		}
 
 		[Test]
@@ -67,7 +95,7 @@ namespace Morestachio.Tests
 		[Repeat(5)]
 		public async Task PerformanceDebuggerTest()
 		{
-			var _products = new List<IDictionary<string, object>>(500);
+			var _products = new List<object>(500);
 			for (int i = 0; i < 500; i++)
 			{
 				_products.Add(new Dictionary<string, object>()
@@ -76,6 +104,12 @@ namespace Morestachio.Tests
 					{"Price", i},
 					{"Description", Lorem},
 				});
+				//_products.Add(new Product()
+				//{
+				//	Name = "Name" + i,
+				//	Price = i,
+				//	Description = Lorem
+				//});
 			}
 
 			var parsingOptions = new Morestachio.ParserOptions(TextTemplateMorestachio, null, Encoding.UTF8, true);
