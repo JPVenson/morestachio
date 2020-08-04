@@ -263,7 +263,7 @@ namespace Morestachio.Formatter.Framework
 				}
 				mapedValues[i++] = valueObtainValue;
 			}
-			
+
 			var taskAlike = formatter.TestedTypes.PrepareInvoke(mapedValues)
 				.Invoke(
 					formatter.Model.FunctionTarget,
@@ -418,7 +418,7 @@ namespace Morestachio.Formatter.Framework
 					//in case the parameter is an generic argument directly
 
 					if (parameterInfo.ParameterType.IsGenericParameter &&
-					    parameterInfo.ParameterType == genericArgument)
+						parameterInfo.ParameterType == genericArgument)
 					{
 						found = true;
 						generics.Add(sourceValueType);
@@ -427,9 +427,9 @@ namespace Morestachio.Formatter.Framework
 
 					//this is a hack for T[] to IEnumerable<T> support
 					if (sourceValueType.IsArray &&
-					    IsAssignableToGenericType(parameterInfo.ParameterType, typeof(IEnumerable<>)) &&
-					    typeof(IEnumerable<>).MakeGenericType(sourceValueType.GetElementType())
-						    .IsAssignableFrom(sourceValueType))
+						IsAssignableToGenericType(parameterInfo.ParameterType, typeof(IEnumerable<>)) &&
+						typeof(IEnumerable<>).MakeGenericType(sourceValueType.GetElementType())
+							.IsAssignableFrom(sourceValueType))
 					{
 						found = true;
 						//the source value is an array and the parameter is of type of IEnumerable<>
@@ -650,7 +650,7 @@ namespace Morestachio.Formatter.Framework
 			}
 
 			Func<object[], MethodInfo> methodCallback;
-			
+
 			if (method.ContainsGenericParameters)
 			{
 				methodCallback = objects =>
@@ -744,10 +744,6 @@ namespace Morestachio.Formatter.Framework
 		///     Should compose the givenValue and/or transform it in any way that it can match the
 		///     <para>parameter</para>
 		/// </summary>
-		/// <param name="parameter"></param>
-		/// <param name="argumentIndex"></param>
-		/// <param name="services"></param>
-		/// <param name="givenValue"></param>
 		/// <returns></returns>
 		protected virtual Func<object, object> PrepareComposeArgumentValue(MultiFormatterInfo parameter,
 			int argumentIndex,
@@ -777,8 +773,7 @@ namespace Morestachio.Formatter.Framework
 					return o => NumberConverter.Instance.Convert(o, parameterParameterType);
 				}
 			}
-
-			if (givenType != typeof(Number) && parameterParameterType == typeof(Number))
+			else if (givenType != typeof(Number) && parameterParameterType == typeof(Number))
 			{
 				if (NumberConverter.Instance.CanConvert(givenType, parameterParameterType))
 				{
@@ -787,7 +782,6 @@ namespace Morestachio.Formatter.Framework
 				}
 			}
 
-			//The check for Number is a bit hacky.
 			if (!parameterParameterType.GetTypeInfo().IsAssignableFrom(givenType))
 			{
 				var typeConverter =
@@ -847,445 +841,3 @@ namespace Morestachio.Formatter.Framework
 
 	}
 }
-
-///// <summary>
-/////     Should compose the givenValue and/or transform it in any way that it can match the
-/////     <para>parameter</para>
-///// </summary>
-///// <param name="parameter"></param>
-///// <param name="argumentIndex"></param>
-///// <param name="services"></param>
-///// <param name="givenValue"></param>
-///// <returns></returns>
-//protected virtual bool ComposeArgumentValue(MultiFormatterInfo parameter,
-//	int argumentIndex,
-//	ServiceCollection services,
-//	ref object givenValue)
-//{
-//	var parameterParameterType = parameter.ParameterType;
-//	if (parameterParameterType.IsConstructedGenericType)
-//	{
-//		//TODO check constraints of the generic type
-//		return true;
-//	}
-
-//	//The check for Number is a bit hacky.
-//	if (!parameterParameterType.GetTypeInfo().IsAssignableFrom(givenValue?.GetType()) || givenValue is Number)
-//	{
-//		if (givenValue is Number && NumberConverter.Instance.CanConvert(givenValue, parameterParameterType))
-//		{
-//			givenValue = NumberConverter.Instance.Convert(givenValue, parameterParameterType);
-//			return true;
-//		}
-
-//		var o = givenValue;
-//		var typeConverter =
-//			ValueConverter.FirstOrDefault(e => e.CanConvert(o, parameterParameterType));
-//		typeConverter = typeConverter ??
-//						(DefaultConverter.CanConvert(givenValue, parameterParameterType)
-//							? DefaultConverter
-//							: null);
-//		var perParameterConverter = parameter.FormatterValueConverterAttribute
-//			.Select(f => f.CreateInstance())
-//			.FirstOrDefault(e => e.CanConvert(o, parameterParameterType));
-
-//		if (perParameterConverter != null)
-//		{
-//			givenValue = perParameterConverter.Convert(givenValue, parameterParameterType);
-//		}
-//		else if (typeConverter != null)
-//		{
-//			givenValue = typeConverter.Convert(givenValue, parameterParameterType);
-//		}
-//		else if (givenValue is IConvertible convertible &&
-//				 typeof(IConvertible).IsAssignableFrom(parameterParameterType))
-//		{
-//			try
-//			{
-//				givenValue = convertible.ToType(parameterParameterType, services.GetRequiredService<ParserOptions>().CultureInfo);
-//			}
-//			catch (Exception e)
-//			{
-//				//this might just not work
-//				return false;
-//			}
-//		}
-//		else
-//		{
-//			Log(() =>
-//				$"Skip: Match is Invalid because type at {argumentIndex} of '{parameterParameterType.Name}' was not expected. Abort.");
-//			//The type in the template and the type defined in the formatter do not match. Abort	
-
-//			return false;
-//		}
-//	}
-
-//	return true;
-//}
-///// <summary>
-/////     Composes the values into a Dictionary for each formatter. If returns null, the formatter will not be called.
-///// </summary>
-//public virtual FormatterComposingResult ComposeValues(
-//	[NotNull] MorestachioFormatterModel formatter,
-//	[CanBeNull] object sourceObject,
-//	[NotNull] MethodInfo method,
-//	[NotNull] ServiceCollection services,
-//	[NotNull] List<Tuple<string, object>> templateArguments)
-//{
-//	Log(() =>
-//		$"Compose values for object '{sourceObject}' with formatter '{formatter.InputType}' targets '{formatter.Function.Name}'");
-//	var values = new Dictionary<MultiFormatterInfo, object>();
-//	var matched = new Dictionary<MultiFormatterInfo, Tuple<string, object>>();
-
-//	//var templateArgumentsQueue = templateArguments.Select(e => Tuple.Create(e.Key, e.Value)).ToList();
-
-//	for (var i = 0; i < formatter.MetaData.NonParamsArguments.Count; i++)
-//	{
-//		var parameter = formatter.MetaData.NonParamsArguments[i];
-//		Log(() => $"Match parameter '{parameter.ParameterType}' [{parameter.Name}]");
-//		object givenValue;
-//		//set ether the source object or the value from the given arguments
-
-//		if (parameter.IsSourceObject)
-//		{
-//			Log(() => "Is Source object");
-//			givenValue = sourceObject;
-//		}
-//		else if (parameter.IsInjected)
-//		{
-//			//match by index or name
-//			Log(() => "Get the injected service");
-//			if (services.TryGetService(parameter.ParameterType, out var service))
-//			{
-//				givenValue = service;
-
-//				if (!parameter.ParameterType.IsInstanceOfType(givenValue))
-//				{
-//					Log(() => $"Expected service of type '{parameter.ParameterType}' but got '{givenValue}'");
-//					return default;
-//				}
-//			}
-//			else
-//			{
-//				Log(() => $"Requested service of type {parameter.ParameterType} is not present");
-//				return default;
-//			}
-//		}
-//		else
-//		{
-//			//match by index or name
-//			Log(() => "Try Match by Name");
-//			//match by name
-//			Tuple<string, object> match = null;
-
-//			match = templateArguments.FirstOrDefault(e =>
-//				!string.IsNullOrWhiteSpace(e.Item1) && e.Item1.Equals(parameter.Name));
-
-//			if (match == null)
-//			{
-//				Log(() => "Try Match by Index");
-//				//match by index
-//				var index = 0;
-//				match = templateArguments.FirstOrDefault(g => index++ == parameter.Index);
-//			}
-
-//			if (match == null)
-//			{
-//				if (parameter.IsOptional)
-//				{
-//					givenValue = null;
-//					match = new Tuple<string, object>(parameter.Name, null);
-//				}
-//				else
-//				{
-//					Log(() =>
-//						$"Skip: Could not match the parameter at index '{parameter.Index}' nether by name nor by index");
-//					return default;
-//				}
-//			}
-//			else
-//			{
-//				givenValue = match.Item2;
-//				Log(() => $"Matched '{match.Item1}': '{match.Item2}' by Name/Index");
-//			}
-
-//			matched.Add(parameter, match);
-//		}
-
-//		//check for matching types
-//		if (!parameter.IsOptional && !ComposeArgumentValue(parameter, i, services, ref givenValue))
-//		{
-//			return default;
-//		}
-
-//		values.Add(parameter, givenValue);
-//		if (parameter.IsOptional || parameter.IsSourceObject)
-//		{
-//			continue; //value and source object are optional so we do not to check for its existence 
-//		}
-
-//		if (!AllParametersAllDefaultValue && Equals(givenValue, null))
-//		{
-//			Log(() =>
-//				"Skip: Match is Invalid because template value is null where the Formatter does not have a optional value");
-//			//the delegates parameter is not optional so this formatter does not fit. Continue.
-//			return default;
-//		}
-//	}
-
-//	if (method.ContainsGenericParameters)
-//	{
-//		method = MakeGenericMethodInfoByValues(method, values.ToDictionary(e => e.Key.Name, e => e.Value));
-//		if (method == null)
-//		{
-//			return default;
-//		}
-//	}
-
-//	var hasRest = formatter.MetaData.ParamsArgument;
-//	if (hasRest == null)
-//	{
-//		return new FormatterComposingResult
-//		{
-//			MethodInfo = method,
-//			Arguments = values
-//		};
-//	}
-
-//	templateArguments.RemoveAll(e => matched.Values.Contains(e));
-
-//	Log(() => $"Match Rest argument '{hasRest.ParameterType}'");
-
-//	//{{"test", Buffer.X, "1"}}
-//	//only use the values that are not matched.
-//	if (typeof(KeyValuePair<string, object>[]) == hasRest.ParameterType)
-//	{
-//		//keep the name value pairs
-//		values.Add(hasRest, templateArguments);
-//	}
-//	else if (typeof(object[]).GetTypeInfo().IsAssignableFrom(hasRest.ParameterType))
-//	{
-//		//its requested to transform the rest values and truncate the names from it.
-//		values.Add(hasRest, templateArguments.Select(e => e.Item2).ToArray());
-//	}
-//	else
-//	{
-//		Log(() => $"Skip: Match is Invalid because  '{hasRest.ParameterType}' is no supported rest parameter");
-//		//unknown type in params argument cannot call
-//		return default;
-//	}
-
-//	return new FormatterComposingResult
-//	{
-//		MethodInfo = method,
-//		Arguments = values
-//	};
-//}
-///// <summary>
-/////     Gets the matching formatter.
-///// </summary>
-//public virtual IEnumerable<MorestachioFormatterModel> GetMatchingFormatter(
-//	[CanBeNull] object sourceValue,
-//	[NotNull] Type typeToFormat,
-//	[NotNull] List<Tuple<string, object>> arguments,
-//	[CanBeNull] string name)
-//{
-//	Log(() =>
-//	{
-//		var aggregate = arguments.Any()
-//			? arguments.Select(e => $"[{e.Item1}]:\"{e.Item2}\"").Aggregate((e, f) => e + " & " + f)
-//			: "";
-//		return
-//			$"Test Filter for '{typeToFormat}' with arguments '{aggregate}'";
-//	});
-
-//	var filteredSourceList = new List<KeyValuePair<MorestachioFormatterModel, ulong>>();
-//	if (!Formatters.TryGetValue(name ?? "{NULL}", out var formatters))
-//	{
-//		return Enumerable.Empty<MorestachioFormatterModel>();
-//	}
-
-//	foreach (var formatTemplateElement in formatters)
-//	{
-//		//if (!string.Equals(formatTemplateElement.Name, name, FormatterNameCompareMode))
-//		//{
-//		//	continue;
-//		//}
-
-//		Log(() => $"Test filter: '{formatTemplateElement.InputType} : {formatTemplateElement.Function.Name}'");
-
-//		if (formatTemplateElement.InputType != typeToFormat
-//			&& !formatTemplateElement.InputType.GetTypeInfo().IsAssignableFrom(typeToFormat))
-//		{
-//			if (ValueConverter.All(e => !e.CanConvert(sourceValue, formatTemplateElement.InputType)))
-//			{
-//				if (formatTemplateElement.MetaData.SourceObject.FormatterValueConverterAttribute
-//					.Select(e => e.CreateInstance())
-//					.All(e => !e.CanConvert(sourceValue, formatTemplateElement.InputType)))
-//				{
-//					var typeToFormatGenerics = typeToFormat.GetTypeInfo().GetGenericArguments();
-
-//					//explicit check for array support
-//					if (typeToFormat.HasElementType)
-//					{
-//						var elementType = typeToFormat.GetElementType();
-//						typeToFormatGenerics = typeToFormatGenerics.Concat(new[]
-//						{
-//							elementType
-//						}).ToArray();
-//					}
-
-//					//the type check has maybe failed because of generic parameter. Check if both the formatter and the typ have generic arguments
-
-//					var formatterGenerics = formatTemplateElement.InputType.GetTypeInfo().GetGenericArguments();
-
-//					if (typeToFormatGenerics.Length <= 0 || formatterGenerics.Length <= 0 ||
-//						typeToFormatGenerics.Length != formatterGenerics.Length)
-//					{
-//						Log(() =>
-//							$"Exclude because formatter accepts '{formatTemplateElement.InputType}' is not assignable from '{typeToFormat}'");
-//						continue;
-//					}
-//				}
-//			}
-//		}
-
-//		//count rest arguments
-//		//var mandatoryArguments = formatTemplateElement.MetaData
-//		//	.Where(e => !e.IsRestObject && !e.IsOptional && !e.IsSourceObject && !e.IsInjected).ToArray();
-//		if (formatTemplateElement.MetaData.MandetoryArguments.Count > arguments.Count)
-//		//if there are less arguments excluding rest then parameters
-//		{
-//			Log(() =>
-//				"Exclude because formatter has " +
-//				$"'{formatTemplateElement.MetaData.MandetoryArguments.Count}' " +
-//				"parameter and " +
-//				$"'{formatTemplateElement.MetaData.Count(e => e.IsRestObject)}' " +
-//				"rest parameter but needs less or equals" +
-//				$"'{arguments.Count}'.");
-//			continue;
-//		}
-
-//		ulong score = 1L;
-//		if (formatTemplateElement.Function.ReturnParameter == null ||
-//			formatTemplateElement.Function.ReturnParameter?.ParameterType == typeof(void))
-//		{
-//			score++;
-//		}
-
-//		score += (ulong)(arguments.Count - formatTemplateElement.MetaData.MandetoryArguments.Count);
-//		Log(() =>
-//			$"Take filter: '{formatTemplateElement.InputType} : {formatTemplateElement.Function}' Score {score}");
-//		filteredSourceList.Add(
-//			new KeyValuePair<MorestachioFormatterModel, ulong>(formatTemplateElement, score));
-//	}
-
-//	if (filteredSourceList.Count > 0)
-//	{
-//		var formatter = new List<MorestachioFormatterModel>();
-//		foreach (var formatTemplateElement in filteredSourceList.OrderBy(e => e.Value))
-//		{
-//			formatter.Add(formatTemplateElement.Key);
-//		}
-
-//		return formatter;
-//	}
-
-//	return Enumerable.Empty<MorestachioFormatterModel>();
-//}
-///// <inheritdoc />
-//public virtual async ObjectPromise CallMostMatchingFormatter(
-//	[NotNull] Type type,
-//	[NotNull] List<Tuple<string, object>> values,
-//	[NotNull] object sourceValue,
-//	string name,
-//	ParserOptions parserOptions,
-//	ScopeData scope)
-//{
-//	Log(() => "---------------------------------------------------------------------------------------------");
-//	Log(() => $"Call Formatter for Type '{type}' on '{sourceValue}'");
-//	MorestachioFormatterModel[] hasFormatter;
-//	hasFormatter = GetMatchingFormatter(sourceValue, type, values, name)
-//		.Where(e => e != null)
-//		.ToArray();
-
-//	var services = new ServiceCollection(ServiceCollectionAccess);
-//	services.AddService(parserOptions);
-//	services.AddService(scope.Profiler);
-
-//	var composingResult = new FormatterComposingResult();
-//	MorestachioFormatterModel formatTemplateElement = null;
-
-//	foreach (var morestachioFormatterModel in hasFormatter)
-//	{
-//		var tempCompRes = ComposeValues(morestachioFormatterModel,
-//			sourceValue,
-//			morestachioFormatterModel.Function,
-//			services,
-//			values);
-
-//		if (!Equals(tempCompRes, default(FormatterComposingResult)))
-//		{
-//			composingResult = tempCompRes;
-//			formatTemplateElement = morestachioFormatterModel;
-//			break;
-//		}
-//	}
-
-//	if (formatTemplateElement == null)
-//	{
-//		Log(() => "No Formatter has matched. Skip and return Source Value.");
-//		return FormatterFlow.Skip;
-//	}
-
-//	services.AddService(formatTemplateElement);
-//	Log(() =>
-//		$"Try formatter '{formatTemplateElement.InputType}' on '{formatTemplateElement.Function.Name}'");
-//	return await Execute(formatTemplateElement, composingResult);
-//}
-///// <summary>
-/////     Executes the specified formatter.
-///// </summary>
-///// <param name="formatter">The formatter.</param>
-///// <param name="sourceObject">The source object.</param>
-///// <param name="services"></param>
-///// <param name="templateArguments">The template arguments.</param>
-///// <returns></returns>
-//public virtual async ObjectPromise Execute([NotNull] MorestachioFormatterModel formatter,
-//	[NotNull] FormatterComposingResult composedVaues)
-//{
-//	Log(() => "Execute");
-//	var parameters = composedVaues.Arguments.Select(e => e.Value).ToArray();
-//	var taskAlike = composedVaues.MethodInfo.Invoke(formatter.FunctionTarget,
-//		parameters);
-
-//	return await taskAlike.UnpackFormatterTask();
-//}
-//static Type[] GetGenericArgumentsForBaseType(Type givenType, Type genericType)
-//{
-//	if (genericType.IsInterface)
-//	{
-//		var interfaceTypes = givenType.GetInterfaces();
-//		foreach (var it in interfaceTypes)
-//		{
-//			if (it.IsGenericType && it.GetGenericTypeDefinition() == genericType)
-//			{
-//				return it.GetGenericArguments();
-//			}
-//		}
-//	}
-//	else
-//	{
-//		Type baseType = givenType;
-//		while (baseType != null)
-//		{
-//			if (baseType.IsGenericType && baseType.GetGenericTypeDefinition() == genericType)
-//			{
-//				return baseType.GetGenericArguments();
-//			}
-
-//			baseType = baseType.BaseType;
-//		}
-//	}
-//	return null;
-//}

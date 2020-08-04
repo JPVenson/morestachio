@@ -90,6 +90,60 @@ namespace Morestachio.Tests
 			}
 		}
 
+		private class Stopwatches
+		{
+			public Stopwatches()
+			{
+				Watches = new List<TimeSpan>();
+			}
+			public Stopwatch Current { get; set; }
+			public List<TimeSpan> Watches { get; set; }
+
+			public void Start()
+			{
+				Current = new Stopwatch();
+				Current.Start();
+			}
+
+			public void Stop()
+			{
+				Current.Stop();
+				Watches.Add(Current.Elapsed);
+			}
+
+			public TimeSpan Elapsed
+			{
+				get
+				{
+					return TimeSpan.FromTicks(Watches.Sum(f => f.Ticks));
+				}
+			}
+
+			public TimeSpan ElapsedAverage
+			{
+				get
+				{
+					return TimeSpan.FromTicks((long) Watches.Average(f => (decimal)f.Ticks));
+				}
+			}
+
+			public TimeSpan ElapsedMin
+			{
+				get
+				{
+					return Watches.Min();
+				}
+			}
+
+			public TimeSpan ElapsedMax
+			{
+				get
+				{
+					return Watches.Max();
+				}
+			}
+		}
+
 		[Test]
 		[Explicit]
 		[Repeat(5)]
@@ -120,31 +174,65 @@ namespace Morestachio.Tests
 				Products = _products
 			});
 			var runs = 200;
-			for (int i = 0; i < runs; i++)
+			for (int i = 0; i < runs / 5; i++)
 			{
 				andStringifyAsync = await parsed.CreateAndStringifyAsync(new
 				{
 					Products = _products
 				});
 			}
-			var sw = new Stopwatch();
+			var sw = new Stopwatches();
 			var profiler = new List<PerformanceProfiler>();
-			sw.Start();
 			for (int i = 0; i < runs; i++)
 			{
+				sw.Start();
 				var f = await parsed.CreateAsync(new
 				{
 					Products = _products
 				});
+				sw.Stop();
 				profiler.Add(f.Profiler);
 			}
 
 			var swElapsed = sw.Elapsed;
-			Console.WriteLine("Done in: " + swElapsed + " thats " + new TimeSpan(sw.Elapsed.Ticks / runs) + " per run ");
+			Console.WriteLine("Done in: " 
+			                  + HumanizeTimespan(swElapsed)
+			                  + " thats " 
+			                  + HumanizeTimespan(sw.ElapsedAverage)
+			                  + " per run with lower " 
+			                  + HumanizeTimespan(sw.ElapsedMin)
+			                  + " and high " 
+			                  + HumanizeTimespan(sw.ElapsedMax));
 			#if NETCOREAPP
 			Console.WriteLine("- Mem: " + Process.GetCurrentProcess().PrivateMemorySize64);
 			#endif
 			//PrintPerformanceGroup(profiler.SelectMany(f => f.))
+		}
+
+		public string HumanizeTimespan(TimeSpan timespan)
+		{
+			var str = new StringBuilder();
+			if (timespan.Seconds > 0)
+			{
+				str.Append(timespan.Seconds + " s");
+
+				if (timespan.Milliseconds > 0)
+				{
+					str.Append(" " + timespan.Milliseconds + " ms");
+				}
+			}
+			else if (timespan.Milliseconds > 0)
+			{
+				str.Append(timespan.Milliseconds + ".");
+				timespan = timespan.Subtract(TimeSpan.FromMilliseconds(timespan.Milliseconds));
+				str.Append((((double)timespan.Ticks) / Stopwatch.Frequency) * 1000000000 + " ms");
+			}
+			else
+			{
+				str.Append((((double)timespan.Ticks) / Stopwatch.Frequency) * 1000000000 + " ns");
+			}
+
+			return str.ToString();
 		}
 
 		//private void PrintPerformanceGroup(IEnumerable<PerformanceProfiler.PerformanceKey> key, int intention = 0)

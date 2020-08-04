@@ -17,30 +17,54 @@ namespace Morestachio.Formatter.Framework
 			};
 		}
 
-		/// <inheritdoc />
+		/// <summary>
+		///		Adds an service using an interface and Implementation
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <typeparam name="TE"></typeparam>
+		/// <param name="service"></param>
 		public void AddService<T, TE>(TE service) where TE : T
 		{
-			_localSource[typeof(TE)] = service;
+			_localSource[typeof(T)] = service;
 		}
 
-		/// <inheritdoc />
+		/// <summary>
+		///		Adds an Service
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="service"></param>
 		public void AddService<T>(T service)
 		{
 			_localSource[typeof(T)] = service;
 		}
 
-		/// <inheritdoc />
+		/// <summary>
+		///		Adds an service using an interface and factory
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <typeparam name="TE"></typeparam>
+		/// <param name="serviceFactory"></param>
 		public void AddService<T, TE>(Func<TE> serviceFactory) where TE : T
 		{
-			_localSource[typeof(TE)] = serviceFactory;
+			_localSource[typeof(T)] = serviceFactory;
 		}
 
-		/// <inheritdoc />
+		/// <summary>
+		///		Adds an service factory
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="serviceFactory"></param>
 		public void AddService<T>(Func<T> serviceFactory)
 		{
 			_localSource[typeof(T)] = serviceFactory;
 		}
 
+		/// <summary>
+		///		Gets the service if present
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="service"></param>
+		/// <returns></returns>
 		public bool TryGetService<T>(out T service)
 		{
 			var found = TryGetService(typeof(T), out var serviceTem);
@@ -56,12 +80,22 @@ namespace Morestachio.Formatter.Framework
 			return found;
 		}
 
+		/// <summary>
+		///		Gets the service if present or null
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
 		public T TryGetService<T>() where T : class
 		{
 			var found = TryGetService(typeof(T), out var serviceTem);
 			return serviceTem as T;
 		}
 
+		/// <summary>
+		///		Gets the service or throws an exception
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
 		public T GetRequiredService<T>()
 		{
 			var found = TryGetService(typeof(T), out var serviceTem);
@@ -72,6 +106,12 @@ namespace Morestachio.Formatter.Framework
 			throw new InvalidOperationException($"The required service {typeof(T)} was not found");
 		}
 
+		/// <summary>
+		///		Gets an service
+		/// </summary>
+		/// <param name="serviceType"></param>
+		/// <param name="service"></param>
+		/// <returns></returns>
 		public bool TryGetService(Type serviceType, out object service)
 		{
 			if (!_localSource.TryGetValue(serviceType, out service))
