@@ -23,38 +23,45 @@ namespace Morestachio.Framework
 		/// <param name="parts"></param>
 		public Traversable(IEnumerable<KeyValuePair<string, PathType>> parts)
 		{
-			Load(parts);
+			var node = this;
+			var values = parts.ToArray();
+			if (values.Length == 0)
+			{
+				return;
+			}
+
+			node.Current = values[0];
+			node.Count = values.Length - 1;
+
+			for (var index = 1; index < values.Length; index++)
+			{
+				var keyValuePair = values[index];
+				node._next = new Traversable(keyValuePair, values.Length - index - 1);
+				node = node._next;
+			}
 		}
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="parts"></param>
-		public Traversable(string serialisedText)
+		private Traversable(KeyValuePair<string, PathType> value, int count)
 		{
-			Load(serialisedText.Split(',').Select(f =>
-			{
-				var parts = f.Trim('{', '}').Split(';');
-				return new KeyValuePair<string, PathType>(parts.ElementAtOrDefault(1),
-					(PathType)Enum.Parse(typeof(PathType), parts[0]));
-			}));
+			Current = value;
+			Count = count;
 		}
 
-		private void Load(IEnumerable<KeyValuePair<string, PathType>> parts)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="parts"></param>
+		public Traversable(string serialisedText) : this(serialisedText.Split(',').Select(f =>
 		{
-			var node = this;
-			var values = parts.ToArray();
-			for (var index = 0; index < values.Length; index++)
-			{
-				var keyValuePair = values[index];
-				node.Count = values.Length - index - 1;
-				node.Current = keyValuePair;
-				if (index + 1 < values.Length)
-				{
-					node._next = new Traversable(keyValuePair);
-					node = node._next;
-				}
-			}
+			var parts = f.Trim('{', '}').Split(';');
+			return new KeyValuePair<string, PathType>(parts.ElementAtOrDefault(1),
+				(PathType)Enum.Parse(typeof(PathType), parts[0]));
+		}))
+		{
 		}
 
 		public string Serialize()
@@ -68,15 +75,6 @@ namespace Morestachio.Framework
 
 				return "{" + f.Value + "}";
 			}));
-		}
-		
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="parts"></param>
-		private Traversable(KeyValuePair<string, PathType> value)
-		{
-			Current = value;
 		}
 
 		private Traversable _next;
@@ -129,7 +127,7 @@ namespace Morestachio.Framework
 		{
 			return _next;
 		}
-		
+
 		public KeyValuePair<string, PathType> Current
 		{
 			get;

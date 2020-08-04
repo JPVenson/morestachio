@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -11,34 +11,69 @@ using ObjectPromise = System.Threading.Tasks.Task<object>;
 
 namespace Morestachio.Framework.Expression
 {
-	/// <summary>
-	///     Defines all possible operators
-	/// </summary>
-	[Flags]
-	public enum OperatorTypes
+	internal class OperatorList : IReadOnlyDictionary<OperatorTypes, MorestachioOperator>
 	{
-#pragma warning disable 1591
-		Add = 1 << 0,
-		Substract = 1 << 1,
-		Multiply = 1 << 2,
-		Divide = 1 << 3,
-		Pow = 1 << 4,
-		Remainder = 1 << 5,
-		ShiftLeft = 1 << 6,
-		ShiftRight = 1 << 7,
-		Equals = 1 << 8,
-		UnEquals = 1 << 9,
-		GreaterThen = 1 << 10,
-		LessThen = 1 << 11,
-		GreaterOrEquals = 1 << 12,
-		LessOrEquals = 1 << 13,
-		And = 1 << 14,
-		Or = 1 << 15,
-		Bigger = 1 << 16,
-		Smaller = 1 << 17
-	}
-#pragma warning restore 1591
+		public OperatorList()
+		{
+			Operators = new Dictionary<OperatorTypes, MorestachioOperator>();
+		}
 
+		private IDictionary<OperatorTypes, MorestachioOperator> Operators { get; }
+
+		public void Add(MorestachioOperator mOperator)
+		{
+			Operators[mOperator.OperatorType] = mOperator;
+		}
+
+		public IEnumerator<KeyValuePair<OperatorTypes, MorestachioOperator>> GetEnumerator()
+		{
+			return Operators.GetEnumerator();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return ((IEnumerable)Operators).GetEnumerator();
+		}
+
+		public int Count
+		{
+			get
+			{
+				return Operators.Count;
+			}
+		}
+
+		public bool ContainsKey(OperatorTypes key)
+		{
+			return Operators.ContainsKey(key);
+		}
+
+		public bool TryGetValue(OperatorTypes key, out MorestachioOperator value)
+		{
+			return Operators.TryGetValue(key, out value);
+		}
+
+		public MorestachioOperator this[OperatorTypes key]
+		{
+			get { return Operators[key]; }
+		}
+
+		public IEnumerable<OperatorTypes> Keys
+		{
+			get
+			{
+				return Operators.Keys;
+			}
+		}
+
+		public IEnumerable<MorestachioOperator> Values
+		{
+			get
+			{
+				return Operators.Values;
+			}
+		}
+	}
 	/// <summary>
 	///     An callable operator
 	/// </summary>
@@ -46,37 +81,50 @@ namespace Morestachio.Framework.Expression
 	{
 		static MorestachioOperator()
 		{
-			var operators = new Dictionary<OperatorTypes, MorestachioOperator>();
-			operators.Add(OperatorTypes.Add, new MorestachioOperator("+", OperatorTypes.Add));
-			operators.Add(OperatorTypes.Substract, new MorestachioOperator("-", OperatorTypes.Substract));
-			operators.Add(OperatorTypes.Multiply, new MorestachioOperator("*", OperatorTypes.Multiply));
-			operators.Add(OperatorTypes.Divide, new MorestachioOperator("/", OperatorTypes.Divide));
-			operators.Add(OperatorTypes.Pow, new MorestachioOperator("^", OperatorTypes.Pow));
-			operators.Add(OperatorTypes.Remainder, new MorestachioOperator("%", OperatorTypes.Remainder));
-			operators.Add(OperatorTypes.ShiftLeft, new MorestachioOperator("<<", OperatorTypes.ShiftLeft));
-			operators.Add(OperatorTypes.ShiftRight, new MorestachioOperator(">>", OperatorTypes.ShiftRight));
-			operators.Add(OperatorTypes.Equals, new MorestachioOperator("==", OperatorTypes.Equals));
-			operators.Add(OperatorTypes.UnEquals, new MorestachioOperator("!=", OperatorTypes.UnEquals));
-			operators.Add(OperatorTypes.GreaterThen, new MorestachioOperator("<", OperatorTypes.GreaterThen));
-			operators.Add(OperatorTypes.LessThen, new MorestachioOperator(">", OperatorTypes.LessThen));
-			operators.Add(OperatorTypes.GreaterOrEquals, new MorestachioOperator("<=", OperatorTypes.GreaterOrEquals));
-			operators.Add(OperatorTypes.LessOrEquals, new MorestachioOperator(">=", OperatorTypes.LessOrEquals));
-			operators.Add(OperatorTypes.And, new MorestachioOperator("&&", OperatorTypes.And));
-			operators.Add(OperatorTypes.Or, new MorestachioOperator("||", OperatorTypes.Or));
-			operators.Add(OperatorTypes.Bigger, new MorestachioOperator("<?", OperatorTypes.Bigger));
-			operators.Add(OperatorTypes.Smaller, new MorestachioOperator(">?", OperatorTypes.Smaller));
-			Operators = new ReadOnlyDictionary<OperatorTypes, MorestachioOperator>(
-				operators);
+			var operators = new OperatorList();
+			operators.Add(BinaryOperator("+", OperatorTypes.Add));
+			operators.Add(BinaryOperator("-", OperatorTypes.Substract));
+			operators.Add(BinaryOperator("*", OperatorTypes.Multiply));
+			operators.Add(BinaryOperator("/", OperatorTypes.Divide));
+			operators.Add(BinaryOperator("^", OperatorTypes.Pow));
+			operators.Add(BinaryOperator("%", OperatorTypes.Remainder));
+			operators.Add(BinaryOperator("<<", OperatorTypes.ShiftLeft));
+			operators.Add(BinaryOperator(">>", OperatorTypes.ShiftRight));
+			operators.Add(BinaryOperator("==", OperatorTypes.Equals));
+			operators.Add(BinaryOperator("!=", OperatorTypes.UnEquals));
+			operators.Add(BinaryOperator("<", OperatorTypes.GreaterThen));
+			operators.Add(BinaryOperator(">", OperatorTypes.LessThen));
+			operators.Add(BinaryOperator("<=", OperatorTypes.GreaterOrEquals));
+			operators.Add(BinaryOperator(">=", OperatorTypes.LessOrEquals));
+			operators.Add(BinaryOperator("&&", OperatorTypes.And));
+			operators.Add(BinaryOperator("||", OperatorTypes.Or));
+			operators.Add(BinaryOperator("<?", OperatorTypes.Bigger));
+			operators.Add(BinaryOperator(">?", OperatorTypes.Smaller));
+			Operators = operators;
 		}
 
 		/// <summary>
 		///     Creates a new Operator.
 		/// </summary>
-		public MorestachioOperator(string operatorText, OperatorTypes operatorType, bool acceptsTwoExpressions = true)
+		private MorestachioOperator(string operatorText,
+			OperatorTypes operatorType,
+			bool acceptsTwoExpressions,
+			bool isPrefixOperator)
 		{
 			OperatorText = operatorText;
 			OperatorType = operatorType;
 			AcceptsTwoExpressions = acceptsTwoExpressions;
+			IsPrefixOperator = isPrefixOperator;
+		}
+
+		private static MorestachioOperator BinaryOperator(string operatorText, OperatorTypes type)
+		{
+			return new MorestachioOperator(operatorText, type, true, false);
+		}
+
+		private static MorestachioOperator UnaryOperator(string operatorText, OperatorTypes type, bool leftHandOperator)
+		{
+			return new MorestachioOperator(operatorText, type, false, leftHandOperator);
 		}
 
 		/// <summary>
@@ -94,36 +142,16 @@ namespace Morestachio.Framework.Expression
 		/// </summary>
 		public bool AcceptsTwoExpressions { get; }
 
-		///// <summary>
-		/////		A Dictionary of custom operators.
-		///// </summary>
-		//public static IDictionary<string, MorestachioOperator> CustomOperators { get; private set; }
+		/// <summary>
+		/// 
+		/// </summary>
+		public bool IsPrefixOperator { get; set; }
 
 		/// <summary>
 		///     The default supported operators
 		/// </summary>
-		public static IDictionary<OperatorTypes, MorestachioOperator> Operators { get; }
-
-
-		/// <summary>
-		///     Executes the operator
-		/// </summary>
-		/// <param name="left"></param>
-		/// <param name="right"></param>
-		/// <param name="contextObject"></param>
-		/// <param name="scopeData"></param>
-		/// <returns></returns>
-		public virtual async ObjectPromise Execute(
-			IMorestachioExpression left,
-			IMorestachioExpression right,
-			ContextObject contextObject,
-			ScopeData scopeData)
-		{
-			
-
-			return null;
-		}
-
+		public static IReadOnlyDictionary<OperatorTypes, MorestachioOperator> Operators { get; }
+		
 		/// <summary>
 		///     Gets all operators
 		/// </summary>

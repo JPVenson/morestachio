@@ -61,6 +61,7 @@ namespace Morestachio.Framework
 			DefaultFormatter.AddFromType(typeof(TimeSpanFormatter));
 			DefaultFormatter.AddFromType(typeof(StringFormatter));
 			DefaultFormatter.AddFromType(typeof(RandomFormatter));
+
 			DefaultDefinitionOfFalse = value => value != null &&
 												value as bool? != false &&
 												// ReSharper disable once CompareOfFloatsByEqualityOperator
@@ -346,7 +347,7 @@ namespace Morestachio.Framework
 				{
 					innerContext.Value = Options.ValueResolver.Resolve(type, Value, elements.Current.Key, innerContext);
 				}
-				else if (Value is IDictionary<string, object> ctx)
+				else if (!Options.HandleDictionaryAsObject && Value is IDictionary<string, object> ctx)
 				{
 					if (!ctx.TryGetValue(elements.Current.Key, out var o))
 					{

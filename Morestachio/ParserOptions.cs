@@ -249,6 +249,12 @@ namespace Morestachio
 		public string Null { get; set; }
 
 		/// <summary>
+		///		If enabled all instances of IDictionary{string, object} will be processed as normal objects.
+		/// <value>Default is false</value>
+		/// </summary>
+		public bool HandleDictionaryAsObject { get; set; }
+
+		/// <summary>
 		///		Allows the creation of an custom Context object
 		/// </summary>
 		/// <param name="key"></param>
