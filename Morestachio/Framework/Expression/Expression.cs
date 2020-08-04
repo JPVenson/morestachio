@@ -3,12 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
-using System.Xml.Serialization;
 using Morestachio.Formatter.Framework;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.Visitors;
@@ -133,9 +129,12 @@ namespace Morestachio.Framework.Expression
 		public string FormatterName { get; private set; }
 
 		/// <inheritdoc />
-		public CharacterLocation Location { get; set; }
+		public CharacterLocation Location { get; private set; }
 
-		public FormatterCache? Cache { get; set; }
+		/// <summary>
+		///		The prepared call for an formatter
+		/// </summary>
+		public FormatterCache? Cache { get; private set; }
 
 		/// <inheritdoc />
 		public async ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
@@ -199,7 +198,7 @@ namespace Morestachio.Framework.Expression
 		{
 			var index = 0;
 			text = text.Trim();
-			if (!text.Contains("(") && !text.Any(Tokenizer.IsOperationChar))
+			if (!text.Contains("(") && !text.Any(Tokenizer.IsOperationChar))//this is the fast parsing branch. In case there are no operators or formatters used we can take the whole text as an single expression
 			{
 				if (text.Length > 0 && char.IsDigit(text[0]))
 				{
@@ -211,7 +210,7 @@ namespace Morestachio.Framework.Expression
 				else
 				{
 					var expression = new MorestachioExpression(context.CurrentLocation);
-					Func<IMorestachioError> errFunc = null;
+					Func<IMorestachioError> errFunc;
 					for (; index < text.Length; index++)
 					{
 						var c = text[index];
@@ -233,11 +232,8 @@ namespace Morestachio.Framework.Expression
 				}
 			}
 
-			var morestachioExpressions = new MorestachioExpressionList()
-			{
-				Location = context.CurrentLocation
-			};
-			HeaderTokenMatch currentScope = null;
+			var morestachioExpressions = new MorestachioExpressionList(context.CurrentLocation);
+			HeaderTokenMatch currentScope;
 			//this COULD be made with regexes, i have made it and rejected it as it was no longer readable in any way.
 			var tokenScopes = new Stack<HeaderTokenMatch>();
 			tokenScopes.Push(new HeaderTokenMatch
@@ -342,7 +338,7 @@ namespace Morestachio.Framework.Expression
 			{
 				if ((tryTerminate && tokenScopes.Any()) || !tryTerminate)
 				{
-					var headerTokenMatch = tokenScopes.Peek();
+					//var headerTokenMatch = tokenScopes.Peek();
 					//if (headerTokenMatch.BracketsCounter != 0)
 					//{
 					//	context.Errors.Add(new InvalidPathSyntaxError(
@@ -405,7 +401,7 @@ namespace Morestachio.Framework.Expression
 									scope.Value = new MorestachioExpressionList(new List<IMorestachioExpression>
 									{
 										oldValue
-									});
+									}, oldValue.Location);
 									var parValue = (scope.Parent.Value as MorestachioExpression);
 									var hasFormat = parValue.Formats.FirstOrDefault(f => f.MorestachioExpression == oldValue);
 									if (hasFormat != null)
@@ -529,7 +525,6 @@ namespace Morestachio.Framework.Expression
 
 				var nxtChar = text[index + 1];
 				var mCopList = morestachioOperators.SingleOrDefault(e => e.OperatorText.Equals(crrChar + nxtChar));
-				MorestachioOperator op;
 				if (mCopList != null)
 				{
 					morestachioOperator = mCopList;
@@ -623,11 +618,7 @@ namespace Morestachio.Framework.Expression
 				if (parent is MorestachioExpression exp)
 				{
 					exp.Formats.Add(
-						new ExpressionArgument(context.CurrentLocation.Offset(idx1))
-						{
-							MorestachioExpression = value,
-							Name = currentScope.ArgumentName
-						});
+						new ExpressionArgument(context.CurrentLocation.Offset(idx1), value, currentScope.ArgumentName));
 				}
 				else if (parent is MorestachioExpressionList expList)
 				{
@@ -912,7 +903,7 @@ namespace Morestachio.Framework.Expression
 							}
 							else
 							{
-								Func<IMorestachioError> errFunc = null;
+								Func<IMorestachioError> errFunc;
 								if ((currentScope.Value is MorestachioExpression exp) && exp._pathTokenizer.Add(formatChar, context, index, out errFunc) == false)
 								{
 									var parseOp = ParseOperationCall();

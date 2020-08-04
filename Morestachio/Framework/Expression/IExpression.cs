@@ -20,7 +20,7 @@ namespace Morestachio.Framework.Expression
 		/// <summary>
 		///		Where in the original template was this expression located
 		/// </summary>
-		CharacterLocation Location { get; set; }
+		CharacterLocation Location { get; }
 
 		/// <summary>
 		///		The method for obtaining the Value

@@ -48,7 +48,7 @@ namespace Morestachio.Document
 		protected override void DeSerializeXml(XmlReader reader)
 		{
 			reader.ReadStartElement();
-			if (reader.Name == ExpressionTokenizer.ExpressionNodeName)
+			if (reader.Name == ExpressionParser.ExpressionNodeName)
 			{
 				var subtree = reader.ReadSubtree();
 				subtree.Read();

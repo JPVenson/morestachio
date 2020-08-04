@@ -78,7 +78,7 @@ namespace Morestachio.Document
 			AssertElement(reader, nameof(Value));
 			reader.ReadEndElement();
 
-			if (reader.Name == ExpressionTokenizer.ExpressionNodeName)
+			if (reader.Name == ExpressionParser.ExpressionNodeName)
 			{
 				var subtree = reader.ReadSubtree();
 				subtree.Read();

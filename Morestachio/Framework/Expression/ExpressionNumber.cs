@@ -23,11 +23,6 @@ namespace Morestachio.Framework.Expression
 	[DebuggerTypeProxy(typeof(ExpressionDebuggerDisplay))]
 	public class ExpressionNumber : IMorestachioExpression
 	{
-		/// <summary>
-		///		The number of the Expression
-		/// </summary>
-		public Number Number { get; private set; }
-
 		internal ExpressionNumber()
 		{
 			
@@ -36,10 +31,19 @@ namespace Morestachio.Framework.Expression
 		/// <summary>
 		/// 
 		/// </summary>
-		public ExpressionNumber(in Number number)
+		public ExpressionNumber(in Number number, CharacterLocation location)
 		{
 			Number = number;
+			Location = location;
 		}
+		
+		/// <summary>
+		///		The number of the Expression
+		/// </summary>
+		public Number Number { get; private set; }
+
+		/// <inheritdoc />
+		public CharacterLocation Location { get; private set; }
 
 		/// <summary>
 		/// 
@@ -130,9 +134,6 @@ namespace Morestachio.Framework.Expression
 		}
 
 		/// <inheritdoc />
-		public CharacterLocation Location { get; set; }
-
-		/// <inheritdoc />
 		public ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
 		{
 			return contextObject.Options.CreateContextObject(".", contextObject.CancellationToken, Number,
@@ -194,10 +195,7 @@ namespace Morestachio.Framework.Expression
 			text = nrText.ToString();
 			if (Number.TryParse(text, context.Culture, out var nr))
 			{
-				return new ExpressionNumber(nr)
-				{
-					Location = context.CurrentLocation.Offset(offset)
-				};
+				return new ExpressionNumber(nr, context.CurrentLocation.Offset(offset));
 			}
 
 			context.Errors.Add(new MorestachioSyntaxError(

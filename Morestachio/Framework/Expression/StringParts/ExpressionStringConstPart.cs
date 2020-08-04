@@ -7,6 +7,20 @@ namespace Morestachio.Framework.Expression.StringParts
 	/// </summary>
 	public class ExpressionStringConstPart : IEquatable<ExpressionStringConstPart>
 	{
+		internal ExpressionStringConstPart()
+		{
+			
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public ExpressionStringConstPart(string textPart, CharacterLocation location)
+		{
+			Location = location;
+			PartText = textPart;
+		}
+
 		/// <summary>
 		///		The content of the Text Part
 		/// </summary>

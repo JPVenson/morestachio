@@ -17,6 +17,7 @@ namespace Morestachio.Framework.Expression
 	///     Defines an Argument used within a formatter
 	/// </summary>
 	[DebuggerTypeProxy(typeof(ExpressionDebuggerDisplay))]
+	[Serializable]
 	public class ExpressionArgument : IEquatable<ExpressionArgument>, IMorestachioExpression
 	{
 		internal ExpressionArgument()
@@ -25,10 +26,11 @@ namespace Morestachio.Framework.Expression
 
 		/// <summary>
 		/// </summary>
-		/// <param name="location"></param>
-		public ExpressionArgument(CharacterLocation location)
+		public ExpressionArgument(CharacterLocation location, IMorestachioExpression expression, string name)
 		{
 			Location = location;
+			MorestachioExpression = expression;
+			Name = name;
 		}
 
 
@@ -47,7 +49,7 @@ namespace Morestachio.Framework.Expression
 		/// <summary>
 		///     The name of the Argument
 		/// </summary>
-		public string Name { get; set; }
+		public string Name { get; private set; }
 
 		/// <summary>
 		///     The value of the Argument
@@ -74,7 +76,7 @@ namespace Morestachio.Framework.Expression
 		/// <summary>
 		///     The Location within the Template
 		/// </summary>
-		public CharacterLocation Location { get; set; }
+		public CharacterLocation Location { get; private set; }
 
 		/// <summary>
 		/// </summary>

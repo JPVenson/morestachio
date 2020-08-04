@@ -21,6 +21,7 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using Morestachio.Document.Contracts;
 using Morestachio.Framework.Expression.Framework;
+using ExpressionParser = Morestachio.Framework.Expression.ExpressionParser;
 
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 
@@ -84,7 +85,7 @@ namespace Morestachio.Tests
 		public void TestExpressionParser(string query)
 		{
 			var context = TokenzierContext.FromText(query);
-			var expressions = ExpressionTokenizer.ParseExpression(query, context);
+			var expressions = ExpressionParser.ParseExpression(query, context);
 			Assert.That(expressions, Is.Not.Null, () => context.Errors.GetErrorText());
 
 			var visitor = new ToParsableStringExpressionVisitor();
@@ -99,7 +100,7 @@ namespace Morestachio.Tests
 		public void TestExpressionParserDbg(string query)
 		{
 			var context = TokenzierContext.FromText(query);
-			var expressions = ExpressionTokenizer.ParseExpression(query, context);
+			var expressions = ExpressionParser.ParseExpression(query, context);
 			Assert.That(expressions, Is.Not.Null);
 
 			var visitor = new ToParsableStringExpressionVisitor();
@@ -114,7 +115,7 @@ namespace Morestachio.Tests
 		public async Task TestExpressionCanParseOperators(string query, object valA, object valB, object valExp)
 		{
 			var context = TokenzierContext.FromText(query);
-			var expressions = ExpressionTokenizer.ParseExpression(query, context);
+			var expressions = ExpressionParser.ParseExpression(query, context);
 			Assert.That(expressions, Is.Not.Null);
 
 			var visitor = new ToParsableStringExpressionVisitor();

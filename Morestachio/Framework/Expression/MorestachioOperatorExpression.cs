@@ -167,7 +167,7 @@ namespace Morestachio.Framework.Expression
 		}
 
 		/// <inheritdoc />
-		public CharacterLocation Location { get; set; }
+		public CharacterLocation Location { get; private set; }
 
 		/// <summary>
 		///		If the operator was called once this contains the exact formatter match that was executed and can be reused for execution

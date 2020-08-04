@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -19,24 +20,27 @@ namespace Morestachio.Framework.Expression
 	///		Defines a list of Expressions 
 	/// </summary>
 	[DebuggerTypeProxy(typeof(ExpressionDebuggerDisplay))]
+	[Serializable]
 	public class MorestachioExpressionList : IMorestachioExpression
 	{
-		/// <summary>
-		///		The list of Expressions
-		/// </summary>
-		public IList<IMorestachioExpression> Expressions { get; private set; }
-		
-		/// <inheritdoc />
-		public MorestachioExpressionList()
+		internal MorestachioExpressionList()
 		{
+			
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public MorestachioExpressionList(CharacterLocation location)
+		{
+			Location = location;
 			Expressions = new List<IMorestachioExpression>();
 		}
 
 		/// <summary>
 		///	
 		/// </summary>
-		/// <param name="expressions"></param>
-		public MorestachioExpressionList(IList<IMorestachioExpression> expressions, CharacterLocation location = null)
+		public MorestachioExpressionList(IList<IMorestachioExpression> expressions, CharacterLocation location)
 		{
 			Expressions = expressions;
 			Location = location;
@@ -53,8 +57,13 @@ namespace Morestachio.Framework.Expression
 			Expressions = (IMorestachioExpression[])info.GetValue(nameof(Expressions), typeof(IMorestachioExpression[]));
 		}
 
+		/// <summary>
+		///		The list of Expressions
+		/// </summary>
+		public IList<IMorestachioExpression> Expressions { get; private set; }
+
 		/// <inheritdoc />
-		public CharacterLocation Location { get; set; }
+		public CharacterLocation Location { get; private set; }
 		/// <inheritdoc />
 		public async ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
 		{

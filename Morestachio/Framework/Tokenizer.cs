@@ -325,7 +325,7 @@ namespace Morestachio.Framework
 						IMorestachioExpression exp = null;
 						if (!string.IsNullOrWhiteSpace(partialContext))
 						{
-							exp = ExpressionTokenizer.ParseExpression(partialContext, context);
+							exp = ExpressionParser.ParseExpression(partialContext, context);
 						}
 						var tokenPair = new TokenPair(TokenType.RenderPartial, partialName,
 							exp, context.CurrentLocation);
@@ -346,7 +346,7 @@ namespace Morestachio.Framework
 						token = token.Trim();
 						tokens.Add(new TokenPair(TokenType.CollectionOpen,
 							token,
-							ExpressionTokenizer.ParseExpression(token, context),
+							ExpressionParser.ParseExpression(token, context),
 							context.CurrentLocation));
 					}
 					else
@@ -393,7 +393,7 @@ namespace Morestachio.Framework
 						token = token.Trim();
 						tokens.Add(new TokenPair(TokenType.WhileLoopOpen,
 							token,
-							ExpressionTokenizer.ParseExpression(token, context),
+							ExpressionParser.ParseExpression(token, context),
 							context.CurrentLocation));
 					}
 					else
@@ -433,7 +433,7 @@ namespace Morestachio.Framework
 						token = token.Trim();
 						tokens.Add(new TokenPair(TokenType.DoLoopOpen,
 							token,
-							ExpressionTokenizer.ParseExpression(token, context),
+							ExpressionParser.ParseExpression(token, context),
 							context.CurrentLocation));
 					}
 					else
@@ -480,7 +480,7 @@ namespace Morestachio.Framework
 						token = token.Trim();
 						tokens.Add(new TokenPair(TokenType.If,
 							token,
-							ExpressionTokenizer.ParseExpression(token, context),
+							ExpressionParser.ParseExpression(token, context),
 							context.CurrentLocation));
 					}
 					else
@@ -508,7 +508,7 @@ namespace Morestachio.Framework
 						token = token.Trim();
 						tokens.Add(new TokenPair(TokenType.IfNot,
 							token,
-							ExpressionTokenizer.ParseExpression(token, context),
+							ExpressionParser.ParseExpression(token, context),
 							context.CurrentLocation));
 					}
 					else
@@ -556,12 +556,12 @@ namespace Morestachio.Framework
 				}
 				else if (tokenValue.StartsWith("{{#var ", true, CultureInfo.InvariantCulture))
 				{
-					tokens.Add(ExpressionTokenizer.TokenizeVariableAssignment(tokenValue.Trim('{', '}'),
+					tokens.Add(ExpressionParser.TokenizeVariableAssignment(tokenValue.Trim('{', '}'),
 						context, TokenType.VariableVar));
 				}
 				else if (tokenValue.StartsWith("{{#let ", true, CultureInfo.InvariantCulture))
 				{
-					tokens.Add(ExpressionTokenizer.TokenizeVariableAssignment(tokenValue.Trim('{', '}'),
+					tokens.Add(ExpressionParser.TokenizeVariableAssignment(tokenValue.Trim('{', '}'),
 						context, TokenType.VariableLet));
 				}
 				else if (tokenValue.StartsWith("{{^"))
@@ -574,7 +574,7 @@ namespace Morestachio.Framework
 					scopestack.Push(Tuple.Create(alias ?? token, match.Index));
 					tokens.Add(new TokenPair(TokenType.InvertedElementOpen,
 						token,
-						ExpressionTokenizer.ParseExpression(token, context),
+						ExpressionParser.ParseExpression(token, context),
 						context.CurrentLocation));
 
 					if (!string.IsNullOrWhiteSpace(alias))
@@ -590,7 +590,7 @@ namespace Morestachio.Framework
 					var token = trimmedToken.TrimStart('&').Trim();
 					tokens.Add(new TokenPair(TokenType.UnescapedSingleValue,
 						token,
-						ExpressionTokenizer.ParseExpression(token, context),
+						ExpressionParser.ParseExpression(token, context),
 						context.CurrentLocation));
 				}
 				else if (tokenValue.StartsWith("{{!"))
@@ -633,7 +633,7 @@ namespace Morestachio.Framework
 						scopestack.Push(Tuple.Create(alias ?? token, match.Index));
 						tokens.Add(new TokenPair(TokenType.ElementOpen,
 							token,
-							ExpressionTokenizer.ParseExpression(token, context),
+							ExpressionParser.ParseExpression(token, context),
 							context.CurrentLocation));
 
 						if (!string.IsNullOrWhiteSpace(alias))
@@ -673,7 +673,7 @@ namespace Morestachio.Framework
 						var token = trimmedToken.Trim();
 						tokens.Add(new TokenPair(TokenType.EscapedSingleValue,
 							token,
-							ExpressionTokenizer.ParseExpression(token, context),
+							ExpressionParser.ParseExpression(token, context),
 							context.CurrentLocation));
 					}
 				}

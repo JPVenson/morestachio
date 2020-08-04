@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -22,13 +23,30 @@ namespace Morestachio.Framework.Expression
 	///		Defines a string as or inside an expression
 	/// </summary>
 	[DebuggerTypeProxy(typeof(ExpressionDebuggerDisplay))]
+	[Serializable]
 	public class MorestachioExpressionString : IMorestachioExpression
 	{
-		public MorestachioExpressionString()
+		internal MorestachioExpressionString()
 		{
 			StringParts = new List<ExpressionStringConstPart>();
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="location"></param>
+		public MorestachioExpressionString(CharacterLocation location, char delimiter)
+		{
+			Location = location;
+			Delimiter = delimiter;
+			StringParts = new List<ExpressionStringConstPart>();
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="info"></param>
+		/// <param name="context"></param>
 		protected MorestachioExpressionString(SerializationInfo info, StreamingContext context)
 		{
 			StringParts = (IList<ExpressionStringConstPart>)info.GetValue(nameof(StringParts), typeof(IList<ExpressionStringConstPart>));
@@ -53,12 +71,12 @@ namespace Morestachio.Framework.Expression
 			reader.ReadStartElement();
 			while (reader.Name == nameof(ExpressionStringConstPart) && reader.NodeType != XmlNodeType.EndElement)
 			{
-				var constStr = new ExpressionStringConstPart();
-				constStr.Location = CharacterLocation.FromFormatString(reader.GetAttribute(nameof(Location)));
+				var strLocation = CharacterLocation.FromFormatString(reader.GetAttribute(nameof(Location)));
 				var constStrPartText = reader.ReadElementContentAsString();
 				Delimiter = constStrPartText[0];
-				constStr.PartText = constStrPartText.Substring(1, constStrPartText.Length - 2);
-				StringParts.Add(constStr);
+				var strPartText = constStrPartText.Substring(1, constStrPartText.Length - 2);
+
+				StringParts.Add(new ExpressionStringConstPart(strPartText, strLocation));
 				reader.ReadEndElement();
 			}
 		}
@@ -103,7 +121,7 @@ namespace Morestachio.Framework.Expression
 				contextObject);
 		}
 
-		
+
 
 		/// <summary>
 		///		Parses a text into an Expression string. Must start with ether " or '
@@ -118,26 +136,17 @@ namespace Morestachio.Framework.Expression
 			TokenzierContext context,
 			out int index)
 		{
-			var result = new MorestachioExpressionString()
-			{
-				Location = context.CurrentLocation
-			};
+			var result = new MorestachioExpressionString(context.CurrentLocation, text[offset]);
+
 			var isEscapeChar = false;
-			var currentPart = new ExpressionStringConstPart()
-			{
-				Location = context.CurrentLocation,
-				PartText = string.Empty
-			};
-			//get the string delimiter thats ether " or '
-			result.Delimiter = text[offset];
-			result.StringParts.Add(currentPart);
+			var sb = new StringBuilder();
 			//skip the string delimiter
 			for (index = offset + 1; index < text.Length; index++)
 			{
 				var c = text[index];
 				if (isEscapeChar)
 				{
-					currentPart.PartText += c;
+					sb.Append(c);
 					if (c == result.Delimiter)
 					{
 						isEscapeChar = false;
@@ -166,10 +175,13 @@ namespace Morestachio.Framework.Expression
 					}
 					else
 					{
-						currentPart.PartText += c;
+						sb.Append(c);
 					}
 				}
 			}
+			var currentPart = new ExpressionStringConstPart(sb.ToString(), context.CurrentLocation);
+			result.StringParts.Add(currentPart);
+
 			context.AdvanceLocation(text.Length);
 			return result;
 		}

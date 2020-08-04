@@ -12,7 +12,7 @@ namespace Morestachio.Framework.Expression
 	/// <summary>
 	///		This class provides methods for parsing ether a String or an Expression
 	/// </summary>
-	public static class ExpressionTokenizer
+	public static class ExpressionParser
 	{
 		internal const string ExpressionNodeName = "Expression";
 		internal const string ExpressionKindNodeName = "ExpressionKind";
@@ -90,6 +90,12 @@ namespace Morestachio.Framework.Expression
 			TokenType type)
 		{
 			var startOfExpression = context.CurrentLocation;
+			//if (type != TokenType.VariableLet && type != TokenType.VariableVar)
+			//{
+			//	context.Errors.Add(new MorestachioSyntaxError(
+			//	   context.CurrentLocation.AddWindow(new CharacterSnippedLocation(0, 0, tokenValue)),
+			//	   "#var", "", "#var name", "Expected #var or #let"));
+			//}
 			switch (type)
 			{
 				case TokenType.VariableLet:
@@ -110,7 +116,7 @@ namespace Morestachio.Framework.Expression
 			{
 				context.Errors.Add(new MorestachioSyntaxError(
 					context.CurrentLocation.AddWindow(new CharacterSnippedLocation(0, 0, tokenValue)),
-					strVarType, "", strVarType + "name", "Expected #var"));
+					strVarType, "", strVarType + "name", "Expected " + strVarType));
 				return default;
 			}
 
@@ -183,6 +189,7 @@ namespace Morestachio.Framework.Expression
 				return null;
 			}
 
+
 			if (Tokenizer.IsStringDelimiter(expression[0]))
 			{
 				//its a string constant
@@ -196,19 +203,6 @@ namespace Morestachio.Framework.Expression
 
 				return MorestachioExpressionString.ParseFrom(expression, 0, context, out _);
 			}
-			//else if (Tokenizer.IsNumberExpressionChar(expression[0]))
-			//{
-			//	//its a string constant
-			//	if (!Tokenizer.IsStringDelimiter(expression[expression.Length - 1]))
-			//	{
-			//		context.Errors.Add(new MorestachioSyntaxError(
-			//			context.CurrentLocation.AddWindow(new CharacterSnippedLocation(0, expression.Length, expression)),
-			//			"", "", "" + expression[0], "expected " + expression[0]));
-			//		return null;
-			//	}
-
-			//	return MorestachioExpressionString.ParseFrom(expression, 0, context, out _);
-			//}
 			else
 			{
 				return MorestachioExpression.ParseFrom(expression, context, out _);
