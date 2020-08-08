@@ -791,16 +791,13 @@ namespace Morestachio.Formatter.Framework
 
 			if (!parameterParameterType.GetTypeInfo().IsAssignableFrom(givenType))
 			{
-				if (parameterParameterType.IsEnum && (givenType == typeof(string) || givenType == typeof(int)))
+				if (parameterParameterType.IsEnum && 
+				    (givenType == typeof(string)))
 				{
 					success = true;
 					if (givenType == typeof(string))
 					{
 						return o => Enum.Parse(parameterParameterType, o.ToString(), true);
-					}
-					if (givenType == typeof(int))
-					{
-						return o => Enum.ToObject(parameterParameterType, o);
 					}
 				}
 

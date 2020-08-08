@@ -909,6 +909,33 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		public void FormatterCanHandleEnumInputAsString()
+		{
+			var template =
+				@"{{data.TEST('Friday')}}";
+
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			parsingOptions.Formatters.AddSingle(
+				new Func<string, DayOfWeek, string>((pre, source) =>
+				{
+					return pre + source.ToString();
+				}), "TEST");
+			var parsedTemplate =
+				Parser.ParseWithOptions(parsingOptions);
+
+			var model = new Dictionary<string, object>()
+			{
+				{"data", "Day: " },
+			};
+
+			var result = parsedTemplate
+				.CreateAndStringify(model);
+
+			Assert.That(result, Is.EqualTo("Day: Friday"));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, parsedTemplate.Document);
+		}
+
+		[Test]
 		public void FormatterCanHandleNumberOperator()
 		{
 			var template =
