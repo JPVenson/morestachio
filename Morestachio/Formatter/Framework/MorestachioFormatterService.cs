@@ -193,6 +193,7 @@ namespace Morestachio.Formatter.Framework
 			return await Execute(cacheItem.Value, sourceValue, args);
 		}
 
+		/// <inheritdoc />
 		public FormatterCache? PrepareCallMostMatchingFormatter(
 			[NotNull] Type type,
 			[NotNull] FormatterArgumentType[] arguments,
@@ -271,7 +272,13 @@ namespace Morestachio.Formatter.Framework
 			return await taskAlike.UnpackFormatterTask();
 		}
 
-
+		/// <summary>
+		///		
+		/// </summary>
+		/// <param name="typeToFormat"></param>
+		/// <param name="arguments"></param>
+		/// <param name="name"></param>
+		/// <returns></returns>
 		public virtual IEnumerable<MorestachioFormatterModel> PrepareGetMatchingFormatterOn(
 			[NotNull] Type typeToFormat,
 			[NotNull] FormatterArgumentType[] arguments,
@@ -784,6 +791,19 @@ namespace Morestachio.Formatter.Framework
 
 			if (!parameterParameterType.GetTypeInfo().IsAssignableFrom(givenType))
 			{
+				if (parameterParameterType.IsEnum && (givenType == typeof(string) || givenType == typeof(int)))
+				{
+					success = true;
+					if (givenType == typeof(string))
+					{
+						return o => Enum.Parse(parameterParameterType, o.ToString(), true);
+					}
+					if (givenType == typeof(int))
+					{
+						return o => Enum.ToObject(parameterParameterType, o);
+					}
+				}
+
 				var typeConverter =
 					ValueConverter.FirstOrDefault(e => e.CanConvert(givenType, parameterParameterType));
 				typeConverter = typeConverter ??
@@ -819,7 +839,7 @@ namespace Morestachio.Formatter.Framework
 						catch (Exception e)
 						{
 							//this might just not work
-							return false;
+							return null;
 						}
 					};
 				}
