@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using Morestachio.Attributes;
 using Morestachio.Formatter.Framework;
 using Morestachio.Framework.Expression;
@@ -30,6 +31,21 @@ namespace Morestachio.Formatter.Predefined
 		public static bool IsLeapYear(Number year)
 		{
 			return DateTime.IsLeapYear(year.ToInt32(null));
+		}
+
+		[MorestachioFormatter("WeekOfDate", "Gets the week of the given DateTime")]
+		public static int WeekOfDate(DateTimeOffset time, [ExternalData] ParserOptions parserOptions)
+		{
+			return WeekOfDate(time.DateTime, parserOptions);
+		}
+
+		[MorestachioFormatter("WeekOfDate", "Gets the week of the given DateTime")]
+		public static int WeekOfDate(DateTime time, [ExternalData] ParserOptions parserOptions)
+		{
+			return parserOptions.CultureInfo.Calendar
+				.GetWeekOfYear(time, 
+					parserOptions.CultureInfo.DateTimeFormat.CalendarWeekRule,
+					parserOptions.CultureInfo.DateTimeFormat.FirstDayOfWeek);
 		}
 		
 		[MorestachioFormatter("Add", "Adds the TimeSpan to the given DateTime")]
