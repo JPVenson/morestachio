@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Version>4.0.2</Version>
+    <Version>4.2.0</Version>
     <Authors>Jean-Pierre Bachmann</Authors>
     <Company>Jean-Pierre Bachmann</Company>
     <Description>An exe wrapper for Morestachio that can pull data from Json, Xml or an .Net assembly and combine it with an Template</Description>
