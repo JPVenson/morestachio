@@ -43,7 +43,7 @@ namespace Morestachio.Document
 			Operation = operation ?? throw new ArgumentNullException(nameof(operation));
 		}
 
-		private TextEditDocumentItem()
+		internal TextEditDocumentItem()
 		{
 
 		}

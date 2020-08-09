@@ -33,9 +33,9 @@ namespace Morestachio.Document
 		}
 
 		/// <inheritdoc />
-		public RenderPartialDocumentItem([NotNull] string value, [NotNull] IMorestachioExpression context)
+		public RenderPartialDocumentItem([NotNull] string value, [CanBeNull] IMorestachioExpression context)
 		{
-			Context = context ?? throw new ArgumentNullException(nameof(context));
+			Context = context;
 			Value = value ?? throw new ArgumentNullException(nameof(value));
 		}
 
@@ -131,6 +131,7 @@ namespace Morestachio.Document
 				return new[]
 				{
 					new DocumentItemExecution(partialWithContext, cnxt),
+					new DocumentItemExecution(new RenderPartialDoneDocumentItem(), cnxt),
 				};
 			}
 
@@ -141,6 +142,7 @@ namespace Morestachio.Document
 				return new[]
 				{
 					new DocumentItemExecution(partialFromStore, cnxt),
+					new DocumentItemExecution(new RenderPartialDoneDocumentItem(), cnxt),
 				};
 			}
 

@@ -200,10 +200,10 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.PartialDeclarationClose))
 				{
-					currentDocumentItem.Document.Add(new RenderPartialDoneDocumentItem(currentToken.Value)
-					{
-						ExpressionStart = currentToken.TokenLocation
-					});
+					//currentDocumentItem.Document.Add(new RenderPartialDoneDocumentItem(currentToken.Value)
+					//{
+					//	ExpressionStart = currentToken.TokenLocation
+					//});
 					buildStack.Pop();
 				}
 				else if (currentToken.Type.Equals(TokenType.RenderPartial))

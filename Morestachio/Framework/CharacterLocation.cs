@@ -8,6 +8,17 @@ namespace Morestachio.Framework
 	/// </summary>
 	public class CharacterLocation : IEquatable<CharacterLocation>
 	{
+		public CharacterLocation()
+		{
+			
+		}
+
+		public CharacterLocation(int line, int character)
+		{
+			Line = line;
+			Character = character;
+		}
+
 		/// <summary>
 		///		The line of the Template
 		/// </summary>

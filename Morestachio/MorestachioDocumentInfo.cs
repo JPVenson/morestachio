@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Morestachio.Document;
 using Morestachio.Document.Contracts;
+using Morestachio.Fluent;
 using Morestachio.Framework;
 using Morestachio.Helper;
 using Morestachio.ParserErrors;
@@ -62,6 +63,19 @@ namespace Morestachio
 		public IEnumerable<IMorestachioError> Errors { get; private set; }
 
 		internal const int BufferSize = 2024;
+
+		/// <summary>
+		///		Creates an Fluent api wrapper for the current Document
+		/// </summary>
+		/// <returns></returns>
+		public MorestachioDocumentFluentApi Fluent()
+		{
+			if (Errors.Any())
+			{
+				throw new AggregateException("You cannot access this Template as there are one or more Errors. See Inner Exception for more infos.", Errors.Select(e => e.GetException())).Flatten();
+			}
+			return new MorestachioDocumentFluentApi(this);
+		}
 
 		/// <summary>
 		///     Calls the Underlying Template Delegate and Produces a Stream
