@@ -159,7 +159,7 @@ namespace Morestachio.Framework.Expression
 			for (index = offset; index < text.Length; index++)
 			{
 				var c = text[index];
-				if (c == '.')
+				if (c == CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator[0])
 				{
 					if (isFloatingNumber)
 					{
@@ -193,7 +193,7 @@ namespace Morestachio.Framework.Expression
 			}
 
 			text = nrText.ToString();
-			if (Number.TryParse(text, context.Culture, out var nr))
+			if (Number.TryParse(text, CultureInfo.InvariantCulture, out var nr))
 			{
 				return new ExpressionNumber(nr, context.CurrentLocation.Offset(offset));
 			}

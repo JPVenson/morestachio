@@ -199,10 +199,10 @@ namespace Morestachio.Formatter.Predefined.Accounting
 			var ts = TimeSpan.FromSeconds(GetTimeInSeconds(TimeWorked, Precision));
 			if (writeDecimal)
 			{
-				return Math.Round(ts.TotalMinutes / 60, 2).ToString("00.00");
+				return Math.Round(ts.TotalMinutes / 60, 2).ToString("00.00", formatProvider);
 			}
 
-			return (Math.Abs(ts.TotalHours)).ToString("00") + ":" + ts.Minutes.ToString("00");
+			return (Math.Abs(ts.TotalHours)).ToString("00", formatProvider) + ":" + ts.Minutes.ToString("00", formatProvider);
 		}
 	}
 }

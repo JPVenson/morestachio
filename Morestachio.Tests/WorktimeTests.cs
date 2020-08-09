@@ -11,7 +11,7 @@ namespace Morestachio.Tests
 	public class AccountingTests
 	{
 		[Test]
-		[TestCase(5, 5, WorktimePrecision.Minutes, "00:10", "0.17")]
+		[TestCase(5, 5, WorktimePrecision.Minutes, "00:10", "00.17")]
 		[TestCase(5, 59, WorktimePrecision.Minutes, "01:04", "01.07")]
 		[TestCase(5, 1, WorktimePrecision.Days, "24:05", "24.08")]
 		[TestCase(5, 2, WorktimePrecision.Days, "48:05", "48.08")]
@@ -19,8 +19,8 @@ namespace Morestachio.Tests
 		{
 			var wt = new Worktime(value, WorktimePrecision.Minutes);
 			wt = wt.Add(toAdd, withPrecision);
-			Assert.That(wt.ToString(), Is.EqualTo(expectedTime));
-			Assert.That(wt.ToString("d", null), Is.EqualTo(expectedDecimal));
+			Assert.That(wt.ToString(null, CultureInfo.InvariantCulture), Is.EqualTo(expectedTime));
+			Assert.That(wt.ToString("d", CultureInfo.InvariantCulture), Is.EqualTo(expectedDecimal));
 		}
 		[Test]
 		[TestCase(590, 60, MoneyChargeRate.PerHour, 19, "¤702.10")]

@@ -391,7 +391,7 @@ namespace Morestachio.Tests
 			var result = results.CreateAndStringify(new Dictionary<string, object>
 			{
 			});
-			Assert.That(result, Is.EqualTo(1.123.ToString("F5")));
+			Assert.That(result, Is.EqualTo(1.123.ToString("F5", parsingOptions.CultureInfo)));
 		}
 
 		[Test]
@@ -1189,7 +1189,7 @@ namespace Morestachio.Tests
 		{
 			var parsingOptions = new ParserOptions("{{#PI}}3{{/PI}}", null, DefaultEncoding);
 
-			parsingOptions.CustomDocumentItemProviders.Add(new BlockDocumentItemProvider("#PI", "/PI", 
+			parsingOptions.CustomDocumentItemProviders.Add(new BlockDocumentItemProvider("#PI", "/PI",
 			 (outputStream,
 				 context,
 				 scopeData,

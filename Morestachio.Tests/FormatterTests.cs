@@ -986,7 +986,7 @@ namespace Morestachio.Tests
 		{
 			var template =
 				@"{{.ToString(3 + .AsInt(1), 'X8')}}{{.ToString(.AsInt(1) + 3, 'X4')}}";
-
+			
 			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
 			var parsedTemplate =
 				Parser.ParseWithOptions(parsingOptions);
