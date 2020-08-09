@@ -61,7 +61,7 @@ namespace Morestachio
 		[NotNull]
 		public IEnumerable<IMorestachioError> Errors { get; private set; }
 
-		private const int BufferSize = 2024;
+		internal const int BufferSize = 2024;
 
 		/// <summary>
 		///     Calls the Underlying Template Delegate and Produces a Stream
@@ -94,53 +94,34 @@ namespace Morestachio
 				var anyCancellationToken = CancellationTokenSource.CreateLinkedTokenSource(token, timeoutCancellation.Token);
 				token = anyCancellationToken.Token;
 			}
-			var sourceStream = ParserOptions.SourceFactory();
 			PerformanceProfiler profiler = null;
-			try
+			using (var byteCounterStream = ParserOptions.StreamFactory.GetByteCounterStream(ParserOptions))
 			{
-				if (sourceStream == null)
+				if (byteCounterStream == null)
 				{
 					throw new NullReferenceException("The created stream is null.");
 				}
-
-				if (!sourceStream.CanWrite)
+				var context = ParserOptions.CreateContextObject("", token, data);
+				using (var scopeData = new ScopeData())
 				{
-					throw new InvalidOperationException($"The stream '{sourceStream.GetType()}' is ReadOnly.");
-				}
-
-				using (var byteCounterStream = new ByteCounterStream(sourceStream,
-					BufferSize, true, ParserOptions))
-				{
-					var context = ParserOptions.CreateContextObject("", token, data);
-					using (var scopeData = new ScopeData())
+					if (ParserOptions.ProfileExecution)
 					{
-						if (ParserOptions.ProfileExecution)
-						{
-							scopeData.Profiler = profiler = new PerformanceProfiler(true);
-						}
-						await MorestachioDocument.ProcessItemsAndChildren(new[] { Document }, byteCounterStream,
-							context, scopeData);
+						scopeData.Profiler = profiler = new PerformanceProfiler(true);
 					}
+					await MorestachioDocument.ProcessItemsAndChildren(new[] { Document }, byteCounterStream,
+						context, scopeData);
 				}
 
 				if (timeoutCancellation.IsCancellationRequested)
 				{
-					sourceStream.Dispose();
-					throw new TimeoutException($"The requested timeout of '{ParserOptions.Timeout:g}' for report generation was reached.");
+					throw new TimeoutException($"The requested timeout of '{ParserOptions.Timeout:g}' for template generation was reached.");
 				}
+				return new MorestachioDocumentResult()
+				{
+					Stream = byteCounterStream.Stream,
+					Profiler = profiler
+				};
 			}
-			catch
-			{
-				//If there is any exception while generating the template we must dispose any data written to the stream as it will never returned and might 
-				//create a memory leak with this. This is also true for a timeout
-				sourceStream?.Dispose();
-				throw;
-			}
-			return new MorestachioDocumentResult()
-			{
-				Stream = sourceStream,
-				Profiler = profiler
-			};
 		}
 
 		/// <summary>

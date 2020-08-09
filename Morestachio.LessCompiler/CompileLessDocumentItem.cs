@@ -39,30 +39,9 @@ namespace Morestachio.LessCompiler
 
 		}
 
-		private class WrapperCounterStream : ByteCounterStream
-		{
-			private readonly IByteCounterStream _source;
-
-			public WrapperCounterStream(
-				IByteCounterStream source,
-				ParserOptions options)
-				: base(new MemoryStream(), 2024, false, options)
-			{
-				_source = source;
-				BytesWritten = _source.BytesWritten;
-				ReachedLimit = _source.ReachedLimit;
-			}
-
-			public string Read()
-			{
-				BaseWriter.Flush();
-				return Options.Encoding.GetString((BaseWriter.BaseStream as MemoryStream).ToArray());
-			}
-		}
-
 		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
-			using (var tempStream = new WrapperCounterStream(outputStream, context.Options))
+			using (var tempStream = outputStream.GetSubStream())
 			{
 				await MorestachioDocument.ProcessItemsAndChildren(Children, tempStream, context, scopeData);
 				var lessCode = tempStream.Read();

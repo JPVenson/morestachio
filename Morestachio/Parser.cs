@@ -39,12 +39,7 @@ namespace Morestachio
 			{
 				throw new ArgumentNullException(nameof(parsingOptions));
 			}
-
-			if (parsingOptions.SourceFactory == null)
-			{
-				throw new ArgumentNullException(nameof(parsingOptions), "The given Stream is null");
-			}
-
+			
 			var tokenzierContext = TokenzierContext.FromText(parsingOptions.Template, parsingOptions.CultureInfo);
 			var tokenizerResult = Tokenizer.Tokenize(parsingOptions, tokenzierContext);
 

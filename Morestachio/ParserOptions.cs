@@ -49,6 +49,42 @@ namespace Morestachio
 		ParentValue
 	}
 
+	public class ByteCounterFactory
+	{
+		public ByteCounterFactory(Func<Stream> output, Func<Stream> tempStream, Func<ParserOptions, IByteCounterStream> getByteCounterStream)
+		{
+			Output = output ?? GetDefaultTempStream;
+			TempStream = tempStream ?? GetDefaultTempStream;
+			GetByteCounterStream = getByteCounterStream ?? GetDefaultByteCounter;
+		}
+
+		public ByteCounterFactory(Func<Stream> output, Func<Stream> tempStream) : this(output, tempStream, GetDefaultByteCounter)
+		{
+		}
+
+		public ByteCounterFactory(Func<Stream> output) : this(output, GetDefaultTempStream, GetDefaultByteCounter)
+		{
+		}
+
+		public ByteCounterFactory() : this(GetDefaultTempStream, GetDefaultTempStream, GetDefaultByteCounter)
+		{
+		}
+
+		private static Stream GetDefaultTempStream()
+		{
+			return new MemoryStream();
+		}
+
+		private static IByteCounterStream GetDefaultByteCounter(ParserOptions options)
+		{
+			return new ByteCounterStream(options.StreamFactory.Output(), MorestachioDocumentInfo.BufferSize, true, options);
+		}
+
+		public Func<Stream> Output { get; private set; }
+		public Func<Stream> TempStream { get; private set; }
+		public Func<ParserOptions, IByteCounterStream> GetByteCounterStream { get; private set; }
+	}
+
 	/// <summary>
 	///     Options for Parsing run
 	/// </summary>
@@ -95,7 +131,7 @@ namespace Morestachio
 			[CanBeNull]Encoding encoding)
 		{
 			Template = template ?? "";
-			SourceFactory = sourceStream ?? (() => new MemoryStream());
+			StreamFactory = new ByteCounterFactory(sourceStream);
 			Encoding = encoding ?? Encoding.UTF8;
 			_formatters = new MorestachioFormatterService();
 			Null = string.Empty;
@@ -145,7 +181,7 @@ namespace Morestachio
 		///		The list of provider that emits custom document items
 		/// </summary>
 		public IList<CustomDocumentItemProvider> CustomDocumentItemProviders { get; private set; }
-		
+
 		/// <summary>
 		///		If set to True morestachio will profile the execution and report the result in both <seealso cref="MorestachioDocumentInfo"/>
 		/// </summary>
@@ -233,7 +269,7 @@ namespace Morestachio
 		///     <code>() => new MemoryStream()</code>
 		/// </summary>
 		[NotNull]
-		public Func<Stream> SourceFactory { get; private set; }
+		public ByteCounterFactory StreamFactory { get; private set; }
 
 		/// <summary>
 		///     In what encoding should the text be written
@@ -274,18 +310,6 @@ namespace Morestachio
 			};
 		}
 
-		internal ParserOptions WithPartial(string partialTemplateTemplate)
-		{
-			return new ParserOptions(partialTemplateTemplate, SourceFactory, Encoding, DisableContentEscaping)
-			{
-				Null = Null,
-				StackOverflowBehavior = StackOverflowBehavior,
-				Formatters = Formatters,
-				Timeout = Timeout,
-				CultureInfo = CultureInfo
-			};
-		}
-
 		public ParserOptions CopyWithTemplate(string template)
 		{
 			return new ParserOptions(template)
@@ -304,7 +328,7 @@ namespace Morestachio
 				Template = template,
 				ValueResolver = ValueResolver,
 				UnresolvedPath = UnresolvedPath,
-				SourceFactory = SourceFactory,
+				StreamFactory = StreamFactory,
 				CultureInfo = CultureInfo
 			};
 		}
