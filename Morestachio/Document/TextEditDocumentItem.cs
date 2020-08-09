@@ -38,9 +38,9 @@ namespace Morestachio.Document
 		/// 
 		/// </summary>
 		/// <param name="operation"></param>
-		public TextEditDocumentItem(ITextOperation operation)
+		public TextEditDocumentItem([NotNull] ITextOperation operation)
 		{
-			Operation = operation;
+			Operation = operation ?? throw new ArgumentNullException(nameof(operation));
 		}
 
 		private TextEditDocumentItem()

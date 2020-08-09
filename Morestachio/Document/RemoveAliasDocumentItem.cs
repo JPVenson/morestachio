@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
@@ -63,9 +64,9 @@ namespace Morestachio.Document
 		/// </summary>
 		/// <param name="aliasName"></param>
 		/// <param name="scopeVariableScopeNumber"></param>
-		public RemoveAliasDocumentItem(string aliasName, int scopeVariableScopeNumber)
+		public RemoveAliasDocumentItem([NotNull] string aliasName, int scopeVariableScopeNumber)
 		{
-			Value = aliasName;
+			Value = aliasName ?? throw new ArgumentNullException(nameof(aliasName));
 			IdVariableScope = scopeVariableScopeNumber;
 		}
 
@@ -82,7 +83,7 @@ namespace Morestachio.Document
 		/// <summary>
 		///		Gets or Sets the Scope of the variable that should be removed
 		/// </summary>
-		public int IdVariableScope { get; set; }
+		public int IdVariableScope { get; private set; }
 		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)
 		{

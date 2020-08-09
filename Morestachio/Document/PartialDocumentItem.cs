@@ -39,10 +39,10 @@ namespace Morestachio.Document
 		/// </summary>
 		/// <param name="partialName">The partial name.</param>
 		/// <param name="partial">The partial.</param>
-		public PartialDocumentItem(string partialName, IDocumentItem partial)
+		public PartialDocumentItem([NotNull] string partialName, [NotNull] IDocumentItem partial)
 		{
-			Value = partialName;
-			Partial = partial;
+			Value = partialName ?? throw new ArgumentNullException(nameof(partialName));
+			Partial = partial ?? throw new ArgumentNullException(nameof(partial));
 		}
 
 		/// <inheritdoc />

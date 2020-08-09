@@ -39,7 +39,12 @@ namespace Morestachio.Document
 			
 		}
 
-		/// <inheritdoc />
+		/// <summary>
+		///		Creates an new Variable that expires when its enclosing scope (<see cref="IdVariableScope"/>) is closed
+		/// </summary>
+		/// <param name="value"></param>
+		/// <param name="morestachioExpression"></param>
+		/// <param name="idVariableScope"></param>
 		public EvaluateVariableDocumentItem(string value, IMorestachioExpression morestachioExpression, int idVariableScope)
 		{
 			MorestachioExpression = morestachioExpression;
@@ -47,7 +52,11 @@ namespace Morestachio.Document
 			IdVariableScope = idVariableScope;
 		}
 
-		/// <inheritdoc />
+		/// <summary>
+		///		Creates a new global Variable
+		/// </summary>
+		/// <param name="value"></param>
+		/// <param name="morestachioExpression"></param>
 		public EvaluateVariableDocumentItem(string value, IMorestachioExpression morestachioExpression)
 		{
 			MorestachioExpression = morestachioExpression;
@@ -90,12 +99,12 @@ namespace Morestachio.Document
 		/// <summary>
 		///		The name of the Variable
 		/// </summary>
-		public string Value { get; set; }
+		public string Value { get; private set; }
 		
 		/// <summary>
 		///		Gets or Sets the Scope of the variable
 		/// </summary>
-		public int IdVariableScope { get; set; }
+		public int IdVariableScope { get; private  set; }
 
 		/// <inheritdoc />
 		public override string Kind { get; } = "EvaluateVariableDocumentItem";

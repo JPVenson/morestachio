@@ -25,7 +25,7 @@ namespace Morestachio.Document
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal ElseExpressionScopeDocumentItem()
+		public ElseExpressionScopeDocumentItem()
 		{
 			
 		}

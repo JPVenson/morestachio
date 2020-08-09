@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
@@ -32,9 +33,9 @@ namespace Morestachio.Document
 		}
 
 		/// <inheritdoc />
-		public WhileLoopDocumentItem(IMorestachioExpression value)
+		public WhileLoopDocumentItem([NotNull] IMorestachioExpression value)
 		{
-			MorestachioExpression = value;
+			MorestachioExpression = value ?? throw new ArgumentNullException(nameof(value));
 		}
 		
 		/// <inheritdoc />

@@ -38,7 +38,7 @@ namespace Morestachio.Document
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal MorestachioDocument()
+		public MorestachioDocument()
 		{
 			MorestachioVersion = GetMorestachioVersion();
 		}

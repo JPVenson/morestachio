@@ -33,10 +33,10 @@ namespace Morestachio.Document
 		}
 
 		/// <inheritdoc />
-		public RenderPartialDocumentItem(string value, IMorestachioExpression context)
+		public RenderPartialDocumentItem([NotNull] string value, [NotNull] IMorestachioExpression context)
 		{
-			Context = context;
-			Value = value;
+			Context = context ?? throw new ArgumentNullException(nameof(context));
+			Value = value ?? throw new ArgumentNullException(nameof(value));
 		}
 
 		/// <inheritdoc />

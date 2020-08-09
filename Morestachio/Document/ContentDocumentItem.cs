@@ -33,7 +33,10 @@ namespace Morestachio.Document
 
 		}
 
-		/// <inheritdoc />
+		/// <summary>
+		///		Creates a new ContentDocumentItem that represents some static content
+		/// </summary>
+		/// <param name="content">The content to write</param>
 		public ContentDocumentItem(string content)
 		{
 			Value = content;

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
@@ -31,9 +32,9 @@ namespace Morestachio.Document
 		}
 
 		/// <inheritdoc />
-		public RenderPartialDoneDocumentItem(string partialName)
+		public RenderPartialDoneDocumentItem([NotNull] string partialName)
 		{
-			Value = partialName;
+			Value = partialName ?? throw new ArgumentNullException(nameof(partialName));
 		}
 
 		[UsedImplicitly]

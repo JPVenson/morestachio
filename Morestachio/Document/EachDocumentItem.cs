@@ -51,29 +51,7 @@ namespace Morestachio.Document
 		
 		/// <inheritdoc />
 		public override string Kind { get; } = "OpenCollection";
-
-		//private class WrapperCounterStream : ByteCounterStream
-		//{
-		//	private readonly IByteCounterStream _source;
-
-		//	public WrapperCounterStream(
-		//		IByteCounterStream source,
-		//		ParserOptions options)
-		//		: base(new MemoryStream(), 2024, false, options)
-		//	{
-		//		_source = source;
-		//		BytesWritten = _source.BytesWritten;
-		//		ReachedLimit = _source.ReachedLimit;
-		//	}
-
-		//	public string Read()
-		//	{
-		//		BaseWriter.Flush();
-		//		return Options.Encoding.GetString((BaseWriter.BaseStream as MemoryStream).ToArray());
-		//	}
-		//}
-
-
+		
 		/// <exception cref="IndexedParseException"></exception>
 		/// <inheritdoc />
 		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)

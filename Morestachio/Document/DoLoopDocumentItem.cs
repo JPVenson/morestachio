@@ -30,7 +30,10 @@ namespace Morestachio.Document
 
 		}
 
-		/// <inheritdoc />
+		/// <summary>
+		///		Creates a new DoLoop DocumentItem that will render its children as long as the <see cref="value"/> expression meets the <see cref="ContextObject.DefinitionOfFalse"/>
+		/// </summary>
+		/// <param name="value"></param>
 		public DoLoopDocumentItem(IMorestachioExpression value)
 		{
 			MorestachioExpression = value;

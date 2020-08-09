@@ -34,9 +34,9 @@ namespace Morestachio.Document
 		}
 
 		/// <inheritdoc />
-		public PathDocumentItem(IMorestachioExpression value, bool escapeValue)
+		public PathDocumentItem([NotNull] IMorestachioExpression value, bool escapeValue)
 		{
-			MorestachioExpression = value;
+			MorestachioExpression = value ?? throw new ArgumentNullException(nameof(value));
 			EscapeValue = escapeValue;
 		}
 
