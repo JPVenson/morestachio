@@ -155,13 +155,19 @@ namespace Morestachio.Fluent
 		/// </summary>
 		internal MorestachioDocumentFluentApi(MorestachioDocumentInfo documentInfo)
 		{
-			var rootNode = CreateNodes(null, documentInfo.Document);
+			var rootNode = CreateNodes(null, documentInfo.Document, out _);
 			Context = new FluentApiContext(rootNode, rootNode, documentInfo.ParserOptions);
 		}
 
-		private static MorestachioNode CreateNodes(MorestachioNode parent, IDocumentItem document)
+		/// <summary>
+		///		Creates nods that relates to children and render order
+		/// </summary>
+		/// <param name="parent"></param>
+		/// <param name="document"></param>
+		/// <returns></returns>
+		public static MorestachioNode CreateNodes(MorestachioNode parent, IDocumentItem document, out List<MorestachioNode> nodes)
 		{
-			var nodes = new List<MorestachioNode>();
+			nodes = new List<MorestachioNode>();
 			var stack = new Stack<Tuple<IDocumentItem, IDocumentItem>>();
 			stack.Push(new Tuple<IDocumentItem, IDocumentItem>(parent?.Item, document));
 			var rootNode = new MorestachioNode(parent, document);
@@ -375,7 +381,7 @@ namespace Morestachio.Fluent
 		private MorestachioNode AddChildInternal(Func<MorestachioExpressionBuilderBaseRootApi, IDocumentItem> item)
 		{
 			var itemInstance = item(new MorestachioExpressionBuilderBaseRootApi());
-			var node = CreateNodes(Context.CurrentNode, itemInstance);
+			var node = CreateNodes(Context.CurrentNode, itemInstance, out _);
 			Context.CurrentNode.Leafs.Add(node);
 			Context.CurrentNode.Item.Children.Add(itemInstance);
 			return node;

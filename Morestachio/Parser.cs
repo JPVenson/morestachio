@@ -275,7 +275,7 @@ namespace Morestachio
 				//throw new MorestachioSyntaxError(new Tokenizer.CharacterLocation(){Character = }, );
 				throw new InvalidOperationException(
 					"There is an Error with the Parser. The Parser still contains unscoped builds: " +
-					buildStack.Select(e => e.Document.Kind).Aggregate((e, f) => e + ", " + f));
+					buildStack.Select(e => e.Document.GetType().Name).Aggregate((e, f) => e + ", " + f));
 			}
 
 			return buildStack.Pop().Document;

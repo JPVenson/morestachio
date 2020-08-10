@@ -30,13 +30,7 @@ namespace Morestachio.Document.Contracts
 		/// <returns></returns>
 		ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
 			ScopeData scopeData);
-
-		/// <summary>
-		///		Gets the Kind of this Document item
-		/// </summary>
-		[PublicAPI]
-		string Kind { get; }
-
+		
 		/// <summary>
 		///		The list of Children that are children of this Document item
 		/// </summary>

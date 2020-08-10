@@ -23,7 +23,7 @@ namespace Morestachio.Framework.Expression.Visitors
 				case MorestachioExpressionString expressionString:
 					visitor.Visit(expressionString);
 					break;
-				case ExpressionNumber expressionNumber:
+				case MorestachioExpressionNumber expressionNumber:
 					visitor.Visit(expressionNumber);
 					break;
 				case MorestachioOperatorExpression operatorExpression:

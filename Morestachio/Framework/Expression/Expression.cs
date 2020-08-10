@@ -64,51 +64,83 @@ namespace Morestachio.Framework.Expression
 		public void ReadXml(XmlReader reader)
 		{
 			Location = CharacterLocation.FromFormatString(reader.GetAttribute(nameof(Location)));
-			FormatterName = reader.GetAttribute(nameof(FormatterName));
-			var pathParts = reader.GetAttribute(nameof(PathParts));
-			if (pathParts != null)
+			var pathParts = new List<KeyValuePair<string, PathType>>();
+			reader.ReadStartElement();//Path
+
+			if (reader.Name == "Path")
 			{
-				PathParts = new Traversable(pathParts);
+				reader.ReadStartElement();//Any SubPath
+				
+				while (reader.Name != "Path" && reader.NodeType != XmlNodeType.EndElement)
+				{
+					var partName = reader.Name;
+					string partValue = null;
+					if (reader.IsEmptyElement)
+					{
+						reader.ReadStartElement();
+					}
+					else
+					{
+						partValue = reader.ReadElementContentAsString();
+					}
+					pathParts.Add(new KeyValuePair<string, PathType>(partValue, (PathType)Enum.Parse(typeof(PathType), partName)));
+				}
+				reader.ReadEndElement();//</Path>
 			}
-
-			if (reader.IsEmptyElement)
+			PathParts = new Traversable(pathParts);
+			if (reader.Name == "Format" && reader.NodeType == XmlNodeType.Element)
 			{
-				return;
+				FormatterName = reader.GetAttribute(nameof(FormatterName));
+				if (reader.IsEmptyElement)
+				{
+					reader.ReadStartElement();
+				}
+				else
+				{
+					reader.ReadStartElement(); //<Argument>
+					while (reader.Name == "Argument" && reader.NodeType != XmlNodeType.EndElement)
+					{
+						var formatSubTree = reader.ReadSubtree();
+						formatSubTree.Read();
+
+						var expressionArgument = new ExpressionArgument();
+						Formats.Add(expressionArgument);
+
+						expressionArgument.ReadXml(formatSubTree);
+
+						reader.Skip();
+						reader.ReadEndElement();
+					}
+					reader.ReadEndElement();//</Format>
+				}
 			}
-
-			reader.ReadStartElement();
-			while (reader.Name == "Format" && reader.NodeType != XmlNodeType.EndElement)
-			{
-				var formatSubTree = reader.ReadSubtree();
-				formatSubTree.Read();
-
-				var expressionArgument = new ExpressionArgument();
-				Formats.Add(expressionArgument);
-
-				expressionArgument.ReadXml(formatSubTree);
-
-				reader.Skip();
-				reader.ReadEndElement();
-			}
+			reader.ReadEndElement();
 		}
 
 		/// <inheritdoc />
 		public void WriteXml(XmlWriter writer)
 		{
 			writer.WriteAttributeString(nameof(Location), Location.ToFormatString());
-			if (FormatterName != null)
-			{
-				writer.WriteAttributeString(nameof(FormatterName), FormatterName);
-			}
 
 			if (PathParts.Any())
 			{
-				writer.WriteAttributeString(nameof(PathParts), PathParts.Serialize());
+				writer.WriteStartElement("Path");
+				foreach (var pathPart in PathParts.ToArray())
+				{
+					writer.WriteElementString(pathPart.Value.ToString(), pathPart.Key);
+				}
+				writer.WriteEndElement();//</Path>
 			}
-			foreach (var expressionArgument in Formats)
+			if (FormatterName != null)
 			{
 				writer.WriteStartElement("Format");
-				expressionArgument.WriteXml(writer);
+				writer.WriteAttributeString(nameof(FormatterName), FormatterName);
+				foreach (var expressionArgument in Formats)
+				{
+					writer.WriteStartElement("Argument");
+					expressionArgument.WriteXml(writer);
+					writer.WriteEndElement();//</Argument>
+				}
 				writer.WriteEndElement();//</Format>
 			}
 		}
@@ -202,7 +234,7 @@ namespace Morestachio.Framework.Expression
 			{
 				if (text.Length > 0 && char.IsDigit(text[0]))
 				{
-					var expression = ExpressionNumber.ParseFrom(text, 0, context, out index);
+					var expression = MorestachioExpressionNumber.ParseFrom(text, 0, context, out index);
 					context.SetLocation(index);
 					indexVar = index;
 					return expression;
@@ -691,7 +723,7 @@ namespace Morestachio.Framework.Expression
 							{
 								//this is an string
 								var cidx = context.Character;
-								currentScope.Value = ExpressionNumber.ParseFrom(text, index, context, out index);
+								currentScope.Value = MorestachioExpressionNumber.ParseFrom(text, index, context, out index);
 								currentScope.State = TokenState.Expression;
 								context.SetLocation(cidx);
 

@@ -18,7 +18,7 @@ namespace Morestachio.Document.Contracts
 				.GetTypes()
 				.Where(e => e.IsClass)
 				.Where(e => typeof(IDocumentItem).IsAssignableFrom(e))
-				.ToDictionary(e => e, type =>
+				.ToDictionary(e => e.Name, type =>
 				{
 					var ctor = type.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance,
 						null, Type.EmptyTypes, null);
@@ -35,17 +35,38 @@ namespace Morestachio.Document.Contracts
 					return new Func<IDocumentItem>(() => ctor.Invoke(null) as IDocumentItem);
 				});
 		}
-
-		public static IDictionary<Type, Func<IDocumentItem>> DocumentItems { get; private set; }
+		
+		public static IDictionary<string, Func<IDocumentItem>> DocumentItems { get; private set; }
 
 		internal static IDocumentItem CreateDocumentItemInstance(string name)
 		{
 			var docItem =
-				DocumentItems.FirstOrDefault(e => e.Key.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase))
+				DocumentItems.FirstOrDefault(e => e.Key.Equals(name, StringComparison.InvariantCultureIgnoreCase))
 					.Value;
 			if (docItem == null)
 			{
-				throw new InvalidOperationException($"There is no known DocumentType with the name of '{name}'");
+				var type = AppDomain.CurrentDomain.GetAssemblies().SelectMany(f => f.GetTypes())
+					.FirstOrDefault(e => e.IsClass && e.Name == name + "DocumentItem");
+				if (type != null)
+				{
+					var ctor = type.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance,
+						null, Type.EmptyTypes, null);
+					if (ctor == null)
+					{
+						ctor = type.GetConstructor(BindingFlags.Public | BindingFlags.Instance,
+							null, Type.EmptyTypes, null);
+					}
+					if (ctor == null)
+					{
+						throw new InvalidOperationException("There is no ether public or private constructor that has no parameter");
+					}
+
+					docItem = DocumentItems[type.Name] = () => ctor.Invoke(null) as IDocumentItem;
+				}
+				else
+				{
+					throw new InvalidOperationException($"There is no known DocumentType with the name of '{name}'");	
+				}
 			}
 
 			return docItem();

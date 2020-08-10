@@ -133,7 +133,7 @@ namespace Morestachio.Framework.Expression.Visitors
 		}
 
 		/// <inheritdoc />
-		public void Visit(ExpressionNumber expression)
+		public void Visit(MorestachioExpressionNumber expression)
 		{
 			StringBuilder.Append(expression.Number.AsParsableString());
 		}

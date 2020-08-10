@@ -279,6 +279,7 @@ namespace Morestachio.Helper
 
 		[MorestachioFormatter("SmallerAs", "Checks if the source number is smaller as the other number")]
 		[MorestachioFormatter("SmallerThan", "Checks if the source number is smaller as the other number")]
+		[MorestachioFormatter("LessThen", "Checks if the source number is smaller as the other number")]
 		[MorestachioOperator(OperatorTypes.LessThen, "Checks if the source number is smaller as the other number")]
 		public static bool SmallerThan(Number left, Number right)
 		{

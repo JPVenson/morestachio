@@ -67,7 +67,9 @@ namespace Morestachio.Document
 			base.SerializeXml(writer);
 			if (Context != null)
 			{
+				writer.WriteStartElement("With");
 				writer.WriteExpressionToXml(Context);
+				writer.WriteEndElement();//</with>
 			}
 		}
 		
@@ -78,12 +80,14 @@ namespace Morestachio.Document
 			AssertElement(reader, nameof(Value));
 			reader.ReadEndElement();
 
-			if (reader.Name == ExpressionParser.ExpressionNodeName)
+			if (reader.Name == "With")
 			{
+				reader.ReadStartElement();
 				var subtree = reader.ReadSubtree();
 				subtree.Read();
 				Context = subtree.ParseExpressionFromKind();
 				reader.Skip();
+				reader.ReadEndElement();
 			}
 		}
 

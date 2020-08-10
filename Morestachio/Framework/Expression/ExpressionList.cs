@@ -102,7 +102,7 @@ namespace Morestachio.Framework.Expression
 			{
 				var childTree = reader.ReadSubtree();
 				childTree.Read();
-				expression.Add(reader.ParseExpressionFromKind());
+				expression.Add(childTree.ParseExpressionFromKind());
 				reader.Skip();
 			}
 

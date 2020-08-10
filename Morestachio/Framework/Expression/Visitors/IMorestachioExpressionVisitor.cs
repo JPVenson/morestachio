@@ -28,7 +28,7 @@
 		/// <summary>
 		///		Visits an Expression Number
 		/// </summary>
-		void Visit(ExpressionNumber expression);
+		void Visit(MorestachioExpressionNumber expression);
 
 		void Visit(MorestachioOperatorExpression expression);
 	}

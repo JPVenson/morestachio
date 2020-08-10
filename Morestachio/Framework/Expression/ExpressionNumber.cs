@@ -21,9 +21,9 @@ namespace Morestachio.Framework.Expression
 {
 	[Serializable]
 	[DebuggerTypeProxy(typeof(ExpressionDebuggerDisplay))]
-	public class ExpressionNumber : IMorestachioExpression
+	public class MorestachioExpressionNumber : IMorestachioExpression
 	{
-		internal ExpressionNumber()
+		internal MorestachioExpressionNumber()
 		{
 			
 		}
@@ -31,7 +31,7 @@ namespace Morestachio.Framework.Expression
 		/// <summary>
 		/// 
 		/// </summary>
-		public ExpressionNumber(in Number number, CharacterLocation location)
+		public MorestachioExpressionNumber(in Number number, CharacterLocation location)
 		{
 			Number = number;
 			Location = location;
@@ -48,7 +48,7 @@ namespace Morestachio.Framework.Expression
 		/// <summary>
 		/// 
 		/// </summary>
-		protected ExpressionNumber(SerializationInfo info, StreamingContext context)
+		protected MorestachioExpressionNumber(SerializationInfo info, StreamingContext context)
 		{
 			Number.TryParse(info.GetValue(nameof(Number), typeof(string)).ToString(), CultureInfo.CurrentCulture,
 				out var nr);
@@ -91,7 +91,7 @@ namespace Morestachio.Framework.Expression
 		}
 		
 		/// <inheritdoc />
-		public bool Equals(ExpressionNumber other)
+		public bool Equals(MorestachioExpressionNumber other)
 		{
 			if (!Location.Equals(other.Location))
 			{
@@ -119,7 +119,7 @@ namespace Morestachio.Framework.Expression
 				return false;
 			}
 
-			return Equals((ExpressionNumber)obj);
+			return Equals((MorestachioExpressionNumber)obj);
 		}
 
 		/// <inheritdoc />
@@ -149,7 +149,7 @@ namespace Morestachio.Framework.Expression
 		/// <summary>
 		///		Parses the text and returns an Expression number
 		/// </summary>
-		public static ExpressionNumber ParseFrom(string text,
+		public static MorestachioExpressionNumber ParseFrom(string text,
 			int offset,
 			TokenzierContext context,
 			out int index)
@@ -195,7 +195,7 @@ namespace Morestachio.Framework.Expression
 			text = nrText.ToString();
 			if (Number.TryParse(text, CultureInfo.InvariantCulture, out var nr))
 			{
-				return new ExpressionNumber(nr, context.CurrentLocation.Offset(offset));
+				return new MorestachioExpressionNumber(nr, context.CurrentLocation.Offset(offset));
 			}
 
 			context.Errors.Add(new MorestachioSyntaxError(
@@ -217,9 +217,9 @@ namespace Morestachio.Framework.Expression
 
 		private class ExpressionDebuggerDisplay
 		{
-			private readonly ExpressionNumber _exp;
+			private readonly MorestachioExpressionNumber _exp;
 
-			public ExpressionDebuggerDisplay(ExpressionNumber exp)
+			public ExpressionDebuggerDisplay(MorestachioExpressionNumber exp)
 			{
 				_exp = exp;
 			}

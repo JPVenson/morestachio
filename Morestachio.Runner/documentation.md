@@ -22,7 +22,14 @@ See https://github.com/JPVenson/morestachio/wiki/Formatter#formatter-framework f
 	{{#each formatter.Methods.OrderBy("MethodName") AS method}}
 {{#var sourceParam = method.Parameters.FirstOrDefault("IsSourceObject")}}
 ### {{formatter.DeclaringType.Name}}.{{method.MethodName}}
-Example: `{{#IF sourceParam}}({{sourceParam.Type}}).{{/IF}}{{method.MethodName}}({{method.Parameters.Where("IsSourceObject == false && IsInjected == false").Select('Type + " " + Name').Join(", ")}})`   
+Example: {{#TNLS}}
+`{{#TNLS}}
+{{#IF sourceParam}}{{#TNLS}}
+	({{sourceParam.Type}}).{{#TNLS}}
+{{/IF}}{{#TNLS}}
+{{method.MethodName}}{{#TNLS}}
+({{method.Parameters.Where("IsSourceObject == false && IsInjected == false").Select('Type + " " + Name').Join(", ")}}){{#TNLS}}
+`   
 FormatterName: {{method.Functions.Select('"`" + FormatterName + "`"').Join(" | ")}}   
 {{#IF method.Parameters}}{{#TNLS}}
 Arguments:  

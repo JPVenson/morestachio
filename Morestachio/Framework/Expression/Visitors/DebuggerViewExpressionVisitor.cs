@@ -165,7 +165,7 @@ namespace Morestachio.Framework.Expression.Visitors
 			this.Visit(expression.MorestachioExpression);
 		}
 
-		public void Visit(ExpressionNumber expression)
+		public void Visit(MorestachioExpressionNumber expression)
 		{
 			StringBuilder.Append("Number(");
 			StringBuilder.Append("(" + expression.Number.Value.GetTypeCode() + ")");

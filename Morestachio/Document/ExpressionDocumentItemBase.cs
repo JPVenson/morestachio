@@ -48,13 +48,10 @@ namespace Morestachio.Document
 		protected override void DeSerializeXml(XmlReader reader)
 		{
 			reader.ReadStartElement();
-			if (reader.Name == ExpressionParser.ExpressionNodeName)
-			{
-				var subtree = reader.ReadSubtree();
-				subtree.Read();
-				MorestachioExpression = subtree.ParseExpressionFromKind();
-				reader.Skip();
-			}
+			var subtree = reader.ReadSubtree();
+			subtree.Read();
+			MorestachioExpression = subtree.ParseExpressionFromKind();
+			reader.Skip();
 			base.DeSerializeXml(reader);
 		}
 		/// <inheritdoc />

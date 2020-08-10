@@ -20,7 +20,7 @@ namespace Morestachio.Framework.Expression
 		internal static IMorestachioExpression ParseExpressionFromKind(this XmlReader reader)
 		{
 			IMorestachioExpression exp = null;
-			switch (reader.GetAttribute(ExpressionKindNodeName))
+			switch (reader.Name)
 			{
 				case "Expression":
 					exp = new MorestachioExpression();
@@ -32,9 +32,9 @@ namespace Morestachio.Framework.Expression
 					exp = new MorestachioExpressionString();
 					break;
 				case "ExpressionNumber":
-					exp = new ExpressionNumber();
+					exp = new MorestachioExpressionNumber();
 					break;
-				case "OperatorExpression":
+				case "ExpressionOperator":
 					exp = new MorestachioOperatorExpression();
 					break;
 				default:
@@ -46,23 +46,27 @@ namespace Morestachio.Framework.Expression
 
 		internal static void WriteExpressionToXml(this XmlWriter writer, IMorestachioExpression morestachioExpression)
 		{
-			writer.WriteStartElement(ExpressionNodeName);
 			switch (morestachioExpression)
 			{
 				case MorestachioExpression _:
-					writer.WriteAttributeString(ExpressionKindNodeName, "Expression");
+					writer.WriteStartElement("Expression");
+					//writer.WriteAttributeString(ExpressionKindNodeName, "Expression");
 					break;
 				case MorestachioExpressionList _:
-					writer.WriteAttributeString(ExpressionKindNodeName, "ExpressionList");
+					writer.WriteStartElement("ExpressionList");
+					//writer.WriteAttributeString(ExpressionKindNodeName, "ExpressionList");
 					break;
 				case MorestachioExpressionString _:
-					writer.WriteAttributeString(ExpressionKindNodeName, "ExpressionString");
+					writer.WriteStartElement("ExpressionString");
+					//writer.WriteAttributeString(ExpressionKindNodeName, "ExpressionString");
 					break;
-				case ExpressionNumber _:
-					writer.WriteAttributeString(ExpressionKindNodeName, "ExpressionNumber");
+				case MorestachioExpressionNumber _:
+					writer.WriteStartElement("ExpressionNumber");
+					//writer.WriteAttributeString(ExpressionKindNodeName, "ExpressionNumber");
 					break;
 				case MorestachioOperatorExpression _:
-					writer.WriteAttributeString(ExpressionKindNodeName, "OperatorExpression");
+					writer.WriteStartElement("ExpressionOperator");
+					//writer.WriteAttributeString(ExpressionKindNodeName, "OperatorExpression");
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(morestachioExpression));

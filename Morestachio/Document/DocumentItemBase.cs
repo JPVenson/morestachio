@@ -77,8 +77,8 @@ namespace Morestachio.Document
 			ContextObject context,
 			ScopeData scopeData);
 
-		/// <inheritdoc />
-		public abstract string Kind { get; }
+		[Obsolete("The kind is no longer needed and will be removed in future versions")]
+		public virtual string Kind { get; }
 
 		/// <inheritdoc />
 		public IList<IDocumentItem> Children { get; internal set; }
@@ -100,17 +100,20 @@ namespace Morestachio.Document
 		[SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
 		public void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
-			info.AddValue(nameof(Kind), Kind);
 			info.AddValue(nameof(ExpressionStart), ExpressionStart?.ToFormatString());
 			SerializeBinaryCore(info, context);
 			info.AddValue(nameof(Children), Children.ToArray(), typeof(IDocumentItem[]));
 		}
 
+		private static string GetSerializedMarkerName(Type type)
+		{
+			return type.Name;
+		}
+
 		/// <inheritdoc />
 		void IDocumentItem.SerializeXmlCore(XmlWriter writer)
 		{
-			writer.WriteStartElement(GetType().Name);
-			writer.WriteAttributeString(nameof(Kind), Kind);
+			writer.WriteStartElement(GetSerializedMarkerName(GetType()));
 			if (ExpressionStart != null)
 			{
 				writer.WriteAttributeString(nameof(ExpressionStart), ExpressionStart?.ToFormatString() ?? string.Empty);
@@ -134,7 +137,7 @@ namespace Morestachio.Document
 		/// <inheritdoc />
 		void IDocumentItem.DeSerializeXmlCore(XmlReader reader)
 		{
-			AssertElement(reader, GetType().Name);
+			AssertElement(reader, GetSerializedMarkerName(GetType()));
 
 			var charLoc = reader.GetAttribute(nameof(ExpressionStart));
 			if (charLoc != null)
@@ -165,7 +168,7 @@ namespace Morestachio.Document
 					reader.ReadEndElement(); //nameof(Children)
 				}
 
-				if (reader.NodeType == XmlNodeType.EndElement && reader.Name.Equals(GetType().Name))
+				if (reader.NodeType == XmlNodeType.EndElement && reader.Name.Equals(GetSerializedMarkerName(GetType())))
 				{
 					//there are no children and we have reached the end of the document
 					reader.ReadEndElement(); //GetType().Name
@@ -195,7 +198,6 @@ namespace Morestachio.Document
 
 		void IXmlSerializable.WriteXml(XmlWriter writer)
 		{
-			writer.WriteAttributeString(nameof(Kind), Kind);
 			SerializeXml(writer);
 			if (Children.Any())
 			{
