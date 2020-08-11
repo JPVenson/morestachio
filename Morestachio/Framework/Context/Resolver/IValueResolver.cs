@@ -1,28 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using Morestachio.Framework;
 
 namespace Morestachio
 {
-	/// <summary>
-	///		Combines any number of value resolvers
-	/// </summary>
-	public class MultiValueResolver : List<IValueResolver>, IValueResolver
-	{
-		/// <inheritdoc />
-		public object Resolve(Type type, object value, string path, ContextObject context)
-		{
-			return this.First(f => f.CanResolve(type, value, path, context)).Resolve(type, value, path, context);
-		}
-
-		/// <inheritdoc />
-		public bool CanResolve(Type type, object value, string path, ContextObject context)
-		{
-			return this.Any(f => f.CanResolve(type, value, path, context));
-		}
-	}
-
 	/// <summary>
 	///		Can be used to extract a value from an object that is not natively supported such as IDictionary{string, object} or object.
 	///		for example: This could be used to resolve Newtonesofts JObject

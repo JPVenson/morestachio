@@ -15,7 +15,8 @@ namespace Morestachio.Formatter.Framework.Converter
 		///		The Instance of this Converter
 		/// </summary>
 		public static readonly IFormatterValueConverter Instance = new NumberConverter();
-
+		
+		/// <inheritdoc />
 		public bool CanConvert(Type sourceType, Type requestedType)
 		{
 			if (sourceType == typeof(Number))
@@ -36,27 +37,6 @@ namespace Morestachio.Formatter.Framework.Converter
 			}
 
 			return false;
-		}
-
-		/// <inheritdoc />
-		public bool CanConvert(object value, Type requestedType)
-		{
-			if (requestedType == typeof(Number))
-			{
-				if (value is Number)
-				{
-					return true;
-				}
-
-				var type = value?.GetType();
-				if (Number.CsFrameworkFloatingPointNumberTypes.Contains(type) ||
-				    Number.CsFrameworkIntegralTypes.Contains(type))
-				{
-					return true;
-				}
-			}
-
-			return value is Number numb && requestedType.IsInstanceOfType(numb.Value);
 		}
 
 		/// <inheritdoc />

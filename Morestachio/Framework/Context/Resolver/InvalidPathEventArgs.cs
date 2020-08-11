@@ -1,15 +1,9 @@
 ﻿using System;
-using JetBrains.Annotations;
 using Morestachio.Framework;
 using Morestachio.Framework.Expression;
 
 namespace Morestachio
 {
-	/// <summary>
-	///		Delegate for the Event Handler in <see cref="ParserOptions.UnresolvedPath"/>
-	/// </summary>
-	public delegate void InvalidPath(InvalidPathEventArgs args);
-
 	/// <summary>
 	///		The Event arguments for an Invalid path event
 	/// </summary>

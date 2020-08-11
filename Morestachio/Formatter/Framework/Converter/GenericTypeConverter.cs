@@ -10,8 +10,12 @@ namespace Morestachio.Formatter.Framework.Converter
 	/// </summary>
 	public class GenericTypeConverter : IFormatterValueConverter
 	{
+		/// <summary>
+		///		As this Converter can be reuused it should be
+		/// </summary>
 		public static readonly IFormatterValueConverter Instance = new GenericTypeConverter();
-
+		
+		/// <inheritdoc />
 		public bool CanConvert(Type sourceType, Type requestedType)
 		{
 			if (sourceType == null || requestedType == null)
@@ -20,18 +24,6 @@ namespace Morestachio.Formatter.Framework.Converter
 			}
 
 			var typeConverter = TypeDescriptor.GetConverter(sourceType);
-			return typeConverter.CanConvertTo(requestedType);
-		}
-
-		/// <inheritdoc />
-		public bool CanConvert(object value, Type requestedType)
-		{
-			if (value is null)
-			{
-				return requestedType.IsClass;
-			}
-
-			var typeConverter = TypeDescriptor.GetConverter(value.GetType());
 			return typeConverter.CanConvertTo(requestedType);
 		}
 

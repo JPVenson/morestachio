@@ -12,23 +12,6 @@ using Morestachio.ParserErrors;
 
 namespace Morestachio.Framework
 {
-
-	/// <summary>
-	///		Contains the result of an Tokenizer
-	/// </summary>
-	public class TokenizerResult
-	{
-		public TokenizerResult(IEnumerable<TokenPair> tokens)
-		{
-			Tokens = tokens;
-		}
-
-		/// <summary>
-		///		The Tokenized template
-		/// </summary>
-		public IEnumerable<TokenPair> Tokens { get; set; }
-	}
-
 	/// <summary>
 	///     Reads in a mustache template and lexes it into tokens.
 	/// </summary>

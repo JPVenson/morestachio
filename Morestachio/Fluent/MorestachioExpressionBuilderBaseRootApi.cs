@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Morestachio.Framework;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
@@ -19,26 +18,6 @@ namespace Morestachio.Fluent
 		//	ExpressionParts.Add(new ExpressionNumber(Number.Parse(number), new CharacterLocation(0, Column)));
 		//	Column += number.Length;
 		//	return this;
-		//}
-	}
-
-	public class MorestachioExpressionBuilderBase
-	{
-		public IList<IMorestachioExpression> ExpressionParts { get; set; }
-		public int Column { get; set; }
-
-		public MorestachioExpressionBuilderBase()
-		{
-			ExpressionParts = new List<IMorestachioExpression>();
-		}
-
-		//public MorestachioExpressionBuilderBase Access(string property)
-		//{
-		//	var canAttach = ExpressionParts.LastOrDefault();
-		//	if (canAttach != null && (canAttach is MorestachioExpression exp) && exp.FormatterName == null)
-		//	{
-		//		exp.PathParts.
-		//	}
 		//}
 	}
 }
