@@ -1,4 +1,6 @@
-﻿namespace Morestachio.Framework.Expression.Framework
+﻿using Morestachio.Framework.Context;
+
+namespace Morestachio.Framework.Expression.Framework
 {
 	/// <summary>
 	///		Defines a part that can be traversed by the <see cref="ContextObject"/>

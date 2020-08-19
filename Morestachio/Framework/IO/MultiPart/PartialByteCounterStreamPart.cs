@@ -2,7 +2,7 @@
 using System.IO;
 using JetBrains.Annotations;
 
-namespace Morestachio.Framework
+namespace Morestachio.Framework.IO.MultiPart
 {
 	public class PartialByteCounterStreamPart : IByteCounterStreamPart
 	{

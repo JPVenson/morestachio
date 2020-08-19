@@ -1,11 +1,9 @@
-﻿using System.Runtime.CompilerServices;
-using Morestachio.Document;
-using Morestachio.Document.Contracts;
+﻿using Morestachio.Document.Contracts;
+using Morestachio.Document.Items;
 using Morestachio.Document.TextOperations;
-using Morestachio.Formatter;
-using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
-using Morestachio.ParserErrors;
+using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing;
 
 #region
 
@@ -13,7 +11,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Morestachio.Framework;
 
 #endregion
 
@@ -200,10 +197,6 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.PartialDeclarationClose))
 				{
-					//currentDocumentItem.Document.Add(new RenderPartialDoneDocumentItem(currentToken.Value)
-					//{
-					//	ExpressionStart = currentToken.TokenLocation
-					//});
 					buildStack.Pop();
 				}
 				else if (currentToken.Type.Equals(TokenType.RenderPartial))

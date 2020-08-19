@@ -2,15 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Morestachio.Document;
 using Morestachio.Document.Contracts;
+using Morestachio.Document.Items;
 using Morestachio.Fluent;
-using Morestachio.Framework;
 using Morestachio.Helper;
-using Morestachio.ParserErrors;
-
+using Morestachio.Parsing.ParserErrors;
 #if ValueTask
 using MorestachioDocumentResultPromise = System.Threading.Tasks.ValueTask<Morestachio.MorestachioDocumentResult>;
 using StringPromise = System.Threading.Tasks.ValueTask<string>;
@@ -83,6 +81,9 @@ namespace Morestachio
 		/// <param name="data"></param>
 		/// <param name="token"></param>
 		/// <returns></returns>
+		/// <exception cref="InvalidOperationException">Will be thrown when the Version of the document mismatches</exception>
+		/// <exception cref="AggregateException">Will be thrown when there where any errors</exception>
+		/// <exception cref="TimeoutException">Will be thrown when the given timeout expires</exception>
 		[MustUseReturnValue("The Stream contains the template. Use CreateAndStringify() to get the string of it")]
 		[NotNull]
 		public async MorestachioDocumentResultPromise CreateAsync([NotNull]object data, CancellationToken token)

@@ -1,26 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Dynamic.Core.Parser;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Morestachio.Attributes;
-using Morestachio.Document;
 using Morestachio.Document.Custom;
-using Morestachio.Formatter;
-using Morestachio.Framework;
 using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Predefined;
-using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Visitors;
 using Morestachio.Helper;
 using Morestachio.Linq;
-using Morestachio.ParserErrors;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using Morestachio.Document.Contracts;
+using Morestachio.Document.Items;
+using Morestachio.Formatter.Framework.Attributes;
+using Morestachio.Framework.Error;
 using Morestachio.Framework.Expression.Framework;
+using Morestachio.Parsing.ParserErrors;
 using ExpressionParser = Morestachio.Framework.Expression.ExpressionParser;
 
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed

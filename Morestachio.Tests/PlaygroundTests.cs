@@ -2,15 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using JetBrains.dotMemoryUnit;
-using Morestachio.Formatter.Framework;
-using Morestachio.Framework;
 using Morestachio.Helper;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 
 #if ValueTask
 using Promise = System.Threading.Tasks.ValueTask;
@@ -166,9 +161,9 @@ namespace Morestachio.Tests
 				//});
 			}
 
-			var parsingOptions = new Morestachio.ParserOptions(TextTemplateMorestachio, null, Encoding.UTF8, true);
+			var parsingOptions = new ParserOptions(TextTemplateMorestachio, null, Encoding.UTF8, true);
 			parsingOptions.ProfileExecution = false;
-			var parsed = Morestachio.Parser.ParseWithOptions(parsingOptions);
+			var parsed = Parser.ParseWithOptions(parsingOptions);
 			var andStringifyAsync = await parsed.CreateAndStringifyAsync(new
 			{
 				Products = _products

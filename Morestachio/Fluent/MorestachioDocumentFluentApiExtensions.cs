@@ -1,5 +1,5 @@
 ﻿using System;
-using Morestachio.Document;
+using Morestachio.Document.Items;
 using Morestachio.Document.TextOperations;
 using Morestachio.Framework.Expression;
 

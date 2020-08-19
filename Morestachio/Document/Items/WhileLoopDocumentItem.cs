@@ -1,22 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Threading.Tasks;
-using JetBrains.Annotations;
-using Morestachio.Document.Contracts;
-using Morestachio.Document.Visitor;
-using Morestachio.Framework;
-using Morestachio.Framework.Expression;
-using Morestachio.Helper;
-#if ValueTask
+﻿#if ValueTask
 using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 using Promise = System.Threading.Tasks.ValueTask;
 #else
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
-using Promise = System.Threading.Tasks.Task;
 #endif
-namespace Morestachio.Document
+using System;
+using System.Linq;
+using System.Runtime.Serialization;
+using JetBrains.Annotations;
+using Morestachio.Document.Contracts;
+using Morestachio.Document.Items.Base;
+using Morestachio.Document.Visitor;
+using Morestachio.Framework.Context;
+using Morestachio.Framework.Expression;
+using Morestachio.Framework.IO;
+
+namespace Morestachio.Document.Items
 {
 	/// <summary>
 	///		Emits the template as long as the condition is true

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Morestachio.Formatter
+namespace Morestachio.Formatter.Framework
 {
 	/// <inheritdoc />
 	public class MultiFormatterInfoCollection : IReadOnlyList<MultiFormatterInfo>

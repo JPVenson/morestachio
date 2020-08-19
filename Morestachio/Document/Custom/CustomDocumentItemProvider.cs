@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using Morestachio.Document.Contracts;
-using Morestachio.Framework;
-using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
-using Morestachio.ParserErrors;
+using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Custom
 {

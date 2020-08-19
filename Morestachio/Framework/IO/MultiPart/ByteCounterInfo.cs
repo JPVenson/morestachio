@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace Morestachio.Framework
+namespace Morestachio.Framework.IO.MultiPart
 {
 	public class ByteCounterInfo
 	{

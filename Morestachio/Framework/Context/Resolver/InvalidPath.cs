@@ -1,6 +1,4 @@
-﻿using JetBrains.Annotations;
-
-namespace Morestachio
+﻿namespace Morestachio.Framework.Context.Resolver
 {
 	/// <summary>
 	///		Delegate for the Event Handler in <see cref="ParserOptions.UnresolvedPath"/>

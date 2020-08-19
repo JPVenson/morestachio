@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Morestachio.Attributes;
 
-namespace Morestachio.Formatter.Framework
+namespace Morestachio.Formatter.Framework.Attributes
 {
 	/// <summary>
 	///		When decorated by a function, it can be used to format in morestachio

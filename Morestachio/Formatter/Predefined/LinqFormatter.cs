@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Morestachio.Formatter.Framework;
+using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Helper;
 
 namespace Morestachio.Formatter.Predefined

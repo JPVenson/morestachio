@@ -1,5 +1,5 @@
 ﻿using System;
-using Morestachio.ParserErrors;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework
 {

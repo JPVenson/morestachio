@@ -1,27 +1,22 @@
 ﻿using System;
 using System.Text;
-using Morestachio.Framework;
+using Morestachio.Framework.Error;
 
-namespace Morestachio.ParserErrors
+namespace Morestachio.Parsing.ParserErrors
 {
 	/// <summary>
 	///		Defines an error that occured when parsing the template that has an invalid token
 	/// </summary>
-	public class MorestachioSyntaxError : IMorestachioError
+	public class MorestachioUnopendScopeError : IMorestachioError
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MorestachioSyntaxError"/> class.
 		/// </summary>
 		/// <param name="location">The location.</param>
-		public MorestachioSyntaxError(CharacterLocationExtended location, string operation, string tokenOccured, string syntaxExpected, string extra = null)
+		public MorestachioUnopendScopeError(CharacterLocationExtended location, string tokenOccured, string syntaxExpected, string extra = null)
 		{
 			Location = location;
-			HelpText = $"line:char " +
-			           $"'{Location.Line}:{Location.Character}' " +
-			           $"- " +
-			           $"The syntax to " +
-			           $"{operation} the '{tokenOccured}' " +
-			           $"block should be: '{syntaxExpected}'.{extra}";
+			HelpText = $"line:char '{Location.Line}:{Location.Character}' - An '{tokenOccured}' block is being closed, but no corresponding opening element '{syntaxExpected}' was detected.{extra}";
 		}
 		
 		/// <inheritdoc />

@@ -1,4 +1,4 @@
-﻿using Morestachio.Framework;
+﻿using Morestachio.Framework.Context;
 
 namespace Morestachio.Document.Contracts
 {

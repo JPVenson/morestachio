@@ -1,7 +1,7 @@
 ﻿using System;
 using Morestachio.Formatter.Framework.Converter;
 
-namespace Morestachio.Attributes
+namespace Morestachio.Formatter.Framework.Attributes
 {
 	/// <summary>
 	///		Defines one or more Value Converter for this parameter

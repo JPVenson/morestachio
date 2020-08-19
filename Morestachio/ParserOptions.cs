@@ -7,11 +7,13 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using JetBrains.Annotations;
-using Morestachio.Attributes;
 using Morestachio.Document.Custom;
 using Morestachio.Formatter;
 using Morestachio.Formatter.Framework;
-using Morestachio.Framework;
+using Morestachio.Framework.Context;
+using Morestachio.Framework.Context.Options;
+using Morestachio.Framework.Context.Resolver;
+using Morestachio.Framework.IO;
 
 #endregion
 

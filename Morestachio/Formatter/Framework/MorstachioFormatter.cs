@@ -1,4 +1,4 @@
-﻿using Morestachio.Attributes;
+﻿using Morestachio.Formatter.Framework.Attributes;
 
 namespace Morestachio.Formatter.Framework
 {

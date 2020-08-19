@@ -1,7 +1,6 @@
 ﻿using System;
-using Morestachio.Formatter.Framework;
 
-namespace Morestachio.Attributes
+namespace Morestachio.Formatter.Framework.Attributes
 {
 	/// <summary>
 	///		Marks the Parameter as an Rest parameter. All non specify parameter will given here. 

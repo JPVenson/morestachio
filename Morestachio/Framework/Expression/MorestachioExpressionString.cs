@@ -7,14 +7,16 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
+using Morestachio.Document;
+using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.StringParts;
 using Morestachio.Framework.Expression.Visitors;
-using Morestachio.ParserErrors;
+using Morestachio.Parsing.ParserErrors;
 #if ValueTask
-using ContextObjectPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.ContextObject>;
+using ContextObjectPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.Context.ContextObject>;
 #else
-using ContextObjectPromise = System.Threading.Tasks.Task<Morestachio.Framework.ContextObject>;
+using ContextObjectPromise = System.Threading.Tasks.Task<Morestachio.Framework.Context.ContextObject>;
 #endif
 
 namespace Morestachio.Framework.Expression

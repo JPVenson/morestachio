@@ -1,4 +1,4 @@
-﻿namespace Morestachio.Framework
+﻿namespace Morestachio.Framework.Error
 {
 	/// <summary>
 	///		The Infinite Partials Exception type

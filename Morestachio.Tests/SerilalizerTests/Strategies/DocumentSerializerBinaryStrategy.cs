@@ -1,10 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using Morestachio.Document;
 using Morestachio.Document.Contracts;
 
 namespace Morestachio.Tests.DocTree

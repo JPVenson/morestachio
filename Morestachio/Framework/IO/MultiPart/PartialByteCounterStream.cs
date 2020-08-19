@@ -2,8 +2,9 @@
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Morestachio.Framework.IO.SubStream;
 
-namespace Morestachio.Framework
+namespace Morestachio.Framework.IO.MultiPart
 {
 	public class PartialByteCounterStream : IByteCounterStream
 	{

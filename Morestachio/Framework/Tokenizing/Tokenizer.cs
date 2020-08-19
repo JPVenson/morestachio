@@ -2,15 +2,14 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using JetBrains.Annotations;
 using Morestachio.Document.Custom;
+using Morestachio.Framework.Error;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
-using Morestachio.ParserErrors;
+using Morestachio.Parsing.ParserErrors;
 
-namespace Morestachio.Framework
+namespace Morestachio.Framework.Tokenizing
 {
 	/// <summary>
 	///     Reads in a mustache template and lexes it into tokens.

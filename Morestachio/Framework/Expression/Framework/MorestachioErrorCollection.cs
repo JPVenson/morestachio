@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using Morestachio.ParserErrors;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework.Expression.Framework
 {

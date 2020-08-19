@@ -1,17 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Morestachio.Document.Contracts;
-using Morestachio.Framework;
+using Morestachio.Framework.Context;
 #if ValueTask
 using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 using Promise = System.Threading.Tasks.ValueTask;
-using ContextObjectPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.ContextObject>;
+using ContextObjectPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.Context.ContextObject>;
 using StringPromise = System.Threading.Tasks.ValueTask<string>;
 using ObjectPromise = System.Threading.Tasks.ValueTask<object>;
 #else
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 using Promise = System.Threading.Tasks.Task;
-using ContextObjectPromise = System.Threading.Tasks.Task<Morestachio.Framework.ContextObject>;
+using ContextObjectPromise = System.Threading.Tasks.Task<Morestachio.Framework.Context.ContextObject>;
 using StringPromise = System.Threading.Tasks.Task<string>;
 using ObjectPromise = System.Threading.Tasks.Task<object>;
 #endif

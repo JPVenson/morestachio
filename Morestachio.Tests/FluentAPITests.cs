@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Morestachio.Document;
+﻿using Morestachio.Document.Items;
 using Morestachio.Fluent;
 using NUnit.Framework;
 

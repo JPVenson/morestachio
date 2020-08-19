@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Morestachio.Formatter.Framework
+namespace Morestachio.Formatter.Framework.Attributes
 {
 	/// <summary>
 	///		Declares the input syntax of any formatter.

@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Text;
-using Morestachio.Attributes;
-using Morestachio.Formatter.Framework;
+using Morestachio.Formatter.Framework.Attributes;
 
 namespace Morestachio.Formatter.Predefined
 {

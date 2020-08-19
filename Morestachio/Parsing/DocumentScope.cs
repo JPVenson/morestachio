@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Morestachio.Document;
 using Morestachio.Document.Contracts;
 
-namespace Morestachio
+namespace Morestachio.Parsing
 {
 	/// <summary>
 	///		Defines the scope of an DocumentItem that can has children

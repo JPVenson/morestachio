@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Morestachio.Framework;
 
-namespace Morestachio
+namespace Morestachio.Framework.Context.Resolver
 {
 	/// <summary>
 	///		Combines any number of value resolvers

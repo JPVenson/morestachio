@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using System.Text.RegularExpressions;
 using JetBrains.Annotations;
-using Morestachio.Attributes;
-using Morestachio.Formatter.Framework;
+using Morestachio.Formatter.Framework.Attributes;
 
 namespace Morestachio.Linq
 {

@@ -1,4 +1,4 @@
-﻿namespace Morestachio.Framework
+﻿namespace Morestachio.Framework.Context.Resolver
 {
 	/// <summary>
 	///     Can be implemented by an object to provide custom resolving logic

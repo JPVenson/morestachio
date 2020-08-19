@@ -1,6 +1,6 @@
 ﻿using Morestachio.Framework.Expression;
 
-namespace Morestachio.Formatter.Framework
+namespace Morestachio.Formatter.Framework.Attributes
 {
 	/// <summary>
 	///		Defines an function as an operator for one of the given <see cref="OperatorTypes"/>

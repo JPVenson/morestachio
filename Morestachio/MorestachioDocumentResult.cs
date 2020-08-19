@@ -12,6 +12,9 @@ namespace Morestachio
 		/// </summary>
 		public Stream Stream { get; set; }
 
+		/// <summary>
+		///		[Experimental]
+		/// </summary>
 		public PerformanceProfiler Profiler { get; set; }
 	}
 }

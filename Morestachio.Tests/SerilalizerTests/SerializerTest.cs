@@ -1,16 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Morestachio.Document;
 using Morestachio.Document.Contracts;
+using Morestachio.Document.Items;
 using Morestachio.Document.Visitor;
-using Morestachio.Framework;
 using Morestachio.Tests.DocTree;
-using Newtonsoft.Json.Bson;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 
 namespace Morestachio.Tests.SerilalizerTests
 {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Morestachio.Attributes
+namespace Morestachio.Formatter.Framework.Attributes
 {
 	/// <summary>
 	///		Sets the name for a Formatter named Argument

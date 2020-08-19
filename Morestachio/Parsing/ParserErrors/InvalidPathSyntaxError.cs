@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Text;
-using Morestachio.Framework;
+using Morestachio.Framework.Error;
 
-namespace Morestachio.ParserErrors
+namespace Morestachio.Parsing.ParserErrors
 {
 	/// <summary>
 	///		Defines an Error on a position within the Template.

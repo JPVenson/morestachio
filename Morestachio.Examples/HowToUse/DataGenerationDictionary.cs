@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Text;
-using System.IO;
-
-using Morestachio;
+﻿using System.Collections.Generic;
 
 namespace Morestachio.Examples.HowToUse
 {

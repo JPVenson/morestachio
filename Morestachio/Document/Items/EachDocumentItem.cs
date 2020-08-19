@@ -1,27 +1,24 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Threading.Tasks;
-using System.Xml;
-using JetBrains.Annotations;
-using Morestachio.Document.Contracts;
-using Morestachio.Document.Visitor;
-using Morestachio.Framework;
-using Morestachio.Framework.Expression;
-using Morestachio.ParserErrors;
-
-#if ValueTask
+﻿#if ValueTask
 using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 using Promise = System.Threading.Tasks.ValueTask;
 #else
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
-using Promise = System.Threading.Tasks.Task;
 #endif
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using JetBrains.Annotations;
+using Morestachio.Document.Contracts;
+using Morestachio.Document.Items.Base;
+using Morestachio.Document.Visitor;
+using Morestachio.Framework.Context;
+using Morestachio.Framework.Error;
+using Morestachio.Framework.Expression;
+using Morestachio.Framework.IO;
+using Morestachio.Parsing.ParserErrors;
 
-namespace Morestachio.Document
+namespace Morestachio.Document.Items
 {
 	/// <summary>
 	///		Emits N items that are in the collection

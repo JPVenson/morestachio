@@ -1,7 +1,8 @@
 ﻿using System;
 using System.IO;
+using Morestachio.Framework.IO.SubStream;
 
-namespace Morestachio.Framework
+namespace Morestachio.Framework.IO
 {
 	/// <summary>
 	///		Defines the output that can count on written bytes into a stream

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Morestachio.ParserErrors;
+using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework.Expression.Framework
 {

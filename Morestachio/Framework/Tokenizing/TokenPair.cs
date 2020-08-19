@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
 using JetBrains.Annotations;
-using Morestachio.Formatter;
 using Morestachio.Framework.Expression;
 
-namespace Morestachio.Framework
+namespace Morestachio.Framework.Tokenizing
 {
 	/// <summary>
 	///     The token that has been lexed out of template content.

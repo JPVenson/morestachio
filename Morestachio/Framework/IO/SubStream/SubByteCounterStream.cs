@@ -1,7 +1,8 @@
 ﻿using System.IO;
 using Morestachio.Document.Contracts;
+using Morestachio.Framework.IO.SingleStream;
 
-namespace Morestachio.Framework
+namespace Morestachio.Framework.IO.SubStream
 {
 	/// <summary>
 	///		This stream can be used to buffer the contents of one or more <see cref="IDocumentItem.Render"/> calls without writing into the main stream but with taking Size into account

@@ -1,4 +1,6 @@
-﻿namespace Morestachio.Formatter.Framework
+﻿using Morestachio.Formatter.Framework.Attributes;
+
+namespace Morestachio.Formatter.Framework
 {
 	/// <summary>
 	///		Defines an Global Formatter that can be called without the need for specifing an source object

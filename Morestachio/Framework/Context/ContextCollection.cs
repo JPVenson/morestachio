@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using JetBrains.Annotations;
+using Morestachio.Document;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
 
-namespace Morestachio.Framework
+namespace Morestachio.Framework.Context
 {
 	/// <summary>
 	///     A context object for collections that is generated for each item inside a collection

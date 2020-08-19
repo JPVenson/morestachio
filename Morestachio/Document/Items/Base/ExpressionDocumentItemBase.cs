@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using System.Xml;
-using Morestachio.Document.Visitor;
 using Morestachio.Framework.Expression;
 
-namespace Morestachio.Document
+namespace Morestachio.Document.Items.Base
 {
 	/// <summary>
 	///		A common base class for emitting a single string value

@@ -1,27 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Schema;
-using System.Xml.Serialization;
-using JetBrains.Annotations;
-using Morestachio.Document.Contracts;
-using Morestachio.Document.TextOperations;
-using Morestachio.Document.Visitor;
-using Morestachio.Framework;
-using Morestachio.Helper;
-#if ValueTask
+﻿#if ValueTask
 using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 using Promise = System.Threading.Tasks.ValueTask;
 #else
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
-using Promise = System.Threading.Tasks.Task;
 #endif
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Xml;
+using JetBrains.Annotations;
+using Morestachio.Document.Contracts;
+using Morestachio.Document.Items.Base;
+using Morestachio.Document.TextOperations;
+using Morestachio.Document.Visitor;
+using Morestachio.Framework.Context;
+using Morestachio.Framework.IO;
+using Morestachio.Helper;
 
-namespace Morestachio.Document
+namespace Morestachio.Document.Items
 {
 	/// <summary>
 	/// 

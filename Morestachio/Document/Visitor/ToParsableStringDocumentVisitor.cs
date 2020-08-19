@@ -1,8 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Morestachio.Document.Contracts;
+using Morestachio.Document.Items;
+using Morestachio.Document.Items.Base;
 using Morestachio.Document.TextOperations;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Visitors;

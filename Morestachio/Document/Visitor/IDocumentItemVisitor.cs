@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Morestachio.Document.Contracts;
+﻿using Morestachio.Document.Contracts;
+using Morestachio.Document.Items;
 
 namespace Morestachio.Document.Visitor
 {

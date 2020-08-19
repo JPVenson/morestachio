@@ -1,6 +1,6 @@
-﻿using Morestachio.Framework;
+﻿using Morestachio.Framework.Error;
 
-namespace Morestachio
+namespace Morestachio.Framework.Context.Options
 {
 	/// <summary>
 	///		Defines how the Parser should behave when encountering a the PartialStackSize to be exceeded

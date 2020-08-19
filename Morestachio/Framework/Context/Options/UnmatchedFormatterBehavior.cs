@@ -1,4 +1,4 @@
-﻿namespace Morestachio
+﻿namespace Morestachio.Framework.Context.Options
 {
 	/// <summary>
 	///		Defines the behavior how to react to a call of a formatter that does not exist

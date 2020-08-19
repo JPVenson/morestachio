@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Morestachio.Attributes
+namespace Morestachio.Formatter.Framework.Attributes
 {
 	/// <summary>
 	///		Marks an Parameter as the source object. That object is the source from where the formatter was called.

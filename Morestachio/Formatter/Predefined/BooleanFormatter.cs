@@ -1,6 +1,5 @@
 ﻿using System.Linq;
-using Morestachio.Attributes;
-using Morestachio.Formatter.Framework;
+using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Framework.Expression;
 
 namespace Morestachio.Formatter.Predefined

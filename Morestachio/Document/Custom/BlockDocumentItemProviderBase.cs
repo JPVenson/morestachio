@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Morestachio.Document.Contracts;
-using Morestachio.Framework;
+using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing;
 
 namespace Morestachio.Document.Custom
 {

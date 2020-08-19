@@ -5,8 +5,10 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using JetBrains.Annotations;
+using Morestachio.Document;
 using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Predefined;
+using Morestachio.Framework.Context.Resolver;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Helper;
@@ -14,18 +16,16 @@ using PathPartElement =
 	System.Collections.Generic.KeyValuePair<string, Morestachio.Framework.Expression.Framework.PathType>;
 #if ValueTask
 using Promise = System.Threading.Tasks.ValueTask;
-using ContextObjectPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.ContextObject>;
+using ContextObjectPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.Context.ContextObject>;
 using StringPromise = System.Threading.Tasks.ValueTask<string>;
 using ObjectPromise = System.Threading.Tasks.ValueTask<object>;
 #else
-using Promise = System.Threading.Tasks.Task;
-using ContextObjectPromise = System.Threading.Tasks.Task<Morestachio.Framework.ContextObject>;
+using ContextObjectPromise = System.Threading.Tasks.Task<Morestachio.Framework.Context.ContextObject>;
 using StringPromise = System.Threading.Tasks.Task<string>;
-using ObjectPromise = System.Threading.Tasks.Task<object>;
 
 #endif
 
-namespace Morestachio.Framework
+namespace Morestachio.Framework.Context
 {
 	/// <summary>
 	///     The current context for any given expression

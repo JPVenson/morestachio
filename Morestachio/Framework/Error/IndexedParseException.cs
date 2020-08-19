@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Linq;
-using JetBrains.Annotations;
-using Morestachio.ParserErrors;
+using Morestachio.Parsing.ParserErrors;
 
-namespace Morestachio.Framework
+namespace Morestachio.Framework.Error
 {
 	/// <summary>
 	///     Indicates a parse error including line and character info.

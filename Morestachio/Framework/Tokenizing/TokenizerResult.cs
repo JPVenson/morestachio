@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Morestachio.Framework
+namespace Morestachio.Framework.Tokenizing
 {
 	/// <summary>
 	///		Contains the result of an Tokenizer

@@ -2,7 +2,7 @@
 using System.Runtime.Serialization;
 using System.Xml;
 
-namespace Morestachio.Document
+namespace Morestachio.Document.Items.Base
 {
 	/// <summary>
 	///		A common base class for emitting a single string value

@@ -1,4 +1,4 @@
-﻿namespace Morestachio.Framework
+﻿namespace Morestachio.Framework.IO.MultiPart
 {
 	public enum ByteCounterStreamPartType
 	{

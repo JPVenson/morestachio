@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Morestachio.Framework
+namespace Morestachio.Framework.IO.MultiPart
 {
 	public interface IByteCounterStreamPart : IDisposable
 	{

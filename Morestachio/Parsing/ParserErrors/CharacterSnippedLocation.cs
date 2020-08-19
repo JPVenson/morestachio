@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Morestachio.ParserErrors
+namespace Morestachio.Parsing.ParserErrors
 {
 	public struct CharacterSnippedLocation : IEquatable<CharacterSnippedLocation>
 	{

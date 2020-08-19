@@ -1,9 +1,12 @@
 ﻿using System;
 using System.IO;
-using Morestachio.Framework;
+using Morestachio.Framework.IO.SingleStream;
 
-namespace Morestachio
+namespace Morestachio.Framework.IO
 {
+	/// <summary>
+	///		This factory does contain all delegates for obtaining the IO output
+	/// </summary>
 	public class ByteCounterFactory
 	{
 		public ByteCounterFactory(Func<Stream> output, Func<Stream> tempStream, Func<ParserOptions, IByteCounterStream> getByteCounterStream)
@@ -35,8 +38,19 @@ namespace Morestachio
 			return new ByteCounterStream(options.StreamFactory.Output(), MorestachioDocumentInfo.BufferSize, true, options);
 		}
 
-		public Func<Stream> Output { get; private set; }
-		public Func<Stream> TempStream { get; private set; }
-		public Func<ParserOptions, IByteCounterStream> GetByteCounterStream { get; private set; }
+		/// <summary>
+		///		Should return an stream that is the target of the template
+		/// </summary>
+		public Func<Stream> Output { get; }
+
+		/// <summary>
+		///		Should return an stream that is shot lived and is used for buffering data
+		/// </summary>
+		public Func<Stream> TempStream { get; }
+
+		/// <summary>
+		///		Should return an instance of <see cref="IByteCounterStream"/> that is used to write to <see cref="Output"/>
+		/// </summary>
+		public Func<ParserOptions, IByteCounterStream> GetByteCounterStream { get; }
 	}
 }

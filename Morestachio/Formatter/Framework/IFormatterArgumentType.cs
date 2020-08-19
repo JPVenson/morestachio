@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Morestachio.Framework;
+using Morestachio.Framework.Tokenizing;
 
-namespace Morestachio.Formatter
+namespace Morestachio.Formatter.Framework
 {
 	internal interface IFormatterArgumentType
 	{

@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Text;
-using System.IO;
-
-using Morestachio;
-
-namespace Morestachio.Examples.HowToUse
+﻿namespace Morestachio.Examples.HowToUse
 {
 	public static class DataGenerationAnonObject
 	{

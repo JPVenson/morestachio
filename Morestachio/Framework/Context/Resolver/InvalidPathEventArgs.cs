@@ -1,8 +1,7 @@
 ﻿using System;
-using Morestachio.Framework;
 using Morestachio.Framework.Expression;
 
-namespace Morestachio
+namespace Morestachio.Framework.Context.Resolver
 {
 	/// <summary>
 	///		The Event arguments for an Invalid path event

@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using JetBrains.Annotations;
+using Morestachio.Formatter.Framework.Attributes;
 
 namespace Morestachio.Formatter.Framework
 {

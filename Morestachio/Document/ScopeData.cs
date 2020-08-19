@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Morestachio.Document;
 using Morestachio.Document.Contracts;
-using Morestachio.Framework;
-using Morestachio.Framework.Expression;
+using Morestachio.Framework.Context;
 
-namespace Morestachio
+namespace Morestachio.Document
 {
 	/// <summary>
 	///		Hosts all infos about the current execution path of a part in the Template.

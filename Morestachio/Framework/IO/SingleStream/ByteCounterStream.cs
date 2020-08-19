@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 using JetBrains.Annotations;
+using Morestachio.Framework.IO.SubStream;
 
-namespace Morestachio.Framework
+namespace Morestachio.Framework.IO.SingleStream
 {
 	/// <summary>
 	///		Internal class to ensure that the given limit of bytes to write is never extended to ensure template quotas

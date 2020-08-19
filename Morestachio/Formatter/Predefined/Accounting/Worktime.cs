@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Morestachio.Attributes;
 using Morestachio.Formatter.Framework;
+using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Helper;
 
 namespace Morestachio.Formatter.Predefined.Accounting

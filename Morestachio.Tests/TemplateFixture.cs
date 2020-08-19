@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Morestachio.Formatter.Framework;
 using Morestachio.Framework;
 using Morestachio.Helper;
-using Morestachio.ParserErrors;
+using Morestachio.Parsing.ParserErrors;
 using NUnit.Framework;
 
 namespace Morestachio.Tests

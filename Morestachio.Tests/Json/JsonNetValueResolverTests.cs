@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Morestachio.Newtonsoft.Json;
+﻿using Morestachio.Newtonsoft.Json;
 using Newtonsoft.Json;
 using NUnit.Framework;
 

@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Morestachio.Formatter.Framework;
+using Morestachio.Formatter.Framework.Attributes;
 
 namespace Morestachio.Formatter.Predefined
 {

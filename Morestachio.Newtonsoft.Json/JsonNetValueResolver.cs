@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
-using System.Linq;
-using Morestachio.Attributes;
-using Morestachio.Framework;
+using Morestachio.Framework.Context;
+using Morestachio.Framework.Context.Resolver;
 using Newtonsoft.Json.Linq;
 
 namespace Morestachio.Newtonsoft.Json

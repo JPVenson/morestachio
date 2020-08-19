@@ -1,7 +1,6 @@
 ﻿using System;
-using Morestachio.Framework;
 
-namespace Morestachio
+namespace Morestachio.Framework.Context.Resolver
 {
 	/// <summary>
 	///		Can be used to extract a value from an object that is not natively supported such as IDictionary{string, object} or object.

@@ -3,14 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Morestachio.Attributes;
 using Morestachio.Formatter.Framework;
-using Morestachio.Framework.Expression;
-using Morestachio.Framework.Expression.Framework;
+using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Helper;
 using Morestachio.Linq;
 using NUnit.Framework;
-using NUnit.Framework.Constraints;
 
 namespace Morestachio.Tests
 {

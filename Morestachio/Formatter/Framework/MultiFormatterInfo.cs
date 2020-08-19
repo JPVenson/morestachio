@@ -1,8 +1,8 @@
 ﻿using System;
 using JetBrains.Annotations;
-using Morestachio.Attributes;
+using Morestachio.Formatter.Framework.Attributes;
 
-namespace Morestachio.Formatter
+namespace Morestachio.Formatter.Framework
 {
 	/// <summary>
 	///		Contains information about the Parameter of an Multi argument formatter

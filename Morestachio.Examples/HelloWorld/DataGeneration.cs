@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Text;
-using System.IO;
-
-using Morestachio;
 
 namespace Morestachio.Examples.HelloWorld
 {

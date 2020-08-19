@@ -2,7 +2,7 @@
 using System.Linq;
 using Morestachio.Framework;
 
-namespace Morestachio.ParserErrors
+namespace Morestachio.Parsing.ParserErrors
 {
 	/// <summary>
 	///		Defines a line within the template and the char that should be marked

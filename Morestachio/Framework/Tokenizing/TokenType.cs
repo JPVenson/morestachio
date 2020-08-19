@@ -1,4 +1,4 @@
-﻿namespace Morestachio.Framework
+﻿namespace Morestachio.Framework.Tokenizing
 {
 	/// <summary>
 	///     The type of token produced in the lexing stage of template compilation.

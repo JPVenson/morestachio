@@ -1,8 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Xml.Serialization;
-using Morestachio.Attributes;
-using Morestachio.Formatter.Framework;
+using Morestachio.Formatter.Framework.Attributes;
 
 namespace Morestachio.Formatter.Predefined
 {

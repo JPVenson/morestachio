@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Morestachio.Framework;
+using Morestachio.Framework.Context;
 
 namespace Morestachio.Document.Contracts
 {
