@@ -80,6 +80,7 @@ namespace Morestachio.Tests
 				{
 					apiTemplate = f;
 				});
+			
 			StringAssert.AreEqualIgnoringCase(template, apiTemplate);
 		}
 	}

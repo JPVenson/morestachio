@@ -6,6 +6,9 @@ using Morestachio.Framework.Expression;
 
 namespace Morestachio.Fluent
 {
+	/// <summary>
+	///		Contains the extension methods for creating the BuildIn Document items
+	/// </summary>
 	public static class MorestachioDocumentFluentApiExtensions
 	{
 		/// <summary>

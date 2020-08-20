@@ -58,7 +58,7 @@ namespace Morestachio
 		///		Gets a list of errors occured while parsing the Template
 		/// </summary>
 		[NotNull]
-		public IEnumerable<IMorestachioError> Errors { get; private set; }
+		public IEnumerable<IMorestachioError> Errors { get; }
 
 		internal const int BufferSize = 2024;
 
@@ -109,10 +109,11 @@ namespace Morestachio
 				var anyCancellationToken = CancellationTokenSource.CreateLinkedTokenSource(token, timeoutCancellation.Token);
 				token = anyCancellationToken.Token;
 			}
+
 			PerformanceProfiler profiler = null;
 			using (var byteCounterStream = ParserOptions.StreamFactory.GetByteCounterStream(ParserOptions))
 			{
-				if (byteCounterStream == null)
+				if (byteCounterStream?.Stream == null)
 				{
 					throw new NullReferenceException("The created stream is null.");
 				}

@@ -4,6 +4,7 @@ using Morestachio.Document.TextOperations;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Parsing;
+using Morestachio.Parsing.ParserErrors;
 
 #region
 
@@ -23,6 +24,19 @@ namespace Morestachio
 	/// </summary>
 	public static class Parser
 	{
+		/// <summary>
+		///		Runs the Tokenizer and returns all errors in the template if present
+		/// </summary>
+		/// <param name="template"></param>
+		/// <returns></returns>
+		public static IEnumerable<IMorestachioError> Validate(string template)
+		{
+			var options = new ParserOptions(template);
+			var tokenzierContext = TokenzierContext.FromText(template);
+			var parsedTemplate = Tokenizer.Tokenize(options, tokenzierContext);
+			return tokenzierContext.Errors;
+		}
+
 		/// <summary>
 		///     Parses the Template with the given options
 		/// </summary>

@@ -5,6 +5,8 @@ using System.Linq;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Visitor;
 using Morestachio.Fluent.Expression;
+using Morestachio.Framework.Expression.Framework;
+using Morestachio.Framework.Tokenizing;
 
 namespace Morestachio.Fluent
 {
@@ -218,6 +220,18 @@ namespace Morestachio.Fluent
 			currentNodeParent.Leafs.Remove(currentNodeParent);
 			currentNodeParent.Item.Children.Remove(Context.CurrentNode.Item);
 			Context.CurrentNode = currentNodeParent.Previous;
+			return this;
+		}
+
+		/// <summary>
+		///		Parses the template and adds it as a child to the current <see cref="IDocumentItem"/>
+		/// </summary>
+		/// <param name="documentPart"></param>
+		/// <returns></returns>
+		public MorestachioDocumentFluentApi ParseAndAdd(string documentPart)
+		{
+			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(documentPart));
+			AddChildInternal(f => morestachioDocumentInfo.Document);
 			return this;
 		}
 
