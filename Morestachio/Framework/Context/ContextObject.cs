@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Morestachio.Document;
 using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Predefined;
+using Morestachio.Formatter.Predefined.Accounting;
 using Morestachio.Framework.Context.Resolver;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
@@ -61,6 +62,8 @@ namespace Morestachio.Framework.Context
 			DefaultFormatter.AddFromType(typeof(TimeSpanFormatter));
 			DefaultFormatter.AddFromType(typeof(StringFormatter));
 			DefaultFormatter.AddFromType(typeof(RandomFormatter));
+			DefaultFormatter.AddFromType(typeof(Worktime));
+			DefaultFormatter.AddFromType(typeof(Money));
 
 			DefaultDefinitionOfFalse = value => value != null &&
 												value as bool? != false &&

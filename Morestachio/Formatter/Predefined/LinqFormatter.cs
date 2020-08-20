@@ -122,7 +122,7 @@ namespace Morestachio.Formatter.Predefined
 		}
 
 		[MorestachioFormatter("Count", "Gets the count of the list")]
-		public static decimal Count<T>(IEnumerable<T> sourceCollection)
+		public static int Count<T>(IEnumerable<T> sourceCollection)
 		{
 			return sourceCollection.Count();
 		}

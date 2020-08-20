@@ -19,7 +19,7 @@ namespace Morestachio.Formatter.Predefined
 
 		[MorestachioFormatter("ToString", null)]
 		[MorestachioFormatter(null, null)]
-		public static string Formattable(IFormattable source)
+		public static string Formattable(object source)
 		{
 			return source.ToString();
 		}
