@@ -1,6 +1,5 @@
 ﻿#if ValueTask
 using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
-using Promise = System.Threading.Tasks.ValueTask;
 #else
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 #endif
@@ -83,10 +82,7 @@ namespace Morestachio.Document.Items
 			reader.Skip();
 			Partial = child;
 		}
-
-		/// <inheritdoc />
-		public override string Kind { get; } = "Partial";
-
+		
 		/// <summary>
 		///		The partial Document
 		/// </summary>

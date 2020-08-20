@@ -46,10 +46,7 @@ namespace Morestachio.Document.Items
 		protected ContentDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}
-
-		/// <inheritdoc />
-		public override string Kind { get; } = "Content";
-
+		
 		/// <inheritdoc />
 		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
 			ScopeData scopeData)

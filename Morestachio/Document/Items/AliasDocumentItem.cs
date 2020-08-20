@@ -75,10 +75,7 @@ namespace Morestachio.Document.Items
 			scopeData.AddVariable(Value, context, IdVariableScope);
 			return Children.WithScope(context).ToPromise();
 		}
-
-		/// <inheritdoc />
-		public override string Kind { get; } = "Alias";
-
+		
 		/// <summary>
 		///		Gets or Sets the Scope of the variable
 		/// </summary>

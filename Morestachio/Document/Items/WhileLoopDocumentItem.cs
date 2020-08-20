@@ -62,8 +62,6 @@ namespace Morestachio.Document.Items
 		}
 
 		/// <inheritdoc />
-		public override string Kind { get; } = nameof(WhileLoopDocumentItem);
-		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)
 		{
 			visitor.Visit(this);

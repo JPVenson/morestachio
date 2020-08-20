@@ -1,6 +1,5 @@
 ﻿#if ValueTask
 using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
-using Promise = System.Threading.Tasks.ValueTask;
 #else
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 #endif
@@ -42,10 +41,6 @@ namespace Morestachio.Document.Items
 		protected InvertedExpressionScopeDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}
-
-		/// <inheritdoc />
-		public override string Kind { get; } = "InvertedExpressionScope";
-
 		
 		/// <inheritdoc />
 		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)

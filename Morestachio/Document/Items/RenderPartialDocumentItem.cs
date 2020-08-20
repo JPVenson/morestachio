@@ -46,10 +46,7 @@ namespace Morestachio.Document.Items
 		{
 			Context = info.GetValue(nameof(Context), typeof(IMorestachioExpression)) as IMorestachioExpression;
 		}
-
-		/// <inheritdoc />
-		public override string Kind { get; } = "Include";
-
+		
 		/// <summary>
 		///		Gets the context this Partial should run in
 		/// </summary>

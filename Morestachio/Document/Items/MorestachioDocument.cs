@@ -76,10 +76,7 @@ namespace Morestachio.Document.Items
 		///		Gets the Version of Morestachio that this Document was parsed with
 		/// </summary>
 		public Version MorestachioVersion { get; private set; }
-
-		/// <inheritdoc />
-		public override string Kind { get; } = "Document";
-
+		
 		/// <inheritdoc />
 		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
 			ScopeData scopeData)

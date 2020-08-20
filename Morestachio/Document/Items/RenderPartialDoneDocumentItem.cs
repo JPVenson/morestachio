@@ -41,9 +41,6 @@ namespace Morestachio.Document.Items
 		protected RenderPartialDoneDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}
-
-		/// <inheritdoc />
-		public override string Kind { get; } = "EndPartial";
 		
 		/// <inheritdoc />
 		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)

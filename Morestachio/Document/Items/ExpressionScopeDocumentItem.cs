@@ -42,9 +42,6 @@ namespace Morestachio.Document.Items
 		}
 
 		/// <inheritdoc />
-		public override string Kind { get; } = "ExpressionScope";
-
-		/// <inheritdoc />
 		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
 			//var c = await context.GetContextForPath(Value, scopeData);

@@ -46,9 +46,6 @@ namespace Morestachio.Document.Items
 		{
 		}
 		
-		/// <inheritdoc />
-		public override string Kind { get; } = "OpenCollection";
-		
 		/// <exception cref="IndexedParseException"></exception>
 		/// <inheritdoc />
 		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)

@@ -40,10 +40,7 @@ namespace Morestachio.Document.Items
 		protected IfNotExpressionScopeDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}
-
-		/// <inheritdoc />
-		public override string Kind { get; } = "IFNotExpressionScope";
-
+		
 		/// <inheritdoc />
 		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, 
 			ContextObject context, 

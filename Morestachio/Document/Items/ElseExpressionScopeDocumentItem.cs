@@ -49,9 +49,6 @@ namespace Morestachio.Document.Items
 		}
 		
 		/// <inheritdoc />
-		public override string Kind { get; } = "ElseExpressionScope";
-
-		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)
 		{
 			visitor.Visit(this);

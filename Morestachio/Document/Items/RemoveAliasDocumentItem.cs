@@ -1,6 +1,5 @@
 ﻿#if ValueTask
 using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
-using Promise = System.Threading.Tasks.ValueTask;
 #else
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 #endif
@@ -76,9 +75,6 @@ namespace Morestachio.Document.Items
 			scopeData.RemoveVariable(Value, IdVariableScope);
 			return Enumerable.Empty<DocumentItemExecution>().ToPromise();
 		}
-
-		/// <inheritdoc />
-		public override string Kind { get; } = "RemoveAlias";
 		
 		/// <summary>
 		///		Gets or Sets the Scope of the variable that should be removed

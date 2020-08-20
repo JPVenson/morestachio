@@ -101,10 +101,7 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Gets or Sets the Scope of the variable
 		/// </summary>
-		public int IdVariableScope { get; private  set; }
-
-		/// <inheritdoc />
-		public override string Kind { get; } = "EvaluateVariableDocumentItem";
+		public int IdVariableScope { get; private set; }
 
 		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)

@@ -1,6 +1,5 @@
 ﻿#if ValueTask
 using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
-using Promise = System.Threading.Tasks.ValueTask;
 #else
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 #endif
@@ -66,10 +65,7 @@ namespace Morestachio.Document.Items
 			EscapeValue = reader.GetAttribute(nameof(EscapeValue)) == Boolean.TrueString;
 			base.DeSerializeXml(reader);
 		}
-
-		/// <inheritdoc />
-		public override string Kind { get; } = "Expression";
-
+		
 		/// <summary>
 		/// Gets a value indicating whether [escape value].
 		/// </summary>

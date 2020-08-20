@@ -116,9 +116,6 @@ namespace Morestachio.Document.Items
 		}
 		
 		/// <inheritdoc />
-		public override string Kind { get; } = "TextOperation";
-
-		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)
 		{
 			visitor.Visit(this);
