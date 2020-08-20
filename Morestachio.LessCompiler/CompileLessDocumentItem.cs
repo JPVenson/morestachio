@@ -51,7 +51,6 @@ namespace Morestachio.LessCompiler
 			return Enumerable.Empty<DocumentItemExecution>();
 		}
 
-		public override string Kind { get; } = nameof(CompileLessDocumentItem);
 		public override void Accept(IDocumentItemVisitor visitor)
 		{
 			visitor.Visit(this);
