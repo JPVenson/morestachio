@@ -84,6 +84,18 @@ namespace Morestachio.Formatter.Predefined.Accounting
 			return new Worktime();
 		}
 
+		[MorestachioGlobalFormatter("WorktimeFromTimespan", "Creates a new Worktime Object based on the Timespan")]
+		public static Worktime WorktimeFactory(TimeSpan timespan)
+		{
+			return new Worktime().AddSeconds((long) timespan.TotalSeconds);
+		}
+
+		[MorestachioFormatter("Add", "Adds both worktimes together")]
+		public static Worktime Add([SourceObject]Worktime worktime, Worktime other)
+		{
+			return worktime.Add(other.TimeWorked, other.Precision);
+		}
+
 		[MorestachioFormatter("AddSeconds", "Adds the given amount of Seconds to the worktime")]
 		public static Worktime AddSeconds([SourceObject]Worktime worktime, Number number)
 		{

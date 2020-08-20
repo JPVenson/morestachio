@@ -34,7 +34,7 @@ namespace Morestachio.Formatter.Predefined
 			{
 				return conv.ToType(target.GetType(), null)?.Equals(target) == true;
 			}
-
+			
 			if (target is IConvertible conv2)
 			{
 				return conv2.ToType(source.GetType(), null)?.Equals(source) == true;

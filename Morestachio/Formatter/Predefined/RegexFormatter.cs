@@ -6,8 +6,8 @@ namespace Morestachio.Formatter.Predefined
 {
 	public static class RegexFormatter
 	{
-		[MorestachioFormatter("Regex", "Parses a string into a TimeSpan")]
-		[MorestachioGlobalFormatter("Regex", "Parses a string into a TimeSpan")]
+		[MorestachioFormatter("Regex", "Creates a new Regex with the given pattern")]
+		[MorestachioGlobalFormatter("Regex", "Creates a new Regex with the given pattern")]
 		public static Regex Regex(string pattern)
 		{
 			return new Regex(pattern);

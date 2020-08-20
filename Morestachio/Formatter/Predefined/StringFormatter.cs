@@ -133,7 +133,7 @@ namespace Morestachio.Formatter.Predefined
 		}
 
 		[MorestachioFormatter("Join", "Joins an Array of string together by using a seperator")]
-		public static string Split(IEnumerable<string> source, string seperator)
+		public static string Join(IEnumerable<string> source, string seperator)
 		{
 			return string.Join(seperator, source);
 		}
