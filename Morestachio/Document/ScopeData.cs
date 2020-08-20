@@ -148,6 +148,10 @@ namespace Morestachio.Document
 			{
 				disposable.Dispose();
 			}
+			foreach (var disposable in Variables.OfType<IDisposable>())
+			{
+				disposable.Dispose();
+			}
 		}
 	}
 }
