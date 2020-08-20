@@ -219,6 +219,7 @@ namespace Morestachio.Linq
 		}
 		
 		[MorestachioFormatter("sum", "Aggreates the property in the argument and returns it")]
+		[MorestachioFormatter("Sum", "Aggreates the property in the argument and returns it")]
 		public static T Sum<T>(IEnumerable<T> sourceCollection)
 		{
 			return (T)sourceCollection.AsQueryable().Sum();
@@ -233,6 +234,8 @@ namespace Morestachio.Linq
 		}
 
 		[MorestachioFormatter("any",
+			"Returns ether true or false if the expression in the argument is fulfilled by any item")]
+		[MorestachioFormatter("Any",
 			"Returns ether true or false if the expression in the argument is fulfilled by any item")]
 		[MorestachioFormatterInput("Must be Expression to property")]
 		public static bool Any(IEnumerable sourceCollection)
