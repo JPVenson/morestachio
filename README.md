@@ -13,7 +13,7 @@ A Lightweight, powerful, flavorful, templating engine for C# and other .net-base
 
 #### Morestachio Playground:
 Try it out, without consequenses. The Morestachio Online editor allows you to create templates within your browser:
-[Editor](https://morestachio.jean-pierre-bachmann.de/)
+[Editor](https://morestachio.jean-pierre-bachmann.dev/)
 
 #### How to use Morestachio:
 
