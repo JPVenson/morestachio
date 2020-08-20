@@ -1,6 +1,7 @@
 ﻿using System;
 using Morestachio.Document.Items;
 using Morestachio.Document.TextOperations;
+using Morestachio.Fluent.Expression;
 using Morestachio.Framework.Expression;
 
 namespace Morestachio.Fluent
@@ -19,18 +20,18 @@ namespace Morestachio.Fluent
 		///		Adds a new <see cref="DoLoopDocumentItem"/> and enters it.
 		/// </summary>
 		public static MorestachioDocumentFluentApi AddDoLoopAndEnter(this MorestachioDocumentFluentApi api,
-			Func<MorestachioExpressionBuilderBaseRootApi, IMorestachioExpression> condition)
+			Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> condition)
 		{
-			return api.AddChildAndEnter(builder => new DoLoopDocumentItem(condition(builder)));
+			return api.AddChildAndEnter(builder => new DoLoopDocumentItem(condition(builder).Compile()));
 		}
 
 		/// <summary>
 		///		Adds a new <see cref="EachDocumentItem"/> and enters it.
 		/// </summary>
 		public static MorestachioDocumentFluentApi AddEachLoopAndEnter(this MorestachioDocumentFluentApi api,
-			Func<MorestachioExpressionBuilderBaseRootApi, IMorestachioExpression> condition)
+			Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> condition)
 		{
-			return api.AddChildAndEnter(builder => new EachDocumentItem(condition(builder)));
+			return api.AddChildAndEnter(builder => new EachDocumentItem(condition(builder).Compile()));
 		}
 
 		/// <summary>
@@ -47,45 +48,45 @@ namespace Morestachio.Fluent
 		/// </summary>
 		public static MorestachioDocumentFluentApi AddGlobalVariable(this MorestachioDocumentFluentApi api,
 			string name,
-			Func<MorestachioExpressionBuilderBaseRootApi, IMorestachioExpression> condition)
+			Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> condition)
 		{
-			return api.AddChild(builder => new EvaluateVariableDocumentItem(name, condition(builder)));
+			return api.AddChild(builder => new EvaluateVariableDocumentItem(name, condition(builder).Compile()));
 		}
 
 		/// <summary>
 		///		Adds a new <see cref="ExpressionScopeDocumentItem"/> and enters it.
 		/// </summary>
 		public static MorestachioDocumentFluentApi AddScopeAndEnter(this MorestachioDocumentFluentApi api,
-			Func<MorestachioExpressionBuilderBaseRootApi, IMorestachioExpression> condition)
+			Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> condition)
 		{
-			return api.AddChildAndEnter(builder => new ExpressionScopeDocumentItem(condition(builder)));
+			return api.AddChildAndEnter(builder => new ExpressionScopeDocumentItem(condition(builder).Compile()));
 		}
 
 		/// <summary>
 		///		Adds a new <see cref="IfExpressionScopeDocumentItem"/> and enters it.
 		/// </summary>
 		public static MorestachioDocumentFluentApi AddIfAndEnter(this MorestachioDocumentFluentApi api,
-			Func<MorestachioExpressionBuilderBaseRootApi, IMorestachioExpression> condition)
+			Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> condition)
 		{
-			return api.AddChildAndEnter(builder => new IfExpressionScopeDocumentItem(condition(builder)));
+			return api.AddChildAndEnter(builder => new IfExpressionScopeDocumentItem(condition(builder).Compile()));
 		}
 
 		/// <summary>
 		///		Adds a new <see cref="IfNotExpressionScopeDocumentItem"/> and enters it.
 		/// </summary>
 		public static MorestachioDocumentFluentApi AddInvertedIfAndEnter(this MorestachioDocumentFluentApi api,
-			Func<MorestachioExpressionBuilderBaseRootApi, IMorestachioExpression> condition)
+			Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> condition)
 		{
-			return api.AddChildAndEnter(builder => new IfNotExpressionScopeDocumentItem(condition(builder)));
+			return api.AddChildAndEnter(builder => new IfNotExpressionScopeDocumentItem(condition(builder).Compile()));
 		}
 
 		/// <summary>
 		///		Adds a new <see cref="InvertedExpressionScopeDocumentItem"/> and enters it.
 		/// </summary>
 		public static MorestachioDocumentFluentApi AddInvertedScopeAndEnter(this MorestachioDocumentFluentApi api,
-			Func<MorestachioExpressionBuilderBaseRootApi, IMorestachioExpression> condition)
+			Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> condition)
 		{
-			return api.AddChildAndEnter(builder => new InvertedExpressionScopeDocumentItem(condition(builder)));
+			return api.AddChildAndEnter(builder => new InvertedExpressionScopeDocumentItem(condition(builder).Compile()));
 		}
 
 		/// <summary>
@@ -104,10 +105,10 @@ namespace Morestachio.Fluent
 		///		Adds a new <see cref="PathDocumentItem"/>
 		/// </summary>
 		public static MorestachioDocumentFluentApi AddPath(this MorestachioDocumentFluentApi api,
-			Func<MorestachioExpressionBuilderBaseRootApi, IMorestachioExpression> condition,
+			Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> condition,
 			bool escapeValue = false)
 		{
-			return api.AddChild(builder => new PathDocumentItem(condition(builder), escapeValue));
+			return api.AddChild(builder => new PathDocumentItem(condition(builder).Compile(), escapeValue));
 		}
 
 		/// <summary>
@@ -115,9 +116,9 @@ namespace Morestachio.Fluent
 		/// </summary>
 		public static MorestachioDocumentFluentApi AddInclude(this MorestachioDocumentFluentApi api,
 			string name,
-			Func<MorestachioExpressionBuilderBaseRootApi, IMorestachioExpression> condition = null)
+			Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> condition = null)
 		{
-			return api.AddChild(builder => new RenderPartialDocumentItem(name, condition?.Invoke(builder)));
+			return api.AddChild(builder => new RenderPartialDocumentItem(name, condition?.Invoke(builder).Compile()));
 		}
 
 		/// <summary>
@@ -133,9 +134,9 @@ namespace Morestachio.Fluent
 		///		Adds a new <see cref="WhileLoopDocumentItem"/>
 		/// </summary>
 		public static MorestachioDocumentFluentApi AddWhileLoopAndEnter(this MorestachioDocumentFluentApi api,
-			Func<MorestachioExpressionBuilderBaseRootApi, IMorestachioExpression> condition)
+			Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> condition)
 		{
-			return api.AddChildAndEnter(builder => new WhileLoopDocumentItem(condition(builder)));
+			return api.AddChildAndEnter(builder => new WhileLoopDocumentItem(condition(builder).Compile()));
 		}
 	}
 }

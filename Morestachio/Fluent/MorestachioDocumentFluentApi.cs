@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Visitor;
+using Morestachio.Fluent.Expression;
 
 namespace Morestachio.Fluent
 {
@@ -237,6 +238,26 @@ namespace Morestachio.Fluent
 		public MorestachioDocumentFluentApi AddChild(Func<MorestachioExpressionBuilderBaseRootApi, IDocumentItem> item)
 		{
 			AddChildInternal(item);
+			return this;
+		}
+
+		/// <summary>
+		///		Adds the result of the item function to the current <see cref="IDocumentItem"/> and creates the necessary nodes in the tree and sets the <see cref="FluentApiContext.CurrentNode"/> to the created element
+		/// </summary>
+		/// <returns></returns>
+		public MorestachioDocumentFluentApi AddChildAndEnter(Func<IDocumentItem> item)
+		{
+			Context.CurrentNode = AddChildInternal(f => item());
+			return this;
+		}
+
+		/// <summary>
+		///		Adds the result of the item function to the current <see cref="IDocumentItem"/> and creates the necessary nodes in the tree
+		/// </summary>
+		/// <returns></returns>
+		public MorestachioDocumentFluentApi AddChild(Func<IDocumentItem> item)
+		{
+			AddChildInternal(f => item());
 			return this;
 		}
 

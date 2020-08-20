@@ -10,7 +10,7 @@ namespace Morestachio.Framework
 	{
 		public CharacterLocation()
 		{
-			
+
 		}
 
 		public CharacterLocation(int line, int character)
@@ -28,6 +28,8 @@ namespace Morestachio.Framework
 		///		The Character at the <see cref="Line"/>
 		/// </summary>
 		public int Character { get; set; }
+
+		public static CharacterLocation Unknown { get; set; } = new CharacterLocation(-1, -1);
 
 		internal CharacterLocationExtended AddWindow(CharacterSnippedLocation window)
 		{
@@ -67,7 +69,7 @@ namespace Morestachio.Framework
 		{
 			return $"Line: {Line}, Column: {Character}";
 		}
-		
+
 		/// <inheritdoc />
 		public bool Equals(CharacterLocation other)
 		{
@@ -83,7 +85,7 @@ namespace Morestachio.Framework
 
 			return Line == other.Line && Character == other.Character;
 		}
-		
+
 		/// <inheritdoc />
 		public override bool Equals(object obj)
 		{
@@ -104,7 +106,7 @@ namespace Morestachio.Framework
 
 			return Equals((CharacterLocation)obj);
 		}
-		
+
 		/// <inheritdoc />
 		public override int GetHashCode()
 		{

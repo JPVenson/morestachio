@@ -20,7 +20,7 @@ namespace Morestachio.Framework.Expression.Framework
 
 		private PathPartsCollection PathParts { get; set; }
 
-		private class PathPartsCollection
+		internal class PathPartsCollection
 		{
 			public PathPartsCollection()
 			{
@@ -96,7 +96,6 @@ namespace Morestachio.Framework.Expression.Framework
 
 		public string CurrentPart { get; set; }
 		public bool LastCharWasDelimiter { get; set; }
-		//public bool CurrentPartIsNumber { get; set; }
 
 		public bool Add(char c, TokenzierContext context, int index, out Func<IMorestachioError> errProducer)
 		{

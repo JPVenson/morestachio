@@ -151,17 +151,17 @@ namespace Morestachio.Framework.Expression
 		/// <summary>
 		///		Contains all parts of the path
 		/// </summary>
-		public Traversable PathParts { get; private set; }
+		public Traversable PathParts { get; internal set; }
 
 		/// <summary>
 		///		If filled contains the arguments to be used to format the value located at PathParts
 		/// </summary>
-		public IList<ExpressionArgument> Formats { get; private set; }
+		public IList<ExpressionArgument> Formats { get; internal set; }
 
 		/// <summary>
 		///		If set the formatter name to be used to format the value located at PathParts
 		/// </summary>
-		public string FormatterName { get; private set; }
+		public string FormatterName { get; internal set; }
 
 		/// <inheritdoc />
 		public CharacterLocation Location { get; private set; }

@@ -139,5 +139,10 @@ namespace Morestachio.Framework
 				return !Equals(Current, default(KeyValuePair<string, PathType>));
 			}
 		}
+
+		public Traversable Expand(IEnumerable<KeyValuePair<string, PathType>> getList)
+		{
+			return new Traversable(ToArray().Concat(getList));
+		}
 	}
 }

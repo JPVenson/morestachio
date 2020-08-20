@@ -37,7 +37,7 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
-		public void TestCanBuild()
+		public void TestCanRenderTree()
 		{
 			var template = "{{test}}content{{#IF test}}data{{/IF}}";
 			string apiTemplate = null;
@@ -48,6 +48,34 @@ namespace Morestachio.Tests
 				.AddIfAndEnter(builder => builder.Parse("test"))
 					.AddContent("data")
 				.Parent()
+				.RenderTree(f =>
+				{
+					apiTemplate = f;
+				});
+			StringAssert.AreEqualIgnoringCase(template, apiTemplate);
+		}
+
+		[Test]
+		public void TestCanBuildExpression()
+		{
+			var template = "{{test.data.format(argA, [delta] 123, null, ~test.data)}}content";
+			string apiTemplate = null;
+			var api = GenerateTemplate("")
+				.Fluent()
+				.AddPath((builder) =>
+					builder
+						.Property("test")
+						.Property("data")
+						.Call("format", argumentBuilder =>
+							argumentBuilder
+								.Argument(null, f => f.Property("argA"))
+								.Argument("delta", f => f.Number(123))
+								.Argument(null, f => f.Null())
+								.Argument(null, f => f.GoToRoot().Property("test.data"))
+							)
+					)
+				.AddContent("content")
+				.Root()
 				.RenderTree(f =>
 				{
 					apiTemplate = f;
