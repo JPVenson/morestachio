@@ -35,7 +35,7 @@ namespace Morestachio.Document.Custom
 
 		public override bool ShouldParse(TokenPair token, ParserOptions options)
 		{
-			return token.Type.Equals(_tag);
+			return token.Type.Equals(_tag.Trim());
 		}
 
 		public override IDocumentItem Parse(TokenPair token, ParserOptions options, Stack<DocumentScope> buildStack,

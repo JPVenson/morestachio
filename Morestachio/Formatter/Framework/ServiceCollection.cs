@@ -114,12 +114,18 @@ namespace Morestachio.Formatter.Framework
 		/// <returns></returns>
 		public bool TryGetService(Type serviceType, out object service)
 		{
-			if (!_localSource.TryGetValue(serviceType, out service))
+			if (TryInvokeService(_localSource, serviceType, out service))
 			{
-				if (!_source.TryGetValue(serviceType, out service))
-				{
-					return false;
-				}
+				return true;
+			}
+			return TryInvokeService(_source, serviceType, out service);
+		}
+
+		public static bool TryInvokeService(IDictionary<Type, object> services, Type serviceType, out object service)
+		{
+			if (!services.TryGetValue(serviceType, out service))
+			{
+				return false;
 			}
 
 			if (service is Delegate factory)

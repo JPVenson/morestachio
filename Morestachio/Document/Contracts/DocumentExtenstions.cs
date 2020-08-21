@@ -29,7 +29,7 @@ namespace Morestachio.Document.Contracts
 					}
 					if (ctor == null)
 					{
-						throw new InvalidOperationException("There is no ether public or private constructor that has no parameter");
+						throw new InvalidOperationException("There is no ether public or private constructor that has no parameter for " + type.Name);
 					}
 
 					return new Func<IDocumentItem>(() => ctor.Invoke(null) as IDocumentItem);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Reflection;
 using JetBrains.Annotations;
 using Morestachio.Document;
@@ -16,7 +17,7 @@ namespace Morestachio.Formatter.Framework
 	/// <summary>
 	///		Interface for Resolving formatters
 	/// </summary>
-	public interface IMorestachioFormatterService
+	public interface IMorestachioFormatterService : IServiceProvider
 	{
 		/// <summary>
 		///		Contains a set of objects that can be injected into a formatter

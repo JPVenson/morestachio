@@ -11,8 +11,8 @@ namespace Morestachio.Document.Custom
 	/// </summary>
 	public abstract class BlockDocumentItemProviderBase : CustomDocumentItemProvider
 	{
-		private readonly string _tagOpen;
-		private readonly string _tagClose;
+		protected readonly string TagOpen;
+		protected readonly string TagClose;
 
 		/// <summary>
 		///		Creates a new Block
@@ -21,8 +21,8 @@ namespace Morestachio.Document.Custom
 		/// <param name="tagClose">Should contain full tag like <code>/Anything</code> excluding the brackets and any parameter</param>
 		public BlockDocumentItemProviderBase(string tagOpen, string tagClose)
 		{
-			_tagOpen = tagOpen;
-			_tagClose = tagClose;
+			TagOpen = tagOpen;
+			TagClose = tagClose;
 		}
 
 		/// <summary>
@@ -34,35 +34,35 @@ namespace Morestachio.Document.Custom
 		public override IEnumerable<TokenPair> Tokenize(TokenInfo token, ParserOptions options)
 		{
 			var trim = token.Token.Trim('{', '}');
-			if (trim == _tagOpen)
+			if (trim == TagOpen)
 			{
-				yield return new TokenPair(_tagOpen, trim, token.TokenizerContext.CurrentLocation);
+				yield return new TokenPair(TagOpen, trim, token.TokenizerContext.CurrentLocation);
 			}
-			if (trim == _tagClose)
+			if (trim == TagClose)
 			{
-				yield return new TokenPair(_tagClose, trim, token.TokenizerContext.CurrentLocation);
+				yield return new TokenPair(TagClose, trim, token.TokenizerContext.CurrentLocation);
 			}
 		}
 
 		/// <inheritdoc />
 		public override bool ShouldParse(TokenPair token, ParserOptions options)
 		{
-			return token.Type.Equals(_tagOpen) || token.Type.Equals(_tagClose);
+			return token.Type.Equals(TagOpen.Trim()) || token.Type.Equals(TagClose);
 		}
 
 		/// <inheritdoc />
 		public override IDocumentItem Parse(TokenPair token, ParserOptions options, Stack<DocumentScope> buildStack,
 			Func<int> getScope)
 		{
-			if (token.Value == _tagOpen)
+			if (Equals(token.Type, TagOpen.Trim()))
 			{
-				var tagDocumentItem = CreateDocumentItem(_tagOpen, 
-					token.Value?.Remove(0, _tagOpen.Length).Trim(),
+				var tagDocumentItem = CreateDocumentItem(TagOpen, 
+					token.Value?.Remove(0, TagOpen.Length).Trim(),
 					token, options);
 				buildStack.Push(new DocumentScope(tagDocumentItem, getScope));
 				return tagDocumentItem;
 			}
-			else if (token.Value == _tagClose)
+			else if (Equals(token.Type, TagClose))
 			{
 				buildStack.Pop();
 			}
@@ -72,8 +72,8 @@ namespace Morestachio.Document.Custom
 		/// <inheritdoc />
 		public override bool ShouldTokenize(string token)
 		{
-			return token.StartsWith("{{" + _tagOpen, StringComparison.InvariantCultureIgnoreCase)
-			       || token.StartsWith("{{" + _tagClose, StringComparison.InvariantCultureIgnoreCase);
+			return token.StartsWith("{{" + TagOpen, StringComparison.InvariantCultureIgnoreCase)
+			       || token.StartsWith("{{" + TagClose, StringComparison.InvariantCultureIgnoreCase);
 		}
 	}
 }

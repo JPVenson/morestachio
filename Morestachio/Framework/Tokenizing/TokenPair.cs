@@ -31,6 +31,11 @@ namespace Morestachio.Framework.Tokenizing
 				get { return _pair.Value; }
 			}
 
+			public IMorestachioExpression Expression
+			{
+				get { return _pair.MorestachioExpression; }
+			}
+
 			public override string ToString()
 			{
 				if (_pair.MorestachioExpression != null)

@@ -120,6 +120,14 @@ namespace Morestachio.Formatter.Framework
 		{
 			ServiceCollectionAccess[typeof(T)] = serviceFactory;
 		}
+		
+		/// <inheritdoc />
+		public object GetService(Type serviceType)
+		{
+			var tryInvokeService = Framework.ServiceCollection.TryInvokeService(ServiceCollectionAccess,
+				serviceType, out var service);
+			return service;
+		}
 
 		/// <inheritdoc />
 		public IEnumerable<MorestachioFormatterModel> Filter(Func<MorestachioFormatterModel, bool> filter)
@@ -854,7 +862,5 @@ namespace Morestachio.Formatter.Framework
 			success = true;
 			return null;
 		}
-
-
 	}
 }
