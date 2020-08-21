@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Morestachio.Document;
 using Morestachio.Document.Contracts;
@@ -23,11 +24,17 @@ namespace Morestachio.Helper.Localization
 	///		Will try to get the culture declared by the value and sets the <see cref="LocalizationCultureKey"/> in the <see cref="ScopeData.CustomData"/>
 	/// </summary>
 	[System.Serializable]
-	public class MorestachioCustomCultureLocalizationDocumentItem : ExpressionDocumentItemBase
+	public class MorestachioCustomCultureLocalizationDocumentItem : ExpressionDocumentItemBase,
+		ToParsableStringDocumentVisitor.IStringVisitor
 	{
 		internal MorestachioCustomCultureLocalizationDocumentItem()
 		{
 			
+		}
+
+		/// <inheritdoc />
+		protected MorestachioCustomCultureLocalizationDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
+		{
 		}
 
 		/// <inheritdoc />
@@ -65,8 +72,11 @@ namespace Morestachio.Helper.Localization
 			childs.Add(new ResetCultureDocumentItem(oldCulture));
 			return childs.WithScope(context);
 		}
-
-		private class ResetCultureDocumentItem : DocumentItemBase
+		
+		/// <summary>
+		///		Internal DocumentItem that should reset the culture
+		/// </summary>
+		public class ResetCultureDocumentItem : DocumentItemBase
 		{
 			private readonly CultureInfo _culture;
 
@@ -96,6 +106,13 @@ namespace Morestachio.Helper.Localization
 		public override void Accept(IDocumentItemVisitor visitor)
 		{
 			visitor.Visit(this);
+		}
+		
+		public void Render(ToParsableStringDocumentVisitor visitor)
+		{
+			visitor.StringBuilder.Append("{{#LOCCULTURE " + visitor.ReparseExpression(MorestachioExpression) + "}}");
+			visitor.VisitChildren(this);
+			visitor.StringBuilder.Append("{{/LOCCULTURE}}");
 		}
 	}
 }

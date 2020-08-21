@@ -24,7 +24,7 @@ namespace Morestachio.LessCompiler
 	///		Wraps the dotless into an Document provider 
 	/// </summary>
 	[Serializable]
-	public class CompileLessDocumentItem : DocumentItemBase
+	public class CompileLessDocumentItem : DocumentItemBase, ToParsableStringDocumentVisitor.IStringVisitor
 	{
 		public CompileLessDocumentItem()
 		{
@@ -54,6 +54,13 @@ namespace Morestachio.LessCompiler
 		public override void Accept(IDocumentItemVisitor visitor)
 		{
 			visitor.Visit(this);
+		}
+
+		public void Render(ToParsableStringDocumentVisitor visitor)
+		{
+			visitor.StringBuilder.Append("{{#LESS}}");
+			visitor.VisitChildren(this);
+			visitor.StringBuilder.Append("{{/LESS}}");
 		}
 	}
 }

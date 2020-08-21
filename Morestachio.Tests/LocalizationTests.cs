@@ -89,6 +89,12 @@ namespace Morestachio.Tests
 			               "{{#loc 'Texts.Welcome'}} " +
 
 			               "{{#LocCulture 'de-DE'}}" +
+								"{{#loc 'Texts.Welcome'}} " +
+
+								"{{#LocCulture 'de-AT'}}" +
+									"{{#loc 'Texts.Welcome'}} " +
+								"{{/LocCulture}}" +
+
 								"{{#loc 'Texts.Welcome'}}" +
 			               "{{/LocCulture}}";
 			var data = new Dictionary<string, object>();
@@ -115,7 +121,7 @@ namespace Morestachio.Tests
 			options.CultureInfo = CultureInfo.GetCultureInfo("EN-US");
 			var result = Parser.ParseWithOptions(options)
 				.CreateAndStringify(data);
-			Assert.That(result, Is.EqualTo("Welcome Grützli Welcome Moin"));
+			Assert.That(result, Is.EqualTo("Welcome Grützli Welcome Moin Grützli Moin"));
 		}
 	}
 }

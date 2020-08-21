@@ -254,7 +254,8 @@ namespace Morestachio.Document.Visitor
 		{
 			Visit(documentItem, "WHILE ");
 		}
-
+		
+		/// <inheritdoc />
 		public void Visit(TextEditDocumentItem documentItem)
 		{
 			switch (documentItem.Operation)
@@ -280,7 +281,22 @@ namespace Morestachio.Document.Visitor
 		/// <inheritdoc />
 		public void Visit(IDocumentItem documentItem)
 		{
-			throw new NotImplementedException();
+			if (documentItem is IStringVisitor renderer)
+			{
+				renderer.Render(this);
+			}
+			else
+			{
+				throw new InvalidOperationException(
+					$"The type '{documentItem.GetType()}' cannot be rendered with the '{nameof(ToParsableStringDocumentVisitor)}'" +
+					$" as its an custom document item." +
+					$" Please implement '{nameof(IStringVisitor)}'");
+			}
+		}
+
+		public interface IStringVisitor
+		{
+			void Render(ToParsableStringDocumentVisitor visitor);
 		}
 	}
 }

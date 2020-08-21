@@ -2,6 +2,7 @@
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items;
 using Morestachio.Document.Visitor;
+using Morestachio.Helper.Localization;
 using Morestachio.Tests.DocTree;
 using NUnit.Framework;
 
@@ -166,6 +167,34 @@ namespace Morestachio.Tests.SerilalizerTests
 			               "{{#LET test = 'test'}}" +
 			               " {{/ELSE}}";
 			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
+			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
+			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document);
+		}
+
+		[Test]
+		public void TestLocIsSerializable()
+		{
+			var template = "{{#loc 'Texts.Welcome'}} " +
+			                                       "{{#LocCulture 'de-AT'}}" +
+			                                       "{{#loc 'Texts.Welcome'}} " +
+			                                       "{{/LocCulture}}" +
+
+			                                       "{{#loc 'Texts.Welcome'}} " +
+
+			                                       "{{#LocCulture 'de-DE'}}" +
+			                                       "{{#loc 'Texts.Welcome'}} " +
+
+			                                       "{{#LocCulture 'de-AT'}}" +
+			                                       "{{#loc 'Texts.Welcome'}} " +
+			                                       "{{/LocCulture}}" +
+
+			                                       "{{#loc 'Texts.Welcome'}}" +
+			                                       "{{/LocCulture}}";;
+			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template).RegisterLocalizationService(
+				() =>
+				{
+					return new MorestachioLocalizationService();
+				}));
 			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
 			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document);
 		}

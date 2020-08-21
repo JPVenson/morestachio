@@ -22,7 +22,8 @@ namespace Morestachio.Helper.Localization
 	///		Allows the usage of {{#loc expression}} in combination with an <see cref="IMorestachioLocalizationService"/>
 	/// </summary>
 	[System.Serializable]
-	public class MorestachioLocalizationDocumentItem : ExpressionDocumentItemBase
+	public class MorestachioLocalizationDocumentItem : ExpressionDocumentItemBase,
+		ToParsableStringDocumentVisitor.IStringVisitor
 	{
 		internal MorestachioLocalizationDocumentItem()
 		{
@@ -69,6 +70,11 @@ namespace Morestachio.Helper.Localization
 		public override void Accept(IDocumentItemVisitor visitor)
 		{
 			visitor.Visit(this);
+		}
+
+		public void Render(ToParsableStringDocumentVisitor visitor)
+		{
+			visitor.StringBuilder.Append("{{#LOC " + visitor.ReparseExpression(MorestachioExpression) + "}}");
 		}
 	}
 }

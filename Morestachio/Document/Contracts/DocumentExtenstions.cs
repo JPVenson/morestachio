@@ -18,6 +18,7 @@ namespace Morestachio.Document.Contracts
 				.GetTypes()
 				.Where(e => e.IsClass)
 				.Where(e => typeof(IDocumentItem).IsAssignableFrom(e))
+				.Where(e => e.GetCustomAttribute<SerializableAttribute>(false) != null)
 				.ToDictionary(e => e.Name, type =>
 				{
 					var ctor = type.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance,
