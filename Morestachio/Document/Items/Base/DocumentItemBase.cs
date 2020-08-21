@@ -99,7 +99,7 @@ namespace Morestachio.Document.Items.Base
 		[SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
 		public void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
-			info.AddValue(nameof(ExpressionStart), ExpressionStart?.ToFormatString());
+			info.AddValue(nameof(ExpressionStart), ExpressionStart.ToFormatString());
 			SerializeBinaryCore(info, context);
 			info.AddValue(nameof(Children), Children.ToArray(), typeof(IDocumentItem[]));
 		}
@@ -113,10 +113,7 @@ namespace Morestachio.Document.Items.Base
 		void IDocumentItem.SerializeXmlCore(XmlWriter writer)
 		{
 			writer.WriteStartElement(GetSerializedMarkerName(GetType()));
-			if (ExpressionStart != null)
-			{
-				writer.WriteAttributeString(nameof(ExpressionStart), ExpressionStart?.ToFormatString() ?? string.Empty);
-			}
+			writer.WriteAttributeString(nameof(ExpressionStart), ExpressionStart.ToFormatString() ?? string.Empty);
 
 			SerializeXml(writer);
 			if (Children.Any())
@@ -290,7 +287,7 @@ namespace Morestachio.Document.Items.Base
 			unchecked
 			{
 				return ((Children.Any() ? Children.Select(f => f.GetHashCode()).Aggregate((e,f) => e ^ f) : 0) * 397) ^
-				       (ExpressionStart != null ? ExpressionStart.GetHashCode() : 0) ^
+				       (ExpressionStart.GetHashCode()) ^
 				       Kind.GetHashCode();
 			}
 		}

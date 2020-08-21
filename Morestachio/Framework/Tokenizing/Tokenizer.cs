@@ -26,12 +26,6 @@ namespace Morestachio.Framework.Tokenizing
 		private static readonly Regex ExpressionAliasFinder
 			= new Regex("(?:\\s+(?:AS|as|As|aS)\\s+)([A-Za-z]+)$", RegexOptions.Compiled);
 
-		/// <summary>
-		///     Specifies combinations of paths that don't work.
-		/// </summary>
-		internal static readonly Regex NegativePathSpec =
-			new Regex(@"([.]{4,})|([^\w./_$?~]+)|((?<![.]{2})[/])|([.]{2,}($|[^/]))",
-				RegexOptions.Singleline | RegexOptions.Compiled);
 
 		internal static readonly Regex PartialIncludeRegEx = new Regex("Include (\\w*)( (?:With) )?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
@@ -50,13 +44,9 @@ namespace Morestachio.Framework.Tokenizing
 			{
 				charIdx = characterIndex - (lines.LastOrDefault() + 1);
 			}
-
-			var textLocation = new CharacterLocation
-			{
-				//Humans count from 1, so let's do that, too (hence the "+1" on these).
-				Line = line + 1,
-				Character = charIdx + 1
-			};
+			
+			//Humans count from 1, so let's do that, too (hence the "+1" on these).
+			var textLocation = new CharacterLocation(line + 1, charIdx + 1);
 			return textLocation;
 		}
 
@@ -712,24 +702,6 @@ namespace Morestachio.Framework.Tokenizing
 			}
 
 			return new Tuple<string, string>(token, null);
-		}
-
-		internal static string Validated(string token, TokenzierContext context)
-		{
-			token = token.Trim();
-
-			var match = NegativePathSpec.Match(token);
-			if (!match.Success)
-			{
-				return token;
-			}
-
-			context.Errors.Add(new InvalidPathSyntaxError(
-				context
-					.CurrentLocation
-					.AddWindow(new CharacterSnippedLocation(1, match.Index, token)), token));
-
-			return token;
 		}
 	}
 }

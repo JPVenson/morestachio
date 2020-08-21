@@ -251,7 +251,7 @@ namespace Morestachio.Framework.Expression
 			unchecked
 			{
 				var hashCode = (StringParts != null ? StringParts.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ (Location != null ? Location.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ (Location.GetHashCode());
 				hashCode = (hashCode * 397) ^ Delimiter.GetHashCode();
 				return hashCode;
 			}

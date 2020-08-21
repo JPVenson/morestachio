@@ -6,13 +6,13 @@ namespace Morestachio.Framework
 	/// <summary>
 	///		Describes an Position within the Template
 	/// </summary>
-	public class CharacterLocation : IEquatable<CharacterLocation>
+	public struct CharacterLocation : IEquatable<CharacterLocation>
 	{
-		public CharacterLocation()
-		{
-
-		}
-
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="line"></param>
+		/// <param name="character"></param>
 		public CharacterLocation(int line, int character)
 		{
 			Line = line;
@@ -22,14 +22,17 @@ namespace Morestachio.Framework
 		/// <summary>
 		///		The line of the Template
 		/// </summary>
-		public int Line { get; set; }
+		public int Line { get; }
 
 		/// <summary>
 		///		The Character at the <see cref="Line"/>
 		/// </summary>
-		public int Character { get; set; }
+		public int Character { get; }
 
-		public static CharacterLocation Unknown { get; set; } = new CharacterLocation(-1, -1);
+		/// <summary>
+		///		Returns the Unknown Location
+		/// </summary>
+		public static CharacterLocation Unknown { get; } = new CharacterLocation(-1, -1);
 
 		internal CharacterLocationExtended AddWindow(CharacterSnippedLocation window)
 		{
@@ -54,13 +57,11 @@ namespace Morestachio.Framework
 		{
 			if (!formatString.Contains(":"))
 			{
-				return null;
+				throw new ArgumentException("The formatstring for a CharacterLocation is invalid");
 			}
 
 			var parts = formatString.Split(':');
-			var charLoc = new CharacterLocation();
-			charLoc.Line = int.Parse(parts[0]);
-			charLoc.Character = int.Parse(parts[1]);
+			var charLoc = new CharacterLocation(int.Parse(parts[0]), int.Parse(parts[1]));
 			return charLoc;
 		}
 
@@ -123,11 +124,7 @@ namespace Morestachio.Framework
 		/// <returns></returns>
 		public CharacterLocation Offset(int length)
 		{
-			return new CharacterLocation()
-			{
-				Character = Character + length,
-				Line = Line
-			};
+			return new CharacterLocation(Line, Character + length);
 		}
 	}
 }

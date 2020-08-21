@@ -167,7 +167,7 @@ namespace Morestachio.Framework.Expression
 			{
 				var hashCode = Name != null ? Name.GetHashCode() : 0;
 				hashCode = (hashCode * 397) ^ (MorestachioExpression != null ? MorestachioExpression.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ (Location != null ? Location.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ (Location.GetHashCode());
 				return hashCode;
 			}
 		}

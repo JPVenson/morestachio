@@ -1098,7 +1098,7 @@ namespace Morestachio.Framework.Expression
 				var hashCode = (PathParts != null ? PathParts.GetHashCode() : 0);
 				hashCode = (hashCode * 397) ^ (Formats != null ? Formats.GetHashCode() : 0);
 				hashCode = (hashCode * 397) ^ (FormatterName != null ? FormatterName.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ (Location != null ? Location.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ (Location.GetHashCode());
 				return hashCode;
 			}
 		}

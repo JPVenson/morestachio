@@ -129,7 +129,7 @@ namespace Morestachio.Framework.Expression
 			unchecked
 			{
 				var hashCode = (Number != Number.NaN ? Number.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ (Location != null ? Location.GetHashCode() : 0);
+				hashCode = (hashCode * 397) ^ (Location.GetHashCode());
 				return hashCode;
 			}
 		}

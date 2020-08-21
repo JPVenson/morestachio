@@ -182,7 +182,7 @@ namespace Morestachio.Framework.Expression
 		{
 			unchecked
 			{
-				return ((Expressions != null ? Expressions.GetHashCode() : 0) * 397) ^ (Location != null ? Location.GetHashCode() : 0);
+				return ((Expressions != null ? Expressions.GetHashCode() : 0) * 397) ^ (Location.GetHashCode());
 			}
 		}
 

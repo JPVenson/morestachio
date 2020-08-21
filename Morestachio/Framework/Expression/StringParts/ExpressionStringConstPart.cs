@@ -73,7 +73,7 @@ namespace Morestachio.Framework.Expression.StringParts
 		{
 			unchecked
 			{
-				return ((PartText != null ? PartText.GetHashCode() : 0) * 397) ^ (Location != null ? Location.GetHashCode() : 0);
+				return ((PartText != null ? PartText.GetHashCode() : 0) * 397) ^ (Location.GetHashCode());
 			}
 		}
 	}

@@ -159,7 +159,7 @@ namespace Morestachio.Framework.Expression
 		{
 			unchecked
 			{
-				var hashCode = (Location != null ? Location.GetHashCode() : 0);
+				var hashCode = (Location.GetHashCode());
 				hashCode = (hashCode * 397) ^ (Operator != null ? Operator.GetHashCode() : 0);
 				hashCode = (hashCode * 397) ^ (LeftExpression != null ? LeftExpression.GetHashCode() : 0);
 				hashCode = (hashCode * 397) ^ (RightExpression != null ? RightExpression.GetHashCode() : 0);
