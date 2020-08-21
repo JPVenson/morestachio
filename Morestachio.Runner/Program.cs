@@ -47,6 +47,7 @@ namespace Morestachio.Runner
 					public string FormatterName { get; set; }
 					public Type Returns { get; set; }
 					public string Description { get; set; }
+					public bool IsOperator { get; set; }
 				}
 
 				public IList<MethodParameter> Parameters { get; set; }
@@ -97,6 +98,7 @@ namespace Morestachio.Runner
 							if (mOperator != null)
 							{
 								function.FormatterName = mOperator.OperatorText;
+								function.IsOperator = true;
 							}
 							function.Returns = fncGrouped.OutputType ?? fncGrouped.Function.ReturnType;
 							function.Description = fncGrouped.Description;

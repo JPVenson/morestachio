@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using JetBrains.Annotations;
 using Morestachio.Formatter.Framework.Attributes;
+using Morestachio.Helper;
 
 namespace Morestachio.Linq
 {
@@ -40,9 +41,9 @@ namespace Morestachio.Linq
 		}
 
 		[MorestachioFormatter("Take", "Takes the amount of items in argument")]
-		public static IEnumerable<T> Take<T>(IEnumerable<T> sourceCollection, int arguments)
+		public static IEnumerable<T> Take<T>(IEnumerable<T> sourceCollection, Number arguments)
 		{
-			return sourceCollection.AsQueryable().Take(arguments);
+			return sourceCollection.AsQueryable().Take(arguments.ToInt32(null));
 		}
 
 		[MorestachioFormatter("TakeWhile", "Takes items from the collection as long as the predicate is true")]
@@ -54,9 +55,9 @@ namespace Morestachio.Linq
 		}
 
 		[MorestachioFormatter("Skip", "Skips the amount of items in argument")]
-		public static IEnumerable<T> Skip<T>(IEnumerable<T> sourceCollection, int arguments)
+		public static IEnumerable<T> Skip<T>(IEnumerable<T> sourceCollection, Number arguments)
 		{
-			return sourceCollection.AsQueryable().Skip(arguments);
+			return sourceCollection.AsQueryable().Skip(arguments.ToInt32(null));
 		}
 
 		[MorestachioFormatter("SkipWhile", "Skips items from the collection as long as the predicate is true")]

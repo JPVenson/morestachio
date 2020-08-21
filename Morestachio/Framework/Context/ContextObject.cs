@@ -16,10 +16,8 @@ using Morestachio.Helper;
 using PathPartElement =
 	System.Collections.Generic.KeyValuePair<string, Morestachio.Framework.Expression.Framework.PathType>;
 #if ValueTask
-using Promise = System.Threading.Tasks.ValueTask;
 using ContextObjectPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.Context.ContextObject>;
 using StringPromise = System.Threading.Tasks.ValueTask<string>;
-using ObjectPromise = System.Threading.Tasks.ValueTask<object>;
 #else
 using ContextObjectPromise = System.Threading.Tasks.Task<Morestachio.Framework.Context.ContextObject>;
 using StringPromise = System.Threading.Tasks.Task<string>;
