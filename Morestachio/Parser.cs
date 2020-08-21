@@ -248,6 +248,10 @@ namespace Morestachio
 				{
 					currentDocumentItem.Document.Add(new TextEditDocumentItem(new TrimLineBreakTextOperation() { LineBreaks = -1 }));
 				}
+				else if (currentToken.Type.Equals(TokenType.TrimEverything))
+				{
+					currentDocumentItem.Document.Add(new TextEditDocumentItem(new TrimAllWhitespacesTextOperation()));
+				}
 				else if (currentToken.Type.Equals(TokenType.VariableLet))
 				{
 					var scope = 0;

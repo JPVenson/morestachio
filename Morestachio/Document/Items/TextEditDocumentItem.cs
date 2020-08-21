@@ -30,7 +30,7 @@ namespace Morestachio.Document.Items
 		///		The TextOperation
 		/// </summary>
 		public ITextOperation Operation { get; private set; }
-
+		
 		/// <summary>
 		/// 
 		/// </summary>

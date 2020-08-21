@@ -581,6 +581,14 @@ namespace Morestachio.Framework.Tokenizing
 				{
 					tokens.Add(new TokenPair(TokenType.TrimLineBreaks, tokenValue, context.CurrentLocation));
 				}
+				else if (tokenValue.Equals("{{#TRIMALL}}", StringComparison.InvariantCultureIgnoreCase))
+				{
+					tokens.Add(new TokenPair(TokenType.TrimEverything, tokenValue, context.CurrentLocation));
+				}
+				//else if (tokenValue.Equals("{{/TRIMALL}}", StringComparison.InvariantCultureIgnoreCase))
+				//{
+				//	tokens.Add(new TokenPair(TokenType.StopTrimEverything, tokenValue, context.CurrentLocation));
+				//}
 				else
 				{
 					//check for custom DocumentItem provider

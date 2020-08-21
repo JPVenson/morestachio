@@ -141,5 +141,15 @@
 		///		Trims all occuring linebreaks from the following content at its start
 		/// </summary>
 		TrimLineBreaks,
+
+		/// <summary>
+		///		Trims all occuring \t & \r\n 
+		/// </summary>
+		TrimEverything,
+
+		///// <summary>
+		/////		stops Trimming all occuring \t & \r\n 
+		///// </summary>
+		//StopTrimEverything,
 	}
 }
