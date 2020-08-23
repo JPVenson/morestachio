@@ -12,6 +12,7 @@ using Morestachio.Document;
 using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Formatter.Framework.Converter;
 using Morestachio.Helper;
+using Morestachio.Util.Sealing;
 #if ValueTask
 using ObjectPromise = System.Threading.Tasks.ValueTask<object>;
 #else
@@ -32,7 +33,7 @@ namespace Morestachio.Formatter.Framework
 	/// </example>
 	///     
 	/// </summary>
-	public class MorestachioFormatterService : IMorestachioFormatterService
+	public class MorestachioFormatterService : SealedBase, IMorestachioFormatterService
 	{
 		internal static readonly Regex ValidateFormatterNameRegEx =
 			new Regex("^[a-zA-Z]{1}[a-zA-Z0-9]*$", RegexOptions.Compiled);
@@ -120,7 +121,7 @@ namespace Morestachio.Formatter.Framework
 		{
 			ServiceCollectionAccess[typeof(T)] = serviceFactory;
 		}
-		
+
 		/// <inheritdoc />
 		public object GetService(Type serviceType)
 		{
@@ -799,8 +800,8 @@ namespace Morestachio.Formatter.Framework
 
 			if (!parameterParameterType.GetTypeInfo().IsAssignableFrom(givenType))
 			{
-				if (parameterParameterType.IsEnum && 
-				    (givenType == typeof(string)))
+				if (parameterParameterType.IsEnum &&
+					(givenType == typeof(string)))
 				{
 					success = true;
 					if (givenType == typeof(string))

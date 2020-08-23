@@ -14,13 +14,14 @@ namespace Morestachio.Tests
 
 		private MorestachioDocumentInfo GenerateTemplate(string template)
 		{
-			return Parser.ParseWithOptions(new ParserOptions(template));
+			return Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding));
 		}
 
 		[Test]
 		public void TestGetCurrent()
 		{
-			var api = GenerateTemplate("{{test}}content{{#if test}}data{{/if}}").Fluent();
+			var morestachioDocumentInfo = GenerateTemplate("{{test}}content{{#if test}}data{{/if}}");
+			var api = morestachioDocumentInfo.Fluent();
 			api.Current(f => Assert.That(f, Is.TypeOf<MorestachioDocument>()))
 				.FindNext<PathDocumentItem>()
 				.IfNotSuccess(f => Assert.Fail("Could not find PathDocumentItem"))
@@ -34,6 +35,7 @@ namespace Morestachio.Tests
 				.FindNext<PathDocumentItem>()
 				.IfSuccess(f => Assert.Fail("Found PathDocumentItem but should have not"))
 				.Current(f => Assert.That(f, Is.TypeOf<IfExpressionScopeDocumentItem>()));
+			ParserFixture.TestLocationsInOrder(morestachioDocumentInfo);
 		}
 
 		[Test]

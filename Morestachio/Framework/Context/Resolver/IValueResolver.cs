@@ -1,4 +1,5 @@
 ﻿using System;
+using Morestachio.Util.Sealing;
 
 namespace Morestachio.Framework.Context.Resolver
 {
@@ -6,7 +7,7 @@ namespace Morestachio.Framework.Context.Resolver
 	///		Can be used to extract a value from an object that is not natively supported such as IDictionary{string, object} or object.
 	///		for example: This could be used to resolve Newtonesofts JObject
 	/// </summary>
-	public interface IValueResolver
+	public interface IValueResolver : ISealed
 	{
 		///  <summary>
 		///		Should return ether NULL or an object as result.

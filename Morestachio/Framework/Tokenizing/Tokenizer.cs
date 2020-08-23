@@ -226,7 +226,7 @@ namespace Morestachio.Framework.Tokenizing
 				token = token.TrimStart(key);
 				if (keyword != null)
 				{
-					token = token.Trim().Substring(0, keyword.Length);
+					token = token.Trim().Substring(keyword.Length);
 				}
 
 				return token.Trim();
@@ -324,7 +324,7 @@ namespace Morestachio.Framework.Tokenizing
 
 					scopestack.Push(Tuple.Create($"#each{alias ?? token}", match.Index));
 
-					if (token.StartsWith(" ") && token.Trim() != "")
+					if (token.Trim() != "")
 					{
 						token = token.Trim();
 						ScopingBehavior? scopeBehavior = null;
@@ -384,7 +384,7 @@ namespace Morestachio.Framework.Tokenizing
 
 					scopestack.Push(Tuple.Create($"#while{token}", match.Index));
 
-					if (token.StartsWith(" ") && token.Trim() != "")
+					if (token.Trim() != "")
 					{
 						token = token.Trim();
 						tokens.Add(new TokenPair(TokenType.WhileLoopOpen,
@@ -422,7 +422,7 @@ namespace Morestachio.Framework.Tokenizing
 					var token = TrimToken(trimmedToken, "do");
 					scopestack.Push(Tuple.Create($"#do{token}", match.Index));
 
-					if (token.StartsWith(" ") && token.Trim() != "")
+					if (token.Trim() != "")
 					{
 						token = token.Trim();
 						tokens.Add(new TokenPair(TokenType.DoLoopOpen,
@@ -469,7 +469,7 @@ namespace Morestachio.Framework.Tokenizing
 
 					scopestack.Push(Tuple.Create($"#if{token}", match.Index));
 
-					if (token.StartsWith(" ") && token.Trim() != "")
+					if (token.Trim() != "")
 					{
 						token = token.Trim();
 						tokens.Add(new TokenPair(TokenType.If,
@@ -497,7 +497,7 @@ namespace Morestachio.Framework.Tokenizing
 
 					scopestack.Push(Tuple.Create($"^if{token}", match.Index));
 
-					if (token.StartsWith(" ") && token.Trim() != "")
+					if (token.Trim() != "")
 					{
 						token = token.Trim();
 						tokens.Add(new TokenPair(TokenType.IfNot,
@@ -736,7 +736,7 @@ namespace Morestachio.Framework.Tokenizing
 
 		internal readonly ref struct NameValueToken
 		{
-			public NameValueToken(string name, string value)
+			public NameValueToken(string value, string name)
 			{
 				Name = name;
 				Value = value;

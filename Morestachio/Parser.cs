@@ -50,6 +50,8 @@ namespace Morestachio
 			{
 				throw new ArgumentNullException(nameof(parsingOptions));
 			}
+
+			parsingOptions.Seal();
 			
 			var tokenzierContext = TokenzierContext.FromText(parsingOptions.Template, parsingOptions.CultureInfo);
 			var tokenizerResult = Tokenizer.Tokenize(parsingOptions, tokenzierContext);

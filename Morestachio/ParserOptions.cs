@@ -10,29 +10,53 @@ using JetBrains.Annotations;
 using Morestachio.Document.Custom;
 using Morestachio.Formatter;
 using Morestachio.Formatter.Framework;
+using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Context.Resolver;
 using Morestachio.Framework.IO;
+using Morestachio.Util.Sealing;
 
 #endregion
 
 namespace Morestachio
 {
+
+
 	/// <summary>
 	///     Options for Parsing run
 	/// </summary>
 	[PublicAPI]
-	public class ParserOptions
+	public class ParserOptions : SealedBase
 	{
 		[NotNull]
 		private IMorestachioFormatterService _formatters;
 
+		private SealableList<CustomDocumentItemProvider> _customDocumentItemProviders;
+		[CanBeNull] private IPartialsStore _partialsStore;
+		private bool _profileExecution;
+		private IValueResolver _valueResolver;
+		private CultureInfo _cultureInfo;
+		private uint _partialStackSize;
+		private ScopingBehavior _scopingBehavior;
+		private PartialStackOverflowBehavior _stackOverflowBehavior;
+		private UnmatchedFormatterBehavior _unmatchedFormatterBehavior;
+		private TimeSpan _timeout;
+		[NotNull] private string _template;
+		private bool _disableContentEscaping;
+		private long _maxSize;
+		[NotNull] private ByteCounterFactory _streamFactory;
+		[NotNull] private Encoding _encoding;
+		[NotNull] private string _null;
+		private bool _handleDictionaryAsObject;
+
 		/// <summary>
-		///		The store for PreParsed Partials
+		///		Creates a new object without any template
 		/// </summary>
-		[CanBeNull]
-		public IPartialsStore PartialsStore { get; set; }
+		public ParserOptions() : this(string.Empty)
+		{
+			
+		}
 
 		/// <summary>
 		///     ctor
@@ -73,7 +97,7 @@ namespace Morestachio
 			DisableContentEscaping = false;
 			Timeout = TimeSpan.Zero;
 			PartialStackSize = 255;
-			CustomDocumentItemProviders = new List<CustomDocumentItemProvider>();
+			_customDocumentItemProviders = new SealableList<CustomDocumentItemProvider>();
 			CultureInfo = CultureInfo.CurrentCulture;
 		}
 
@@ -111,36 +135,79 @@ namespace Morestachio
 		{
 		}
 
+		/// <inheritdoc />
+		public override void Seal()
+		{
+			base.Seal();
+			_customDocumentItemProviders.Seal();
+		}
+
+		/// <summary>
+		///		The store for PreParsed Partials
+		/// </summary>
+		[CanBeNull]
+		public IPartialsStore PartialsStore
+		{
+			get { return _partialsStore; }
+			set
+			{
+				CheckSealed();
+				_partialsStore = value;
+			}
+		}
+
 		/// <summary>
 		///		The list of provider that emits custom document items
 		/// </summary>
-		public IList<CustomDocumentItemProvider> CustomDocumentItemProviders { get; private set; }
+		public IList<CustomDocumentItemProvider> CustomDocumentItemProviders
+		{
+			get { return _customDocumentItemProviders; }
+		}
 
 		/// <summary>
-		///		If set to True morestachio will profile the execution and report the result in both <seealso cref="MorestachioDocumentInfo"/>
+		///		[Experimental]If set to True morestachio will profile the execution and report the result in both <seealso cref="MorestachioDocumentInfo"/>
 		/// </summary>
-		public bool ProfileExecution { get; set; }
+		public bool ProfileExecution
+		{
+			get { return _profileExecution; }
+			set
+			{
+				CheckSealed();
+				_profileExecution = value;
+			}
+		}
 
 		/// <summary>
 		///		Can be used to resolve values from custom objects
 		/// </summary>
-		public IValueResolver ValueResolver { get; set; }
+		public IValueResolver ValueResolver
+		{
+			get { return _valueResolver; }
+			set
+			{
+				CheckSealed();
+				_valueResolver = value;
+			}
+		}
 
 		/// <summary>
 		///		Gets or Sets the Culture in which the template should be rendered
 		/// </summary>
-		public CultureInfo CultureInfo { get; set; }
+		public CultureInfo CultureInfo
+		{
+			get { return _cultureInfo; }
+			set
+			{
+				CheckSealed();
+				_cultureInfo = value ?? throw new ArgumentException();
+			}
+		}
 
 		/// <summary>
 		///		Can be used to observe unresolved paths
 		/// </summary>
 		public event InvalidPath UnresolvedPath;
-
-		///// <summary>
-		/////		See <see cref="IPartialTemplateProvider"/>
-		///// </summary>
-		//public IPartialTemplateProvider PartialTemplateProvider { get; set; }
-
+		
 		/// <summary>
 		///     Adds an Formatter overwrite or new Formatter for an Type
 		/// </summary>
@@ -150,6 +217,7 @@ namespace Morestachio
 			get { return _formatters; }
 			set
 			{
+				CheckSealed();
 				_formatters = value ?? throw new InvalidOperationException("You must set the Formatters matcher");
 			}
 		}
@@ -157,24 +225,56 @@ namespace Morestachio
 		/// <summary>
 		///		Gets or sets the max Stack size for nested Partials in execution. Recommended to be not exceeding 2000. Defaults to 255.
 		/// </summary>
-		public uint PartialStackSize { get; set; }
+		public uint PartialStackSize
+		{
+			get { return _partialStackSize; }
+			set
+			{
+				CheckSealed();
+				_partialStackSize = value;
+			}
+		}
 
 		/// <summary>
 		///		Defines how blocks should behave when a scope is present
 		/// </summary>
-		public ScopingBehavior ScopingBehavior { get; set; }
+		public ScopingBehavior ScopingBehavior
+		{
+			get { return _scopingBehavior; }
+			set
+			{
+				CheckSealed();
+				_scopingBehavior = value;
+			}
+		}
 
 		/// <summary>
 		///		Defines how the Parser should behave when encountering a the PartialStackSize to be exceeded.
 		///		Default is <see cref="PartialStackOverflowBehavior.FailWithException"/>
 		/// </summary>
-		public PartialStackOverflowBehavior StackOverflowBehavior { get; set; }
+		public PartialStackOverflowBehavior StackOverflowBehavior
+		{
+			get { return _stackOverflowBehavior; }
+			set
+			{
+				CheckSealed();
+				_stackOverflowBehavior = value;
+			}
+		}
 
 		/// <summary>
 		///		Defines how the Parser should behave when encountering a formatter call that cannot be resolved
 		///		Default is <see cref="UnmatchedFormatterBehavior.ParentValue"/>
 		/// </summary>
-		public UnmatchedFormatterBehavior UnmatchedFormatterBehavior { get; set; }
+		public UnmatchedFormatterBehavior UnmatchedFormatterBehavior
+		{
+			get { return _unmatchedFormatterBehavior; }
+			set
+			{
+				CheckSealed();
+				_unmatchedFormatterBehavior = value;
+			}
+		}
 
 		/// <summary>
 		///		Gets or sets the timeout. After the timeout is reached and the Template has not finished Processing and Exception is thrown.
@@ -183,51 +283,115 @@ namespace Morestachio
 		/// <value>
 		/// The timeout.
 		/// </value>
-		public TimeSpan Timeout { get; set; }
+		public TimeSpan Timeout
+		{
+			get { return _timeout; }
+			set
+			{
+				CheckSealed();
+				_timeout = value;
+			}
+		}
 
 		/// <summary>
 		///     The template content to parse.
 		/// </summary>
 		[NotNull]
-		public string Template { get; private set; }
+		public string Template
+		{
+			get { return _template; }
+			set
+			{
+				CheckSealed();
+				_template = value ?? throw new ArgumentException();
+			}
+		}
 
 		/// <summary>
 		///     In some cases, content should not be escaped (such as when rendering text bodies and subjects in emails).
 		///     By default, we use no content escaping, but this parameter allows it to be enabled. Default is False
 		/// </summary>
-		public bool DisableContentEscaping { get; private set; }
+		public bool DisableContentEscaping
+		{
+			get { return _disableContentEscaping; }
+			set
+			{
+				CheckSealed();
+				_disableContentEscaping = value;
+			}
+		}
 
 		/// <summary>
 		///     Defines a Max size for the Generated Template.
 		///     Zero for unlimited
 		/// </summary>
-		public long MaxSize { get; private set; }
+		public long MaxSize
+		{
+			get { return _maxSize; }
+			set
+			{
+				CheckSealed();
+				_maxSize = value;
+			}
+		}
 
 		/// <summary>
 		///     SourceFactory can be used to create a new stream for each template. Default is
 		///     <code>() => new MemoryStream()</code>
 		/// </summary>
 		[NotNull]
-		public ByteCounterFactory StreamFactory { get; private set; }
+		public ByteCounterFactory StreamFactory
+		{
+			get { return _streamFactory; }
+			set
+			{
+				CheckSealed();
+				_streamFactory = value ?? throw new ArgumentException();
+			}
+		}
 
 		/// <summary>
 		///     In what encoding should the text be written
 		///     Default is <code>Encoding.Utf8</code>
 		/// </summary>
 		[NotNull]
-		public Encoding Encoding { get; private set; }
+		public Encoding Encoding
+		{
+			get { return _encoding; }
+			set
+			{
+				CheckSealed();
+				_encoding = value ?? throw new ArgumentException();
+			}
+		}
 
 		/// <summary>
 		///     Defines how NULL values are exposed to the Template default is <code>String.Empty</code>
 		/// </summary>
 		[NotNull]
-		public string Null { get; set; }
+		public string Null
+		{
+			get { return _null; }
+			set
+			{
+				CheckSealed();
+				_null = value ?? throw new ArgumentException();
+			}
+		}
 
 		/// <summary>
 		///		If enabled all instances of IDictionary{string, object} will be processed as normal objects.
 		/// <value>Default is false</value>
 		/// </summary>
-		public bool HandleDictionaryAsObject { get; set; }
+		public bool HandleDictionaryAsObject
+		{
+			get { return _handleDictionaryAsObject; }
+			set
+			{
+				CheckSealed();
+				_handleDictionaryAsObject = value;
+			}
+		}
 
 		/// <summary>
 		///		Allows the creation of an custom Context object
@@ -246,29 +410,6 @@ namespace Morestachio
 			return new ContextObject(this, key, parent, value)
 			{
 				CancellationToken = token,
-			};
-		}
-
-		public ParserOptions CopyWithTemplate(string template)
-		{
-			return new ParserOptions(template)
-			{
-				Null = Null,
-				StackOverflowBehavior = StackOverflowBehavior,
-				Formatters = Formatters,
-				Timeout = Timeout,
-				CustomDocumentItemProviders = CustomDocumentItemProviders,
-				MaxSize = MaxSize,
-				DisableContentEscaping = DisableContentEscaping,
-				Encoding = Encoding,
-				PartialStackSize = PartialStackSize,
-				PartialsStore = PartialsStore,
-				ProfileExecution = ProfileExecution,
-				Template = template,
-				ValueResolver = ValueResolver,
-				UnresolvedPath = UnresolvedPath,
-				StreamFactory = StreamFactory,
-				CultureInfo = CultureInfo
 			};
 		}
 

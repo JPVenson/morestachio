@@ -6,7 +6,7 @@ namespace Morestachio.Framework
 	/// <summary>
 	///		Describes an Position within the Template
 	/// </summary>
-	public struct CharacterLocation : IEquatable<CharacterLocation>
+	public struct CharacterLocation : IEquatable<CharacterLocation>, IComparable<CharacterLocation>
 	{
 		/// <summary>
 		/// 
@@ -125,6 +125,17 @@ namespace Morestachio.Framework
 		public CharacterLocation Offset(int length)
 		{
 			return new CharacterLocation(Line, Character + length);
+		}
+
+		public int CompareTo(CharacterLocation other)
+		{
+			var lineComparison = Line.CompareTo(other.Line);
+			if (lineComparison != 0)
+			{
+				return lineComparison;
+			}
+
+			return Character.CompareTo(other.Character);
 		}
 	}
 }

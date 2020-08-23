@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using Morestachio.Document;
 using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Formatter.Framework.Converter;
+using Morestachio.Util.Sealing;
 #if ValueTask
 using ObjectPromise = System.Threading.Tasks.ValueTask<object>;
 #else
@@ -17,7 +18,7 @@ namespace Morestachio.Formatter.Framework
 	/// <summary>
 	///		Interface for Resolving formatters
 	/// </summary>
-	public interface IMorestachioFormatterService : IServiceProvider
+	public interface IMorestachioFormatterService : IServiceProvider, ISealed
 	{
 		/// <summary>
 		///		Contains a set of objects that can be injected into a formatter

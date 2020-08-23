@@ -20,5 +20,12 @@ namespace Morestachio.Framework.Context.Resolver
 		{
 			return this.Any(f => f.CanResolve(type, value, path, context));
 		}
+
+
+		public bool IsSealed { get; private set; }
+		public void Seal()
+		{
+			IsSealed = true;
+		}
 	}
 }

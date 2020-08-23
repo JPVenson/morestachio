@@ -13,7 +13,10 @@ using Morestachio.Linq;
 using NUnit.Framework;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items;
+using Morestachio.Document.Items.Base;
+using Morestachio.Document.Visitor;
 using Morestachio.Formatter.Framework.Attributes;
+using Morestachio.Framework;
 using Morestachio.Framework.Error;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Parsing.ParserErrors;
@@ -28,6 +31,25 @@ namespace Morestachio.Tests
 	public class ParserFixture
 	{
 		public static Encoding DefaultEncoding { get; set; } = new UnicodeEncoding(true, false, false);
+
+		public static void TestLocationsInOrder(MorestachioDocumentInfo documentInfo)
+		{
+			var api = documentInfo.Fluent();
+			var lastLocation = new CharacterLocation(0, -1);
+			var expectedLocation = new CharacterLocation(0, 0);
+			var visitor = new ToParsableStringDocumentVisitor();
+
+			while (api.Context.OperationStatus)
+			{
+				Assert.That(api.Context.CurrentNode.Item.ExpressionStart, Is.GreaterThan(lastLocation));
+				lastLocation = api.Context.CurrentNode.Item.ExpressionStart;
+				//Assert.That(api.Context.CurrentNode.Item.ExpressionStart, Is.EqualTo(expectedLocation));
+
+
+				visitor.StringBuilder.Clear();
+				api.SearchForward(f => true, false);
+			}
+		}
 
 		[Test]
 		public async Task TestUnpackCanUnpackTask()
@@ -1205,7 +1227,7 @@ namespace Morestachio.Tests
 		[Test]
 		public void ParserThrowsParserExceptionForEachWithoutPath()
 		{
-			Assert.That(Parser.ParseWithOptions(new ParserOptions("{{#eachs}}{{name}}{{/each}}")).Errors, Is.Not.Empty);
+			Assert.That(Parser.ParseWithOptions(new ParserOptions("{{#eachs}}{{name}}{{/each}}")).Errors, Is.Empty);
 		}
 
 		[Test]

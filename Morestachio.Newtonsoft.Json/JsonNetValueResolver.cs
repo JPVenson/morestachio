@@ -98,5 +98,11 @@ namespace Morestachio.Newtonsoft.Json
 		{
 			return type == typeof(JObject) || type == typeof(JValue);
 		}
+
+		public bool IsSealed { get; private set; }
+		public void Seal()
+		{
+			IsSealed = true;
+		}
 	}
 }

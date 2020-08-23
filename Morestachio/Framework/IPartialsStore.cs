@@ -1,11 +1,12 @@
 ﻿using JetBrains.Annotations;
+using Morestachio.Util.Sealing;
 
-namespace Morestachio.Formatter
+namespace Morestachio.Framework
 {
 	/// <summary>
 	///		Allows to store Partials for multiple Runs
 	/// </summary>
-	public interface IPartialsStore
+	public interface IPartialsStore : ISealed
 	{
 		/// <summary>
 		///		Adds the Parsed Partial to the store
