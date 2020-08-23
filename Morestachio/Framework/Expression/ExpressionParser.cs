@@ -195,7 +195,7 @@ namespace Morestachio.Framework.Expression
 			if (Tokenizer.IsStringDelimiter(expression[0]))
 			{
 				//its a string constant
-				if (!Tokenizer.IsStringDelimiter(expression[expression.Length - 1]))
+				if (expression[expression.Length - 1] != expression[0])
 				{
 					context.Errors.Add(new MorestachioSyntaxError(
 						context.CurrentLocation.AddWindow(new CharacterSnippedLocation(0, expression.Length, expression)),

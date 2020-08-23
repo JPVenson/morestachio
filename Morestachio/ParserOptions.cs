@@ -160,6 +160,11 @@ namespace Morestachio
 		public uint PartialStackSize { get; set; }
 
 		/// <summary>
+		///		Defines how blocks should behave when a scope is present
+		/// </summary>
+		public ScopingBehavior ScopingBehavior { get; set; }
+
+		/// <summary>
 		///		Defines how the Parser should behave when encountering a the PartialStackSize to be exceeded.
 		///		Default is <see cref="PartialStackOverflowBehavior.FailWithException"/>
 		/// </summary>

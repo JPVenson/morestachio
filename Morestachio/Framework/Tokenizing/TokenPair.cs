@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
+using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Expression;
 
 namespace Morestachio.Framework.Tokenizing
@@ -11,6 +12,63 @@ namespace Morestachio.Framework.Tokenizing
 	[DebuggerTypeProxy(typeof(TokenPairDebuggerProxy))]
 	public readonly struct TokenPair
 	{
+		/// <summary>
+		///		Creates a new Token Pair
+		/// </summary>
+		public TokenPair(IComparable type, string value, CharacterLocation tokenLocation)
+			: this(type, value, null, tokenLocation, null)
+		{
+			Value = value;
+		}
+
+
+		/// <summary>
+		///		Creates a new Token Pair
+		/// </summary>
+		public TokenPair(IComparable type, IMorestachioExpression expression, CharacterLocation tokenLocation, ScopingBehavior? noScope = null)
+			: this(type, null, expression, tokenLocation, noScope)
+		{
+		}
+
+
+		/// <summary>
+		///		Creates a new Token Pair
+		/// </summary>
+		public TokenPair(IComparable type, string value, IMorestachioExpression expression, CharacterLocation tokenLocation, ScopingBehavior? noScope = null)
+		{
+			Type = type;
+			MorestachioExpression = expression;
+			TokenLocation = tokenLocation;
+			ScopeBehavior = noScope;
+			Value = value;
+		}
+
+		/// <summary>
+		///		The type of this Token
+		/// </summary>
+		public IComparable Type { get; }
+
+		/// <summary>
+		///		With what format should this token be evaluated
+		/// </summary>
+		internal IMorestachioExpression MorestachioExpression { get; }
+
+		/// <summary>
+		///		What is the Value of this token
+		/// </summary>
+		[CanBeNull]
+		public string Value { get; }
+
+		/// <summary>
+		///		Where does this token occure in the Template
+		/// </summary>
+		public CharacterLocation TokenLocation { get; }
+
+		/// <summary>
+		///		IF set an otherwise scopeing block does not perform the scopeing
+		/// </summary>
+		public ScopingBehavior? ScopeBehavior { get; }
+
 		[PublicAPI]
 		private class TokenPairDebuggerProxy
 		{
@@ -46,61 +104,5 @@ namespace Morestachio.Framework.Tokenizing
 			}
 		}
 
-		/// <summary>
-		///		Creates a new Token Pair
-		/// </summary>
-		public TokenPair(IComparable type, string value, CharacterLocation tokenLocation, bool noScope = false)
-			: this(type, value, null, tokenLocation, noScope)
-		{
-			Value = value;
-		}
-
-
-		/// <summary>
-		///		Creates a new Token Pair
-		/// </summary>
-		public TokenPair(IComparable type, IMorestachioExpression expression, CharacterLocation tokenLocation, bool noScope = false)
-			: this(type, null, expression, tokenLocation, noScope)
-		{
-		}
-
-
-		/// <summary>
-		///		Creates a new Token Pair
-		/// </summary>
-		public TokenPair(IComparable type, string value, IMorestachioExpression expression, CharacterLocation tokenLocation, bool noScope = false)
-		{
-			Type = type;
-			MorestachioExpression = expression;
-			TokenLocation = tokenLocation;
-			NoScope = noScope;
-			Value = value;
-		}
-
-		/// <summary>
-		///		The type of this Token
-		/// </summary>
-		public IComparable Type { get; }
-
-		/// <summary>
-		///		With what format should this token be evaluated
-		/// </summary>
-		internal IMorestachioExpression MorestachioExpression { get; }
-
-		/// <summary>
-		///		What is the Value of this token
-		/// </summary>
-		[CanBeNull]
-		public string Value { get; }
-
-		/// <summary>
-		///		Where does this token occure in the Template
-		/// </summary>
-		public CharacterLocation TokenLocation { get; }
-
-		/// <summary>
-		///		IF set an otherwise scopeing block does not perform the scopeing
-		/// </summary>
-		public bool NoScope { get; }
 	}
 }

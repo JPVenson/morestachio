@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Morestachio.Document.Custom;
+using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Error;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
@@ -220,6 +221,17 @@ namespace Morestachio.Framework.Tokenizing
 				}
 			}
 
+			string TrimToken(string token, string keyword, char key = '#')
+			{
+				token = token.TrimStart(key);
+				if (keyword != null)
+				{
+					token = token.Trim().Substring(0, keyword.Length);
+				}
+
+				return token.Trim();
+			}
+
 			foreach (Match match in matches)
 			{
 				//yield front content.
@@ -235,8 +247,7 @@ namespace Morestachio.Framework.Tokenizing
 				if (tokenValue.StartsWith("{{#declare ", true, CultureInfo.InvariantCulture))
 				{
 					scopestack.Push(Tuple.Create(tokenValue, match.Index));
-					var token = trimmedToken.TrimStart('#').Trim()
-						.Substring("declare ".Length).Trim();
+					var token = TrimToken(trimmedToken, "declare ");
 					if (string.IsNullOrWhiteSpace(token))
 					{
 						context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation
@@ -306,20 +317,34 @@ namespace Morestachio.Framework.Tokenizing
 				}
 				else if (tokenValue.StartsWith("{{#each", true, CultureInfo.InvariantCulture))
 				{
-					var token = trimmedToken.TrimStart('#').Trim().Substring("each".Length);
+					var token = TrimToken(trimmedToken, "each");
 					var eval = EvaluateNameFromToken(token);
-					token = eval.Item1;
-					var alias = eval.Item2;
+					token = eval.Value;
+					var alias = eval.Name;
 
 					scopestack.Push(Tuple.Create($"#each{alias ?? token}", match.Index));
 
 					if (token.StartsWith(" ") && token.Trim() != "")
 					{
 						token = token.Trim();
+						ScopingBehavior? scopeBehavior = null;
+						if (!string.IsNullOrWhiteSpace(alias))
+						{
+							if (token.EndsWith("NoScope", StringComparison.InvariantCultureIgnoreCase))
+							{
+								scopeBehavior = ScopingBehavior.DoNotScope;
+							}
+							if (token.EndsWith("WithScope", StringComparison.InvariantCultureIgnoreCase))
+							{
+								scopeBehavior = ScopingBehavior.ScopeAnyway;
+							}
+						}
+
 						tokens.Add(new TokenPair(TokenType.CollectionOpen,
 							token,
 							ExpressionParser.ParseExpression(token, context),
-							context.CurrentLocation));
+							context.CurrentLocation,
+							scopeBehavior));
 					}
 					else
 					{
@@ -355,9 +380,8 @@ namespace Morestachio.Framework.Tokenizing
 				}
 				else if (tokenValue.StartsWith("{{#while", true, CultureInfo.InvariantCulture))
 				{
-					var token = trimmedToken.TrimStart('#')
-						.Trim()
-						.Substring("while".Length);
+					var token = TrimToken(trimmedToken, "while", '#');
+
 					scopestack.Push(Tuple.Create($"#while{token}", match.Index));
 
 					if (token.StartsWith(" ") && token.Trim() != "")
@@ -395,9 +419,7 @@ namespace Morestachio.Framework.Tokenizing
 				}
 				else if (tokenValue.StartsWith("{{#do", true, CultureInfo.InvariantCulture))
 				{
-					var token = trimmedToken.TrimStart('#')
-						.Trim()
-						.Substring("do".Length);
+					var token = TrimToken(trimmedToken, "do");
 					scopestack.Push(Tuple.Create($"#do{token}", match.Index));
 
 					if (token.StartsWith(" ") && token.Trim() != "")
@@ -435,10 +457,10 @@ namespace Morestachio.Framework.Tokenizing
 				}
 				else if (tokenValue.StartsWith("{{#if ", true, CultureInfo.InvariantCulture))
 				{
-					var token = trimmedToken.TrimStart('#').Trim().Substring("if".Length);
+					var token = TrimToken(trimmedToken, "if");
 					var eval = EvaluateNameFromToken(token);
-					token = eval.Item1;
-					if (eval.Item2 != null)
+					token = eval.Value;
+					if (eval.Name != null)
 					{
 						context.Errors.Add(new MorestachioSyntaxError(
 							context.CurrentLocation
@@ -463,10 +485,10 @@ namespace Morestachio.Framework.Tokenizing
 				}
 				else if (tokenValue.StartsWith("{{^if ", true, CultureInfo.InvariantCulture))
 				{
-					var token = trimmedToken.TrimStart('^').Trim().Substring("if".Length);
+					var token = TrimToken(trimmedToken, "if", '^');
 					var eval = EvaluateNameFromToken(token);
-					token = eval.Item1;
-					if (eval.Item2 != null)
+					token = eval.Value;
+					if (eval.Name != null)
 					{
 						context.Errors.Add(new MorestachioSyntaxError(
 							context.CurrentLocation
@@ -541,8 +563,8 @@ namespace Morestachio.Framework.Tokenizing
 					//open inverted group
 					var token = trimmedToken.TrimStart('^').Trim();
 					var eval = EvaluateNameFromToken(token);
-					token = eval.Item1;
-					var alias = eval.Item2;
+					token = eval.Value;
+					var alias = eval.Name;
 					scopestack.Push(Tuple.Create(alias ?? token, match.Index));
 					tokens.Add(new TokenPair(TokenType.InvertedElementOpen,
 						token,
@@ -608,8 +630,8 @@ namespace Morestachio.Framework.Tokenizing
 						var token = trimmedToken.TrimStart('#').Trim();
 
 						var eval = EvaluateNameFromToken(token);
-						token = eval.Item1;
-						var alias = eval.Item2;
+						token = eval.Value;
+						var alias = eval.Name;
 						scopestack.Push(Tuple.Create(alias ?? token, match.Index));
 						tokens.Add(new TokenPair(TokenType.ElementOpen,
 							token,
@@ -700,16 +722,28 @@ namespace Morestachio.Framework.Tokenizing
 			return new TokenizerResult(tokens);
 		}
 
-		internal static Tuple<string, string> EvaluateNameFromToken(string token)
+		internal static NameValueToken EvaluateNameFromToken(string token)
 		{
 			var match = ExpressionAliasFinder.Match(token);
 			var name = match.Groups[1].Value;
 			if (!string.IsNullOrWhiteSpace(name))
 			{
-				return new Tuple<string, string>(token.Substring(0, token.Length - (" AS" + name).Length), name.Trim());
+				return new NameValueToken(token.Substring(0, token.Length - (" AS" + name).Length), name.Trim());
 			}
 
-			return new Tuple<string, string>(token, null);
+			return new NameValueToken(token, null);
+		}
+
+		internal readonly ref struct NameValueToken
+		{
+			public NameValueToken(string name, string value)
+			{
+				Name = name;
+				Value = value;
+			}
+
+			public string Name { get; }
+			public string Value { get; }
 		}
 	}
 }
