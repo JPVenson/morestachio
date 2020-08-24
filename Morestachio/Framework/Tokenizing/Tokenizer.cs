@@ -162,7 +162,8 @@ namespace Morestachio.Framework.Tokenizing
 			var partialsNames = new List<string>(parserOptions.PartialsStore?.GetNames() ?? new string[0]);
 			context.SetLocation(0);
 			var tokens = new List<TokenPair>();
-
+			var blockCommentCounter = 0;
+			
 			void BeginElse(Match match)
 			{
 				var firstNonContentToken = tokens
@@ -246,9 +247,21 @@ namespace Morestachio.Framework.Tokenizing
 						context.CurrentLocation));
 				}
 				context.SetLocation(match.Index + 2);
-
 				var tokenValue = match.Value;
 				var trimmedToken = tokenValue.TrimStart('{').TrimEnd('}');
+				
+				if (blockCommentCounter > 0)
+				{
+					if (trimmedToken == "/!")
+					{
+						blockCommentCounter--;
+					} 
+					else if (tokenValue.Equals("{{!}}"))
+					{
+						blockCommentCounter++;
+					}
+				}
+
 				if (tokenValue.StartsWith("{{#declare ", true, CultureInfo.InvariantCulture))
 				{
 					scopestack.Push(Tuple.Create(tokenValue, match.Index));
@@ -595,6 +608,11 @@ namespace Morestachio.Framework.Tokenizing
 				else if (tokenValue.StartsWith("{{!"))
 				{
 					//it's a comment drop this on the floor, no need to even yield it.
+					if (tokenValue.Equals("{{!}}"))
+					{
+						//except for when its a block comment then set the isCommentBlock flag
+						blockCommentCounter++;
+					}
 				}
 				else if (tokenValue.Equals("{{#NL}}", StringComparison.InvariantCultureIgnoreCase))
 				{

@@ -52,7 +52,7 @@ namespace Morestachio
 			}
 
 			parsingOptions.Seal();
-			
+
 			var tokenzierContext = TokenzierContext.FromText(parsingOptions.Template, parsingOptions.CultureInfo);
 			var tokenizerResult = Tokenizer.Tokenize(parsingOptions, tokenzierContext);
 
@@ -89,11 +89,7 @@ namespace Morestachio
 				var currentToken = tokenQueue.Dequeue();
 				var currentDocumentItem = buildStack.Peek(); //get the latest document
 
-				if (currentToken.Type.Equals(TokenType.Comment))
-				{
-					//just ignore this part and print nothing
-				}
-				else if (currentToken.Type.Equals(TokenType.Content))
+				if (currentToken.Type.Equals(TokenType.Content))
 				{
 					currentDocumentItem.Document.Add(new ContentDocumentItem(currentToken.Value)
 					{
@@ -269,6 +265,10 @@ namespace Morestachio
 					{
 						currentDocumentItem.LocalVariables.Add(currentToken.Value);
 					}
+				}
+				else if(currentToken.Type.Equals(TokenType.Comment) || currentToken.Type.Equals(TokenType.BlockComment))
+				{
+					//just ignore this part and print nothing
 				}
 				else
 				{

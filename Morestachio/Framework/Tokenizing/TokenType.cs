@@ -32,6 +32,10 @@
 		///		A comment inside. Will not be printed
 		/// </summary>
 		Comment,
+		/// <summary>
+		///		A comment inside. Will not be printed
+		/// </summary>
+		BlockComment,
 
 		/// <summary>
 		///		Plain content. No further processing
