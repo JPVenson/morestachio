@@ -8,12 +8,14 @@ using Promise = System.Threading.Tasks.ValueTask;
 using ContextObjectPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.Context.ContextObject>;
 using StringPromise = System.Threading.Tasks.ValueTask<string>;
 using ObjectPromise = System.Threading.Tasks.ValueTask<object>;
+using BoolPromise = System.Threading.Tasks.ValueTask<bool>;
 #else
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 using Promise = System.Threading.Tasks.Task;
 using ContextObjectPromise = System.Threading.Tasks.Task<Morestachio.Framework.Context.ContextObject>;
 using StringPromise = System.Threading.Tasks.Task<string>;
 using ObjectPromise = System.Threading.Tasks.Task<object>;
+using BoolPromise = System.Threading.Tasks.Task<bool>;
 #endif
 
 namespace Morestachio.Helper
@@ -23,6 +25,11 @@ namespace Morestachio.Helper
 	/// </summary>
 	public static class AsyncHelper
 	{
+		/// <summary>
+		///		Wraps the object to ether an TaskT or an ValueTaskT
+		/// </summary>
+		/// <param name="data"></param>
+		/// <returns></returns>
 		public static ItemExecutionPromise ToPromise(this IEnumerable<DocumentItemExecution> data)
 		{
 #if ValueTask
@@ -31,6 +38,12 @@ namespace Morestachio.Helper
 			return Promise.FromResult(data);
 #endif
 		}
+		
+		/// <summary>
+		///		Wraps the object to ether an TaskT or an ValueTaskT
+		/// </summary>
+		/// <param name="data"></param>
+		/// <returns></returns>
 		public static ContextObjectPromise ToPromise(this ContextObject data)
 		{
 #if ValueTask
@@ -39,12 +52,46 @@ namespace Morestachio.Helper
 			return Promise.FromResult(data);
 #endif
 		}
+		
+		/// <summary>
+		///		Wraps the object to ether an TaskT or an ValueTaskT
+		/// </summary>
+		/// <param name="data"></param>
+		/// <returns></returns>
 		public static StringPromise ToPromise(this string data)
 		{
 #if ValueTask
 			return new StringPromise(data);
 #else
 			return Promise.FromResult(data);
+#endif
+		}
+		
+		/// <summary>
+		///		Wraps the object to ether an TaskT or an ValueTaskT
+		/// </summary>
+		/// <param name="data"></param>
+		/// <returns></returns>
+		public static ObjectPromise ToPromise(this object data)
+		{
+#if ValueTask
+			return new ObjectPromise(data);
+#else
+			return Task.FromResult(data);
+#endif
+		}
+		
+		/// <summary>
+		///		Wraps the object to ether an TaskT or an ValueTaskT
+		/// </summary>
+		/// <param name="data"></param>
+		/// <returns></returns>
+		public static BoolPromise ToPromise(this bool data)
+		{
+#if ValueTask
+			return new BoolPromise(data);
+#else
+			return Task.FromResult(data);
 #endif
 		}
 

@@ -1,6 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
-
+#if ValueTask
+using BoolPromise = System.Threading.Tasks.ValueTask<bool>;
+#else
+using BoolPromise = System.Threading.Tasks.Task<bool>;
+#endif
 namespace Morestachio.Helper.Localization
 {
 	/// <summary>
@@ -21,6 +25,6 @@ namespace Morestachio.Helper.Localization
 		/// <param name="key"></param>
 		/// <param name="culture"></param>
 		/// <returns></returns>
-		object GetTranslation(string key, CultureInfo culture);
+		BoolPromise GetTranslation(string key, CultureInfo culture, out object translation);
 	}
 }

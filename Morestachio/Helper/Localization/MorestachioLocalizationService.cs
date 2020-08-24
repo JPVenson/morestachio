@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Morestachio.Helper.Localization
 {
@@ -18,6 +19,20 @@ namespace Morestachio.Helper.Localization
 		public MorestachioLocalizationService()
 		{
 			TextCache = new Dictionary<string, TextResourceEntity[]>();
+			TranslationResources = new List<ITranslationResource>();
+		}
+
+		public IList<ITranslationResource> TranslationResources { get; }
+
+		/// <summary>
+		///		Adds the resource to the list of resources
+		/// </summary>
+		/// <param name="resource"></param>
+		/// <returns></returns>
+		public virtual MorestachioLocalizationService AddResource(ITranslationResource resource)
+		{
+			TranslationResources.Add(resource);
+			return this;
 		}
 
 		/// <summary>
@@ -46,8 +61,35 @@ namespace Morestachio.Helper.Localization
 		public TextResourceEntity? GetEntryOrNull(string key, CultureInfo culture = null)
 		{
 			culture = culture ?? CultureInfo.CurrentUICulture;
-			return TextCache[TransformKey(key)]?.FirstOrDefault(e => e.Lang == culture);
+
+			if (TextCache.TryGetValue(TransformKey(key), out var res))
+			{
+				return res.FirstOrDefault(e => e.Lang == culture);
+			}
+
+			return null;
 		}
+
+		public async Task<TextResourceEntity?> GetEntryOrLoad(string key, CultureInfo culture = null)
+		{
+			var entry = GetEntryOrNull(key, culture);
+			if (entry != null)
+			{
+				return entry;
+			}
+
+			var transformKey = TransformKey(key);
+			foreach (var translationResource in TranslationResources)
+			{
+				if (await translationResource.GetTranslation(transformKey, culture, out var translation))
+				{
+					return new TextResourceEntity(culture,transformKey,translation, key.Split('/')[0]);
+				}
+			}
+
+			return null;
+		}
+
 
 		/// <summary>
 		///		Get the Translation for the culture (or <see cref="CultureInfo.CurrentUICulture"/> if null)
@@ -78,8 +120,7 @@ namespace Morestachio.Helper.Localization
 		/// <param name="resources"></param>
 		/// <param name="cultures"></param>
 		/// <param name="transformReferences"></param>
-		public void Load(IEnumerable<ITranslationResource> resources,
-			IEnumerable<CultureInfo> cultures,
+		public MorestachioLocalizationService Load(IEnumerable<CultureInfo> cultures,
 			bool transformReferences = true)
 		{
 			var loaderExceptions = new List<Exception>();
@@ -87,7 +128,7 @@ namespace Morestachio.Helper.Localization
 			foreach (var culture in cultures)
 			{
 				var resourcesOfCulture = new Dictionary<string, object>();
-				foreach (var translationResource in resources)
+				foreach (var translationResource in TranslationResources)
 				{
 					var translationKeys = translationResource.Get(culture);
 					foreach (var translationKey in translationKeys)
@@ -140,6 +181,8 @@ namespace Morestachio.Helper.Localization
 			{
 				TextCache[textResource.Key] = textResource.Value.ToArray();
 			}
+
+			return this;
 		}
 
 		private object TransformText(TextResourceEntity textResourceEntity,

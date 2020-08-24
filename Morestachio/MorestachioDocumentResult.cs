@@ -17,7 +17,7 @@ namespace Morestachio
 			CapturedVariables = variables;
 		}
 
-		public MorestachioDocumentResult(Stream stream, 
+		internal MorestachioDocumentResult(Stream stream, 
 			PerformanceProfiler profiler)
 		{
 			Stream = stream;

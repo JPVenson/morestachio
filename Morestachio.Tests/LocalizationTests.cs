@@ -17,18 +17,15 @@ namespace Morestachio.Tests
 			{
 				return new ParserOptions(s, null, ParserFixture.DefaultEncoding).RegisterLocalizationService(() =>
 				{
-					var morestachioLocalizationService = new MorestachioLocalizationService();
-					morestachioLocalizationService.Load(new[]
-					{
-						new MemoryTranslationResource()
+					return new MorestachioLocalizationService()
+						.AddResource(new MemoryTranslationResource()
 							.Add("test", CultureInfo.GetCultureInfo("EN-US"), translationResult1 + " en-US")
-							.Add("test", CultureInfo.GetCultureInfo("DE-DE"), translationResult1 + " de-DE"),
-					}, new[]
-					{
-						CultureInfo.GetCultureInfo("EN-US"),
-						CultureInfo.GetCultureInfo("DE-DE")
-					});
-					return morestachioLocalizationService;
+							.Add("test", CultureInfo.GetCultureInfo("DE-DE"), translationResult1 + " de-DE"))
+						.Load(new[]
+						{
+							CultureInfo.GetCultureInfo("EN-US"),
+							CultureInfo.GetCultureInfo("DE-DE")
+						});
 				});
 			}
 
@@ -54,18 +51,15 @@ namespace Morestachio.Tests
 			{
 				return new ParserOptions(s, null, ParserFixture.DefaultEncoding).RegisterLocalizationService(() =>
 				{
-					var morestachioLocalizationService = new MorestachioLocalizationService();
-					morestachioLocalizationService.Load(new[]
-					{
-						new MemoryTranslationResource()
+					return new MorestachioLocalizationService()
+						.AddResource(new MemoryTranslationResource()
 							.Add("test", CultureInfo.GetCultureInfo("EN-US"), translationResult1 + " en-US")
-							.Add("test", CultureInfo.GetCultureInfo("DE-DE"), translationResult1 + " de-DE"),
-					}, new[]
+							.Add("test", CultureInfo.GetCultureInfo("DE-DE"), translationResult1 + " de-DE"))
+						.Load(new[]
 					{
 						CultureInfo.GetCultureInfo("EN-US"),
 						CultureInfo.GetCultureInfo("DE-DE")
 					});
-					return morestachioLocalizationService;
 				});
 			}
 
@@ -95,25 +89,20 @@ namespace Morestachio.Tests
 			{
 				return new ParserOptions(s, null, ParserFixture.DefaultEncoding).RegisterLocalizationService(() =>
 				{
-					var morestachioLocalizationService = new MorestachioLocalizationService();
-					morestachioLocalizationService.Load(new[]
-					{
-						new MemoryTranslationResource()
+					return new MorestachioLocalizationService()
+						.AddResource(new MemoryTranslationResource()
 							.Add("Texts.Welcome", CultureInfo.GetCultureInfo("EN-US"), "Welcome")
 							.Add("Texts.Welcome", CultureInfo.GetCultureInfo("DE-DE"), "Moin")
-							.Add("Texts.Welcome", CultureInfo.GetCultureInfo("DE-AT"), "Grützli")
-						,
-					}, new[]
-					{
-						CultureInfo.GetCultureInfo("EN-US"),
-						CultureInfo.GetCultureInfo("DE-DE"),
-						CultureInfo.GetCultureInfo("DE-AT")
-					});
-					return morestachioLocalizationService;
+							.Add("Texts.Welcome", CultureInfo.GetCultureInfo("DE-AT"), "Grützli"))
+						.Load(new[]
+						{
+							CultureInfo.GetCultureInfo("EN-US"),
+							CultureInfo.GetCultureInfo("DE-DE"),
+							CultureInfo.GetCultureInfo("DE-AT")
+						});
 				});
 			}
 
-			var translationResult = "TestFixture";
 			var template = "{{#loc 'Texts.Welcome'}} " +
 			               "{{#LocCulture 'de-AT'}}" +
 								"{{#loc 'Texts.Welcome'}} " +

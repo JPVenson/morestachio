@@ -4,6 +4,12 @@ using System.Globalization;
 using System.Linq;
 using System.Resources;
 
+#if ValueTask
+using BoolPromise = System.Threading.Tasks.ValueTask<bool>;
+#else
+using BoolPromise = System.Threading.Tasks.Task<bool>;
+#endif
+
 namespace Morestachio.Helper.Localization
 {
 	/// <summary>
@@ -32,12 +38,18 @@ namespace Morestachio.Helper.Localization
 		}
 		
 		/// <inheritdoc />
-		public object GetTranslation(string key, CultureInfo culture)
+		public BoolPromise GetTranslation(string key, CultureInfo culture, out object translation)
 		{
-			return _resourceManager.GetResourceSet(culture, false, false)
+			var firstOrDefault = _resourceManager.GetResourceSet(culture, false, false)
 				.OfType<DictionaryEntry>()
-				.FirstOrDefault(e => e.Key.Equals(key))
+				.FirstOrDefault(e => e.Key.Equals(key));
+			translation = firstOrDefault
 				.Value;
+			if (Equals(firstOrDefault.Key, key))
+			{
+				return true.ToPromise();
+			}
+			return false.ToPromise();
 		}
 	}
 
@@ -87,9 +99,16 @@ namespace Morestachio.Helper.Localization
 				.ToArray();
 		}
 
-		public object GetTranslation(string key, CultureInfo culture)
+		public BoolPromise GetTranslation(string key, CultureInfo culture, out object translation)
 		{
-			return Translations.FirstOrDefault(e => e.Key == key && e.Culture == culture).Value;
+			var firstOrDefault = Translations.FirstOrDefault(e => e.Key == key && e.Culture == culture);
+			translation = firstOrDefault
+				.Value;
+			if (Equals(firstOrDefault.Key, key))
+			{
+				return true.ToPromise();
+			}
+			return false.ToPromise();
 		}
 	}
 }
