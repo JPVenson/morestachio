@@ -73,11 +73,7 @@ namespace Morestachio.Document.Items.Base
 		public abstract ItemExecutionPromise Render(IByteCounterStream outputStream,
 			ContextObject context,
 			ScopeData scopeData);
-
-		[Obsolete("The kind is no longer needed and will be removed in future versions")]
-		// ReSharper disable once UnassignedGetOnlyAutoProperty
-		public virtual string Kind { get; }
-
+		
 		/// <inheritdoc />
 		public IList<IDocumentItem> Children { get; internal set; }
 
