@@ -10,12 +10,6 @@
       net472;
     </TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.2.0</Version>
-    <Authors>Jean-Pierre Bachmann</Authors>
-    <PackageProjectUrl>https://github.com/JPVenson/morestachio</PackageProjectUrl>
-    <PackageIconUrl>https://github.com/JPVenson/morestachio/raw/master/Morestachio/Morestachio%20248x248.png?raw=true</PackageIconUrl>
-    <RepositoryUrl>https://github.com/JPVenson/morestachio</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
     <PackageTags>Formatter, C#, Engine, NetStandard</PackageTags>
     <Description>A powerfull c# infused templating engine.</Description>
     <PackageReleaseNotes>Several Bugfixes and Formatter refactoring</PackageReleaseNotes>

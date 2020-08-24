@@ -1,0 +1,12 @@
+<Project>
+  <PropertyGroup>
+    <Deterministic>true</Deterministic>
+    <Version>4.3.0</Version>
+    <Authors>Jean-Pierre Bachmann</Authors>
+    <Company>Jean-Pierre Bachmann</Company>
+    <PackageProjectUrl>https://github.com/JPVenson/morestachio</PackageProjectUrl>
+    <PackageIconUrl>https://github.com/JPVenson/morestachio/raw/master/Morestachio/Morestachio%20248x248.png?raw=true</PackageIconUrl>
+    <RepositoryUrl>https://github.com/JPVenson/morestachio</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+</Project>

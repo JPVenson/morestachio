@@ -2,13 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netcoreapp2.0;netcoreapp2.1;netcoreapp2.2;netcoreapp3.0;netcoreapp3.1;net46;net461;net462;net47;net471;net472;</TargetFrameworks>
-    <Version>4.2.0</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Authors>Jean-Pierre Bachmann</Authors>
-    <PackageProjectUrl>https://github.com/JPVenson/morestachio</PackageProjectUrl>
-    <PackageIconUrl>https://github.com/JPVenson/morestachio/raw/master/Morestachio/Morestachio%20248x248.png?raw=true</PackageIconUrl>
-    <RepositoryUrl>https://github.com/JPVenson/morestachio</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
     <PackageTags>Formatter, C#, Engine, NetStandard, Morestachio</PackageTags>
     <Description>The Linq Formatters that require complex arguments for the Morestachio nuget package</Description>
   </PropertyGroup>
