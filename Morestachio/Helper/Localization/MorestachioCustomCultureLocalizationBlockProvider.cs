@@ -16,6 +16,7 @@ namespace Morestachio.Helper.Localization
 		{
 		}
 
+		/// <inheritdoc />
 		public override IEnumerable<TokenPair> Tokenize(TokenInfo token, ParserOptions options)
 		{
 			var trim = token.Token.Trim('{', '}');

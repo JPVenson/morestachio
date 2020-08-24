@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace Morestachio
+namespace Morestachio.Profiler
 {
+#pragma warning disable CS1591
 	public class PerformanceProfiler
 	{
 		public PerformanceProfiler(bool isEnabled)
@@ -67,7 +68,7 @@ namespace Morestachio
 				{
 					_disposed();
 					_disposed = null;
-					
+
 					_stopwatch.Stop();
 					Time = _stopwatch.Elapsed;
 					foreach (var performanceKey in _children ?? Enumerable.Empty<PerformanceKey>())
@@ -109,7 +110,7 @@ namespace Morestachio
 					return false;
 				}
 
-				return Equals((PerformanceKey) obj);
+				return Equals((PerformanceKey)obj);
 			}
 
 			public override int GetHashCode()
@@ -118,4 +119,5 @@ namespace Morestachio
 			}
 		}
 	}
+#pragma warning restore CS1591
 }

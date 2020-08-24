@@ -143,7 +143,7 @@
 		TrimLineBreaks,
 
 		/// <summary>
-		///		Trims all occuring \t & \r\n 
+		///		Trims all occuring \t &amp; \r\n 
 		/// </summary>
 		TrimEverything,
 

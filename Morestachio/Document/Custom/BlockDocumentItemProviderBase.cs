@@ -11,7 +11,15 @@ namespace Morestachio.Document.Custom
 	/// </summary>
 	public abstract class BlockDocumentItemProviderBase : CustomDocumentItemProvider
 	{
+		/// <summary>
+		///		Defines the opening tag
+		/// </summary>
 		protected readonly string TagOpen;
+
+		
+		/// <summary>
+		///		Defines the closing tag
+		/// </summary>
 		protected readonly string TagClose;
 
 		/// <summary>

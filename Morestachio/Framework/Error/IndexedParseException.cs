@@ -21,6 +21,9 @@ namespace Morestachio.Framework.Error
 			Location = location;
 		}
 
+		/// <summary>
+		///		The location of the error within the original template
+		/// </summary>
 		public CharacterLocationExtended Location { get; set; }
 	}
 }

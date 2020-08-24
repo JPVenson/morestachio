@@ -8,6 +8,9 @@ namespace Morestachio.Framework.Context.Resolver
 	/// </summary>
 	public class InvalidPathEventArgs : EventArgs
 	{
+		/// <summary>
+		/// 
+		/// </summary>
 		public InvalidPathEventArgs(ContextObject sender, IMorestachioExpression expression, string pathPart, Type type)
 		{
 			Sender = sender;

@@ -3,8 +3,14 @@ using System.Linq;
 
 namespace Morestachio.Formatter.Framework
 {
+	/// <summary>
+	///		Used to compare and search within the list of all cached formatters
+	/// </summary>
 	public readonly struct FormatterCacheCompareKey : IEquatable<FormatterCacheCompareKey>
 	{
+		/// <summary>
+		/// 
+		/// </summary>
 		public FormatterCacheCompareKey(Type sourceType, FormatterArgumentType[] arguments, string name) : this()
 		{
 			SourceType = sourceType;
@@ -13,8 +19,19 @@ namespace Morestachio.Formatter.Framework
 			_hashCode = GetHashCodeHelper();
 		}
 
+		/// <summary>
+		///		The name of the formatter
+		/// </summary>
 		public string Name { get; }
+
+		/// <summary>
+		///		The source type
+		/// </summary>
 		public Type SourceType { get; }
+
+		/// <summary>
+		///		The argument types
+		/// </summary>
 		public FormatterArgumentType[] Arguments { get; }
 
 		/// <inheritdoc />

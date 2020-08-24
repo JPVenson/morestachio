@@ -37,7 +37,7 @@ namespace Morestachio.Document.Contracts
 				});
 		}
 		
-		public static IDictionary<string, Func<IDocumentItem>> DocumentItems { get; private set; }
+		internal static IDictionary<string, Func<IDocumentItem>> DocumentItems { get; private set; }
 
 		internal static IDocumentItem CreateDocumentItemInstance(string name)
 		{
@@ -74,15 +74,11 @@ namespace Morestachio.Document.Contracts
 		}
 
 		/// <summary>
-		///		
+		///		Wraps the Document items with an scope they should be executed with
 		/// </summary>
 		public static IEnumerable<DocumentItemExecution> WithScope(this IEnumerable<IDocumentItem> items, ContextObject contextObject)
 		{
 			return items.Select(e => new DocumentItemExecution(e, contextObject));
-			//foreach (var documentItem in items)
-			//{
-			//	yield return new DocumentItemExecution(documentItem, contextObject);
-			//}
 		}
 	}
 }

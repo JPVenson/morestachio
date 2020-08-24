@@ -9,8 +9,14 @@ namespace Morestachio.Util.Sealing
 	/// </summary>
 	public interface ISealed
 	{
+		/// <summary>
+		///		Gets if this object is sealed
+		/// </summary>
 		bool IsSealed { get; }
 
+		/// <summary>
+		///		Seals this object
+		/// </summary>
 		void Seal();
 	}
 }

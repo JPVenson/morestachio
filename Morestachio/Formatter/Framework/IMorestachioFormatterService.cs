@@ -25,9 +25,24 @@ namespace Morestachio.Formatter.Framework
 		/// </summary>
 		IReadOnlyDictionary<Type, object> ServiceCollection { get; }
 
+		/// <summary>
+		///		Adds a new Service to the Service collection
+		/// </summary>
 		void AddService<T, TE>(TE service) where TE : T;
+
+		/// <summary>
+		///		Adds a new Service to the Service collection
+		/// </summary>
 		void AddService<T>(T service);
+		
+		/// <summary>
+		///		Adds a new Service factory to the Service collection
+		/// </summary>
 		void AddService<T, TE>(Func<TE> serviceFactory) where TE : T;
+
+		/// <summary>
+		///		Adds a new Service factory to the Service collection
+		/// </summary>
 		void AddService<T>(Func<T> serviceFactory);
 
 		/// <summary>
@@ -75,21 +90,21 @@ namespace Morestachio.Formatter.Framework
 			object sourceType,
 			FormatterArgumentType[] args);
 
-		/// <summary>
-		///		Searches for an cached and prepared formatter call and executes it
-		/// </summary>
-		/// <param name="args"></param>
-		/// <param name="sourceValue"></param>
-		/// <param name="name"></param>
-		/// <param name="options"></param>
-		/// <param name="scope"></param>
-		/// <returns></returns>
-		ObjectPromise Execute(
-			[NotNull] FormatterArgumentType[] args,
-			object sourceValue,
-			[CanBeNull] string name,
-			ParserOptions options,
-			ScopeData scope);
+		///// <summary>
+		/////		Searches for an cached and prepared formatter call and executes it
+		///// </summary>
+		///// <param name="args"></param>
+		///// <param name="sourceValue"></param>
+		///// <param name="name"></param>
+		///// <param name="options"></param>
+		///// <param name="scope"></param>
+		///// <returns></returns>
+		//ObjectPromise Execute(
+		//	[NotNull] FormatterArgumentType[] args,
+		//	object sourceValue,
+		//	[CanBeNull] string name,
+		//	ParserOptions options,
+		//	ScopeData scope);
 
 		/// <summary>
 		///		Adds a new Formatter

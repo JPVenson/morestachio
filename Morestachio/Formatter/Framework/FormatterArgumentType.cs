@@ -1,9 +1,16 @@
 ﻿using System;
+using JetBrains.Annotations;
 
 namespace Morestachio.Formatter.Framework
 {
+	/// <summary>
+	///		Contains the meta data for an argument
+	/// </summary>
 	public readonly struct FormatterArgumentType : IEquatable<FormatterArgumentType>
 	{
+		/// <summary>
+		///		
+		/// </summary>
 		public FormatterArgumentType(int index, string name, Type value)
 		{
 			Index = index;
@@ -11,6 +18,10 @@ namespace Morestachio.Formatter.Framework
 			Type = value;
 			Value = null;
 		}
+		
+		/// <summary>
+		///		
+		/// </summary>
 		public FormatterArgumentType(int index, string name, object value)
 		{
 			Index = index;
@@ -19,9 +30,25 @@ namespace Morestachio.Formatter.Framework
 			Value = value;
 		}
 
+		/// <summary>
+		///		The index of the argument
+		/// </summary>
 		public int Index { get; }
+
+		/// <summary>
+		///		The name of the argument
+		/// </summary>
 		public string Name { get; }
+
+		/// <summary>
+		///		The declared type of the object
+		/// </summary>
 		public Type Type { get; }
+
+		/// <summary>
+		///		if present, the known value
+		/// </summary>
+		[CanBeNull]
 		public object Value { get; }
 
 		/// <inheritdoc />

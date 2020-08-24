@@ -9,6 +9,14 @@ using Promise = System.Threading.Tasks.Task;
 #endif
 namespace Morestachio.Document.Custom
 {
+	/// <summary>
+	///		Delegate for the Tagdocument 
+	/// </summary>
+	/// <param name="outputStream"></param>
+	/// <param name="context"></param>
+	/// <param name="scopeData"></param>
+	/// <param name="value"></param>
+	/// <returns></returns>
 	public delegate Promise TagDocumentProviderFunction(
 		IByteCounterStream outputStream,
 		ContextObject context,

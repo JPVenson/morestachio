@@ -7,6 +7,9 @@ namespace Morestachio.Framework.Tokenizing
 	/// </summary>
 	public class TokenizerResult
 	{
+		/// <summary>
+		/// 
+		/// </summary>
 		public TokenizerResult(IEnumerable<TokenPair> tokens)
 		{
 			Tokens = tokens;

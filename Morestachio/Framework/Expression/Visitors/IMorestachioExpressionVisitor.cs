@@ -30,6 +30,9 @@
 		/// </summary>
 		void Visit(MorestachioExpressionNumber expression);
 
+		/// <summary>
+		///		Visits an Operator
+		/// </summary>
 		void Visit(MorestachioOperatorExpression expression);
 	}
 }

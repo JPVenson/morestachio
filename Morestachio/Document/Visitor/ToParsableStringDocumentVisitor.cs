@@ -15,6 +15,9 @@ namespace Morestachio.Document.Visitor
 	/// </summary>
 	public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 	{
+		/// <summary>
+		/// 
+		/// </summary>
 		public ToParsableStringDocumentVisitor()
 		{
 			StringBuilder = new StringBuilder();
@@ -294,8 +297,14 @@ namespace Morestachio.Document.Visitor
 			}
 		}
 
+		/// <summary>
+		///		Defines custom rendering logic for custom <see cref="IDocumentItem"/>
+		/// </summary>
 		public interface IStringVisitor
 		{
+			/// <summary>
+			///		Renders the object
+			/// </summary>
 			void Render(ToParsableStringDocumentVisitor visitor);
 		}
 	}

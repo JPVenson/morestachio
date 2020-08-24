@@ -7,6 +7,7 @@ using Morestachio.Framework.Expression;
 
 namespace Morestachio.Formatter.Predefined
 {
+#pragma warning disable CS1591
 	public static class StringFormatter
 	{
 		[MorestachioFormatter("Append", "Concatenates two strings")]

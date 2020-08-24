@@ -40,6 +40,9 @@ namespace Morestachio.Formatter.Predefined.Accounting
 			}
 		}
 
+		/// <summary>
+		///		Converts the value from one precision to another
+		/// </summary>
 		public static double ConvertValue(double value,
 			WorktimePrecision fromPrecision,
 			WorktimePrecision toPrecision)
@@ -72,12 +75,18 @@ namespace Morestachio.Formatter.Predefined.Accounting
 		/// </summary>
 		public WorktimePrecision Precision { get; }
 
+		/// <summary>
+		///		Adds the value of time with the precision to a new Worktime
+		/// </summary>
+		/// <param name="time"></param>
+		/// <param name="precision"></param>
+		/// <returns></returns>
 		public Worktime Add(double time, WorktimePrecision precision)
 		{
 			var newValueInSeconds = GetTimeInSeconds(TimeWorked, Precision) + GetTimeInSeconds(time, precision);
 			return new Worktime(ConvertValue(newValueInSeconds, WorktimePrecision.Seconds, Precision), Precision);
 		}
-
+		#pragma warning disable  CS1591
 		[MorestachioGlobalFormatter("Worktime", "Creates a new Worktime Object")]
 		public static Worktime WorktimeFactory()
 		{
@@ -131,7 +140,7 @@ namespace Morestachio.Formatter.Predefined.Accounting
 		{
 			return worktime.AddMonths(number.ToInt32(null), startingWith);
 		}
-
+#pragma warning restore  CS1591
 		/// <summary>
 		///		Adds the amount of Seconds and returns a new object representing this time
 		/// </summary>

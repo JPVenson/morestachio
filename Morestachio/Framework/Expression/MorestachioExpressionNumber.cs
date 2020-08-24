@@ -20,6 +20,9 @@ using ContextObjectPromise = System.Threading.Tasks.Task<Morestachio.Framework.C
 
 namespace Morestachio.Framework.Expression
 {
+	/// <summary>
+	///		Defines a number within an expression
+	/// </summary>
 	[Serializable]
 	[DebuggerTypeProxy(typeof(ExpressionDebuggerDisplay))]
 	public class MorestachioExpressionNumber : IMorestachioExpression

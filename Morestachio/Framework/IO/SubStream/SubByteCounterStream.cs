@@ -26,6 +26,7 @@ namespace Morestachio.Framework.IO.SubStream
 			ReachedLimit = _source.ReachedLimit;
 		}
 
+		/// <inheritdoc />
 		public string Read()
 		{
 			BaseWriter.Flush();

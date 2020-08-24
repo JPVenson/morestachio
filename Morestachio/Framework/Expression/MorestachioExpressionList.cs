@@ -186,6 +186,10 @@ namespace Morestachio.Framework.Expression
 			}
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="currentScopeValue"></param>
 		protected internal void Add(IMorestachioExpression currentScopeValue)
 		{
 			Expressions.Add(currentScopeValue);

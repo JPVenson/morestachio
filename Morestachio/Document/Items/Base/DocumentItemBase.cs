@@ -66,9 +66,7 @@ namespace Morestachio.Document.Items.Base
 			}
 
 			return Children.SequenceEqual(other.Children)
-			       && (ReferenceEquals(ExpressionStart, other.ExpressionStart) ||
-			           ExpressionStart.Equals(other.ExpressionStart))
-			       && string.Equals(Kind, other.Kind);
+			       && (ExpressionStart.Equals(other.ExpressionStart));
 		}
 
 		/// <inheritdoc />
@@ -77,6 +75,7 @@ namespace Morestachio.Document.Items.Base
 			ScopeData scopeData);
 
 		[Obsolete("The kind is no longer needed and will be removed in future versions")]
+		// ReSharper disable once UnassignedGetOnlyAutoProperty
 		public virtual string Kind { get; }
 
 		/// <inheritdoc />
@@ -287,8 +286,7 @@ namespace Morestachio.Document.Items.Base
 			unchecked
 			{
 				return ((Children.Any() ? Children.Select(f => f.GetHashCode()).Aggregate((e,f) => e ^ f) : 0) * 397) ^
-				       (ExpressionStart.GetHashCode()) ^
-				       Kind.GetHashCode();
+				       (ExpressionStart.GetHashCode());
 			}
 		}
 	}

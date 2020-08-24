@@ -48,10 +48,9 @@ namespace Morestachio.Document.Custom
 			}
 
 			/// <inheritdoc />
-			public BlockDocumentItem(string kind, BlockDocumentProviderFunction action, string value)
+			public BlockDocumentItem(BlockDocumentProviderFunction action, string value)
 			{
 				_action = action;
-				Kind = kind;
 				Value = value;
 			}
 			
@@ -63,8 +62,6 @@ namespace Morestachio.Document.Custom
 			}
 
 			/// <inheritdoc />
-			public override string Kind { get; }
-			/// <inheritdoc />
 			public override void Accept(IDocumentItemVisitor visitor)
 			{
 				visitor.Visit(this);
@@ -74,7 +71,7 @@ namespace Morestachio.Document.Custom
 		/// <inheritdoc />
 		public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token, ParserOptions options)
 		{
-			return new BlockDocumentItem(tag, _action, value);
+			return new BlockDocumentItem(_action, value);
 		}
 	}
 }

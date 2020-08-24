@@ -7,6 +7,7 @@ using Morestachio.Helper;
 
 namespace Morestachio.Formatter.Predefined
 {
+#pragma warning disable CS1591
 	public static class LinqFormatter
 	{
 		[MorestachioFormatter("Concat", "Concats two lists together")]

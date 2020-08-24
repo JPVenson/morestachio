@@ -9,6 +9,9 @@ namespace Morestachio.Formatter.Framework
 	/// </summary>
 	public class PrepareFormatterComposingResult
 	{
+		/// <summary>
+		/// 
+		/// </summary>
 		public PrepareFormatterComposingResult(
 			[NotNull] Func<object[], MethodInfo> methodInfo, 
 			[NotNull] IDictionary<MultiFormatterInfo, FormatterArgumentMap> arguments)
@@ -25,6 +28,11 @@ namespace Morestachio.Formatter.Framework
 
 		private MethodInfo _methodInfo;
 
+		/// <summary>
+		///		Gets an compiled Method info
+		/// </summary>
+		/// <param name="arguments"></param>
+		/// <returns></returns>
 		public MethodInfo PrepareInvoke(object[] arguments)
 		{
 			return _methodInfo ?? (_methodInfo = MethodInfo(arguments));

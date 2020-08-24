@@ -11,6 +11,9 @@ using Promise = System.Threading.Tasks.Task;
 #endif
 namespace Morestachio.Document.Custom
 {
+	/// <summary>
+	/// 
+	/// </summary>
 	public delegate ItemExecutionPromise BlockDocumentProviderFunction(
 		IByteCounterStream outputStream,
 		ContextObject context,

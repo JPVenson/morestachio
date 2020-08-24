@@ -22,6 +22,9 @@ namespace Morestachio.Helper.Localization
 			TranslationResources = new List<ITranslationResource>();
 		}
 
+		/// <summary>
+		///		The list of <see cref="ITranslationResource"/>
+		/// </summary>
 		public IList<ITranslationResource> TranslationResources { get; }
 
 		/// <summary>
@@ -70,6 +73,7 @@ namespace Morestachio.Helper.Localization
 			return null;
 		}
 
+		/// <inheritdoc />
 		public async Task<TextResourceEntity?> GetEntryOrLoad(string key, CultureInfo culture = null)
 		{
 			var entry = GetEntryOrNull(key, culture);
@@ -115,11 +119,8 @@ namespace Morestachio.Helper.Localization
 
 		/// <summary>
 		///		Loads the Resources into the <see cref="TextCache"/>.
-		///		If <see cref="transformReferences"/> is set, all occurrences of {{Key}} within an translation will be replaced with the translated key in the same culture
+		///		If transformReferences is set, all occurrences of {{Key}} within an translation will be replaced with the translated key in the same culture
 		/// </summary>
-		/// <param name="resources"></param>
-		/// <param name="cultures"></param>
-		/// <param name="transformReferences"></param>
 		public MorestachioLocalizationService Load(IEnumerable<CultureInfo> cultures,
 			bool transformReferences = true)
 		{

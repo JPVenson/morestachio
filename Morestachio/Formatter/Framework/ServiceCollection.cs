@@ -3,11 +3,17 @@ using System.Collections.Generic;
 
 namespace Morestachio.Formatter.Framework
 {
+	/// <summary>
+	///		Collection of services
+	/// </summary>
 	public class ServiceCollection
 	{
 		private readonly IDictionary<Type, object> _localSource;
 		private readonly IDictionary<Type, object> _source;
 
+		/// <summary>
+		/// 
+		/// </summary>
 		public ServiceCollection(IDictionary<Type, object> source)
 		{
 			_source = source;
@@ -121,6 +127,13 @@ namespace Morestachio.Formatter.Framework
 			return TryInvokeService(_source, serviceType, out service);
 		}
 
+		/// <summary>
+		///		Searches in the list of services and if necessary executes the factory
+		/// </summary>
+		/// <param name="services"></param>
+		/// <param name="serviceType"></param>
+		/// <param name="service"></param>
+		/// <returns></returns>
 		public static bool TryInvokeService(IDictionary<Type, object> services, Type serviceType, out object service)
 		{
 			if (!services.TryGetValue(serviceType, out service))

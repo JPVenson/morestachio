@@ -43,6 +43,9 @@ namespace Morestachio.Helper.Localization
 			MorestachioExpression = expression;
 		}
 
+		/// <summary>
+		///		Get name of the changed culture in the <see cref="ScopeData.CustomData"/>
+		/// </summary>
 		public const string LocalizationCultureKey = "LocalizationService.CustomCulture";
 
 		/// <inheritdoc />
@@ -80,22 +83,27 @@ namespace Morestachio.Helper.Localization
 		{
 			private readonly CultureInfo _culture;
 
+
+			/// <inheritdoc />
 			public ResetCultureDocumentItem()
 			{
 				
 			}
-
+			
+			/// <inheritdoc />
 			public ResetCultureDocumentItem(CultureInfo culture)
 			{
 				_culture = culture;
 			}
-
+			
+			/// <inheritdoc />
 			public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 			{
 				scopeData.CustomData[LocalizationCultureKey] = _culture;
 				return Enumerable.Empty<DocumentItemExecution>().ToPromise();
 			}
-
+			
+			/// <inheritdoc />
 			public override void Accept(IDocumentItemVisitor visitor)
 			{
 				throw new NotImplementedException();
@@ -108,6 +116,7 @@ namespace Morestachio.Helper.Localization
 			visitor.Visit(this);
 		}
 		
+		/// <inheritdoc />
 		public void Render(ToParsableStringDocumentVisitor visitor)
 		{
 			visitor.StringBuilder.Append("{{#LOCCULTURE " + visitor.ReparseExpression(MorestachioExpression) + "}}");

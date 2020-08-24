@@ -4,20 +4,27 @@ using Morestachio.Framework.Expression.Framework;
 
 namespace Morestachio.Framework.Expression.Visitors
 {
+	/// <summary>
+	///		Builds expressions for the debugger viewer
+	/// </summary>
 	public class DebuggerViewExpressionVisitor : IMorestachioExpressionVisitor
 	{
+		/// <summary>
+		/// 
+		/// </summary>
 		public DebuggerViewExpressionVisitor()
 		{
 			StringBuilder = new StringBuilderInterlaced<NoColor>();
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
 		public StringBuilderInterlaced<NoColor> StringBuilder { get; set; }
-		public int ExpressionCounter { get; set; }
 
+		/// <inheritdoc />
 		public void Visit(MorestachioExpression expression)
 		{
-			var isSelfAssignment = false;
-			var exp = ExpressionCounter++;
 			StringBuilder.Append("Exp({");
 
 			var expressionPathParts = expression.PathParts.ToArray();
@@ -47,11 +54,9 @@ namespace Morestachio.Framework.Expression.Visitors
 						break;
 					case PathType.SelfAssignment:
 						StringBuilder.Append(".");
-						isSelfAssignment = true;
 						break;
 					case PathType.ObjectSelector:
 						StringBuilder.Append("?");
-						isSelfAssignment = true;
 						break;
 					default:
 						throw new ArgumentOutOfRangeException();
@@ -106,6 +111,9 @@ namespace Morestachio.Framework.Expression.Visitors
 			StringBuilder.Append(")");
 		}
 
+		/// <summary>
+		///		Gets the string representation of all visited expressions
+		/// </summary>
 		public string Text
 		{
 			get
@@ -114,9 +122,9 @@ namespace Morestachio.Framework.Expression.Visitors
 			}
 		}
 
+		/// <inheritdoc />
 		public void Visit(MorestachioExpressionList expression)
 		{
-			var exp = ExpressionCounter++;
 			StringBuilder
 				.AppendLine("List[")
 				.Up()
@@ -136,14 +144,13 @@ namespace Morestachio.Framework.Expression.Visitors
 				.AppendInterlaced("]");
 		}
 
+		/// <inheritdoc />
 		public void Visit(MorestachioExpressionString expression)
 		{
-			var exp = ExpressionCounter++;
 			StringBuilder.Append("String(");
 			StringBuilder.Append(expression.Delimiter.ToString());
 			foreach (var expressionStringConstPart in expression.StringParts)
 			{
-				var expPart = ExpressionCounter++;
 				StringBuilder.Append("const(");
 				StringBuilder.Append(expressionStringConstPart.PartText);
 				StringBuilder.Append(")");
@@ -152,6 +159,7 @@ namespace Morestachio.Framework.Expression.Visitors
 			StringBuilder.Append(")");
 		}
 
+		/// <inheritdoc />
 		public void Visit(ExpressionArgument expression)
 		{
 			if (!string.IsNullOrWhiteSpace(expression.Name))
@@ -164,6 +172,7 @@ namespace Morestachio.Framework.Expression.Visitors
 			this.Visit(expression.MorestachioExpression);
 		}
 
+		/// <inheritdoc />
 		public void Visit(MorestachioExpressionNumber expression)
 		{
 			StringBuilder.Append("Number(");
@@ -172,9 +181,9 @@ namespace Morestachio.Framework.Expression.Visitors
 			StringBuilder.Append(")");
 		}
 
+		/// <inheritdoc />
 		public void Visit(MorestachioOperatorExpression expression)
 		{
-			var exp = ExpressionCounter++;
 			StringBuilder
 				.Append("op(" + expression.Operator.OperatorText + ")") 
 				.AppendLine("{")

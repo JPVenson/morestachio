@@ -23,7 +23,7 @@ namespace Morestachio.Formatter.Predefined.Accounting
 		{
 			Value = val;
 		}
-
+#pragma warning disable CS1591
 		[MorestachioGlobalFormatter("Money", "Creates a new Money Object")]
 		public static Money MoneyFactory(double value)
 		{
@@ -54,6 +54,7 @@ namespace Morestachio.Formatter.Predefined.Accounting
 		{
 			return worktime.CommercialRound();
 		}
+#pragma warning restore CS1591
 
 		/// <summary>
 		///		Gets the amount of Tax for this money object

@@ -58,6 +58,9 @@ namespace Morestachio.Helper.Localization
 	/// </summary>
 	public class MemoryTranslationResource : ITranslationResource
 	{
+		/// <summary>
+		/// 
+		/// </summary>
 		public MemoryTranslationResource()
 		{
 			Translations = new List<Translation>();
@@ -76,7 +79,7 @@ namespace Morestachio.Helper.Localization
 			return this;
 		}
 
-		readonly struct Translation
+		private readonly struct Translation
 		{
 			public Translation(string key, object value, CultureInfo culture)
 			{
@@ -91,14 +94,16 @@ namespace Morestachio.Helper.Localization
 		}
 
 		IList<Translation> Translations { get; set; }
-
+		
+		/// <inheritdoc />
 		public KeyValuePair<string, object>[] Get(CultureInfo culture)
 		{
 			return Translations.Where(e => e.Culture == culture)
 				.Select(f => new KeyValuePair<string, object>(f.Key, f.Value))
 				.ToArray();
 		}
-
+		
+		/// <inheritdoc />
 		public BoolPromise GetTranslation(string key, CultureInfo culture, out object translation)
 		{
 			var firstOrDefault = Translations.FirstOrDefault(e => e.Key == key && e.Culture == culture);

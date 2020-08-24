@@ -4,11 +4,14 @@ using JetBrains.Annotations;
 
 namespace Morestachio.Framework.IO.MultiPart
 {
+	/// <summary>
+	///		Defines a part within a <see cref="PartialByteCounterStream"/>
+	/// </summary>
 	public class PartialByteCounterStreamPart : IByteCounterStreamPart
 	{
 		private readonly PartialByteCounterStream _partialByteCounterStream;
 		private ByteCounterStreamPartType _state;
-		public ParserOptions Options { get; }
+		internal ParserOptions Options { get; }
 
 		/// <inheritdoc />
 		public ByteCounterStreamPartType State
@@ -17,6 +20,9 @@ namespace Morestachio.Framework.IO.MultiPart
 			private set { _state = value; }
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
 		public PartialByteCounterStreamPart([NotNull] Stream stream,
 			int bufferSize,
 			ParserOptions options,
@@ -32,8 +38,9 @@ namespace Morestachio.Framework.IO.MultiPart
 			BaseWriter = new StreamWriter(stream, options.Encoding, bufferSize, false);
 		}
 
-		public StreamWriter BaseWriter { get; set; }
-
+		private StreamWriter BaseWriter { get; set; }
+		
+		/// <inheritdoc />
 		public void Dispose()
 		{
 			_state = ByteCounterStreamPartType.Closed;
@@ -41,12 +48,16 @@ namespace Morestachio.Framework.IO.MultiPart
 			_partialByteCounterStream.Flush();
 		}
 		
+		/// <inheritdoc />
 		public Stream BaseStream()
 		{
 			return BaseWriter.BaseStream;
 		}
-
+		
+		/// <inheritdoc />
 		public ByteCounterInfo Info { get; set; }
+		
+		/// <inheritdoc />
 		public void Write(string content)
 		{
 			if (_state == ByteCounterStreamPartType.Closed)

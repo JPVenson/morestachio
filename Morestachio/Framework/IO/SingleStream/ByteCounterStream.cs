@@ -11,7 +11,9 @@ namespace Morestachio.Framework.IO.SingleStream
 	/// <seealso cref="System.IDisposable" />
 	public class ByteCounterStream : IByteCounterStream
 	{
-		[NotNull] public Stream Stream { get; }
+		/// <inheritdoc />
+		[NotNull] 
+		public Stream Stream { get; }
 
 		/// <summary>
 		/// 

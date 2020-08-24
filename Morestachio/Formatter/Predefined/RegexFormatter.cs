@@ -4,6 +4,7 @@ using Morestachio.Formatter.Framework.Attributes;
 
 namespace Morestachio.Formatter.Predefined
 {
+#pragma warning disable CS1591
 	public static class RegexFormatter
 	{
 		[MorestachioFormatter("Regex", "Creates a new Regex with the given pattern")]

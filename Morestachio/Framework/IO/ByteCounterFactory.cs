@@ -9,21 +9,33 @@ namespace Morestachio.Framework.IO
 	/// </summary>
 	public class ByteCounterFactory
 	{
+		/// <summary>
+		///		ctor
+		/// </summary>
 		public ByteCounterFactory(Func<Stream> output, Func<Stream> tempStream, Func<ParserOptions, IByteCounterStream> getByteCounterStream)
 		{
 			Output = output ?? GetDefaultTempStream;
 			TempStream = tempStream ?? GetDefaultTempStream;
 			GetByteCounterStream = getByteCounterStream ?? GetDefaultByteCounter;
 		}
-
+		
+		/// <summary>
+		///		ctor
+		/// </summary>
 		public ByteCounterFactory(Func<Stream> output, Func<Stream> tempStream) : this(output, tempStream, GetDefaultByteCounter)
 		{
 		}
-
+		
+		/// <summary>
+		///		ctor
+		/// </summary>
 		public ByteCounterFactory(Func<Stream> output) : this(output, GetDefaultTempStream, GetDefaultByteCounter)
 		{
 		}
-
+		
+		/// <summary>
+		///		ctor
+		/// </summary>
 		public ByteCounterFactory() : this(GetDefaultTempStream, GetDefaultTempStream, GetDefaultByteCounter)
 		{
 		}

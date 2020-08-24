@@ -32,6 +32,9 @@ namespace Morestachio.Framework.Expression.Framework
 			return tokenzierContext;
 		}
 
+		/// <summary>
+		///		The culture of the current template
+		/// </summary>
 		public CultureInfo Culture { get; private set; }
 
 		/// <summary>
@@ -54,12 +57,18 @@ namespace Morestachio.Framework.Expression.Framework
 		/// </summary>
 		public MorestachioErrorCollection Errors { get; set; }
 
+		/// <summary>
+		///		Advances the current location by the number of chars
+		/// </summary>
 		public void AdvanceLocation(int chars)
 		{
 			Character += chars;
 			CurrentLocation = Tokenizer.HumanizeCharacterLocation(Character, Lines);
 		}
-
+		
+		/// <summary>
+		///		sets the current location
+		/// </summary>
 		public void SetLocation(int chars)
 		{
 			Character = chars;

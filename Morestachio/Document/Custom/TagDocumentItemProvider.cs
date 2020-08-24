@@ -31,37 +31,44 @@ namespace Morestachio.Document.Custom
 			_action = action;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
 		public class TagDocumentItem : ValueDocumentItemBase
 		{
 			private readonly TagDocumentProviderFunction _action;
-
+			
+			/// <inheritdoc />
 			public TagDocumentItem()
 			{
 
 			}
-
-			public TagDocumentItem(string kind, TagDocumentProviderFunction action, string value)
+			
+			/// <inheritdoc />
+			public TagDocumentItem(TagDocumentProviderFunction action, string value)
 			{
 				_action = action;
-				Kind = kind;
 				Value = value;
 			}
+
+			/// <inheritdoc />
 			public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 			{
 				await _action(outputStream, context, scopeData, Value);
 				return Array.Empty<DocumentItemExecution>();
 			}
-
-			public override string Kind { get; }
+			
+			/// <inheritdoc />
 			public override void Accept(IDocumentItemVisitor visitor)
 			{
 				visitor.Visit(this);
 			}
 		}
 
+		/// <inheritdoc />
 		public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token, ParserOptions options)
 		{
-			return new TagDocumentItem(tag, _action, value);
+			return new TagDocumentItem(_action, value);
 		}
 	}
 }

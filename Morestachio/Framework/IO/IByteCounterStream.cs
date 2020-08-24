@@ -38,6 +38,9 @@ namespace Morestachio.Framework.IO
 		/// <returns></returns>
 		ISubByteCounterStream GetSubStream();
 
+		/// <summary>
+		///		Gets access to the underlying stream
+		/// </summary>
 		Stream Stream { get; }
 	}
 }

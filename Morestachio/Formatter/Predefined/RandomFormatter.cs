@@ -3,6 +3,7 @@ using Morestachio.Formatter.Framework;
 
 namespace Morestachio.Formatter.Predefined
 {
+#pragma warning disable CS1591
 	public static class RandomFormatter
 	{
 		private static Random _random;

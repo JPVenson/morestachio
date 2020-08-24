@@ -35,7 +35,8 @@ namespace Morestachio.Document.Items
 		{
 			MorestachioExpression = value;
 		}
-
+		
+		/// <inheritdoc />
 		[UsedImplicitly]
 		protected IfExpressionScopeDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{

@@ -13,7 +13,10 @@ namespace Morestachio.Document.Custom
 	/// </summary>
 	public abstract class CustomDocumentItemProvider
 	{
-		public CustomDocumentItemProvider()
+		/// <summary>
+		/// 
+		/// </summary>
+		protected CustomDocumentItemProvider()
 		{
 			ScopeStack = new Stack<Tuple<string, int>>();
 		}

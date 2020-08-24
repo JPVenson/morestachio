@@ -24,6 +24,13 @@ namespace Morestachio.Framework.Expression
 	public class MorestachioOperatorExpression : IMorestachioExpression
 	{
 		/// <summary>
+		/// 
+		/// </summary>
+		public MorestachioOperatorExpression()
+		{
+
+		}
+		/// <summary>
 		///		The Operator that will be called
 		/// </summary>
 		public MorestachioOperator Operator { get; private set; }
@@ -37,11 +44,7 @@ namespace Morestachio.Framework.Expression
 		///		The right site of the operator
 		/// </summary>
 		public IMorestachioExpression RightExpression { get; set; }
-
-		public MorestachioOperatorExpression()
-		{
-
-		}
+		
 
 		/// <summary>
 		/// 

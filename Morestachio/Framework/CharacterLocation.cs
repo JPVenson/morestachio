@@ -127,6 +127,7 @@ namespace Morestachio.Framework
 			return new CharacterLocation(Line, Character + length);
 		}
 
+		/// <inheritdoc />
 		public int CompareTo(CharacterLocation other)
 		{
 			var lineComparison = Line.CompareTo(other.Line);

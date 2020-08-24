@@ -7,6 +7,7 @@ namespace Morestachio.Formatter.Framework.Attributes
 	/// </summary>
 	public class MorestachioOperatorAttribute : MorestachioFormatterAttribute
 	{
+		/// <inheritdoc />
 		public MorestachioOperatorAttribute(OperatorTypes name, string description) 
 			: base("op_" + name.ToString(), description)
 		{
@@ -18,6 +19,7 @@ namespace Morestachio.Formatter.Framework.Attributes
 		/// </summary>
 		public OperatorTypes OperatorType { get; set; }
 		
+		/// <inheritdoc />
 		public override bool ValidateFormatterName()
 		{
 			return MorestachioOperator.Operators.ContainsKey(OperatorType);

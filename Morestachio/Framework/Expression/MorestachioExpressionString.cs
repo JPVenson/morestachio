@@ -104,6 +104,9 @@ namespace Morestachio.Framework.Expression
 			info.AddValue(nameof(Delimiter), Delimiter);
 		}
 
+		/// <summary>
+		///		Defines the list of string parts for this string expression
+		/// </summary>
 		public IList<ExpressionStringConstPart> StringParts { get; set; }
 
 		/// <inheritdoc />

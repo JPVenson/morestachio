@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Threading.Tasks;
 
 namespace Morestachio.Helper.Localization
 {
@@ -13,7 +14,7 @@ namespace Morestachio.Helper.Localization
 		/// <param name="key"></param>
 		/// <param name="culture"></param>
 		/// <returns></returns>
-		TextResourceEntity? GetEntryOrNull(string key, CultureInfo culture = null);
+		Task<TextResourceEntity?> GetEntryOrLoad(string key, CultureInfo culture = null);
 
 		/// <summary>
 		///		Get the Translation for the culture (or <see cref="CultureInfo.CurrentUICulture"/> if null)

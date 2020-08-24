@@ -6,6 +6,7 @@ using Morestachio.Helper;
 
 namespace Morestachio.Formatter.Predefined
 {
+#pragma warning disable CS1591
 	public static class DateFormatter
 	{
 		[MorestachioGlobalFormatter("DaysInMonth", "Gets the Days in a given Month of the year")]

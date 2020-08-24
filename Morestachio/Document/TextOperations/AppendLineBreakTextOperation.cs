@@ -6,8 +6,14 @@ using System.Xml.Schema;
 
 namespace Morestachio.Document.TextOperations
 {
+	/// <summary>
+	///		Trims all Whitespaces from a content
+	/// </summary>
 	public class TrimAllWhitespacesTextOperation : ITextOperation
 	{
+		/// <summary>
+		/// 
+		/// </summary>
 		public TrimAllWhitespacesTextOperation()
 		{
 			TextOperationType = TextOperationTypes.ContinuesTrimming;

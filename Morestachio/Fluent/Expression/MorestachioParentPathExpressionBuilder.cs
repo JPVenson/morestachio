@@ -19,6 +19,10 @@ namespace Morestachio.Fluent.Expression
 			ExpressionParts = expressionParts;
 		}
 
+		/// <summary>
+		///		Adds the ~ part to the expression
+		/// </summary>
+		/// <returns></returns>
 		public MorestachioParentPathExpressionBuilder GoToParent()
 		{
 			_morestachioExpression.PathParts = _morestachioExpression.PathParts.Expand(new[]

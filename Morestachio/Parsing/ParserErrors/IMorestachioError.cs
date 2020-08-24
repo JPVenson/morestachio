@@ -24,6 +24,10 @@ namespace Morestachio.Parsing.ParserErrors
 		/// </summary>
 		string HelpText { get; }
 
+		/// <summary>
+		///		Formats the contents of the error into an <see cref="StringBuilder"/>
+		/// </summary>
+		/// <param name="sb"></param>
 		void Format(StringBuilder sb);
 	}
 }

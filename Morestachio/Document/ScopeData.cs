@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Morestachio.Document.Contracts;
 using Morestachio.Framework.Context;
+using Morestachio.Profiler;
 
 namespace Morestachio.Document
 {

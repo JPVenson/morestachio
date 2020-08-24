@@ -36,7 +36,8 @@ namespace Morestachio.Document.Items
 		{
 			Value = partialName ?? throw new ArgumentNullException(nameof(partialName));
 		}
-
+		
+		/// <inheritdoc />
 		[UsedImplicitly]
 		protected RenderPartialDoneDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{

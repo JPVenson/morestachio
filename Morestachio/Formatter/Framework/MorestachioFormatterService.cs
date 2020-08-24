@@ -186,27 +186,27 @@ namespace Morestachio.Formatter.Framework
 			FormatterLog?.WriteLine(log());
 		}
 
-		public async ObjectPromise Execute(
-			[NotNull] FormatterArgumentType[] args,
-			object sourceValue,
-			[CanBeNull] string name,
-			ParserOptions options,
-			ScopeData scope)
-		{
-			var cacheItem = PrepareCallMostMatchingFormatter(sourceValue.GetType(), args, name, options, scope);
-			if (cacheItem == null)
-			{
-				return FormatterFlow.Skip;
-			}
+		//public async ObjectPromise Execute(
+		//	[NotNull] FormatterArgumentType[] args,
+		//	object sourceValue,
+		//	[CanBeNull] string name,
+		//	ParserOptions options,
+		//	ScopeData scope)
+		//{
+		//	var cacheItem = PrepareCallMostMatchingFormatter(sourceValue.GetType(), args, name, options, scope);
+		//	if (cacheItem == null)
+		//	{
+		//		return FormatterFlow.Skip;
+		//	}
 
-			return await Execute(cacheItem.Value, sourceValue, args);
-		}
+		//	return await Execute(cacheItem.Value, sourceValue, args);
+		//}
 
 		/// <inheritdoc />
 		public FormatterCache? PrepareCallMostMatchingFormatter(
-			[NotNull] Type type,
-			[NotNull] FormatterArgumentType[] arguments,
-			[CanBeNull] string name,
+			Type type,
+			FormatterArgumentType[] arguments,
+			string name,
 			ParserOptions parserOptions,
 			ScopeData scope)
 		{
@@ -255,7 +255,7 @@ namespace Morestachio.Formatter.Framework
 		///     Executes the specified formatter.
 		/// </summary>
 		public virtual async ObjectPromise Execute(
-			[NotNull] FormatterCache formatter,
+			FormatterCache formatter,
 			object sourceType,
 			FormatterArgumentType[] args)
 		{
@@ -383,8 +383,12 @@ namespace Morestachio.Formatter.Framework
 			return Enumerable.Empty<MorestachioFormatterModel>();
 		}
 
-
-
+		/// <summary>
+		///		Internal
+		/// </summary>
+		/// <param name="givenType"></param>
+		/// <param name="genericType"></param>
+		/// <returns></returns>
 		public static bool IsAssignableToGenericType([NotNull] Type givenType, [NotNull] Type genericType)
 		{
 			var interfaceTypes = givenType.GetInterfaces();
@@ -529,7 +533,7 @@ namespace Morestachio.Formatter.Framework
 			{
 				return methodInfo.MakeGenericMethod(generics.ToArray());
 			}
-			catch (Exception e)
+			catch
 			{
 				return null;
 			}
@@ -842,7 +846,7 @@ namespace Morestachio.Formatter.Framework
 							return (o as IConvertible).ToType(parameterParameterType,
 								services.GetRequiredService<ParserOptions>().CultureInfo);
 						}
-						catch (Exception e)
+						catch
 						{
 							//this might just not work
 							return null;

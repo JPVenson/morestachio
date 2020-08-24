@@ -6,6 +6,7 @@ using Morestachio.Helper;
 
 namespace Morestachio.Formatter.Predefined
 {
+#pragma warning disable CS1591
 	public static class TimeSpanFormatter
 	{
 		[MorestachioFormatter("ToTimeSpan", "Parses a string into a TimeSpan")]

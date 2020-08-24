@@ -57,6 +57,10 @@ namespace Morestachio.Formatter.Framework.Attributes
 		/// </value>
 		public Type OutputType { get; set; }
 
+		/// <summary>
+		///		Validates the name of the formatter
+		/// </summary>
+		/// <returns></returns>
 		public virtual bool ValidateFormatterName()
 		{
 			if (string.IsNullOrWhiteSpace(Name))
@@ -67,6 +71,11 @@ namespace Morestachio.Formatter.Framework.Attributes
 			return MorestachioFormatterService.ValidateFormatterNameRegEx.IsMatch(Name);
 		}
 
+		/// <summary>
+		///		Gets all parameters from an method info
+		/// </summary>
+		/// <param name="method"></param>
+		/// <returns></returns>
 		public virtual MultiFormatterInfo[] GetParameters(MethodInfo method)
 		{
 			var arguments = method.GetParameters().Select((e, index) =>

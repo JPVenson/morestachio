@@ -60,6 +60,9 @@ namespace Morestachio.Formatter.Framework
 		/// </summary>
 		public bool IsRestObject { get; internal set; }
 
+		/// <summary>
+		///		The list of all converters for this parameter only
+		/// </summary>
 		public FormatterValueConverterAttribute[] FormatterValueConverterAttribute { get; set; }
 	}
 }

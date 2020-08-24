@@ -9,6 +9,7 @@ using Morestachio.Document.Items;
 using Morestachio.Fluent;
 using Morestachio.Helper;
 using Morestachio.Parsing.ParserErrors;
+using Morestachio.Profiler;
 #if ValueTask
 using MorestachioDocumentResultPromise = System.Threading.Tasks.ValueTask<Morestachio.MorestachioDocumentResult>;
 using StringPromise = System.Threading.Tasks.ValueTask<string>;

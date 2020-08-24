@@ -34,6 +34,9 @@ namespace Morestachio.Parsing
 		/// </summary>
 		public IDocumentItem Document { get; private set; }
 
+		/// <summary>
+		///		All variables and alias within this block
+		/// </summary>
 		public IList<string> LocalVariables { get; private set; }
 
 		/// <summary>
@@ -44,6 +47,9 @@ namespace Morestachio.Parsing
 			get { return LocalVariables.Count > 0; }
 		}
 
+		/// <summary>
+		///		The ID of the scope
+		/// </summary>
 		public int VariableScopeNumber
 		{
 			get { return _variableScopeNumber?.Value ?? -1; }

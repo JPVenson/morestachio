@@ -39,9 +39,14 @@ namespace Morestachio.Framework.Expression
 			_pathTokenizer = new PathTokenizer();
 		}
 
+		/// <summary>
+		///		Serialization constructor 
+		/// </summary>
+		/// <param name="info"></param>
+		/// <param name="context"></param>
 		protected MorestachioExpression(SerializationInfo info, StreamingContext context)
 		{
-			PathParts = new Traversable(info.GetString(nameof(PathParts)));
+			PathParts = new Traversable(info.GetValue(nameof(PathParts), typeof(KeyValuePair<string, PathType>[])) as KeyValuePair<string, PathType>[]);
 			Formats = info.GetValue(nameof(Formats), typeof(IList<ExpressionArgument>))
 				as IList<ExpressionArgument>;
 			FormatterName = info.GetString(nameof(FormatterName));
@@ -51,7 +56,7 @@ namespace Morestachio.Framework.Expression
 		/// <inheritdoc />
 		public void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
-			info.AddValue(nameof(PathParts), PathParts.Serialize());
+			info.AddValue(nameof(PathParts), PathParts.ToArray());
 			info.AddValue(nameof(Formats), Formats);
 			info.AddValue(nameof(FormatterName), FormatterName);
 			info.AddValue(nameof(Location), Location.ToFormatString());

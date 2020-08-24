@@ -3,6 +3,7 @@ using Morestachio.Formatter.Framework.Attributes;
 
 namespace Morestachio.Formatter.Predefined
 {
+#pragma warning disable CS1591
 	/// <summary>
 	/// 
 	/// </summary>

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace Morestachio.Formatter.Framework
 {
@@ -59,9 +60,26 @@ namespace Morestachio.Formatter.Framework
 			return this;
 		}
 
+		/// <summary>
+		///		The Source argument
+		/// </summary>
+		[CanBeNull]
 		public MultiFormatterInfo SourceObject { get; private set; }
+
+		/// <summary>
+		///		The Params argument
+		/// </summary>
+		[CanBeNull] 
 		public MultiFormatterInfo ParamsArgument { get; private set; }
+
+		/// <summary>
+		///		All arguments that are not an params argument
+		/// </summary>
 		public IReadOnlyList<MultiFormatterInfo> NonParamsArguments { get; private set; }
+
+		/// <summary>
+		///		All not-default arguments
+		/// </summary>
 		public IReadOnlyList<MultiFormatterInfo> MandetoryArguments { get; private set; }
 
 		/// <summary>

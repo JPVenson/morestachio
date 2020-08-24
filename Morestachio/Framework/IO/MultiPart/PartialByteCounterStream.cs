@@ -2,12 +2,19 @@
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Morestachio.Document.Contracts;
 using Morestachio.Framework.IO.SubStream;
 
 namespace Morestachio.Framework.IO.MultiPart
 {
+	/// <summary>
+	///		Defines an byte counter stream as part of an template that contains multiple parts
+	/// </summary>
 	public class PartialByteCounterStream : IByteCounterStream
 	{
+		/// <summary>
+		/// 
+		/// </summary>
 		public PartialByteCounterStream(ParserOptions options)
 		{
 			Options = options;
@@ -16,24 +23,41 @@ namespace Morestachio.Framework.IO.MultiPart
 			RootPart = GetNewPart(options.StreamFactory.Output());
 		}
 		
+		/// <summary>
+		///		The Options
+		/// </summary>
 		public ParserOptions Options { get; }
+
+		/// <summary>
+		///		The partials. Must be in order
+		/// </summary>
 		public IList<IByteCounterStreamPart> Partials { get; private set; }
 
+		/// <summary>
+		///		The root part all legacy <see cref="IDocumentItem"/> will write to
+		/// </summary>
 		public IByteCounterStreamPart RootPart { get; set; }
 		private ByteCounterInfo Info { get; }
 		
+		/// <summary>
+		///		Gets a new Part
+		/// </summary>
 		public IByteCounterStreamPart GetNewPart(Stream withStream)
 		{
 			var partialByteCounterStreamPart = new PartialByteCounterStreamPart(withStream, 2024, Options, this);
 			Partials.Add(partialByteCounterStreamPart);
 			return partialByteCounterStreamPart;
 		}
-
+		
+		/// <summary>
+		///		Gets a new Part
+		/// </summary>
 		public IByteCounterStreamPart GetNewPart()
 		{
 			return GetNewPart(Options.StreamFactory.TempStream());
 		}
 
+		/// <inheritdoc />
 		public void Dispose()
 		{
 			foreach (var byteCounterStream in Partials)
@@ -41,7 +65,10 @@ namespace Morestachio.Framework.IO.MultiPart
 				byteCounterStream.Dispose();
 			}
 		}
-
+		
+		/// <summary>
+		///		Flushes all parts in order
+		/// </summary>
 		public void Flush()
 		{
 			try
@@ -71,7 +98,8 @@ namespace Morestachio.Framework.IO.MultiPart
 				}
 			}
 		}
-
+		
+		/// <inheritdoc />
 		public long BytesWritten
 		{
 			get
@@ -79,7 +107,8 @@ namespace Morestachio.Framework.IO.MultiPart
 				return Info.BytesWritten;
 			}
 		}
-
+		
+		/// <inheritdoc />
 		public bool ReachedLimit
 		{
 			get
@@ -87,17 +116,20 @@ namespace Morestachio.Framework.IO.MultiPart
 				return Info.ReachedLimit;
 			}
 		}
-
+		
+		/// <inheritdoc />
 		public void Write(string content)
 		{
 			RootPart.Write(content);
 		}
-
+		
+		/// <inheritdoc />
 		public ISubByteCounterStream GetSubStream()
 		{
 			return new SubByteCounterStream(this, Options);
 		}
-
+		
+		/// <inheritdoc />
 		public Stream Stream
 		{
 			get

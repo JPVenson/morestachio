@@ -5,6 +5,7 @@ using Morestachio.Framework.Expression;
 
 namespace Morestachio.Formatter.Predefined
 {
+#pragma warning disable CS1591
 	/// <summary>
 	///		A list of predefined Morestachio Formatters
 	/// </summary>

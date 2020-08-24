@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Morestachio.Helper;
+using Morestachio.Profiler;
 using NUnit.Framework;
 
 #if ValueTask

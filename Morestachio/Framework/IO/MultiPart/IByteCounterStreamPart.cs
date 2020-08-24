@@ -3,10 +3,19 @@ using System.IO;
 
 namespace Morestachio.Framework.IO.MultiPart
 {
+	/// <summary>
+	///		Defines a seperate part of the template that can be processed individually
+	/// </summary>
 	public interface IByteCounterStreamPart : IDisposable
 	{
-		ByteCounterInfo Info { get; set; }
+		/// <summary>
+		///		The shared info with all other parts of this template
+		/// </summary>
+		ByteCounterInfo Info { get; }
 
+		/// <summary>
+		///		The state this counter is in
+		/// </summary>
 		ByteCounterStreamPartType State { get; }
 
 		/// <summary>
@@ -14,6 +23,11 @@ namespace Morestachio.Framework.IO.MultiPart
 		/// </summary>
 		/// <param name="content"></param>
 		void Write(string content);
+
+		/// <summary>
+		///		Direct access to the underlying stream
+		/// </summary>
+		/// <returns></returns>
 		Stream BaseStream();
 	}
 }

@@ -215,6 +215,7 @@ namespace Morestachio.Helper
 		}
 
 		#region MorestachioFormatter
+		#pragma warning disable CS1591
 
 		[MorestachioFormatter("Add", "Adds two numbers")]
 		[MorestachioFormatter("Plus", "Adds two numbers")]
@@ -379,15 +380,31 @@ namespace Morestachio.Helper
 
 			return NaN;
 		}
-
+		
+#pragma warning restore CS1591
 		#endregion
 
+		/// <summary>
+		///		Zero Int
+		/// </summary>
 		public static readonly Number Zero = new Number(0);
+
+		/// <summary>
+		///		Minus one int
+		/// </summary>
 		public static readonly Number MinusOne = new Number(-1);
+
+		/// <summary>
+		///		Represents a value that is NaN (Not a number)
+		/// </summary>
 		public static readonly Number NaN = new Number(double.NaN);
 
 		#region Number Operations
 
+		/// <summary>
+		///		Returns if this number represents not a number
+		/// </summary>
+		/// <returns></returns>
 		public bool IsNaN()
 		{
 			return double.IsNaN(ToDouble(null));
@@ -1297,6 +1314,10 @@ namespace Morestachio.Helper
 			return false;
 		}
 
+		/// <summary>
+		///		Renderes the current value of <see cref="Number"/>
+		/// </summary>
+		/// <returns></returns>
 		public string AsParsableString()
 		{
 			var targetType = _value.GetType();
@@ -1569,7 +1590,8 @@ namespace Morestachio.Helper
 		#endregion
 
 		#region Operator Overloading
-
+		
+#pragma warning disable CS1591
 		public static Number operator +(Number a) => a;
 		public static Number operator ++(Number a) => a.Add(1);
 		public static Number operator -(Number a) => a * -1;
@@ -1666,6 +1688,8 @@ namespace Morestachio.Helper
 		public static implicit operator Number(short d) => new Number(d);
 		public static implicit operator Number(byte d) => new Number(d);
 		public static implicit operator Number(sbyte d) => new Number(d);
+
+#pragma warning restore CS1591
 
 		#endregion
 	}

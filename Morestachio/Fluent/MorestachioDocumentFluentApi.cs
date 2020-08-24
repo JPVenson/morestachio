@@ -185,9 +185,6 @@ namespace Morestachio.Fluent
 		///		Gets the current Document item
 		/// <para>Do not modify the Children of this document item directly and use the methods of <see cref="MorestachioDocumentFluentApi"/> instead!</para>
 		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="modifyAction"></param>
-		/// <returns></returns>
 		public MorestachioDocumentFluentApi Current(Action<IDocumentItem> modifyAction)
 		{
 			Current<IDocumentItem>(modifyAction);

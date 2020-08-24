@@ -7,6 +7,11 @@ namespace Morestachio.Formatter.Framework
 	/// </summary>
 	public class MorestachioGlobalFormatterAttribute : MorestachioFormatterAttribute
 	{
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="description"></param>
 		public MorestachioGlobalFormatterAttribute(string name, string description) : base(name, description)
 		{
 			IsSourceObjectAware = false;

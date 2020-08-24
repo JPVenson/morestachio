@@ -71,7 +71,8 @@ namespace Morestachio.Helper.Localization
 		{
 			visitor.Visit(this);
 		}
-
+		
+		/// <inheritdoc />
 		public void Render(ToParsableStringDocumentVisitor visitor)
 		{
 			visitor.StringBuilder.Append("{{#LOC " + visitor.ReparseExpression(MorestachioExpression) + "}}");

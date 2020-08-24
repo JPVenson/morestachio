@@ -18,7 +18,6 @@ namespace Morestachio.Framework
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="parts"></param>
 		public Traversable(IEnumerable<KeyValuePair<string, PathType>> parts)
 		{
 			var node = this;
@@ -42,41 +41,43 @@ namespace Morestachio.Framework
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="parts"></param>
 		private Traversable(KeyValuePair<string, PathType> value, int count)
 		{
 			Current = value;
 			Count = count;
 		}
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="parts"></param>
-		public Traversable(string serialisedText) : this(serialisedText.Split(',').Select(f =>
-		{
-			var parts = f.Trim('{', '}').Split(';');
-			return new KeyValuePair<string, PathType>(parts.ElementAtOrDefault(1),
-				(PathType)Enum.Parse(typeof(PathType), parts[0]));
-		}))
-		{
-		}
+		///// <summary>
+		///// 
+		///// </summary>
+		//public Traversable(string serialisedText) : this(serialisedText.Split(',').Select(f =>
+		//{
+		//	var parts = f.Trim('{', '}').Split(';');
+		//	return new KeyValuePair<string, PathType>(parts.ElementAtOrDefault(1),
+		//		(PathType)Enum.Parse(typeof(PathType), parts[0]));
+		//}))
+		//{
+		//}
 
-		public string Serialize()
-		{
-			return string.Join(",", ToArray().Select(f =>
-			{
-				if (f.Key != null)
-				{
-					return "{" + f.Value + ";" + f.Key + "}";
-				}
+		//public string Serialize()
+		//{
+		//	return string.Join(",", ToArray().Select(f =>
+		//	{
+		//		if (f.Key != null)
+		//		{
+		//			return "{" + f.Value + ";" + f.Key + "}";
+		//		}
 
-				return "{" + f.Value + "}";
-			}));
-		}
+		//		return "{" + f.Value + "}";
+		//	}));
+		//}
 
 		private Traversable _next;
 
+		/// <summary>
+		///		Enumerates the <see cref="Traversable"/>
+		/// </summary>
+		/// <returns></returns>
 		public KeyValuePair<string, PathType>[] ToArray()
 		{
 			var list = new KeyValuePair<string, PathType>[Count + 1];
@@ -126,12 +127,18 @@ namespace Morestachio.Framework
 			return _next;
 		}
 
+		/// <summary>
+		///		Gets the current node value
+		/// </summary>
 		public KeyValuePair<string, PathType> Current
 		{
 			get;
 			private set;
 		}
 
+		/// <summary>
+		///		Gets if the current node has a value
+		/// </summary>
 		public bool HasValue
 		{
 			get
@@ -140,6 +147,11 @@ namespace Morestachio.Framework
 			}
 		}
 
+		/// <summary>
+		///		Expands the current node by creating a new Traversable and attaching the parameter to it
+		/// </summary>
+		/// <param name="getList"></param>
+		/// <returns></returns>
 		public Traversable Expand(IEnumerable<KeyValuePair<string, PathType>> getList)
 		{
 			return new Traversable(ToArray().Concat(getList));

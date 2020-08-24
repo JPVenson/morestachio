@@ -8,6 +8,7 @@ namespace Morestachio.Document.Visitor
 	/// </summary>
 	public interface IDocumentItemVisitor
 	{
+#pragma warning disable
 		void Visit(AliasDocumentItem documentItem);
 		void Visit(ContentDocumentItem documentItem);
 		void Visit(DoLoopDocumentItem documentItem);
@@ -27,5 +28,6 @@ namespace Morestachio.Document.Visitor
 		void Visit(WhileLoopDocumentItem documentItem);
 		void Visit(TextEditDocumentItem documentItem);
 		void Visit(IDocumentItem documentItem);
+#pragma warning restore
 	}
 }

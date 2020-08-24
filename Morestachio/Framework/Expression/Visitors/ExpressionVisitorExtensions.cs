@@ -2,6 +2,9 @@
 
 namespace Morestachio.Framework.Expression.Visitors
 {
+	/// <summary>
+	/// 
+	/// </summary>
 	public static class ExpressionVisitorExtensions
 	{
 		/// <summary>

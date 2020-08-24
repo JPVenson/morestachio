@@ -30,7 +30,8 @@ namespace Morestachio.Document.Items
 		{
 
 		}
-
+		
+		/// <inheritdoc />
 		[UsedImplicitly]
 		protected RemoveAliasDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{

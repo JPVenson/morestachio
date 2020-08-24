@@ -2,6 +2,9 @@
 
 namespace Morestachio.Parsing.ParserErrors
 {
+	/// <summary>
+	///		Combines an location with an snipped
+	/// </summary>
 	public struct CharacterSnippedLocation : IEquatable<CharacterSnippedLocation>
 	{
 		internal CharacterSnippedLocation(int line, int character, string snipped)
@@ -11,6 +14,9 @@ namespace Morestachio.Parsing.ParserErrors
 			Snipped = snipped;
 		}
 
+		/// <summary>
+		///		The text representing the current location
+		/// </summary>
 		public string Snipped { get; private set; }
 
 		/// <summary>
@@ -23,16 +29,19 @@ namespace Morestachio.Parsing.ParserErrors
 		/// </summary>
 		public int Character { get; }
 
+		/// <inheritdoc />
 		public bool Equals(CharacterSnippedLocation other)
 		{
 			return Snipped == other.Snipped && Line == other.Line && Character == other.Character;
 		}
-
+		
+		/// <inheritdoc />
 		public override bool Equals(object obj)
 		{
 			return obj is CharacterSnippedLocation other && Equals(other);
 		}
-
+		
+		/// <inheritdoc />
 		public override int GetHashCode()
 		{
 			unchecked
