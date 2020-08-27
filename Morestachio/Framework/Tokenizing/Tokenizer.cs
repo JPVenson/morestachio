@@ -212,6 +212,14 @@ namespace Morestachio.Framework.Tokenizing
 			private int _index;
 			private char[] _buffer;
 
+			public int Length
+			{
+				get
+				{
+					return _buffer.Length;
+				}
+			}
+
 			internal int Pos()
 			{
 				return _index % _buffer.Length;
@@ -227,15 +235,7 @@ namespace Morestachio.Framework.Tokenizing
 
 			internal int Translate(int index)
 			{
-				int inx;
-				inx = (Pos() + 1) + index;
-				//if (_index >= _buffer.Length)
-				//{
-				//}
-				//else
-				//{
-				//	inx = index;
-				//}
+				var inx = (Pos() + 1) + index;
 				if (inx >= _buffer.Length)
 				{
 					return inx - _buffer.Length;
@@ -246,11 +246,25 @@ namespace Morestachio.Framework.Tokenizing
 
 			public char[] ToArray()
 			{
-				var arr = new char[_buffer.Length];
-				for (int i = 0; i < _buffer.Length; i++)
+				char[] arr;
+
+				if (_index < _buffer.Length)
 				{
-					arr[i] = _buffer[Translate(i)];
+					arr = new char[_index + 1];
+					for (int i = 0; i < _index + 1; i++)
+					{
+						arr[i] = _buffer[i];
+					}
 				}
+				else
+				{
+					arr = new char[_buffer.Length];
+					for (int i = 0; i < _buffer.Length; i++)
+					{
+						arr[i] = this[i];
+					}
+				}
+
 
 				return arr;
 			}
@@ -268,7 +282,7 @@ namespace Morestachio.Framework.Tokenizing
 					for (int i = 0; i < token.Length; i++)
 					{
 						var tC = token[token.Length - (i + 1)];
-						var bC = this[token.Length - (i)];
+						var bC = this[_buffer.Length - (i + 1)];
 						if (tC != bC)
 						{
 							return false;
@@ -276,11 +290,6 @@ namespace Morestachio.Framework.Tokenizing
 					}
 
 					return true;
-					//var contentChar = this[_buffer.Length - 1];
-					//return this[_buffer.Length - 2] == chr
-					//	   && this[_buffer.Length - 3] == chr
-					//	   && contentChar != chr
-					//	   && contentChar != '\0';
 				}
 				catch (Exception e)
 				{
@@ -294,7 +303,7 @@ namespace Morestachio.Framework.Tokenizing
 				for (int i = 0; i < token.Length; i++)
 				{
 					var tC = token[token.Length - (i + 1)];
-					var bC = this[token.Length - (i)];
+					var bC = this[_buffer.Length - (i + 1)];
 					if (tC != bC)
 					{
 						return false;
@@ -332,7 +341,7 @@ namespace Morestachio.Framework.Tokenizing
 						isInString = null;
 					}
 				}
-				else if (elementIndex == -1 && lastChars.StartToken())
+				else if (lastChars.StartToken())
 				{
 					elementIndex = i - 1;
 				}

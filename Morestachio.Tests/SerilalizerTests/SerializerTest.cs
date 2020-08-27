@@ -190,7 +190,8 @@ namespace Morestachio.Tests.SerilalizerTests
 
 			                                       "{{#loc 'Texts.Welcome'}}" +
 			                                       "{{/LocCulture}}";;
-			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template).RegisterLocalizationService(
+			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template)
+				.RegisterLocalizationService(
 				() =>
 				{
 					return new MorestachioLocalizationService();

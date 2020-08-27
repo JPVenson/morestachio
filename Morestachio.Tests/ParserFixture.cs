@@ -1227,7 +1227,7 @@ namespace Morestachio.Tests
 		[Test]
 		public void ParserThrowsParserExceptionForEachWithoutPath()
 		{
-			Assert.That(Parser.ParseWithOptions(new ParserOptions("{{#eachs}}{{name}}{{/each}}")).Errors, Is.Empty);
+			Assert.That(Parser.ParseWithOptions(new ParserOptions("{{#eachs}}{{name}}{{/each}}")).Errors, Is.Not.Empty);
 		}
 
 		[Test]

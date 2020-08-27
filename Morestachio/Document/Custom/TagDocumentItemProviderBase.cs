@@ -49,7 +49,7 @@ namespace Morestachio.Document.Custom
 		/// <inheritdoc />
 		public override bool ShouldTokenize(string token)
 		{
-			return token.StartsWith("{{" + _tag, StringComparison.InvariantCultureIgnoreCase);
+			return token.StartsWith(_tag, StringComparison.InvariantCultureIgnoreCase);
 		}
 	}
 }
