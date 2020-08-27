@@ -18,13 +18,13 @@ namespace Morestachio.Document.Custom
 		/// </summary>
 		protected CustomDocumentItemProvider()
 		{
-			ScopeStack = new Stack<Tuple<string, int>>();
+			ScopeStack = new Stack<Tokenizer.ScopeStackItem>();
 		}
 
 		/// <summary>
 		///		A Custom stack that keeps track of enclosing tokens such as #IF and /IF
 		/// </summary>
-		public Stack<Tuple<string, int>> ScopeStack { get; }
+		public Stack<Tokenizer.ScopeStackItem> ScopeStack { get; }
 
 		/// <summary>
 		///		An helper object that will be given to the Tokenize method
@@ -34,7 +34,7 @@ namespace Morestachio.Document.Custom
 
 			internal TokenInfo(string token,
 				TokenzierContext context,
-				Stack<Tuple<string, int>> scopeStack)
+				Stack<Tokenizer.ScopeStackItem> scopeStack)
 			{
 				TokenizerContext = context;
 				ScopeStack = scopeStack;
@@ -50,7 +50,7 @@ namespace Morestachio.Document.Custom
 			/// <summary>
 			///		The global scope stack
 			/// </summary>
-			public Stack<Tuple<string, int>> ScopeStack { get; }
+			public Stack<Tokenizer.ScopeStackItem> ScopeStack { get; }
 
 			/// <summary>
 			///		The obtained Token. This is the Full text token

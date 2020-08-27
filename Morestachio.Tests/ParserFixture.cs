@@ -596,7 +596,7 @@ namespace Morestachio.Tests
 
 		[Test]
 		[TestCase("<wbr>", "{{content}}", "&lt;wbr&gt;")]
-		[TestCase("<wbr>", "{{{content}}}", "<wbr>")]
+		[TestCase("<wbr>", "{{&content}}", "<wbr>")]
 		public void ValueEscapingIsActivatedBasedOnValueInterpolationMustacheSyntax(string content, string template,
 			string expected)
 		{
@@ -612,7 +612,7 @@ namespace Morestachio.Tests
 
 		[Test]
 		[TestCase("<wbr>", "{{content}}", "<wbr>")]
-		[TestCase("<wbr>", "{{{content}}}", "<wbr>")]
+		[TestCase("<wbr>", "{{&content}}", "<wbr>")]
 		public void ValueEscapingIsDisabledWhenRequested(string content, string template, string expected)
 		{
 			var model = new Dictionary<string, object>

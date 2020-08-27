@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using Morestachio.Document.Custom;
 using Morestachio.Framework.Context.Options;
@@ -18,8 +19,6 @@ namespace Morestachio.Framework.Tokenizing
 	/// <exception cref="IndexedParseException"></exception>
 	public class Tokenizer
 	{
-		private static readonly Regex TokenFinder = new Regex("([{]{2}[^{}]+?[}]{2})|([{]{3}[^{}]+?[}]{3})",
-			RegexOptions.Compiled);
 
 		//internal static readonly Regex NewlineFinder
 		//	= new Regex("\n", RegexOptions.Compiled);
@@ -45,7 +44,7 @@ namespace Morestachio.Framework.Tokenizing
 			{
 				charIdx = characterIndex - (lines.LastOrDefault() + 1);
 			}
-			
+
 			//Humans count from 1, so let's do that, too (hence the "+1" on these).
 			var textLocation = new CharacterLocation(line + 1, charIdx + 1);
 			return textLocation;
@@ -147,6 +146,216 @@ namespace Morestachio.Framework.Tokenizing
 		}
 
 		/// <summary>
+		///		Defines one item on the Template stack
+		/// </summary>
+		public readonly struct ScopeStackItem
+		{
+			/// <summary>
+			///		Creates a new Stack item
+			/// </summary>
+			/// <param name="tokenType"></param>
+			/// <param name="value"></param>
+			/// <param name="index"></param>
+			public ScopeStackItem(TokenType tokenType, string value, int index)
+			{
+				TokenType = tokenType;
+				Value = value;
+				Index = index;
+			}
+
+			/// <summary>
+			///		The type of Stack
+			/// </summary>
+			public TokenType TokenType { get; }
+
+			/// <summary>
+			///		The string value of the token
+			/// </summary>
+			public string Value { get; }
+
+			/// <summary>
+			///		The index in the template
+			/// </summary>
+			public int Index { get; }
+		}
+
+		private readonly struct TokenMatch
+		{
+			public TokenMatch(int index, string value)
+			{
+				Index = index;
+				Value = value;
+				Length = value.Length;
+			}
+
+			public int Index { get; }
+			public int Length { get; }
+			public string Value { get; }
+		}
+
+		private static readonly Regex TokenFinder = new Regex("([{]{2}[^{}]+?[}]{2})|([{]{3}[^{}]+?[}]{3})",
+			RegexOptions.Compiled);
+
+		internal class RollingArray
+		{
+			public RollingArray(int size)
+			{
+				_buffer = new char[size];
+				_index = -1;
+
+				//new char[] { 'A'0, 'B'1, 'C'2, 'D'3 }
+				//new char[] { 'E'3, 'B'0, 'C'1, 'D'2 }
+				//new char[] { 'E'2, 'F'3, 'C'0, 'D'1 }
+				//new char[] { 'E'1, 'F'2, 'G'3, 'D'0 }
+			}
+
+			private int _index;
+			private char[] _buffer;
+
+			internal int Pos()
+			{
+				return _index % _buffer.Length;
+			}
+
+			public char this[int index]
+			{
+				get
+				{
+					return _buffer[Translate(index)];
+				}
+			}
+
+			internal int Translate(int index)
+			{
+				int inx;
+				inx = (Pos() + 1) + index;
+				//if (_index >= _buffer.Length)
+				//{
+				//}
+				//else
+				//{
+				//	inx = index;
+				//}
+				if (inx >= _buffer.Length)
+				{
+					return inx - _buffer.Length;
+				}
+
+				return inx;
+			}
+
+			public char[] ToArray()
+			{
+				var arr = new char[_buffer.Length];
+				for (int i = 0; i < _buffer.Length; i++)
+				{
+					arr[i] = _buffer[Translate(i)];
+				}
+
+				return arr;
+			}
+
+			public void Add(char c)
+			{
+				_index += 1;
+				_buffer[Pos()] = c;
+			}
+
+			public bool StartToken(string token = "{{")
+			{
+				try
+				{
+					for (int i = 0; i < token.Length; i++)
+					{
+						var tC = token[token.Length - (i + 1)];
+						var bC = this[token.Length - (i)];
+						if (tC != bC)
+						{
+							return false;
+						}
+					}
+
+					return true;
+					//var contentChar = this[_buffer.Length - 1];
+					//return this[_buffer.Length - 2] == chr
+					//	   && this[_buffer.Length - 3] == chr
+					//	   && contentChar != chr
+					//	   && contentChar != '\0';
+				}
+				catch (Exception e)
+				{
+					Console.WriteLine(e);
+					throw;
+				}
+			}
+
+			public bool EndToken(string token = "}}")
+			{
+				for (int i = 0; i < token.Length; i++)
+				{
+					var tC = token[token.Length - (i + 1)];
+					var bC = this[token.Length - (i)];
+					if (tC != bC)
+					{
+						return false;
+					}
+				}
+
+				return true;
+			}
+		}
+
+		private static IEnumerable<TokenMatch> MatchTokens(string template)
+		{
+			var lastChars = new RollingArray(3);
+
+			var elementIndex = -1;
+			char? isInString = null;
+			var stringEscape = false;
+
+			for (int i = 0; i < template.Length; i++)
+			{
+				var c = template[i];
+				lastChars.Add(c);
+				if (isInString.HasValue)
+				{
+					if (c == '\\')
+					{
+						stringEscape = true;
+					}
+					else if (stringEscape && c == isInString.Value)
+					{
+						stringEscape = false;
+					}
+					else if (!stringEscape && c == isInString.Value)
+					{
+						isInString = null;
+					}
+				}
+				else if (elementIndex == -1 && lastChars.StartToken())
+				{
+					elementIndex = i - 1;
+				}
+				else if (elementIndex != -1 && lastChars.EndToken())
+				{
+					var token = template.Substring(elementIndex, i - elementIndex + 1);
+					yield return new TokenMatch(elementIndex, token);
+					elementIndex = -1;
+				}
+				else if (elementIndex != -1 && IsStringDelimiter(c))
+				{
+					isInString = c;
+				}
+			}
+
+			if (isInString.HasValue && elementIndex != -1)
+			{
+				var token = template.Substring(elementIndex, template.Length - elementIndex);
+				yield return new TokenMatch(elementIndex, token);
+			}
+		}
+
+		/// <summary>
 		///		Goes through the template and evaluates all tokens that are enclosed by {{ }}.
 		/// </summary>
 		/// <param name="parserOptions"></param>
@@ -156,15 +365,14 @@ namespace Morestachio.Framework.Tokenizing
 			TokenzierContext context)
 		{
 			var templateString = parserOptions.Template;
-			var matches = TokenFinder.Matches(templateString);
 
-			var scopestack = new Stack<Tuple<string, int>>();
+			var scopestack = new Stack<ScopeStackItem>();
 			var partialsNames = new List<string>(parserOptions.PartialsStore?.GetNames() ?? new string[0]);
 			context.SetLocation(0);
 			var tokens = new List<TokenPair>();
 			var blockCommentCounter = 0;
-			
-			void BeginElse(Match match)
+
+			void BeginElse(TokenMatch match)
 			{
 				var firstNonContentToken = tokens
 					.AsReadOnly()
@@ -180,13 +388,13 @@ namespace Morestachio.Framework.Tokenizing
 				}
 				else
 				{
-					scopestack.Push(Tuple.Create($"#else_{firstNonContentToken.Value}", match.Index));
+					scopestack.Push(new ScopeStackItem(TokenType.Else, firstNonContentToken.Value, match.Index));
 					tokens.Add(new TokenPair(TokenType.Else, firstNonContentToken.Value,
 						context.CurrentLocation));
 				}
 			}
 
-			void EndIf(Match match, string expected)
+			void EndIf(TokenMatch match, string expected)
 			{
 				if (!string.Equals(match.Value, "{{" + expected + "}}", StringComparison.InvariantCultureIgnoreCase))
 				{
@@ -208,10 +416,10 @@ namespace Morestachio.Framework.Tokenizing
 					}
 					else
 					{
-						var item1 = scopestack.Peek().Item1;
-						if (item1.StartsWith("#if") || item1.StartsWith("^if"))
+						var item1 = scopestack.Peek();
+						if (item1.TokenType == TokenType.If || item1.TokenType == TokenType.IfNot)
 						{
-							var token = scopestack.Pop().Item1;
+							var token = scopestack.Pop().Value;
 							tokens.Add(new TokenPair(TokenType.IfClose, token,
 								context.CurrentLocation));
 						}
@@ -238,7 +446,10 @@ namespace Morestachio.Framework.Tokenizing
 				return token.Trim();
 			}
 
-			foreach (Match match in matches)
+			var prefixToken = "{{";
+			var suffixToken = "}}";
+
+			foreach (var match in MatchTokens(templateString))
 			{
 				//yield front content.
 				if (match.Index > context.Character)
@@ -246,30 +457,33 @@ namespace Morestachio.Framework.Tokenizing
 					tokens.Add(new TokenPair(TokenType.Content, templateString.Substring(context.Character, match.Index - context.Character),
 						context.CurrentLocation));
 				}
-				context.SetLocation(match.Index + 2);
+				context.SetLocation(match.Index + prefixToken.Length);
 				var tokenValue = match.Value;
-				var trimmedToken = tokenValue.TrimStart('{').TrimEnd('}');
-				
+
+				var trimmedToken = tokenValue
+					.Remove(0, prefixToken.Length);
+				trimmedToken = trimmedToken.Remove(trimmedToken.Length - suffixToken.Length);
+
 				if (blockCommentCounter > 0)
 				{
 					if (trimmedToken == "/!")
 					{
 						blockCommentCounter--;
-					} 
-					else if (tokenValue.Equals("{{!}}"))
+					}
+					else if (trimmedToken.Equals("!"))
 					{
 						blockCommentCounter++;
 					}
 				}
 
-				if (tokenValue.StartsWith("{{#declare ", true, CultureInfo.InvariantCulture))
+				if (trimmedToken.StartsWith("#declare ", true, CultureInfo.InvariantCulture))
 				{
-					scopestack.Push(Tuple.Create(tokenValue, match.Index));
 					var token = TrimToken(trimmedToken, "declare ");
+					scopestack.Push(new ScopeStackItem(TokenType.PartialDeclarationOpen, token, match.Index));
 					if (string.IsNullOrWhiteSpace(token))
 					{
 						context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation
-								.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "open", "declare",
+								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "open", "declare",
 							"{{#declare name}}", " Missing the Name."));
 					}
 					else
@@ -279,29 +493,22 @@ namespace Morestachio.Framework.Tokenizing
 							context.CurrentLocation));
 					}
 				}
-				else if (tokenValue.StartsWith("{{/declare", true, CultureInfo.InvariantCulture))
+				else if (trimmedToken.Equals("/declare", StringComparison.CurrentCultureIgnoreCase))
 				{
-					if (!string.Equals(tokenValue, "{{/declare}}", StringComparison.InvariantCultureIgnoreCase))
+					if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.PartialDeclarationOpen)
 					{
-						context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation
-								.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "close", "declare",
-							"{{/declare}}"));
-					}
-					else if (scopestack.Any() && scopestack.Peek().Item1.StartsWith("{{#declare", StringComparison.InvariantCultureIgnoreCase))
-					{
-						var token = scopestack.Pop().Item1.TrimStart('{').TrimEnd('}').TrimStart('#').Trim()
-							.Substring("declare".Length);
+						var token = scopestack.Pop().Value;
 						tokens.Add(new TokenPair(TokenType.PartialDeclarationClose, token,
 							context.CurrentLocation));
 					}
 					else
 					{
 						context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
-								.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "declare",
+								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "declare",
 							"{{#declare name}}"));
 					}
 				}
-				else if (tokenValue.StartsWith("{{#include ", true, CultureInfo.InvariantCulture))
+				else if (trimmedToken.StartsWith("#include ", true, CultureInfo.InvariantCulture))
 				{
 					var token = trimmedToken.TrimStart('#').Trim();
 					var partialRegex = PartialIncludeRegEx.Match(token);
@@ -315,7 +522,7 @@ namespace Morestachio.Framework.Tokenizing
 					{
 						context.Errors.Add(new MorestachioSyntaxError(
 							context.CurrentLocation
-								.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)),
+								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)),
 							"use",
 							"include",
 							"{{#include name}}",
@@ -333,14 +540,14 @@ namespace Morestachio.Framework.Tokenizing
 						tokens.Add(tokenPair);
 					}
 				}
-				else if (tokenValue.StartsWith("{{#each", true, CultureInfo.InvariantCulture))
+				else if (trimmedToken.StartsWith("#each ", true, CultureInfo.InvariantCulture))
 				{
 					var token = TrimToken(trimmedToken, "each");
 					var eval = EvaluateNameFromToken(token);
 					token = eval.Value;
 					var alias = eval.Name;
 
-					scopestack.Push(Tuple.Create($"#each{alias ?? token}", match.Index));
+					scopestack.Push(new ScopeStackItem(TokenType.CollectionOpen, alias ?? token, match.Index));
 
 					if (token.Trim() != "")
 					{
@@ -367,7 +574,7 @@ namespace Morestachio.Framework.Tokenizing
 					else
 					{
 						context.Errors.Add(new InvalidPathSyntaxError(context.CurrentLocation
-							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), ""));
+							.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), ""));
 					}
 
 					if (!string.IsNullOrWhiteSpace(alias))
@@ -377,30 +584,25 @@ namespace Morestachio.Framework.Tokenizing
 							context.CurrentLocation));
 					}
 				}
-				else if (tokenValue.StartsWith("{{/each", true, CultureInfo.InvariantCulture))
+				else if (trimmedToken.Equals("/each", StringComparison.InvariantCultureIgnoreCase))
 				{
-					if (!string.Equals(tokenValue, "{{/each}}", StringComparison.InvariantCultureIgnoreCase))
+					if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.CollectionOpen)
 					{
-						context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation
-							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "close", "each", "{{/each}}"));
-					}
-					else if (scopestack.Any() && scopestack.Peek().Item1.StartsWith("#each"))
-					{
-						var token = scopestack.Pop().Item1;
+						var token = scopestack.Pop().Value;
 						tokens.Add(new TokenPair(TokenType.CollectionClose, token,
 							context.CurrentLocation));
 					}
 					else
 					{
 						context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
-							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "each", "{{#each name}}"));
+							.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "each", "{{#each name}}"));
 					}
 				}
-				else if (tokenValue.StartsWith("{{#while", true, CultureInfo.InvariantCulture))
+				else if (trimmedToken.StartsWith("#while ", true, CultureInfo.InvariantCulture))
 				{
-					var token = TrimToken(trimmedToken, "while", '#');
+					var token = TrimToken(trimmedToken, "while");
 
-					scopestack.Push(Tuple.Create($"#while{token}", match.Index));
+					scopestack.Push(new ScopeStackItem(TokenType.WhileLoopOpen, token, match.Index));
 
 					if (token.Trim() != "")
 					{
@@ -413,32 +615,27 @@ namespace Morestachio.Framework.Tokenizing
 					else
 					{
 						context.Errors.Add(new InvalidPathSyntaxError(context.CurrentLocation
-							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), ""));
+							.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), ""));
 					}
 				}
-				else if (tokenValue.StartsWith("{{/while", true, CultureInfo.InvariantCulture))
+				else if (trimmedToken.Equals("/while", StringComparison.InvariantCultureIgnoreCase))
 				{
-					if (!string.Equals(tokenValue, "{{/while}}", StringComparison.InvariantCultureIgnoreCase))
+					if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.WhileLoopOpen)
 					{
-						context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation
-							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "close", "while", "{{/while}}"));
-					}
-					else if (scopestack.Any() && scopestack.Peek().Item1.StartsWith("#while"))
-					{
-						var token = scopestack.Pop().Item1;
+						var token = scopestack.Pop().Value;
 						tokens.Add(new TokenPair(TokenType.WhileLoopClose, token,
 							context.CurrentLocation));
 					}
 					else
 					{
 						context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
-							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "while", "{{#while Expression}}"));
+							.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "while", "{{#while Expression}}"));
 					}
 				}
-				else if (tokenValue.StartsWith("{{#do", true, CultureInfo.InvariantCulture))
+				else if (trimmedToken.StartsWith("#do ", true, CultureInfo.InvariantCulture))
 				{
 					var token = TrimToken(trimmedToken, "do");
-					scopestack.Push(Tuple.Create($"#do{token}", match.Index));
+					scopestack.Push(new ScopeStackItem(TokenType.DoLoopOpen, token, match.Index));
 
 					if (token.Trim() != "")
 					{
@@ -451,29 +648,24 @@ namespace Morestachio.Framework.Tokenizing
 					else
 					{
 						context.Errors.Add(new InvalidPathSyntaxError(context.CurrentLocation
-							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), ""));
+							.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), ""));
 					}
 				}
-				else if (tokenValue.StartsWith("{{/do", true, CultureInfo.InvariantCulture))
+				else if (trimmedToken.Equals("/do", StringComparison.InvariantCultureIgnoreCase))
 				{
-					if (!string.Equals(tokenValue, "{{/do}}", StringComparison.InvariantCultureIgnoreCase))
+					if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.DoLoopOpen)
 					{
-						context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation
-							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "close", "do", "{{/do}}"));
-					}
-					else if (scopestack.Any() && scopestack.Peek().Item1.StartsWith("#do"))
-					{
-						var token = scopestack.Pop().Item1;
+						var token = scopestack.Pop().Value;
 						tokens.Add(new TokenPair(TokenType.DoLoopClose, token,
 							context.CurrentLocation));
 					}
 					else
 					{
 						context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
-							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "do", "{{#do Expression}}"));
+							.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "do", "{{#do Expression}}"));
 					}
 				}
-				else if (tokenValue.StartsWith("{{#if ", true, CultureInfo.InvariantCulture))
+				else if (trimmedToken.StartsWith("#if ", true, CultureInfo.InvariantCulture))
 				{
 					var token = TrimToken(trimmedToken, "if");
 					var eval = EvaluateNameFromToken(token);
@@ -482,10 +674,10 @@ namespace Morestachio.Framework.Tokenizing
 					{
 						context.Errors.Add(new MorestachioSyntaxError(
 							context.CurrentLocation
-								.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "^if", "AS", "No Alias"));
+								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "^if", "AS", "No Alias"));
 					}
 
-					scopestack.Push(Tuple.Create($"#if{token}", match.Index));
+					scopestack.Push(new ScopeStackItem(TokenType.If, token, match.Index));
 
 					if (token.Trim() != "")
 					{
@@ -498,10 +690,10 @@ namespace Morestachio.Framework.Tokenizing
 					else
 					{
 						context.Errors.Add(new InvalidPathSyntaxError(context.CurrentLocation
-							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), ""));
+							.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), ""));
 					}
 				}
-				else if (tokenValue.StartsWith("{{^if ", true, CultureInfo.InvariantCulture))
+				else if (trimmedToken.StartsWith("^if ", true, CultureInfo.InvariantCulture))
 				{
 					var token = TrimToken(trimmedToken, "if", '^');
 					var eval = EvaluateNameFromToken(token);
@@ -510,10 +702,10 @@ namespace Morestachio.Framework.Tokenizing
 					{
 						context.Errors.Add(new MorestachioSyntaxError(
 							context.CurrentLocation
-								.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "^if", "AS", "No Alias"));
+								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "^if", "AS", "No Alias"));
 					}
 
-					scopestack.Push(Tuple.Create($"^if{token}", match.Index));
+					scopestack.Push(new ScopeStackItem(TokenType.IfNot, token, match.Index));
 
 					if (token.Trim() != "")
 					{
@@ -526,64 +718,56 @@ namespace Morestachio.Framework.Tokenizing
 					else
 					{
 						context.Errors.Add(new InvalidPathSyntaxError(context.CurrentLocation
-							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), ""));
+							.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), ""));
 					}
 				}
-				else if (tokenValue.StartsWith("{{/if", true, CultureInfo.InvariantCulture))
+				else if (trimmedToken.Equals("/if", StringComparison.InvariantCultureIgnoreCase))
 				{
 					EndIf(match, "/If");
 				}
-				else if (tokenValue.StartsWith("{{#ifelse", true, CultureInfo.InvariantCulture))
+				else if (trimmedToken.Equals("#ifelse", StringComparison.InvariantCultureIgnoreCase))
 				{
 					EndIf(match, "#ifelse");
 					BeginElse(match);
 				}
-				else if (tokenValue.Equals("{{#else}}", StringComparison.InvariantCultureIgnoreCase))
+				else if (trimmedToken.Equals("#else", StringComparison.InvariantCultureIgnoreCase))
 				{
 					BeginElse(match);
 				}
-				else if (tokenValue.Equals("{{/else}}", StringComparison.InvariantCultureIgnoreCase))
+				else if (trimmedToken.Equals("/else", StringComparison.InvariantCultureIgnoreCase))
 				{
-					if (!string.Equals(tokenValue, "{{/else}}", StringComparison.InvariantCultureIgnoreCase))
+					if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.Else)
 					{
-						context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation
-							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "close", "else", "{{/else}}"));
+						var token = scopestack.Pop().Value;
+						tokens.Add(new TokenPair(TokenType.ElseClose, token,
+							context.CurrentLocation));
 					}
 					else
 					{
-						if (scopestack.Any() && scopestack.Peek().Item1.StartsWith("#else_"))
-						{
-							var token = scopestack.Pop().Item1;
-							tokens.Add(new TokenPair(TokenType.ElseClose, token,
-								context.CurrentLocation));
-						}
-						else
-						{
-							context.Errors.Add(new MorestachioUnopendScopeError(
-								context.CurrentLocation
-									.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "else",
-								"{{#else name}}"));
-						}
+						context.Errors.Add(new MorestachioUnopendScopeError(
+							context.CurrentLocation
+								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "else",
+							"{{#else name}}"));
 					}
 				}
-				else if (tokenValue.StartsWith("{{#var ", true, CultureInfo.InvariantCulture))
+				else if (trimmedToken.StartsWith("#var ", true, CultureInfo.InvariantCulture))
 				{
-					tokens.Add(ExpressionParser.TokenizeVariableAssignment(tokenValue.Trim('{', '}'),
+					tokens.Add(ExpressionParser.TokenizeVariableAssignment(trimmedToken,
 						context, TokenType.VariableVar));
 				}
-				else if (tokenValue.StartsWith("{{#let ", true, CultureInfo.InvariantCulture))
+				else if (trimmedToken.StartsWith("#let ", true, CultureInfo.InvariantCulture))
 				{
-					tokens.Add(ExpressionParser.TokenizeVariableAssignment(tokenValue.Trim('{', '}'),
+					tokens.Add(ExpressionParser.TokenizeVariableAssignment(trimmedToken,
 						context, TokenType.VariableLet));
 				}
-				else if (tokenValue.StartsWith("{{^"))
+				else if (trimmedToken.StartsWith("^"))
 				{
 					//open inverted group
 					var token = trimmedToken.TrimStart('^').Trim();
 					var eval = EvaluateNameFromToken(token);
 					token = eval.Value;
 					var alias = eval.Name;
-					scopestack.Push(Tuple.Create(alias ?? token, match.Index));
+					scopestack.Push(new ScopeStackItem(TokenType.InvertedElementOpen, alias ?? token, match.Index));
 					tokens.Add(new TokenPair(TokenType.InvertedElementOpen,
 						token,
 						ExpressionParser.ParseExpression(token, context),
@@ -596,7 +780,7 @@ namespace Morestachio.Framework.Tokenizing
 							context.CurrentLocation));
 					}
 				}
-				else if (tokenValue.StartsWith("{{{") || tokenValue.StartsWith("{{&"))
+				else if (trimmedToken.StartsWith("&"))
 				{
 					//escaped single element
 					var token = trimmedToken.TrimStart('&').Trim();
@@ -605,30 +789,30 @@ namespace Morestachio.Framework.Tokenizing
 						ExpressionParser.ParseExpression(token, context),
 						context.CurrentLocation));
 				}
-				else if (tokenValue.StartsWith("{{!"))
+				else if (trimmedToken.StartsWith("!"))
 				{
 					//it's a comment drop this on the floor, no need to even yield it.
-					if (tokenValue.Equals("{{!}}"))
+					if (trimmedToken.Equals("!"))
 					{
 						//except for when its a block comment then set the isCommentBlock flag
 						blockCommentCounter++;
 					}
 				}
-				else if (tokenValue.Equals("{{#NL}}", StringComparison.InvariantCultureIgnoreCase))
+				else if (trimmedToken.Equals("#NL", StringComparison.InvariantCultureIgnoreCase))
 				{
-					tokens.Add(new TokenPair(TokenType.WriteLineBreak, tokenValue, context.CurrentLocation));
+					tokens.Add(new TokenPair(TokenType.WriteLineBreak, trimmedToken, context.CurrentLocation));
 				}
-				else if (tokenValue.Equals("{{#TNL}}", StringComparison.InvariantCultureIgnoreCase))
+				else if (trimmedToken.Equals("#TNL", StringComparison.InvariantCultureIgnoreCase))
 				{
-					tokens.Add(new TokenPair(TokenType.TrimLineBreak, tokenValue, context.CurrentLocation));
+					tokens.Add(new TokenPair(TokenType.TrimLineBreak, trimmedToken, context.CurrentLocation));
 				}
-				else if (tokenValue.Equals("{{#TNLS}}", StringComparison.InvariantCultureIgnoreCase))
+				else if (trimmedToken.Equals("#TNLS", StringComparison.InvariantCultureIgnoreCase))
 				{
-					tokens.Add(new TokenPair(TokenType.TrimLineBreaks, tokenValue, context.CurrentLocation));
+					tokens.Add(new TokenPair(TokenType.TrimLineBreaks, trimmedToken, context.CurrentLocation));
 				}
-				else if (tokenValue.Equals("{{#TRIMALL}}", StringComparison.InvariantCultureIgnoreCase))
+				else if (trimmedToken.Equals("#TRIMALL", StringComparison.InvariantCultureIgnoreCase))
 				{
-					tokens.Add(new TokenPair(TokenType.TrimEverything, tokenValue, context.CurrentLocation));
+					tokens.Add(new TokenPair(TokenType.TrimEverything, trimmedToken, context.CurrentLocation));
 				}
 				//else if (tokenValue.Equals("{{/TRIMALL}}", StringComparison.InvariantCultureIgnoreCase))
 				//{
@@ -639,15 +823,16 @@ namespace Morestachio.Framework.Tokenizing
 					//check for custom DocumentItem provider
 
 					var customDocumentProvider =
-						parserOptions.CustomDocumentItemProviders.FirstOrDefault(e => e.ShouldTokenize(tokenValue));
+						parserOptions.CustomDocumentItemProviders.FirstOrDefault(e => e.ShouldTokenize(trimmedToken));
 
 					if (customDocumentProvider != null)
 					{
-						var tokenInfo = new CustomDocumentItemProvider.TokenInfo(tokenValue, context, scopestack);
-						var tokenPairs = customDocumentProvider.Tokenize(tokenInfo, parserOptions);
+						var tokenPairs = customDocumentProvider
+							.Tokenize(new CustomDocumentItemProvider.TokenInfo(trimmedToken, context, scopestack),
+								parserOptions);
 						tokens.AddRange(tokenPairs);
 					}
-					else if (tokenValue.StartsWith("{{#"))
+					else if (trimmedToken.StartsWith("#"))
 					{
 						//open group
 						var token = trimmedToken.TrimStart('#').Trim();
@@ -655,7 +840,7 @@ namespace Morestachio.Framework.Tokenizing
 						var eval = EvaluateNameFromToken(token);
 						token = eval.Value;
 						var alias = eval.Name;
-						scopestack.Push(Tuple.Create(alias ?? token, match.Index));
+						scopestack.Push(new ScopeStackItem(TokenType.ElementOpen, alias ?? token, match.Index));
 						tokens.Add(new TokenPair(TokenType.ElementOpen,
 							token,
 							ExpressionParser.ParseExpression(token, context),
@@ -668,30 +853,35 @@ namespace Morestachio.Framework.Tokenizing
 								context.CurrentLocation));
 						}
 					}
-					else if (tokenValue.StartsWith("{{/"))
+					else if (trimmedToken.StartsWith("/"))
 					{
 						var token = trimmedToken.TrimStart('/').Trim();
 						//close group
-						if (scopestack.Any() && scopestack.Peek().Item1 == token)
+						if (!scopestack.Any())
 						{
-							scopestack.Pop();
-							tokens.Add(new TokenPair(TokenType.ElementClose, token,
-								context.CurrentLocation));
+							context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
+									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "/", "{{#path}}",
+								" There are more closing elements then open."));
 						}
 						else
 						{
-							context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
-									.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "/", "{{#path}}",
-								" There are more closing elements then open."));
+							var item = scopestack.Peek();
+							if ((item.TokenType == TokenType.ElementOpen ||
+								 item.TokenType == TokenType.InvertedElementOpen)
+								&& item.Value == token)
+							{
+								scopestack.Pop();
+								tokens.Add(new TokenPair(TokenType.ElementClose, token,
+									context.CurrentLocation));
+							}
+							else
+							{
+								context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
+										.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "/", "{{#path}}",
+									" There are more closing elements then open."));
+							}
 						}
 					}
-					//else if (tokenValue.StartsWith("{{#") || tokenValue.StartsWith("{{/"))
-					//{
-					//	//catch expression handler
-					//	context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation
-					//			.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)),
-					//		$"Unexpected token. Expected an valid Expression but got '{tokenValue}'", tokenValue, ""));
-					//}
 					else
 					{
 						//unsingle value.
@@ -724,16 +914,10 @@ namespace Morestachio.Framework.Tokenizing
 					.Concat(parserOptions.CustomDocumentItemProviders.SelectMany(f => f.ScopeStack))
 					.Select(k =>
 					{
-						var value = k.Item1.Trim('{', '#', '}');
-						if (value.StartsWith("each "))
-						{
-							value = value.Substring(5);
-						}
-
 						return new
 						{
-							scope = value,
-							location = HumanizeCharacterLocation(k.Item2, context.Lines)
+							scope = k.TokenType.ToString(),
+							location = HumanizeCharacterLocation(k.Index, context.Lines)
 						};
 					}).Reverse())
 				{

@@ -75,7 +75,7 @@ namespace Morestachio.Tests
 			var template = "{{#outer_level}}Shouldn't be rendered!{{inner_level}}{{/outer_level}}";
 
 			var result = Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding))
-				.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+				.CreateAndStringify(model);
 
 			Assert.AreEqual(string.Empty, result);
 		}
@@ -96,7 +96,7 @@ namespace Morestachio.Tests
 			var template = "{{#each locations}}Shouldn't be rendered!{{/each}}";
 
 			var result = Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding))
-				.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+				.CreateAndStringify(model);
 
 			Assert.AreEqual(string.Empty, result);
 		}
@@ -114,7 +114,7 @@ namespace Morestachio.Tests
 			var template = "You've won {{times_won}} times!";
 
 			var result = Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding))
-				.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+				.CreateAndStringify(model);
 
 			Assert.AreEqual("You've won 0 times!", result);
 		}
@@ -127,7 +127,7 @@ namespace Morestachio.Tests
 			var plainText = @"as{{!stu
 			ff}}df";
 			var rendered = Parser.ParseWithOptions(new ParserOptions(plainText, null, ParserFixture.DefaultEncoding))
-				.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+				.CreateAndStringify(model);
 
 			Assert.AreEqual("asdf", rendered);
 		}
@@ -141,7 +141,7 @@ namespace Morestachio.Tests
 
 			var plainText = @"{{stuff}}";
 			var rendered = Parser.ParseWithOptions(new ParserOptions(plainText, null, ParserFixture.DefaultEncoding))
-				.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+				.CreateAndStringify(model);
 
 			Assert.AreEqual("&lt;b&gt;inner&lt;/b&gt;", rendered);
 		}
@@ -153,15 +153,9 @@ namespace Morestachio.Tests
 
 			model["stuff"] = "<b>inner</b>";
 
-			var plainText = @"{{{stuff}}}";
+			var plainText = @"{{&stuff}}";
 			var rendered = Parser.ParseWithOptions(new ParserOptions(plainText, null, ParserFixture.DefaultEncoding))
-				.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
-
-			Assert.AreEqual("<b>inner</b>", rendered);
-
-			plainText = @"{{&stuff}}";
-			rendered = Parser.ParseWithOptions(new ParserOptions(plainText, null, ParserFixture.DefaultEncoding))
-				.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+				.CreateAndStringify(model);
 			Assert.AreEqual("<b>inner</b>", rendered);
 		}
 
@@ -172,7 +166,7 @@ namespace Morestachio.Tests
 
 			var plainText = @"{{^stuff}}No Stuff Here.{{/stuff}}";
 			var rendered = Parser.ParseWithOptions(new ParserOptions(plainText, null, ParserFixture.DefaultEncoding))
-				.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+				.CreateAndStringify(model);
 
 			Assert.AreEqual("No Stuff Here.", rendered);
 		}
@@ -182,7 +176,7 @@ namespace Morestachio.Tests
 		{
 			var plainText = "ASDF";
 			var template = Parser.ParseWithOptions(new ParserOptions("ASDF", null, ParserFixture.DefaultEncoding));
-			Assert.AreEqual(plainText, template.Create(null).Stream.Stringify(true, ParserFixture.DefaultEncoding));
+			Assert.AreEqual(plainText, template.CreateAndStringify(null));
 		}
 
 
@@ -252,7 +246,7 @@ namespace Morestachio.Tests
 
 			ceo["products"] = products;
 
-			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+			var result = parsedTemplate.CreateAndStringify(model);
 
 			Assert.AreEqual("<li>name 0 and version 0 and has a CEO: Smith</li>" +
 						 "<li>name 1 and version 1 and has a CEO: Smith</li>" +
@@ -275,7 +269,7 @@ namespace Morestachio.Tests
 				{"root", "tset" }
 			};
 
-			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+			var result = parsedTemplate.CreateAndStringify(model);
 
 			Assert.AreEqual(model["root"], result);
 		}
@@ -295,7 +289,7 @@ namespace Morestachio.Tests
 				{"root", "tset" }
 			};
 
-			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+			var result = parsedTemplate.CreateAndStringify(model);
 
 			Assert.AreEqual(model.ToString(), result);
 		}
@@ -315,7 +309,7 @@ namespace Morestachio.Tests
 				{"root", "tset" }
 			};
 
-			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+			var result = parsedTemplate.CreateAndStringify(model);
 
 			Assert.AreEqual(model["data"], result);
 		}
@@ -336,7 +330,7 @@ namespace Morestachio.Tests
 				{"root", "true" }
 			};
 
-			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+			var result = parsedTemplate.CreateAndStringify(model);
 
 			Assert.AreEqual(model["data"], result);
 			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
@@ -357,7 +351,7 @@ namespace Morestachio.Tests
 				{"root", "true" }
 			};
 
-			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+			var result = parsedTemplate.CreateAndStringify(model);
 
 			Assert.AreEqual(model["root"], result);
 		}
@@ -379,7 +373,7 @@ namespace Morestachio.Tests
 				{"root", "true" }
 			};
 
-			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+			var result = parsedTemplate.CreateAndStringify(model);
 
 			Assert.AreEqual(model["data"], result);
 		}
@@ -399,7 +393,7 @@ namespace Morestachio.Tests
 				{"root", "true" }
 			};
 
-			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+			var result = parsedTemplate.CreateAndStringify(model);
 
 			Assert.AreEqual(model["root"], result);
 		}
@@ -439,7 +433,7 @@ namespace Morestachio.Tests
 				{"root", "tset" }
 			};
 
-			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+			var result = parsedTemplate.CreateAndStringify(model);
 
 			Assert.AreEqual(model["root"], result);
 		}
@@ -459,7 +453,7 @@ namespace Morestachio.Tests
 				{"root", "tset" }
 			};
 
-			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+			var result = parsedTemplate.CreateAndStringify(model);
 
 			Assert.AreEqual(model["data"] + "," + model["root"], result);
 		}
@@ -484,7 +478,7 @@ namespace Morestachio.Tests
 				},
 			};
 
-			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+			var result = parsedTemplate.CreateAndStringify(model);
 
 			Assert.AreEqual(value.Select(e => e.ToString()).Aggregate((e,f) => e + "" + f), result);
 		}
@@ -514,7 +508,7 @@ namespace Morestachio.Tests
 				{"root", "tset"}
 			};
 
-			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+			var result = parsedTemplate.CreateAndStringify(model);
 
 			Assert.AreEqual(model["root"], result);
 		}
@@ -546,7 +540,7 @@ namespace Morestachio.Tests
 
 			//1.ToString("E")
 
-			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+			var result = parsedTemplate.CreateAndStringify(model);
 
 			Assert.AreEqual(model["root"], result);
 		}
@@ -576,7 +570,7 @@ namespace Morestachio.Tests
 				{"r", "tset"}
 			};
 
-			var result = parsedTemplate.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+			var result = parsedTemplate.CreateAndStringify(model);
 
 			Assert.AreEqual(model["r"], result);
 		}
@@ -592,7 +586,7 @@ namespace Morestachio.Tests
 			var template = "You've won {{times_won}} times!";
 
 			var result = Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding))
-				.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+				.CreateAndStringify(model);
 
 			Assert.AreEqual("You've won  times!", result);
 		}
@@ -609,7 +603,7 @@ namespace Morestachio.Tests
 			var template = "{{^not_here}}{{../placeholder}}{{/not_here}}";
 
 			var result = Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding))
-				.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+				.CreateAndStringify(model);
 
 			Assert.AreEqual("a placeholder value", result);
 		}
@@ -625,7 +619,7 @@ namespace Morestachio.Tests
 			var template = "You've won {{times_won}} times!";
 
 			var result = Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding))
-				.Create(model).Stream.Stringify(true, ParserFixture.DefaultEncoding);
+				.CreateAndStringify(model);
 
 			Assert.AreEqual("You've won False times!", result);
 		}
