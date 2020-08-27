@@ -1,5 +1,16 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
+using Morestachio.Document;
+using Morestachio.Framework.Context;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
+#if ValueTask
+using ContextObjectPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.Context.ContextObject>;
+using Promise = System.Threading.Tasks.ValueTask;
+#else
+using ContextObjectPromise = System.Threading.Tasks.Task<Morestachio.Framework.Context.ContextObject>;
+using Promise = System.Threading.Tasks.Task;
+#endif
 
 namespace Morestachio.Framework.Expression.Framework
 {
@@ -58,6 +69,18 @@ namespace Morestachio.Framework.Expression.Framework
 		public MorestachioErrorCollection Errors { get; set; }
 
 		/// <summary>
+		///		Gets or sets the starting of an Token
+		/// </summary>
+		public string PrefixToken { get; set; } = "{{";
+
+		/// <summary>
+		///		Gets or sets the ending of an Token
+		/// </summary>
+		public string SuffixToken { get; set; } = "}}";
+
+		internal int CommentIntend { get; set; } = 0;
+
+		/// <summary>
 		///		Advances the current location by the number of chars
 		/// </summary>
 		public void AdvanceLocation(int chars)
@@ -73,6 +96,32 @@ namespace Morestachio.Framework.Expression.Framework
 		{
 			Character = chars;
 			CurrentLocation = Tokenizer.HumanizeCharacterLocation(Character, Lines);
+		}
+
+		public async Promise SetOption(string name, IMorestachioExpression value, ParserOptions parserOptions)
+		{
+			var val = (await value.GetValue(new ContextObject(parserOptions, ".", null, new object()), new ScopeData()))
+				.Value;
+			if (name.Equals("TokenPrefix", StringComparison.InvariantCultureIgnoreCase))
+			{
+				if (val == null)
+				{
+					Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+						"SET OPTION", "VALUE", $"The expression returned null for option '{name}' that does not accept a null value"));
+					return;
+				}
+				PrefixToken = val.ToString();
+			}
+			if (name.Equals("TokenSuffix", StringComparison.InvariantCultureIgnoreCase))
+			{
+				if (val == null)
+				{
+					Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+						"SET OPTION", "VALUE", $"The expression returned null for option '{name}' that does not accept a null value"));
+					return;
+				}
+				SuffixToken = val.ToString();
+			}
 		}
 	}
 }

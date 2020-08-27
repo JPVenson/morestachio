@@ -175,21 +175,21 @@ namespace Morestachio.Tests.SerilalizerTests
 		public void TestLocIsSerializable()
 		{
 			var template = "{{#loc 'Texts.Welcome'}} " +
-			                                       "{{#LocCulture 'de-AT'}}" +
-			                                       "{{#loc 'Texts.Welcome'}} " +
-			                                       "{{/LocCulture}}" +
+			               "{{#LocCulture 'de-AT'}}" +
+			               "{{#loc 'Texts.Welcome'}} " +
+			               "{{/LocCulture}}" +
 
-			                                       "{{#loc 'Texts.Welcome'}} " +
+			               "{{#loc 'Texts.Welcome'}} " +
 
-			                                       "{{#LocCulture 'de-DE'}}" +
-			                                       "{{#loc 'Texts.Welcome'}} " +
+			               "{{#LocCulture 'de-DE'}}" +
+			               "{{#loc 'Texts.Welcome'}} " +
 
-			                                       "{{#LocCulture 'de-AT'}}" +
-			                                       "{{#loc 'Texts.Welcome'}} " +
-			                                       "{{/LocCulture}}" +
+			               "{{#LocCulture 'de-AT'}}" +
+			               "{{#loc 'Texts.Welcome'}} " +
+			               "{{/LocCulture}}" +
 
-			                                       "{{#loc 'Texts.Welcome'}}" +
-			                                       "{{/LocCulture}}";;
+			               "{{#loc 'Texts.Welcome'}}" +
+			               "{{/LocCulture}}";
 			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template)
 				.RegisterLocalizationService(
 				() =>

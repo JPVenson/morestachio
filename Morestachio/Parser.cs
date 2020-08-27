@@ -1,4 +1,8 @@
-﻿using Morestachio.Document.Contracts;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using JetBrains.Annotations;
+using Morestachio.Document.Contracts;
 using Morestachio.Document.Items;
 using Morestachio.Document.TextOperations;
 using Morestachio.Framework.Expression.Framework;
@@ -6,15 +10,11 @@ using Morestachio.Framework.Tokenizing;
 using Morestachio.Parsing;
 using Morestachio.Parsing.ParserErrors;
 
-#region
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using JetBrains.Annotations;
-
-#endregion
-
+#if ValueTask
+using MorestachioDocumentInfoPromise = System.Threading.Tasks.ValueTask<Morestachio.MorestachioDocumentInfo>;
+#else
+using MorestachioDocumentInfoPromise = System.Threading.Tasks.Task<Morestachio.MorestachioDocumentInfo>;
+#endif
 
 namespace Morestachio
 {
@@ -44,7 +44,7 @@ namespace Morestachio
 		/// <returns></returns>
 		[NotNull]
 		[MustUseReturnValue("Use return value to create templates. Reuse return value if possible.")]
-		public static MorestachioDocumentInfo ParseWithOptions([NotNull] ParserOptions parsingOptions)
+		public static async MorestachioDocumentInfoPromise ParseWithOptionsAsync([NotNull] ParserOptions parsingOptions)
 		{
 			if (parsingOptions == null)
 			{
@@ -54,13 +54,25 @@ namespace Morestachio
 			parsingOptions.Seal();
 
 			var tokenzierContext = TokenzierContext.FromText(parsingOptions.Template, parsingOptions.CultureInfo);
-			var tokenizerResult = Tokenizer.Tokenize(parsingOptions, tokenzierContext);
+			var tokenizerResult = await Tokenizer.Tokenize(parsingOptions, tokenzierContext);
 
 			//if there are any errors do not parse the template
 			var documentInfo = new MorestachioDocumentInfo(parsingOptions,
 				tokenzierContext.Errors.Any() ? null : Parse(tokenizerResult, parsingOptions), tokenzierContext.Errors);
 
 			return documentInfo;
+		}
+		
+		/// <summary>
+		///     Parses the Template with the given options
+		/// </summary>
+		/// <param name="parsingOptions">a set of options</param>
+		/// <returns></returns>
+		[NotNull]
+		[MustUseReturnValue("Use return value to create templates. Reuse return value if possible.")]
+		public static MorestachioDocumentInfo ParseWithOptions([NotNull] ParserOptions parsingOptions)
+		{
+			return ParseWithOptionsAsync(parsingOptions).Result;
 		}
 
 		/// <summary>

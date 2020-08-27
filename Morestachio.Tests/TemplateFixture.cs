@@ -133,6 +133,18 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		public void TestMultiLineCommentsAreExcludedFromOutput()
+		{
+			var model = new Dictionary<string, object>();
+
+			var plainText = @"A{{!}}ZZZ{{/!}}B{{!}} {{123}} {{'{{'}} {{'}} }} {{/!}}C";
+			var rendered = Parser.ParseWithOptions(new ParserOptions(plainText, null, ParserFixture.DefaultEncoding))
+				.CreateAndStringify(model);
+
+			Assert.AreEqual("ABC", rendered);
+		}
+
+		[Test]
 		public void HtmlIsEscapedByDefault()
 		{
 			var model = new Dictionary<string, object>();

@@ -354,6 +354,29 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		public void ParserCanSetOption()
+		{
+			var template = "{{valueA}}," +
+			               "{{#SET OPTION TokenPrefix = '<%'}}" +
+			               "<%#SET OPTION TokenSuffix = '%>'}}" +
+			               "{{valueA}}" +
+			               "<%valueB%>," +
+			               "<%#SET OPTION TokenPrefix = '{{'%>" +
+			               "{{#SET OPTION TokenSuffix = '}}'%>" +
+			               "{{valueC}}";
+			var data = new Dictionary<string, object>()
+			{
+				{"valueA", "Hello" },
+				{"valueB", "_" },
+				{"valueC", "World" },
+			};
+
+			var parserOptions = new ParserOptions(template, null, DefaultEncoding);
+			var result = Parser.ParseWithOptions(parserOptions);
+			Assert.That(result.CreateAndStringify(data), Is.EqualTo("Hello,{{valueA}}_,World"));
+		}
+
+		[Test]
 		public void ParserCanNullableFormatTest()
 		{
 			var parsingOptions = new ParserOptions("ShouldBe: {{data}}, ButNot: {{extData}}", null,
