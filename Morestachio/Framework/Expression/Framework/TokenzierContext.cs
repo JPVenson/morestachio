@@ -97,6 +97,13 @@ namespace Morestachio.Framework.Expression.Framework
 			CurrentLocation = Tokenizer.HumanizeCharacterLocation(Character, Lines);
 		}
 
+		/// <summary>
+		///		Sets an Option that was requested from template
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="value"></param>
+		/// <param name="parserOptions"></param>
+		/// <returns></returns>
 		public async Promise SetOption(string name, IMorestachioExpression value, ParserOptions parserOptions)
 		{
 			var val = (await value.GetValue(new ContextObject(parserOptions, ".", null, new object()), new ScopeData()))
