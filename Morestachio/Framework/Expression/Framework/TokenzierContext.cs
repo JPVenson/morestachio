@@ -20,9 +20,8 @@ namespace Morestachio.Framework.Expression.Framework
 	public class TokenzierContext
 	{
 		/// <summary>
-		///		The indices of all linebreaks
+		///		Creates a new <see cref="TokenzierContext"/>
 		/// </summary>
-		/// <param name="lines"></param>
 		public TokenzierContext(int[] lines, CultureInfo culture)
 		{
 			Lines = lines;
@@ -61,12 +60,12 @@ namespace Morestachio.Framework.Expression.Framework
 		/// <summary>
 		///		The current location responding to the Character
 		/// </summary>
-		public CharacterLocation CurrentLocation { get; set; }
+		public CharacterLocation CurrentLocation { get; private set; }
 
 		/// <summary>
 		///		The list of all tokenizer errors
 		/// </summary>
-		public MorestachioErrorCollection Errors { get; set; }
+		public MorestachioErrorCollection Errors { get; private set; }
 
 		/// <summary>
 		///		Gets or sets the starting of an Token

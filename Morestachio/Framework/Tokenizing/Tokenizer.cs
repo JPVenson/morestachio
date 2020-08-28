@@ -200,10 +200,7 @@ namespace Morestachio.Framework.Tokenizing
 			public int Length { get; }
 			public string Value { get; }
 		}
-
-		private static readonly Regex TokenFinder = new Regex("([{]{2}[^{}]+?[}]{2})|([{]{3}[^{}]+?[}]{3})",
-			RegexOptions.Compiled);
-
+		
 		internal class RollingArray
 		{
 			public RollingArray(int size)
