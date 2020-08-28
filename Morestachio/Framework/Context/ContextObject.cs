@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -370,15 +371,31 @@ namespace Morestachio.Framework.Context
 				}
 				else if (Value != null)
 				{
-					var propertyInfo = type.GetTypeInfo().GetProperty(elements.Current.Key);
-					if (propertyInfo != null)
+					if (Value is ICustomTypeDescriptor descriptor)
 					{
-						innerContext.Value = propertyInfo.GetValue(Value);
+						var propertyDescriptor = descriptor.GetProperties().Find(elements.Current.Key, false);
+						if (propertyDescriptor != null)
+						{
+							innerContext.Value = propertyDescriptor.GetValue(Value);
+						}
+						else
+						{
+							Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+								elements.Current.Key, Value?.GetType()));
+						}
 					}
 					else
 					{
-						Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
-							elements.Current.Key, Value?.GetType()));
+						var propertyInfo = type.GetTypeInfo().GetProperty(elements.Current.Key);
+						if (propertyInfo != null)
+						{
+							innerContext.Value = propertyInfo.GetValue(Value);
+						}
+						else
+						{
+							Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+								elements.Current.Key, Value?.GetType()));
+						}
 					}
 				}
 
