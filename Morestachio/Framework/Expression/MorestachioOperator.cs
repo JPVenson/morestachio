@@ -25,10 +25,10 @@ namespace Morestachio.Framework.Expression
 			operators.Add(BinaryOperator(">>", OperatorTypes.ShiftRight));
 			operators.Add(BinaryOperator("==", OperatorTypes.Equals));
 			operators.Add(BinaryOperator("!=", OperatorTypes.UnEquals));
-			operators.Add(BinaryOperator("<", OperatorTypes.GreaterThen));
-			operators.Add(BinaryOperator(">", OperatorTypes.LessThen));
-			operators.Add(BinaryOperator("<=", OperatorTypes.GreaterOrEquals));
-			operators.Add(BinaryOperator(">=", OperatorTypes.LessOrEquals));
+			operators.Add(BinaryOperator("<", OperatorTypes.LessThen));
+			operators.Add(BinaryOperator("<=", OperatorTypes.LessOrEquals));
+			operators.Add(BinaryOperator(">", OperatorTypes.GreaterThen));
+			operators.Add(BinaryOperator(">=", OperatorTypes.GreaterOrEquals));
 			operators.Add(BinaryOperator("&&", OperatorTypes.And));
 			operators.Add(BinaryOperator("||", OperatorTypes.Or));
 			operators.Add(BinaryOperator("<?", OperatorTypes.Bigger));

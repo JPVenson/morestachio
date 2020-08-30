@@ -130,6 +130,18 @@ namespace Morestachio.Tests
 
 		[Test]
 		[TestCase("A + B", 5, 10, 5 + 10)]
+		[TestCase("A - B", 5, 10, 5 - 10)]
+		[TestCase("A / B", 5, 10, 5 / 10)]
+		[TestCase("A * B", 5, 10, 5 * 10)]
+		[TestCase("A % B", 5, 10, 5 % 10)]
+		[TestCase("A << B", 5, 10, 5 << 10)]
+		[TestCase("A >> B", 5, 10, 5 >> 10)]
+		[TestCase("A < B", 5, 10, 5 < 10)]
+		[TestCase("A > B", 5, 10, 5 > 10)]
+		[TestCase("A <= B", 5, 10, 5 <= 10)]
+		[TestCase("A >= B", 5, 10, 5 >= 10)]
+		[TestCase("A == B", 5, 10, 5 == 10)]
+		[TestCase("A != B", 5, 10, 5 != 10)]
 		public async Task TestExpressionCanParseOperators(string query, object valA, object valB, object valExp)
 		{
 			var context = TokenzierContext.FromText(query);
@@ -149,7 +161,7 @@ namespace Morestachio.Tests
 				A = valA,
 				B = valB
 			});
-			Assert.That(andStringifyAsync, Is.EqualTo((5 + 10).ToString()));
+			Assert.That(andStringifyAsync, Is.EqualTo((valExp).ToString()));
 		}
 
 		[Test]

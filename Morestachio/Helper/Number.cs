@@ -251,7 +251,7 @@ namespace Morestachio.Helper
 		[MorestachioOperator(OperatorTypes.Remainder, "Modulo two numbers")]
 		public static Number Modulo(Number left, Number right)
 		{
-			return left.Divide(right);
+			return left.Modulo(right);
 		}
 
 		[MorestachioFormatter("ShiftLeft", "Shift two numbers")]
@@ -267,15 +267,6 @@ namespace Morestachio.Helper
 		{
 			return left.ShiftRight(right);
 		}
-
-		[MorestachioFormatter("BiggerAs", "Checks if the source number is bigger as the other number")]
-		[MorestachioFormatter("GreaterThen", "Checks if the source number is bigger as the other number")]
-		[MorestachioOperator(OperatorTypes.GreaterThen, "Checks if the source number is bigger as the other number")]
-		public static bool GreaterThen(Number left, Number right)
-		{
-			return left.GreaterThen(right);
-		}
-
 		[MorestachioFormatter("SmallerAs", "Checks if the source number is smaller as the other number")]
 		[MorestachioFormatter("SmallerThan", "Checks if the source number is smaller as the other number")]
 		[MorestachioFormatter("LessThen", "Checks if the source number is smaller as the other number")]
@@ -285,18 +276,26 @@ namespace Morestachio.Helper
 			return left.SmallerThan(right);
 		}
 
-		[MorestachioFormatter("GreaterOrEquals", "Checks if the source number is bigger as the other number")]
-		[MorestachioOperator(OperatorTypes.GreaterOrEquals, "Checks if the source number is bigger as the other number")]
-		public static bool GreaterOrEquals(Number left, Number right)
-		{
-			return left.GreaterThen(right) || left.Same(right);
-		}
-
 		[MorestachioFormatter("SmallerOrEquals", "Checks if the source number is smaller as the other number")]
 		[MorestachioOperator(OperatorTypes.LessOrEquals, "Checks if the source number is smaller as the other number")]
 		public static bool SmallerOrEquals(Number left, Number right)
 		{
 			return left.SmallerThan(right) || left.Same(right);
+		}
+
+		[MorestachioFormatter("BiggerAs", "Checks if the source number is bigger as the other number")]
+		[MorestachioFormatter("GreaterThen", "Checks if the source number is bigger as the other number")]
+		[MorestachioOperator(OperatorTypes.GreaterThen, "Checks if the source number is bigger as the other number")]
+		public static bool GreaterThen(Number left, Number right)
+		{
+			return left.GreaterThen(right);
+		}
+
+		[MorestachioFormatter("GreaterOrEquals", "Checks if the source number is bigger as the other number")]
+		[MorestachioOperator(OperatorTypes.GreaterOrEquals, "Checks if the source number is bigger as the other number")]
+		public static bool GreaterOrEquals(Number left, Number right)
+		{
+			return left.GreaterThen(right) || left.Same(right);
 		}
 
 		[MorestachioFormatter("Equals", "Checks if the two numbers are equal to each other")]
