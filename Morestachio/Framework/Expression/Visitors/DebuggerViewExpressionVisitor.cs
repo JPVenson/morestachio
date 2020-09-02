@@ -26,7 +26,12 @@ namespace Morestachio.Framework.Expression.Visitors
 		public void Visit(MorestachioExpression expression)
 		{
 			StringBuilder.Append("Exp({");
+			WriteSingleExpression(expression);
+			StringBuilder.Append(")");
+		}
 
+		private void WriteSingleExpression(MorestachioExpression expression)
+		{
 			var expressionPathParts = expression.PathParts.ToArray();
 			for (var index = 0; index < expressionPathParts.Length; index++)
 			{
@@ -42,6 +47,7 @@ namespace Morestachio.Framework.Expression.Visitors
 						{
 							StringBuilder.Append(".");
 						}
+
 						break;
 					case PathType.Null:
 						StringBuilder.Append("null");
@@ -62,6 +68,7 @@ namespace Morestachio.Framework.Expression.Visitors
 						throw new ArgumentOutOfRangeException();
 				}
 			}
+
 			if (expression.FormatterName != null)
 			{
 				StringBuilder.Append("} => ");
@@ -71,10 +78,11 @@ namespace Morestachio.Framework.Expression.Visitors
 				}
 				else
 				{
-					StringBuilder.Append(expression.FormatterName);	
+					StringBuilder.Append(expression.FormatterName);
 				}
+
 				StringBuilder.Append("(");
-				
+
 
 				if (expression.Formats.Any())
 				{
@@ -108,7 +116,6 @@ namespace Morestachio.Framework.Expression.Visitors
 			{
 				StringBuilder.Append("}");
 			}
-			StringBuilder.Append(")");
 		}
 
 		/// <summary>
@@ -123,10 +130,32 @@ namespace Morestachio.Framework.Expression.Visitors
 		}
 
 		/// <inheritdoc />
-		public void Visit(MorestachioExpressionList expression)
+		public void Visit(MorestachioArgumentExpressionList expression)
 		{
 			StringBuilder
-				.AppendLine("List[")
+				.AppendLine("Exp[")
+				.Up()
+				.AppendInterlaced();;
+			for (var index = 0; index < expression.Expressions.Count; index++)
+			{
+				var expressionExpression = expression.Expressions[index];
+				this.Visit(expressionExpression);
+				if (index != expression.Expressions.Count - 1)
+				{
+					StringBuilder.AppendLine(",").AppendInterlaced();
+				}
+			}
+
+			StringBuilder.Down()
+				.AppendLine()
+				.AppendInterlaced("]");
+		}
+
+		/// <inheritdoc />
+		public void Visit(MorestachioMultiPartExpressionList expression)
+		{
+			StringBuilder
+				.AppendLine("Exp[")
 				.Up()
 				.AppendInterlaced();;
 			for (var index = 0; index < expression.Expressions.Count; index++)

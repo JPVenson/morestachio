@@ -23,8 +23,11 @@ namespace Morestachio.Framework.Expression
 				case "Expression":
 					exp = new MorestachioExpression();
 					break;
-				case "ExpressionList":
-					exp = new MorestachioExpressionList();
+				case "ExpressionMultiPart":
+					exp = new MorestachioMultiPartExpressionList();
+					break;
+				case "ExpressionArgList":
+					exp = new MorestachioArgumentExpressionList();
 					break;
 				case "ExpressionString":
 					exp = new MorestachioExpressionString();
@@ -48,23 +51,21 @@ namespace Morestachio.Framework.Expression
 			{
 				case MorestachioExpression _:
 					writer.WriteStartElement("Expression");
-					//writer.WriteAttributeString(ExpressionKindNodeName, "Expression");
 					break;
-				case MorestachioExpressionList _:
-					writer.WriteStartElement("ExpressionList");
-					//writer.WriteAttributeString(ExpressionKindNodeName, "ExpressionList");
+				case MorestachioArgumentExpressionList _:
+					writer.WriteStartElement("ExpressionArgList");
+					break;
+				case MorestachioMultiPartExpressionList _:
+					writer.WriteStartElement("ExpressionMultiPart");
 					break;
 				case MorestachioExpressionString _:
 					writer.WriteStartElement("ExpressionString");
-					//writer.WriteAttributeString(ExpressionKindNodeName, "ExpressionString");
 					break;
 				case MorestachioExpressionNumber _:
 					writer.WriteStartElement("ExpressionNumber");
-					//writer.WriteAttributeString(ExpressionKindNodeName, "ExpressionNumber");
 					break;
 				case MorestachioOperatorExpression _:
 					writer.WriteStartElement("ExpressionOperator");
-					//writer.WriteAttributeString(ExpressionKindNodeName, "OperatorExpression");
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(morestachioExpression));

@@ -80,6 +80,11 @@ namespace Morestachio.Framework
 		/// <returns></returns>
 		public KeyValuePair<string, PathType>[] ToArray()
 		{
+			if (!HasValue)
+			{
+				return Array.Empty<KeyValuePair<string, PathType>>();
+			}
+
 			var list = new KeyValuePair<string, PathType>[Count + 1];
 			var node = this;
 			for (int i = 0; i < list.Length; i++)

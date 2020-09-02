@@ -114,7 +114,7 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
-		[TestCase("a + b")]
+		[TestCase("a + b + c")]
 		public void TestExpressionParserDbg(string query)
 		{
 			var context = TokenzierContext.FromText(query);
@@ -129,20 +129,53 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
-		[TestCase("A + B", 5, 10, 5 + 10)]
-		[TestCase("A - B", 5, 10, 5 - 10)]
-		[TestCase("A / B", 5, 10, 5 / 10)]
-		[TestCase("A * B", 5, 10, 5 * 10)]
-		[TestCase("A % B", 5, 10, 5 % 10)]
-		[TestCase("A << B", 5, 10, 5 << 10)]
-		[TestCase("A >> B", 5, 10, 5 >> 10)]
-		[TestCase("A < B", 5, 10, 5 < 10)]
-		[TestCase("A > B", 5, 10, 5 > 10)]
-		[TestCase("A <= B", 5, 10, 5 <= 10)]
-		[TestCase("A >= B", 5, 10, 5 >= 10)]
-		[TestCase("A == B", 5, 10, 5 == 10)]
-		[TestCase("A != B", 5, 10, 5 != 10)]
-		public async Task TestExpressionCanParseOperators(string query, object valA, object valB, object valExp)
+		[TestCase("A + B", 5 + 10, 5, 10)]
+		[TestCase("A - B", 5 - 10, 5, 10)]
+		[TestCase("A / B", 5 / 10, 5, 10)]
+		[TestCase("A * B", 5 * 10, 5, 10)]
+		[TestCase("A % B", 5 % 10, 5, 10)]
+		[TestCase("A << B", 5 << 10, 5, 10)]
+		[TestCase("A >> B", 5 >> 10, 5, 10)]
+		[TestCase("A < B", 5 < 10, 5, 10)]
+		[TestCase("A > B", 5 > 10, 5, 10)]
+		[TestCase("A <= B", 5 <= 10, 5, 10)]
+		[TestCase("A >= B", 5 >= 10, 5, 10)]
+		[TestCase("A == B", 5 == 10, 5, 10)]
+		[TestCase("A != B", 5 != 10, 5, 10)]
+
+		[TestCase("A + B + C", 5 + 10 + 15, 5, 10, 15)]
+		[TestCase("A - B - C", 5 - 10 - 15, 5, 10, 15)]
+		[TestCase("A / B / C", 5 / 10 / 15, 5, 10, 15)]
+		[TestCase("A * B * C", 5 * 10 * 15, 5, 10, 15)]
+		[TestCase("A % B % C", 5 % 10 % 15, 5, 10, 15)]
+		[TestCase("A << B << C", 5 << 10 << 15, 5, 10, 15)]
+		[TestCase("A >> B >> C", 5 >> 10 >> 15, 5, 10, 15)]
+
+		[TestCase(".Self(A + B) + C",	(5 + 10) + 15, 5, 10, 15)]
+		[TestCase(".Self(A - B) - C",	(5 - 10) - 15, 5, 10, 15)]
+		[TestCase(".Self(A / B) / C",	(5 / 10) / 15, 5, 10, 15)]
+		[TestCase(".Self(A * B) * C",	(5 * 10) * 15, 5, 10, 15)]
+		[TestCase(".Self(A % B) % C",	(5 % 10) % 15, 5, 10, 15)]
+		[TestCase(".Self(A << B) << C", (5 << 10) << 15, 5, 10, 15)]
+		[TestCase(".Self(A >> B) >> C", (5 >> 10) >> 15, 5, 10, 15)]
+
+		[TestCase("A + .Self(B + C)", 5 + (10 + 15), 5, 10, 15)]
+		[TestCase("A - .Self(B - C)", 5 - (10 - 15), 5, 10, 15)]
+		[TestCase("A / .Self(B / C)", 5 / (22 / 15), 5, 22, 15)]
+		[TestCase("A * .Self(B * C)", 5 * (10 * 15), 5, 10, 15)]
+		[TestCase("A % .Self(B % C)", 5 % (10 % 15), 5, 10, 15)]
+		[TestCase("A << .Self(B << C)", 5 << (10 << 15), 5, 10, 15)]
+		[TestCase("A >> .Self(B >> C)", 5 >> (10 >> 15), 5, 10, 15)]
+
+		[TestCase(".Self(A + .Self(B + C))", 5 + (10 + 15), 5, 10, 15)]
+		[TestCase(".Self(A - .Self(B - C))", 5 - (10 - 15), 5, 10, 15)]
+		[TestCase(".Self(A / .Self(B / C))", 5 / (22 / 15), 5, 22, 15)]
+		[TestCase(".Self(A * .Self(B * C))", 5 * (10 * 15), 5, 10, 15)]
+		[TestCase(".Self(A % .Self(B % C))", 5 % (10 % 15), 5, 10, 15)]
+		[TestCase(".Self(A << .Self(B << C))", 5 << (10 << 15), 5, 10, 15)]
+		[TestCase(".Self(A >> .Self(B >> C))", 5 >> (10 >> 15), 5, 10, 15)]
+
+		public async Task TestExpressionCanParseOperators(string query, object valExp, params object[] args)
 		{
 			var context = TokenzierContext.FromText(query);
 			var expressions = ExpressionParser.ParseExpression(query, context);
@@ -154,13 +187,22 @@ namespace Morestachio.Tests
 			Assert.That(visitor.StringBuilder.ToString(), Is.EqualTo(query));
 			Assert.That(context.Errors, Is.Empty, () => context.Errors.GetErrorText());
 
-			var temp = Parser.ParseWithOptions(new ParserOptions("{{" + query + "}}", null,
-				DefaultEncoding));
-			var andStringifyAsync = await temp.CreateAndStringifyAsync(new
+			var parsingOptions = new ParserOptions("{{" + query + "}}", null,
+				DefaultEncoding);
+			parsingOptions.Formatters.AddSingleGlobal<object, object>(f =>
 			{
-				A = valA,
-				B = valB
-			});
+				return f;
+			}, "Self");
+
+			var temp = Parser.ParseWithOptions(parsingOptions);
+			var dict = new Dictionary<string, object>();
+			for (var index = 0; index < args.Length; index++)
+			{
+				var arg = args[index];
+				dict.Add(((char)('A' + index)).ToString(), arg);
+			}
+
+			var andStringifyAsync = await temp.CreateAndStringifyAsync(dict);
 			Assert.That(andStringifyAsync, Is.EqualTo((valExp).ToString()));
 		}
 
@@ -369,13 +411,13 @@ namespace Morestachio.Tests
 		public void ParserCanSetOption()
 		{
 			var template = "{{valueA}}," +
-			               "{{#SET OPTION TokenPrefix = '<%'}}" +
-			               "<%#SET OPTION TokenSuffix = '%>'}}" +
-			               "{{valueA}}" +
-			               "<%valueB%>," +
-			               "<%#SET OPTION TokenPrefix = '{{'%>" +
-			               "{{#SET OPTION TokenSuffix = '}}'%>" +
-			               "{{valueC}}";
+						   "{{#SET OPTION TokenPrefix = '<%'}}" +
+						   "<%#SET OPTION TokenSuffix = '%>'}}" +
+						   "{{valueA}}" +
+						   "<%valueB%>," +
+						   "<%#SET OPTION TokenPrefix = '{{'%>" +
+						   "{{#SET OPTION TokenSuffix = '}}'%>" +
+						   "{{valueC}}";
 			var data = new Dictionary<string, object>()
 			{
 				{"valueA", "Hello" },

@@ -21,9 +21,9 @@ namespace Morestachio.Framework.Expression
 	/// </summary>
 	[DebuggerTypeProxy(typeof(ExpressionDebuggerDisplay))]
 	[Serializable]
-	public class MorestachioExpressionList : IMorestachioExpression
+	public abstract class MorestachioExpressionListBase : IMorestachioExpression
 	{
-		internal MorestachioExpressionList()
+		internal MorestachioExpressionListBase()
 		{
 			
 		}
@@ -31,7 +31,7 @@ namespace Morestachio.Framework.Expression
 		/// <summary>
 		/// 
 		/// </summary>
-		public MorestachioExpressionList(CharacterLocation location)
+		public MorestachioExpressionListBase(CharacterLocation location)
 		{
 			Location = location;
 			Expressions = new List<IMorestachioExpression>();
@@ -40,7 +40,7 @@ namespace Morestachio.Framework.Expression
 		/// <summary>
 		///	
 		/// </summary>
-		public MorestachioExpressionList(IList<IMorestachioExpression> expressions, CharacterLocation location)
+		public MorestachioExpressionListBase(IList<IMorestachioExpression> expressions, CharacterLocation location)
 		{
 			Expressions = expressions;
 			Location = location;
@@ -51,7 +51,7 @@ namespace Morestachio.Framework.Expression
 		/// </summary>
 		/// <param name="info"></param>
 		/// <param name="context"></param>
-		protected MorestachioExpressionList(SerializationInfo info, StreamingContext context)
+		protected MorestachioExpressionListBase(SerializationInfo info, StreamingContext context)
 		{
 			Location = CharacterLocation.FromFormatString(info.GetString(nameof(Location)));
 			Expressions = (IMorestachioExpression[])info.GetValue(nameof(Expressions), typeof(IMorestachioExpression[]));
@@ -132,7 +132,7 @@ namespace Morestachio.Framework.Expression
 		}
 
 		/// <inheritdoc />
-		protected bool Equals(MorestachioExpressionList other)
+		protected bool Equals(MorestachioExpressionListBase other)
 		{
 			if (!Location.Equals(other.Location))
 			{
@@ -174,7 +174,7 @@ namespace Morestachio.Framework.Expression
 				return false;
 			}
 
-			return Equals((MorestachioExpressionList)obj);
+			return Equals((MorestachioExpressionListBase)obj);
 		}
 
 		/// <inheritdoc />
@@ -205,9 +205,9 @@ namespace Morestachio.Framework.Expression
 
 		private class ExpressionDebuggerDisplay
 		{
-			private readonly MorestachioExpressionList _exp;
+			private readonly MorestachioExpressionListBase _exp;
 
-			public ExpressionDebuggerDisplay(MorestachioExpressionList exp)
+			public ExpressionDebuggerDisplay(MorestachioExpressionListBase exp)
 			{
 				_exp = exp;
 			}

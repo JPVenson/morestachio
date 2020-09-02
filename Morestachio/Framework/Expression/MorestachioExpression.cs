@@ -272,7 +272,7 @@ namespace Morestachio.Framework.Expression
 				}
 			}
 
-			var morestachioExpressions = new MorestachioExpressionList(context.CurrentLocation);
+			var morestachioExpressions = new MorestachioMultiPartExpressionList(context.CurrentLocation);
 			HeaderTokenMatch currentScope;
 			//this COULD be made with regexes, i have made it and rejected it as it was no longer readable in any way.
 			var tokenScopes = new Stack<HeaderTokenMatch>();
@@ -410,7 +410,7 @@ namespace Morestachio.Framework.Expression
 							scope = tokenScopes.Peek();
 						}
 
-						if (scope?.Value is MorestachioExpressionList)//if the parent expression is a list close that list too
+						if (scope?.Value is MorestachioExpressionListBase)//if the parent expression is a list close that list too
 						{
 							tokenScopes.Peek().BracketsCounter--;
 							TerminateCurrentScope();
@@ -430,15 +430,15 @@ namespace Morestachio.Framework.Expression
 							}
 							if (scope != null && scope.Parent != null) //this is a nested expression
 							{
-								if ((scope.Parent?.Value is MorestachioExpressionList))//the parents parent expression is already a list so close the parent
+								if ((scope.Parent?.Value is MorestachioExpressionListBase))//the parents parent expression is already a list so close the parent
 								{
 									scope = scope.Parent;
 									TerminateCurrentScope();
 								}
-								else if (!(scope.Value is MorestachioExpressionList))//the parent is not an list expression so replace the parent with a list expression
+								else if (!(scope.Value is MorestachioExpressionListBase))//the parent is not an list expression so replace the parent with a list expression
 								{
 									var oldValue = scope.Value as MorestachioExpression;
-									scope.Value = new MorestachioExpressionList(new List<IMorestachioExpression>
+									scope.Value = new MorestachioMultiPartExpressionList(new List<IMorestachioExpression>
 									{
 										oldValue
 									}, oldValue.Location);
@@ -449,7 +449,7 @@ namespace Morestachio.Framework.Expression
 										hasFormat.MorestachioExpression = scope.Value;
 									}
 								}
-								else if (currentChar == ')' && scope.Value is MorestachioExpressionList)
+								else if (currentChar == ')' && scope.Value is MorestachioExpressionListBase)
 								{
 									scope = scope.Parent.Parent;
 									TerminateCurrentScope();
@@ -580,6 +580,30 @@ namespace Morestachio.Framework.Expression
 
 			bool? ParseOperationCall()
 			{
+				MorestachioOperatorExpression AddToParent(MorestachioOperator op, IMorestachioExpression opExpression)
+				{
+					MorestachioOperatorExpression morestachioOperatorExpression;
+					//in this case we have a carry over
+					morestachioOperatorExpression =
+						new MorestachioOperatorExpression(op, opExpression, context.CurrentLocation.Offset(index));
+
+					//AddCurrentScopeToParent(index, morestachioOperatorExpression, currentScope.Parent.Value);
+
+					if (currentScope.Parent.Value is MorestachioExpressionListBase morestachioExpressionList)
+					{
+						morestachioExpressionList.Expressions.Remove(opExpression);
+						morestachioExpressionList.Expressions.Add(morestachioOperatorExpression);
+					}
+					else if (currentScope.Parent.Value is MorestachioExpression morestachioExpression)
+					{
+						var format = morestachioExpression.Formats.Single(e =>
+							e.MorestachioExpression == opExpression);
+						format.MorestachioExpression = morestachioOperatorExpression;
+					}
+
+					return morestachioOperatorExpression;
+				}
+
 				var opList = MorestachioOperator.Yield().Where(e => e.OperatorText.StartsWith(formatChar.ToString())).ToArray();
 
 				if (opList.Length > 0)
@@ -593,25 +617,16 @@ namespace Morestachio.Framework.Expression
 					TerminateCurrentScope();
 
 					MorestachioOperatorExpression morestachioOperatorExpression;
-					if (currentScope.Parent.Value is MorestachioExpression parentExpression &&
-						parentExpression.Formats.LastOrDefault()?.MorestachioExpression is MorestachioOperatorExpression opExpression)
+					if ((currentScope.Parent.Value is MorestachioExpression parentExpression &&
+					     parentExpression.Formats.LastOrDefault()?.MorestachioExpression is MorestachioOperatorExpression opExpressionA)
+						)
 					{
-						//in this case we have a carry over
-						morestachioOperatorExpression = new MorestachioOperatorExpression(op, opExpression, context.CurrentLocation.Offset(index));
-
-						//AddCurrentScopeToParent(index, morestachioOperatorExpression, currentScope.Parent.Value);
-
-						if (currentScope.Parent.Value is MorestachioExpressionList morestachioExpressionList)
-						{
-							morestachioExpressionList.Expressions.Remove(opExpression);
-							morestachioExpressionList.Expressions.Add(morestachioOperatorExpression);
-						}
-						else if (currentScope.Parent.Value is MorestachioExpression morestachioExpression)
-						{
-							var format = morestachioExpression.Formats.Single(e =>
-								e.MorestachioExpression == opExpression);
-							format.MorestachioExpression = morestachioOperatorExpression;
-						}
+						morestachioOperatorExpression = AddToParent(op, opExpressionA);
+					}
+					else if (currentScope.Parent.Value is MorestachioMultiPartExpressionList mpExp &&
+					         mpExp.Expressions.LastOrDefault() is MorestachioOperatorExpression opExpressionB)
+					{
+						morestachioOperatorExpression = AddToParent(op, opExpressionB);
 					}
 					else
 					{
@@ -619,7 +634,7 @@ namespace Morestachio.Framework.Expression
 						morestachioOperatorExpression = new MorestachioOperatorExpression(op, currentScope.Value, context.CurrentLocation.Offset(index));
 						//AddCurrentScopeToParent(index, morestachioOperatorExpression, currentScope.Parent.Value);
 
-						if (currentScope.Parent.Value is MorestachioExpressionList morestachioExpressionList)
+						if (currentScope.Parent.Value is MorestachioExpressionListBase morestachioExpressionList)
 						{
 							morestachioExpressionList.Expressions.Remove(currentScope.Value);
 							morestachioExpressionList.Expressions.Add(morestachioOperatorExpression);
@@ -660,7 +675,7 @@ namespace Morestachio.Framework.Expression
 					exp.Formats.Add(
 						new ExpressionArgument(context.CurrentLocation.Offset(idx1), value, currentScope.ArgumentName));
 				}
-				else if (parent is MorestachioExpressionList expList)
+				else if (parent is MorestachioExpressionListBase expList)
 				{
 					expList.Add(value);
 				}
@@ -709,7 +724,7 @@ namespace Morestachio.Framework.Expression
 
 								if (SeekNext(out _) == '.')
 								{
-									var morestachioExpressionList = new MorestachioExpressionList(new List<IMorestachioExpression>()
+									var morestachioExpressionList = new MorestachioMultiPartExpressionList(new List<IMorestachioExpression>()
 									{
 										currentScope.Value
 									}, context.CurrentLocation.Offset(index));
@@ -737,7 +752,7 @@ namespace Morestachio.Framework.Expression
 
 								if (SeekNext(out _) == '.')
 								{
-									var morestachioExpressionList = new MorestachioExpressionList(new List<IMorestachioExpression>()
+									var morestachioExpressionList = new MorestachioMultiPartExpressionList(new List<IMorestachioExpression>()
 									{
 										currentScope.Value
 									}, context.CurrentLocation.Offset(index));

@@ -13,7 +13,12 @@
 		/// <summary>
 		///		Visits an Expression List
 		/// </summary>
-		void Visit(MorestachioExpressionList expression);
+		void Visit(MorestachioArgumentExpressionList expression);
+		
+		/// <summary>
+		///		Visits an Expression List
+		/// </summary>
+		void Visit(MorestachioMultiPartExpressionList expression);
 		
 		/// <summary>
 		///		Visits an Expression String

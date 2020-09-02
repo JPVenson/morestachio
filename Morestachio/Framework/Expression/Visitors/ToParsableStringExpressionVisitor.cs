@@ -24,8 +24,6 @@ namespace Morestachio.Framework.Expression.Visitors
 		/// </summary>
 		public StringBuilder StringBuilder { get; set; }
 
-
-
 		/// <inheritdoc />
 		public void Visit(MorestachioExpression expression)
 		{
@@ -61,7 +59,6 @@ namespace Morestachio.Framework.Expression.Visitors
 						break;
 					case PathType.ObjectSelector:
 						StringBuilder.Append("?");
-						isSelfAssignment = true;
 						break;
 					default:
 						throw new ArgumentOutOfRangeException();
@@ -94,16 +91,27 @@ namespace Morestachio.Framework.Expression.Visitors
 		}
 
 		/// <inheritdoc />
-		public void Visit(MorestachioExpressionList expression)
+		public void Visit(MorestachioArgumentExpressionList expression)
 		{
 			for (var index = 0; index < expression.Expressions.Count; index++)
 			{
 				var expressionExpression = expression.Expressions[index];
-				if (index != 0 &&
-					(expressionExpression as MorestachioExpression)?
-					.PathParts
-					.ToArray()
-					.All(f => f.Value == PathType.SelfAssignment || Equals(f, default(KeyValuePair<string, PathType>))) == false)
+				this.Visit(expressionExpression);
+			}
+		}
+
+		/// <inheritdoc />
+		public void Visit(MorestachioMultiPartExpressionList expression)
+		{
+			for (var index = 0; index < expression.Expressions.Count; index++)
+			{
+				var expressionExpression = expression.Expressions[index];
+
+				if (index != 0
+					&& !(expressionExpression is MorestachioExpression exp
+						 && (exp.PathParts.Current.Value == PathType.SelfAssignment 
+						     || 
+						     (exp.PathParts.Current.Value == PathType.DataPath && exp.PathParts.Current.Key is null))))
 				{
 					StringBuilder.Append(".");
 				}
@@ -141,6 +149,14 @@ namespace Morestachio.Framework.Expression.Visitors
 		/// <inheritdoc />
 		public void Visit(MorestachioOperatorExpression expression)
 		{
+			//if (!(expression.LeftExpression is MorestachioOperatorExpression)
+			//&& !(expression.LeftExpression is MorestachioExpressionListBase expList 
+			//    && expList.Expressions.Count == 1 
+			//    && (expList.Expressions.FirstOrDefault() is MorestachioOperatorExpression)))
+			//{
+			//	this.Visit(expression.LeftExpression);
+			//}
+
 			this.Visit(expression.LeftExpression);
 			StringBuilder.Append(" ");
 			StringBuilder.Append(expression.Operator.OperatorText);

@@ -91,7 +91,7 @@ namespace Morestachio.Fluent.Expression
 		{
 			if (ExpressionParts.Count > 1)
 			{
-				return new MorestachioExpressionList(ExpressionParts, CharacterLocation.Unknown);
+				return new MorestachioMultiPartExpressionList(ExpressionParts, CharacterLocation.Unknown);
 			}
 
 			return ExpressionParts.FirstOrDefault();
