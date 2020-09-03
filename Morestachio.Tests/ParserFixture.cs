@@ -151,11 +151,11 @@ namespace Morestachio.Tests
 		[TestCase("A << B << C", 5 << 10 << 15, 5, 10, 15)]
 		[TestCase("A >> B >> C", 5 >> 10 >> 15, 5, 10, 15)]
 
-		[TestCase(".Self(A + B) + C",	(5 + 10) + 15, 5, 10, 15)]
-		[TestCase(".Self(A - B) - C",	(5 - 10) - 15, 5, 10, 15)]
-		[TestCase(".Self(A / B) / C",	(5 / 10) / 15, 5, 10, 15)]
-		[TestCase(".Self(A * B) * C",	(5 * 10) * 15, 5, 10, 15)]
-		[TestCase(".Self(A % B) % C",	(5 % 10) % 15, 5, 10, 15)]
+		[TestCase(".Self(A + B) + C", (5 + 10) + 15, 5, 10, 15)]
+		[TestCase(".Self(A - B) - C", (5 - 10) - 15, 5, 10, 15)]
+		[TestCase(".Self(A / B) / C", (5 / 10) / 15, 5, 10, 15)]
+		[TestCase(".Self(A * B) * C", (5 * 10) * 15, 5, 10, 15)]
+		[TestCase(".Self(A % B) % C", (5 % 10) % 15, 5, 10, 15)]
 		[TestCase(".Self(A << B) << C", (5 << 10) << 15, 5, 10, 15)]
 		[TestCase(".Self(A >> B) >> C", (5 >> 10) >> 15, 5, 10, 15)]
 

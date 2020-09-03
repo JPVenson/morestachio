@@ -140,12 +140,7 @@ namespace Morestachio.Formatter.Framework
 		public virtual MorestachioFormatterModel Add(MethodInfo method,
 			MorestachioFormatterAttribute morestachioFormatterAttribute)
 		{
-			if (!morestachioFormatterAttribute.ValidateFormatterName())
-			{
-				throw new InvalidOperationException(
-					$"The name '{morestachioFormatterAttribute.Name}' is invalid. An Formatter may only contain letters and cannot start with an digit");
-			}
-
+			morestachioFormatterAttribute.ValidateFormatter(method);
 			var arguments = morestachioFormatterAttribute.GetParameters(method);
 
 			var morestachioFormatterModel = new MorestachioFormatterModel(morestachioFormatterAttribute.Name,

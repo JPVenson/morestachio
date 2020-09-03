@@ -1,4 +1,6 @@
-﻿using Morestachio.Framework.Expression;
+﻿using System;
+using System.Reflection;
+using Morestachio.Framework.Expression;
 
 namespace Morestachio.Formatter.Framework.Attributes
 {
@@ -23,6 +25,17 @@ namespace Morestachio.Formatter.Framework.Attributes
 		public override bool ValidateFormatterName()
 		{
 			return MorestachioOperator.Operators.ContainsKey(OperatorType);
+		}
+
+		public override void ValidateFormatter(MethodInfo method)
+		{
+			base.ValidateFormatter(method);
+			var multiFormatterInfos = base.GetParameters(method);
+			if (multiFormatterInfos.Length < 1 || multiFormatterInfos.Length > 2)
+			{
+				throw new InvalidOperationException(
+					$"The formatter '{Name}' is invalid. An operators must at least have one and at most two arguments");
+			}
 		}
 	}
 }

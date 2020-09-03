@@ -71,6 +71,20 @@ namespace Morestachio.Formatter.Framework.Attributes
 			return MorestachioFormatterService.ValidateFormatterNameRegEx.IsMatch(Name);
 		}
 
+		///  <summary>
+		/// 		Validates the formatter
+		///  </summary>
+		///  <param name="method"></param>
+		///  <returns></returns>
+		public virtual void ValidateFormatter(MethodInfo method)
+		{
+			if (!ValidateFormatterName())
+			{
+				throw new InvalidOperationException(
+					$"The name '{Name}' is invalid. An Formatter may only contain letters and cannot start with an digit");
+			}
+		}
+
 		/// <summary>
 		///		Gets all parameters from an method info
 		/// </summary>
