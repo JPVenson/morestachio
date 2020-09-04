@@ -47,31 +47,6 @@ namespace Morestachio.Framework
 			Count = count;
 		}
 
-		///// <summary>
-		///// 
-		///// </summary>
-		//public Traversable(string serialisedText) : this(serialisedText.Split(',').Select(f =>
-		//{
-		//	var parts = f.Trim('{', '}').Split(';');
-		//	return new KeyValuePair<string, PathType>(parts.ElementAtOrDefault(1),
-		//		(PathType)Enum.Parse(typeof(PathType), parts[0]));
-		//}))
-		//{
-		//}
-
-		//public string Serialize()
-		//{
-		//	return string.Join(",", ToArray().Select(f =>
-		//	{
-		//		if (f.Key != null)
-		//		{
-		//			return "{" + f.Value + ";" + f.Key + "}";
-		//		}
-
-		//		return "{" + f.Value + "}";
-		//	}));
-		//}
-
 		private Traversable _next;
 
 		/// <summary>

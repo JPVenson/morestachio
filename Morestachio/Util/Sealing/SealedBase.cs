@@ -18,7 +18,7 @@ namespace Morestachio.Util.Sealing
 		{
 			if (IsSealed)
 			{
-				throw new InvalidOperationException("This instance of ParserOptions is sealed and cannot be modified anymore");
+				throw new InvalidOperationException($"This instance of '{GetType().Name}' is sealed and cannot be modified anymore");
 			}
 		}
 		

@@ -86,7 +86,7 @@ namespace Morestachio.Framework.Context
 			Options = options ?? throw new ArgumentNullException(nameof(options));
 			Key = key;
 			Parent = parent;
-			Value = value;
+			_value = value;
 			if (Parent != null)
 			{
 				CancellationToken = Parent.CancellationToken;
@@ -347,7 +347,7 @@ namespace Morestachio.Framework.Context
 				var innerContext = Options.CreateContextObject(elements.Current.Key, CancellationToken, null, this);
 				if (Options.ValueResolver?.CanResolve(type, Value, elements.Current.Key, innerContext) == true)
 				{
-					innerContext.Value = Options.ValueResolver.Resolve(type, Value, elements.Current.Key, innerContext);
+					innerContext._value = Options.ValueResolver.Resolve(type, Value, elements.Current.Key, innerContext);
 				}
 				else if (!Options.HandleDictionaryAsObject && Value is IDictionary<string, object> ctx)
 				{
@@ -357,7 +357,7 @@ namespace Morestachio.Framework.Context
 							elements.Current.Key, Value?.GetType()));
 					}
 
-					innerContext.Value = o;
+					innerContext._value = o;
 				}
 				else if (Value is IMorestachioPropertyResolver cResolver)
 				{
@@ -367,7 +367,7 @@ namespace Morestachio.Framework.Context
 							elements.Current.Key, Value?.GetType()));
 					}
 
-					innerContext.Value = o;
+					innerContext._value = o;
 				}
 				else if (Value != null)
 				{
@@ -376,7 +376,7 @@ namespace Morestachio.Framework.Context
 						var propertyDescriptor = descriptor.GetProperties().Find(elements.Current.Key, false);
 						if (propertyDescriptor != null)
 						{
-							innerContext.Value = propertyDescriptor.GetValue(Value);
+							innerContext._value = propertyDescriptor.GetValue(Value);
 						}
 						else
 						{
@@ -389,7 +389,7 @@ namespace Morestachio.Framework.Context
 						var propertyInfo = type.GetTypeInfo().GetProperty(elements.Current.Key);
 						if (propertyInfo != null)
 						{
-							innerContext.Value = propertyInfo.GetValue(Value);
+							innerContext._value = propertyInfo.GetValue(Value);
 						}
 						else
 						{
