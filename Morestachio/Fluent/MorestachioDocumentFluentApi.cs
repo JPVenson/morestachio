@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Visitor;
 using Morestachio.Fluent.Expression;
@@ -302,6 +303,26 @@ namespace Morestachio.Fluent
 		}
 
 		/// <summary>
+		///		Sets the <see cref="FluentApiContext.CurrentNode"/> to the next <see cref="IDocumentItem"/> in render order
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		public MorestachioDocumentFluentApi FindNext<T>([NotNull] Func<T, bool> condition) where T : IDocumentItem
+		{
+			return SearchForward(f => f is T e && condition(e));
+		}
+
+		/// <summary>
+		///		Sets the <see cref="FluentApiContext.CurrentNode"/> to the previous <see cref="IDocumentItem"/> in render order
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		public MorestachioDocumentFluentApi FindPrevious<T>([NotNull] Func<T, bool> condition) where T : IDocumentItem
+		{
+			return SearchBackward(f => f is T e && condition(e));
+		}
+
+		/// <summary>
 		///		Sets the <see cref="FluentApiContext.CurrentNode"/> to the parent of the current node
 		/// </summary>
 		/// <returns></returns>
@@ -347,12 +368,39 @@ namespace Morestachio.Fluent
 		}
 
 		/// <summary>
+		///		Sets the <see cref="FluentApiContext.CurrentNode"/> to the nth child of the current node
+		/// </summary>
+		/// <returns></returns>
+		public MorestachioDocumentFluentApi Child<T>(Func<T, bool> condition)
+		{
+			var fod = Context.CurrentNode.Leafs.FirstOrDefault(f => f is T e && condition(e));
+			if (fod == null)
+			{
+				Context.OperationStatus = false;
+				return this;
+			}
+
+			Context.OperationStatus = true;
+			Context.CurrentNode = fod;
+			return this;
+		}
+
+		/// <summary>
 		///		Sets the <see cref="FluentApiContext.CurrentNode"/> to the parent of the current node that is of the type T
 		/// </summary>
 		/// <returns></returns>
 		public MorestachioDocumentFluentApi FindParent<T>() where T : IDocumentItem
 		{
 			return FindParent(f => f is T);
+		}
+
+		/// <summary>
+		///		Sets the <see cref="FluentApiContext.CurrentNode"/> to the parent of the current node that is of the type T
+		/// </summary>
+		/// <returns></returns>
+		public MorestachioDocumentFluentApi FindParent<T>(Func<T, bool> condition) where T : IDocumentItem
+		{
+			return FindParent(f => f is T e && condition(e));
 		}
 
 		/// <summary>

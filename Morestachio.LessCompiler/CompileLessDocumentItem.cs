@@ -31,12 +31,18 @@ namespace Morestachio.LessCompiler
 
 		}
 
+		/// <summary>
+		///		Serialization Constructor
+		/// </summary>
+		/// <param name="info"></param>
+		/// <param name="c"></param>
 		protected CompileLessDocumentItem(SerializationInfo info, StreamingContext c)
 			: base(info, c)
 		{
 
 		}
 
+		/// <inheritdoc />
 		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
 			using (var tempStream = outputStream.GetSubStream())
@@ -51,11 +57,13 @@ namespace Morestachio.LessCompiler
 			return Enumerable.Empty<DocumentItemExecution>();
 		}
 
+		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)
 		{
 			visitor.Visit(this);
 		}
 
+		/// <inheritdoc />
 		public void Render(ToParsableStringDocumentVisitor visitor)
 		{
 			visitor.StringBuilder.Append("{{#LESS}}");

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Morestachio.Benchmark": {
+      "commandName": "Project",
+      "commandLineArgs": "--filter *BenchPerfHarness*"
+    }
+  }
+}
