@@ -26,6 +26,7 @@ namespace Morestachio.Document.Visitor
 		void Visit(RenderPartialDocumentItem documentItem);
 		void Visit(RenderPartialDoneDocumentItem documentItem);
 		void Visit(WhileLoopDocumentItem documentItem);
+		void Visit(RepeatDocumentItem documentItem);
 		void Visit(TextEditDocumentItem documentItem);
 		void Visit(IDocumentItem documentItem);
 #pragma warning restore

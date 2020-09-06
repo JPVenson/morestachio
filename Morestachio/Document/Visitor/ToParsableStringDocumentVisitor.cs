@@ -257,7 +257,12 @@ namespace Morestachio.Document.Visitor
 		{
 			Visit(documentItem, "WHILE ");
 		}
-		
+
+		public void Visit(RepeatDocumentItem documentItem)
+		{
+			Visit(documentItem, "REPEAT ");
+		}
+
 		/// <inheritdoc />
 		public void Visit(TextEditDocumentItem documentItem)
 		{

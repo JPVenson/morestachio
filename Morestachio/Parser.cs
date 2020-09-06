@@ -171,6 +171,15 @@ namespace Morestachio
 					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					currentDocumentItem.Document.Add(nestedDocument);
 				}
+				else if (currentToken.Type.Equals(TokenType.RepeatLoopOpen))
+				{
+					var nestedDocument = new RepeatDocumentItem(currentToken.MorestachioExpression)
+					{
+						ExpressionStart = currentToken.TokenLocation
+					};
+					buildStack.Push(new DocumentScope(nestedDocument, getScope));
+					currentDocumentItem.Document.Add(nestedDocument);
+				}
 				else if (currentToken.Type.Equals(TokenType.InvertedElementOpen))
 				{
 					var invertedScope = new InvertedExpressionScopeDocumentItem(currentToken.MorestachioExpression)
@@ -185,7 +194,8 @@ namespace Morestachio
 						|| currentToken.Type.Equals(TokenType.IfClose)
 						|| currentToken.Type.Equals(TokenType.ElseClose)
 						|| currentToken.Type.Equals(TokenType.WhileLoopClose)
-						|| currentToken.Type.Equals(TokenType.DoLoopClose))
+						|| currentToken.Type.Equals(TokenType.DoLoopClose)
+						|| currentToken.Type.Equals(TokenType.RepeatLoopClose))
 				{
 					DocumentScope scope = buildStack.Peek();
 					if (scope.HasAlias) //are we in a alias then remove it

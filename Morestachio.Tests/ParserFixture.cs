@@ -1275,7 +1275,6 @@ namespace Morestachio.Tests
 			}));
 
 			var results = Parser.ParseWithOptions(parsingOptions);
-			//this should not work as the Default settings for DateTime are ToString(Arg) so it should return a string and not an object
 			Assert.That(results.CreateAndStringify(new object()), Is.EqualTo((Math.PI * 3).ToString()));
 		}
 
@@ -1297,7 +1296,6 @@ namespace Morestachio.Tests
 			}));
 
 			var results = Parser.ParseWithOptions(parsingOptions);
-			//this should not work as the Default settings for DateTime are ToString(Arg) so it should return a string and not an object
 			Assert.That(results.CreateAndStringify(new object()), Is.EqualTo((Math.PI * 3).ToString()));
 		}
 
@@ -1393,11 +1391,76 @@ namespace Morestachio.Tests
 				}
 			};
 
-			var parsedTemplate = Parser.ParseWithOptions(new ParserOptions(template, null, DefaultEncoding));
+			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
+			var parsedTemplate = Parser.ParseWithOptions(parsingOptions);
 			var genTemplate = parsedTemplate.CreateAndStringify(new Dictionary<string, object> { { "data", elementdata } });
 			var realData = elementdata.Select(e => e.ToString()).Aggregate((e, f) => e + f);
 			Assert.That(genTemplate, Is.EqualTo(realData));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
 		}
+
+		[Test]
+		public void TestRepeatContext()
+		{
+			var template = "{{#repeat data.Count}}{{$index}},{{$first}},{{$middel}},{{$last}},{{$odd}},{{$even}}.{{/repeat}}";
+
+			var elementdata = new List<CollectionContextInfo>
+			{
+				new CollectionContextInfo
+				{
+					IndexProp = 0,
+					EvenProp = true,
+					OddProp = false,
+					LastProp = false,
+					FirstProp = true,
+					MiddelProp = false
+				},
+				new CollectionContextInfo
+				{
+					IndexProp = 1,
+					EvenProp = false,
+					OddProp = true,
+					LastProp = false,
+					FirstProp = false,
+					MiddelProp = true
+				},
+				new CollectionContextInfo
+				{
+					IndexProp = 2,
+					EvenProp = true,
+					OddProp = false,
+					LastProp = true,
+					FirstProp = false,
+					MiddelProp = false
+				}
+			};
+
+			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
+			var parsedTemplate = Parser.ParseWithOptions(parsingOptions);
+			var genTemplate = parsedTemplate.CreateAndStringify(new Dictionary<string, object> { { "data", elementdata } });
+			var realData = elementdata.Select(e => e.ToString()).Aggregate((e, f) => e + f);
+			Assert.That(genTemplate, Is.EqualTo(realData));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
+		}
+
+		[Test]
+		public void TestRepeatLoopContext()
+		{
+			var template = "{{#REPEAT 5}}" +
+						   "{{$index}}," +
+						   "{{/REPEAT}}";
+
+			var parsingOptions = new ParserOptions(template, null, DefaultEncoding)
+			{
+				//Timeout = TimeSpan.FromSeconds(5)
+			};
+			parsingOptions.Formatters.AddFromType(typeof(EqualityFormatter));
+			var parsedTemplate = Parser.ParseWithOptions(parsingOptions);
+			var genTemplate = parsedTemplate.CreateAndStringify(new object());
+			Assert.That(genTemplate, Is.EqualTo("0,1,2,3,4,"));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
+		}
+			
 
 		[Test]
 		public void TestWhileLoopContext()

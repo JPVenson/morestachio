@@ -155,5 +155,16 @@
 		/////		stops Trimming all occuring \t & \r\n 
 		///// </summary>
 		//StopTrimEverything,
+		
+
+		/// <summary>
+		///		The start of a while loop
+		/// </summary>
+		RepeatLoopOpen,
+
+		/// <summary>
+		///		The end of a while loop
+		/// </summary>
+		RepeatLoopClose,
 	}
 }

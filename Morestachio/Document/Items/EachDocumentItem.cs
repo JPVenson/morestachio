@@ -50,8 +50,6 @@ namespace Morestachio.Document.Items
 		/// <inheritdoc />
 		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
-			//if we're in the same scope, just negating, then we want to use the same object
-			//var c = await context.GetContextForPath(Value, scopeData);
 			var c = await MorestachioExpression.GetValue(context, scopeData);
 
 			if (!c.Exists())

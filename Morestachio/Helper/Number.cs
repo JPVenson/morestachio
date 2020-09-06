@@ -21,6 +21,10 @@ namespace Morestachio.Helper
 
 		internal Number(IConvertible fullNumber)
 		{
+			if (fullNumber is Number nr)
+			{
+				fullNumber = nr._value;
+			}
 			_value = fullNumber;
 		}
 
@@ -123,9 +127,62 @@ namespace Morestachio.Helper
 			_value = fullNumber;
 		}
 
-		private static bool IsIntegral(Number number)
+		/// <summary>
+		///		Checks the object for beeing a number
+		/// </summary>
+		/// <param name="number"></param>
+		/// <returns></returns>
+		public static bool IsFloatingPointNumber(object number)
 		{
-			return !(number._value is decimal) && !(number._value is double) && !(number._value is float);
+			if (number is Number nr)
+			{
+				number = nr._value;
+			}
+			return number is decimal ||
+				   number is double ||
+				   number is float;
+		}
+
+		/// <summary>
+		///		Checks the object for beeing a number
+		/// </summary>
+		/// <param name="number"></param>
+		/// <returns></returns>
+		public static bool IsFloatingPointNumber(Number number)
+		{
+			return IsFloatingPointNumber(number._value);
+		}
+
+		/// <summary>
+		///		Checks the object for beeing a number
+		/// </summary>
+		/// <param name="number"></param>
+		/// <returns></returns>
+		public static bool IsIntegralNumber(object number)
+		{
+			if (number is Number nr)
+			{
+				number = nr._value;
+			}
+
+			return number is ulong ||
+				   number is long ||
+				   number is uint ||
+				   number is int ||
+				   number is ushort ||
+				   number is short ||
+				   number is byte ||
+				   number is sbyte;
+		}
+
+		/// <summary>
+		///		Checks the object for beeing a number
+		/// </summary>
+		/// <param name="number"></param>
+		/// <returns></returns>
+		public static bool IsIntegralNumber(Number number)
+		{
+			return IsIntegralNumber(number._value);
 		}
 
 		/// <summary>
@@ -215,7 +272,7 @@ namespace Morestachio.Helper
 		}
 
 		#region MorestachioFormatter
-		#pragma warning disable CS1591
+#pragma warning disable CS1591
 
 		[MorestachioFormatter("Add", "Adds two numbers")]
 		[MorestachioFormatter("Plus", "Adds two numbers")]
@@ -379,7 +436,7 @@ namespace Morestachio.Helper
 
 			return NaN;
 		}
-		
+
 #pragma warning restore CS1591
 		#endregion
 
@@ -1589,7 +1646,7 @@ namespace Morestachio.Helper
 		#endregion
 
 		#region Operator Overloading
-		
+
 #pragma warning disable CS1591
 		public static Number operator +(Number a) => a;
 		public static Number operator ++(Number a) => a.Add(1);

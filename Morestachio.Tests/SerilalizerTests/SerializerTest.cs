@@ -118,6 +118,21 @@ namespace Morestachio.Tests.SerilalizerTests
 		}
 
 		[Test]
+		public void TestCanSerializeRepeat()
+		{
+			var template = "{{#VAR condition = 50}}" +
+						   "{{#REPEAT condition}}" +
+						   "{{#LET test = 'test'}}" +
+						   "{{$index}}," +
+						   "{{#IF condition.Equals(5)}}{{#VAR condition = false}}{{/IF}}" +
+						   "{{/REPEAT}}";
+
+			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
+			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
+			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document);
+		}
+
+		[Test]
 		public void TestCanSerializeWhile()
 		{
 			var template = "{{#VAR condition = true}}" +

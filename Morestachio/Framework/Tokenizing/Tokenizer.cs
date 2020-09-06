@@ -686,6 +686,39 @@ namespace Morestachio.Framework.Tokenizing
 								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "do", "{{#do Expression}}"));
 						}
 					}
+					else if (trimmedToken.StartsWith("#repeat ", true, CultureInfo.InvariantCulture))
+					{
+						var token = TrimToken(trimmedToken, "repeat");
+						scopestack.Push(new ScopeStackItem(TokenType.RepeatLoopOpen, token, match.Index));
+
+						if (token.Trim() != "")
+						{
+							token = token.Trim();
+							tokens.Add(new TokenPair(TokenType.RepeatLoopOpen,
+								token,
+								ExpressionParser.ParseExpression(token, context),
+								context.CurrentLocation));
+						}
+						else
+						{
+							context.Errors.Add(new InvalidPathSyntaxError(context.CurrentLocation
+								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), ""));
+						}
+					}
+					else if (trimmedToken.Equals("/repeat", StringComparison.InvariantCultureIgnoreCase))
+					{
+						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.RepeatLoopOpen)
+						{
+							var token = scopestack.Pop().Value;
+							tokens.Add(new TokenPair(TokenType.RepeatLoopClose, token,
+								context.CurrentLocation));
+						}
+						else
+						{
+							context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
+								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "repeat", "{{#repeat Expression}}"));
+						}
+					}
 					else if (trimmedToken.StartsWith("#if ", true, CultureInfo.InvariantCulture))
 					{
 						var token = TrimToken(trimmedToken, "if");
