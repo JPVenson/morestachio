@@ -44,6 +44,8 @@ namespace Morestachio.Tests
 				.CreateAndStringify(new object());
 			Assert.That(result, Is.EqualTo(translationResult + " " + options.CultureInfo.Name));
 		}
+
+
 		[Test]
 		public void TestCanLocalizeData()
 		{
@@ -82,6 +84,52 @@ namespace Morestachio.Tests
 				.CreateAndStringify(data);
 			Assert.That(result, Is.EqualTo(translationResult + " " + options.CultureInfo.Name));
 		}
+		
+		[Test]
+		public void TestCanLocalizeDataWithArguments()
+		{
+			ParserOptions CreateParserOptions(string s)
+			{
+				return new ParserOptions(s, null, ParserFixture.DefaultEncoding).RegisterLocalizationService(() =>
+				{
+					return new MorestachioLocalizationService()
+						.AddResource(new MemoryTranslationResource()
+							.Add("WelcomeText", CultureInfo.GetCultureInfo("EN-US"), "Hello{0} {1}")
+							.Add("WelcomeText", CultureInfo.GetCultureInfo("DE-DE"), "Hallo{0} {1}")
+							.Add("WelcomeDefine", CultureInfo.GetCultureInfo("EN-US"), "World")
+							.Add("WelcomeDefine", CultureInfo.GetCultureInfo("DE-DE"), "Welt")
+						)
+						.Load(new[]
+					{
+						CultureInfo.GetCultureInfo("EN-US"),
+						CultureInfo.GetCultureInfo("DE-DE")
+					});
+				});
+			}
+
+			var template = "{{#LOCP 'WelcomeText'}}" +
+			               "{{#LOCPARAM ','}}" +
+			               "{{#LOC 'WelcomeDefine'}}" +
+			               "{{/LOCP}}";
+			var data = new Dictionary<string, object>()
+			{
+				
+			};
+
+			var options = CreateParserOptions(template);
+			options.CultureInfo = CultureInfo.GetCultureInfo("EN-US");
+			var result = Parser.ParseWithOptions(options)
+				.CreateAndStringify(data);
+			Assert.That(result, Is.EqualTo("Hello, World"));
+
+			options = CreateParserOptions(template);
+			options.CultureInfo = CultureInfo.GetCultureInfo("DE-DE");
+			result = Parser.ParseWithOptions(options)
+				.CreateAndStringify(data);
+			Assert.That(result, Is.EqualTo("Hallo, Welt"));
+		}
+
+
 		[Test]
 		public void TestCanChangeLocale()
 		{

@@ -20,6 +20,7 @@ namespace Morestachio.Helper.Localization
 		{
 			TextCache = new Dictionary<string, TextResourceEntity[]>();
 			TranslationResources = new List<ITranslationResource>();
+			NotFound = new Dictionary<CultureInfo, TextResourceEntity>();
 		}
 
 		/// <summary>
@@ -41,7 +42,8 @@ namespace Morestachio.Helper.Localization
 		/// <summary>
 		///		The result of the Load method call
 		/// </summary>
-		public Dictionary<string, TextResourceEntity[]> TextCache { get; set; }
+		public Dictionary<string, TextResourceEntity[]> TextCache { get; }
+		public IDictionary<CultureInfo, TextResourceEntity> NotFound { get; set; }
 
 		static readonly Regex RefRegex = new Regex(@"([{][^\d}]+[}]+)");
 
@@ -58,9 +60,6 @@ namespace Morestachio.Helper.Localization
 		/// <summary>
 		///		Gets the stored <see cref="TextResourceEntity"/> that matches the key and the culture (or <see cref="CultureInfo.CurrentUICulture"/> if null)
 		/// </summary>
-		/// <param name="key"></param>
-		/// <param name="culture"></param>
-		/// <returns></returns>
 		public TextResourceEntity? GetEntryOrNull(string key, CultureInfo culture = null)
 		{
 			culture = culture ?? CultureInfo.CurrentUICulture;
@@ -68,6 +67,11 @@ namespace Morestachio.Helper.Localization
 			if (TextCache.TryGetValue(TransformKey(key), out var res))
 			{
 				return res.FirstOrDefault(e => e.Lang == culture);
+			}
+
+			if (NotFound.TryGetValue(culture, out var nf))
+			{
+				return nf;
 			}
 
 			return null;
@@ -98,15 +102,12 @@ namespace Morestachio.Helper.Localization
 		/// <summary>
 		///		Get the Translation for the culture (or <see cref="CultureInfo.CurrentUICulture"/> if null)
 		/// </summary>
-		/// <param name="key"></param>
-		/// <param name="culture"></param>
-		/// <returns></returns>
 		public object GetTranslationOrNull(string key, CultureInfo culture = null, params object[] arguments)
 		{
 			var translationOrNull = GetEntryOrNull(key, culture)?.Text;
 			if (translationOrNull != null && arguments.Any())
 			{
-				var strTranslation = translationOrNull.ToString();
+				var strTranslation = translationOrNull.ToString() ?? string.Empty;
 				for (int i = 0; i < arguments.Length; i++)
 				{
 					strTranslation = strTranslation.Replace("{" + i + "}", arguments[i].ToString());
@@ -186,7 +187,7 @@ namespace Morestachio.Helper.Localization
 			return this;
 		}
 
-		private object TransformText(TextResourceEntity textResourceEntity,
+		private static object TransformText(TextResourceEntity textResourceEntity,
 			IEnumerable<TextResourceEntity> fromResources,
 			IList<Exception> loaderExceptions,
 			Stack<string> transformationChain = null)

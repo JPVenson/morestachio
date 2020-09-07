@@ -1,5 +1,8 @@
 ﻿using System;
 using Morestachio.Formatter.Framework;
+using Morestachio.Helper.Localization.Documents.CustomCultureDocument;
+using Morestachio.Helper.Localization.Documents.LocDocument;
+using Morestachio.Helper.Localization.Documents.LocPDocument;
 
 namespace Morestachio.Helper.Localization
 {
@@ -9,7 +12,7 @@ namespace Morestachio.Helper.Localization
 	public static class MorestachioLocalizationServiceExtensions
 	{
 		/// <summary>
-		///		Registers everything for using the {{#loc "key"}} and {{Loc("key")}}
+		///		Registers everything for using the {{#loc "key"}}, {{Loc("key")}} and {{#LOCP "key"}} {{#LOCPARAM "argA"}} {{#loc "keyB"}} {{/LOCP}}
 		/// </summary>
 		/// <param name="options"></param>
 		/// <param name="getService"></param>
@@ -18,10 +21,12 @@ namespace Morestachio.Helper.Localization
 			Func<IMorestachioLocalizationService> getService)
 		{
 			var service = getService();
-			options.Formatters.AddService<IMorestachioLocalizationService>(service);
+			options.Formatters.AddService(service);
 			options.Formatters.AddFromType(typeof(LocalizationFormatter));
 			options.CustomDocumentItemProviders.Add(new MorestachioLocalizationTagProvider());
 			options.CustomDocumentItemProviders.Add(new MorestachioCustomCultureLocalizationBlockProvider());
+			options.CustomDocumentItemProviders.Add(new MorestachioLocalizationBlockProvider());
+			options.CustomDocumentItemProviders.Add(new MorestachioLocalizationParamTagProvider());
 			return options;
 		}
 	}

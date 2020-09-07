@@ -3,38 +3,42 @@ using Morestachio.Document.Contracts;
 using Morestachio.Document.Custom;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Helper.Localization.Documents.LocDocument;
 
-namespace Morestachio.Helper.Localization
+namespace Morestachio.Helper.Localization.Documents.LocPDocument
 {
 	/// <summary>
-	///		Provides access to the <see cref="MorestachioCustomCultureLocalizationDocumentItem"/>
+	///		Provides access to <see cref="MorestachioLocalizationDocumentItem"/>
 	/// </summary>
-	public class MorestachioCustomCultureLocalizationBlockProvider : BlockDocumentItemProviderBase
+	public class MorestachioLocalizationBlockProvider : BlockDocumentItemProviderBase
 	{
 		/// <inheritdoc />
-		public MorestachioCustomCultureLocalizationBlockProvider() : base("#LocCulture ", "/LocCulture")
+		public MorestachioLocalizationBlockProvider() : base(OpenTag, CloseTag)
 		{
 		}
 
+		public const string OpenTag = "#LOCP ";
+		public const string CloseTag = "/LOCP";
+		
 		/// <inheritdoc />
 		public override IEnumerable<TokenPair> Tokenize(TokenInfo token, ParserOptions options)
 		{
-			var trim = token.Token.Trim('{', '}');
+			var trim = token.Token;
 			if (trim.StartsWith(TagOpen))
 			{
 				yield return new TokenPair(TagOpen.Trim(), 
-					token.TokenizerContext.CurrentLocation, ExpressionParser.ParseExpression(trim.Remove(0, "#LocCulture".Length).Trim(), token.TokenizerContext));
+					token.TokenizerContext.CurrentLocation, ExpressionParser.ParseExpression(trim.Remove(0, OpenTag.Length).Trim(), token.TokenizerContext));
 			}
 			if (trim == TagClose)
 			{
 				yield return new TokenPair(TagClose, trim, token.TokenizerContext.CurrentLocation);
 			}
 		}
-
+		
 		/// <inheritdoc />
 		public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token, ParserOptions options)
 		{
-			return new MorestachioCustomCultureLocalizationDocumentItem(token.MorestachioExpression);
+			return new MorestachioLocalizationDocumentItem(token.MorestachioExpression);
 		}
 	}
 }

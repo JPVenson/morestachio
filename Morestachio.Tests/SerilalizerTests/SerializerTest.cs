@@ -42,7 +42,6 @@ namespace Morestachio.Tests.SerilalizerTests
 			var text = DocumentSerializerStrategy.SerializeToText(document);
 			var deserialized = DocumentSerializerStrategy.DeSerializeToText(text, document.GetType());
 			var deserializedText = DocumentSerializerStrategy.SerializeToText(deserialized);
-			Console.WriteLine(deserializedText);
 			Assert.That(document, Is.EqualTo(deserialized), () =>
 				{
 					return $"Object left is: " +
@@ -197,7 +196,7 @@ namespace Morestachio.Tests.SerilalizerTests
 
 			               "{{#loc 'Texts.Welcome'}} " +
 
-			               "{{#LocCulture 'de-DE'}}" +
+						   "{{#LocCulture 'de-DE'}}" +
 			               "{{#loc 'Texts.Welcome'}} " +
 
 			               "{{#LocCulture 'de-AT'}}" +
@@ -205,7 +204,10 @@ namespace Morestachio.Tests.SerilalizerTests
 			               "{{/LocCulture}}" +
 
 			               "{{#loc 'Texts.Welcome'}}" +
-			               "{{/LocCulture}}";
+			               "{{/LocCulture}}" +
+			               "{{#LOCP 'test'}}" +
+			               "{{#LOCPARAM 'ParamA'}}" +
+			               "{{/LOCP}}";
 			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template)
 				.RegisterLocalizationService(
 				() =>

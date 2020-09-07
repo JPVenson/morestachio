@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -10,13 +11,15 @@ using Morestachio.Document.Visitor;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
-
+using Morestachio.Helper.Localization.Documents.LocPDocument;
 #if ValueTask
 using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using ObjectPromise = System.Threading.Tasks.ValueTask<object>;
 #else
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using ObjectPromise = System.Threading.Tasks.Task<object>;
 #endif
-namespace Morestachio.Helper.Localization
+namespace Morestachio.Helper.Localization.Documents.LocDocument
 {
 	/// <summary>
 	///		Allows the usage of {{#loc expression}} in combination with an <see cref="IMorestachioLocalizationService"/>
@@ -27,7 +30,7 @@ namespace Morestachio.Helper.Localization
 	{
 		internal MorestachioLocalizationDocumentItem()
 		{
-			
+
 		}
 
 		/// <inheritdoc />
@@ -40,7 +43,7 @@ namespace Morestachio.Helper.Localization
 		protected MorestachioLocalizationDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}
-		
+
 		/// <inheritdoc />
 		public override async ItemExecutionPromise Render(IByteCounterStream outputStream,
 			ContextObject context,
@@ -53,29 +56,63 @@ namespace Morestachio.Helper.Localization
 				return Enumerable.Empty<DocumentItemExecution>();
 			}
 
+			var translationOrNull = await GetTranslation(context, scopeData, service);
+			outputStream.Write(translationOrNull?.ToString());
+			return Enumerable.Empty<DocumentItemExecution>();
+		}
+
+		private async Task<object> GetTranslation(ContextObject context, ScopeData scopeData, IMorestachioLocalizationService service)
+		{
 			var valueContext = await MorestachioExpression.GetValue(context, scopeData);
 
 			var culture = context.Options.CultureInfo;
-			if (scopeData.CustomData.TryGetValue(MorestachioCustomCultureLocalizationDocumentItem.LocalizationCultureKey, out var customCulture) && customCulture is CultureInfo culInfo)
+			if (scopeData.CustomData.TryGetValue(MorestachioCustomCultureLocalizationDocumentItem.LocalizationCultureKey,
+				out var customCulture) && customCulture is CultureInfo culInfo)
 			{
 				culture = culInfo;
 			}
 
-			var translationOrNull = service.GetTranslationOrNull(await valueContext.RenderToString(), culture);
-			outputStream.Write(translationOrNull?.ToString());
-			return Enumerable.Empty<DocumentItemExecution>();
+			var args = Children
+				.OfType<MorestachioLocalizationParameterDocumentItem>()
+				.Cast<ExpressionDocumentItemBase>()
+				.Select(f =>
+					new Func<ObjectPromise>(async () =>
+						(await f.MorestachioExpression.GetValue(context, scopeData)).Value))
+				.Concat(Children
+					.OfType<MorestachioLocalizationDocumentItem>()
+					.Select(f =>
+						new Func<ObjectPromise>(async () => await f.GetTranslation(context, scopeData, service))))
+				.ToArray();
+
+			var arguments = new object[args.Length];
+			for (var index = 0; index < args.Length; index++)
+			{
+				var parameters = args[index];
+				arguments[index] = (await parameters());
+			}
+
+			return service.GetTranslationOrNull(await valueContext.RenderToString(), culture, arguments);
 		}
-		
+
 		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)
 		{
 			visitor.Visit(this);
 		}
-		
+
 		/// <inheritdoc />
 		public void Render(ToParsableStringDocumentVisitor visitor)
 		{
-			visitor.StringBuilder.Append("{{#LOC " + visitor.ReparseExpression(MorestachioExpression) + "}}");
+			if (!Children.Any())
+			{
+				visitor.StringBuilder.Append("{{" + MorestachioLocalizationTagProvider.OpenTag + visitor.ReparseExpression(MorestachioExpression) + "}}");
+			}
+			else
+			{
+				visitor.StringBuilder.Append("{{" + MorestachioLocalizationBlockProvider.OpenTag + visitor.ReparseExpression(MorestachioExpression) + "}}");
+				visitor.VisitChildren(this);
+				visitor.StringBuilder.Append("{{" + MorestachioLocalizationBlockProvider.CloseTag + "}}");
+			}
 		}
 	}
 }

@@ -11,7 +11,7 @@ using Morestachio.Document.Visitor;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
-
+using Morestachio.Helper.Localization.Documents.CustomCultureDocument;
 #if ValueTask
 using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 #else
@@ -29,7 +29,7 @@ namespace Morestachio.Helper.Localization
 	{
 		internal MorestachioCustomCultureLocalizationDocumentItem()
 		{
-			
+
 		}
 
 		/// <inheritdoc />
@@ -75,7 +75,7 @@ namespace Morestachio.Helper.Localization
 			childs.Add(new ResetCultureDocumentItem(oldCulture));
 			return childs.WithScope(context);
 		}
-		
+
 		/// <summary>
 		///		Internal DocumentItem that should reset the culture
 		/// </summary>
@@ -87,41 +87,41 @@ namespace Morestachio.Helper.Localization
 			/// <inheritdoc />
 			public ResetCultureDocumentItem()
 			{
-				
+
 			}
-			
+
 			/// <inheritdoc />
 			public ResetCultureDocumentItem(CultureInfo culture)
 			{
 				_culture = culture;
 			}
-			
+
 			/// <inheritdoc />
 			public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 			{
 				scopeData.CustomData[LocalizationCultureKey] = _culture;
 				return Enumerable.Empty<DocumentItemExecution>().ToPromise();
 			}
-			
+
 			/// <inheritdoc />
 			public override void Accept(IDocumentItemVisitor visitor)
 			{
 				throw new NotImplementedException();
 			}
 		}
-		
+
 		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)
 		{
 			visitor.Visit(this);
 		}
-		
+
 		/// <inheritdoc />
 		public void Render(ToParsableStringDocumentVisitor visitor)
 		{
-			visitor.StringBuilder.Append("{{#LOCCULTURE " + visitor.ReparseExpression(MorestachioExpression) + "}}");
+			visitor.StringBuilder.Append("{{" + MorestachioCustomCultureLocalizationBlockProvider.OpenTag + visitor.ReparseExpression(MorestachioExpression) + "}}");
 			visitor.VisitChildren(this);
-			visitor.StringBuilder.Append("{{/LOCCULTURE}}");
+			visitor.StringBuilder.Append("{{" + MorestachioCustomCultureLocalizationBlockProvider.CloseTag + "}}");
 		}
 	}
 }
