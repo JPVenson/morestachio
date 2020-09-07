@@ -17,12 +17,6 @@ A Lightweight, powerful, flavorful, templating engine for C# and other .net-base
 | Morestachio.Runner |  | [![Nuget Morestachio Runner](https://img.shields.io/nuget/v/Morestachio.Runner?label=%20Morestachio.Runner)](https://www.nuget.org/packages/Morestachio.Runner/) | Install-Package Morestachio.Runner | [![Build status](https://dev.azure.com/JeanPierreBachmann/Mustachio/_apis/build/status/Morestachio-CI%20DotNet)](https://dev.azure.com/JeanPierreBachmann/Mustachio/_build/latest?definitionId=3)|
 | Morestachio.Newtonsoft.Json|  | [![Nuget Morestachio Json](https://img.shields.io/nuget/v/Morestachio.Newtonsoft.Json?label=Morestachio.Newtonsoft.Json)](https://www.nuget.org/packages/Morestachio.Newtonsoft.Json/) | Install-Package Morestachio.Newtonsoft.Json | [![Build status](https://dev.azure.com/JeanPierreBachmann/Mustachio/_apis/build/status/Morestachio-CI%20DotNet)](https://dev.azure.com/JeanPierreBachmann/Mustachio/_build/latest?definitionId=3)|
 
-Morestachio can be installed via [NuGet](https://www.nuget.org/packages/Morestachio/):
-
-```bash
-Install-Package Morestachio
-```
-
 #### What's this for?
 
 *Morestachio* allows you to create simple text-based templates that are fast and safe to render. It is optimized for WebServers and offers a high degree of customization with its Formatter syntax.
