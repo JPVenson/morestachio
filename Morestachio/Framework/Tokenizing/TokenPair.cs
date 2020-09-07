@@ -16,7 +16,7 @@ namespace Morestachio.Framework.Tokenizing
 		///		Creates a new Token Pair
 		/// </summary>
 		public TokenPair(IComparable type, string value, CharacterLocation tokenLocation)
-			: this(type, value, null, tokenLocation, null)
+			: this(type, value, tokenLocation, null, null)
 		{
 			Value = value;
 		}
@@ -25,8 +25,9 @@ namespace Morestachio.Framework.Tokenizing
 		/// <summary>
 		///		Creates a new Token Pair
 		/// </summary>
-		public TokenPair(IComparable type, IMorestachioExpression expression, CharacterLocation tokenLocation, ScopingBehavior? noScope = null)
-			: this(type, null, expression, tokenLocation, noScope)
+		public TokenPair(IComparable type, CharacterLocation tokenLocation, IMorestachioExpression expression,
+			ScopingBehavior? noScope = null)
+			: this(type, null, tokenLocation, expression, noScope)
 		{
 		}
 
@@ -34,7 +35,8 @@ namespace Morestachio.Framework.Tokenizing
 		/// <summary>
 		///		Creates a new Token Pair
 		/// </summary>
-		public TokenPair(IComparable type, string value, IMorestachioExpression expression, CharacterLocation tokenLocation, ScopingBehavior? noScope = null)
+		public TokenPair(IComparable type, string value, CharacterLocation tokenLocation,
+			IMorestachioExpression expression, ScopingBehavior? noScope = null)
 		{
 			Type = type;
 			MorestachioExpression = expression;

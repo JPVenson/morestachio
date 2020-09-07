@@ -42,6 +42,7 @@ namespace Morestachio.Tests.SerilalizerTests
 			var text = DocumentSerializerStrategy.SerializeToText(document);
 			var deserialized = DocumentSerializerStrategy.DeSerializeToText(text, document.GetType());
 			var deserializedText = DocumentSerializerStrategy.SerializeToText(deserialized);
+			Console.WriteLine(deserializedText);
 			Assert.That(document, Is.EqualTo(deserialized), () =>
 				{
 					return $"Object left is: " +

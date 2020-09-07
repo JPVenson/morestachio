@@ -23,8 +23,7 @@ namespace Morestachio.Helper.Localization
 			if (trim.StartsWith(TagOpen))
 			{
 				yield return new TokenPair(TagOpen.Trim(), 
-					ExpressionParser.ParseExpression(trim.Remove(0, "#LocCulture".Length).Trim(), token.TokenizerContext), 
-					token.TokenizerContext.CurrentLocation);
+					token.TokenizerContext.CurrentLocation, ExpressionParser.ParseExpression(trim.Remove(0, "#LocCulture".Length).Trim(), token.TokenizerContext));
 			}
 			if (trim == TagClose)
 			{

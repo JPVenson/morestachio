@@ -25,9 +25,8 @@ namespace Morestachio.Helper.Localization
 		public override IEnumerable<TokenPair> Tokenize(TokenInfo token, ParserOptions options)
 		{
 			yield return new TokenPair("#loc", token.Token,
-				ExpressionParser.ParseExpression(token.Token.Remove(0, "#loc".Length).Trim(),
-					token.TokenizerContext),
-				token.TokenizerContext.CurrentLocation);
+				token.TokenizerContext.CurrentLocation, ExpressionParser.ParseExpression(token.Token.Remove(0, "#loc".Length).Trim(),
+					token.TokenizerContext));
 		}
 		
 		/// <inheritdoc />
