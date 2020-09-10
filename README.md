@@ -1,7 +1,7 @@
 # Morestachio 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FJPVenson%2Fmorestachio.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FJPVenson%2Fmorestachio?ref=badge_shield)
 
-[![Build status](https://dev.azure.com/JeanPierreBachmann/Mustachio/_apis/build/status/Morestachio-CI%20DotNet)](https://dev.azure.com/JeanPierreBachmann/Mustachio/_build/latest?definitionId=3)
+
 
 ![Icon](https://github.com/JPVenson/morestachio/blob/master/Morestachio/Morestachio%20248x248.png?raw=true)
 
@@ -9,11 +9,13 @@ A Lightweight, powerful, flavorful, templating engine for C# and other .net-base
 
 #### Installing Morestachio:
 
-Morestachio can be installed via [NuGet](https://www.nuget.org/packages/Morestachio/):
 
-```bash
-Install-Package Morestachio
-```
+|Project|Github|Nuget|NugetCLI|Status|
+|---|---|---|---|---|
+| Morestachio | [![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/JPVenson/morestachio?include_prereleases)](https://github.com/JPVenson/morestachio/releases) | [![Nuget Morestachio](https://img.shields.io/nuget/v/Morestachio?label=Morestachio)](https://www.nuget.org/packages/Morestachio/) | Install-Package Morestachio | [![Build status](https://dev.azure.com/JeanPierreBachmann/Mustachio/_apis/build/status/Morestachio-CI%20DotNet)](https://dev.azure.com/JeanPierreBachmann/Mustachio/_build/latest?definitionId=3)|
+| Morestachio.Linq |  | [![Nuget Morestachio Linq](https://img.shields.io/nuget/v/Morestachio.Linq?label=%20Morestachio.Linq)](https://www.nuget.org/packages/Morestachio.Linq/) | Install-Package Morestachio.Linq | [![Build status](https://dev.azure.com/JeanPierreBachmann/Mustachio/_apis/build/status/Morestachio-CI%20DotNet)](https://dev.azure.com/JeanPierreBachmann/Mustachio/_build/latest?definitionId=3)|
+| Morestachio.Runner |  | [![Nuget Morestachio Runner](https://img.shields.io/nuget/v/Morestachio.Runner?label=%20Morestachio.Runner)](https://www.nuget.org/packages/Morestachio.Runner/) | Install-Package Morestachio.Runner | [![Build status](https://dev.azure.com/JeanPierreBachmann/Mustachio/_apis/build/status/Morestachio-CI%20DotNet)](https://dev.azure.com/JeanPierreBachmann/Mustachio/_build/latest?definitionId=3)|
+| Morestachio.Newtonsoft.Json|  | [![Nuget Morestachio Json](https://img.shields.io/nuget/v/Morestachio.Newtonsoft.Json?label=Morestachio.Newtonsoft.Json)](https://www.nuget.org/packages/Morestachio.Newtonsoft.Json/) | Install-Package Morestachio.Newtonsoft.Json | [![Build status](https://dev.azure.com/JeanPierreBachmann/Mustachio/_apis/build/status/Morestachio-CI%20DotNet)](https://dev.azure.com/JeanPierreBachmann/Mustachio/_build/latest?definitionId=3)|
 
 #### What's this for?
 
