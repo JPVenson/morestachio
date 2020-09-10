@@ -31,7 +31,7 @@ namespace Morestachio.Linq
 			return sourceCollection.AsQueryable().Select(predicate, arguments);
 		}
 
-		[MorestachioFormatter("Select",
+		[MorestachioFormatter("SelectMany",
 			"Selects a list of items from the collection based on the predicate and flattens them")]
 		public static IEnumerable SelectMany<T>(IEnumerable<T> sourceCollection,
 			string predicate,

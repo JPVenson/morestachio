@@ -51,7 +51,7 @@ namespace Morestachio.Document
 			}
 		}
 
-		private ContextObject GetFromVariable(object variableValue)
+		internal ContextObject GetFromVariable(object variableValue)
 		{
 			if (variableValue is ContextObject ctx)
 			{
@@ -103,12 +103,12 @@ namespace Morestachio.Document
 		{
 			if (Alias.TryGetValue(name, out var stack) && stack.Count > 0)
 			{
-				return GetFromVariable(stack.LastOrDefault().Value);
+				return GetFromVariable(stack.LastOrDefault().Value).CloneForEdit();
 			}
 
 			if (Variables.TryGetValue(name, out var value))
 			{
-				return GetFromVariable(value);
+				return GetFromVariable(value).CloneForEdit();
 			}
 
 			return null;

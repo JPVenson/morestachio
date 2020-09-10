@@ -7,6 +7,7 @@ using Morestachio.Document;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items;
 using Morestachio.Fluent;
+using Morestachio.Framework.Context;
 using Morestachio.Helper;
 using Morestachio.Parsing.ParserErrors;
 using Morestachio.Profiler;
@@ -36,7 +37,7 @@ namespace Morestachio
 
 		}
 
-		internal MorestachioDocumentInfo([NotNull]ParserOptions options, [CanBeNull]IDocumentItem document, [CanBeNull]IEnumerable<IMorestachioError> errors)
+		internal MorestachioDocumentInfo([NotNull] ParserOptions options, [CanBeNull] IDocumentItem document, [CanBeNull] IEnumerable<IMorestachioError> errors)
 		{
 			ParserOptions = options ?? throw new ArgumentNullException(nameof(options));
 			Document = document;
@@ -92,7 +93,7 @@ namespace Morestachio
 		/// <exception cref="TimeoutException">Will be thrown when the given timeout expires</exception>
 		[MustUseReturnValue("The Stream contains the template. Use CreateAndStringify() to get the string of it")]
 		[NotNull]
-		public async MorestachioDocumentResultPromise CreateAsync([NotNull]object data, CancellationToken token)
+		public async MorestachioDocumentResultPromise CreateAsync([NotNull] object data, CancellationToken token)
 		{
 			if (Errors.Any())
 			{
@@ -147,7 +148,9 @@ namespace Morestachio
 					}
 				}
 
-				return new MorestachioDocumentResult(byteCounterStream.Stream, profiler, scopeData.Variables);
+				return new MorestachioDocumentResult(byteCounterStream.Stream, 
+					profiler, 
+					scopeData.Variables.ToDictionary(e => e.Key, e => scopeData.GetFromVariable(e.Value).Value));
 			}
 		}
 
@@ -159,7 +162,7 @@ namespace Morestachio
 		[MustUseReturnValue("The Stream contains the template. Use CreateAndStringify() to get the string of it")]
 		[NotNull]
 		[PublicAPI]
-		public async MorestachioDocumentResultPromise CreateAsync([NotNull]object data)
+		public async MorestachioDocumentResultPromise CreateAsync([NotNull] object data)
 		{
 			return await CreateAsync(data, CancellationToken.None);
 		}
@@ -171,7 +174,7 @@ namespace Morestachio
 		/// <returns></returns>
 		[NotNull]
 		[PublicAPI]
-		public async StringPromise CreateAndStringifyAsync([NotNull]object source)
+		public async StringPromise CreateAndStringifyAsync([NotNull] object source)
 		{
 			return await CreateAndStringifyAsync(source, CancellationToken.None);
 		}
@@ -184,7 +187,7 @@ namespace Morestachio
 		/// <returns></returns>
 		[NotNull]
 		[PublicAPI]
-		public async StringPromise CreateAndStringifyAsync([NotNull]object source, CancellationToken token)
+		public async StringPromise CreateAndStringifyAsync([NotNull] object source, CancellationToken token)
 		{
 			using (var stream = (await CreateAsync(source, token)).Stream)
 			{
@@ -201,7 +204,7 @@ namespace Morestachio
 		[MustUseReturnValue("The Stream contains the template. Use CreateAndStringify() to get the string of it")]
 		[NotNull]
 		[PublicAPI]
-		public MorestachioDocumentResult Create([NotNull]object source, CancellationToken token)
+		public MorestachioDocumentResult Create([NotNull] object source, CancellationToken token)
 		{
 			return CreateAsync(source, token).ConfigureAwait(false).GetAwaiter().GetResult();
 		}
@@ -214,7 +217,7 @@ namespace Morestachio
 		[MustUseReturnValue("The Stream contains the template. Use CreateAndStringify() to get the string of it")]
 		[NotNull]
 		[PublicAPI]
-		public MorestachioDocumentResult Create([NotNull]object source)
+		public MorestachioDocumentResult Create([NotNull] object source)
 		{
 			return Create(source, CancellationToken.None);
 		}
@@ -226,7 +229,7 @@ namespace Morestachio
 		/// <returns></returns>
 		[NotNull]
 		[PublicAPI]
-		public string CreateAndStringify([NotNull]object source)
+		public string CreateAndStringify([NotNull] object source)
 		{
 			return CreateAndStringify(source, CancellationToken.None);
 		}
@@ -239,7 +242,7 @@ namespace Morestachio
 		/// <returns></returns>
 		[NotNull]
 		[PublicAPI]
-		public string CreateAndStringify([NotNull]object source, CancellationToken token)
+		public string CreateAndStringify([NotNull] object source, CancellationToken token)
 		{
 			using (var stream = Create(source, token).Stream)
 			{
