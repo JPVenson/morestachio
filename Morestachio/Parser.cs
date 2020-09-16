@@ -83,9 +83,8 @@ namespace Morestachio
 		/// <returns></returns>
 		public static IDocumentItem Parse(TokenizerResult tokenizerResult, ParserOptions options)
 		{
-			var tokenQueue = new Queue<TokenPair>(tokenizerResult.Tokens);
-
 			var buildStack = new Stack<DocumentScope>();
+			//this is the scope id that determines a scope that is using let or alias variables
 			int variableScope = 1;
 			var getScope = new Func<int>(() => variableScope++);
 			//instead of recursive calling the parse function we stack the current document 
@@ -96,9 +95,8 @@ namespace Morestachio
 				return buildStack.FirstOrDefault(e => e.VariableScopeNumber != -1);
 			}
 
-			while (tokenQueue.Any())
+			foreach (var currentToken in tokenizerResult.Tokens)
 			{
-				var currentToken = tokenQueue.Dequeue();
 				var currentDocumentItem = buildStack.Peek(); //get the latest document
 
 				if (currentToken.Type.Equals(TokenType.Content))

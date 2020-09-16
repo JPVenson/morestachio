@@ -303,7 +303,8 @@ namespace Morestachio.Formatter.Framework
 				{
 					if (ValueConverter.All(e => !e.CanConvert(typeToFormat, formatTemplateElement.InputType)))
 					{
-						if (formatTemplateElement.MetaData.SourceObject.FormatterValueConverterAttribute
+						if (formatTemplateElement.MetaData.SourceObject != null && 
+						    formatTemplateElement.MetaData.SourceObject.FormatterValueConverterAttribute
 							.Select(e => e.CreateInstance())
 							.All(e => !e.CanConvert(typeToFormat, formatTemplateElement.InputType)))
 						{
@@ -330,6 +331,10 @@ namespace Morestachio.Formatter.Framework
 									$"Exclude because formatter accepts '{formatTemplateElement.InputType}' is not assignable from '{typeToFormat}'");
 								continue;
 							}
+						}
+						else
+						{
+							continue;
 						}
 					}
 				}

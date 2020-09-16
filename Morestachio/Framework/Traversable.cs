@@ -102,7 +102,7 @@ namespace Morestachio.Framework
 		///		Gets the next element and returns it
 		/// </summary>
 		/// <returns></returns>
-		public Traversable Dequeue()
+		public Traversable Next()
 		{
 			return _next;
 		}

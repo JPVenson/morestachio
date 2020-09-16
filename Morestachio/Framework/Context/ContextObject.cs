@@ -46,6 +46,7 @@ namespace Morestachio.Framework.Context
 
 		private static Func<object, bool> _definitionOfFalse;
 		[CanBeNull] private object _value;
+		private bool _abortGeneration;
 
 		static ContextObject()
 		{
@@ -90,7 +91,6 @@ namespace Morestachio.Framework.Context
 			if (Parent != null)
 			{
 				CancellationToken = Parent.CancellationToken;
-				AbortGeneration = Parent.AbortGeneration;
 			}
 
 			IsNaturalContext = Parent?.IsNaturalContext ?? true;
@@ -156,7 +156,24 @@ namespace Morestachio.Framework.Context
 		/// <summary>
 		///     is an abort currently requested
 		/// </summary>
-		public bool AbortGeneration { get; set; }
+		public bool AbortGeneration
+		{
+			get
+			{
+				return Parent?.AbortGeneration ?? _abortGeneration;
+			}
+			set
+			{
+				if (Parent == null)
+				{
+					_abortGeneration = value;
+				}
+				else
+				{
+					Parent.AbortGeneration = true;
+				}
+			}
+		}
 
 		/// <summary>
 		///     The name of the property or key inside the value or indexer expression for lists
@@ -252,7 +269,7 @@ namespace Morestachio.Framework.Context
 
 				if (lastParent != null)
 				{
-					retval = await lastParent.GetContextForPathInternal(elements.Dequeue(), scopeData,
+					retval = await lastParent.GetContextForPathInternal(elements.Next(), scopeData,
 						morestachioExpression);
 				}
 			}
@@ -265,7 +282,7 @@ namespace Morestachio.Framework.Context
 					if (parent != null && parent.Parent != null)
 					{
 						parentsRetVal = await parent.Parent
-							.GetContextForPathInternal(elements.Dequeue(), scopeData, morestachioExpression);
+							.GetContextForPathInternal(elements.Next(), scopeData, morestachioExpression);
 					}
 
 					if (parentsRetVal != null)
@@ -274,16 +291,16 @@ namespace Morestachio.Framework.Context
 					}
 					else
 					{
-						retval = await GetContextForPathInternal(elements.Dequeue(), scopeData, morestachioExpression);
+						retval = await GetContextForPathInternal(elements.Next(), scopeData, morestachioExpression);
 					}
 				}
 				else
 				{
-					retval = await GetContextForPathInternal(elements.Dequeue(), scopeData, morestachioExpression);
+					retval = await GetContextForPathInternal(elements.Next(), scopeData, morestachioExpression);
 				}
 			}
-			else if (elements.Current.Value == PathType.ObjectSelector
-			) //enumerate ether an IDictionary, an cs object or an IEnumerable to a KeyValuePair array
+			else if (elements.Current.Value == PathType.ObjectSelector) 
+				//enumerate ether an IDictionary, an cs object or an IEnumerable to a KeyValuePair array
 			{
 				//await EnsureValue();
 				if (Value is null)
@@ -316,7 +333,7 @@ namespace Morestachio.Framework.Context
 						}
 				}
 
-				retval = await innerContext.GetContextForPathInternal(elements.Dequeue(), scopeData,
+				retval = await innerContext.GetContextForPathInternal(elements.Next(), scopeData,
 					morestachioExpression);
 			}
 			else if (elements.Current.Value == PathType.Boolean)
@@ -326,7 +343,7 @@ namespace Morestachio.Framework.Context
 					var booleanContext =
 						Options.CreateContextObject(".", CancellationToken, elements.Current.Key == "true", this);
 					booleanContext.IsNaturalContext = IsNaturalContext;
-					return await booleanContext.GetContextForPathInternal(elements.Dequeue(), scopeData,
+					return await booleanContext.GetContextForPathInternal(elements.Next(), scopeData,
 						morestachioExpression);
 				}
 			}
@@ -399,7 +416,7 @@ namespace Morestachio.Framework.Context
 					}
 				}
 
-				retval = await innerContext.GetContextForPathInternal(elements.Dequeue(), scopeData,
+				retval = await innerContext.GetContextForPathInternal(elements.Next(), scopeData,
 					morestachioExpression);
 			}
 
@@ -430,7 +447,7 @@ namespace Morestachio.Framework.Context
 				var getFromAlias = scopeData.GetVariable(elements.Current.Key);
 				if (getFromAlias != null)
 				{
-					elements = elements.Dequeue();
+					elements = elements.Next();
 					return await getFromAlias.GetContextForPathInternal(elements, scopeData, morestachioExpression);
 				}
 			}
@@ -495,7 +512,6 @@ namespace Morestachio.Framework.Context
 			var contextClone = new ContextObject(Options, Key, this, _value) //note: Parent must be the original context so we can traverse up to an unmodified context
 			{
 				IsNaturalContext = false,
-				AbortGeneration = AbortGeneration
 			};
 
 			return contextClone;
@@ -510,7 +526,6 @@ namespace Morestachio.Framework.Context
 			var contextClone = new ContextObject(Options, Key, this, newValue) //note: Parent must be the original context so we can traverse up to an unmodified context
 			{
 				IsNaturalContext = false,
-				AbortGeneration = AbortGeneration
 			};
 
 			return contextClone;
@@ -525,7 +540,6 @@ namespace Morestachio.Framework.Context
 			var contextClone = new ContextObject(Options, Key, Parent, _value) //note: Parent must be the original context so we can traverse up to an unmodified context
 			{
 				IsNaturalContext = true,
-				AbortGeneration = AbortGeneration
 			};
 
 			return contextClone;
