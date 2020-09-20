@@ -9,7 +9,34 @@ namespace Morestachio.Helper
 	/// <summary>
 	///		Encapsulates a late bound number
 	/// </summary>
-	public readonly struct Number : IComparable, IComparable<Number>, IConvertible, IFormattable, IEquatable<Number>
+	public readonly struct Number : 
+		IComparable,
+		IComparable<Number>,
+		IComparable<ulong>,
+		IComparable<long>,
+		IComparable<uint>,
+		IComparable<int>,
+		IComparable<ushort>,
+		IComparable<short>,
+		IComparable<byte>,
+		IComparable<sbyte>,
+		IComparable<decimal>,
+		IComparable<double>,
+		IComparable<float>,
+		IConvertible,
+		IFormattable,
+		IEquatable<Number>,
+		IEquatable<ulong>,
+		IEquatable<long>,
+		IEquatable<uint>,
+		IEquatable<int>,
+		IEquatable<ushort>,
+		IEquatable<short>,
+		IEquatable<byte>,
+		IEquatable<sbyte>,
+		IEquatable<decimal>,
+		IEquatable<double>,
+		IEquatable<float>
 	{
 		/// <summary>
 		///		Contains the numeric value
@@ -190,17 +217,14 @@ namespace Morestachio.Helper
 		/// </summary>
 		public static readonly Type[] CsFrameworkIntegralTypes = new[]
 		{
-			typeof(ulong),
-			typeof(long),
-
-			typeof(uint),
-			typeof(int),
-
-			typeof(ushort),
-			typeof(short),
-
-			typeof(byte),
-			typeof(sbyte)
+			typeof(ulong    ),
+			typeof(long     ),
+			typeof(uint     ),
+			typeof(int      ),
+			typeof(ushort   ),
+			typeof(short        ),
+			typeof(byte     ),
+			typeof(sbyte        )
 		};
 
 		/// <summary>
@@ -208,9 +232,9 @@ namespace Morestachio.Helper
 		/// </summary>
 		public static readonly Type[] CsFrameworkFloatingPointNumberTypes = new[]
 		{
-			typeof(decimal),
-			typeof(double),
-			typeof(float)
+			typeof(decimal  ),
+			typeof(double   ),
+			typeof(float    )
 		};
 
 		private readonly IConvertible _value;
@@ -1426,12 +1450,145 @@ namespace Morestachio.Helper
 		}
 
 		#endregion
+		
+		/// <inheritdoc />
+		public int CompareTo(ulong other)
+		{
+			return CompareTo((object)other);
+		}
+		
+		/// <inheritdoc />
+		public int CompareTo(long other)
+		{
+			return CompareTo((object)other);
+		}
+		
+		/// <inheritdoc />
+		public int CompareTo(uint other)
+		{
+			return CompareTo((object)other);
+		}
+		
+		/// <inheritdoc />
+		public int CompareTo(int other)
+		{
+			return CompareTo((object)other);
+		}
+		
+		/// <inheritdoc />
+		public int CompareTo(ushort other)
+		{
+			return CompareTo((object)other);
+		}
+		
+		/// <inheritdoc />
+		public int CompareTo(short other)
+		{
+			return CompareTo((object)other);
+		}
+		
+		/// <inheritdoc />
+		public int CompareTo(byte other)
+		{
+			return CompareTo((object)other);
+		}
+		
+		/// <inheritdoc />
+		public int CompareTo(sbyte other)
+		{
+			return CompareTo((object)other);
+		}
+		
+		/// <inheritdoc />
+		public int CompareTo(decimal other)
+		{
+			return CompareTo((object)other);
+		}
+		
+		/// <inheritdoc />
+		public int CompareTo(double other)
+		{
+			return CompareTo((object)other);
+		}
+		
+		/// <inheritdoc />
+		public int CompareTo(float other)
+		{
+			return CompareTo((object)other);
+		}
+		
+		/// <inheritdoc />
+		public bool Equals(ulong other)
+		{
+			return Equals((object)other);
+		}
+		
+		/// <inheritdoc />
+		public bool Equals(long other)
+		{
+			return Equals((object)other);
+		}
+		
+		/// <inheritdoc />
+		public bool Equals(uint other)
+		{
+			return Equals((object)other);
+		}
+		
+		/// <inheritdoc />
+		public bool Equals(int other)
+		{
+			return Equals((object)other);
+		}
+		
+		/// <inheritdoc />
+		public bool Equals(ushort other)
+		{
+			return Equals((object)other);
+		}
+		
+		/// <inheritdoc />
+		public bool Equals(short other)
+		{
+			return Equals((object)other);
+		}
+		
+		/// <inheritdoc />
+		public bool Equals(byte other)
+		{
+			return Equals((object)other);
+		}
+		
+		/// <inheritdoc />
+		public bool Equals(sbyte other)
+		{
+			return Equals((object)other);
+		}
+		
+		/// <inheritdoc />
+		public bool Equals(decimal other)
+		{
+			return Equals((object)other);
+		}
+		
+		/// <inheritdoc />
+		public bool Equals(double other)
+		{
+			return Equals((object)other);
+		}
+
+		/// <inheritdoc />
+		public bool Equals(float other)
+		{
+			return Equals((object)other);
+		}
 
 		/// <inheritdoc />
 		public override bool Equals(object obj)
 		{
-			return obj is Number other && Equals(other);
+			return (obj is Number other && Equals(other)) || (obj is IConvertible objCom && new Number(objCom).Same(this));
 		}
+
 		/// <inheritdoc />
 		public override int GetHashCode()
 		{

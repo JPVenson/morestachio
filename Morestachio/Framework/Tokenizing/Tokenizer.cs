@@ -394,17 +394,6 @@ namespace Morestachio.Framework.Tokenizing
 					.FirstOrDefault(e => !e.Type.Equals(TokenType.Content));
 				if (!firstNonContentToken.Type.Equals(TokenType.IfClose))
 				{
-					//if (scopestack.Any())
-					//{
-					//	var current = scopestack.Peek();
-					//	if (current.TokenType == TokenType.If || current.TokenType == TokenType.Else)
-					//	{
-					//		firstNonContentToken = current;
-					//		var token = scopestack.Pop().Value;
-					//		tokens.Add(new TokenPair(TokenType.IfClose, token,
-					//			context.CurrentLocation));
-					//	}
-					//}
 					context.Errors
 						.Add(new MorestachioSyntaxError(
 							context.CurrentLocation
