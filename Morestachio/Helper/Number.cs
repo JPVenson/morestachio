@@ -46,6 +46,8 @@ namespace Morestachio.Helper
 			get { return _value; }
 		}
 
+		private readonly IConvertible _value;
+
 		internal Number(IConvertible fullNumber)
 		{
 			if (fullNumber is Number nr)
@@ -155,7 +157,7 @@ namespace Morestachio.Helper
 		}
 
 		/// <summary>
-		///		Checks the object for beeing a number
+		///		checks if the object is ether an instance of <see cref="Number"/> or an .net build in floating point number
 		/// </summary>
 		/// <param name="number"></param>
 		/// <returns></returns>
@@ -171,7 +173,7 @@ namespace Morestachio.Helper
 		}
 
 		/// <summary>
-		///		Checks the object for beeing a number
+		///		checks if the <see cref="Number"/> represents an floating point number
 		/// </summary>
 		/// <param name="number"></param>
 		/// <returns></returns>
@@ -181,7 +183,7 @@ namespace Morestachio.Helper
 		}
 
 		/// <summary>
-		///		Checks the object for beeing a number
+		///		checks if the object is ether an instance of <see cref="Number"/> or an .net build in integral number
 		/// </summary>
 		/// <param name="number"></param>
 		/// <returns></returns>
@@ -203,7 +205,7 @@ namespace Morestachio.Helper
 		}
 
 		/// <summary>
-		///		Checks the object for beeing a number
+		///		checks if the <see cref="Number"/> represents an integral number
 		/// </summary>
 		/// <param name="number"></param>
 		/// <returns></returns>
@@ -237,29 +239,29 @@ namespace Morestachio.Helper
 			typeof(float    )
 		};
 
-		private readonly IConvertible _value;
-
+		/// <summary>
+		///		Should return the type of any number operations order of return value as some types take prevalence over others
+		/// </summary>
+		/// <param name="numberLeft"></param>
+		/// <param name="numberRight"></param>
+		/// <returns></returns>
 		private static Type GetOperationTargetType(Number numberLeft, Number numberRight)
 		{
+			//if any value is a floating point number the result must always be a floating point number
 			if (numberLeft._value is decimal || numberRight._value is decimal)
 			{
 				return typeof(decimal);
 			}
-
 			if (numberLeft._value is double || numberRight._value is double)
 			{
 				return typeof(double);
 			}
-
 			if (numberLeft._value is float || numberRight._value is float)
 			{
 				return typeof(float);
 			}
 
-			//if (!IsIntegral(numberLeft) || !IsIntegral(numberRight))
-			//{
-			//	throw new InvalidOperationException("Cannot determinate the numbers type");
-			//}
+			//if non of the types are floating point numbers check in order of most to least precision
 			if (numberLeft._value is ulong || numberRight._value is ulong)
 			{
 				return typeof(ulong);
@@ -491,7 +493,7 @@ namespace Morestachio.Helper
 		}
 
 		/// <summary>
-		///		Gets the Absolute value
+		///		Returns the bigger of ether this value or the other value
 		/// </summary>
 		/// <returns></returns>
 		public Number Max(Number other)
@@ -500,7 +502,7 @@ namespace Morestachio.Helper
 		}
 
 		/// <summary>
-		///		Gets the Absolute value
+		///		Returns the smaller of ether this value or the other value
 		/// </summary>
 		/// <returns></returns>
 		public Number Min(Number other)
@@ -514,7 +516,7 @@ namespace Morestachio.Helper
 		/// <returns></returns>
 		public Number Pow(Number other)
 		{
-			return new Number(Math.Pow(ToDouble(null), other.ToDouble(null)));
+			return Math.Pow(ToDouble(null), other.ToDouble(null));
 		}
 
 		/// <summary>
@@ -523,7 +525,7 @@ namespace Morestachio.Helper
 		/// <returns></returns>
 		public Number Log(Number other)
 		{
-			return new Number(Math.Log(ToDouble(null), other.ToDouble(null)));
+			return Math.Log(ToDouble(null), other.ToDouble(null));
 		}
 
 		/// <summary>
@@ -532,7 +534,7 @@ namespace Morestachio.Helper
 		/// <returns></returns>
 		public Number Log()
 		{
-			return Log(new Number(Math.E));
+			return Log(Math.E);
 		}
 
 		/// <summary>
@@ -542,6 +544,122 @@ namespace Morestachio.Helper
 		public Number Log10()
 		{
 			return Log(10D);
+		}
+
+		/// <summary>
+		///		Returns the sine of the current angle.
+		/// </summary>
+		/// <returns></returns>
+		public Number Sin()
+		{
+			return Math.Sin(ToDouble(null));
+		}
+
+		/// <summary>
+		///		Returns the hyperbolic sine of the current angle.
+		/// </summary>
+		/// <returns></returns>
+		public Number Sinh()
+		{
+			return Math.Sinh(ToDouble(null));
+		}
+
+		/// <summary>
+		///		Returns the square root of the current value
+		/// </summary>
+		/// <returns></returns>
+		public Number Sqrt()
+		{
+			return Math.Sqrt(ToDouble(null));
+		}
+
+		/// <summary>
+		///		Returns the hyperbolic tangent of the specified angle.
+		/// </summary>
+		/// <returns></returns>
+		public Number Tanh()
+		{
+			return Math.Tanh(ToDouble(null));
+		}
+
+		/// <summary>
+		///		Returns the cosine of the specified angle.
+		/// </summary>
+		/// <returns></returns>
+		public Number Cos()
+		{
+			return Math.Cos(ToDouble(null));
+		}
+
+		/// <summary>
+		///		Returns the hyperbolic cosine of the specified angle.
+		/// </summary>
+		/// <returns></returns>
+		public Number Cosh()
+		{
+			return Math.Cosh(ToDouble(null));
+		}
+
+		/// <summary>
+		///		Returns the angle whose cosine is the specified number
+		/// </summary>
+		/// <returns></returns>
+		public Number Acos()
+		{
+			return Math.Acos(ToDouble(null));
+		}
+
+		/// <summary>
+		///		Returns the angle whose sine is the specified number.
+		/// </summary>
+		/// <returns></returns>
+		public Number Asin()
+		{
+			return Math.Asin(ToDouble(null));
+		}
+
+		/// <summary>
+		///		Returns the hyperbolic cosine of the specified angle.
+		/// </summary>
+		/// <returns></returns>
+		public Number Atan()
+		{
+			return Math.Atan(ToDouble(null));
+		}
+
+		/// <summary>
+		///		Returns the hyperbolic cosine of the specified angle.
+		/// </summary>
+		/// <returns></returns>
+		public Number Atan2(Number x)
+		{
+			return Math.Atan2(ToDouble(null), x.ToDouble(null));
+		}
+
+		/// <summary>
+		///		Calculates the integral part of a specified number.
+		/// </summary>
+		/// <returns></returns>
+		public Number Truncate()
+		{
+			if (_value is decimal)
+			{
+				return Math.Truncate(ToDecimal(null));
+			}
+			return Math.Truncate(ToDouble(null));
+		}
+
+		/// <summary>
+		///		Returns the smallest integral value that is greater than or equal to the specified decimal number.
+		/// </summary>
+		/// <returns></returns>
+		public Number Ceiling()
+		{
+			if (_value is decimal)
+			{
+				return Math.Ceiling(ToDecimal(null));
+			}
+			return Math.Ceiling(ToDouble(null));
 		}
 
 		/// <summary>
@@ -645,7 +763,7 @@ namespace Morestachio.Helper
 		}
 
 		/// <summary>
-		///		Adds the two numbers together
+		///		Rounds a decimal value to a specified number of fractional digits.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
@@ -1145,7 +1263,7 @@ namespace Morestachio.Helper
 		}
 
 		/// <summary>
-		///		Checks if both numbers are the same type and also the same value
+		///		Checks if both numbers are the same value
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
