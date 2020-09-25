@@ -61,7 +61,7 @@ namespace Morestachio.Tests
 			Assert.That(simple, Contains.Item("ACBBla"));
 			Assert.That(simple, Contains.Item("CBABla"));
 
-			var withArg = await CreateAndExecute<IEnumerable<string>, IEnumerable<string>>("{{#var result = data.Where('it + @0', 'Bla')}}", sl);
+			var withArg = await CreateAndExecute<IEnumerable<string>, IEnumerable<string>>("{{#var result = data.Select('it + @0', 'Bla')}}", sl);
 			Assert.That(withArg, Contains.Item("ABCBla"));
 			Assert.That(withArg, Contains.Item("ACBBla"));
 			Assert.That(withArg, Contains.Item("CBABla"));
