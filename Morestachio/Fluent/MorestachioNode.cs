@@ -24,6 +24,7 @@ namespace Morestachio.Fluent
 		///		Gets the parent of this node
 		/// </summary>
 		public MorestachioNode Ancestor { get; }
+
 		/// <summary>
 		///		Gets the Document item
 		/// </summary>

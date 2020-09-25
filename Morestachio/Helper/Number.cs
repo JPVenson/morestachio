@@ -354,16 +354,16 @@ namespace Morestachio.Helper
 		[MorestachioFormatter("SmallerThan", "Checks if the source number is smaller as the other number")]
 		[MorestachioFormatter("LessThen", "Checks if the source number is smaller as the other number")]
 		[MorestachioOperator(OperatorTypes.LessThen, "Checks if the source number is smaller as the other number")]
-		public static bool SmallerThan(Number left, Number right)
+		public static bool LessThen(Number left, Number right)
 		{
-			return left.SmallerThan(right);
+			return left.LessThen(right);
 		}
 
 		[MorestachioFormatter("SmallerOrEquals", "Checks if the source number is smaller as the other number")]
 		[MorestachioOperator(OperatorTypes.LessOrEquals, "Checks if the source number is smaller as the other number")]
 		public static bool SmallerOrEquals(Number left, Number right)
 		{
-			return left.SmallerThan(right) || left.Same(right);
+			return left.LessThen(right) || left.Same(right);
 		}
 
 		[MorestachioFormatter("BiggerAs", "Checks if the source number is bigger as the other number")]
@@ -660,6 +660,19 @@ namespace Morestachio.Helper
 				return Math.Ceiling(ToDecimal(null));
 			}
 			return Math.Ceiling(ToDouble(null));
+		}
+
+		/// <summary>
+		///		Returns the smallest integral value that is greater than or equal to the specified decimal number.
+		/// </summary>
+		/// <returns></returns>
+		public Number Floor()
+		{
+			if (_value is decimal)
+			{
+				return Math.Floor(ToDecimal(null));
+			}
+			return Math.Floor(ToDouble(null));
 		}
 
 		/// <summary>
@@ -1197,7 +1210,7 @@ namespace Morestachio.Helper
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		public bool SmallerThan(Number other)
+		public bool LessThen(Number other)
 		{
 			var targetType = GetOperationTargetType(this, other);
 			if (targetType == typeof(decimal))
@@ -1931,9 +1944,9 @@ namespace Morestachio.Helper
 		public static Number operator >>(Number a, int b) => a.ShiftRight(b);
 		public static bool operator ==(Number a, Number b) => a.Equals(b);
 		public static bool operator !=(Number a, Number b) => !a.Equals(b);
-		public static bool operator <(Number a, Number b) => a.SmallerThan(b);
+		public static bool operator <(Number a, Number b) => a.LessThen(b);
 		public static bool operator >(Number a, Number b) => a.GreaterThen(b);
-		public static bool operator <=(Number a, Number b) => a.Equals(b) || a.SmallerThan(b);
+		public static bool operator <=(Number a, Number b) => a.Equals(b) || a.LessThen(b);
 		public static bool operator >=(Number a, Number b) => a.Equals(b) || a.GreaterThen(b);
 
 		public static Number operator +(Number a, Number b) => a.Add(b);

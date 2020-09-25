@@ -93,7 +93,7 @@ namespace Morestachio.Fluent
 		}
 
 		/// <summary>
-		///		Executes the action if the last operation was bot successful like searching in the tree
+		///		Executes the action if the last operation was not successful like searching in the tree
 		/// </summary>
 		/// <param name="action"></param>
 		/// <returns></returns>
@@ -123,7 +123,7 @@ namespace Morestachio.Fluent
 		}
 
 		/// <summary>
-		///		Executes the action if the last operation was bot successful like searching in the tree
+		///		Executes the action if the last operation was not successful like searching in the tree
 		/// </summary>
 		/// <param name="action"></param>
 		/// <returns></returns>
