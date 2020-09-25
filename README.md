@@ -65,7 +65,7 @@ Morestachio is build upon Mustachio and extends the mustachio syntax in a few wa
 10. Supports user Encoding of the result template
 11. Supports Template Partials `{{#include secondary_template }}`
 12. Complex paths are supported `{{ this.is.a.valid.path }}` and `{{ ../this.goes.up.one.level }}` and `{{ ~.this.goes.up.to.Root }}`
-13. Loops with `#each` & `#do` & `#while`
+13. Loops with `#each` & `#do` & `#while` & `#repeat`
 14. Object Enumeration with `#each data.?`
 15. Formatters can be declared in C# and be called from the template to provide you with a maximum of freedom
 16. The Parser produces a Serilizable Document Tree that can be send to clients to provide a rich user edit experience 
