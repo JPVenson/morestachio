@@ -332,10 +332,6 @@ namespace Morestachio.Formatter.Framework
 								continue;
 							}
 						}
-						else
-						{
-							continue;
-						}
 					}
 				}
 

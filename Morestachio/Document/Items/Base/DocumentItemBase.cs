@@ -13,6 +13,7 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using Morestachio.Document.Contracts;
+using Morestachio.Document.TextOperations;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Framework.Context;
@@ -24,7 +25,8 @@ namespace Morestachio.Document.Items.Base
 	///     Base class for Document items
 	/// </summary>
 	[Serializable]
-	public abstract class DocumentItemBase : IMorestachioDocument, IEquatable<DocumentItemBase>
+	public abstract class DocumentItemBase : IMorestachioDocument, 
+		IEquatable<DocumentItemBase>
 	{
 		/// <summary>
 		///		Creates a new base object for encapsulating document items
@@ -79,7 +81,7 @@ namespace Morestachio.Document.Items.Base
 
 		/// <inheritdoc />
 		public CharacterLocation ExpressionStart { get; set; }
-
+		
 		/// <inheritdoc />
 		public void Add(params IDocumentItem[] documentChildren)
 		{
@@ -109,7 +111,6 @@ namespace Morestachio.Document.Items.Base
 		{
 			writer.WriteStartElement(GetSerializedMarkerName(GetType()));
 			writer.WriteAttributeString(nameof(ExpressionStart), ExpressionStart.ToFormatString() ?? string.Empty);
-
 			SerializeXml(writer);
 			if (Children.Any())
 			{
@@ -135,7 +136,6 @@ namespace Morestachio.Document.Items.Base
 			{
 				ExpressionStart = CharacterLocation.FromFormatString(charLoc);
 			}
-
 			if (!reader.IsEmptyElement)
 			{
 				var readSubtree = reader.ReadSubtree();

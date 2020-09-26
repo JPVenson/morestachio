@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Xml;
+using Morestachio.Document.TextOperations;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Framework.Context;
@@ -29,6 +30,7 @@ namespace Morestachio.Document.Contracts
 		/// <returns></returns>
 		ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
 			ScopeData scopeData);
+
 		
 		/// <summary>
 		///		The list of Children that are children of this Document item
@@ -62,5 +64,16 @@ namespace Morestachio.Document.Contracts
 		/// </summary>
 		/// <param name="visitor"></param>
 		void Accept(IDocumentItemVisitor visitor);
+	}
+
+	/// <summary>
+	///		Defines additional properties that can be used to control or attach behaviors to an <see cref="IDocumentItem"/>
+	/// </summary>
+	public interface IExtendedDocumentItem
+	{
+		/// <summary>
+		///		Defines the position/s of trim operations attached to this DocumentItem
+		/// </summary>
+		LineBreakTrimDirection LineBreakTrimDirection { set; }
 	}
 }

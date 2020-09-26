@@ -51,12 +51,13 @@ namespace Morestachio.Document.Items
 		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
 			ScopeData scopeData)
 		{
+			var value = Value;
 			if (scopeData.CustomData.TryGetValue("TextOperationData", out var textOperations) 
 			    && textOperations is IList<ITextOperation> textOps)
 			{
 				foreach (var textOperation in textOps.ToArray())
 				{
-					Value = textOperation.Apply(Value);
+					value = textOperation.Apply(value);
 					if (textOperation.TransientEdit)
 					{
 						textOps.Remove(textOperation);
@@ -64,9 +65,9 @@ namespace Morestachio.Document.Items
 				}
 			}
 
-			if (Value != string.Empty)
+			if (value != string.Empty)
 			{
-				outputStream.Write(Value);
+				outputStream.Write(value);
 			}
 			return Children.WithScope(context).ToPromise();
 		}

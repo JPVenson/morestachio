@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Morestachio.Document.Custom;
+using Morestachio.Document.TextOperations;
 using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Error;
 using Morestachio.Framework.Expression;
@@ -80,6 +81,11 @@ namespace Morestachio.Framework.Tokenizing
 		internal static bool IsStringDelimiter(char formatChar)
 		{
 			return formatChar == '\'' || formatChar == '\"';
+		}
+
+		internal static char[] GetWhitespaceDelimiters()
+		{
+			return new[] {'\r', '\n', '\t', ' '};
 		}
 
 		internal static bool IsWhiteSpaceDelimiter(char formatChar)
@@ -439,13 +445,13 @@ namespace Morestachio.Framework.Tokenizing
 
 			string TrimToken(string token, string keyword, char key = '#')
 			{
-				token = token.TrimStart(key);
+				token = token.TrimStart(key).TrimStart();
 				if (keyword != null)
 				{
-					token = token.Trim().Substring(keyword.Length);
+					token = token.Substring(keyword.Length);
 				}
 
-				return token.Trim();
+				return token;
 			}
 			
 			foreach (var match in MatchTokens(templateString, context))
@@ -453,7 +459,9 @@ namespace Morestachio.Framework.Tokenizing
 				var tokenValue = match.Value;
 				var trimmedToken = tokenValue
 					.Remove(0, context.PrefixToken.Length);
-				trimmedToken = trimmedToken.Remove(trimmedToken.Length - context.SuffixToken.Length);
+				trimmedToken = trimmedToken
+					.Remove(trimmedToken.Length - context.SuffixToken.Length)
+					.Trim(GetWhitespaceDelimiters());
 
 				if (context.CommentIntend > 0)
 				{
@@ -478,6 +486,26 @@ namespace Morestachio.Framework.Tokenizing
 				}
 				else
 				{
+					//check if the token is appended by a -| in that case we want to trim all whitespaces at the end of any following content
+					if (trimmedToken.StartsWith("-"))
+					{
+						var pipeIndex = trimmedToken.IndexOf('|');
+						for (int i = 1; i < pipeIndex - 1; i++)
+						{
+							if (trimmedToken[i] != ' ')
+							{
+								context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation
+										.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "trim", "trim",
+									"{{operation | -}}", $" expected to find | - with only whitespaces between the pipe and minus but found '{trimmedToken[i]}'"));
+								continue;
+							}
+						}
+
+						trimmedToken = trimmedToken.Substring(pipeIndex + 1).Trim();
+
+						tokens.Add(new TokenPair(TokenType.TrimPrependedLineBreaks, trimmedToken, context.CurrentLocation, EmbeddedState.Previous));
+					}
+
 					//yield front content.
 					if (match.Index > context.Character)
 					{
@@ -485,6 +513,26 @@ namespace Morestachio.Framework.Tokenizing
 							context.CurrentLocation));
 					}
 					context.SetLocation(match.Index + context.PrefixToken.Length);
+					var appendTrimToken = false;
+
+					//check if the token is appended by a |- in that case we want to trim all folowing whitespaces
+					if (trimmedToken.EndsWith("-"))
+					{
+						var pipeIndex = trimmedToken.LastIndexOf('|');
+						for (int i = pipeIndex + 1; i < trimmedToken.Length - 1; i++)
+						{
+							if (trimmedToken[i] != ' ')
+							{
+								context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation
+										.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "trim", "trim",
+									"{{operation | -}}", $" expected to find | - with only whitespaces between the pipe and minus but found '{trimmedToken[i]}'"));
+								continue;
+							}
+						}
+
+						trimmedToken = trimmedToken.Remove(pipeIndex).Trim();
+						appendTrimToken = true;
+					}
 
 					if (trimmedToken.StartsWith("#declare ", true, CultureInfo.InvariantCulture))
 					{
@@ -577,7 +625,7 @@ namespace Morestachio.Framework.Tokenizing
 							tokens.Add(new TokenPair(TokenType.CollectionOpen,
 								token,
 								context.CurrentLocation,
-								ExpressionParser.ParseExpression(token, context), scopeBehavior));
+								ExpressionParser.ParseExpression(token, context), EmbeddedState.None, scopeBehavior));
 						}
 						else
 						{
@@ -974,6 +1022,12 @@ namespace Morestachio.Framework.Tokenizing
 								context.CurrentLocation, ExpressionParser.ParseExpression(token, context)));
 						}
 					}
+
+					if (appendTrimToken)
+					{
+						tokens.Add(new TokenPair(TokenType.TrimLineBreaks, trimmedToken, context.CurrentLocation, EmbeddedState.Next));
+					}
+
 					//move forward in the string.
 					if (context.Character > match.Index + match.Length)
 					{

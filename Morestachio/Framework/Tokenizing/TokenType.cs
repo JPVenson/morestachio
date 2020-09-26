@@ -147,6 +147,11 @@
 		TrimLineBreaks,
 
 		/// <summary>
+		///		Trims all occuring linebreaks from the following content at its start
+		/// </summary>
+		TrimPrependedLineBreaks,
+
+		/// <summary>
 		///		Trims all occuring \t &amp; \r\n 
 		/// </summary>
 		TrimEverything,

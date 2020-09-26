@@ -5,6 +5,7 @@ using Morestachio.Document.Contracts;
 using Morestachio.Document.Items;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.TextOperations;
+using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Visitors;
 
@@ -52,14 +53,53 @@ namespace Morestachio.Document.Visitor
 			return visitor.StringBuilder.ToString();
 		}
 
+		public LineBreakTrimDirection RenderLineBreak { get; set; } = LineBreakTrimDirection.None;
+
 		/// <summary>
 		///		Loops through all the document items children
 		/// </summary>
 		/// <param name="documentItem"></param>
 		public void VisitChildren(IDocumentItem documentItem)
 		{
-			foreach (var documentItemChild in documentItem.Children)
+			var documentItemChildren = documentItem
+				.Children
+				.SkipWhile(f => f is TextEditDocumentItem txtOp && txtOp.EmbeddedState == EmbeddedState.Next)
+				.Reverse()
+				.SkipWhile(f => f is TextEditDocumentItem txtOp && txtOp.EmbeddedState == EmbeddedState.Previous)
+				.Reverse()
+				.ToArray();
+			for (var index = 0; index < documentItemChildren.Length; index++)
 			{
+				var documentItemChild = documentItemChildren[index];
+				if (documentItemChild is TextEditDocumentItem txtOp && txtOp.EmbeddedState != EmbeddedState.None)
+				{
+					continue;
+				}
+
+				if (index - 1 >= 0)
+				{
+					if (documentItemChildren[index - 1] is TextEditDocumentItem ntxtOp)
+					{
+						if (ntxtOp.Operation is TrimLineBreakTextOperation tl &&
+						    (tl.LineBreakTrimDirection != LineBreakTrimDirection.Begin && index != 0))
+						{
+							RenderLineBreak |= tl.LineBreakTrimDirection;
+						}
+					}
+				}
+
+				if (index + 1 < documentItemChildren.Length)
+				{
+					if (documentItemChildren[index + 1] is TextEditDocumentItem ntxtOp)
+					{
+						if (ntxtOp.Operation is TrimLineBreakTextOperation tl &&
+						    tl.LineBreakTrimDirection != LineBreakTrimDirection.End)
+						{
+							RenderLineBreak |= tl.LineBreakTrimDirection;
+						}
+					}
+				}
+
 				documentItemChild.Accept(this);
 			}
 		}
@@ -74,6 +114,10 @@ namespace Morestachio.Document.Visitor
 		public void Visit(ExpressionDocumentItemBase documentItem, string tag, string cmdChar = "#")
 		{
 			StringBuilder.Append("{{");
+			if (RenderLineBreak.HasFlagFast(LineBreakTrimDirection.End))
+			{
+				StringBuilder.Append("- | ");
+			}
 			StringBuilder.Append(cmdChar);
 			StringBuilder.Append(tag);
 			StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
@@ -84,14 +128,35 @@ namespace Morestachio.Document.Visitor
 				StringBuilder.Append(" AS ");
 				StringBuilder.Append(aliasDocumentItem.Value);
 			}
+			
+			if (RenderLineBreak.HasFlagFast(LineBreakTrimDirection.Begin)
+			||
+			(children.Any() && 
+			 children.First() is TextEditDocumentItem txtDoc && 
+			 txtDoc.Operation is TrimLineBreakTextOperation trim && 
+			 trim.LineBreakTrimDirection == LineBreakTrimDirection.Begin))
+			{
+				StringBuilder.Append(" | -");
+			}
 
+			RenderLineBreak = LineBreakTrimDirection.None;
 			StringBuilder.Append("}}");
 
 			if (children.Any())
 			{
 				VisitChildren(documentItem);
 
-				StringBuilder.Append("{{/");
+				StringBuilder.Append("{{");
+
+				var preLastItem = children.ElementAtOrDefault(children.Count - 2);
+				if(preLastItem  is TextEditDocumentItem lastTxtDoc && 
+				   lastTxtDoc.Operation is TrimLineBreakTextOperation lastTrim && 
+				   lastTrim.LineBreakTrimDirection == LineBreakTrimDirection.End)
+				{
+					StringBuilder.Append("- | ");
+				}
+
+				StringBuilder.Append("/");
 				if (!(aliasDocumentItem is null))
 				{
 					StringBuilder.Append(aliasDocumentItem.Value);
@@ -124,7 +189,7 @@ namespace Morestachio.Document.Visitor
 				StringBuilder.Append("}}");
 			}
 		}
-		
+
 
 		/// <inheritdoc />
 		public void Visit(DoLoopDocumentItem documentItem)

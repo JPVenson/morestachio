@@ -15,8 +15,8 @@ namespace Morestachio.Framework.Tokenizing
 		/// <summary>
 		///		Creates a new Token Pair
 		/// </summary>
-		public TokenPair(IComparable type, string value, CharacterLocation tokenLocation)
-			: this(type, value, tokenLocation, null, null)
+		public TokenPair(IComparable type, string value, CharacterLocation tokenLocation, EmbeddedState isEmbeddedToken = EmbeddedState.None)
+			: this(type, value, tokenLocation, null, isEmbeddedToken, null)
 		{
 			Value = value;
 		}
@@ -25,9 +25,8 @@ namespace Morestachio.Framework.Tokenizing
 		/// <summary>
 		///		Creates a new Token Pair
 		/// </summary>
-		public TokenPair(IComparable type, CharacterLocation tokenLocation, IMorestachioExpression expression,
-			ScopingBehavior? noScope = null)
-			: this(type, null, tokenLocation, expression, noScope)
+		public TokenPair(IComparable type, CharacterLocation tokenLocation, IMorestachioExpression expression, EmbeddedState isEmbeddedToken = EmbeddedState.None, ScopingBehavior? noScope = null)
+			: this(type, null, tokenLocation, expression, isEmbeddedToken, noScope)
 		{
 		}
 
@@ -36,14 +35,20 @@ namespace Morestachio.Framework.Tokenizing
 		///		Creates a new Token Pair
 		/// </summary>
 		public TokenPair(IComparable type, string value, CharacterLocation tokenLocation,
-			IMorestachioExpression expression, ScopingBehavior? noScope = null)
+			IMorestachioExpression expression, EmbeddedState isEmbeddedToken = EmbeddedState.None, ScopingBehavior? noScope = null)
 		{
 			Type = type;
 			MorestachioExpression = expression;
+			IsEmbeddedToken = isEmbeddedToken;
 			TokenLocation = tokenLocation;
 			ScopeBehavior = noScope;
 			Value = value;
 		}
+
+		/// <summary>
+		///		The type of this Token
+		/// </summary>
+		public EmbeddedState IsEmbeddedToken { get; }
 
 		/// <summary>
 		///		The type of this Token

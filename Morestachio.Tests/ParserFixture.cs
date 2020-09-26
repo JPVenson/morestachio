@@ -1537,9 +1537,9 @@ namespace Morestachio.Tests
 		[Test]
 		public void TestWhileLoopContext()
 		{
-			var template = "{{#WHILE $index.SmallerAs(5)}}" +
-						   "{{$index}}," +
-						   "{{/WHILE}}";
+			var template = @"{{#WHILE $index.SmallerAs(5) | -}}
+						   {{$index}},
+						   {{- | /WHILE}}";
 
 			var parsingOptions = new ParserOptions(template, null, DefaultEncoding)
 			{
@@ -1557,9 +1557,9 @@ namespace Morestachio.Tests
 		[Test]
 		public void TestDoLoopContext()
 		{
-			var template = "{{#DO $index.SmallerAs(5)}}" +
-						   "{{$index}}," +
-						   "{{/DO}}";
+			var template = @"{{#DO $index.SmallerAs(5)}}
+							 {{- | $index}},
+							 {{- | /DO}}";
 
 			var parsingOptions = new ParserOptions(template, null, DefaultEncoding)
 			{
@@ -1589,6 +1589,28 @@ Test{{#NL}}";
 			var genTemplate = results.CreateAndStringify(new object());
 			Assert.That(genTemplate, Is.EqualTo(@"Test
 "));
+		}
+
+		[Test]
+		public void TestCanRemoveLineBreaksWithinKeyword()
+		{
+			var template = @"{{data|-}}
+Static
+
+{{-|data}}";
+
+			var parsingOptions = new ParserOptions(template, null, DefaultEncoding)
+			{
+				//Timeout = TimeSpan.FromSeconds(5)
+			};
+			parsingOptions.Formatters.AddFromType(typeof(EqualityFormatter));
+			var results = Parser.ParseWithOptions(parsingOptions);
+			TestLocationsInOrder(results);
+			var genTemplate = results.CreateAndStringify(new
+			{
+				data = "World"
+			});
+			Assert.That(genTemplate, Is.EqualTo(@"WorldStaticWorld"));
 		}
 
 		private class CollectionContextInfo

@@ -62,7 +62,7 @@ namespace Morestachio
 
 			return documentInfo;
 		}
-		
+
 		/// <summary>
 		///     Parses the Template with the given options
 		/// </summary>
@@ -256,19 +256,36 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.WriteLineBreak))
 				{
-					currentDocumentItem.Document.Add(new TextEditDocumentItem(new AppendLineBreakTextOperation()));
+					currentDocumentItem.Document.Add(new TextEditDocumentItem(new AppendLineBreakTextOperation(), currentToken.IsEmbeddedToken));
 				}
 				else if (currentToken.Type.Equals(TokenType.TrimLineBreak))
 				{
-					currentDocumentItem.Document.Add(new TextEditDocumentItem(new TrimLineBreakTextOperation() { LineBreaks = 1 }));
+					currentDocumentItem.Document.Add(new TextEditDocumentItem(new TrimLineBreakTextOperation()
+					{
+						LineBreaks = 1,
+						LineBreakTrimDirection = LineBreakTrimDirection.Begin
+					}, currentToken.IsEmbeddedToken));
 				}
 				else if (currentToken.Type.Equals(TokenType.TrimLineBreaks))
 				{
-					currentDocumentItem.Document.Add(new TextEditDocumentItem(new TrimLineBreakTextOperation() { LineBreaks = -1 }));
+					currentDocumentItem.Document.Add(new TextEditDocumentItem(new TrimLineBreakTextOperation()
+					{
+						LineBreaks = 0,
+						LineBreakTrimDirection = LineBreakTrimDirection.Begin
+					}, currentToken.IsEmbeddedToken));
+				}
+				else if (currentToken.Type.Equals(TokenType.TrimPrependedLineBreaks))
+				{
+					currentDocumentItem.Document.Add(new TextEditDocumentItem(new TrimLineBreakTextOperation()
+					{
+						LineBreaks = 0,
+						LineBreakTrimDirection = LineBreakTrimDirection.End
+					}, currentToken.IsEmbeddedToken));
 				}
 				else if (currentToken.Type.Equals(TokenType.TrimEverything))
 				{
-					currentDocumentItem.Document.Add(new TextEditDocumentItem(new TrimAllWhitespacesTextOperation()));
+					currentDocumentItem.Document.Add(new TextEditDocumentItem(new TrimAllWhitespacesTextOperation(), 
+						currentToken.IsEmbeddedToken));
 				}
 				else if (currentToken.Type.Equals(TokenType.VariableLet))
 				{
@@ -286,7 +303,7 @@ namespace Morestachio
 						currentDocumentItem.LocalVariables.Add(currentToken.Value);
 					}
 				}
-				else if(currentToken.Type.Equals(TokenType.Comment) || currentToken.Type.Equals(TokenType.BlockComment))
+				else if (currentToken.Type.Equals(TokenType.Comment) || currentToken.Type.Equals(TokenType.BlockComment))
 				{
 					//just ignore this part and print nothing
 				}

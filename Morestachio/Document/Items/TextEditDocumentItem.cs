@@ -15,6 +15,7 @@ using Morestachio.Document.Items.Base;
 using Morestachio.Document.TextOperations;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework.Context;
+using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.IO;
 using Morestachio.Helper;
 
@@ -30,14 +31,19 @@ namespace Morestachio.Document.Items
 		///		The TextOperation
 		/// </summary>
 		public ITextOperation Operation { get; private set; }
+
+		/// <summary>
+		///		If set to true, indicates that this text operation is used as an appendix or suffix to another keyword
+		/// </summary>
+		public EmbeddedState EmbeddedState { get; private set; }
 		
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="operation"></param>
-		public TextEditDocumentItem([NotNull] ITextOperation operation)
+		public TextEditDocumentItem([NotNull] ITextOperation operation, EmbeddedState embeddedState = EmbeddedState.None)
 		{
 			Operation = operation ?? throw new ArgumentNullException(nameof(operation));
+			EmbeddedState = embeddedState;
 		}
 
 		internal TextEditDocumentItem()
@@ -49,6 +55,8 @@ namespace Morestachio.Document.Items
 		[UsedImplicitly]
 		protected TextEditDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
+			EmbeddedState = (EmbeddedState) info.GetValue(nameof(EmbeddedState), typeof(EmbeddedState));
+			Operation = info.GetValue(nameof(Operation), typeof(ITextOperation)) as ITextOperation;
 		}
 		
 		/// <inheritdoc />
@@ -80,6 +88,7 @@ namespace Morestachio.Document.Items
 		{
 			base.SerializeBinaryCore(info, context);
 			info.AddValue(nameof(Operation), Operation);
+			info.AddValue(nameof(EmbeddedState), EmbeddedState);
 		}
 		
 		/// <inheritdoc />
@@ -88,6 +97,7 @@ namespace Morestachio.Document.Items
 			base.SerializeXml(writer);
 			writer.WriteStartElement("TextOperation");
 			writer.WriteAttributeString(nameof(ITextOperation.TextOperationType), Operation.TextOperationType.ToString());
+			writer.WriteAttributeString(nameof(EmbeddedState), EmbeddedState.ToString());
 			Operation.WriteXml(writer);
 			writer.WriteEndElement();//</TextOperation>
 		}
@@ -98,6 +108,12 @@ namespace Morestachio.Document.Items
 			base.DeSerializeXml(reader);
 			reader.ReadStartElement();//<TextOperation>
 			AssertElement(reader, "TextOperation");
+			var embeddedState = reader.GetAttribute(nameof(EmbeddedState));
+			if (!string.IsNullOrEmpty(embeddedState))
+			{
+				EmbeddedState = (EmbeddedState) Enum.Parse(typeof(EmbeddedState), embeddedState);
+			}
+
 			var attribute = reader.GetAttribute(nameof(ITextOperation.TextOperationType));
 			switch (attribute)
 			{

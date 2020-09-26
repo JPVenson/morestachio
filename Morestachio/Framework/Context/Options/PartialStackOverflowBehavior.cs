@@ -18,6 +18,13 @@ namespace Morestachio.Framework.Context.Options
 		DoNotScope
 	}
 
+	public enum EmbeddedState
+	{
+		None,
+		Previous,
+		Next
+	}
+
 	/// <summary>
 	///		Defines how the Parser should behave when encountering a the PartialStackSize to be exceeded
 	/// </summary>
