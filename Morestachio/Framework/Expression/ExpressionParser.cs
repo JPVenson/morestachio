@@ -1,9 +1,16 @@
 ﻿using System;
 using System.Globalization;
 using System.Xml;
+using Morestachio.Document;
+using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Parsing.ParserErrors;
+#if ValueTask
+using ObjectPromise = System.Threading.Tasks.ValueTask<object>;
+#else
+using ObjectPromise = System.Threading.Tasks.Task<object>;
+#endif
 
 namespace Morestachio.Framework.Expression
 {
@@ -172,6 +179,25 @@ namespace Morestachio.Framework.Expression
 			}
 
 			return new TokenPair(type, variableName, startOfExpression, ParseExpression(expression, context));
+		}
+
+		/// <summary>
+		///		Parses an Expression and then executes it
+		/// </summary>
+		/// <param name="expressionText"></param>
+		/// <param name="options"></param>
+		/// <param name="context"></param>
+		/// <returns></returns>
+		public static async ObjectPromise EvaluateExpression(string expressionText, 
+			ParserOptions options,  
+			object context,
+			TokenzierContext tokenzierContext = null)
+		{
+			tokenzierContext = tokenzierContext ?? TokenzierContext.FromText(expressionText);
+			var expression = ParseExpression(expressionText, tokenzierContext);
+			var contextObject = new ContextObject(options, "", null, context);
+			var value = await expression.GetValue(contextObject, new ScopeData());
+			return value.Value;
 		}
 
 		/// <summary>
