@@ -64,6 +64,7 @@ namespace Morestachio.Framework.Context
 			DefaultFormatter.AddFromType(typeof(RandomFormatter));
 			DefaultFormatter.AddFromType(typeof(Worktime));
 			DefaultFormatter.AddFromType(typeof(Money));
+			DefaultFormatter.AddFromType(typeof(HtmlFormatter));
 
 			DefaultDefinitionOfFalse = value => value != null &&
 												value as bool? != false &&
