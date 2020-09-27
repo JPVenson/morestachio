@@ -70,14 +70,23 @@ namespace Morestachio.Framework.Expression.Framework
 		/// <summary>
 		///		Gets or sets the starting of an Token
 		/// </summary>
-		public string PrefixToken { get; set; } = "{{";
+		public char[] PrefixToken { get; set; } = new[] { '{', '{' };
 
 		/// <summary>
 		///		Gets or sets the ending of an Token
 		/// </summary>
-		public string SuffixToken { get; set; } = "}}";
+		public char[] SuffixToken { get; set; } = new[] { '}', '}' };
 
 		internal int CommentIntend { get; set; } = 0;
+
+		/// <summary>
+		///		Gets or sets the option for trimming all leading whitespaces and newlines
+		/// </summary>
+		public bool TrimLeading { get; set; }
+		/// <summary>
+		///		Gets or sets the option for trimming all tailing whitespaces and newlines
+		/// </summary>
+		public bool TrimTailing { get; set; }
 
 		/// <summary>
 		///		Advances the current location by the number of chars
@@ -87,7 +96,7 @@ namespace Morestachio.Framework.Expression.Framework
 			Character += chars;
 			CurrentLocation = Tokenizer.HumanizeCharacterLocation(Character, Lines);
 		}
-		
+
 		/// <summary>
 		///		sets the current location
 		/// </summary>
@@ -116,7 +125,7 @@ namespace Morestachio.Framework.Expression.Framework
 						"SET OPTION", "VALUE", $"The expression returned null for option '{name}' that does not accept a null value"));
 					return;
 				}
-				PrefixToken = val.ToString();
+				PrefixToken = val.ToString().ToCharArray();
 			}
 			if (name.Equals("TokenSuffix", StringComparison.InvariantCultureIgnoreCase))
 			{
@@ -126,7 +135,39 @@ namespace Morestachio.Framework.Expression.Framework
 						"SET OPTION", "VALUE", $"The expression returned null for option '{name}' that does not accept a null value"));
 					return;
 				}
-				SuffixToken = val.ToString();
+				SuffixToken = val.ToString().ToCharArray();
+			}
+			if (name.Equals("TrimTailing", StringComparison.InvariantCultureIgnoreCase))
+			{
+				if (val == null)
+				{
+					Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+						"SET OPTION", "VALUE", $"The expression returned null for option '{name}' that does not accept a null value"));
+					return;
+				}
+				if (!(val is bool valBool))
+				{
+					Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+						"SET OPTION", "VALUE", $"The expression returned '{val.GetType()}' for option '{name}' but expected and value of type '{typeof(bool)}'"));
+					return;
+				}
+				TrimTailing = valBool;
+			}
+			if (name.Equals("TrimLeading", StringComparison.InvariantCultureIgnoreCase))
+			{
+				if (val == null)
+				{
+					Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+						"SET OPTION", "VALUE", $"The expression returned null for option '{name}' that does not accept a null value"));
+					return;
+				}
+				if (!(val is bool valBool))
+				{
+					Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+						"SET OPTION", "VALUE", $"The expression returned '{val.GetType()}' for option '{name}' but expected and value of type '{typeof(bool)}'"));
+					return;
+				}
+				TrimLeading = valBool;
 			}
 		}
 	}

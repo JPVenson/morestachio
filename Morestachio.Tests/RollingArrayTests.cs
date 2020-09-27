@@ -14,7 +14,7 @@ namespace Morestachio.Tests
 		[Test]
 		public void TestIndexer()
 		{
-			var rollingArray = new Tokenizer.RollingArray(4);
+			var rollingArray = new RollingArray<char>(4);
 			rollingArray.Add('A');
 			Assert.That(rollingArray.Pos(), Is.EqualTo(0));
 			Assert.That(rollingArray[rollingArray.Length - 1], Is.EqualTo('A'));
@@ -68,7 +68,7 @@ namespace Morestachio.Tests
 		[Test]
 		public void TestContents()
 		{
-			var rollingArray = new Tokenizer.RollingArray(3);
+			var rollingArray = new RollingArray<char>(3);
 			rollingArray.Add('H');
 			Assert.That(new string(rollingArray.ToArray()), Is.EqualTo("H"));
 			rollingArray.Add('e');
@@ -94,33 +94,40 @@ namespace Morestachio.Tests
 		[Test]
 		public void TestCanCheckForStartToken()
 		{
-			var rollingArray = new Tokenizer.RollingArray(3);
+			var expected = new char[] {'{', '{'};
+			var rollingArray = new RollingArray<char>(3);
 			rollingArray.Add('A');
-			Assert.That(rollingArray.StartToken(), Is.False);
+			Assert.That(rollingArray.EndsWith(expected), Is.False);
+			Assert.That(rollingArray.EndsWith(new []{'A'}), Is.True);
 			rollingArray.Add('B');
-			Assert.That(rollingArray.StartToken(), Is.False);
+			Assert.That(rollingArray.EndsWith(expected), Is.False);
+			Assert.That(rollingArray.EndsWith(new []{'A'}), Is.True);
+			Assert.That(rollingArray.EndsWith(new []{'A','B'}), Is.True);
 			rollingArray.Add('{');
-			Assert.That(rollingArray.StartToken(), Is.False);
+			Assert.That(rollingArray.EndsWith(expected), Is.False);
+			Assert.That(rollingArray.EndsWith(new []{'A','B'}), Is.True);
+			Assert.That(rollingArray.EndsWith(new []{'A','B', '{'}), Is.True);
 			rollingArray.Add('{');
-			Assert.That(rollingArray.StartToken(), Is.True);
+			Assert.That(rollingArray.EndsWith(expected), Is.True);
 			rollingArray.Add('C');
-			Assert.That(rollingArray.StartToken(), Is.False);
+			Assert.That(rollingArray.EndsWith(expected), Is.False);
 		}
 		
 		[Test]
 		public void TestCanCheckForEndToken()
 		{
-			var rollingArray = new Tokenizer.RollingArray(4);
+			var expected = new char[] {'}', '}'};
+			var rollingArray = new RollingArray<char>(4);
 			rollingArray.Add('A');
-			Assert.That(rollingArray.EndToken(), Is.False);
+			Assert.That(rollingArray.EndsWith(expected), Is.False);
 			rollingArray.Add('B');
-			Assert.That(rollingArray.EndToken(), Is.False);
+			Assert.That(rollingArray.EndsWith(expected), Is.False);
 			rollingArray.Add('C');
-			Assert.That(rollingArray.EndToken(), Is.False);
+			Assert.That(rollingArray.EndsWith(expected), Is.False);
 			rollingArray.Add('}');
-			Assert.That(rollingArray.EndToken(), Is.False);
+			Assert.That(rollingArray.EndsWith(expected), Is.False);
 			rollingArray.Add('}');
-			Assert.That(rollingArray.EndToken(), Is.True);
+			Assert.That(rollingArray.EndsWith(expected), Is.True);
 		}
 	}
 }

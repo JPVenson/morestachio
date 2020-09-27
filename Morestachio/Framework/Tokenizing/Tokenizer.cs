@@ -83,9 +83,10 @@ namespace Morestachio.Framework.Tokenizing
 			return formatChar == '\'' || formatChar == '\"';
 		}
 
+		private static char[] _whitespaceDelimiters = new[] { '\r', '\n', '\t', ' ' };
 		internal static char[] GetWhitespaceDelimiters()
 		{
-			return new[] {'\r', '\n', '\t', ' '};
+			return _whitespaceDelimiters;
 		}
 
 		internal static bool IsWhiteSpaceDelimiter(char formatChar)
@@ -206,129 +207,13 @@ namespace Morestachio.Framework.Tokenizing
 			public int Length { get; }
 			public string Value { get; }
 		}
-		
-		internal class RollingArray
-		{
-			public RollingArray(int size)
-			{
-				_buffer = new char[size];
-				_index = -1;
-
-				//new char[] { 'A'0, 'B'1, 'C'2, 'D'3 }
-				//new char[] { 'E'3, 'B'0, 'C'1, 'D'2 }
-				//new char[] { 'E'2, 'F'3, 'C'0, 'D'1 }
-				//new char[] { 'E'1, 'F'2, 'G'3, 'D'0 }
-			}
-
-			private int _index;
-			private char[] _buffer;
-
-			public int Length
-			{
-				get
-				{
-					return _buffer.Length;
-				}
-			}
-
-			internal int Pos()
-			{
-				return _index % _buffer.Length;
-			}
-
-			public char this[int index]
-			{
-				get
-				{
-					return _buffer[Translate(index)];
-				}
-			}
-
-			internal int Translate(int index)
-			{
-				var inx = (Pos() + 1) + index;
-				if (inx >= _buffer.Length)
-				{
-					return inx - _buffer.Length;
-				}
-
-				return inx;
-			}
-
-			public char[] ToArray()
-			{
-				char[] arr;
-
-				if (_index < _buffer.Length)
-				{
-					arr = new char[_index + 1];
-					for (int i = 0; i < _index + 1; i++)
-					{
-						arr[i] = _buffer[i];
-					}
-				}
-				else
-				{
-					arr = new char[_buffer.Length];
-					for (int i = 0; i < _buffer.Length; i++)
-					{
-						arr[i] = this[i];
-					}
-				}
 
 
-				return arr;
-			}
-
-			public void Add(char c)
-			{
-				_index += 1;
-				_buffer[Pos()] = c;
-			}
-
-			public bool StartToken(string token = "{{")
-			{
-				try
-				{
-					for (int i = 0; i < token.Length; i++)
-					{
-						var tC = token[token.Length - (i + 1)];
-						var bC = this[_buffer.Length - (i + 1)];
-						if (tC != bC)
-						{
-							return false;
-						}
-					}
-
-					return true;
-				}
-				catch (Exception e)
-				{
-					Console.WriteLine(e);
-					throw;
-				}
-			}
-
-			public bool EndToken(string token = "}}")
-			{
-				for (int i = 0; i < token.Length; i++)
-				{
-					var tC = token[token.Length - (i + 1)];
-					var bC = this[_buffer.Length - (i + 1)];
-					if (tC != bC)
-					{
-						return false;
-					}
-				}
-
-				return true;
-			}
-		}
 
 		private static IEnumerable<TokenMatch> MatchTokens(string template,
-			TokenzierContext context)
+			TokenzierContext context,
+			RollingArray<char> lastChars)
 		{
-			var lastChars = new RollingArray(3);
 
 			var elementIndex = -1;
 			char? isInString = null;
@@ -353,11 +238,11 @@ namespace Morestachio.Framework.Tokenizing
 						isInString = null;
 					}
 				}
-				else if (lastChars.StartToken(context.PrefixToken))
+				else if (lastChars.EndsWith(context.PrefixToken))
 				{
 					elementIndex = i - 1;
 				}
-				else if (elementIndex != -1 && lastChars.EndToken(context.SuffixToken))
+				else if (elementIndex != -1 && lastChars.EndsWith(context.SuffixToken))
 				{
 					var token = template.Substring(elementIndex, i - elementIndex + 1);
 					yield return new TokenMatch(elementIndex, token);
@@ -453,8 +338,11 @@ namespace Morestachio.Framework.Tokenizing
 
 				return token;
 			}
-			
-			foreach (var match in MatchTokens(templateString, context))
+
+
+			var lastChars = new RollingArray<char>(Math.Max(context.PrefixToken.Length, context.SuffixToken.Length) + 1);
+
+			foreach (var match in MatchTokens(templateString, context, lastChars))
 			{
 				var tokenValue = match.Value;
 				var trimmedToken = tokenValue
@@ -486,52 +374,85 @@ namespace Morestachio.Framework.Tokenizing
 				}
 				else
 				{
+					var trimLeading = context.TrimLeading;
+					var trimTailing = context.TrimTailing;
+
 					//check if the token is appended by a -| in that case we want to trim all whitespaces at the end of any following content
 					if (trimmedToken.StartsWith("-"))
 					{
 						var pipeIndex = trimmedToken.IndexOf('|');
-						for (int i = 1; i < pipeIndex - 1; i++)
+						if (pipeIndex != -1)
 						{
-							if (trimmedToken[i] != ' ')
+							var stopEx = false;
+							//it is possible for an number or an operation to start with an - so the pipe is optional here
+							for (int i = 1; i < pipeIndex - 1; i++)
 							{
-								context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation
-										.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "trim", "trim",
-									"{{operation | -}}", $" expected to find | - with only whitespaces between the pipe and minus but found '{trimmedToken[i]}'"));
+								if (trimmedToken[i] != ' ')
+								{
+									context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation
+											.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "trim", "trim",
+										"{{operation | -}}", $" expected to find '- |' with only whitespaces between the pipe and minus but found '{trimmedToken[i]}'"));
+									stopEx = true;
+									break;
+								}
+							}
+
+							if (stopEx)
+							{
 								continue;
 							}
+
+							trimmedToken = trimmedToken.Substring(pipeIndex + 1).Trim();
+							trimLeading = true;
+
+							tokens.Add(new TokenPair(TokenType.TrimPrependedLineBreaks, trimmedToken, context.CurrentLocation, EmbeddedState.Previous));
 						}
-
-						trimmedToken = trimmedToken.Substring(pipeIndex + 1).Trim();
-
-						tokens.Add(new TokenPair(TokenType.TrimPrependedLineBreaks, trimmedToken, context.CurrentLocation, EmbeddedState.Previous));
 					}
 
 					//yield front content.
 					if (match.Index > context.Character)
 					{
+						if (trimLeading)
+						{
+							tokens.Add(new TokenPair(TokenType.TrimPrependedLineBreaks, trimmedToken, context.CurrentLocation, EmbeddedState.Previous));
+						}
 						tokens.Add(new TokenPair(TokenType.Content, templateString.Substring(context.Character, match.Index - context.Character),
 							context.CurrentLocation));
 					}
+
 					context.SetLocation(match.Index + context.PrefixToken.Length);
-					var appendTrimToken = false;
 
 					//check if the token is appended by a |- in that case we want to trim all folowing whitespaces
 					if (trimmedToken.EndsWith("-"))
 					{
 						var pipeIndex = trimmedToken.LastIndexOf('|');
+						if (pipeIndex == -1)
+						{
+							context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation
+									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "trim", "trim",
+								"{{operation | -}}", $" expected to find '| -' but missing '|'"));
+						}
+
+						var stopEx = false;
 						for (int i = pipeIndex + 1; i < trimmedToken.Length - 1; i++)
 						{
 							if (trimmedToken[i] != ' ')
 							{
 								context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation
 										.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "trim", "trim",
-									"{{operation | -}}", $" expected to find | - with only whitespaces between the pipe and minus but found '{trimmedToken[i]}'"));
-								continue;
+									"{{operation | -}}", $" expected to find '| -' with only whitespaces between the pipe and minus but found '{trimmedToken[i]}'"));
+								stopEx = true;
+								break;
 							}
 						}
 
+						if (stopEx)
+						{
+							continue;
+						}
+
 						trimmedToken = trimmedToken.Remove(pipeIndex).Trim();
-						appendTrimToken = true;
+						trimTailing = true;
 					}
 
 					if (trimmedToken.StartsWith("#declare ", true, CultureInfo.InvariantCulture))
@@ -1023,7 +944,7 @@ namespace Morestachio.Framework.Tokenizing
 						}
 					}
 
-					if (appendTrimToken)
+					if (trimTailing)
 					{
 						tokens.Add(new TokenPair(TokenType.TrimLineBreaks, trimmedToken, context.CurrentLocation, EmbeddedState.Next));
 					}

@@ -1613,6 +1613,29 @@ Static
 			Assert.That(genTemplate, Is.EqualTo(@"WorldStaticWorld"));
 		}
 
+		[Test]
+		public void TestCanRemoveLineBreaksWithOption()
+		{
+			var template = @"{{#SET OPTION TrimTailing = true}}{{#SET OPTION TrimLeading = true}}
+{{data}}
+Static
+
+{{data}}";
+
+			var parsingOptions = new ParserOptions(template, null, DefaultEncoding)
+			{
+				//Timeout = TimeSpan.FromSeconds(5)
+			};
+			parsingOptions.Formatters.AddFromType(typeof(EqualityFormatter));
+			var results = Parser.ParseWithOptions(parsingOptions);
+			TestLocationsInOrder(results);
+			var genTemplate = results.CreateAndStringify(new
+			{
+				data = "World"
+			});
+			Assert.That(genTemplate, Is.EqualTo(@"WorldStaticWorld"));
+		}
+
 		private class CollectionContextInfo
 		{
 			public int IndexProp { private get; set; }
