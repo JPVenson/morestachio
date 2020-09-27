@@ -287,7 +287,7 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
-		public void TemplateDoesNotScope()
+		public void TemplateIfDoesNotScope()
 		{
 			var template =
 				@"{{#IF data}}{{.}}{{/IF}}";
@@ -448,6 +448,56 @@ namespace Morestachio.Tests
 			var result = parsedTemplate.CreateAndStringify(model);
 
 			Assert.AreEqual(model["root"], result);
+		}
+
+		[Test]
+		public void TemplateCanRenderSwitchCase()
+		{
+			var template =
+				"{{#SWITCH data}}" +
+				"{{#CASE 'tset'}}FAIL{{/CASE}}" +
+				"{{#CASE 123}}FAIL{{/CASE}}" +
+				"{{#CASE root}}FAIL{{/CASE}}" +
+				"{{#CASE 'test'}}SUCCESS{{/CASE}}" +
+				"{{/SWITCH}}";
+
+			var parsedTemplate =
+				Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding));
+
+			var model = new Dictionary<string, object>()
+			{
+				{"data", "test" },
+				{"root", "tset" }
+			};
+
+			var result = parsedTemplate.CreateAndStringify(model);
+
+			Assert.That(result, Is.EqualTo("SUCCESS"));
+		}
+
+		[Test]
+		public void TemplateCanRenderDefaultSwitchCase()
+		{
+			var template =
+				"{{#SWITCH data}}" +
+				"{{#CASE 'tset'}}FAIL{{/CASE}}" +
+				"{{#CASE 123}}FAIL{{/CASE}}" +
+				"{{#CASE root}}FAIL{{/CASE}}" +
+				"{{#DEFAULT}}SUCCESS{{/DEFAULT}}" +
+				"{{/SWITCH}}";
+
+			var parsedTemplate =
+				Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding));
+
+			var model = new Dictionary<string, object>()
+			{
+				{"data", "test" },
+				{"root", "tset" }
+			};
+
+			var result = parsedTemplate.CreateAndStringify(model);
+
+			Assert.That(result, Is.EqualTo("SUCCESS"));
 		}
 
 		[Test]

@@ -83,6 +83,36 @@
 		Alias,
 
 		/// <summary>
+		///		Defines an switch statement. Must be used in conjunction with an nested case statement.
+		/// </summary>
+		SwitchOpen,
+
+		/// <summary>
+		///		Defines an case statement. Must be used in conjunction with an enclosing Switch statement.
+		/// </summary>
+		SwitchCaseOpen,
+		
+		/// <summary>
+		///		Defines an default statement. Must be used in conjunction with an enclosing Switch statement.
+		/// </summary>
+		SwitchDefaultOpen,
+
+		/// <summary>
+		///		Defines the end of a switch-scope
+		/// </summary>
+		SwitchClose,
+
+		/// <summary>
+		///		Defines the end of a switch-case-scope
+		/// </summary>
+		SwitchCaseClose,
+		
+		/// <summary>
+		///		Defines the end of a switch-default-scope
+		/// </summary>
+		SwitchDefaultClose,
+
+		/// <summary>
 		///		Defines an if. It Works the same as the "#" keyword but does not scope its body to it.
 		/// </summary>
 		If,

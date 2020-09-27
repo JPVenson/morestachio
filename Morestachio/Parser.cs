@@ -4,6 +4,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items;
+using Morestachio.Document.Items.SwichCase;
 using Morestachio.Document.TextOperations;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Tokenizing;
@@ -142,6 +143,33 @@ namespace Morestachio
 					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					currentDocumentItem.Document.Add(nestedDocument);
 				}
+				else if (currentToken.Type.Equals(TokenType.SwitchOpen))
+				{
+					var nestedDocument = new SwitchDocumentItem(currentToken.MorestachioExpression)
+					{
+						ExpressionStart = currentToken.TokenLocation
+					};
+					buildStack.Push(new DocumentScope(nestedDocument, getScope));
+					currentDocumentItem.Document.Add(nestedDocument);
+				}
+				else if (currentToken.Type.Equals(TokenType.SwitchCaseOpen))
+				{
+					var nestedDocument = new SwitchCaseDocumentItem(currentToken.MorestachioExpression)
+					{
+						ExpressionStart = currentToken.TokenLocation
+					};
+					buildStack.Push(new DocumentScope(nestedDocument, getScope));
+					currentDocumentItem.Document.Add(nestedDocument);
+				}
+				else if (currentToken.Type.Equals(TokenType.SwitchDefaultOpen))
+				{
+					var nestedDocument = new SwitchDefaultDocumentItem()
+					{
+						ExpressionStart = currentToken.TokenLocation
+					};
+					buildStack.Push(new DocumentScope(nestedDocument, getScope));
+					currentDocumentItem.Document.Add(nestedDocument);
+				}
 				else if (currentToken.Type.Equals(TokenType.WhileLoopOpen))
 				{
 					var nestedDocument = new WhileLoopDocumentItem(currentToken.MorestachioExpression)
@@ -193,7 +221,10 @@ namespace Morestachio
 						|| currentToken.Type.Equals(TokenType.ElseClose)
 						|| currentToken.Type.Equals(TokenType.WhileLoopClose)
 						|| currentToken.Type.Equals(TokenType.DoLoopClose)
-						|| currentToken.Type.Equals(TokenType.RepeatLoopClose))
+						|| currentToken.Type.Equals(TokenType.RepeatLoopClose)
+						|| currentToken.Type.Equals(TokenType.SwitchCaseClose)
+						|| currentToken.Type.Equals(TokenType.SwitchDefaultClose)
+						|| currentToken.Type.Equals(TokenType.SwitchClose))
 				{
 					DocumentScope scope = buildStack.Peek();
 					if (scope.HasAlias) //are we in a alias then remove it

@@ -672,6 +672,129 @@ namespace Morestachio.Framework.Tokenizing
 								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "repeat", "{{#repeat Expression}}"));
 						}
 					}
+					else if (trimmedToken.StartsWith("#switch ", true, CultureInfo.InvariantCulture))
+					{
+						var token = TrimToken(trimmedToken, "switch");
+						var eval = EvaluateNameFromToken(token);
+						token = eval.Value;
+						if (eval.Name != null)
+						{
+							context.Errors.Add(new MorestachioSyntaxError(
+								context.CurrentLocation
+									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "#switch", "AS", "No Alias"));
+						}
+
+						scopestack.Push(new ScopeStackItem(TokenType.SwitchOpen, token, match.Index));
+
+						if (token.Trim() != "")
+						{
+							token = token.Trim();
+							tokens.Add(new TokenPair(TokenType.SwitchOpen,
+								token,
+								context.CurrentLocation, ExpressionParser.ParseExpression(token, context)));
+						}
+						else
+						{
+							context.Errors.Add(new InvalidPathSyntaxError(context.CurrentLocation
+								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), ""));
+						}
+					}
+					else if (trimmedToken.Equals("/switch", StringComparison.InvariantCultureIgnoreCase))
+					{
+						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.SwitchOpen)
+						{
+							var token = scopestack.Pop().Value;
+							tokens.Add(new TokenPair(TokenType.SwitchClose, token,
+								context.CurrentLocation));
+						}
+						else
+						{
+							context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
+								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "switch", "{{#switch Expression}}"));
+						}
+					}
+					else if (trimmedToken.StartsWith("#case ", true, CultureInfo.InvariantCulture))
+					{
+						var token = TrimToken(trimmedToken, "case");
+						var eval = EvaluateNameFromToken(token);
+						token = eval.Value;
+						if (eval.Name != null)
+						{
+							context.Errors.Add(new MorestachioSyntaxError(
+								context.CurrentLocation
+									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "#case", "AS", "No Alias"));
+						}
+
+						scopestack.Push(new ScopeStackItem(TokenType.SwitchCaseOpen, token, match.Index));
+
+						if (token.Trim() != "")
+						{
+							token = token.Trim();
+							tokens.Add(new TokenPair(TokenType.SwitchCaseOpen,
+								token,
+								context.CurrentLocation, ExpressionParser.ParseExpression(token, context)));
+						}
+						else
+						{
+							context.Errors.Add(new InvalidPathSyntaxError(context.CurrentLocation
+								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), ""));
+						}
+					}
+					else if (trimmedToken.Equals("/case", StringComparison.InvariantCultureIgnoreCase))
+					{
+						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.SwitchCaseOpen)
+						{
+							var token = scopestack.Pop().Value;
+							tokens.Add(new TokenPair(TokenType.SwitchCaseClose, token,
+								context.CurrentLocation));
+						}
+						else
+						{
+							context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
+								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "case", "{{#case Expression}}"));
+						}
+					}
+					else if (trimmedToken.Equals("#default", StringComparison.InvariantCultureIgnoreCase))
+					{
+						var token = TrimToken(trimmedToken, "default");
+						var eval = EvaluateNameFromToken(token);
+						token = eval.Value;
+						if (eval.Name != null)
+						{
+							context.Errors.Add(new MorestachioSyntaxError(
+								context.CurrentLocation
+									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "#default", "AS", "No Alias"));
+						}
+
+						scopestack.Push(new ScopeStackItem(TokenType.SwitchDefaultOpen, token, match.Index));
+
+						if (token.Trim() == "")
+						{
+							token = token.Trim();
+							tokens.Add(new TokenPair(TokenType.SwitchDefaultOpen,
+								token,
+								context.CurrentLocation));
+						}
+						else
+						{
+							context.Errors.Add(new InvalidPathSyntaxError(context.CurrentLocation
+								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), ""));
+						}
+					}
+					else if (trimmedToken.Equals("/default", StringComparison.InvariantCultureIgnoreCase))
+					{
+						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.SwitchDefaultOpen)
+						{
+							var token = scopestack.Pop().Value;
+							tokens.Add(new TokenPair(TokenType.SwitchDefaultClose, token,
+								context.CurrentLocation));
+						}
+						else
+						{
+							context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
+								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "default", "{{#default}}"));
+						}
+					}
 					else if (trimmedToken.StartsWith("#if ", true, CultureInfo.InvariantCulture))
 					{
 						var token = TrimToken(trimmedToken, "if");

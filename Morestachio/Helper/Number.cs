@@ -1332,6 +1332,8 @@ namespace Morestachio.Helper
 			{
 				return ToSByte(null) == other.ToSByte(null);
 			}
+
+			return false;
 			throw new InvalidCastException($"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
 		}
 

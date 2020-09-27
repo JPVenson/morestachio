@@ -1,9 +1,9 @@
 ﻿#if ValueTask
 using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
-using Promise = System.Threading.Tasks.ValueTask;
 #else
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 #endif
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +23,7 @@ namespace Morestachio.Document.Items
 	/// <summary>
 	///		Emits N items that are in the collection
 	/// </summary>
-	[System.Serializable]
+	[Serializable]
 	public class EachDocumentItem : ExpressionDocumentItemBase
 	{
 		/// <summary>
