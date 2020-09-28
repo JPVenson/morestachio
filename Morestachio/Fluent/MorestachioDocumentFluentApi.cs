@@ -37,18 +37,19 @@ namespace Morestachio.Fluent
 			var stack = new Stack<Tuple<IDocumentItem, IDocumentItem>>();
 			stack.Push(new Tuple<IDocumentItem, IDocumentItem>(parent?.Item, document));
 			var rootNode = new MorestachioNode(parent, document);
-			nodes.Add(rootNode);
+			//nodes.Add(rootNode);
 			while (stack.Any())
 			{
 				var item = stack.Pop();
 				var parentNode = nodes.Find(f => f.Item == item.Item2) ?? rootNode;
-				foreach (var documentItem in item.Item2.Children)
+
+				var morestachioNode = new MorestachioNode(parentNode, item.Item2);
+				nodes.Add(morestachioNode);
+				parentNode.Leafs.Add(morestachioNode);
+
+				foreach (var documentItem in item.Item2.Children.Reverse())
 				{
 					stack.Push(new Tuple<IDocumentItem, IDocumentItem>(item.Item2, documentItem));
-					var morestachioNode = new MorestachioNode(parentNode, documentItem);
-
-					nodes.Add(morestachioNode);
-					parentNode.Leafs.Add(morestachioNode);
 				}
 			}
 

@@ -231,7 +231,10 @@ namespace Morestachio
 					{
 						foreach (var scopeLocalVariable in scope.LocalVariables)
 						{
-							currentDocumentItem.Document.Add(new RemoveAliasDocumentItem(scopeLocalVariable, scope.VariableScopeNumber));
+							currentDocumentItem.Document.Add(new RemoveAliasDocumentItem(scopeLocalVariable, scope.VariableScopeNumber)
+							{
+								ExpressionStart = currentToken.TokenLocation,
+							});
 						}
 					}
 					// remove the last document from the stack and go back to the parents
@@ -282,12 +285,18 @@ namespace Morestachio
 				else if (currentToken.Type.Equals(TokenType.VariableVar))
 				{
 					var evaluateVariableDocumentItem = new EvaluateVariableDocumentItem(currentToken.Value,
-						currentToken.MorestachioExpression);
+						currentToken.MorestachioExpression)
+					{
+						ExpressionStart = currentToken.TokenLocation
+					};
 					currentDocumentItem.Document.Add(evaluateVariableDocumentItem);
 				}
 				else if (currentToken.Type.Equals(TokenType.WriteLineBreak))
 				{
-					currentDocumentItem.Document.Add(new TextEditDocumentItem(new AppendLineBreakTextOperation(), currentToken.IsEmbeddedToken));
+					currentDocumentItem.Document.Add(new TextEditDocumentItem(new AppendLineBreakTextOperation(), currentToken.IsEmbeddedToken)
+					{
+						ExpressionStart = currentToken.TokenLocation
+					});
 				}
 				else if (currentToken.Type.Equals(TokenType.TrimLineBreak))
 				{
@@ -295,7 +304,10 @@ namespace Morestachio
 					{
 						LineBreaks = 1,
 						LineBreakTrimDirection = LineBreakTrimDirection.Begin
-					}, currentToken.IsEmbeddedToken));
+					}, currentToken.IsEmbeddedToken)
+					{
+						ExpressionStart = currentToken.TokenLocation
+					});
 				}
 				else if (currentToken.Type.Equals(TokenType.TrimLineBreaks))
 				{
@@ -303,7 +315,10 @@ namespace Morestachio
 					{
 						LineBreaks = 0,
 						LineBreakTrimDirection = LineBreakTrimDirection.Begin
-					}, currentToken.IsEmbeddedToken));
+					}, currentToken.IsEmbeddedToken)
+					{
+						ExpressionStart = currentToken.TokenLocation
+					});
 				}
 				else if (currentToken.Type.Equals(TokenType.TrimPrependedLineBreaks))
 				{
@@ -311,12 +326,18 @@ namespace Morestachio
 					{
 						LineBreaks = 0,
 						LineBreakTrimDirection = LineBreakTrimDirection.End
-					}, currentToken.IsEmbeddedToken));
+					}, currentToken.IsEmbeddedToken)
+					{
+						ExpressionStart = currentToken.TokenLocation
+					});
 				}
 				else if (currentToken.Type.Equals(TokenType.TrimEverything))
 				{
 					currentDocumentItem.Document.Add(new TextEditDocumentItem(new TrimAllWhitespacesTextOperation(), 
-						currentToken.IsEmbeddedToken));
+						currentToken.IsEmbeddedToken)
+					{
+						ExpressionStart = currentToken.TokenLocation
+					});
 				}
 				else if (currentToken.Type.Equals(TokenType.VariableLet))
 				{
@@ -327,7 +348,10 @@ namespace Morestachio
 							.VariableScopeNumber;
 					}
 					var evaluateVariableDocumentItem = new EvaluateVariableDocumentItem(currentToken.Value,
-						currentToken.MorestachioExpression, scope);
+						currentToken.MorestachioExpression, scope)
+					{
+						ExpressionStart = currentToken.TokenLocation
+					};
 					currentDocumentItem.Document.Add(evaluateVariableDocumentItem);
 					if (buildStack.Count > 1)
 					{

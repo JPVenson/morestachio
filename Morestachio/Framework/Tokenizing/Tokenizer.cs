@@ -438,7 +438,7 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							if (trimmedToken[i] != ' ')
 							{
-								context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation
+								context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation.Offset(1)
 										.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "trim", "trim",
 									"{{operation | -}}", $" expected to find '| -' with only whitespaces between the pipe and minus but found '{trimmedToken[i]}'"));
 								stopEx = true;

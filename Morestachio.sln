@@ -30,7 +30,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.LessCompiler", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.AspNetCore", "Morestachio.AspNetCore\Morestachio.AspNetCore.csproj", "{26DEAAC0-3555-479C-8F7B-6C910C767832}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morestachio.Benchmark", "Morestachio.Benchmark\Morestachio.Benchmark.csproj", "{F1EBD38D-D3C2-4EE6-BD1E-661C93711B35}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.Benchmark", "Morestachio.Benchmark\Morestachio.Benchmark.csproj", "{F1EBD38D-D3C2-4EE6-BD1E-661C93711B35}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

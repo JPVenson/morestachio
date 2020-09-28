@@ -98,15 +98,10 @@ namespace Morestachio.Tests
 			var rollingArray = new RollingArray<char>(3);
 			rollingArray.Add('A');
 			Assert.That(rollingArray.EndsWith(expected), Is.False);
-			Assert.That(rollingArray.EndsWith(new []{'A'}), Is.True);
 			rollingArray.Add('B');
 			Assert.That(rollingArray.EndsWith(expected), Is.False);
-			Assert.That(rollingArray.EndsWith(new []{'A'}), Is.True);
-			Assert.That(rollingArray.EndsWith(new []{'A','B'}), Is.True);
 			rollingArray.Add('{');
 			Assert.That(rollingArray.EndsWith(expected), Is.False);
-			Assert.That(rollingArray.EndsWith(new []{'A','B'}), Is.True);
-			Assert.That(rollingArray.EndsWith(new []{'A','B', '{'}), Is.True);
 			rollingArray.Add('{');
 			Assert.That(rollingArray.EndsWith(expected), Is.True);
 			rollingArray.Add('C');

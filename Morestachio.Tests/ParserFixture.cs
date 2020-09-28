@@ -35,27 +35,34 @@ namespace Morestachio.Tests
 
 		public static void TestLocationsInOrder(MorestachioDocumentInfo documentInfo)
 		{
-			//var api = documentInfo
-			//	.Fluent()
-			//	.SearchForward(f => !(f is MorestachioDocument), false);
-			//var lastLocation = new CharacterLocation(0, -1);
-			//var visitor = new ToParsableStringDocumentVisitor();
+			var api = documentInfo
+				.Fluent()
+				.SearchForward(f => !(f is MorestachioDocument), false);
+			var lastLocation = new CharacterLocation(0, -1);
+			var visitor = new ToParsableStringDocumentVisitor();
 
-			//while (api.Context.OperationStatus)
-			//{
-			//	Assert.That(api.Context.CurrentNode.Item.ExpressionStart, Is.GreaterThan(lastLocation));
-			//	lastLocation = api.Context.CurrentNode.Item.ExpressionStart;
+			while (api.Context.OperationStatus)
+			{
+				if (api.Context.CurrentNode.Item is TextEditDocumentItem || api.Context.CurrentNode.Item is RemoveAliasDocumentItem)
+				{
+					Assert.That(api.Context.CurrentNode.Item.ExpressionStart, Is.GreaterThan(lastLocation).Or.EqualTo(lastLocation));
+				}
+				else
+				{
+					Assert.That(api.Context.CurrentNode.Item.ExpressionStart, Is.GreaterThan(lastLocation));
+					lastLocation = api.Context.CurrentNode.Item.ExpressionStart;
+				}
 
-			//	//if (api.Context.CurrentNode.Item is ExpressionDocumentItemBase expDoc)
-			//	//{
-			//	//	lastLocation = TestExpressionLocationsInOrderInternal(expDoc, lastLocation);
-			//	//}
-			//	//else
-			//	//{
-			//	//}
-			//	visitor.StringBuilder.Clear();
-			//	api.SearchForward(f => true, false);
-			//}
+				//if (api.Context.CurrentNode.Item is ExpressionDocumentItemBase expDoc)
+				//{
+				//	lastLocation = TestExpressionLocationsInOrderInternal(expDoc, lastLocation);
+				//}
+				//else
+				//{
+				//}
+				visitor.StringBuilder.Clear();
+				api.SearchForward(f => true, false);
+			}
 		}
 
 		private static CharacterLocation TestExpressionLocationsInOrderInternal(ExpressionDocumentItemBase expDoc,
@@ -75,7 +82,7 @@ namespace Morestachio.Tests
 						expStack.Enqueue(listExpression);
 					}
 				}
-				else 
+				else
 				{
 					if (nextExpression is MorestachioExpression normalExp)
 					{
@@ -84,7 +91,7 @@ namespace Morestachio.Tests
 							expStack.Enqueue(expressionArgument);
 						}
 					}
-					Assert.That(nextExpression.Location, Is.GreaterThan(lastLocation));
+					Assert.That(nextExpression.Location, Is.GreaterThan(lastLocation).Or.EqualTo(lastLocation));
 					lastLocation = nextExpression.Location;
 				}
 			}
@@ -342,22 +349,23 @@ namespace Morestachio.Tests
 		[Test]
 		public void ParserCanVariableScope()
 		{
-			var template = "{{#var global = data}}" +
-						   "{{#data}}" +
-							   "{{global}}" +
-							   "{{#let global = 'Burns '}}" +
-							   "{{global}}" +
-							   "{{#let global = 'Likes '}}" +
-							   "{{global}}" +
-							   "{{#let local = 'Likes '}}" +
-							   "{{#var global = 'Miss '}}" +
-						   "{{/data}}" +
-						   "{{local}}" +
-						   "{{global}}" +
-						   "{{#var global = 'Money '}}" +
-						   "{{global}}" +
-						   "{{#let global = 'Alot'}}" +
-						   "{{global}}";
+			var template =
+				@"{{#var global = data |-}}
+{{#data|-}}
+		{{global|-}}
+		{{#let global = 'Burns '|-}}
+		{{global|-}}
+		{{#let global = 'Likes '|-}}
+		{{global|-}}
+		{{#let local = 'Likes '|-}}
+		{{#var global = 'Miss '|-}}
+{{/data|-}}
+{{local|-}}
+{{global|-}}
+{{#var global = 'Money '|-}}
+{{global|-}}
+{{#let global = 'Alot'|-}}
+{{global|-}}";
 			var parsingOptions = new ParserOptions(template, null,
 				DefaultEncoding);
 
@@ -1532,7 +1540,7 @@ namespace Morestachio.Tests
 			Assert.That(genTemplate, Is.EqualTo("0,1,2,3,4,"));
 			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, results.Document);
 		}
-			
+
 
 		[Test]
 		public void TestWhileLoopContext()
