@@ -8,6 +8,7 @@ using Morestachio.Document;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
+using Morestachio.Helper;
 using NUnit.Framework;
 
 namespace Morestachio.Tests.PerfTests
@@ -15,6 +16,37 @@ namespace Morestachio.Tests.PerfTests
 	[TestFixture]
 	public class PerfHarness
 	{
+		[Test]
+		[Explicit]
+		public void TestNumberCalls()
+		{
+			var sw = new Stopwatch();
+			var iterrations = 500_000F;
+			var a = 0;
+			sw.Start();
+			for (int i = 0; i < iterrations; i++)
+			{
+				a += 1;
+			}
+			sw.Stop();
+			var csAdd = sw.Elapsed;
+			sw.Reset();
+			
+			Number b = 0;
+			Number c = 1;
+			sw.Start();
+			for (int i = 0; i < iterrations; i++)
+			{
+				b += c;
+			}
+			sw.Stop();
+			var nrAdd = sw.Elapsed;
+
+			Console.WriteLine($"C# calls took '{csAdd}'({csAdd.Ticks / iterrations}) " +
+			                  $"and Number took '{nrAdd}'({nrAdd.Ticks / iterrations}) that is " +
+			                  $"'{(nrAdd.Ticks / (float)csAdd.Ticks) * 100}'% of baseline");
+		}
+
 		[Test]
 		[Explicit]
 		//[Ignore("Performance tests")]
