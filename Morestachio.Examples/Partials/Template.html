@@ -1,10 +1,9 @@
 ﻿{{#DECLARE PartialA |-}}
 	{{#IF otherother |-}}
 		{{otherother}}
-	{{-| /IF |-}}
-	{{-| #ELSE |-}}
-			Invalid Context
+	{{-| #IFELSE |-}}
+		Invalid Context
 	{{-| /ELSE |-}}
-	{{-| /DECLARE |-}}
-This is an partial included: ({{#INCLUDE PartialA}}) within the current context.
+{{-| /DECLARE |-}}
+This is an partial included: ({{#INCLUDE PartialA}}) within the current context.<br/>
 This is an partial included: ({{#INCLUDE PartialA WITH other}}) with an set context.
