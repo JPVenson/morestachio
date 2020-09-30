@@ -1,0 +1,26 @@
+﻿<table>
+	<thead>
+	<tr>
+		<th>Value</th>
+		<th>$first</th>
+		<th>$index</th>
+		<th>$middel</th>
+		<th>$last</th>
+		<th>$odd</th>
+		<th>$even</th>
+	</tr>
+	</thead>
+	<tbody>
+	{{#each data AS item |-}}
+	<tr>
+		<td>{{item}}</td>
+		<td>{{$first}}</td>
+		<td>{{$index}}</td>
+		<td>{{$middel}}</td>
+		<td>{{$last}}</td>
+		<td>{{$odd}}</td>
+		<td>{{$even}}</td>
+	</tr>
+	{{-| /each}}
+	</tbody>
+</table>

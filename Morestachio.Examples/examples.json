@@ -1,0 +1,42 @@
+[
+  {
+    "Titel": "Hello World",
+    "FolderName": "HelloWorld"
+  },
+  {
+    "Titel": "Collections",
+    "FolderName": "EachExample"
+  },
+  {
+    "Titel": "Custom Formatter",
+    "FolderName": "CustomFormatterExample"
+  },
+  {
+    "Titel": "How to use - Dictionary",
+    "DataCsCode": "@ExampleRepro/HowToUse/DataGenerationDictionary.cs",
+    "Template": "@ExampleRepro/HowToUse/Template.html"
+  },
+  {
+    "Titel": "How to use - Objects",
+    "DataCsCode": "@ExampleRepro/HowToUse/DataGenerationAnonObject.cs",
+    "Template": "@ExampleRepro/HowToUse/Template.html"
+  },
+  {
+    "Titel": "How to use - Scopeing",
+    "DataCsCode": "@ExampleRepro/CodeProjectExamples/Scoping/DataGeneration.cs",
+    "Template": "@ExampleRepro/CodeProjectExamples/Scoping/Template.html"
+  },
+  {
+    "Titel": "How to use - Sub Paths",
+    "DataCsCode": "@ExampleRepro/CodeProjectExamples/NestedObjects/DataGeneration.cs",
+    "Template": "@ExampleRepro/CodeProjectExamples/NestedObjects/Template.html"
+  },
+  {
+    "Titel": "Collection Special Variables",
+    "FolderName": "CodeProjectExamples/CollectionVariables"
+  },
+  {
+    "Titel": "Partials",
+    "FolderName": "Partials"
+  }
+]
