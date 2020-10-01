@@ -1719,7 +1719,9 @@ namespace Morestachio.Helper
 		/// <inheritdoc />
 		public override bool Equals(object obj)
 		{
-			return (obj is Number other && Equals(other)) || (obj is IConvertible objCom && new Number(objCom).Same(this));
+			return (obj is Number other && Equals(other)) 
+			       || ((IsIntegralNumber(obj) || IsFloatingPointNumber(obj)) &&
+				       obj is IConvertible objCom && new Number(objCom).Same(this));
 		}
 
 		/// <inheritdoc />

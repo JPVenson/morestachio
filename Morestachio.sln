@@ -32,6 +32,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.AspNetCore", "M
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.Benchmark", "Morestachio.Benchmark\Morestachio.Benchmark.csproj", "{F1EBD38D-D3C2-4EE6-BD1E-661C93711B35}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BuildScripts", "BuildScripts", "{5B530A98-F019-4649-B82F-BE04727948F9}"
+	ProjectSection(SolutionItems) = preProject
+		_config.yml = _config.yml
+		Directory.Build.props = Directory.Build.props
+		LICENSE = LICENSE
+		mustachio@2x.png = mustachio@2x.png
+		nuget.config = nuget.config
+		README.md = README.md
+		Build\updateVersion.ps1 = Build\updateVersion.ps1
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
