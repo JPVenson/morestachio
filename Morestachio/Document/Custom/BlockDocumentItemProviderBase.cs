@@ -27,7 +27,7 @@ namespace Morestachio.Document.Custom
 		/// </summary>
 		/// <param name="tagOpen">Should contain full tag like <code>#Anything</code> excluding the brackets and any parameter</param>
 		/// <param name="tagClose">Should contain full tag like <code>/Anything</code> excluding the brackets and any parameter</param>
-		public BlockDocumentItemProviderBase(string tagOpen, string tagClose)
+		protected BlockDocumentItemProviderBase(string tagOpen, string tagClose)
 		{
 			TagOpen = tagOpen;
 			TagClose = tagClose;

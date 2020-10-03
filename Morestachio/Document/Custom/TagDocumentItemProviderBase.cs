@@ -17,7 +17,7 @@ namespace Morestachio.Document.Custom
 		///		
 		/// </summary>
 		/// <param name="tag">Should contain full tag like <code>#Anything</code> excluding the brackets and any parameter</param>
-		public TagDocumentItemProviderBase(string tag)
+		protected TagDocumentItemProviderBase(string tag)
 		{
 			_tag = tag;
 		}
