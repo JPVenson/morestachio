@@ -108,6 +108,42 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		[TestCase("d.f", 1)]
+		[TestCase("d.f;Test", 2)]
+		[TestCase("d.f;.Test()", 2)]
+		[TestCase("d.f;.Test(); Other", 3)]
+		[TestCase("d.f; .Test() ; Other", 3)]
+		[TestCase("d.f; .Test() ; Other; 'TEST'", 4)]
+		[TestCase("d.f; .Test() ; 'test'", 3)]
+		[TestCase("d.f; .Test() ; 'test'; acd", 4)]
+		[TestCase("'d'; .Test() ; 'test'; acd", 4)]
+		[TestCase("''; .Test() ; 'test'; acd", 4)]
+		public void ExpressionParserCanParseMany(string expression, int expected)
+		{
+			var context = TokenzierContext.FromText(expression);
+			var expr = new List<IMorestachioExpression>();
+			int parsedBy = 0;
+			var location = 0;
+			while ((location = context.CurrentLocation.ToPosition(context)) < expression.Length)
+			{
+				expr.Add(ExpressionParser.ParseExpression(expression, context, out parsedBy, parsedBy));
+			}
+			Assert.That(context.Errors, Is.Empty);
+			Assert.That(expr.Count, Is.EqualTo(expected));
+
+			var ses = expression.Split(';');
+			for (var index = 0; index < ses.Length; index++)
+			{
+				var s = ses[index];
+				var expPart = s.Trim();
+				var exp = expr[index];
+				var visitor = new ToParsableStringExpressionVisitor();
+				visitor.Visit(exp);
+				Assert.That(visitor.StringBuilder.ToString(), Is.EqualTo(expPart));
+			}
+		}
+
+		[Test]
 		[TestCase(".(.('').())")]
 		[TestCase(".a(.b(.c().d()))")]
 		[TestCase(".f(.fe().P).Fg()")]

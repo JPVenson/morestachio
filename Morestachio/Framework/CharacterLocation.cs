@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using Morestachio.Framework.Expression.Framework;
 using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework
@@ -137,6 +139,22 @@ namespace Morestachio.Framework
 			}
 
 			return Character.CompareTo(other.Character);
+		}
+
+		/// <summary>
+		///		Returns the current char position in relation to the context
+		/// </summary>
+		/// <param name="context"></param>
+		/// <returns></returns>
+		public int ToPosition(TokenzierContext context)
+		{
+			var line = Line - 1;
+			if (line >= 0 && context.Lines.Length > line)
+			{
+				return context.Lines[line] + Character;
+			}
+
+			return Character;
 		}
 	}
 }

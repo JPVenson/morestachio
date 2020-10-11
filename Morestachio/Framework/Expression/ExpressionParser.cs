@@ -206,35 +206,43 @@ namespace Morestachio.Framework.Expression
 		/// <param name="expression"></param>
 		/// <param name="context"></param>
 		/// <returns></returns>
-		public static IMorestachioExpression ParseExpression(string expression,
+		public static IMorestachioExpression ParseExpression(
+			string expression,
 			TokenzierContext context)
 		{
-			if (expression.Length == 0)
+			return ParseExpression(expression, context, out _);
+		}
+		/// <summary>
+		///		Parses the given text to ether an expression or an string
+		/// </summary>
+		/// <param name="text"></param>
+		/// <param name="context"></param>
+		/// <returns></returns>
+		public static IMorestachioExpression ParseExpression(
+			string text,
+			TokenzierContext context,
+			out int parsedUntil,
+			int index = 0)
+		{
+			parsedUntil = 0;
+			if (text.Length == 0)
 			{
 				context.Errors.Add(new MorestachioSyntaxError(
-					context.CurrentLocation.AddWindow(new CharacterSnippedLocation(0, 0, expression)),
+					context.CurrentLocation.AddWindow(new CharacterSnippedLocation(0, 0, text)),
 					"", "", "", "expected ether an path expression or an string value"));
 
 				return null;
 			}
-
-
-			if (Tokenizer.IsStringDelimiter(expression[0]))
+			
+			var nIndex = MorestachioExpression.SkipWhitespaces(text, index);
+			context.AdvanceLocation(nIndex - index);
+			if (Tokenizer.IsStringDelimiter(text[nIndex]))
 			{
-				//its a string constant
-				if (expression[expression.Length - 1] != expression[0])
-				{
-					context.Errors.Add(new MorestachioSyntaxError(
-						context.CurrentLocation.AddWindow(new CharacterSnippedLocation(0, expression.Length, expression)),
-						"", "", "" + expression[0], "expected " + expression[0]));
-					return null;
-				}
-
-				return MorestachioExpressionString.ParseFrom(expression, 0, context, out _);
+				return MorestachioExpressionString.ParseFrom(text, context, out parsedUntil, nIndex);
 			}
 			else
 			{
-				return MorestachioExpression.ParseFrom(expression, context, out _);
+				return MorestachioExpression.ParseFrom(text, context, out parsedUntil, nIndex);
 			}
 		}
 

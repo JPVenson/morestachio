@@ -134,19 +134,20 @@ namespace Morestachio.Framework.Expression
 		/// <param name="text"></param>
 		/// <param name="offset"></param>
 		/// <param name="context"></param>
-		/// <param name="index"></param>
+		/// <param name="indexedUntil"></param>
 		/// <returns></returns>
 		public static MorestachioExpressionString ParseFrom(string text,
-			int offset,
 			TokenzierContext context,
-			out int index)
+			out int indexedUntil,
+			int index = 0)
 		{
-			var result = new MorestachioExpressionString(context.CurrentLocation, text[offset]);
-
+			var result = new MorestachioExpressionString(context.CurrentLocation, text[index]);
+			var orgIndex = index;
 			var isEscapeChar = false;
 			var sb = new StringBuilder();
+			var endDelimiterFound = false;
 			//skip the string delimiter
-			for (index = offset + 1; index < text.Length; index++)
+			for (index += 1; index < text.Length; index++)
 			{
 				var c = text[index];
 				if (isEscapeChar)
@@ -165,17 +166,7 @@ namespace Morestachio.Framework.Expression
 					}
 					else if (c == result.Delimiter)
 					{
-						if (offset == 0 && index + 1 != text.Length)
-						{
-							context.Errors.Add(new MorestachioSyntaxError(
-								context
-									.CurrentLocation
-									.Offset(index)
-									.AddWindow(new CharacterSnippedLocation(0, index, text)),
-								"", c.ToString(), "did not expect " + result.Delimiter));
-							break;
-						}
-
+						endDelimiterFound = true;
 						break;
 					}
 					else
@@ -184,10 +175,27 @@ namespace Morestachio.Framework.Expression
 					}
 				}
 			}
+
+			if (!endDelimiterFound)
+			{
+				index--;
+				context.Errors.Add(new MorestachioSyntaxError(
+					context
+						.CurrentLocation
+						.Offset(index)
+						.AddWindow(new CharacterSnippedLocation(0, text.Length -1, text)),
+					"string", text[text.Length -1].ToString(), "expected to find " + result.Delimiter));
+			}
+
 			var currentPart = new ExpressionStringConstPart(sb.ToString(), context.CurrentLocation);
 			result.StringParts.Add(currentPart);
+			if (text.Length > index + 1 && text[index + 1] == ';')
+			{
+				index = index + 2;
+			}
 
-			context.AdvanceLocation(text.Length);
+			context.AdvanceLocation(index - orgIndex);
+			indexedUntil = index;
 			return result;
 		}
 
