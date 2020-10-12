@@ -411,7 +411,7 @@ namespace Morestachio.Fluent
 		public MorestachioDocumentFluentApi FindParent(Func<IDocumentItem, bool> condition)
 		{
 			var node = Context.CurrentNode;
-			while (!condition(node.Item) && node != null)
+			while (node != null && !condition(node.Item))
 			{
 				node = Context.CurrentNode.Ancestor;
 			}

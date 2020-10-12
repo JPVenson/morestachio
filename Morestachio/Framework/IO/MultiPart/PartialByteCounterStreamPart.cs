@@ -65,7 +65,7 @@ namespace Morestachio.Framework.IO.MultiPart
 				throw new InvalidOperationException("The current state of this partial is closed and cannot be written to anymore");
 			}
 
-			content = content ?? Options.Null?.ToString();
+			content = content ?? Options.Null.ToString();
 			_state = ByteCounterStreamPartType.Writing;
 			
 			if (Options.MaxSize == 0)

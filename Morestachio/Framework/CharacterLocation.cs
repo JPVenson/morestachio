@@ -73,52 +73,6 @@ namespace Morestachio.Framework
 			return $"Line: {Line}, Column: {Character}";
 		}
 
-		/// <inheritdoc />
-		public bool Equals(CharacterLocation other)
-		{
-			if (ReferenceEquals(null, other))
-			{
-				return false;
-			}
-
-			if (ReferenceEquals(this, other))
-			{
-				return true;
-			}
-
-			return Line == other.Line && Character == other.Character;
-		}
-
-		/// <inheritdoc />
-		public override bool Equals(object obj)
-		{
-			if (ReferenceEquals(null, obj))
-			{
-				return false;
-			}
-
-			if (ReferenceEquals(this, obj))
-			{
-				return true;
-			}
-
-			if (obj.GetType() != this.GetType())
-			{
-				return false;
-			}
-
-			return Equals((CharacterLocation)obj);
-		}
-
-		/// <inheritdoc />
-		public override int GetHashCode()
-		{
-			unchecked
-			{
-				return (Line * 397) ^ Character;
-			}
-		}
-
 		/// <summary>
 		///		Creates a copy that is length chars advanced to this location
 		/// </summary>
@@ -155,6 +109,27 @@ namespace Morestachio.Framework
 			}
 
 			return Character;
+		}
+
+		/// <inheritdoc />
+		public bool Equals(CharacterLocation other)
+		{
+			return Line == other.Line && Character == other.Character;
+		}
+		
+		/// <inheritdoc />
+		public override bool Equals(object obj)
+		{
+			return obj is CharacterLocation other && Equals(other);
+		}
+		
+		/// <inheritdoc />
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				return (Line * 397) ^ Character;
+			}
 		}
 	}
 }

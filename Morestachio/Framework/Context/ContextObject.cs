@@ -334,8 +334,15 @@ namespace Morestachio.Framework.Context
 						}
 				}
 
-				retval = await innerContext.GetContextForPathInternal(elements.Next(), scopeData,
-					morestachioExpression);
+				if (innerContext != null)
+				{
+					retval = await innerContext.GetContextForPathInternal(elements.Next(), scopeData,
+						morestachioExpression) ?? this;
+				}
+				else
+				{
+					retval = this;
+				}
 			}
 			else if (elements.Current.Value == PathType.Boolean)
 			{
