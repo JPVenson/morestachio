@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Linq;
 using System.Runtime.Serialization;
 using Morestachio.Document;
 using Morestachio.Document.Contracts;

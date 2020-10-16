@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Morestachio.Util.Sealing
+﻿namespace Morestachio.Util.Sealing
 {
 	/// <summary>
 	///		Defines an object that can be sealed and no longer be modified

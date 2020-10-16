@@ -1,8 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#if ValueTask
+using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+#else
+using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+#endif
+using System;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
@@ -10,14 +13,12 @@ using Morestachio.Document.Visitor;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
-#if ValueTask
-using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
-#else
-using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
-#endif
 
-namespace Morestachio.Document.Items.SwichCase
+namespace Morestachio.Document.Items.SwitchCase
 {
+	/// <summary>
+	///		The document item for a switch block
+	/// </summary>
 	[Serializable]
 	public class SwitchDocumentItem : ExpressionDocumentItemBase
 	{

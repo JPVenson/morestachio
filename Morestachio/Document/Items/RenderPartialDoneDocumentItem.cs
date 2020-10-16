@@ -20,7 +20,7 @@ namespace Morestachio.Document.Items
 	/// <summary>
 	///		The end of a Partial declaration
 	/// </summary>
-	[System.Serializable]
+	[Serializable]
 	public class RenderPartialDoneDocumentItem : ValueDocumentItemBase
 	{
 		/// <summary>

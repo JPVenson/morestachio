@@ -3,7 +3,7 @@ using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections
 #else
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 #endif
-using System.Collections;
+using System;
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
@@ -18,7 +18,7 @@ namespace Morestachio.Document.Items
 	/// <summary>
 	///		Emits the template as long as the condition is true
 	/// </summary>
-	[System.Serializable]
+	[Serializable]
 	public class DoLoopDocumentItem : ExpressionDocumentItemBase
 	{
 		/// <summary>

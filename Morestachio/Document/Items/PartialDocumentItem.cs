@@ -20,7 +20,7 @@ namespace Morestachio.Document.Items
 	/// <summary>
 	///		Contains the Declaration of a Partial item
 	/// </summary>
-	[System.Serializable]
+	[Serializable]
 	public class PartialDocumentItem : ValueDocumentItemBase, IEquatable<PartialDocumentItem>
 	{
 		/// <summary>
@@ -75,7 +75,7 @@ namespace Morestachio.Document.Items
 
 			AssertElement(reader, nameof(Partial));
 			reader.ReadStartElement();
-			var child = DocumentExtenstions.CreateDocumentItemInstance(reader.Name);
+			var child = DocumentExtensions.CreateDocumentItemInstance(reader.Name);
 			var childTree = reader.ReadSubtree();
 			childTree.Read();
 			child.DeSerializeXmlCore(childTree);

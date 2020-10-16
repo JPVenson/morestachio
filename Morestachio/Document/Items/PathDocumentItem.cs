@@ -20,7 +20,7 @@ namespace Morestachio.Document.Items
 	/// <summary>
 	///		An single Value expression
 	/// </summary>
-	[System.Serializable]
+	[Serializable]
 	public class PathDocumentItem : ExpressionDocumentItemBase
 	{
 		/// <summary>

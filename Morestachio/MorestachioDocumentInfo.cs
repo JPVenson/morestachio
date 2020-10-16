@@ -7,7 +7,6 @@ using Morestachio.Document;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items;
 using Morestachio.Fluent;
-using Morestachio.Framework.Context;
 using Morestachio.Helper;
 using Morestachio.Parsing.ParserErrors;
 using Morestachio.Profiler;

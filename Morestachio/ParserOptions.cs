@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading;
 using JetBrains.Annotations;
 using Morestachio.Document.Custom;
-using Morestachio.Formatter;
 using Morestachio.Formatter.Framework;
 using Morestachio.Framework;
 using Morestachio.Framework.Context;

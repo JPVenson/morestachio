@@ -4,6 +4,7 @@ using Promise = System.Threading.Tasks.ValueTask;
 #else
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 #endif
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -21,7 +22,7 @@ namespace Morestachio.Document.Items
 	/// <summary>
 	///		Defines a area that has no morestachio keywords and can be rendered as is
 	/// </summary>
-	[System.Serializable]
+	[Serializable]
 	public class ContentDocumentItem : ValueDocumentItemBase
 	{
 		/// <summary>

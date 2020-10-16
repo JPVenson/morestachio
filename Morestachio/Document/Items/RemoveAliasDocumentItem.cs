@@ -20,7 +20,7 @@ namespace Morestachio.Document.Items
 	/// <summary>
 	///		Removes the alias from the scope
 	/// </summary>
-	[System.Serializable]
+	[Serializable]
 	public class RemoveAliasDocumentItem : ValueDocumentItemBase
 	{
 		/// <summary>
@@ -54,8 +54,14 @@ namespace Morestachio.Document.Items
 		
 		/// <inheritdoc />
 		protected override void DeSerializeXml(XmlReader reader)
-		{
-			IdVariableScope = int.Parse(reader.GetAttribute(nameof(IdVariableScope)));
+		{			
+			var varScope = reader.GetAttribute(nameof(IdVariableScope));
+			if (!int.TryParse(varScope, out var intVarScope))
+			{
+				throw new XmlException($"Error while serializing '{nameof(AliasDocumentItem)}'. " +
+				                       $"The value for '{nameof(IdVariableScope)}' is expected to be an integer.");
+			}
+			IdVariableScope = intVarScope;
 			base.DeSerializeXml(reader);
 		}
 

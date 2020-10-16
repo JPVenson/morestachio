@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Text;
 using System.Text.RegularExpressions;
 using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Framework.Attributes;

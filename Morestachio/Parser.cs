@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items;
-using Morestachio.Document.Items.SwichCase;
+using Morestachio.Document.Items.SwitchCase;
 using Morestachio.Document.TextOperations;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Tokenizing;
@@ -30,11 +31,11 @@ namespace Morestachio
 		/// </summary>
 		/// <param name="template"></param>
 		/// <returns></returns>
-		public static IEnumerable<IMorestachioError> Validate(string template)
+		public static async Task<IEnumerable<IMorestachioError>> Validate(string template)
 		{
 			var options = new ParserOptions(template);
 			var tokenzierContext = TokenzierContext.FromText(template);
-			var parsedTemplate = Tokenizer.Tokenize(options, tokenzierContext);
+			await Tokenizer.Tokenize(options, tokenzierContext);
 			return tokenzierContext.Errors;
 		}
 

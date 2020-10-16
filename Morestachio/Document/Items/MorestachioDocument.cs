@@ -23,7 +23,7 @@ namespace Morestachio.Document.Items
 	/// <summary>
 	///		Defines a document that can be rendered. Does only store its Children
 	/// </summary>
-	[System.Serializable]
+	[Serializable]
 	public sealed class MorestachioDocument : DocumentItemBase, 
 		IEquatable<MorestachioDocument>
 	{
@@ -61,7 +61,15 @@ namespace Morestachio.Document.Items
 		/// <inheritdoc />
 		protected override void DeSerializeXml(XmlReader reader)
 		{
-			MorestachioVersion = Version.Parse(reader.GetAttribute(nameof(MorestachioVersion)));
+			var versionAttribute = reader.GetAttribute(nameof(MorestachioVersion));
+
+			if (!Version.TryParse(versionAttribute, out var version))
+			{
+				throw new XmlException($"Error while serializing '{nameof(MorestachioDocument)}'. " +
+				                       $"The value for '{nameof(MorestachioVersion)}' is expected to be an version string in form of 'x.x.x.x' .");
+			}
+
+			MorestachioVersion = version;
 			base.DeSerializeXml(reader);
 		}
 		

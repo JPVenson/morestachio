@@ -12,7 +12,9 @@ namespace Morestachio.Document.TextOperations
 	[Serializable]
 	public class TrimLineBreakTextOperation : ITextOperation
 	{
-		/// <inheritdoc />
+		/// <summary>
+		///		Creates a new <see cref="TrimLineBreakTextOperation"/>
+		/// </summary>
 		public TrimLineBreakTextOperation()
 		{
 			TransientEdit = true;

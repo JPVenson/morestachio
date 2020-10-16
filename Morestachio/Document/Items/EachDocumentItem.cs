@@ -69,30 +69,11 @@ namespace Morestachio.Document.Items
 
 				throw new IndexedParseException(CharacterLocationExtended.Empty, 
 					string.Format("{1}'{0}' is used like an array by the template, but is a scalar value or object in your model." + " Complete Expression until Error:{2}",
-						MorestachioExpression.ToString(), base.ExpressionStart, (path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
+						MorestachioExpression, ExpressionStart, (path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 			}
 
 			var scopes = new List<DocumentItemExecution>();
 
-			//var items = value.OfType<object>().ToArray();
-			//var result = new WrapperCounterStream[items.Length];
-
-			//Parallel.ForEach(items, async (item, state, index) =>
-			//{
-			//	var innerContext =
-			//		new ContextCollection(index, items.Length == index, context.Options, $"[{index}]", c, item)
-			//			.MakeNatural();
-			//	var stream = new WrapperCounterStream(outputStream, context.Options);
-			//	await MorestachioDocument.ProcessItemsAndChildren(Children, stream, innerContext, scopeData);
-			//	result[index] = stream;
-			//});
-
-			//foreach (var byteCounterStream in result)
-			//{
-			//	byteCounterStream.Write(byteCounterStream.Read());
-			//}
-
-			//return Enumerable.Empty<DocumentItemExecution>();
 			//Use this "lookahead" enumeration to allow the $last keyword
 			var index = 0;
 			var enumerator = value.GetEnumerator();

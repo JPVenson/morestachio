@@ -1,6 +1,5 @@
 ﻿#if ValueTask
 using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
-using Promise = System.Threading.Tasks.ValueTask;
 #else
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 #endif
@@ -20,7 +19,7 @@ namespace Morestachio.Document.Items
 	/// <summary>
 	///		Emits the template as long as the condition is true
 	/// </summary>
-	[System.Serializable]
+	[Serializable]
 	public class WhileLoopDocumentItem : ExpressionDocumentItemBase
 	{
 		/// <summary>

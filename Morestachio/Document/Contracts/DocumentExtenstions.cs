@@ -9,11 +9,11 @@ namespace Morestachio.Document.Contracts
 	/// <summary>
 	///		Helper Functions for Document creation
 	/// </summary>
-	public static class DocumentExtenstions
+	public static class DocumentExtensions
 	{
-		static DocumentExtenstions()
+		static DocumentExtensions()
 		{
-			DocumentItems = typeof(DocumentExtenstions)
+			DocumentItems = typeof(DocumentExtensions)
 				.Assembly
 				.GetTypes()
 				.Where(e => e.IsClass)

@@ -8,7 +8,7 @@ namespace Morestachio.Document.Items.Base
 	/// <summary>
 	///		A common base class for emitting a single string value
 	/// </summary>
-	[System.Serializable]
+	[Serializable]
 	public abstract class ExpressionDocumentItemBase : DocumentItemBase, IEquatable<ExpressionDocumentItemBase>
 	{
 		/// <inheritdoc />

@@ -22,7 +22,7 @@ namespace Morestachio.Document.Items
 	/// <summary>
 	///		Prints a partial
 	/// </summary>
-	[System.Serializable]
+	[Serializable]
 	public class RenderPartialDocumentItem : ValueDocumentItemBase
 	{
 		/// <summary>

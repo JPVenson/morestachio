@@ -3,6 +3,7 @@ using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections
 #else
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 #endif
+using System;
 using System.Linq;
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
@@ -19,7 +20,7 @@ namespace Morestachio.Document.Items
 	///		Defines an inverted scope
 	/// </summary>
 	/// <seealso cref="ExpressionScopeDocumentItem"/>
-	[System.Serializable]
+	[Serializable]
 	public class InvertedExpressionScopeDocumentItem : ExpressionDocumentItemBase
 	{
 		/// <summary>

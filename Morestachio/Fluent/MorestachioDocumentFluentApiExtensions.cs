@@ -2,7 +2,6 @@
 using Morestachio.Document.Items;
 using Morestachio.Document.TextOperations;
 using Morestachio.Fluent.Expression;
-using Morestachio.Framework.Expression;
 
 namespace Morestachio.Fluent
 {

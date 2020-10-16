@@ -1,9 +1,9 @@
 ﻿#if ValueTask
 using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
-using Promise = System.Threading.Tasks.ValueTask;
 #else
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 #endif
+using System;
 using System.Linq;
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
@@ -19,7 +19,7 @@ namespace Morestachio.Document.Items
 	/// <summary>
 	///		Defines the start of a Scope
 	/// </summary>
-	[System.Serializable]
+	[Serializable]
 	public class IfNotExpressionScopeDocumentItem : ExpressionDocumentItemBase
 	{
 		/// <summary>

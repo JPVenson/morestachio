@@ -4,6 +4,7 @@ using Promise = System.Threading.Tasks.ValueTask;
 #else
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 #endif
+using System;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml;
@@ -20,7 +21,7 @@ namespace Morestachio.Document.Items
 	/// <summary>
 	///		Evaluates a variable expression and then stores it into the set alias
 	/// </summary>
-	[System.Serializable]
+	[Serializable]
 	public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase
 	{
 		/// <inheritdoc />
@@ -81,7 +82,13 @@ namespace Morestachio.Document.Items
 		protected override void DeSerializeXml(XmlReader reader)
 		{
 			Value = reader.GetAttribute(nameof(Value));
-			IdVariableScope = int.Parse(reader.GetAttribute(nameof(IdVariableScope)));
+			var varScope = reader.GetAttribute(nameof(IdVariableScope));
+			if (!int.TryParse(varScope, out var intVarScope))
+			{
+				throw new XmlException($"Error while serializing '{nameof(EvaluateVariableDocumentItem)}'." +
+				                       $" The value for '{nameof(IdVariableScope)}' is expected to be an integer.");
+			}
+			IdVariableScope = intVarScope;
 			base.DeSerializeXml(reader);
 		}
 		

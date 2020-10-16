@@ -72,7 +72,7 @@ namespace Morestachio.Document.Items
 					operationList = new List<ITextOperation>();
 					scopeData.CustomData["TextOperationData"] = operationList;
 				}
-				(operationList as IList<ITextOperation>).Add(Operation);
+				((IList<ITextOperation>)operationList).Add(Operation);
 			}
 			else
 			{

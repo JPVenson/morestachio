@@ -1,6 +1,5 @@
 ﻿#if ValueTask
 using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
-using Promise = System.Threading.Tasks.ValueTask;
 #else
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 #endif
@@ -13,7 +12,6 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using Morestachio.Document.Contracts;
-using Morestachio.Document.TextOperations;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Framework.Context;
@@ -147,7 +145,7 @@ namespace Morestachio.Document.Items.Base
 					reader.ReadStartElement(); //nameof(Children)
 					while (!reader.Name.Equals(nameof(Children)) && reader.NodeType != XmlNodeType.EndElement)
 					{
-						var child = DocumentExtenstions.CreateDocumentItemInstance(reader.Name);
+						var child = DocumentExtensions.CreateDocumentItemInstance(reader.Name);
 
 						var childTree = reader.ReadSubtree();
 						childTree.Read();
