@@ -14,7 +14,7 @@ using JPB.Mustachio.Client.Wpf.Core.Services;
 using JPB.Mustachio.Client.Wpf.Core.Services.AvalonEditTextMarker;
 using JPB.WPFBase.MVVM.DelegateCommand;
 using JPB.WPFBase.MVVM.ViewModel;
-using Morestachio.ParserErrors;
+using Morestachio.Parsing.ParserErrors;
 
 namespace JPB.Mustachio.Client.Wpf.Core.ViewModels
 {

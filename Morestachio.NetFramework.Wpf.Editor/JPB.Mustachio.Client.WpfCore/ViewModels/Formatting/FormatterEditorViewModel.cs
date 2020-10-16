@@ -8,6 +8,7 @@ using JPB.WPFBase.MVVM.DelegateCommand;
 using JPB.WPFBase.MVVM.ViewModel;
 using Microsoft.Win32;
 using Morestachio.Formatter.Framework;
+using Morestachio.Formatter.Framework.Attributes;
 
 namespace JPB.Mustachio.Client.Wpf.Core.ViewModels.Formatting
 {

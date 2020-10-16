@@ -33,7 +33,9 @@ namespace JPB.Mustachio.Client.Wpf.Core.Services
 				OutputType,
 				InputDescriptions,
 				OutputHint,
-				DelegateFactory(), new MultiFormatterInfoCollection(new List<MultiFormatterInfo>()));
+				DelegateFactory(),
+				new MultiFormatterInfoCollection(new List<MultiFormatterInfo>()),
+				false);
 		}
 
 		public string Name { get; }

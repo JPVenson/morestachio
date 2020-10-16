@@ -2,6 +2,7 @@
 using JPB.Mustachio.Client.Wpf.Core.Services;
 using JPB.WPFBase.MVVM.ViewModel;
 using Morestachio;
+using Morestachio.Framework.Context.Options;
 
 namespace JPB.Mustachio.Client.Wpf.Core.ViewModels
 {

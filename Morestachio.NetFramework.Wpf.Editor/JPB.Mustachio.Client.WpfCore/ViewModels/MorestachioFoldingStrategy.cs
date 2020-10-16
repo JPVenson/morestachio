@@ -4,6 +4,7 @@ using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Folding;
 using Morestachio.Document;
 using Morestachio.Document.Contracts;
+using Morestachio.Document.Items;
 using Morestachio.Document.Visitor;
 
 namespace JPB.Mustachio.Client.Wpf.Core.ViewModels
@@ -21,7 +22,6 @@ namespace JPB.Mustachio.Client.Wpf.Core.ViewModels
 		{
 			var morestachioDocumentChildren = morestachioDocument
 				.Children
-				.Where(e => e.ExpressionStart != null)
 				.ToArray();
 			for (var index = 0; index < morestachioDocumentChildren.Length; index++)
 			{

@@ -9,8 +9,9 @@ using JPB.Mustachio.Client.Wpf.Core.Services;
 using JPB.WPFBase.MVVM.DelegateCommand;
 using JPB.WPFBase.MVVM.ViewModel;
 using Morestachio;
-using Morestachio.Framework;
-using Morestachio.ParserErrors;
+using Morestachio.Framework.Context;
+using Morestachio.Framework.Context.Resolver;
+using Morestachio.Parsing.ParserErrors;
 using Newtonsoft.Json.Linq;
 
 namespace JPB.Mustachio.Client.Wpf.Core.ViewModels
@@ -92,6 +93,12 @@ namespace JPB.Mustachio.Client.Wpf.Core.ViewModels
 			public bool CanResolve(Type type, object value, string path, ContextObject context)
 			{
 				return type == typeof(JObject);
+			}
+
+			public bool IsSealed { get; }
+			public void Seal()
+			{
+				
 			}
 		}
 
