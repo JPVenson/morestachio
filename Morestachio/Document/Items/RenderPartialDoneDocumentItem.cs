@@ -47,6 +47,11 @@ namespace Morestachio.Document.Items
 		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
 			scopeData.PartialDepth.Pop();
+			if (!scopeData.PartialDepth.Any())
+			{
+				scopeData.RemoveVariable("$name", 0);
+				scopeData.RemoveVariable("$recursion", 0);
+			}
 			return Enumerable.Empty<DocumentItemExecution>().ToPromise();
 		}
 		/// <inheritdoc />

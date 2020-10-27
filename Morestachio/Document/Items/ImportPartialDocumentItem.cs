@@ -123,12 +123,12 @@ namespace Morestachio.Document.Items
 						throw new ArgumentOutOfRangeException();
 				}
 			}
-
-			var cnxt = context;
+			
 			scopeData.AddVariable("$name",
-				(scope) => cnxt.Options.CreateContextObject("$name", context.CancellationToken,
-					partialName, cnxt), 0);
-
+				(scope) => context.Options.CreateContextObject("$name", context.CancellationToken,
+					scope.PartialDepth.Peek(), context), 0);
+			
+			var cnxt = context;
 			if (Context != null)
 			{
 				cnxt = (await Context.GetValue(context, scopeData));
