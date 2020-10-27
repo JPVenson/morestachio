@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
+using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Helper;
@@ -26,15 +27,14 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal RenderPartialDoneDocumentItem()
+		internal RenderPartialDoneDocumentItem() : base(CharacterLocation.Unknown, null)
 		{
 
 		}
 
 		/// <inheritdoc />
-		public RenderPartialDoneDocumentItem([NotNull] string partialName)
+		public RenderPartialDoneDocumentItem(CharacterLocation location, [NotNull] string partialName) : base(location, partialName)
 		{
-			Value = partialName ?? throw new ArgumentNullException(nameof(partialName));
 		}
 		
 		/// <inheritdoc />

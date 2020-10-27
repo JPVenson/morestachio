@@ -32,16 +32,18 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal ImportPartialDocumentItem()
+		internal ImportPartialDocumentItem() : base(CharacterLocation.Unknown, null)
 		{
 
 		}
 
 		/// <inheritdoc />
-		public ImportPartialDocumentItem([NotNull] IMorestachioExpression value, [CanBeNull] IMorestachioExpression context)
+		public ImportPartialDocumentItem(CharacterLocation location,
+			[NotNull] IMorestachioExpression value, 
+			[CanBeNull] IMorestachioExpression context) 
+			: base(location, value)
 		{
 			Context = context;
-			MorestachioExpression = value ?? throw new ArgumentNullException(nameof(value));
 		}
 
 		/// <inheritdoc />

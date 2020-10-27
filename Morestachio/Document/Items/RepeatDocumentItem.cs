@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
+using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Error;
 using Morestachio.Framework.Expression;
@@ -27,7 +28,7 @@ namespace Morestachio.Document.Items
 	[System.Serializable]
 	public class RepeatDocumentItem : ExpressionDocumentItemBase
 	{
-		internal RepeatDocumentItem()
+		internal RepeatDocumentItem() : base(CharacterLocation.Unknown, null)
 		{
 			
 		}
@@ -36,9 +37,8 @@ namespace Morestachio.Document.Items
 		///		Creates a new repeat document item
 		/// </summary>
 		/// <param name="value"></param>
-		public RepeatDocumentItem(IMorestachioExpression value)
+		public RepeatDocumentItem(CharacterLocation location, IMorestachioExpression value) : base(location, value)
 		{
-			MorestachioExpression = value;
 		}
 
 		/// <inheritdoc />

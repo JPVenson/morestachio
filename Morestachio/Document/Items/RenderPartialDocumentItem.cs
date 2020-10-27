@@ -29,16 +29,16 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal RenderPartialDocumentItem()
+		internal RenderPartialDocumentItem() : base(CharacterLocation.Unknown, null)
 		{
 
 		}
 
 		/// <inheritdoc />
-		public RenderPartialDocumentItem([NotNull] string value, [CanBeNull] IMorestachioExpression context)
+		public RenderPartialDocumentItem(CharacterLocation location, [NotNull] string value, [CanBeNull] IMorestachioExpression context)
+			: base(location, value)
 		{
 			Context = context;
-			Value = value ?? throw new ArgumentNullException(nameof(value));
 		}
 
 		/// <inheritdoc />

@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
+using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Helper;
@@ -26,7 +27,7 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal PartialDocumentItem()
+		internal PartialDocumentItem() : base(CharacterLocation.Unknown, null)
 		{
 
 		}
@@ -36,9 +37,9 @@ namespace Morestachio.Document.Items
 		/// </summary>
 		/// <param name="partialName">The partial name.</param>
 		/// <param name="partial">The partial.</param>
-		public PartialDocumentItem([NotNull] string partialName, [NotNull] IDocumentItem partial)
+		public PartialDocumentItem(CharacterLocation location, [NotNull] string partialName, [NotNull] IDocumentItem partial) 
+			: base(location, partialName)
 		{
-			Value = partialName ?? throw new ArgumentNullException(nameof(partialName));
 			Partial = partial ?? throw new ArgumentNullException(nameof(partial));
 		}
 

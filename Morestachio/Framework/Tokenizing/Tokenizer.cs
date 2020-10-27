@@ -205,8 +205,6 @@ namespace Morestachio.Framework.Tokenizing
 			public string Value { get; }
 		}
 
-
-
 		private static IEnumerable<TokenMatch> MatchTokens(string template,
 			TokenzierContext context,
 			RollingArray<char> lastChars)
@@ -573,7 +571,7 @@ namespace Morestachio.Framework.Tokenizing
 							tokens.Add(new TokenPair(TokenType.CollectionOpen,
 								token,
 								context.CurrentLocation,
-								ExpressionParser.ParseExpression(token, context), EmbeddedState.None, scopeBehavior));
+								ExpressionParser.ParseExpression(token, context), EmbeddedState.None));
 						}
 						else
 						{

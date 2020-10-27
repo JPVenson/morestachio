@@ -14,6 +14,7 @@ using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
+using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Helper;
@@ -39,7 +40,14 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		public MorestachioDocument()
+		public MorestachioDocument() : this(CharacterLocation.Unknown)
+		{
+		}
+
+		/// <summary>
+		///		Used for XML Serialization
+		/// </summary>
+		public MorestachioDocument(CharacterLocation location) : base(location)
 		{
 			MorestachioVersion = GetMorestachioVersion();
 		}

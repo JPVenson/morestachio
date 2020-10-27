@@ -1,6 +1,7 @@
 ﻿using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
+using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
@@ -42,16 +43,15 @@ namespace Morestachio.Document.Custom
 			/// <summary>
 			/// 
 			/// </summary>
-			public BlockDocumentItem()
+			public BlockDocumentItem() : base(CharacterLocation.Unknown, null)
 			{
 
 			}
 
 			/// <inheritdoc />
-			public BlockDocumentItem(BlockDocumentProviderFunction action, string value)
+			public BlockDocumentItem(BlockDocumentProviderFunction action, string value) : base(CharacterLocation.Unknown, value)
 			{
 				_action = action;
-				Value = value;
 			}
 			
 			/// <inheritdoc />

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using System.Xml;
+using Morestachio.Framework;
 
 namespace Morestachio.Document.Items.Base
 {
@@ -13,15 +14,15 @@ namespace Morestachio.Document.Items.Base
 		/// <summary>
 		/// 
 		/// </summary>
-		protected ValueDocumentItemBase()
+		protected ValueDocumentItemBase(CharacterLocation location, string value) : base(location)
 		{
-
+			Value = value;
 		}
 
 		/// <summary>
 		///		A value from the Template
 		/// </summary>
-		public string Value { get; protected set; }
+		public string Value { get; private set; }
 		
 		/// <inheritdoc />
 		protected ValueDocumentItemBase(SerializationInfo info, StreamingContext c) : base(info, c)

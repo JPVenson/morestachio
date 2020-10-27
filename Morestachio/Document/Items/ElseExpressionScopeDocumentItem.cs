@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
+using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Helper;
@@ -26,7 +27,15 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		public ElseExpressionScopeDocumentItem()
+		internal ElseExpressionScopeDocumentItem(): base(CharacterLocation.Unknown)
+		{
+			
+		}
+		
+		/// <summary>
+		///		Used for XML Serialization
+		/// </summary>
+		internal ElseExpressionScopeDocumentItem(CharacterLocation location): base(location)
 		{
 			
 		}

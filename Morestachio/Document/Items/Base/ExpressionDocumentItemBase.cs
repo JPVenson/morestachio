@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using System.Xml;
+using Morestachio.Framework;
 using Morestachio.Framework.Expression;
 
 namespace Morestachio.Document.Items.Base
@@ -11,16 +12,17 @@ namespace Morestachio.Document.Items.Base
 	[Serializable]
 	public abstract class ExpressionDocumentItemBase : DocumentItemBase, IEquatable<ExpressionDocumentItemBase>
 	{
+		/// <param name="location"></param>
 		/// <inheritdoc />
-		protected ExpressionDocumentItemBase()
+		protected ExpressionDocumentItemBase(CharacterLocation location, IMorestachioExpression expression) : base(location)
 		{
-
+			MorestachioExpression = expression;
 		}
 
 		/// <summary>
 		///		The Expression to be evaluated
 		/// </summary>
-		public IMorestachioExpression MorestachioExpression { get; protected set; }
+		public IMorestachioExpression MorestachioExpression { get; private set; }
 
 		/// <inheritdoc />
 		protected ExpressionDocumentItemBase(SerializationInfo info, StreamingContext c) : base(info, c)

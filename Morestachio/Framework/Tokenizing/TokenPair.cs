@@ -15,8 +15,11 @@ namespace Morestachio.Framework.Tokenizing
 		/// <summary>
 		///		Creates a new Token Pair
 		/// </summary>
-		public TokenPair(IComparable type, string value, CharacterLocation tokenLocation, EmbeddedState isEmbeddedToken = EmbeddedState.None)
-			: this(type, value, tokenLocation, null, isEmbeddedToken, null)
+		public TokenPair(IComparable type,
+			string value,
+			CharacterLocation tokenLocation,
+			EmbeddedState isEmbeddedToken = EmbeddedState.None)
+			: this(type, value, tokenLocation, null, isEmbeddedToken)
 		{
 			Value = value;
 		}
@@ -25,8 +28,11 @@ namespace Morestachio.Framework.Tokenizing
 		/// <summary>
 		///		Creates a new Token Pair
 		/// </summary>
-		public TokenPair(IComparable type, CharacterLocation tokenLocation, IMorestachioExpression expression, EmbeddedState isEmbeddedToken = EmbeddedState.None, ScopingBehavior? noScope = null)
-			: this(type, null, tokenLocation, expression, isEmbeddedToken, noScope)
+		public TokenPair(IComparable type,
+			CharacterLocation tokenLocation,
+			IMorestachioExpression expression,
+			EmbeddedState isEmbeddedToken = EmbeddedState.None)
+			: this(type, null, tokenLocation, expression, isEmbeddedToken)
 		{
 		}
 
@@ -34,14 +40,16 @@ namespace Morestachio.Framework.Tokenizing
 		/// <summary>
 		///		Creates a new Token Pair
 		/// </summary>
-		public TokenPair(IComparable type, string value, CharacterLocation tokenLocation,
-			IMorestachioExpression expression, EmbeddedState isEmbeddedToken = EmbeddedState.None, ScopingBehavior? noScope = null)
+		public TokenPair(IComparable type,
+			string value,
+			CharacterLocation tokenLocation,
+			IMorestachioExpression expression,
+			EmbeddedState isEmbeddedToken = EmbeddedState.None)
 		{
 			Type = type;
 			MorestachioExpression = expression;
 			IsEmbeddedToken = isEmbeddedToken;
 			TokenLocation = tokenLocation;
-			ScopeBehavior = noScope;
 			Value = value;
 		}
 
@@ -70,11 +78,6 @@ namespace Morestachio.Framework.Tokenizing
 		///		Where does this token occure in the Template
 		/// </summary>
 		public CharacterLocation TokenLocation { get; }
-
-		/// <summary>
-		///		IF set an otherwise scopeing block does not perform the scopeing
-		/// </summary>
-		public ScopingBehavior? ScopeBehavior { get; }
 
 		[PublicAPI]
 		private class TokenPairDebuggerProxy

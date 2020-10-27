@@ -8,6 +8,7 @@ using Morestachio.Document.Contracts;
 using Morestachio.Document.Items;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
+using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 #if ValueTask
@@ -26,7 +27,12 @@ namespace Morestachio.LessCompiler
 	[Serializable]
 	public class CompileLessDocumentItem : DocumentItemBase, ToParsableStringDocumentVisitor.IStringVisitor
 	{
-		public CompileLessDocumentItem()
+		internal CompileLessDocumentItem() : base(CharacterLocation.Unknown)
+		{
+
+		}
+		
+		public CompileLessDocumentItem(CharacterLocation location) : base(location)
 		{
 
 		}

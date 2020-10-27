@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
+using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
@@ -26,17 +27,16 @@ namespace Morestachio.Document.Items.SwitchCase
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal SwitchCaseDocumentItem()
+		internal SwitchCaseDocumentItem() : base(CharacterLocation.Unknown, null)
 		{
 
 		}
 
 		/// <inheritdoc />
-		public SwitchCaseDocumentItem(IMorestachioExpression value)
+		public SwitchCaseDocumentItem(CharacterLocation location, IMorestachioExpression value) : base(location, value)
 		{
-			MorestachioExpression = value;
 		}
-		
+
 		/// <inheritdoc />
 		[UsedImplicitly]
 		protected SwitchCaseDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
@@ -48,7 +48,7 @@ namespace Morestachio.Document.Items.SwitchCase
 		{
 			return Children.WithScope(context).ToPromise();
 		}
-		
+
 		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)
 		{

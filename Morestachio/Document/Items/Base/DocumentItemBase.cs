@@ -29,9 +29,10 @@ namespace Morestachio.Document.Items.Base
 		/// <summary>
 		///		Creates a new base object for encapsulating document items
 		/// </summary>
-		protected DocumentItemBase()
+		protected DocumentItemBase(CharacterLocation location)
 		{
 			Children = new List<IDocumentItem>();
+			ExpressionStart = location;
 		}
 
 		/// <summary>
@@ -78,7 +79,7 @@ namespace Morestachio.Document.Items.Base
 		public IList<IDocumentItem> Children { get; internal set; }
 
 		/// <inheritdoc />
-		public CharacterLocation ExpressionStart { get; set; }
+		public CharacterLocation ExpressionStart { get; private set; }
 		
 		/// <inheritdoc />
 		public void Add(params IDocumentItem[] documentChildren)

@@ -13,6 +13,7 @@ using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.TextOperations;
 using Morestachio.Document.Visitor;
+using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Helper;
@@ -28,7 +29,7 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal ContentDocumentItem()
+		internal ContentDocumentItem() : base(CharacterLocation.Unknown, null)
 		{
 
 		}
@@ -37,9 +38,8 @@ namespace Morestachio.Document.Items
 		///		Creates a new ContentDocumentItem that represents some static content
 		/// </summary>
 		/// <param name="content">The content to write</param>
-		public ContentDocumentItem(string content)
+		public ContentDocumentItem(CharacterLocation location, string content) : base(location, content)
 		{
-			Value = content;
 		}
 		
 		/// <inheritdoc />

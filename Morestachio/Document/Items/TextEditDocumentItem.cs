@@ -14,6 +14,7 @@ using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.TextOperations;
 using Morestachio.Document.Visitor;
+using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.IO;
@@ -37,19 +38,24 @@ namespace Morestachio.Document.Items
 		/// </summary>
 		public EmbeddedState EmbeddedState { get; private set; }
 		
+		internal TextEditDocumentItem() : base(CharacterLocation.Unknown)
+		{
+			
+		}
+
 		/// <summary>
 		/// 
 		/// </summary>
-		public TextEditDocumentItem([NotNull] ITextOperation operation, EmbeddedState embeddedState = EmbeddedState.None)
+		public TextEditDocumentItem(CharacterLocation location, 
+			[NotNull] ITextOperation operation, 
+			EmbeddedState embeddedState = EmbeddedState.None)
+			: base(location)
 		{
 			Operation = operation ?? throw new ArgumentNullException(nameof(operation));
 			EmbeddedState = embeddedState;
 		}
 
-		internal TextEditDocumentItem()
-		{
-
-		}
+		
 
 		/// <inheritdoc />
 		[UsedImplicitly]

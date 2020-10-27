@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
+using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
@@ -24,7 +25,7 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal DoLoopDocumentItem()
+		internal DoLoopDocumentItem() : base(CharacterLocation.Unknown, null)
 		{
 
 		}
@@ -33,9 +34,8 @@ namespace Morestachio.Document.Items
 		///		Creates a new DoLoop DocumentItem that will render its children as long as the value expression meets the <see cref="ContextObject.DefinitionOfFalse"/>
 		/// </summary>
 		/// <param name="value"></param>
-		public DoLoopDocumentItem(IMorestachioExpression value)
+		public DoLoopDocumentItem(CharacterLocation location, IMorestachioExpression value) : base(location, value)
 		{
-			MorestachioExpression = value;
 		}
 		
 		/// <inheritdoc />

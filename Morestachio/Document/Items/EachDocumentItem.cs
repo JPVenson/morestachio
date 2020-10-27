@@ -12,6 +12,7 @@ using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
+using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Error;
 using Morestachio.Framework.Expression;
@@ -29,15 +30,14 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal EachDocumentItem()
+		internal EachDocumentItem() : base(CharacterLocation.Unknown, null)
 		{
 
 		}
 
 		/// <inheritdoc />
-		public EachDocumentItem(IMorestachioExpression value)
+		public EachDocumentItem(CharacterLocation location, IMorestachioExpression value) : base(location, value)
 		{
-			MorestachioExpression = value;
 		}
 		
 		/// <inheritdoc />

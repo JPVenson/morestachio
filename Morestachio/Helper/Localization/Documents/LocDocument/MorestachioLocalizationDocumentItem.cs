@@ -7,6 +7,7 @@ using Morestachio.Document;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
+using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
@@ -27,15 +28,14 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 	public class MorestachioLocalizationDocumentItem : ExpressionDocumentItemBase,
 		ToParsableStringDocumentVisitor.IStringVisitor
 	{
-		internal MorestachioLocalizationDocumentItem()
+		internal MorestachioLocalizationDocumentItem() : base(CharacterLocation.Unknown, null)
 		{
 
 		}
 
 		/// <inheritdoc />
-		public MorestachioLocalizationDocumentItem(IMorestachioExpression value) : base()
+		public MorestachioLocalizationDocumentItem(CharacterLocation location, IMorestachioExpression value) : base(location, value)
 		{
-			base.MorestachioExpression = value;
 		}
 
 		/// <inheritdoc />

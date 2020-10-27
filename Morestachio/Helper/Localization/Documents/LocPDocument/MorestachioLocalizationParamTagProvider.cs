@@ -29,7 +29,7 @@ namespace Morestachio.Helper.Localization.Documents.LocPDocument
 		/// <inheritdoc />
 		public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token, ParserOptions options)
 		{
-			return new MorestachioLocalizationParameterDocumentItem(token.MorestachioExpression);
+			return new MorestachioLocalizationParameterDocumentItem(token.TokenLocation, token.MorestachioExpression);
 		}
 	}
 }

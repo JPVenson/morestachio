@@ -2,6 +2,7 @@
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items;
 using Morestachio.Document.Visitor;
+using Morestachio.Framework;
 using Morestachio.Helper.Localization;
 using Morestachio.Tests.DocTree;
 using NUnit.Framework;
@@ -221,7 +222,7 @@ namespace Morestachio.Tests.SerilalizerTests
 		[Test]
 		public void Alias()
 		{
-			var alias = new AliasDocumentItem("Alias", 101);
+			var alias = new AliasDocumentItem(CharacterLocation.Unknown, "Alias", 101);
 			SerilalizeAndDeserialize(alias);
 		}
 

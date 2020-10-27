@@ -2,6 +2,7 @@
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
+using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
@@ -39,16 +40,15 @@ namespace Morestachio.Document.Custom
 			private readonly TagDocumentProviderFunction _action;
 			
 			/// <inheritdoc />
-			public TagDocumentItem()
+			public TagDocumentItem() : base(CharacterLocation.Unknown, null)
 			{
 
 			}
 			
 			/// <inheritdoc />
-			public TagDocumentItem(TagDocumentProviderFunction action, string value)
+			public TagDocumentItem(TagDocumentProviderFunction action, string value) : base(CharacterLocation.Unknown, value)
 			{
 				_action = action;
-				Value = value;
 			}
 
 			/// <inheritdoc />

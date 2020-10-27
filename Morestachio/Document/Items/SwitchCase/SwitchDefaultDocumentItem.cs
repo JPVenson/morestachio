@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
+using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Helper;
@@ -25,7 +26,15 @@ namespace Morestachio.Document.Items.SwitchCase
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal SwitchDefaultDocumentItem()
+		internal SwitchDefaultDocumentItem() : base(CharacterLocation.Unknown)
+		{
+
+		}
+
+		/// <summary>
+		///		Used for XML Serialization
+		/// </summary>
+		public SwitchDefaultDocumentItem(CharacterLocation location) : base(location)
 		{
 
 		}

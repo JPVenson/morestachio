@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
+using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
@@ -26,15 +27,14 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal InvertedExpressionScopeDocumentItem()
+		internal InvertedExpressionScopeDocumentItem() : base(CharacterLocation.Unknown, null)
 		{
 
 		}
 
 		/// <inheritdoc />
-		public InvertedExpressionScopeDocumentItem(IMorestachioExpression value)
+		public InvertedExpressionScopeDocumentItem(CharacterLocation location, IMorestachioExpression value) : base(location, value)
 		{
-			MorestachioExpression = value;
 		}
 		
 		/// <inheritdoc />

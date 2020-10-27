@@ -12,6 +12,7 @@ using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
+using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
@@ -24,15 +25,8 @@ namespace Morestachio.Document.Items
 	[Serializable]
 	public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase
 	{
-		/// <inheritdoc />
-		[UsedImplicitly]
-		protected EvaluateVariableDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
-		{
-			Value = info.GetString(nameof(Value));
-			IdVariableScope = info.GetInt32(nameof(IdVariableScope));
-		}
 
-		internal EvaluateVariableDocumentItem()
+		internal EvaluateVariableDocumentItem() : base(CharacterLocation.Unknown, null)
 		{
 			
 		}
@@ -43,11 +37,18 @@ namespace Morestachio.Document.Items
 		/// <param name="value"></param>
 		/// <param name="morestachioExpression"></param>
 		/// <param name="idVariableScope"></param>
-		public EvaluateVariableDocumentItem(string value, IMorestachioExpression morestachioExpression, int idVariableScope)
+		public EvaluateVariableDocumentItem(CharacterLocation location, string value, IMorestachioExpression morestachioExpression, int idVariableScope) 
+			: base(location, morestachioExpression)
 		{
-			MorestachioExpression = morestachioExpression;
 			Value = value;
 			IdVariableScope = idVariableScope;
+		}
+		/// <inheritdoc />
+		[UsedImplicitly]
+		protected EvaluateVariableDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
+		{
+			Value = info.GetString(nameof(Value));
+			IdVariableScope = info.GetInt32(nameof(IdVariableScope));
 		}
 
 		/// <summary>
@@ -55,9 +56,9 @@ namespace Morestachio.Document.Items
 		/// </summary>
 		/// <param name="value"></param>
 		/// <param name="morestachioExpression"></param>
-		public EvaluateVariableDocumentItem(string value, IMorestachioExpression morestachioExpression)
+		public EvaluateVariableDocumentItem(CharacterLocation location,string value, IMorestachioExpression morestachioExpression)
+			: base(location, morestachioExpression)
 		{
-			MorestachioExpression = morestachioExpression;
 			Value = value;
 			IdVariableScope = 0;
 		}

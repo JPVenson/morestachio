@@ -37,7 +37,7 @@ namespace Morestachio.Helper.Localization.Documents.CustomCultureDocument
 		/// <inheritdoc />
 		public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token, ParserOptions options)
 		{
-			return new MorestachioCustomCultureLocalizationDocumentItem(token.MorestachioExpression);
+			return new MorestachioCustomCultureLocalizationDocumentItem(token.TokenLocation, token.MorestachioExpression);
 		}
 	}
 }

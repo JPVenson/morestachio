@@ -6,6 +6,7 @@ using Morestachio.Document;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
+using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
@@ -25,7 +26,7 @@ namespace Morestachio.Helper.Localization
 	public class MorestachioCustomCultureLocalizationDocumentItem : ExpressionDocumentItemBase,
 		ToParsableStringDocumentVisitor.IStringVisitor
 	{
-		internal MorestachioCustomCultureLocalizationDocumentItem()
+		internal MorestachioCustomCultureLocalizationDocumentItem() : base(CharacterLocation.Unknown, null)
 		{
 
 		}
@@ -36,9 +37,8 @@ namespace Morestachio.Helper.Localization
 		}
 
 		/// <inheritdoc />
-		public MorestachioCustomCultureLocalizationDocumentItem(IMorestachioExpression expression)
+		public MorestachioCustomCultureLocalizationDocumentItem(CharacterLocation location, IMorestachioExpression expression) : base(location,expression)
 		{
-			MorestachioExpression = expression;
 		}
 
 		/// <summary>
@@ -70,7 +70,7 @@ namespace Morestachio.Helper.Localization
 			scopeData.CustomData[LocalizationCultureKey] = requestedCulture;
 
 			var childs = Children.ToList();
-			childs.Add(new ResetCultureDocumentItem(oldCulture));
+			childs.Add(new ResetCultureDocumentItem(base.ExpressionStart, oldCulture));
 			return childs.WithScope(context);
 		}
 
@@ -83,13 +83,13 @@ namespace Morestachio.Helper.Localization
 
 
 			/// <inheritdoc />
-			public ResetCultureDocumentItem()
+			public ResetCultureDocumentItem() : base(CharacterLocation.Unknown)
 			{
 
 			}
 
 			/// <inheritdoc />
-			public ResetCultureDocumentItem(CultureInfo culture)
+			public ResetCultureDocumentItem(CharacterLocation location, CultureInfo culture) : base(location)
 			{
 				_culture = culture;
 			}

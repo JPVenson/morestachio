@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
+using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Helper;
@@ -26,9 +27,20 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal RemoveAliasDocumentItem()
+		internal RemoveAliasDocumentItem() : base(CharacterLocation.Unknown, null)
 		{
 
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="aliasName"></param>
+		/// <param name="scopeVariableScopeNumber"></param>
+		public RemoveAliasDocumentItem(CharacterLocation location, [NotNull] string aliasName, int scopeVariableScopeNumber) 
+			: base(location, aliasName)
+		{
+			IdVariableScope = scopeVariableScopeNumber;
 		}
 		
 		/// <inheritdoc />
@@ -63,17 +75,6 @@ namespace Morestachio.Document.Items
 			}
 			IdVariableScope = intVarScope;
 			base.DeSerializeXml(reader);
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="aliasName"></param>
-		/// <param name="scopeVariableScopeNumber"></param>
-		public RemoveAliasDocumentItem([NotNull] string aliasName, int scopeVariableScopeNumber)
-		{
-			Value = aliasName ?? throw new ArgumentNullException(nameof(aliasName));
-			IdVariableScope = scopeVariableScopeNumber;
 		}
 
 		/// <inheritdoc />
