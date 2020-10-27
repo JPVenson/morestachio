@@ -35,7 +35,6 @@ namespace Morestachio.Framework.Tokenizing
 
 
 		internal static readonly Regex PartialIncludeRegEx = new Regex("Include (\\w*)( (?:With) )?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
 		internal static CharacterLocation HumanizeCharacterLocation(int characterIndex, int[] lines)
 		{
 			var line = Array.BinarySearch(lines, characterIndex);
@@ -491,6 +490,7 @@ namespace Morestachio.Framework.Tokenizing
 						var partialRegex = PartialIncludeRegEx.Match(token);
 						var partialName = partialRegex.Groups[1].Value;
 						var partialContext = partialRegex.Groups[2].Value;
+
 						if (!string.IsNullOrWhiteSpace(partialContext))
 						{
 							partialContext = token.Substring(partialRegex.Groups[2].Index + "WITH ".Length);
@@ -512,8 +512,37 @@ namespace Morestachio.Framework.Tokenizing
 							{
 								exp = ExpressionParser.ParseExpression(partialContext, context);
 							}
-							var tokenPair = new TokenPair(TokenType.RenderPartial, partialName, context.CurrentLocation, exp);
-							tokens.Add(tokenPair);
+							tokens.Add(new TokenPair(TokenType.RenderPartial, partialName, context.CurrentLocation, exp));
+						}
+					}
+					else if (trimmedToken.StartsWith("#import ", true, CultureInfo.InvariantCulture))
+					{
+						var token = trimmedToken.TrimStart('#').Substring("import".Length).Trim(Tokenizer.GetWhitespaceDelimiters());
+						var pre = context.Character;
+						var tokenNameExpression = ExpressionParser.ParseExpression(token, context);
+						IMorestachioExpression contextExpression = null;
+						if (pre + token.Length != context.Character)
+						{
+							token = token.Substring(context.Character - pre).Trim(Tokenizer.GetWhitespaceDelimiters());
+							if (token.StartsWith("#WITH "))
+							{
+								token = token.Substring("#WITH ".Length);
+								contextExpression = ExpressionParser.ParseExpression(token, context);
+							}
+						}
+
+						//late bound expression, cannot check at parse time for existance
+						tokens.Add(new TokenPair(TokenType.ImportPartial, 
+							null, 
+							context.CurrentLocation, 
+							tokenNameExpression));
+
+						if (contextExpression != null)
+						{
+							tokens.Add(new TokenPair(TokenType.ImportPartialContext, 
+								null, 
+								context.CurrentLocation, 
+								contextExpression));
 						}
 					}
 					else if (trimmedToken.StartsWith("#each ", true, CultureInfo.InvariantCulture))

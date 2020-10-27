@@ -24,6 +24,7 @@ namespace Morestachio.Document.Visitor
 		void Visit(PathDocumentItem documentItem);
 		void Visit(RemoveAliasDocumentItem documentItem);
 		void Visit(RenderPartialDocumentItem documentItem);
+		void Visit(ImportPartialDocumentItem documentItem);
 		void Visit(RenderPartialDoneDocumentItem documentItem);
 		void Visit(WhileLoopDocumentItem documentItem);
 		void Visit(RepeatDocumentItem documentItem);

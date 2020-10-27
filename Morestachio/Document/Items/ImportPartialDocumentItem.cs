@@ -1,11 +1,8 @@
-﻿#if ValueTask
-using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
-#else
-using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
-#endif
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using System.Xml;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
@@ -23,27 +20,27 @@ namespace Morestachio.Document.Items
 	/// <summary>
 	///		Prints a partial
 	/// </summary>
-	[Serializable, Obsolete("Use the #Import keyword")]
-	public class RenderPartialDocumentItem : ValueDocumentItemBase
+	[Serializable]
+	public class ImportPartialDocumentItem : ExpressionDocumentItemBase
 	{
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal RenderPartialDocumentItem()
+		internal ImportPartialDocumentItem()
 		{
 
 		}
 
 		/// <inheritdoc />
-		public RenderPartialDocumentItem([NotNull] string value, [CanBeNull] IMorestachioExpression context)
+		public ImportPartialDocumentItem([NotNull] IMorestachioExpression value, [CanBeNull] IMorestachioExpression context)
 		{
 			Context = context;
-			Value = value ?? throw new ArgumentNullException(nameof(value));
+			MorestachioExpression = value ?? throw new ArgumentNullException(nameof(value));
 		}
 
 		/// <inheritdoc />
 		[UsedImplicitly]
-		protected RenderPartialDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
+		protected ImportPartialDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 			Context = info.GetValue(nameof(Context), typeof(IMorestachioExpression)) as IMorestachioExpression;
 		}
@@ -76,9 +73,6 @@ namespace Morestachio.Document.Items
 		protected override void DeSerializeXml(XmlReader reader)
 		{
 			base.DeSerializeXml(reader);
-			AssertElement(reader, nameof(Value));
-			reader.ReadEndElement();
-
 			if (reader.Name == "With")
 			{
 				reader.ReadStartElement();
@@ -91,11 +85,17 @@ namespace Morestachio.Document.Items
 		}
 
 		/// <inheritdoc />
-		public override async ItemExecutionPromise Render(IByteCounterStream outputStream,
+		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream,
 			ContextObject context,
 			ScopeData scopeData)
 		{
-			string partialName = Value;
+			var partialName = (await MorestachioExpression.GetValue(context, scopeData)).Value?.ToString();
+
+			if (partialName == null)
+			{
+				throw new MorestachioRuntimeException($"Get partial requested by the expression: '{MorestachioExpression.ToString()}' returned null and is therefor not valid");
+			}
+
 			var currentPartial = partialName + "_" + scopeData.PartialDepth.Count;
 			scopeData.PartialDepth.Push(currentPartial);
 			if (scopeData.PartialDepth.Count >= context.Options.PartialStackSize)
@@ -140,7 +140,6 @@ namespace Morestachio.Document.Items
 					new DocumentItemExecution(new RenderPartialDoneDocumentItem(), cnxt),
 				};
 			}
-
 
 			if (context.Options.PartialsStore != null)
 			{

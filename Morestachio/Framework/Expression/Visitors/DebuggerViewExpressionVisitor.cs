@@ -157,7 +157,7 @@ namespace Morestachio.Framework.Expression.Visitors
 			StringBuilder
 				.AppendLine("Exp[")
 				.Up()
-				.AppendInterlaced();;
+				.AppendInterlaced();
 			for (var index = 0; index < expression.Expressions.Count; index++)
 			{
 				var expressionExpression = expression.Expressions[index];
@@ -171,6 +171,11 @@ namespace Morestachio.Framework.Expression.Visitors
 			StringBuilder.Down()
 				.AppendLine()
 				.AppendInterlaced("]");
+
+			if (expression.EndsWithDelimiter)
+			{
+				StringBuilder.Append("Eoex");
+			}
 		}
 
 		/// <inheritdoc />

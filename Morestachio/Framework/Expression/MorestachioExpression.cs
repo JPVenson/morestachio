@@ -38,7 +38,7 @@ namespace Morestachio.Framework.Expression
 			Location = location;
 			_pathTokenizer = new PathTokenizer();
 		}
-
+		
 		/// <summary>
 		///		Serialization constructor 
 		/// </summary>
@@ -51,6 +51,7 @@ namespace Morestachio.Framework.Expression
 				as IList<ExpressionArgument>;
 			FormatterName = info.GetString(nameof(FormatterName));
 			Location = CharacterLocation.FromFormatString(info.GetString(nameof(Location)));
+			EndsWithDelimiter = info.GetBoolean(nameof(EndsWithDelimiter));
 		}
 
 		/// <inheritdoc />
@@ -60,6 +61,7 @@ namespace Morestachio.Framework.Expression
 			info.AddValue(nameof(Formats), Formats);
 			info.AddValue(nameof(FormatterName), FormatterName);
 			info.AddValue(nameof(Location), Location.ToFormatString());
+			info.AddValue(nameof(EndsWithDelimiter), EndsWithDelimiter);
 		}
 
 		/// <inheritdoc />
@@ -72,6 +74,7 @@ namespace Morestachio.Framework.Expression
 		public void ReadXml(XmlReader reader)
 		{
 			Location = CharacterLocation.FromFormatString(reader.GetAttribute(nameof(Location)));
+			EndsWithDelimiter = reader.GetAttribute(nameof(EndsWithDelimiter)) == bool.TrueString;
 			var pathParts = new List<KeyValuePair<string, PathType>>();
 			reader.ReadStartElement();//Path
 
@@ -129,6 +132,10 @@ namespace Morestachio.Framework.Expression
 		public void WriteXml(XmlWriter writer)
 		{
 			writer.WriteAttributeString(nameof(Location), Location.ToFormatString());
+			if (EndsWithDelimiter)
+			{
+				writer.WriteAttributeString(nameof(EndsWithDelimiter), bool.TrueString);
+			}
 
 			if (PathParts.Any())
 			{
@@ -175,6 +182,11 @@ namespace Morestachio.Framework.Expression
 		///		The prepared call for an formatter
 		/// </summary>
 		public FormatterCache? Cache { get; private set; }
+
+		/// <summary>
+		///		Gets whenever this expression was explicitly closed
+		/// </summary>
+		public bool EndsWithDelimiter { get; private set; }
 
 		/// <inheritdoc />
 		public async ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
@@ -224,7 +236,7 @@ namespace Morestachio.Framework.Expression
 		}
 
 		private readonly PathTokenizer _pathTokenizer;
-
+		
 		/// <summary>
 		///		Parses the text into one or more expressions
 		/// </summary>
@@ -258,7 +270,13 @@ namespace Morestachio.Framework.Expression
 						var c = text[index];
 						if (c == ';')
 						{
+							expression.EndsWithDelimiter = true;
 							index++;
+							break;
+						}
+						if (c == '#')
+						{
+							index--;
 							break;
 						}
 						if (!expression._pathTokenizer.Add(c, context, index, out errFunc))
@@ -578,6 +596,7 @@ namespace Morestachio.Framework.Expression
 								Func<IMorestachioError> errFunc;
 								if ((currentScope.Value is MorestachioExpression exp)
 									&& text[index] != ';'
+									&& text[index] != '#'
 									&& exp._pathTokenizer.Add(text[index], context, index, out errFunc) == false)
 								{
 									var parseOp = ParseOperationCall(text, index, out index, context, tokenScopes, currentScope);
@@ -637,10 +656,20 @@ namespace Morestachio.Framework.Expression
 						break;
 				}
 
-				if (index > -1 && text[index] == ';')//expression delimiter char, advance the index and "process" it that way and stop this expression
+				if (index > -1)
 				{
-					index++;
-					break;
+					if (text[index] == ';') //expression delimiter char, advance the index and "process" it that way and stop this expression
+					{
+						morestachioExpressions.EndsWithDelimiter = true;
+						index++;
+						break;
+					}
+					if (text[index] == '#') //expression delimiter char, as the # indicates the start of another inline expression do not process it and reset the index
+					{
+						index--;
+						break;
+					}
+					
 				}
 
 				if (!reprocess)
@@ -686,7 +715,7 @@ namespace Morestachio.Framework.Expression
 		private static bool Eoex(string text, ref int index)
 		{
 			index = SkipWhitespaces(text, index);
-			return index + 1 == text.Length || text[index] == ';' || index == -1;
+			return index + 1 == text.Length || text[index] == ';' || text[index] == '#' || index == -1;
 		}
 
 		internal static int SkipWhitespaces(string text, int index)

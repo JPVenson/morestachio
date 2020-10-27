@@ -73,9 +73,19 @@
 		PartialDeclarationClose,
 
 		/// <summary>
-		///		Defines the place for rendering a single partial
+		///		Defines the place for rendering a single partial [Obsolete]
 		/// </summary>
 		RenderPartial,
+
+		/// <summary>
+		///		Defines the place for rendering a single partial
+		/// </summary>
+		ImportPartial,
+
+		/// <summary>
+		///		Defines the context an import should be set to
+		/// </summary>
+		ImportPartialContext,
 
 		/// <summary>
 		///		Defines the current Context as the be accessed by an alias

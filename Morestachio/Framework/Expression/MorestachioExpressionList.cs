@@ -76,7 +76,7 @@ namespace Morestachio.Framework.Expression
 		}
 
 		/// <inheritdoc />
-		public void GetObjectData(SerializationInfo info, StreamingContext context)
+		public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			info.AddValue(nameof(Location), Location.ToFormatString());
 			info.AddValue(nameof(Expressions), Expressions.ToArray());
@@ -89,7 +89,7 @@ namespace Morestachio.Framework.Expression
 		}
 
 		/// <inheritdoc />
-		public void ReadXml(XmlReader reader)
+		public virtual void ReadXml(XmlReader reader)
 		{
 			Location = CharacterLocation.FromFormatString(reader.GetAttribute(nameof(Location)));
 			if (reader.IsEmptyElement)
@@ -110,7 +110,7 @@ namespace Morestachio.Framework.Expression
 		}
 
 		/// <inheritdoc />
-		public void WriteXml(XmlWriter writer)
+		public virtual void WriteXml(XmlWriter writer)
 		{
 			writer.WriteAttributeString(nameof(Location), Location.ToFormatString());
 			foreach (var expression in Expressions)

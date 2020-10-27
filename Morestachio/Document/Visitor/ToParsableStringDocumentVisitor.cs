@@ -312,6 +312,18 @@ namespace Morestachio.Document.Visitor
 			StringBuilder.Append("}}");
 		}
 
+		public void Visit(ImportPartialDocumentItem documentItem)
+		{
+			StringBuilder.Append("{{#IMPORT ");
+			StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
+			if (documentItem.Context != null)
+			{
+				StringBuilder.Append(" #WITH ");
+				StringBuilder.Append(ReparseExpression(documentItem.Context));
+			}
+			StringBuilder.Append("}}");
+		}
+
 		/// <inheritdoc />
 		public void Visit(RenderPartialDoneDocumentItem documentItem)
 		{

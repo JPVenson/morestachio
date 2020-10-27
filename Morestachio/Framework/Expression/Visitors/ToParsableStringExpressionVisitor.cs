@@ -18,6 +18,8 @@ namespace Morestachio.Framework.Expression.Visitors
 			StringBuilder = new StringBuilder();
 		}
 
+		public bool TrimEoexDelimiters { get; set; }
+
 		/// <summary>
 		///		The created string
 		/// </summary>
@@ -87,6 +89,11 @@ namespace Morestachio.Framework.Expression.Visitors
 				}
 				StringBuilder.Append(")");
 			}
+
+			if (expression.EndsWithDelimiter && !TrimEoexDelimiters)
+			{
+				StringBuilder.Append(";");
+			}
 		}
 
 		/// <inheritdoc />
@@ -115,6 +122,11 @@ namespace Morestachio.Framework.Expression.Visitors
 					StringBuilder.Append(".");
 				}
 				this.Visit(expressionExpression);
+			}
+
+			if (expression.EndsWithDelimiter && !TrimEoexDelimiters)
+			{
+				StringBuilder.Append(";");
 			}
 		}
 

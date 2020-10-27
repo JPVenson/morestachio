@@ -12,6 +12,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.StringParts;
 using Morestachio.Framework.Expression.Visitors;
+using Morestachio.Framework.Tokenizing;
 using Morestachio.Parsing.ParserErrors;
 #if ValueTask
 using ContextObjectPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.Context.ContextObject>;
@@ -126,8 +127,6 @@ namespace Morestachio.Framework.Expression
 				contextObject);
 		}
 
-
-
 		/// <summary>
 		///		Parses a text into an Expression string. Must start with ether " or '
 		/// </summary>
@@ -189,9 +188,26 @@ namespace Morestachio.Framework.Expression
 
 			var currentPart = new ExpressionStringConstPart(sb.ToString(), context.CurrentLocation);
 			result.StringParts.Add(currentPart);
+
+			if (index + 1 < text.Length && Tokenizer.IsWhiteSpaceDelimiter(text[index + 1]))//slip all tailing whitespaces
+			{
+				index = MorestachioExpression.SkipWhitespaces(text, index + 1);
+				if (!Tokenizer.IsWhiteSpaceDelimiter(text[index]))
+				{
+					index--;
+				}
+			}
 			if (text.Length > index + 1 && text[index + 1] == ';')
 			{
 				index = index + 2;
+			}
+			if (index + 1 < text.Length && Tokenizer.IsWhiteSpaceDelimiter(text[index + 1]))//slip all tailing whitespaces
+			{
+				index = MorestachioExpression.SkipWhitespaces(text, index + 1);
+				if (!Tokenizer.IsWhiteSpaceDelimiter(text[index]))
+				{
+					index--;
+				}
 			}
 
 			context.AdvanceLocation(index - orgIndex);

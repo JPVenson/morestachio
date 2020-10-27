@@ -137,7 +137,10 @@ namespace Morestachio.Tests
 				var s = ses[index];
 				var expPart = s.Trim();
 				var exp = expr[index];
-				var visitor = new ToParsableStringExpressionVisitor();
+				var visitor = new ToParsableStringExpressionVisitor()
+				{
+					TrimEoexDelimiters = true
+				};
 				visitor.Visit(exp);
 				Assert.That(visitor.StringBuilder.ToString(), Is.EqualTo(expPart));
 			}
@@ -840,7 +843,7 @@ namespace Morestachio.Tests
 			};
 
 			var template =
-				@"{{#DECLARE TestPartial}}{{self.Test}}{{/DECLARE}}{{#EACH Data}}{{#INCLUDE TestPartial}}{{/EACH}}";
+				@"{{#DECLARE TestPartial}}{{self.Test}}{{/DECLARE}}{{#EACH Data}}{{#IMPORT 'TestPartial'}}{{/EACH}}";
 
 			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
 			var parsedTemplate = await Parser.ParseWithOptionsAsync(parsingOptions);
@@ -879,7 +882,48 @@ namespace Morestachio.Tests
 			};
 
 			var template =
-				@"{{#DECLARE TestPartial}}{{self.Test}}{{/DECLARE}}{{#INCLUDE TestPartial WITH Data.ElementAt(1)}}";
+				@"{{#DECLARE TestPartial}}{{self.Test}}{{/DECLARE}}{{#IMPORT 'TestPartial' #WITH Data.ElementAt(1)}}";
+
+			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
+			var parsedTemplate = await Parser.ParseWithOptionsAsync(parsingOptions);
+			TestLocationsInOrder(parsedTemplate);
+			var andStringify = await parsedTemplate.CreateAndStringifyAsync(data);
+			Assert.That(andStringify, Is.EqualTo("2"));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
+		}
+
+		[Test]
+		public async Task ParserCanIncludePartialsWithExplicitScopeAndDynamicImport()
+		{
+			var data = new Dictionary<string, object>();
+			data["Data"] = new List<object>
+			{
+				new Dictionary<string, object>
+				{
+					{
+						"self", new Dictionary<string, object>
+						{
+							{"Test", 1}
+						}
+					}
+				},
+				new Dictionary<string, object>
+				{
+					{
+						"self", new Dictionary<string, object>
+						{
+							{"Test", 2}
+						}
+					}
+				},
+			};
+
+			var template =
+				"{{#DECLARE TestPartial}}" +
+				"{{self.Test}}" +
+				"{{/DECLARE}}" +
+				"{{#VAR partialName = 'TestPartial'}}" +
+				"{{#IMPORT partialName #WITH Data.ElementAt(1)}}";
 
 			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
 			var parsedTemplate = await Parser.ParseWithOptionsAsync(parsingOptions);
@@ -929,7 +973,7 @@ namespace Morestachio.Tests
 			var template =
 				"{{#DECLARE TestPartial}}{{../../DataOneUp.self.Test}}{{self.Test}}{{/DECLARE}}" +
 				"{{#EACH Data}}" +
-				"	{{#INCLUDE TestPartial}}" +
+				"	{{#IMPORT 'TestPartial'}}" +
 				"{{/EACH}}";
 
 			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
@@ -944,7 +988,7 @@ namespace Morestachio.Tests
 		public void ParserThrowsOnInfiniteNestedCalls()
 		{
 			var data = new Dictionary<string, object>();
-			var template = @"{{#declare TestPartial}}{{#include TestPartial}}{{/declare}}{{#include TestPartial}}";
+			var template = @"{{#declare TestPartial}}{{#IMPORT 'TestPartial'}}{{/declare}}{{#IMPORT 'TestPartial'}}";
 
 			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
 			var parsedTemplate = Parser.ParseWithOptions(parsingOptions);
@@ -959,7 +1003,7 @@ namespace Morestachio.Tests
 		{
 			var data = new Dictionary<string, object>();
 			var template =
-				@"{{#declare TestPartial}}{{#declare InnerPartial}}1{{/declare}}2{{/declare}}{{#include TestPartial}}{{#include InnerPartial}}";
+				@"{{#declare TestPartial}}{{#declare InnerPartial}}1{{/declare}}2{{/declare}}{{#IMPORT 'TestPartial'}}{{#IMPORT 'InnerPartial'}}";
 
 			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
 			var parsedTemplate = await Parser.ParseWithOptionsAsync(parsingOptions);
@@ -976,7 +1020,7 @@ namespace Morestachio.Tests
 			//declare TestPartial -> Print Recursion -> If Recursion is smaller then 10 -> Print TestPartial
 			//Print TestPartial
 			var template =
-				@"{{#declare TestPartial}}{{$recursion}}{{#$recursion.() as rec}}{{#include TestPartial}}{{/rec}}{{/declare}}{{#include TestPartial}}";
+				@"{{#declare TestPartial}}{{$recursion}}{{#$recursion.() as rec}}{{#IMPORT 'TestPartial'}}{{/rec}}{{/declare}}{{#IMPORT 'TestPartial'}}";
 
 			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
 			parsingOptions.Formatters.AddSingle<int, bool>(e => { return e < 9; });

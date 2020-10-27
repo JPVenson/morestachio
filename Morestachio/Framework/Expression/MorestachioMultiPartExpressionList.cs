@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Xml;
 
 namespace Morestachio.Framework.Expression
 {
@@ -29,6 +30,30 @@ namespace Morestachio.Framework.Expression
 		/// <inheritdoc />
 		protected MorestachioMultiPartExpressionList(SerializationInfo info, StreamingContext context) : base(info, context)
 		{
+			EndsWithDelimiter = info.GetBoolean(nameof(EndsWithDelimiter));
 		}
+
+		public override void GetObjectData(SerializationInfo info, StreamingContext context)
+		{
+			base.GetObjectData(info, context);
+			info.AddValue(nameof(EndsWithDelimiter), EndsWithDelimiter);
+		}
+
+		public override void ReadXml(XmlReader reader)
+		{
+			EndsWithDelimiter = reader.GetAttribute(nameof(EndsWithDelimiter)) == bool.TrueString;
+			base.ReadXml(reader);
+		}
+
+		public override void WriteXml(XmlWriter writer)
+		{
+			writer.WriteAttributeString(nameof(EndsWithDelimiter), EndsWithDelimiter.ToString());
+			base.WriteXml(writer);
+		}
+
+		/// <summary>
+		///		Gets whenever this collection of expression where explicitly closed with an delimiter ';'
+		/// </summary>
+		public bool EndsWithDelimiter { get; set; }
 	}
 }

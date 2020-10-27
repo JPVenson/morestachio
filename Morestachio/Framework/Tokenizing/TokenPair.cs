@@ -112,4 +112,13 @@ namespace Morestachio.Framework.Tokenizing
 		}
 
 	}
+
+
+	internal struct ImportData
+	{
+		public string ImportNameExpression { get; set; }
+		public string ImportContext { get; set; }
+
+
+	}
 }

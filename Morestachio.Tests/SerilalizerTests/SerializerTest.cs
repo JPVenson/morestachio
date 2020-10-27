@@ -97,7 +97,7 @@ namespace Morestachio.Tests.SerilalizerTests
 						   "{{#DECLARE PartialA}}" +
 						   "I am <Text> {{Data.data('test')}}" +
 						   "{{/DECLARE}}" +
-						   "{{#INCLUDE PartialA}}";
+						   "{{#IMPORT 'PartialA}'}";
 			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
 			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
 			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document);
@@ -111,7 +111,7 @@ namespace Morestachio.Tests.SerilalizerTests
 						   "{{#LET test = 'test'}}" +
 						   "I am <Text> {{Data.data('test')}}" +
 						   "{{/DECLARE}}" +
-						   "{{#INCLUDE PartialA WITH data.extra()}}";
+						   "{{#IMPORT 'PartialA' #WITH data.extra()}}";
 			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
 			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
 			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document);

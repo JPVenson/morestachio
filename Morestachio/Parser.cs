@@ -7,6 +7,7 @@ using Morestachio.Document.Contracts;
 using Morestachio.Document.Items;
 using Morestachio.Document.Items.SwitchCase;
 using Morestachio.Document.TextOperations;
+using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Parsing;
@@ -97,7 +98,7 @@ namespace Morestachio
 				return buildStack.FirstOrDefault(e => e.VariableScopeNumber != -1);
 			}
 
-			foreach (var currentToken in tokenizerResult.Tokens)
+			foreach (var currentToken in tokenizerResult)
 			{
 				var currentDocumentItem = buildStack.Peek(); //get the latest document
 
@@ -269,6 +270,22 @@ namespace Morestachio
 				else if (currentToken.Type.Equals(TokenType.RenderPartial))
 				{
 					currentDocumentItem.Document.Add(new RenderPartialDocumentItem(currentToken.Value, currentToken.MorestachioExpression)
+					{
+						ExpressionStart = currentToken.TokenLocation,
+					});
+				}
+				else if (currentToken.Type.Equals(TokenType.ImportPartial))
+				{
+					IMorestachioExpression context = null;
+					var nextToken = tokenizerResult.Next;
+					if (nextToken.HasValue &&
+					    nextToken.Value.Type.Equals(TokenType.ImportPartialContext))
+					{
+						context = nextToken.Value.MorestachioExpression;
+						tokenizerResult.MoveCursor(1);
+					}
+
+					currentDocumentItem.Document.Add(new ImportPartialDocumentItem(currentToken.MorestachioExpression, context)
 					{
 						ExpressionStart = currentToken.TokenLocation,
 					});
