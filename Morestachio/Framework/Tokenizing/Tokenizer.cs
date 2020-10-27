@@ -702,6 +702,14 @@ namespace Morestachio.Framework.Tokenizing
 					else if (trimmedToken.StartsWith("#switch ", true, CultureInfo.InvariantCulture))
 					{
 						var token = TrimToken(trimmedToken, "switch");
+						var shouldScope = false;
+
+						if (token.EndsWith("#scope", true, CultureInfo.InvariantCulture))
+						{
+							shouldScope = true;
+							token = token.Remove(token.Length - "#ScopeTo".Length + 1);
+						}
+
 						var eval = EvaluateNameFromToken(token);
 						token = eval.Value;
 						if (eval.Name != null)
@@ -719,6 +727,10 @@ namespace Morestachio.Framework.Tokenizing
 							tokens.Add(new TokenPair(TokenType.SwitchOpen,
 								token,
 								context.CurrentLocation, ExpressionParser.ParseExpression(token, context)));
+							if (shouldScope)
+							{
+								tokens.Add(new TokenPair(TokenType.SwitchOptionScopeTo, null, context.CurrentLocation));
+							}
 						}
 						else
 						{

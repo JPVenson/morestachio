@@ -15,6 +15,12 @@ using Morestachio.Framework.Error;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
 
+#if ValueTask
+using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+#else
+using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+#endif
+
 namespace Morestachio.Document.Items
 {
 	/// <summary>
@@ -85,7 +91,7 @@ namespace Morestachio.Document.Items
 		}
 
 		/// <inheritdoc />
-		public override async Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream,
+		public override async ItemExecutionPromise Render(IByteCounterStream outputStream,
 			ContextObject context,
 			ScopeData scopeData)
 		{

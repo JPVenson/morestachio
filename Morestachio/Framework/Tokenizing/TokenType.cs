@@ -98,6 +98,11 @@
 		SwitchOpen,
 
 		/// <summary>
+		///		Defines the #ScopeTo keyword inline with a switch
+		/// </summary>
+		SwitchOptionScopeTo,
+
+		/// <summary>
 		///		Defines an case statement. Must be used in conjunction with an enclosing Switch statement.
 		/// </summary>
 		SwitchCaseOpen,

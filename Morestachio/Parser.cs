@@ -147,7 +147,15 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.SwitchOpen))
 				{
-					var nestedDocument = new SwitchDocumentItem(currentToken.MorestachioExpression)
+					var shouldScopeTo = false;
+					var nextToken = tokenizerResult.Next;
+					if (nextToken.HasValue &&
+					    nextToken.Value.Type.Equals(TokenType.SwitchOptionScopeTo))
+					{
+						shouldScopeTo = true;
+						tokenizerResult.MoveCursor(1);
+					}
+					var nestedDocument = new SwitchDocumentItem(currentToken.MorestachioExpression, shouldScopeTo)
 					{
 						ExpressionStart = currentToken.TokenLocation
 					};

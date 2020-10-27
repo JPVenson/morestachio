@@ -476,6 +476,31 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		public void TemplateCanRenderSwitchCaseWithScopeing()
+		{
+			var template =
+				"{{#SWITCH data #SCOPE}}" +
+				"{{#CASE 'tset'}}FAIL-{{.}}{{/CASE}}" +
+				"{{#CASE 123}}FAIL-{{.}}{{/CASE}}" +
+				"{{#CASE root}}FAIL-{{.}}{{/CASE}}" +
+				"{{#CASE 'test'}}SUCCESS-{{.}}{{/CASE}}" +
+				"{{/SWITCH}}";
+
+			var parsedTemplate =
+				Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding));
+
+			var model = new Dictionary<string, object>()
+			{
+				{"data", "test" },
+				{"root", "tset" }
+			};
+
+			var result = parsedTemplate.CreateAndStringify(model);
+
+			Assert.That(result, Is.EqualTo("SUCCESS-test"));
+		}
+
+		[Test]
 		public void TemplateCanRenderDefaultSwitchCase()
 		{
 			var template =
