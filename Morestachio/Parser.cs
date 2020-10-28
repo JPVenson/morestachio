@@ -134,17 +134,17 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.SwitchOpen))
 				{
-					var shouldScopeTo = false;
-					var nextToken = tokenizerResult.Next;
-					if (nextToken.HasValue &&
-					    nextToken.Value.Type.Equals(TokenType.SwitchOptionScopeTo))
-					{
-						shouldScopeTo = true;
-						tokenizerResult.MoveCursor(1);
-					}
+					//var shouldScopeTo = false;
+					//var nextToken = tokenizerResult.Next;
+					//if (nextToken.HasValue &&
+					//    nextToken.Value.Type.Equals(TokenType.SwitchOptionScopeTo))
+					//{
+					//	shouldScopeTo = true;
+					//	tokenizerResult.MoveCursor(1);
+					//}
 					var nestedDocument = new SwitchDocumentItem(currentToken.TokenLocation,
 						currentToken.MorestachioExpression,
-						shouldScopeTo);
+						currentToken.FindOption<bool>("ScopeTo"));
 					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					currentDocumentItem.Document.Add(nestedDocument);
 				}
@@ -244,18 +244,18 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.ImportPartial))
 				{
-					IMorestachioExpression context = null;
-					var nextToken = tokenizerResult.Next;
-					if (nextToken.HasValue &&
-					    nextToken.Value.Type.Equals(TokenType.ImportPartialContext))
-					{
-						context = nextToken.Value.MorestachioExpression;
-						tokenizerResult.MoveCursor(1);
-					}
+					//IMorestachioExpression context = null;
+					//var nextToken = tokenizerResult.Next;
+					//if (nextToken.HasValue &&
+					//    nextToken.Value.Type.Equals(TokenType.ImportPartialContext))
+					//{
+					//	context = nextToken.Value.MorestachioExpression;
+					//	tokenizerResult.MoveCursor(1);
+					//}
 
 					currentDocumentItem.Document.Add(new ImportPartialDocumentItem(currentToken.TokenLocation, 
 						currentToken.MorestachioExpression, 
-						context));
+						currentToken.FindOption<IMorestachioExpression>("Context")));
 				}
 				else if (currentToken.Type.Equals(TokenType.Alias))
 				{

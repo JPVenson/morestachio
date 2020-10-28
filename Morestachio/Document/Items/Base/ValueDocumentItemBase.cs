@@ -11,6 +11,10 @@ namespace Morestachio.Document.Items.Base
 	[Serializable]
 	public abstract class ValueDocumentItemBase : DocumentItemBase, IEquatable<ValueDocumentItemBase>
 	{
+		internal ValueDocumentItemBase()
+		{
+
+		}
 		/// <summary>
 		/// 
 		/// </summary>

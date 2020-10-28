@@ -26,6 +26,11 @@ namespace Morestachio.Document.Items.Base
 	public abstract class DocumentItemBase : IMorestachioDocument, 
 		IEquatable<DocumentItemBase>
 	{
+		internal DocumentItemBase()
+		{
+
+		}
+
 		/// <summary>
 		///		Creates a new base object for encapsulating document items
 		/// </summary>

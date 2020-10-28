@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
 using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Expression;
@@ -18,10 +20,53 @@ namespace Morestachio.Framework.Tokenizing
 		public TokenPair(IComparable type,
 			string value,
 			CharacterLocation tokenLocation,
+			IEnumerable<TokenOption> tokenOptions,
 			EmbeddedState isEmbeddedToken = EmbeddedState.None)
-			: this(type, value, tokenLocation, null, isEmbeddedToken)
+			: this(type, value, tokenLocation, null, tokenOptions, isEmbeddedToken)
 		{
+		}
+
+
+		/// <summary>
+		///		Creates a new Token Pair
+		/// </summary>
+		public TokenPair(IComparable type,
+			CharacterLocation tokenLocation,
+			IMorestachioExpression expression,
+			IEnumerable<TokenOption> tokenOptions,
+			EmbeddedState isEmbeddedToken = EmbeddedState.None)
+			: this(type, null, tokenLocation, expression, tokenOptions, isEmbeddedToken)
+		{
+		}
+
+
+		/// <summary>
+		///		Creates a new Token Pair
+		/// </summary>
+		public TokenPair(IComparable type,
+			string value,
+			CharacterLocation tokenLocation,
+			IMorestachioExpression expression,
+			IEnumerable<TokenOption> tokenOptions,
+			EmbeddedState isEmbeddedToken = EmbeddedState.None)
+		{
+			Type = type;
+			MorestachioExpression = expression;
+			TokenOptions = tokenOptions;
+			IsEmbeddedToken = isEmbeddedToken;
+			TokenLocation = tokenLocation;
 			Value = value;
+		}
+
+		/// <summary>
+		///		Creates a new Token Pair
+		/// </summary>
+		public TokenPair(IComparable type,
+			string value,
+			CharacterLocation tokenLocation,
+			EmbeddedState isEmbeddedToken = EmbeddedState.None)
+			: this(type, value, tokenLocation, null, null, isEmbeddedToken)
+		{
 		}
 
 
@@ -32,7 +77,7 @@ namespace Morestachio.Framework.Tokenizing
 			CharacterLocation tokenLocation,
 			IMorestachioExpression expression,
 			EmbeddedState isEmbeddedToken = EmbeddedState.None)
-			: this(type, null, tokenLocation, expression, isEmbeddedToken)
+			: this(type, null, tokenLocation, expression, null, isEmbeddedToken)
 		{
 		}
 
@@ -45,12 +90,8 @@ namespace Morestachio.Framework.Tokenizing
 			CharacterLocation tokenLocation,
 			IMorestachioExpression expression,
 			EmbeddedState isEmbeddedToken = EmbeddedState.None)
+			: this(type, value, tokenLocation, expression, null, isEmbeddedToken)
 		{
-			Type = type;
-			MorestachioExpression = expression;
-			IsEmbeddedToken = isEmbeddedToken;
-			TokenLocation = tokenLocation;
-			Value = value;
 		}
 
 		/// <summary>
@@ -69,6 +110,11 @@ namespace Morestachio.Framework.Tokenizing
 		internal IMorestachioExpression MorestachioExpression { get; }
 
 		/// <summary>
+		///		Gets the options set with the Token
+		/// </summary>
+		public IEnumerable<TokenOption> TokenOptions { get; }
+
+		/// <summary>
 		///		What is the Value of this token
 		/// </summary>
 		[CanBeNull]
@@ -78,6 +124,43 @@ namespace Morestachio.Framework.Tokenizing
 		///		Where does this token occure in the Template
 		/// </summary>
 		public CharacterLocation TokenLocation { get; }
+
+		/// <summary>
+		///		Searches in the TokenOptions and returns the value if found
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="name"></param>
+		/// <returns></returns>
+		public T FindOption<T>(string name)
+		{
+			return FindOption<T>(name, () => default);
+		}
+
+		/// <summary>
+		///		Searches in the TokenOptions and returns the value if found
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="name"></param>
+		/// <returns></returns>
+		public T FindOption<T>(string name, Func<T> getDefault)
+		{
+			if (TokenOptions.FirstOrDefault(e => e.Name.Equals(name)).Value is T val)
+			{
+				return val;
+			}
+			return getDefault();
+		}
+
+		/// <summary>
+		///		Searches in the TokenOptions and returns the value if found
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="name"></param>
+		/// <returns></returns>
+		public T[] FindOptions<T>(string name)
+		{
+			return (TokenOptions.FirstOrDefault(e => e.Name.Equals(name)).Value as IEnumerable<T>)?.ToArray();
+		}
 
 		[PublicAPI]
 		private class TokenPairDebuggerProxy
@@ -116,12 +199,30 @@ namespace Morestachio.Framework.Tokenizing
 
 	}
 
-
-	internal struct ImportData
+	/// <summary>
+	///		Defines an option declared inline with the keyword
+	/// </summary>
+	public readonly struct TokenOption
 	{
-		public string ImportNameExpression { get; set; }
-		public string ImportContext { get; set; }
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="value"></param>
+		public TokenOption(string name, object value)
+		{
+			Name = name;
+			Value = value;
+		}
 
+		/// <summary>
+		///		The name of the Option
+		/// </summary>
+		public string Name { get; }
 
+		/// <summary>
+		///		The value of the Option
+		/// </summary>
+		public object Value { get; }
 	}
 }

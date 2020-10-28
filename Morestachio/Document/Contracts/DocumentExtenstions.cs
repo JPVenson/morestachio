@@ -16,7 +16,7 @@ namespace Morestachio.Document.Contracts
 			DocumentItems = typeof(DocumentExtensions)
 				.Assembly
 				.GetTypes()
-				.Where(e => e.IsClass)
+				.Where(e => e.IsClass && !e.IsAbstract)
 				.Where(e => typeof(IDocumentItem).IsAssignableFrom(e))
 				.Where(e => e.GetCustomAttribute<SerializableAttribute>(false) != null)
 				.ToDictionary(e => e.Name, type =>

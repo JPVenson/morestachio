@@ -46,7 +46,9 @@ namespace Morestachio.Document.Custom
 			}
 			
 			/// <inheritdoc />
-			public TagDocumentItem(TagDocumentProviderFunction action, string value) : base(CharacterLocation.Unknown, value)
+			public TagDocumentItem(CharacterLocation location,
+				TagDocumentProviderFunction action, 
+				string value) : base(location, value)
 			{
 				_action = action;
 			}
@@ -68,7 +70,7 @@ namespace Morestachio.Document.Custom
 		/// <inheritdoc />
 		public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token, ParserOptions options)
 		{
-			return new TagDocumentItem(_action, value);
+			return new TagDocumentItem(token.TokenLocation, _action, value);
 		}
 	}
 }

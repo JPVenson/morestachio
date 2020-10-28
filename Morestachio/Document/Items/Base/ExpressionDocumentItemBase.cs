@@ -12,6 +12,11 @@ namespace Morestachio.Document.Items.Base
 	[Serializable]
 	public abstract class ExpressionDocumentItemBase : DocumentItemBase, IEquatable<ExpressionDocumentItemBase>
 	{
+		internal ExpressionDocumentItemBase()
+		{
+
+		}
+
 		/// <param name="location"></param>
 		/// <inheritdoc />
 		protected ExpressionDocumentItemBase(CharacterLocation location, IMorestachioExpression expression) : base(location)

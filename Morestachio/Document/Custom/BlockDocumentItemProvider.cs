@@ -49,7 +49,9 @@ namespace Morestachio.Document.Custom
 			}
 
 			/// <inheritdoc />
-			public BlockDocumentItem(BlockDocumentProviderFunction action, string value) : base(CharacterLocation.Unknown, value)
+			public BlockDocumentItem(CharacterLocation location, 
+				BlockDocumentProviderFunction action, 
+				string value) : base(location, value)
 			{
 				_action = action;
 			}
@@ -71,7 +73,7 @@ namespace Morestachio.Document.Custom
 		/// <inheritdoc />
 		public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token, ParserOptions options)
 		{
-			return new BlockDocumentItem(_action, value);
+			return new BlockDocumentItem(token.TokenLocation, _action, value);
 		}
 	}
 }

@@ -531,17 +531,12 @@ namespace Morestachio.Framework.Tokenizing
 
 						//late bound expression, cannot check at parse time for existance
 						tokens.Add(new TokenPair(TokenType.ImportPartial, 
-							null, 
 							context.CurrentLocation, 
-							tokenNameExpression));
-
-						if (contextExpression != null)
-						{
-							tokens.Add(new TokenPair(TokenType.ImportPartialContext, 
-								null, 
-								context.CurrentLocation, 
-								contextExpression));
-						}
+							tokenNameExpression, 
+							new []
+							{
+								new TokenOption("Context", contextExpression), 
+							}));
 					}
 					else if (trimmedToken.StartsWith("#each ", true, CultureInfo.InvariantCulture))
 					{
@@ -723,12 +718,13 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							token = token.Trim();
 							tokens.Add(new TokenPair(TokenType.SwitchOpen,
-								token,
-								context.CurrentLocation, ExpressionParser.ParseExpression(token, context)));
-							if (shouldScope)
-							{
-								tokens.Add(new TokenPair(TokenType.SwitchOptionScopeTo, null, context.CurrentLocation));
-							}
+								context.CurrentLocation,
+								ExpressionParser.ParseExpression(token, context),
+								new TokenOption[]
+								{
+									new TokenOption("ScopeTo", shouldScope),
+								}
+							));
 						}
 						else
 						{
