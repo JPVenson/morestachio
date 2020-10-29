@@ -4,13 +4,12 @@ using System.Runtime.Serialization;
 using System.Text;
 using Morestachio.Document.Contracts;
 
-namespace Morestachio.Tests.DocTree
+namespace Morestachio.Tests.SerilalizerTests.Strategies
 {
 	public class DocumentSerializerBinaryStrategy : IDocumentSerializerStrategy
 	{
 		public DocumentSerializerBinaryStrategy()
 		{
-
 			//BinarySerializer.TypeFormat = FormatterTypeStyle.TypesWhenNeeded;
 		}
 		

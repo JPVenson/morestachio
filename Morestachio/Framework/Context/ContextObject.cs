@@ -311,27 +311,23 @@ namespace Morestachio.Framework.Context
 
 				//ALWAYS return the context, even if the value is null.
 				ContextObject innerContext = null;
-				switch (Value)
+				if (!Options.HandleDictionaryAsObject && Value is IDictionary<string, object> dictList)
 				{
-					case IDictionary<string, object> dictList:
+					innerContext = Options.CreateContextObject(elements.Current.Key, CancellationToken,
+						dictList.Select(e => e), this);
+				}
+				else
+				{
+					if (Value != null)
+					{
 						innerContext = Options.CreateContextObject(elements.Current.Key, CancellationToken,
-							dictList.Select(e => e), this);
-						break;
-					default:
-						{
-							if (Value != null)
-							{
-								innerContext = Options.CreateContextObject(elements.Current.Key, CancellationToken,
-									type
-										.GetTypeInfo()
-										.GetProperties(BindingFlags.Instance | BindingFlags.Public)
-										.Where(e => !e.IsSpecialName && !e.GetIndexParameters().Any())
-										.Select(e => new KeyValuePair<string, object>(e.Name, e.GetValue(Value))),
-									this);
-							}
-
-							break;
-						}
+							type
+								.GetTypeInfo()
+								.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+								.Where(e => !e.IsSpecialName && !e.GetIndexParameters().Any())
+								.Select(e => new KeyValuePair<string, object>(e.Name, e.GetValue(Value))),
+							this);
+					}
 				}
 
 				if (innerContext != null)
@@ -357,7 +353,7 @@ namespace Morestachio.Framework.Context
 			}
 			else if (elements.Current.Value == PathType.Null)
 			{
-				return Options.CreateContextObject("x:null", CancellationToken, null, null);
+				return Options.CreateContextObject("x:null", CancellationToken, null);
 			}
 			else if (elements.Current.Value == PathType.DataPath)
 			{
@@ -422,6 +418,11 @@ namespace Morestachio.Framework.Context
 								elements.Current.Key, Value?.GetType()));
 						}
 					}
+				}
+				else
+				{
+					Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+						elements.Current.Key, Value?.GetType()));
 				}
 
 				retval = await innerContext.GetContextForPathInternal(elements.Next(), scopeData,

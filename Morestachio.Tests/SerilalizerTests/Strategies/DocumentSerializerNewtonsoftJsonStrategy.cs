@@ -2,11 +2,11 @@
 using Morestachio.Document.Contracts;
 using Newtonsoft.Json;
 
-namespace Morestachio.Tests.DocTree
+namespace Morestachio.Tests.SerilalizerTests.Strategies
 {
-	public class DocumentSerializerJsonNetStrategy : IDocumentSerializerStrategy
+	public class DocumentSerializerNewtonsoftJsonStrategy : IDocumentSerializerStrategy
 	{
-		public DocumentSerializerJsonNetStrategy()
+		public DocumentSerializerNewtonsoftJsonStrategy()
 		{
 			jsonSerializerSettings = new JsonSerializerSettings();
 			jsonSerializerSettings.Formatting = Formatting.Indented;

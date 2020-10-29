@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items;
 
-namespace Morestachio.Tests.DocTree
+namespace Morestachio.Tests.SerilalizerTests.Strategies
 {
 	public class DocumentSerializerXmlStrategy : IDocumentSerializerStrategy
 	{

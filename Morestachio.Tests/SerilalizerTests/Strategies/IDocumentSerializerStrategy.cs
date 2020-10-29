@@ -1,7 +1,7 @@
 ﻿using System;
 using Morestachio.Document.Contracts;
 
-namespace Morestachio.Tests.DocTree
+namespace Morestachio.Tests.SerilalizerTests.Strategies
 {
 	public interface IDocumentSerializerStrategy
 	{

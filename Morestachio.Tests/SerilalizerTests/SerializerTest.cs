@@ -4,13 +4,14 @@ using Morestachio.Document.Items;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Helper.Localization;
-using Morestachio.Tests.DocTree;
+using Morestachio.Tests.SerilalizerTests.Strategies;
 using NUnit.Framework;
 
 namespace Morestachio.Tests.SerilalizerTests
 {
 	[TestFixture(typeof(DocumentSerializerXmlStrategy))]
-	[TestFixture(typeof(DocumentSerializerJsonNetStrategy))]
+	[TestFixture(typeof(DocumentSerializerNewtonsoftJsonStrategy))]
+	[TestFixture(typeof(DocumentSerializerBinaryStrategy))]
 	public class SerializerTest
 	{
 		public SerializerTest(Type strategy)
@@ -45,9 +46,9 @@ namespace Morestachio.Tests.SerilalizerTests
 			var deserializedText = DocumentSerializerStrategy.SerializeToText(deserialized);
 			Assert.That(document, Is.EqualTo(deserialized), () =>
 				{
-					return $"Object left is: " +
-						   $"\"{text}\" " +
-						   $"and right ist " +
+					return $"Object left is: \r\n" +
+						   $"\"{text}\" \r\n" +
+						   $"and right ist \r\n" +
 						   $"\"{deserializedText}\"" +
 						   $"";
 				});
@@ -72,7 +73,7 @@ namespace Morestachio.Tests.SerilalizerTests
 			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
 			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document);
 		}
-		
+
 		[Test]
 		public void TestIsContentSerializable()
 		{
@@ -167,8 +168,8 @@ namespace Morestachio.Tests.SerilalizerTests
 		public void TestIsIfNotIfSerializable()
 		{
 			var template = "I am <Text> {{#IF data}}" +
-			               "{{#LET test = 'test'}}" +
-			               " {{/IF}} {{^IF data}} {{/IF}}";
+						   "{{#LET test = 'test'}}" +
+						   " {{/IF}} {{^IF data}} {{/IF}}";
 			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
 			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
 			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document);
@@ -178,10 +179,10 @@ namespace Morestachio.Tests.SerilalizerTests
 		public void TestIsIfElseIsSerializable()
 		{
 			var template = "I am <Text> {{#IF data}}" +
-			               "{{#LET test = 'test'}}" +
-			               " {{/IF}} {{#ELSE}}" +
-			               "{{#LET test = 'test'}}" +
-			               " {{/ELSE}}";
+						   "{{#LET test = 'test'}}" +
+						   " {{/IF}} {{#ELSE}}" +
+						   "{{#LET test = 'test'}}" +
+						   " {{/ELSE}}";
 			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
 			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
 			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document);
@@ -191,24 +192,24 @@ namespace Morestachio.Tests.SerilalizerTests
 		public void TestLocIsSerializable()
 		{
 			var template = "{{#loc 'Texts.Welcome'}} " +
-			               "{{#LocCulture 'de-AT'}}" +
-			               "{{#loc 'Texts.Welcome'}} " +
-			               "{{/LocCulture}}" +
+						   "{{#LocCulture 'de-AT'}}" +
+						   "{{#loc 'Texts.Welcome'}} " +
+						   "{{/LocCulture}}" +
 
-			               "{{#loc 'Texts.Welcome'}} " +
+						   "{{#loc 'Texts.Welcome'}} " +
 
 						   "{{#LocCulture 'de-DE'}}" +
-			               "{{#loc 'Texts.Welcome'}} " +
+						   "{{#loc 'Texts.Welcome'}} " +
 
-			               "{{#LocCulture 'de-AT'}}" +
-			               "{{#loc 'Texts.Welcome'}} " +
-			               "{{/LocCulture}}" +
+						   "{{#LocCulture 'de-AT'}}" +
+						   "{{#loc 'Texts.Welcome'}} " +
+						   "{{/LocCulture}}" +
 
-			               "{{#loc 'Texts.Welcome'}}" +
-			               "{{/LocCulture}}" +
-			               "{{#LOCP 'test'}}" +
-			               "{{#LOCPARAM 'ParamA'}}" +
-			               "{{/LOCP}}";
+						   "{{#loc 'Texts.Welcome'}}" +
+						   "{{/LocCulture}}" +
+						   "{{#LOCP 'test'}}" +
+						   "{{#LOCPARAM 'ParamA'}}" +
+						   "{{/LOCP}}";
 			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template)
 				.RegisterLocalizationService(
 				() =>

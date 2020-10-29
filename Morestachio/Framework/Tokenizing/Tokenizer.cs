@@ -550,19 +550,6 @@ namespace Morestachio.Framework.Tokenizing
 						if (token.Trim() != "")
 						{
 							token = token.Trim();
-							ScopingBehavior? scopeBehavior = null;
-							if (!string.IsNullOrWhiteSpace(alias))
-							{
-								if (token.EndsWith("NoScope", StringComparison.InvariantCultureIgnoreCase))
-								{
-									scopeBehavior = ScopingBehavior.DoNotScope;
-								}
-								if (token.EndsWith("WithScope", StringComparison.InvariantCultureIgnoreCase))
-								{
-									scopeBehavior = ScopingBehavior.ScopeAnyway;
-								}
-							}
-
 							tokens.Add(new TokenPair(TokenType.CollectionOpen,
 								token,
 								context.CurrentLocation,
