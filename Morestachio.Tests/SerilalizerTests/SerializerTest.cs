@@ -66,6 +66,24 @@ namespace Morestachio.Tests.SerilalizerTests
 		}
 
 		[Test]
+		public void TestIsScopeIsSerializable()
+		{
+			var template = "I am <Text> {{#Data.data.test().next(arg).(last) AS arg}} test {{/arg}}";
+			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
+			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
+			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document);
+		}
+
+		[Test]
+		public void TestIsInvertScopeIsSerializable()
+		{
+			var template = "I am <Text> {{^Data.data.test().next(arg).(last) AS arg}} test {{/arg}}";
+			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
+			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
+			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document);
+		}
+
+		[Test]
 		public void TestIsVariableSerializable()
 		{
 			var template = "I am <Text> {{#VAR f = data.test.Format().As.Test('', exp)}}";
