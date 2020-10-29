@@ -1,5 +1,6 @@
 ﻿using Morestachio.Document.Contracts;
 using Morestachio.Document.Items;
+using Morestachio.Document.Items.SwitchCase;
 
 namespace Morestachio.Document.Visitor
 {
@@ -19,6 +20,9 @@ namespace Morestachio.Document.Visitor
 		void Visit(IfExpressionScopeDocumentItem documentItem);
 		void Visit(IfNotExpressionScopeDocumentItem documentItem);
 		void Visit(InvertedExpressionScopeDocumentItem documentItem);
+		void Visit(SwitchDocumentItem documentItem);
+		void Visit(SwitchCaseDocumentItem documentItem);
+		void Visit(SwitchDefaultDocumentItem documentItem);
 		void Visit(MorestachioDocument documentItem);
 		void Visit(PartialDocumentItem documentItem);
 		void Visit(PathDocumentItem documentItem);

@@ -4,6 +4,7 @@ using System.Text;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items;
 using Morestachio.Document.Items.Base;
+using Morestachio.Document.Items.SwitchCase;
 using Morestachio.Document.TextOperations;
 using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Expression;
@@ -269,7 +270,33 @@ namespace Morestachio.Document.Visitor
 		{
 			Visit(documentItem, "", "^");
 		}
-		
+
+		public void Visit(SwitchDocumentItem documentItem)
+		{
+			StringBuilder.Append("{{#SWITCH ");
+			StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
+			if (documentItem.ScopeToValue)
+			{
+				StringBuilder.Append(" #SCOPE");
+			}
+
+			StringBuilder.Append("}}");
+
+			VisitChildren(documentItem);
+
+			StringBuilder.Append("{{/SWITCH}}");
+		}
+
+		public void Visit(SwitchCaseDocumentItem documentItem)
+		{
+			Visit(documentItem, "CASE ");
+		}
+
+		public void Visit(SwitchDefaultDocumentItem documentItem)
+		{
+			Visit(documentItem, "DEFAULT ");
+		}
+
 		/// <inheritdoc />
 		public void Visit(MorestachioDocument documentItem)
 		{

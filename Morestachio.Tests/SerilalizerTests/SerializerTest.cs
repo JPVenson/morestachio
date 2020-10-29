@@ -93,6 +93,47 @@ namespace Morestachio.Tests.SerilalizerTests
 		}
 
 		[Test]
+		public void TestIsContentWithPathAndEveryAndFormatterSerializable()
+		{
+			var template = "I am <Text> {{#EACH data.('', dd).?}} {{Data.data.test()}} {{/EACH}}";
+			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
+			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
+			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document);
+		}
+
+		[Test]
+		public void TestCanSerializeSwitch()
+		{
+			var template =
+				"{{#SWITCH data}}" +
+				"{{#CASE 'tset'}}FAIL{{/CASE}}" +
+				"{{#CASE 123}}FAIL{{/CASE}}" +
+				"{{#CASE root}}FAIL{{/CASE}}" +
+				"{{#CASE 'test'}}SUCCESS{{/CASE}}" +
+				"{{/SWITCH}}";
+
+			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
+			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
+			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document);
+		}
+
+		[Test]
+		public void TestCanSerializeSwitchWithContext()
+		{
+			var template =
+				"{{#SWITCH data #SCOPE}}" +
+				"{{#CASE 'tset'}}FAIL-{{.}}{{/CASE}}" +
+				"{{#CASE 123}}FAIL-{{.}}{{/CASE}}" +
+				"{{#CASE root}}FAIL-{{.}}{{/CASE}}" +
+				"{{#CASE 'test'}}SUCCESS-{{.}}{{/CASE}}" +
+				"{{/SWITCH}}";
+
+			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
+			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
+			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document);
+		}
+
+		[Test]
 		public void TestCanSerializePartial()
 		{
 			var template = "Partial:" +
