@@ -117,12 +117,26 @@ namespace Morestachio.Formatter.Predefined
 		[MorestachioFormatter("Substring", "The slice returns a substring, starting at the specified index. An optional second parameter can be passed to specify the length of the substring. If no second parameter is given, a substring with the remaining characters will be returned.")]
 		public static string Substring(string source, int start, int count)
 		{
+			if (start > source.Length)
+			{
+				return string.Empty;
+			}
+
+			if (start + count > source.Length)
+			{
+				count = source.Length - start;
+			}
 			return source.Substring(start, count);
 		}
 
 		[MorestachioFormatter("Substring", "The slice returns a substring, starting at the specified index. An optional second parameter can be passed to specify the length of the substring. If no second parameter is given, a substring with the remaining characters will be returned.")]
 		public static string Substring(string source, int start)
 		{
+			if (start > source.Length)
+			{
+				return string.Empty;
+			}
+			
 			return source.Substring(start);
 		}
 

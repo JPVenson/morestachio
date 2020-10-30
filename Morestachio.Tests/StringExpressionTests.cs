@@ -28,7 +28,7 @@ namespace Morestachio.Tests
 			var text = "'test'";
 			var result = ExpressionParser.ParseExpression(text, out var context, CultureInfo.CurrentCulture);
 			Assert.That(context.Errors, Is.Empty, () => context.Errors.Select(f => f.GetException().ToString())
-				.Aggregate((e,f) => e + "\r\n-------------" + f));
+				.Aggregate((e, f) => e + "\r\n-------------" + f));
 			Assert.That(result, Is.TypeOf<MorestachioExpressionString>());
 			var expressionString = (result as MorestachioExpressionString);
 			Assert.That(expressionString.Location.ToFormatString(), Is.EqualTo("1:1"));
@@ -42,13 +42,19 @@ namespace Morestachio.Tests
 			var text = "\"a string, with a comma, and other {[]}{§$%& stuff. also a escaped \\\" and \\\\\" and so on\"";
 			var result = ExpressionParser.ParseExpression(text, out var context, CultureInfo.CurrentCulture);
 			Assert.That(context.Errors, Is.Empty, () => context.Errors.Select(f => f.GetException().ToString())
-				.Aggregate((e,f) => e + "\r\n-------------" + f));
+				.Aggregate((e, f) => e + "\r\n-------------" + f));
 
 			Assert.That(result, Is.TypeOf<MorestachioExpressionString>());
 			var expressionString = (result as MorestachioExpressionString);
 			Assert.That(expressionString.Location.ToFormatString(), Is.EqualTo("1:1"));
 			Assert.That(expressionString.StringParts.Count, Is.EqualTo(1));
 			Assert.That((await expressionString.GetValue(StringTestContext(), new ScopeData())).Value, Is.EqualTo("a string, with a comma, and other {[]}{§$%& stuff. also a escaped \" and \\\" and so on"));
+		}
+
+		[Test]
+		public void TestSubstringFormatter()
+		{
+			Assert.That(Morestachio.Formatter.Predefined.StringFormatter.Substring("ABCDEFGHIJ", 3, 20), Is.EqualTo("DEFGHIJ"));
 		}
 	}
 }
