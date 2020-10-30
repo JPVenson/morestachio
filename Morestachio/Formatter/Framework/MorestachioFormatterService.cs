@@ -92,6 +92,8 @@ namespace Morestachio.Formatter.Framework
 		[Obsolete("The Formatter name must now always be in the exact casing as the given name", true)]
 		public StringComparison FormatterNameCompareMode { get; set; } = StringComparison.Ordinal;
 
+		public FormatterServiceExceptionHandling ExceptionHandling { get; set; }
+
 		/// <inheritdoc />
 		public IReadOnlyDictionary<Type, object> ServiceCollection
 		{
@@ -269,11 +271,28 @@ namespace Morestachio.Formatter.Framework
 				mapedValues[i++] = valueObtainValue;
 			}
 
-			var taskAlike = formatter.TestedTypes.PrepareInvoke(mapedValues)
-				.Invoke(
-					formatter.Model.FunctionTarget,
-					mapedValues);
-			return await taskAlike.UnpackFormatterTask();
+			try
+			{
+				var taskAlike = formatter.TestedTypes.PrepareInvoke(mapedValues)
+					.Invoke(
+						formatter.Model.FunctionTarget,
+						mapedValues);
+				return await taskAlike.UnpackFormatterTask();
+			}
+			catch (Exception e)
+			{
+				if (ExceptionHandling == FormatterServiceExceptionHandling.IgnoreSilently)
+				{
+					return null;
+				}
+
+				if (ExceptionHandling == FormatterServiceExceptionHandling.PrintExceptions)
+				{
+					return e.ToString();
+				}
+
+				throw;
+			}
 		}
 
 		/// <summary>
@@ -863,5 +882,26 @@ namespace Morestachio.Formatter.Framework
 			success = true;
 			return null;
 		}
+	}
+
+	/// <summary>
+	///		Defines how to handle exceptions that are thrown by formatters
+	/// </summary>
+	public enum FormatterServiceExceptionHandling
+	{
+		/// <summary>
+		///		Rethrows exceptions and stop execution
+		/// </summary>
+		ThrowExceptions,
+
+		/// <summary>
+		///		Handles exceptions and dismisses them
+		/// </summary>
+		IgnoreSilently,
+
+		/// <summary>
+		///		Returns exceptions as part of the result
+		/// </summary>
+		PrintExceptions
 	}
 }
