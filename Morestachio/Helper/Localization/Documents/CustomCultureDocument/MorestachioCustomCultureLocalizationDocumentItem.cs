@@ -37,7 +37,7 @@ namespace Morestachio.Helper.Localization
 		}
 
 		/// <inheritdoc />
-		public MorestachioCustomCultureLocalizationDocumentItem(CharacterLocation location, IMorestachioExpression expression) : base(location,expression)
+		public MorestachioCustomCultureLocalizationDocumentItem(CharacterLocation location, IMorestachioExpression expression) : base(location, expression)
 		{
 		}
 

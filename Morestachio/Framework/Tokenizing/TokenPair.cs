@@ -22,7 +22,7 @@ namespace Morestachio.Framework.Tokenizing
 			CharacterLocation tokenLocation,
 			IEnumerable<TokenOption> tokenOptions,
 			EmbeddedState isEmbeddedToken = EmbeddedState.None)
-			: this(type, value, tokenLocation, null, tokenOptions, isEmbeddedToken)
+			: this(type, value, null, tokenLocation, tokenOptions, isEmbeddedToken)
 		{
 		}
 
@@ -31,11 +31,11 @@ namespace Morestachio.Framework.Tokenizing
 		///		Creates a new Token Pair
 		/// </summary>
 		public TokenPair(IComparable type,
-			CharacterLocation tokenLocation,
 			IMorestachioExpression expression,
+			CharacterLocation tokenLocation,
 			IEnumerable<TokenOption> tokenOptions,
 			EmbeddedState isEmbeddedToken = EmbeddedState.None)
-			: this(type, null, tokenLocation, expression, tokenOptions, isEmbeddedToken)
+			: this(type, null, expression, tokenLocation, tokenOptions, isEmbeddedToken)
 		{
 		}
 
@@ -45,8 +45,8 @@ namespace Morestachio.Framework.Tokenizing
 		/// </summary>
 		public TokenPair(IComparable type,
 			string value,
-			CharacterLocation tokenLocation,
 			IMorestachioExpression expression,
+			CharacterLocation tokenLocation,
 			IEnumerable<TokenOption> tokenOptions,
 			EmbeddedState isEmbeddedToken = EmbeddedState.None)
 		{
@@ -65,7 +65,7 @@ namespace Morestachio.Framework.Tokenizing
 			string value,
 			CharacterLocation tokenLocation,
 			EmbeddedState isEmbeddedToken = EmbeddedState.None)
-			: this(type, value, tokenLocation, null, null, isEmbeddedToken)
+			: this(type, value, null, tokenLocation, null, isEmbeddedToken)
 		{
 		}
 
@@ -74,10 +74,10 @@ namespace Morestachio.Framework.Tokenizing
 		///		Creates a new Token Pair
 		/// </summary>
 		public TokenPair(IComparable type,
-			CharacterLocation tokenLocation,
 			IMorestachioExpression expression,
+			CharacterLocation tokenLocation,
 			EmbeddedState isEmbeddedToken = EmbeddedState.None)
-			: this(type, null, tokenLocation, expression, null, isEmbeddedToken)
+			: this(type, null, expression, tokenLocation, null, isEmbeddedToken)
 		{
 		}
 
@@ -87,10 +87,10 @@ namespace Morestachio.Framework.Tokenizing
 		/// </summary>
 		public TokenPair(IComparable type,
 			string value,
-			CharacterLocation tokenLocation,
 			IMorestachioExpression expression,
+			CharacterLocation tokenLocation,
 			EmbeddedState isEmbeddedToken = EmbeddedState.None)
-			: this(type, value, tokenLocation, expression, null, isEmbeddedToken)
+			: this(type, value, expression, tokenLocation, null, isEmbeddedToken)
 		{
 		}
 

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Custom;
 using Morestachio.Framework.Expression;
@@ -24,12 +26,11 @@ namespace Morestachio.Helper.Localization.Documents.LocPDocument
 		public override IEnumerable<TokenPair> Tokenize(TokenInfo token, ParserOptions options)
 		{
 			var trim = token.Token;
-			if (trim.StartsWith(TagOpen))
+			if (trim.StartsWith(TagOpen, true, CultureInfo.InvariantCulture))
 			{
-				yield return new TokenPair(TagOpen.Trim(), 
-					token.TokenizerContext.CurrentLocation, ExpressionParser.ParseExpression(trim.Remove(0, OpenTag.Length).Trim(), token.TokenizerContext));
+				yield return new TokenPair(TagOpen.Trim(), ExpressionParser.ParseExpression(trim.Remove(0, OpenTag.Length).Trim(), token.TokenizerContext), token.TokenizerContext.CurrentLocation);
 			}
-			if (trim == TagClose)
+			if (string.Equals(trim, TagClose, StringComparison.InvariantCultureIgnoreCase))
 			{
 				yield return new TokenPair(TagClose, trim, token.TokenizerContext.CurrentLocation);
 			}

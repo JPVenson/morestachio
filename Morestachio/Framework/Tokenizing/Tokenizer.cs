@@ -510,7 +510,7 @@ namespace Morestachio.Framework.Tokenizing
 							{
 								exp = ExpressionParser.ParseExpression(partialContext, context);
 							}
-							tokens.Add(new TokenPair(TokenType.RenderPartial, partialName, context.CurrentLocation, exp));
+							tokens.Add(new TokenPair(TokenType.RenderPartial, partialName, exp, context.CurrentLocation));
 						}
 					}
 					else if (trimmedToken.StartsWith("#import ", true, CultureInfo.InvariantCulture))
@@ -522,7 +522,7 @@ namespace Morestachio.Framework.Tokenizing
 						if (pre + token.Length != context.Character)
 						{
 							token = token.Substring(context.Character - pre).Trim(Tokenizer.GetWhitespaceDelimiters());
-							if (token.StartsWith("#WITH "))
+							if (token.StartsWith("#WITH ", true, CultureInfo.InvariantCulture))
 							{
 								token = token.Substring("#WITH ".Length);
 								contextExpression = ExpressionParser.ParseExpression(token, context);
@@ -531,9 +531,8 @@ namespace Morestachio.Framework.Tokenizing
 
 						//late bound expression, cannot check at parse time for existance
 						tokens.Add(new TokenPair(TokenType.ImportPartial, 
-							context.CurrentLocation, 
 							tokenNameExpression, 
-							new []
+							context.CurrentLocation, new []
 							{
 								new TokenOption("Context", contextExpression), 
 							}));
@@ -552,8 +551,7 @@ namespace Morestachio.Framework.Tokenizing
 							token = token.Trim();
 							tokens.Add(new TokenPair(TokenType.CollectionOpen,
 								token,
-								context.CurrentLocation,
-								ExpressionParser.ParseExpression(token, context), EmbeddedState.None));
+								ExpressionParser.ParseExpression(token, context), context.CurrentLocation, EmbeddedState.None));
 						}
 						else
 						{
@@ -592,8 +590,7 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							token = token.Trim();
 							tokens.Add(new TokenPair(TokenType.WhileLoopOpen,
-								token,
-								context.CurrentLocation, ExpressionParser.ParseExpression(token, context)));
+								token, ExpressionParser.ParseExpression(token, context), context.CurrentLocation));
 						}
 						else
 						{
@@ -624,8 +621,7 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							token = token.Trim();
 							tokens.Add(new TokenPair(TokenType.DoLoopOpen,
-								token,
-								context.CurrentLocation, ExpressionParser.ParseExpression(token, context)));
+								token, ExpressionParser.ParseExpression(token, context), context.CurrentLocation));
 						}
 						else
 						{
@@ -656,8 +652,7 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							token = token.Trim();
 							tokens.Add(new TokenPair(TokenType.RepeatLoopOpen,
-								token,
-								context.CurrentLocation, ExpressionParser.ParseExpression(token, context)));
+								token, ExpressionParser.ParseExpression(token, context), context.CurrentLocation));
 						}
 						else
 						{
@@ -705,13 +700,11 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							token = token.Trim();
 							tokens.Add(new TokenPair(TokenType.SwitchOpen,
-								context.CurrentLocation,
 								ExpressionParser.ParseExpression(token, context),
-								new TokenOption[]
+								context.CurrentLocation, new TokenOption[]
 								{
 									new TokenOption("ScopeTo", shouldScope),
-								}
-							));
+								}));
 						}
 						else
 						{
@@ -751,8 +744,7 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							token = token.Trim();
 							tokens.Add(new TokenPair(TokenType.SwitchCaseOpen,
-								token,
-								context.CurrentLocation, ExpressionParser.ParseExpression(token, context)));
+								token, ExpressionParser.ParseExpression(token, context), context.CurrentLocation));
 						}
 						else
 						{
@@ -833,8 +825,7 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							token = token.Trim();
 							tokens.Add(new TokenPair(TokenType.If,
-								token,
-								context.CurrentLocation, ExpressionParser.ParseExpression(token, context)));
+								token, ExpressionParser.ParseExpression(token, context), context.CurrentLocation));
 						}
 						else
 						{
@@ -860,8 +851,7 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							token = token.Trim();
 							tokens.Add(new TokenPair(TokenType.IfNot,
-								token,
-								context.CurrentLocation, ExpressionParser.ParseExpression(token, context)));
+								token, ExpressionParser.ParseExpression(token, context), context.CurrentLocation));
 						}
 						else
 						{
@@ -917,8 +907,7 @@ namespace Morestachio.Framework.Tokenizing
 						var alias = eval.Name;
 						scopestack.Push(new ScopeStackItem(TokenType.InvertedElementOpen, alias ?? token, match.Index));
 						tokens.Add(new TokenPair(TokenType.InvertedElementOpen,
-							token,
-							context.CurrentLocation, ExpressionParser.ParseExpression(token, context)));
+							token, ExpressionParser.ParseExpression(token, context), context.CurrentLocation));
 
 						if (!string.IsNullOrWhiteSpace(alias))
 						{
@@ -932,8 +921,7 @@ namespace Morestachio.Framework.Tokenizing
 						//escaped single element
 						var token = trimmedToken.TrimStart('&').Trim();
 						tokens.Add(new TokenPair(TokenType.UnescapedSingleValue,
-							token,
-							context.CurrentLocation, ExpressionParser.ParseExpression(token, context)));
+							token, ExpressionParser.ParseExpression(token, context), context.CurrentLocation));
 					}
 					else if (trimmedToken.StartsWith("!"))
 					{
@@ -1038,8 +1026,7 @@ namespace Morestachio.Framework.Tokenizing
 							var alias = eval.Name;
 							scopestack.Push(new ScopeStackItem(TokenType.ElementOpen, alias ?? token, match.Index));
 							tokens.Add(new TokenPair(TokenType.ElementOpen,
-								token,
-								context.CurrentLocation, ExpressionParser.ParseExpression(token, context)));
+								token, ExpressionParser.ParseExpression(token, context), context.CurrentLocation));
 
 							if (!string.IsNullOrWhiteSpace(alias))
 							{
@@ -1082,8 +1069,7 @@ namespace Morestachio.Framework.Tokenizing
 							//unsingle value.
 							var token = trimmedToken.Trim();
 							tokens.Add(new TokenPair(TokenType.EscapedSingleValue,
-								token,
-								context.CurrentLocation, ExpressionParser.ParseExpression(token, context)));
+								token, ExpressionParser.ParseExpression(token, context), context.CurrentLocation));
 						}
 					}
 

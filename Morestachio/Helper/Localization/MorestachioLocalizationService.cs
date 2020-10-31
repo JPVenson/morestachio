@@ -65,7 +65,7 @@ namespace Morestachio.Helper.Localization
 
 			if (TextCache.TryGetValue(TransformKey(key), out var res))
 			{
-				return res.FirstOrDefault(e => e.Lang == culture);
+				return res.FirstOrDefault(e => e.Lang.Equals(culture));
 			}
 
 			if (NotFound.TryGetValue(culture, out var nf))

@@ -30,7 +30,7 @@ namespace Morestachio.Tests
 			}
 
 			var translationResult = "TestFixture";
-			var template = "{{#loc 'test'}}";
+			var template = "{{#LOC 'test'}}";
 			var options = CreateParserOptions(template, translationResult);
 
 			options.CultureInfo = CultureInfo.GetCultureInfo("EN-US");
@@ -66,7 +66,7 @@ namespace Morestachio.Tests
 			}
 
 			var translationResult = "TestFixture";
-			var template = "{{#loc testKey}}";
+			var template = "{{#LOC testKey}}";
 			var data = new Dictionary<string, object>()
 			{
 				{"testKey", "test"}
@@ -151,22 +151,22 @@ namespace Morestachio.Tests
 				});
 			}
 
-			var template = "{{#loc 'Texts.Welcome'}} " +
-			               "{{#LocCulture 'de-AT'}}" +
-								"{{#loc 'Texts.Welcome'}} " +
-			               "{{/LocCulture}}" +
+			var template = "{{#LOC 'Texts.Welcome'}} " +
+			               "{{#LOCCULTURE 'de-AT'}}" +
+								"{{#LOC 'Texts.Welcome'}} " +
+			               "{{/LOCCULTURE}}" +
 
-			               "{{#loc 'Texts.Welcome'}} " +
+			               "{{#LOC 'Texts.Welcome'}} " +
 
-			               "{{#LocCulture 'de-DE'}}" +
-								"{{#loc 'Texts.Welcome'}} " +
+			               "{{#LOCCULTURE 'de-DE'}}" +
+								"{{#LOC 'Texts.Welcome'}} " +
 
-								"{{#LocCulture 'de-AT'}}" +
-									"{{#loc 'Texts.Welcome'}} " +
-								"{{/LocCulture}}" +
+								"{{#LOCCULTURE 'de-AT'}}" +
+									"{{#LOC 'Texts.Welcome'}} " +
+								"{{/LOCCULTURE}}" +
 
-								"{{#loc 'Texts.Welcome'}}" +
-			               "{{/LocCulture}}";
+								"{{#LOC 'Texts.Welcome'}}" +
+			               "{{/LOCCULTURE}}";
 			var data = new Dictionary<string, object>();
 
 			var options = CreateParserOptions(template);
@@ -175,6 +175,50 @@ namespace Morestachio.Tests
 			var result = Parser.ParseWithOptions(options)
 				.CreateAndStringify(data);
 			Assert.That(result, Is.EqualTo("Welcome Grützli Welcome Moin Grützli Moin"));
+		}
+
+
+		[Test]
+		public void TestCanChangeLocaleExplicit()
+		{
+			ParserOptions CreateParserOptions(string s)
+			{
+				return new ParserOptions(s, null, ParserFixture.DefaultEncoding).RegisterLocalizationService(() =>
+				{
+					return new MorestachioLocalizationService()
+						.AddResource(new MemoryTranslationResource()
+							.Add("Texts.Welcome", CultureInfo.GetCultureInfo("EN-US"), "Welcome")
+							.Add("Texts.Welcome", CultureInfo.GetCultureInfo("DE-DE"), "Moin")
+							.Add("Texts.Welcome", CultureInfo.GetCultureInfo("DE-AT"), "Grützli"))
+						.Load(new[]
+						{
+							CultureInfo.GetCultureInfo("EN-US"),
+							CultureInfo.GetCultureInfo("DE-DE"),
+							CultureInfo.GetCultureInfo("DE-AT")
+						});
+				});
+			}
+
+			var template = "{{#LOC 'Texts.Welcome'}} " +
+			               "{{#LOC 'Texts.Welcome' #CULTURE 'de-AT'}} " +
+			               "{{#LOC 'Texts.Welcome'}} " +
+
+			               "{{#LOCCULTURE 'de-DE'}}" +
+								"{{#LOC 'Texts.Welcome'}} " +
+								"{{#LOC 'Texts.Welcome' #CULTURE 'DE-AT'}} " +
+								"{{#LOC 'Texts.Welcome' #CULTURE CulValue}}" +
+			               "{{/LOCCULTURE}}";
+			var data = new Dictionary<string, object>()
+			{
+				{ "CulValue", CultureInfo.GetCultureInfo("EN-US")}
+			};
+
+			var options = CreateParserOptions(template);
+
+			options.CultureInfo = CultureInfo.GetCultureInfo("EN-US");
+			var result = Parser.ParseWithOptions(options)
+				.CreateAndStringify(data);
+			Assert.That(result, Is.EqualTo("Welcome Grützli Welcome Moin Grützli Welcome"));
 		}
 	}
 }

@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Morestachio.Document;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
@@ -15,9 +17,11 @@ using Morestachio.Helper.Localization.Documents.LocPDocument;
 #if ValueTask
 using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 using ObjectPromise = System.Threading.Tasks.ValueTask<object>;
+using Promise = System.Threading.Tasks.ValueTask;
 #else
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 using ObjectPromise = System.Threading.Tasks.Task<object>;
+using Promise = System.Threading.Tasks.Task;
 #endif
 namespace Morestachio.Helper.Localization.Documents.LocDocument
 {
@@ -28,27 +32,38 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 	public class MorestachioLocalizationDocumentItem : ExpressionDocumentItemBase,
 		ToParsableStringDocumentVisitor.IStringVisitor
 	{
+
 		internal MorestachioLocalizationDocumentItem() : base(CharacterLocation.Unknown, null)
 		{
 
 		}
 
 		/// <inheritdoc />
-		public MorestachioLocalizationDocumentItem(CharacterLocation location, IMorestachioExpression value) : base(location, value)
+		public MorestachioLocalizationDocumentItem(CharacterLocation location, IMorestachioExpression value, [CanBeNull] IMorestachioExpression explicitCulture = null) : base(location, value)
 		{
+			ExplicitCulture = explicitCulture;
 		}
 
 		/// <inheritdoc />
 		protected MorestachioLocalizationDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
+			ExplicitCulture = info.GetValue(nameof(ExplicitCulture), typeof(IMorestachioExpression)) as IMorestachioExpression;
 		}
+
+		/// <summary>
+		///		If set gets the explicitly declared culture for this translation
+		/// </summary>
+		[CanBeNull]
+		public IMorestachioExpression ExplicitCulture { get; private set; }
 
 		/// <inheritdoc />
 		public override async ItemExecutionPromise Render(IByteCounterStream outputStream,
 			ContextObject context,
 			ScopeData scopeData)
 		{
-			var service = context.Options.Formatters.GetService(typeof(IMorestachioLocalizationService)) as IMorestachioLocalizationService;
+			var service =
+				context.Options.Formatters.GetService(typeof(IMorestachioLocalizationService)) as
+					IMorestachioLocalizationService;
 			if (service == null)
 			{
 				outputStream.Write("IMorestachioLocalizationService not registered");
@@ -60,17 +75,32 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 			return Enumerable.Empty<DocumentItemExecution>();
 		}
 
-		private async Task<object> GetTranslation(ContextObject context, ScopeData scopeData, IMorestachioLocalizationService service)
+		private async ObjectPromise GetTranslation(ContextObject context, ScopeData scopeData, IMorestachioLocalizationService service)
 		{
 			var valueContext = await MorestachioExpression.GetValue(context, scopeData);
-
 			var culture = context.Options.CultureInfo;
-			if (scopeData.CustomData.TryGetValue(MorestachioCustomCultureLocalizationDocumentItem.LocalizationCultureKey,
-				out var customCulture) && customCulture is CultureInfo culInfo)
-			{
-				culture = culInfo;
-			}
 
+			if (ExplicitCulture != null)
+			{
+				var cultureValue = (await ExplicitCulture.GetValue(context, scopeData)).Value;
+				if (cultureValue is CultureInfo cul)
+				{
+					culture = cul;
+				}
+				else if (cultureValue is string strCul)
+				{
+					culture = new CultureInfo(strCul);
+				}
+			}
+			else
+			{
+				if (scopeData.CustomData.TryGetValue(MorestachioCustomCultureLocalizationDocumentItem.LocalizationCultureKey,
+					out var customCulture) && customCulture is CultureInfo culInfo)
+				{
+					culture = culInfo;
+				}	
+			}
+			
 			var args = Children
 				.OfType<MorestachioLocalizationParameterDocumentItem>()
 				.Cast<ExpressionDocumentItemBase>()
@@ -102,16 +132,25 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 		/// <inheritdoc />
 		public void Render(ToParsableStringDocumentVisitor visitor)
 		{
+			visitor.StringBuilder.Append("{{");
+			visitor.StringBuilder.Append(MorestachioLocalizationTagProvider.OpenTag);
+			visitor.StringBuilder.Append(visitor.ReparseExpression(MorestachioExpression));
+			if (ExplicitCulture != null)
+			{
+				visitor.StringBuilder.Append(" #CULTURE ");
+				visitor.StringBuilder.Append(visitor.ReparseExpression(ExplicitCulture));
+			}
+			visitor.StringBuilder.Append("}}");
+
 			if (!Children.Any())
 			{
-				visitor.StringBuilder.Append("{{" + MorestachioLocalizationTagProvider.OpenTag + visitor.ReparseExpression(MorestachioExpression) + "}}");
+				return;
 			}
-			else
-			{
-				visitor.StringBuilder.Append("{{" + MorestachioLocalizationBlockProvider.OpenTag + visitor.ReparseExpression(MorestachioExpression) + "}}");
-				visitor.VisitChildren(this);
-				visitor.StringBuilder.Append("{{" + MorestachioLocalizationBlockProvider.CloseTag + "}}");
-			}
+
+			visitor.VisitChildren(this);
+			visitor.StringBuilder.Append("{{");
+			visitor.StringBuilder.Append(MorestachioLocalizationBlockProvider.CloseTag);
+			visitor.StringBuilder.Append("}}");
 		}
 	}
 }
