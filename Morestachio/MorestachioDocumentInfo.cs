@@ -7,19 +7,40 @@ using Morestachio.Document;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items;
 using Morestachio.Fluent;
+using Morestachio.Framework.Context;
+using Morestachio.Framework.IO;
 using Morestachio.Helper;
 using Morestachio.Parsing.ParserErrors;
 using Morestachio.Profiler;
 #if ValueTask
 using MorestachioDocumentResultPromise = System.Threading.Tasks.ValueTask<Morestachio.MorestachioDocumentResult>;
 using StringPromise = System.Threading.Tasks.ValueTask<string>;
+using Promise = System.Threading.Tasks.ValueTask;
 #else
 using MorestachioDocumentResultPromise = System.Threading.Tasks.Task<Morestachio.MorestachioDocumentResult>;
 using StringPromise = System.Threading.Tasks.Task<string>;
+using Promise = System.Threading.Tasks.Task;
 #endif
 
 namespace Morestachio
 {
+	public delegate MorestachioDocumentResultPromise CompilationResult(object data, CancellationToken cancellationToken);
+	public delegate Promise Compilation(IByteCounterStream outputStream,
+		ContextObject context,
+		ScopeData scopeData);
+
+	/// <summary>
+	///		Declares an IDocumentItem to support Delegate generation
+	/// </summary>
+	public interface ISupportCustomCompilation
+	{
+		/// <summary>
+		///		Should return a delegate for performing the main rendering task
+		/// </summary>
+		/// <returns></returns>
+		Compilation Compile();
+	}
+
 	/// <summary>
 	///     Provided when parsing a template and getting information about the embedded variables.
 	/// </summary>
@@ -82,6 +103,87 @@ namespace Morestachio
 		}
 
 		/// <summary>
+		///		Returns an delegate that can be executed to perform the rendering tasks
+		/// </summary>
+		/// <returns></returns>
+		public CompilationResult Compile()
+		{
+			if (Errors.Any())
+			{
+				throw new AggregateException("You cannot Create this Template as there are one or more Errors. See Inner Exception for more infos.", Errors.Select(e => e.GetException())).Flatten();
+			}
+
+			if (Document is MorestachioDocument morestachioDocument && morestachioDocument.MorestachioVersion !=
+				MorestachioDocument.GetMorestachioVersion())
+			{
+				throw new InvalidOperationException($"The supplied version in the Morestachio document " +
+													$"'{morestachioDocument.MorestachioVersion}'" +
+													$" is not compatible with the current morestachio version of " +
+													$"'{MorestachioDocument.GetMorestachioVersion()}'");
+			}
+
+			var compiledChildren = MorestachioDocument.CompileItemsAndChildren(new[] { Document });
+
+			return async (object data, CancellationToken token) =>
+			{
+				return await Execute(data, token, async (stream, context, scopeData) =>
+				{
+					await compiledChildren(stream, context, scopeData);
+				});
+			};
+		}
+
+		private async MorestachioDocumentResultPromise Execute(object data,
+			CancellationToken token,
+			Compilation executer)
+		{
+			var timeoutCancellation = new CancellationTokenSource();
+			if (ParserOptions.Timeout != TimeSpan.Zero)
+			{
+				timeoutCancellation.CancelAfter(ParserOptions.Timeout);
+				var anyCancellationToken = CancellationTokenSource.CreateLinkedTokenSource(token, timeoutCancellation.Token);
+				token = anyCancellationToken.Token;
+			}
+
+			PerformanceProfiler profiler = null;
+			using (var byteCounterStream = ParserOptions.StreamFactory.GetByteCounterStream(ParserOptions))
+			{
+				if (byteCounterStream?.Stream == null)
+				{
+					throw new NullReferenceException("The created stream is null.");
+				}
+				var context = ParserOptions.CreateContextObject("", token, data);
+				var scopeData = new ScopeData();
+				try
+				{
+					if (ParserOptions.ProfileExecution)
+					{
+						scopeData.Profiler = profiler = new PerformanceProfiler(true);
+					}
+
+					await executer(byteCounterStream, context, scopeData);
+
+					if (timeoutCancellation.IsCancellationRequested)
+					{
+						throw new TimeoutException($"The requested timeout of '{ParserOptions.Timeout:g}' for template generation was reached.");
+					}
+				}
+				finally
+				{
+					if (!CaptureVariables)
+					{
+						scopeData.Dispose();
+						scopeData.Variables.Clear();
+					}
+				}
+
+				return new MorestachioDocumentResult(byteCounterStream.Stream,
+					profiler,
+					scopeData.Variables.ToDictionary(e => e.Key, e => scopeData.GetFromVariable(e.Value).Value));
+			}
+		}
+
+		/// <summary>
 		///     Calls the Underlying Template Delegate and Produces a Stream
 		/// </summary>
 		/// <param name="data"></param>
@@ -108,49 +210,11 @@ namespace Morestachio
 													$"'{MorestachioDocument.GetMorestachioVersion()}'");
 			}
 
-			var timeoutCancellation = new CancellationTokenSource();
-			if (ParserOptions.Timeout != TimeSpan.Zero)
+			return await Execute(data, token, async (stream, context, scopeData) =>
 			{
-				timeoutCancellation.CancelAfter(ParserOptions.Timeout);
-				var anyCancellationToken = CancellationTokenSource.CreateLinkedTokenSource(token, timeoutCancellation.Token);
-				token = anyCancellationToken.Token;
-			}
-
-			PerformanceProfiler profiler = null;
-			using (var byteCounterStream = ParserOptions.StreamFactory.GetByteCounterStream(ParserOptions))
-			{
-				if (byteCounterStream?.Stream == null)
-				{
-					throw new NullReferenceException("The created stream is null.");
-				}
-				var context = ParserOptions.CreateContextObject("", token, data);
-				var scopeData = new ScopeData();
-				try
-				{
-					if (ParserOptions.ProfileExecution)
-					{
-						scopeData.Profiler = profiler = new PerformanceProfiler(true);
-					}
-					await MorestachioDocument.ProcessItemsAndChildren(new[] { Document }, byteCounterStream,
-						context, scopeData);
-					if (timeoutCancellation.IsCancellationRequested)
-					{
-						throw new TimeoutException($"The requested timeout of '{ParserOptions.Timeout:g}' for template generation was reached.");
-					}
-				}
-				finally
-				{
-					if (!CaptureVariables)
-					{
-						scopeData.Dispose();
-						scopeData.Variables.Clear();
-					}
-				}
-
-				return new MorestachioDocumentResult(byteCounterStream.Stream, 
-					profiler, 
-					scopeData.Variables.ToDictionary(e => e.Key, e => scopeData.GetFromVariable(e.Value).Value));
-			}
+				await MorestachioDocument.ProcessItemsAndChildren(new[] { Document }, stream,
+					context, scopeData);
+			});
 		}
 
 		/// <summary>

@@ -6,6 +6,7 @@ using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Gene
 using System;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using System.Xml;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
@@ -22,7 +23,7 @@ namespace Morestachio.Document.Items
 	///		Removes the alias from the scope
 	/// </summary>
 	[Serializable]
-	public class RemoveAliasDocumentItem : ValueDocumentItemBase
+	public class RemoveAliasDocumentItem : ValueDocumentItemBase, ISupportCustomCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -75,6 +76,14 @@ namespace Morestachio.Document.Items
 			}
 			IdVariableScope = intVarScope;
 			base.DeSerializeXml(reader);
+		}
+
+		public Compilation Compile()
+		{
+			return async (stream, context, scopeData) =>
+			{
+				scopeData.RemoveVariable(Value, IdVariableScope);
+			};
 		}
 
 		/// <inheritdoc />

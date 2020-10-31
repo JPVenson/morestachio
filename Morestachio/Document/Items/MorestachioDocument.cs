@@ -6,8 +6,10 @@ using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Gene
 using Promise = System.Threading.Tasks.Task;
 #endif
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Xml;
 using JetBrains.Annotations;
@@ -25,8 +27,8 @@ namespace Morestachio.Document.Items
 	///		Defines a document that can be rendered. Does only store its Children
 	/// </summary>
 	[Serializable]
-	public sealed class MorestachioDocument : DocumentItemBase, 
-		IEquatable<MorestachioDocument>
+	public sealed class MorestachioDocument : DocumentItemBase,
+		IEquatable<MorestachioDocument>, ISupportCustomCompilation
 	{
 		/// <summary>
 		///		Gets the current version of Morestachio
@@ -51,7 +53,7 @@ namespace Morestachio.Document.Items
 		{
 			MorestachioVersion = GetMorestachioVersion();
 		}
-		
+
 		/// <inheritdoc />
 		[UsedImplicitly]
 		public MorestachioDocument(SerializationInfo info, StreamingContext c) : base(info, c)
@@ -74,25 +76,35 @@ namespace Morestachio.Document.Items
 			if (!Version.TryParse(versionAttribute, out var version))
 			{
 				throw new XmlException($"Error while serializing '{nameof(MorestachioDocument)}'. " +
-				                       $"The value for '{nameof(MorestachioVersion)}' is expected to be an version string in form of 'x.x.x.x' .");
+									   $"The value for '{nameof(MorestachioVersion)}' is expected to be an version string in form of 'x.x.x.x' .");
 			}
 
 			MorestachioVersion = version;
 			base.DeSerializeXml(reader);
 		}
-		
+
 		/// <inheritdoc />
 		protected override void SerializeXml(XmlWriter writer)
 		{
 			writer.WriteAttributeString(nameof(MorestachioVersion), MorestachioVersion.ToString());
 			base.SerializeXml(writer);
 		}
-		
+
 		/// <summary>
 		///		Gets the Version of Morestachio that this Document was parsed with
 		/// </summary>
 		public Version MorestachioVersion { get; private set; }
-		
+
+		/// <inheritdoc />
+		public Compilation Compile()
+		{
+			var compilation = CompileItemsAndChildren(Children);
+			return async (stream, context, data) =>
+			{
+				await compilation(stream, context, data);
+			};
+		}
+
 		/// <inheritdoc />
 		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
 			ScopeData scopeData)
@@ -108,8 +120,8 @@ namespace Morestachio.Document.Items
 		/// <param name="context">The context.</param>
 		/// <param name="scopeData">The scope data.</param>
 		/// <returns></returns>
-		public static async Promise ProcessItemsAndChildren(IEnumerable<IDocumentItem> documentItems, 
-			IByteCounterStream outputStream, 
+		public static async Promise ProcessItemsAndChildren(IEnumerable<IDocumentItem> documentItems,
+			IByteCounterStream outputStream,
 			ContextObject context,
 			ScopeData scopeData)
 		{
@@ -132,6 +144,181 @@ namespace Morestachio.Document.Items
 			}
 		}
 
+		/// <summary>
+		///		Compiles all <see cref="IDocumentItem"/> and their children. If the <see cref="IDocumentItem"/> supports the <see cref="ISupportCustomCompilation"/> it is used otherwise
+		///		the items <see cref="IDocumentItem.Render"/> method is wrapped
+		/// </summary>
+		/// <param name="documentItems"></param>
+		/// <returns></returns>
+		public static Compilation CompileItemsAndChildren(IEnumerable<IDocumentItem> documentItems)
+		{
+			var docs = documentItems.ToArray();
+			var actions = new Compilation[docs.Length];
+
+			for (var index = 0; index < docs.Length; index++)
+			{
+				var documentItem = docs[index];
+				var document = documentItem;
+				if (document is ISupportCustomCompilation customCompilation)
+				{
+					actions[index] = (customCompilation.Compile());
+				}
+				else
+				{
+					actions[index] = (async (IByteCounterStream outputStream,
+						ContextObject context,
+						ScopeData scopeData) =>
+					{
+						var children = await document.Render(outputStream, context, scopeData);
+
+						foreach (var documentItemExecution in children)
+						{
+							await ProcessItemsAndChildren(new IDocumentItem[]
+							{
+								documentItemExecution.DocumentItem
+							}, outputStream, documentItemExecution.ContextObject, scopeData);
+						}
+					});
+				}
+			}
+
+			return FastExecuteItems(actions);
+		}
+
+		private static Compilation FastExecuteItems(Compilation[] actions)
+		{
+			if (actions.Length == 0)
+			{
+				return async (stream, context, data) =>
+				{
+					await AsyncHelper.FakePromise();
+				};
+			}
+			else if (actions.Length == 1)
+			{
+				return async (stream, context, data) =>
+				{
+					await actions[0](stream, context, data);
+				};
+			}
+			else if (actions.Length == 2)
+			{
+				return async (stream, context, data) =>
+				{
+					await actions[0](stream, context, data);
+					await actions[1](stream, context, data);
+				};
+			}
+			else if (actions.Length == 3)
+			{
+				return async (stream, context, data) =>
+				{
+					await actions[0](stream, context, data);
+					await actions[1](stream, context, data);
+					await actions[2](stream, context, data);
+				};
+			}
+			else if (actions.Length == 4)
+			{
+				return async (stream, context, data) =>
+				{
+					await actions[0](stream, context, data);
+					await actions[1](stream, context, data);
+					await actions[2](stream, context, data);
+					await actions[3](stream, context, data);
+				};
+			}
+			else if (actions.Length == 5)
+			{
+				return async (stream, context, data) =>
+				{
+					await actions[0](stream, context, data);
+					await actions[1](stream, context, data);
+					await actions[2](stream, context, data);
+					await actions[3](stream, context, data);
+					await actions[4](stream, context, data);
+				};
+			}
+			else if (actions.Length == 6)
+			{
+				return async (stream, context, data) =>
+				{
+					await actions[0](stream, context, data);
+					await actions[1](stream, context, data);
+					await actions[2](stream, context, data);
+					await actions[3](stream, context, data);
+					await actions[4](stream, context, data);
+					await actions[5](stream, context, data);
+				};
+			}
+			else if (actions.Length == 7)
+			{
+				return async (stream, context, data) =>
+				{
+					await actions[0](stream, context, data);
+					await actions[1](stream, context, data);
+					await actions[2](stream, context, data);
+					await actions[3](stream, context, data);
+					await actions[4](stream, context, data);
+					await actions[5](stream, context, data);
+					await actions[6](stream, context, data);
+				};
+			}
+			else if (actions.Length == 8)
+			{
+				return async (stream, context, data) =>
+				{
+					await actions[0](stream, context, data);
+					await actions[1](stream, context, data);
+					await actions[2](stream, context, data);
+					await actions[3](stream, context, data);
+					await actions[4](stream, context, data);
+					await actions[5](stream, context, data);
+					await actions[6](stream, context, data);
+					await actions[7](stream, context, data);
+				};
+			}
+			else if (actions.Length == 9)
+			{
+				return async (stream, context, data) =>
+				{
+					await actions[0](stream, context, data);
+					await actions[1](stream, context, data);
+					await actions[2](stream, context, data);
+					await actions[3](stream, context, data);
+					await actions[4](stream, context, data);
+					await actions[5](stream, context, data);
+					await actions[6](stream, context, data);
+					await actions[7](stream, context, data);
+					await actions[8](stream, context, data);
+				};
+			}
+			else if (actions.Length == 10)
+			{
+				return async (stream, context, data) =>
+				{
+					await actions[0](stream, context, data);
+					await actions[1](stream, context, data);
+					await actions[2](stream, context, data);
+					await actions[3](stream, context, data);
+					await actions[4](stream, context, data);
+					await actions[5](stream, context, data);
+					await actions[6](stream, context, data);
+					await actions[7](stream, context, data);
+					await actions[8](stream, context, data);
+					await actions[9](stream, context, data);
+				};
+			}
+
+			return async (stream, context, data) =>
+			{
+				for (int i = 0; i < actions.Length; i++)
+				{
+					await actions[i](stream, context, data);	
+				}
+			};
+		}
+
 		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)
 		{
@@ -152,7 +339,7 @@ namespace Morestachio.Document.Items
 			}
 
 			return base.Equals(other) &&
-			       Equals(MorestachioVersion, other.MorestachioVersion);
+				   Equals(MorestachioVersion, other.MorestachioVersion);
 		}
 
 		/// <inheritdoc />
@@ -173,7 +360,7 @@ namespace Morestachio.Document.Items
 				return false;
 			}
 
-			return Equals((MorestachioDocument) obj);
+			return Equals((MorestachioDocument)obj);
 		}
 
 		/// <inheritdoc />
@@ -181,8 +368,8 @@ namespace Morestachio.Document.Items
 		{
 			unchecked
 			{
-				return ((MorestachioVersion != null ? MorestachioVersion.GetHashCode() : 0) * 397) ^ 
-				       base.GetHashCode();
+				return ((MorestachioVersion != null ? MorestachioVersion.GetHashCode() : 0) * 397) ^
+					   base.GetHashCode();
 			}
 		}
 	}

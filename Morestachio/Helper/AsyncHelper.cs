@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Morestachio.Document.Contracts;
 using Morestachio.Framework.Context;
@@ -30,6 +31,7 @@ namespace Morestachio.Helper
 		/// </summary>
 		/// <param name="data"></param>
 		/// <returns></returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ItemExecutionPromise ToPromise(this IEnumerable<DocumentItemExecution> data)
 		{
 #if ValueTask
@@ -38,12 +40,28 @@ namespace Morestachio.Helper
 			return Promise.FromResult(data);
 #endif
 		}
+
+		/// <summary>
+		///		Wraps the object to ether an TaskT or an ValueTaskT
+		/// </summary>
+		/// <param name="data"></param>
+		/// <returns></returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static async Promise FakePromise()
+		{
+#if ValueTask
+			await new ValueTask();
+#else
+			await Task.CompletedTask;
+#endif
+		}
 		
 		/// <summary>
 		///		Wraps the object to ether an TaskT or an ValueTaskT
 		/// </summary>
 		/// <param name="data"></param>
 		/// <returns></returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ContextObjectPromise ToPromise(this ContextObject data)
 		{
 #if ValueTask
@@ -58,6 +76,7 @@ namespace Morestachio.Helper
 		/// </summary>
 		/// <param name="data"></param>
 		/// <returns></returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static StringPromise ToPromise(this string data)
 		{
 #if ValueTask
@@ -72,6 +91,7 @@ namespace Morestachio.Helper
 		/// </summary>
 		/// <param name="data"></param>
 		/// <returns></returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ObjectPromise ToPromise(this object data)
 		{
 #if ValueTask
@@ -86,6 +106,7 @@ namespace Morestachio.Helper
 		/// </summary>
 		/// <param name="data"></param>
 		/// <returns></returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static BoolPromise ToPromise(this bool data)
 		{
 #if ValueTask

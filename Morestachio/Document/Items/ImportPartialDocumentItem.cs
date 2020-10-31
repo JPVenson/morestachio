@@ -27,7 +27,7 @@ namespace Morestachio.Document.Items
 	///		Prints a partial
 	/// </summary>
 	[Serializable]
-	public class ImportPartialDocumentItem : ExpressionDocumentItemBase
+	public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCustomCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -39,8 +39,8 @@ namespace Morestachio.Document.Items
 
 		/// <inheritdoc />
 		public ImportPartialDocumentItem(CharacterLocation location,
-			[NotNull] IMorestachioExpression value, 
-			[CanBeNull] IMorestachioExpression context) 
+			[NotNull] IMorestachioExpression value,
+			[CanBeNull] IMorestachioExpression context)
 			: base(location, value)
 		{
 			Context = context;
@@ -92,6 +92,95 @@ namespace Morestachio.Document.Items
 			}
 		}
 
+		public Compilation Compile()
+		{
+			var doneAction = new RenderPartialDoneDocumentItem().Compile();
+			return async (stream, context, scopeData) =>
+			{
+				var partialName = (await MorestachioExpression.GetValue(context, scopeData)).Value?.ToString();
+
+				if (partialName == null)
+				{
+					throw new MorestachioRuntimeException(
+						$"Get partial requested by the expression: '{MorestachioExpression.ToString()}' returned null and is therefor not valid");
+				}
+
+				var currentPartial = partialName + "_" + scopeData.PartialDepth.Count;
+				scopeData.PartialDepth.Push(currentPartial);
+				if (scopeData.PartialDepth.Count >= context.Options.PartialStackSize)
+				{
+					switch (context.Options.StackOverflowBehavior)
+					{
+						case PartialStackOverflowBehavior.FailWithException:
+							throw new MustachioStackOverflowException(
+								$"You have exceeded the maximum stack Size for nested Partial calls of '{context.Options.PartialStackSize}'. See Data for call stack")
+							{
+								Data =
+								{
+									{"Callstack", scopeData.PartialDepth}
+								}
+							};
+						case PartialStackOverflowBehavior.FailSilent:
+							return;
+						default:
+							throw new ArgumentOutOfRangeException();
+					}
+				}
+
+				scopeData.AddVariable("$name",
+					(scope) => context.Options.CreateContextObject("$name", context.CancellationToken,
+						scope.PartialDepth.Peek(), context), 0);
+
+				var cnxt = context;
+				if (Context != null)
+				{
+					cnxt = (await Context.GetValue(context, scopeData));
+				}
+
+				scopeData.AddVariable("$recursion",
+					(scope) => cnxt.Options.CreateContextObject("$recursion", context.CancellationToken,
+						scope.PartialDepth.Count, cnxt), 0);
+
+				if (scopeData.CompiledPartials.TryGetValue(partialName, out var partialWithContext))
+				{
+					await partialWithContext(stream, cnxt, scopeData);
+					await doneAction(stream, cnxt, scopeData);
+					return;
+				}
+
+				if (context.Options.PartialsStore != null)
+				{
+					MorestachioDocumentInfo partialFromStore;
+					if (context.Options.PartialsStore is IAsyncPartialsStore asyncPs)
+					{
+						partialFromStore = await asyncPs.GetPartialAsync(partialName);
+					}
+					else
+					{
+						partialFromStore = context.Options.PartialsStore.GetPartial(partialName);
+					}
+
+					if (partialFromStore != null)
+					{
+						if (partialFromStore.Errors.Any())
+						{
+							throw new MorestachioRuntimeException(
+								$"The partial named '{partialName}' obtained from external partial store contains one or more errors");
+						}
+
+						await MorestachioDocument.CompileItemsAndChildren(new IDocumentItem[]
+						{
+							partialFromStore.Document
+						})(stream, cnxt, scopeData);
+						doneAction(stream, cnxt, scopeData);
+					}
+				}
+
+				throw new MorestachioRuntimeException(
+					$"Could not obtain a partial named '{partialName}' from the template nor the Partial store");
+			};
+		}
+
 		/// <inheritdoc />
 		public override async ItemExecutionPromise Render(IByteCounterStream outputStream,
 			ContextObject context,
@@ -125,11 +214,11 @@ namespace Morestachio.Document.Items
 						throw new ArgumentOutOfRangeException();
 				}
 			}
-			
+
 			scopeData.AddVariable("$name",
 				(scope) => context.Options.CreateContextObject("$name", context.CancellationToken,
 					scope.PartialDepth.Peek(), context), 0);
-			
+
 			var cnxt = context;
 			if (Context != null)
 			{
@@ -179,6 +268,7 @@ namespace Morestachio.Document.Items
 
 			throw new MorestachioRuntimeException($"Could not obtain a partial named '{partialName}' from the template nor the Partial store");
 		}
+
 		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)
 		{

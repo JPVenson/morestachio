@@ -22,7 +22,7 @@ namespace Morestachio.Document.Items
 	///		Defines an else Expression. This expression MUST come ether directly or only separated by <see cref="ContentDocumentItem"/> after an <see cref="IfExpressionScopeDocumentItem"/> or an <see cref="InvertedExpressionScopeDocumentItem"/>
 	/// </summary>
 	[Serializable]
-	public class ElseExpressionScopeDocumentItem : DocumentItemBase
+	public class ElseExpressionScopeDocumentItem : DocumentItemBase, ISupportCustomCompilation
 	{       
 		/// <summary>
 		///		Used for XML Serialization
@@ -63,6 +63,20 @@ namespace Morestachio.Document.Items
 		public override void Accept(IDocumentItemVisitor visitor)
 		{
 			visitor.Visit(this);
+		}
+
+		public Compilation Compile()
+		{
+			var children = MorestachioDocument.CompileItemsAndChildren(Children);
+
+			return async (stream, context, scopeData) =>
+			{
+				if (scopeData.ExecuteElse)
+				{
+					scopeData.ExecuteElse = false;
+					await children(stream, context, scopeData);
+				}
+			};
 		}
 	}
 }

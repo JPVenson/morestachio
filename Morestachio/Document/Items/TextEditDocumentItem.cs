@@ -7,6 +7,7 @@ using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Gene
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Xml;
 using JetBrains.Annotations;
@@ -26,7 +27,7 @@ namespace Morestachio.Document.Items
 	/// 
 	/// </summary>
 	[Serializable]
-	public class TextEditDocumentItem : DocumentItemBase
+	public class TextEditDocumentItem : DocumentItemBase, ISupportCustomCompilation
 	{
 		/// <summary>
 		///		The TextOperation
@@ -64,12 +65,27 @@ namespace Morestachio.Document.Items
 			EmbeddedState = (EmbeddedState) info.GetValue(nameof(EmbeddedState), typeof(EmbeddedState));
 			Operation = info.GetValue(nameof(Operation), typeof(ITextOperation)) as ITextOperation;
 		}
+
+		public Compilation Compile()
+		{
+			return async (outputStream, context, scopeData) =>
+			{
+				CoreAction(outputStream, scopeData);
+			};
+		}
 		
 		/// <inheritdoc />
 		public override ItemExecutionPromise Render(
 			IByteCounterStream outputStream,
 			ContextObject context,
 			ScopeData scopeData)
+		{
+			CoreAction(outputStream, scopeData);
+			return Enumerable.Empty<DocumentItemExecution>().ToPromise();
+		}
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private void CoreAction(IByteCounterStream outputStream, ScopeData scopeData)
 		{
 			if (Operation.IsModificator)
 			{
@@ -78,17 +94,15 @@ namespace Morestachio.Document.Items
 					operationList = new List<ITextOperation>();
 					scopeData.CustomData["TextOperationData"] = operationList;
 				}
-				((IList<ITextOperation>)operationList).Add(Operation);
+
+				((IList<ITextOperation>) operationList).Add(Operation);
 			}
 			else
 			{
 				outputStream.Write(Operation.Apply(string.Empty));
 			}
-
-			
-			return Enumerable.Empty<DocumentItemExecution>().ToPromise();
 		}
-		
+
 		/// <inheritdoc />
 		protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
 		{

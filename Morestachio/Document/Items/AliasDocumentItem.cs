@@ -1,4 +1,5 @@
 ﻿
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Xml;
 using JetBrains.Annotations;
@@ -20,7 +21,7 @@ namespace Morestachio.Document.Items
 	///		Creates an alias 
 	/// </summary>
 	[System.Serializable]
-	public class AliasDocumentItem : ValueDocumentItemBase
+	public class AliasDocumentItem : ValueDocumentItemBase, ISupportCustomCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -68,19 +69,35 @@ namespace Morestachio.Document.Items
 			if (!int.TryParse(varScope, out var intVarScope))
 			{
 				throw new XmlException($"Error while serializing '{nameof(AliasDocumentItem)}'. " +
-				                       $"The value for '{nameof(IdVariableScope)}' is expected to be an integer.");
+									   $"The value for '{nameof(IdVariableScope)}' is expected to be an integer.");
 			}
 			IdVariableScope = intVarScope;
 			base.DeSerializeXml(reader);
 		}
 
+		public Compilation Compile()
+		{
+			var children = MorestachioDocument.CompileItemsAndChildren(Children);
+			return async (stream, context, scopeData) =>
+			{
+				CoreAction(context, scopeData);
+				await children(stream, context, scopeData);
+			};
+		}
+
 		/// <inheritdoc />
 		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
-			scopeData.AddVariable(Value, context, IdVariableScope);
+			CoreAction(context, scopeData);
 			return Children.WithScope(context).ToPromise();
 		}
 		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private void CoreAction(ContextObject context, ScopeData scopeData)
+		{
+			scopeData.AddVariable(Value, context, IdVariableScope);
+		}
+
 		/// <summary>
 		///		Gets or Sets the Scope of the variable
 		/// </summary>

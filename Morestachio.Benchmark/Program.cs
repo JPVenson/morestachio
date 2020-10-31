@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
@@ -26,11 +27,14 @@ namespace Morestachio.Benchmark
 	public class BenchPerfHarness
 	{
 		private MorestachioDocumentInfo _template;
+		private CompilationResult _templateCompiled;
 		private object _data;
 
 		[GlobalSetup]
 		public void Setup()
 		{
+			_templateCompiled = Parser.ParseWithOptions(new ParserOptions(GetTemplate(), null, Encoding.UTF8))
+				.Compile();
 			_template = Parser.ParseWithOptions(new ParserOptions(GetTemplate(), null, Encoding.UTF8));
 			_data = GetData();
 		}
@@ -38,7 +42,7 @@ namespace Morestachio.Benchmark
 		[Benchmark]
 		public async ValueTask Bench()
 		{
-			await _template.CreateAsync(_data);
+			await _templateCompiled(_data, CancellationToken.None);
 		}
 
 		public object GetData()
@@ -62,7 +66,7 @@ namespace Morestachio.Benchmark
 		public string GetTemplate()
 		{
 			return @"<p>Static content this is</p>
-{{#each List AS item}}
+{{#each List}}
 	{{item.strVal}} {{item.Number}}	
 {{/each}}";
 		}

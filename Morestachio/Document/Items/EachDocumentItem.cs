@@ -1,12 +1,15 @@
 ﻿#if ValueTask
 using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using Promise = System.Threading.Tasks.ValueTask;
 #else
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using Promise = System.Threading.Tasks.Task;
 #endif
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
@@ -25,7 +28,7 @@ namespace Morestachio.Document.Items
 	///		Emits N items that are in the collection
 	/// </summary>
 	[Serializable]
-	public class EachDocumentItem : ExpressionDocumentItemBase
+	public class EachDocumentItem : ExpressionDocumentItemBase, ISupportCustomCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -46,15 +49,41 @@ namespace Morestachio.Document.Items
 		{
 		}
 		
+		/// <inheritdoc />
+		public Compilation Compile()
+		{
+			var children = MorestachioDocument.CompileItemsAndChildren(Children);
+
+			return async (outputStream, context, scopeData) =>
+			{
+				await CoreAction(outputStream, context, scopeData,
+					async o => { await children(outputStream, o, scopeData); });
+			};
+		}
+		
 		/// <exception cref="IndexedParseException"></exception>
 		/// <inheritdoc />
 		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+		{
+			var contexts = new List<DocumentItemExecution>();
+			await CoreAction(outputStream, context, scopeData, async itemContext =>
+			{
+				contexts.AddRange(Children.WithScope(itemContext));
+			});
+			return contexts;
+		}
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private async Promise CoreAction(IByteCounterStream outputStream,
+			ContextObject context,
+			ScopeData scopeData,
+			Func<ContextObject, Promise> onItem)
 		{
 			var c = await MorestachioExpression.GetValue(context, scopeData);
 
 			if (!c.Exists())
 			{
-				return new DocumentItemExecution[0];
+				return;
 			}
 
 			if (!(c.Value is IEnumerable value) || value is string || value is IDictionary<string, object>)
@@ -67,19 +96,20 @@ namespace Morestachio.Document.Items
 					parent = parent.Parent;
 				}
 
-				throw new IndexedParseException(CharacterLocationExtended.Empty, 
-					string.Format("{1}'{0}' is used like an array by the template, but is a scalar value or object in your model." + " Complete Expression until Error:{2}",
-						MorestachioExpression, ExpressionStart, (path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
+				throw new IndexedParseException(CharacterLocationExtended.Empty,
+					string.Format(
+						"{1}'{0}' is used like an array by the template, but is a scalar value or object in your model." +
+						" Complete Expression until Error:{2}",
+						MorestachioExpression, ExpressionStart,
+						(path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 			}
-
-			var scopes = new List<DocumentItemExecution>();
-
+			
 			//Use this "lookahead" enumeration to allow the $last keyword
 			var index = 0;
 			var enumerator = value.GetEnumerator();
 			if (!enumerator.MoveNext())
 			{
-				return Enumerable.Empty<DocumentItemExecution>();
+				return;
 			}
 
 			var current = enumerator.Current;
@@ -90,13 +120,12 @@ namespace Morestachio.Document.Items
 				var innerContext =
 					new ContextCollection(index, next == null, context.Options, $"[{index}]", c, current)
 						.MakeNatural();
-				scopes.AddRange(Children.WithScope(innerContext));
+				await onItem(innerContext);
 				index++;
 				current = next;
 			} while (current != null && ContinueBuilding(outputStream, context));
-
-			return scopes;
 		}
+
 		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)
 		{

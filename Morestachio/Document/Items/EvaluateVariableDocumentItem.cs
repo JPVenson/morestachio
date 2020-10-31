@@ -23,7 +23,7 @@ namespace Morestachio.Document.Items
 	///		Evaluates a variable expression and then stores it into the set alias
 	/// </summary>
 	[Serializable]
-	public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase
+	public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase, ISupportCustomCompilation
 	{
 
 		internal EvaluateVariableDocumentItem() : base(CharacterLocation.Unknown, null)
@@ -91,6 +91,15 @@ namespace Morestachio.Document.Items
 			}
 			IdVariableScope = intVarScope;
 			base.DeSerializeXml(reader);
+		}
+
+		public Compilation Compile()
+		{
+			return async (stream, context, scopeData) =>
+			{
+				context = await MorestachioExpression.GetValue(context, scopeData);
+				scopeData.AddVariable(Value, context, IdVariableScope);
+			};
 		}
 		
 		/// <inheritdoc />

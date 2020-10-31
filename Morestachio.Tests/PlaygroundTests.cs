@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using Morestachio.Framework.Context.Resolver;
 using Morestachio.Helper;
 using Morestachio.Profiler;
 using NUnit.Framework;
@@ -43,7 +45,7 @@ namespace Morestachio.Tests
 ";
 		private const string Lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
 
-		public class Product// : IMorestachioPropertyResolver
+		public class Product : IMorestachioPropertyResolver
 		{
 			public Product()
 			{
@@ -186,6 +188,71 @@ namespace Morestachio.Tests
 				{
 					Products = _products
 				});
+				sw.Stop();
+				profiler.Add(f.Profiler);
+			}
+
+			var swElapsed = sw.Elapsed;
+			Console.WriteLine("Done in: " 
+			                  + HumanizeTimespan(swElapsed)
+			                  + " thats " 
+			                  + HumanizeTimespan(sw.ElapsedAverage)
+			                  + " per run with lower " 
+			                  + HumanizeTimespan(sw.ElapsedMin)
+			                  + " and high " 
+			                  + HumanizeTimespan(sw.ElapsedMax));
+			#if NETCOREAPP
+			Console.WriteLine("- Mem: " + Process.GetCurrentProcess().PrivateMemorySize64);
+			#endif
+			//PrintPerformanceGroup(profiler.SelectMany(f => f.))
+		}
+
+		[Test]
+		[Explicit]
+		[Repeat(5)]
+		public async Task PerformanceCompiledDebuggerTest()
+		{
+			var _products = new List<object>(500);
+			for (int i = 0; i < 500; i++)
+			{
+				//_products.Add(new Dictionary<string, object>()
+				//{
+				//	{"Name", "Name" + i},
+				//	{"Price", i},
+				//	{"Description", Lorem},
+				//});
+				_products.Add(new Product()
+				{
+					Name = "Name" + i,
+					Price = i,
+					Description = Lorem
+				});
+			}
+
+			var parsingOptions = new ParserOptions(TextTemplateMorestachio, null, Encoding.UTF8, true);
+			parsingOptions.ProfileExecution = false;
+			var parsed = Parser.ParseWithOptions(parsingOptions).Compile();
+			var andStringifyAsync = await parsed(new
+			{
+				Products = _products
+			}, CancellationToken.None);
+			var runs = 200;
+			for (int i = 0; i < runs / 5; i++)
+			{
+				andStringifyAsync = await parsed(new
+				{
+					Products = _products
+				}, CancellationToken.None);
+			}
+			var sw = new Stopwatches();
+			var profiler = new List<PerformanceProfiler>();
+			for (int i = 0; i < runs; i++)
+			{
+				sw.Start();
+				var f = await parsed(new
+				{
+					Products = _products
+				}, CancellationToken.None);
 				sw.Stop();
 				profiler.Add(f.Profiler);
 			}

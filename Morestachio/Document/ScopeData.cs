@@ -19,6 +19,7 @@ namespace Morestachio.Document
 		public ScopeData()
 		{
 			Partials = new Dictionary<string, IDocumentItem>();
+			CompiledPartials = new Dictionary<string, Compilation>();
 			PartialDepth = new Stack<string>();
 			Alias = new Dictionary<string, IDictionary<int, object>>();
 			Variables = new Dictionary<string, object>();
@@ -29,6 +30,8 @@ namespace Morestachio.Document
 		///		List of all Partials
 		/// </summary>
 		public IDictionary<string, IDocumentItem> Partials { get; private set; }
+
+		public IDictionary<string, Compilation> CompiledPartials { get; private set; }
 
 		///  <summary>
 		/// 		Adds a new variable or alias. An alias is bound to its scope and will be reset when the scoping <see cref="IDocumentItem"/> is closed. An Variable is global

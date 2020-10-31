@@ -22,7 +22,7 @@ namespace Morestachio.Document.Items
 	/// </summary>
 	/// <seealso cref="ExpressionScopeDocumentItem"/>
 	[Serializable]
-	public class InvertedExpressionScopeDocumentItem : ExpressionDocumentItemBase
+	public class InvertedExpressionScopeDocumentItem : ExpressionDocumentItemBase, ISupportCustomCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -41,6 +41,20 @@ namespace Morestachio.Document.Items
 		[UsedImplicitly]
 		protected InvertedExpressionScopeDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
+		}
+
+		public Compilation Compile()
+		{
+			var children = MorestachioDocument.CompileItemsAndChildren(Children);
+			return async (stream, context, scopeData) =>
+			{
+				var c = await MorestachioExpression.GetValue(context, scopeData);
+				if (!c.Exists())
+				{
+					await children(stream, c, scopeData);
+					//return Children.WithScope(c);
+				}
+			};
 		}
 		
 		/// <inheritdoc />

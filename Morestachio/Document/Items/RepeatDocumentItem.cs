@@ -26,7 +26,7 @@ namespace Morestachio.Document.Items
 	///		Repeats the template a number of times
 	/// </summary>
 	[System.Serializable]
-	public class RepeatDocumentItem : ExpressionDocumentItemBase
+	public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomCompilation
 	{
 		internal RepeatDocumentItem() : base(CharacterLocation.Unknown, null)
 		{
@@ -46,6 +46,46 @@ namespace Morestachio.Document.Items
 		protected RepeatDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 
+		}
+
+		public Compilation Compile()
+		{
+			var children = MorestachioDocument.CompileItemsAndChildren(Children);
+			return async (stream, context, scopeData) =>
+			{
+				var c = await MorestachioExpression.GetValue(context, scopeData);
+
+				if (!c.Exists())
+				{
+					return;
+				}
+
+				if (!(Number.IsIntegralNumber(c.Value)))
+				{
+					var path = new Stack<string>();
+					var parent = context.Parent;
+					while (parent != null)
+					{
+						path.Push(parent.Key);
+						parent = parent.Parent;
+					}
+
+					throw new IndexedParseException(CharacterLocationExtended.Empty,
+						string.Format(
+							"{1}'{0}' is expected to return a integral number but did not." +
+							" Complete Expression until Error:{2}",
+							MorestachioExpression.ToString(), base.ExpressionStart,
+							(path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
+				}
+
+				var nr = new Number(c.Value as IConvertible);
+				for (int i = 0; i < nr; i++)
+				{
+					var contextCollection = new ContextCollection(i, i + 1 == nr, context.Options, $"[{i}]", context,
+						context.Value);
+					await children(stream, contextCollection, scopeData);
+				}
+			};
 		}
 		
 		/// <inheritdoc />

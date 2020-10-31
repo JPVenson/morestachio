@@ -4,8 +4,10 @@ using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 #endif
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using System.Xml;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
@@ -22,7 +24,7 @@ namespace Morestachio.Document.Items.SwitchCase
 	///		The document item for a switch block
 	/// </summary>
 	[Serializable]
-	public class SwitchDocumentItem : ExpressionDocumentItemBase
+	public class SwitchDocumentItem : ExpressionDocumentItemBase, ISupportCustomCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -33,12 +35,12 @@ namespace Morestachio.Document.Items.SwitchCase
 		}
 
 		/// <inheritdoc />
-		public SwitchDocumentItem(CharacterLocation location, IMorestachioExpression value, bool shouldScopeToValue) 
+		public SwitchDocumentItem(CharacterLocation location, IMorestachioExpression value, bool shouldScopeToValue)
 			: base(location, value)
 		{
 			ScopeToValue = shouldScopeToValue;
 		}
-		
+
 		/// <inheritdoc />
 		[UsedImplicitly]
 		protected SwitchDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
@@ -54,51 +56,111 @@ namespace Morestachio.Document.Items.SwitchCase
 		/// <inheritdoc />
 		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
+			var children = Children.OfType<SwitchCaseDocumentItem>().Cast<IDocumentItem>()
+				.Concat(Children.OfType<SwitchDefaultDocumentItem>())
+				.Select(e => new SwitchExecutionContainerDocumentItem()
+				{
+					Expression = (e as SwitchCaseDocumentItem)?.MorestachioExpression,
+					Document = e
+				}).ToArray();
+			
 			var value = await MorestachioExpression.GetValue(context, scopeData);
-			var switchCases = Children.OfType<SwitchCaseDocumentItem>();
-			IDocumentItem matchingCase = null;
-			foreach (var switchCaseDocumentItem in switchCases)
+			if (ScopeToValue)
 			{
-				var contextObject = await switchCaseDocumentItem.MorestachioExpression.GetValue(context, scopeData);
-				if (Equals(contextObject.Value, value.Value))
+				context = value;
+			}
+			var toBeExecuted = await CoreAction(outputStream, context, scopeData,
+				children);
+
+			if (toBeExecuted != null)
+			{
+				return await toBeExecuted.Document.Render(outputStream, context, scopeData);
+			}
+
+			return Enumerable.Empty<DocumentItemExecution>();
+		}
+		
+		/// <inheritdoc />
+		public Compilation Compile()
+		{
+			var children = Children.Select(e => new SwitchExecutionContainerCompiledAction()
+			{
+				Callback = MorestachioDocument.CompileItemsAndChildren(e.Children),
+				Expression = (e as SwitchCaseDocumentItem)?.MorestachioExpression
+			}).ToArray();
+
+			return async (outputStream, context, scopeData) =>
+			{
+				var value = await MorestachioExpression.GetValue(context, scopeData);
+				if (ScopeToValue)
+				{
+					context = value;
+				}
+				var toBeExecuted = await CoreAction(outputStream, context, scopeData,
+					children);
+
+				if (toBeExecuted != null)
+				{
+					await toBeExecuted.Callback(outputStream, context, scopeData);
+				}
+			};
+		}
+
+		private class SwitchExecutionContainer
+		{
+			public IMorestachioExpression Expression { get; set; }
+		}
+
+		private class SwitchExecutionContainerCompiledAction : SwitchExecutionContainer
+		{
+			public Compilation Callback { get; set; }
+		}
+
+		private class SwitchExecutionContainerDocumentItem : SwitchExecutionContainer
+		{
+			public IDocumentItem Document { get; set; }
+		}
+
+		private async Task<T> CoreAction<T>(
+			IByteCounterStream outputStream,
+			ContextObject context,
+			ScopeData scopeData,
+			T[] containers) where T : SwitchExecutionContainer
+		{
+			T matchingCase = null;
+			foreach (var switchCaseDocumentItem in containers.Where(e => e.Expression != null))
+			{
+				var contextObject = await switchCaseDocumentItem.Expression.GetValue(context, scopeData);
+				if (Equals(contextObject.Value, context.Value))
 				{
 					matchingCase = switchCaseDocumentItem;
 					break;
 				}
 			}
 
-			if (ScopeToValue)
-			{
-				context = value;
-			}
-
 			if (matchingCase != null)
 			{
-				return await matchingCase.Render(outputStream, context, scopeData);
+				return matchingCase;
 			}
 
-			matchingCase = Children.FirstOrDefault(e => e is SwitchDefaultDocumentItem);
-			
-			if (matchingCase != null)
-			{
-				return await matchingCase.Render(outputStream, context, scopeData);
-			}
-
-			return Enumerable.Empty<DocumentItemExecution>();
+			return containers.FirstOrDefault(e => e.Expression is null);
 		}
-
+		
+		/// <inheritdoc />
 		protected override void DeSerializeXml(XmlReader reader)
 		{
 			ScopeToValue = reader.GetAttribute(nameof(ScopeToValue)) == bool.TrueString;
 			base.DeSerializeXml(reader);
 		}
-
+		
+		/// <inheritdoc />
 		protected override void SerializeXml(XmlWriter writer)
 		{
 			writer.WriteAttributeString(nameof(ScopeToValue), ScopeToValue.ToString());
 			base.SerializeXml(writer);
 		}
 
+		/// <inheritdoc />
 		protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
 		{
 			info.AddValue(nameof(ScopeToValue), ScopeToValue);

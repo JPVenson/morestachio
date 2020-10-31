@@ -22,7 +22,7 @@ namespace Morestachio.Document.Items
 	///		Contains the Declaration of a Partial item
 	/// </summary>
 	[Serializable]
-	public class PartialDocumentItem : ValueDocumentItemBase, IEquatable<PartialDocumentItem>
+	public class PartialDocumentItem : ValueDocumentItemBase, IEquatable<PartialDocumentItem>, ISupportCustomCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -89,6 +89,18 @@ namespace Morestachio.Document.Items
 		/// </summary>
 		public IDocumentItem Partial { get; private set; }
 
+		public Compilation Compile()
+		{
+			var children = MorestachioDocument.CompileItemsAndChildren(new IDocumentItem[]
+			{
+				Partial
+			});
+			return async (stream, context, scopeData) =>
+			{
+				scopeData.CompiledPartials[Value] = children;
+			};
+		}
+
 		/// <inheritdoc />
 		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
 			ScopeData scopeData)
@@ -144,6 +156,7 @@ namespace Morestachio.Document.Items
 				return hashCode;
 			}
 		}
+
 		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)
 		{

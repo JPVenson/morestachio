@@ -7,7 +7,9 @@ using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Gene
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
@@ -24,7 +26,7 @@ namespace Morestachio.Document.Items
 	///		Defines a area that has no morestachio keywords and can be rendered as is
 	/// </summary>
 	[Serializable]
-	public class ContentDocumentItem : ValueDocumentItemBase
+	public class ContentDocumentItem : ValueDocumentItemBase, ISupportCustomCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -47,13 +49,28 @@ namespace Morestachio.Document.Items
 		protected ContentDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}
+
+		public Compilation Compile()
+		{
+			return async (stream, context, scopeData) =>
+			{
+				CoreAction(stream, scopeData);
+			};
+		}
 		
 		/// <inheritdoc />
 		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
 			ScopeData scopeData)
 		{
+			CoreAction(outputStream, scopeData);
+			return Children.WithScope(context).ToPromise();
+		}
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private void CoreAction(IByteCounterStream outputStream, ScopeData scopeData)
+		{
 			var value = Value;
-			if (scopeData.CustomData.TryGetValue("TextOperationData", out var textOperations) 
+			if (scopeData.CustomData.TryGetValue("TextOperationData", out var textOperations)
 			    && textOperations is IList<ITextOperation> textOps)
 			{
 				foreach (var textOperation in textOps.ToArray())
@@ -70,8 +87,8 @@ namespace Morestachio.Document.Items
 			{
 				outputStream.Write(value);
 			}
-			return Children.WithScope(context).ToPromise();
 		}
+
 		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)
 		{

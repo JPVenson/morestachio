@@ -21,7 +21,7 @@ namespace Morestachio.Document.Items
 	///		Emits the template as long as the condition is true
 	/// </summary>
 	[Serializable]
-	public class WhileLoopDocumentItem : ExpressionDocumentItemBase
+	public class WhileLoopDocumentItem : ExpressionDocumentItemBase, ISupportCustomCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -66,6 +66,27 @@ namespace Morestachio.Document.Items
 		public override void Accept(IDocumentItemVisitor visitor)
 		{
 			visitor.Visit(this);
+		}
+
+		public Compilation Compile()
+		{
+			var children = MorestachioDocument.CompileItemsAndChildren(Children);
+			return async (outputStream, context, scopeData) =>
+			{
+				var index = 0;
+
+				var collectionContext = new ContextCollection(index, false, context.Options, context.Key,
+					context.Parent,
+					context.Value);
+
+				while (ContinueBuilding(outputStream, context) &&
+				       (await MorestachioExpression.GetValue(collectionContext, scopeData)).Exists())
+				{
+					await children(outputStream, collectionContext, scopeData);
+					collectionContext = new ContextCollection(++index, false, context.Options, context.Key,
+						context.Parent, context.Value);
+				}
+			};
 		}
 	}
 }

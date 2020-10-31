@@ -22,7 +22,7 @@ namespace Morestachio.Document.Items
 	///		An single Value expression
 	/// </summary>
 	[Serializable]
-	public class PathDocumentItem : ExpressionDocumentItemBase
+	public class PathDocumentItem : ExpressionDocumentItemBase, ISupportCustomCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -78,6 +78,30 @@ namespace Morestachio.Document.Items
 		private static string HtmlEncodeString(string context)
 		{
 			return WebUtility.HtmlEncode(context);
+		}
+
+		public Compilation Compile()
+		{
+			var children = MorestachioDocument.CompileItemsAndChildren(Children);
+			return async (outputStream, context, scopeData) =>
+			{
+				//try to locate the value in the context, if it exists, append it.
+				var contextObject = context != null ? (await MorestachioExpression.GetValue(context, scopeData)) : null;
+				if (contextObject != null)
+				{
+					//await contextObject.EnsureValue();
+					if (EscapeValue && !context.Options.DisableContentEscaping)
+					{
+						outputStream.Write(HtmlEncodeString(await contextObject.RenderToString()));
+					}
+					else
+					{
+						outputStream.Write(await contextObject.RenderToString());
+					}
+				}
+
+				await children(outputStream, contextObject, scopeData);
+			};
 		}
 		
 		/// <inheritdoc />
@@ -148,6 +172,7 @@ namespace Morestachio.Document.Items
 				return hashCode;
 			}
 		}
+
 		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)
 		{

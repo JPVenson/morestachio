@@ -22,7 +22,7 @@ namespace Morestachio.Document.Items
 	///		Defines the start of a Scope
 	/// </summary>
 	[Serializable]
-	public class ExpressionScopeDocumentItem : ExpressionDocumentItemBase
+	public class ExpressionScopeDocumentItem : ExpressionDocumentItemBase, ISupportCustomCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -36,13 +36,26 @@ namespace Morestachio.Document.Items
 		public ExpressionScopeDocumentItem(CharacterLocation location, IMorestachioExpression value) : base(location, value)
 		{
 		}
-		
+
 		/// <inheritdoc />
 		[UsedImplicitly]
 		protected ExpressionScopeDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}
 
+
+		public Compilation Compile()
+		{
+			var children = MorestachioDocument.CompileItemsAndChildren(Children);
+			return async (stream, context, scopeData) =>
+			{
+				var c = await MorestachioExpression.GetValue(context, scopeData);
+				if (c.Exists())
+				{
+					await children(stream, c, scopeData);
+				}
+			};
+		}
 		/// <inheritdoc />
 		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{

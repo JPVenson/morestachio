@@ -9,13 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20371.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Morestachio.Linq\Morestachio.Linq.csproj" />
     <ProjectReference Include="..\Morestachio.Newtonsoft.Json\Morestachio.Newtonsoft.Json.csproj" />
+    <ProjectReference Include="..\Morestachio.Tests\Morestachio.Tests.csproj" />
     <ProjectReference Include="..\Morestachio\Morestachio.csproj" />
   </ItemGroup>
 

@@ -21,7 +21,7 @@ namespace Morestachio.Document.Items
 	///		Defines the start of a Scope
 	/// </summary>
 	[Serializable]
-	public class IfNotExpressionScopeDocumentItem : ExpressionDocumentItemBase
+	public class IfNotExpressionScopeDocumentItem : ExpressionDocumentItemBase, ISupportCustomCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -35,16 +35,16 @@ namespace Morestachio.Document.Items
 		public IfNotExpressionScopeDocumentItem(CharacterLocation location, IMorestachioExpression value) : base(location, value)
 		{
 		}
-		
+
 		/// <inheritdoc />
 		[UsedImplicitly]
 		protected IfNotExpressionScopeDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}
-		
+
 		/// <inheritdoc />
-		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, 
-			ContextObject context, 
+		public override async ItemExecutionPromise Render(IByteCounterStream outputStream,
+			ContextObject context,
 			ScopeData scopeData)
 		{
 			//we are checking the parent value not our current value
@@ -65,6 +65,27 @@ namespace Morestachio.Document.Items
 		public override void Accept(IDocumentItemVisitor visitor)
 		{
 			visitor.Visit(this);
+		}
+
+		public Compilation Compile()
+		{
+			var children = MorestachioDocument.CompileItemsAndChildren(Children);
+			return async (stream, context, scopeData) =>
+			{
+				//we are checking the parent value not our current value
+				var contextObject = context.Parent ?? context;
+
+				//var c = await context.GetContextForPath(Value, scopeData);
+				var c = await MorestachioExpression.GetValue(contextObject, scopeData);
+				if (!c.Exists())
+				{
+					scopeData.ExecuteElse = false;
+					await children(stream, contextObject.FindNextNaturalContextObject(), scopeData);
+					return;
+				}
+
+				scopeData.ExecuteElse = true;
+			};
 		}
 	}
 }
