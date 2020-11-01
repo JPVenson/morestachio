@@ -1026,6 +1026,29 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		public void FormatterCanHandleStringOperatorWithTextAtLast()
+		{
+			var template =
+				@"{{dataA == 'test'}}";
+
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			var parsedTemplate =
+				Parser.ParseWithOptions(parsingOptions);
+			parsedTemplate.ParserOptions.Formatters.AddSingleGlobal(new Func<string, string>(i => i), "ToString");
+
+			var model = new Dictionary<string, object>()
+			{
+				{"dataA", "test" },
+				{"dataB", 3 }
+			};
+
+			var result = parsedTemplate
+				.CreateAndStringify(model);
+			Assert.That(result, Is.EqualTo("True"));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, parsedTemplate.Document);
+		}
+
+		[Test]
 		public void FormatterCanHandleStringOperatorMultipleArgument()
 		{
 			var template =

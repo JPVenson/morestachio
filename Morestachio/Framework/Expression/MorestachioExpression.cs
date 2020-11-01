@@ -365,10 +365,11 @@ namespace Morestachio.Framework.Expression
 									});
 								}
 
-								//if (Eoex(text, ref index))
-								//{
-								//	TerminateCurrentScope(tokenScopes);
-								//}
+								var nIndexEoex = index;
+								if (Eoex(text, ref nIndexEoex))
+								{
+									TerminateCurrentScope(tokenScopes);
+								}
 							}
 							else if (Tokenizer.IsNumberExpressionChar(text[index]))
 							{

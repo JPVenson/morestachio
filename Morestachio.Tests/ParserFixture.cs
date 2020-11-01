@@ -201,7 +201,7 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
-		[TestCase("a + b + c")]
+		[TestCase("a.Add(2).Buffer == 'test'")]
 		public void TestExpressionParserDbg(string query)
 		{
 			var context = TokenzierContext.FromText(query);
