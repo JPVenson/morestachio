@@ -20,7 +20,7 @@ namespace Morestachio.Document
 		{
 			Partials = new Dictionary<string, IDocumentItem>();
 			CompiledPartials = new Dictionary<string, Compilation>();
-			PartialDepth = new Stack<string>();
+			PartialDepth = new Stack<Tuple<string, int>>();
 			Alias = new Dictionary<string, IDictionary<int, object>>();
 			Variables = new Dictionary<string, object>();
 			CustomData = new Dictionary<string, object>();
@@ -120,7 +120,7 @@ namespace Morestachio.Document
 		/// <summary>
 		///		The Depth of current Partial usage
 		/// </summary>
-		public Stack<string> PartialDepth { get; private set; }
+		public Stack<Tuple<string, int>> PartialDepth { get; private set; }
 
 		/// <summary>
 		///		Lists all Alias objects

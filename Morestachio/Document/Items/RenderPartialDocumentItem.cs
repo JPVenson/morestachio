@@ -96,8 +96,7 @@ namespace Morestachio.Document.Items
 			ScopeData scopeData)
 		{
 			string partialName = Value;
-			var currentPartial = partialName + "_" + scopeData.PartialDepth.Count;
-			scopeData.PartialDepth.Push(currentPartial);
+			scopeData.PartialDepth.Push(new Tuple<string, int>(partialName, scopeData.PartialDepth.Count));
 			if (scopeData.PartialDepth.Count >= context.Options.PartialStackSize)
 			{
 				switch (context.Options.StackOverflowBehavior)

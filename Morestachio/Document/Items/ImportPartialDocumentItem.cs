@@ -105,8 +105,7 @@ namespace Morestachio.Document.Items
 						$"Get partial requested by the expression: '{MorestachioExpression.ToString()}' returned null and is therefor not valid");
 				}
 
-				var currentPartial = partialName + "_" + scopeData.PartialDepth.Count;
-				scopeData.PartialDepth.Push(currentPartial);
+				scopeData.PartialDepth.Push(new Tuple<string, int>(partialName, scopeData.PartialDepth.Count));
 				if (scopeData.PartialDepth.Count >= context.Options.PartialStackSize)
 				{
 					switch (context.Options.StackOverflowBehavior)
@@ -129,7 +128,7 @@ namespace Morestachio.Document.Items
 
 				scopeData.AddVariable("$name",
 					(scope) => context.Options.CreateContextObject("$name", context.CancellationToken,
-						scope.PartialDepth.Peek(), context), 0);
+						scope.PartialDepth.Peek().Item1, context), 0);
 
 				var cnxt = context;
 				if (Context != null)
@@ -192,9 +191,8 @@ namespace Morestachio.Document.Items
 			{
 				throw new MorestachioRuntimeException($"Get partial requested by the expression: '{MorestachioExpression.ToString()}' returned null and is therefor not valid");
 			}
-
-			var currentPartial = partialName + "_" + scopeData.PartialDepth.Count;
-			scopeData.PartialDepth.Push(currentPartial);
+			
+			scopeData.PartialDepth.Push(new Tuple<string, int>(partialName, scopeData.PartialDepth.Count));
 			if (scopeData.PartialDepth.Count >= context.Options.PartialStackSize)
 			{
 				switch (context.Options.StackOverflowBehavior)
