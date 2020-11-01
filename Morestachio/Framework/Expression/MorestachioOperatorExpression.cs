@@ -215,7 +215,10 @@ namespace Morestachio.Framework.Expression
 					contextObject.Parent);
 			}
 
-			return null;
+			return contextObject.Options.CreateContextObject(".",
+				contextObject.CancellationToken,
+				null,
+				contextObject.Parent);
 		}
 
 		/// <inheritdoc />
