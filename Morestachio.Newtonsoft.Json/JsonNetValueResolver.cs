@@ -17,7 +17,7 @@ namespace Morestachio.Newtonsoft.Json
 			}
 			else
 			{
-				options.ValueResolver = new JsonNetValueResolver();	
+				options.ValueResolver = new JsonNetValueResolver();
 			}
 		}
 	}
@@ -30,6 +30,11 @@ namespace Morestachio.Newtonsoft.Json
 		/// <inheritdoc />
 		public object Resolve(Type type, object value, string path, ContextObject context)
 		{
+			return ResolveJObject(value, path);
+		}
+
+		public static object ResolveJObject(object value, string path)
+		{
 			if (value is JObject jValue)
 			{
 				var val = jValue.Value<object>(path);
@@ -37,6 +42,7 @@ namespace Morestachio.Newtonsoft.Json
 				{
 					return EvalJToken(jToken);
 				}
+
 				return val;
 			}
 
@@ -53,7 +59,7 @@ namespace Morestachio.Newtonsoft.Json
 			return value;
 		}
 
-		public object EvalJToken(JToken token)
+		public static object EvalJToken(JToken token)
 		{
 			if (token is JValue jToken)
 			{
@@ -71,7 +77,7 @@ namespace Morestachio.Newtonsoft.Json
 			return null;
 		}
 
-		public IDictionary<string, object> EvalJObject(JObject obj)
+		public static IDictionary<string, object> EvalJObject(JObject obj)
 		{
 			var dict = (IDictionary<string, object>)new ExpandoObject();
 			foreach (var property in obj.Properties())
@@ -82,7 +88,7 @@ namespace Morestachio.Newtonsoft.Json
 			return dict;
 		}
 
-		private IEnumerable<object> EvalJArray(JArray jArr)
+		private static IEnumerable<object> EvalJArray(JArray jArr)
 		{
 			var arrElements = new List<object>();
 			foreach (var jToken in jArr)

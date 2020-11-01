@@ -40,5 +40,22 @@ namespace Morestachio.Tests.Json
 			var document = Parser.ParseWithOptions(options);
 			Assert.That(document.CreateAndStringify(JsonConvert.DeserializeObject(data)), Is.EqualTo("Test"));
 		}
+
+		[Test]
+		public void TestValueResolverCanGetPropertyListAndFormat()
+		{
+			var data = @"{
+	Data: {
+		PropA: [""E"", ""T"",""e""],
+	},
+	PropB: ""st""
+}
+";
+			var template = "{{#each Data.PropA.Skip(1)}}{{.}}{{/each}}{{PropB}}";
+			var options = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			options.ValueResolver = new JsonNetValueResolver();
+			var document = Parser.ParseWithOptions(options);
+			Assert.That(document.CreateAndStringify(JsonConvert.DeserializeObject(data)), Is.EqualTo("Test"));
+		}
 	}
 }

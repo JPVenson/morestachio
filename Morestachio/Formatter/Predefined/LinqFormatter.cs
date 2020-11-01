@@ -185,5 +185,17 @@ namespace Morestachio.Formatter.Predefined
 		{
 			return sourceCollection.Where(e => e != null);
 		}
+
+		[MorestachioFormatter("Take", "Takes the amount of items in argument")]
+		public static IEnumerable<T> Take<T>(IEnumerable<T> sourceCollection, Number arguments)
+		{
+			return sourceCollection.Take(arguments.ToInt32(null));
+		}
+
+		[MorestachioFormatter("Skip", "Skips the amount of items in argument")]
+		public static IEnumerable<T> Skip<T>(IEnumerable<T> sourceCollection, Number arguments)
+		{
+			return sourceCollection.Skip(arguments.ToInt32(null));
+		}
 	}
 }

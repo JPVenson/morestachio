@@ -13,6 +13,7 @@ namespace Morestachio.Formatter.Predefined
 		/// <param name="value"></param>
 		/// <returns></returns>
 		[MorestachioFormatter("Negate", "Negates a Boolean value")]
+		[MorestachioFormatter("Not", "Negates a Boolean value")]
 		public static bool Negate([SourceObject]bool value)
 		{
 			return !value;

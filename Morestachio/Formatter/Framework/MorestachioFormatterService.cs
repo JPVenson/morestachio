@@ -327,28 +327,23 @@ namespace Morestachio.Formatter.Framework
 							.Select(e => e.CreateInstance())
 							.All(e => !e.CanConvert(typeToFormat, formatTemplateElement.InputType)))
 						{
-							var typeToFormatGenerics = typeToFormat.GetTypeInfo().GetGenericArguments();
-
-							//explicit check for array support
-							if (typeToFormat.HasElementType)
+							if (!CheckGenericTypeForMatch(typeToFormat, formatTemplateElement))
 							{
-								var elementType = typeToFormat.GetElementType();
-								typeToFormatGenerics = typeToFormatGenerics.Concat(new[]
+								var foundInterface = false;
+								//foreach (var @interface in typeToFormat.GetInterfaces())
+								//{
+								//	if (CheckGenericTypeForMatch(@interface, formatTemplateElement))
+								//	{
+								//		foundInterface = true;
+								//	}
+								//}
+
+								if (!foundInterface)
 								{
-									elementType
-								}).ToArray();
-							}
-
-							//the type check has maybe failed because of generic parameter. Check if both the formatter and the typ have generic arguments
-
-							var formatterGenerics = formatTemplateElement.InputType.GetTypeInfo().GetGenericArguments();
-
-							if (typeToFormatGenerics.Length <= 0 || formatterGenerics.Length <= 0 ||
-								typeToFormatGenerics.Length != formatterGenerics.Length)
-							{
-								Log(() =>
-									$"Exclude because formatter accepts '{formatTemplateElement.InputType}' is not assignable from '{typeToFormat}'");
-								continue;
+									Log(() =>
+										$"Exclude because formatter accepts '{formatTemplateElement.InputType}' is not assignable from '{typeToFormat}'");
+									continue;
+								}
 							}
 						}
 					}
@@ -396,6 +391,33 @@ namespace Morestachio.Formatter.Framework
 			}
 
 			return Enumerable.Empty<MorestachioFormatterModel>();
+		}
+
+		private bool CheckGenericTypeForMatch(Type typeToFormat, MorestachioFormatterModel formatTemplateElement)
+		{
+			var typeToFormatGenerics = typeToFormat.GetTypeInfo().GetGenericArguments();
+
+			//explicit check for array support
+			if (typeToFormat.HasElementType)
+			{
+				var elementType = typeToFormat.GetElementType();
+				typeToFormatGenerics = typeToFormatGenerics.Concat(new[]
+				{
+					elementType
+				}).ToArray();
+			}
+
+			//the type check has maybe failed because of generic parameter. Check if both the formatter and the typ have generic arguments
+
+			var formatterGenerics = formatTemplateElement.InputType.GetTypeInfo().GetGenericArguments();
+
+			if (typeToFormatGenerics.Length <= 0 || formatterGenerics.Length <= 0 ||
+			    typeToFormatGenerics.Length != formatterGenerics.Length)
+			{
+				return false;
+			}
+
+			return true;
 		}
 
 		/// <summary>

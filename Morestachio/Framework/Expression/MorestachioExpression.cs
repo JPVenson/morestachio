@@ -364,6 +364,11 @@ namespace Morestachio.Framework.Expression
 										Value = morestachioExpression
 									});
 								}
+
+								//if (Eoex(text, ref index))
+								//{
+								//	TerminateCurrentScope(tokenScopes);
+								//}
 							}
 							else if (Tokenizer.IsNumberExpressionChar(text[index]))
 							{

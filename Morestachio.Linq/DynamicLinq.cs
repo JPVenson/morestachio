@@ -40,24 +40,12 @@ namespace Morestachio.Linq
 			return sourceCollection.AsQueryable().SelectMany(predicate, arguments);
 		}
 
-		[MorestachioFormatter("Take", "Takes the amount of items in argument")]
-		public static IEnumerable<T> Take<T>(IEnumerable<T> sourceCollection, Number arguments)
-		{
-			return sourceCollection.AsQueryable().Take(arguments.ToInt32(null));
-		}
-
 		[MorestachioFormatter("TakeWhile", "Takes items from the collection as long as the predicate is true")]
 		public static IEnumerable<T> TakeWhile<T>(IEnumerable<T> sourceCollection,
 			string predicate,
 			[RestParameter] params object[] arguments)
 		{
 			return sourceCollection.AsQueryable().TakeWhile(predicate, arguments).OfType<T>();
-		}
-
-		[MorestachioFormatter("Skip", "Skips the amount of items in argument")]
-		public static IEnumerable<T> Skip<T>(IEnumerable<T> sourceCollection, Number arguments)
-		{
-			return sourceCollection.AsQueryable().Skip(arguments.ToInt32(null));
 		}
 
 		[MorestachioFormatter("SkipWhile", "Skips items from the collection as long as the predicate is true")]

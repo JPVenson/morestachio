@@ -69,7 +69,7 @@ namespace Morestachio.Document.Items.SwitchCase
 			{
 				context = value;
 			}
-			var toBeExecuted = await CoreAction(outputStream, context, scopeData,
+			var toBeExecuted = await CoreAction(outputStream, value, scopeData,
 				children);
 
 			if (toBeExecuted != null)
@@ -96,7 +96,7 @@ namespace Morestachio.Document.Items.SwitchCase
 				{
 					context = value;
 				}
-				var toBeExecuted = await CoreAction(outputStream, context, scopeData,
+				var toBeExecuted = await CoreAction(outputStream, value, scopeData,
 					children);
 
 				if (toBeExecuted != null)
