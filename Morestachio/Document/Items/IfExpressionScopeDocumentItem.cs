@@ -14,6 +14,7 @@ using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
+using Morestachio.Helper;
 
 namespace Morestachio.Document.Items
 {
@@ -52,9 +53,9 @@ namespace Morestachio.Document.Items
 				var c = await MorestachioExpression.GetValue(context, scopeData);
 				if (c.Exists())
 				{
-					scopeData.ExecuteElse = false;
 					await children(stream, context.IsNaturalContext || context.Parent == null ? context : context.Parent,
 						scopeData);
+					scopeData.ExecuteElse = false;
 					return;
 				}
 				scopeData.ExecuteElse = true;
@@ -71,8 +72,12 @@ namespace Morestachio.Document.Items
 			var c = await MorestachioExpression.GetValue(context, scopeData);
 			if (c.Exists())
 			{
-				scopeData.ExecuteElse = false;
-				return Children.WithScope(context.IsNaturalContext || context.Parent == null ? context : context.Parent);
+				return Children
+					.Concat(new []
+					{
+						new IfExpressionScopeEndDocumentItem()
+					})
+					.WithScope(context.IsNaturalContext || context.Parent == null ? context : context.Parent);
 			}
 			scopeData.ExecuteElse = true;
 			return Enumerable.Empty<DocumentItemExecution>();
@@ -81,6 +86,28 @@ namespace Morestachio.Document.Items
 		public override void Accept(IDocumentItemVisitor visitor)
 		{
 			visitor.Visit(this);
+		}
+	}
+
+	/// <summary>
+	///		Virtual document item for setting the <see cref="ScopeData.ExecuteElse"/> flag to false
+	/// </summary>
+	public class IfExpressionScopeEndDocumentItem : DocumentItemBase
+	{
+		public IfExpressionScopeEndDocumentItem()
+		{
+			
+		}
+
+		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+		{
+			scopeData.ExecuteElse = false;
+			return Enumerable.Empty<DocumentItemExecution>().ToPromise();
+		}
+
+		public override void Accept(IDocumentItemVisitor visitor)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }
