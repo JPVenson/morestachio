@@ -67,5 +67,13 @@ namespace Morestachio.Formatter.Predefined
 		{
 			return ReferenceEquals(source, target);
 		}
+		
+		[MorestachioOperator(OperatorTypes.NullCoalescing, "returns the value of its left-hand operand if it isn't null; otherwise, it evaluates the right-hand operand and returns its result")]
+		[MorestachioFormatter("NullCoalescing", "returns the value of its left-hand operand if it isn't null; otherwise, it evaluates the right-hand operand and returns its result")]
+		[MorestachioGlobalFormatter("NullCoalescing", "returns the value of its left-hand operand if it isn't null; otherwise, it evaluates the right-hand operand and returns its result")]
+		public static object NullCoalescing(object left, object right)
+		{
+			return left ?? right;
+		}
 	}
 }

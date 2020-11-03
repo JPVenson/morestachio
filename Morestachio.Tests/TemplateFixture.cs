@@ -349,6 +349,28 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		public void TemplateCanExecuteNestedIfs()
+		{
+			var template =
+				@"{{#IF data}}SHOULD PRINT{{#IF alum}}!{{/IF}}{{/IF}}{{#ELSE}}SHOULD NOT PRINT{{/ELSE}}";
+
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			var parsedTemplate =
+				Parser.ParseWithOptions(parsingOptions);
+
+			var model = new Dictionary<string, object>()
+			{
+				{"data", "false" },
+				{"root", "true" }
+			};
+
+			var result = parsedTemplate.CreateAndStringify(model);
+
+			Assert.That(result, Is.EqualTo("SHOULD PRINT"));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
+		}
+
+		[Test]
 		public void TemplateInvertedIfElse()
 		{
 			var template =

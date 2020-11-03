@@ -135,6 +135,7 @@ namespace Morestachio.Document.Items
 				{
 					cnxt = (await Context.GetValue(context, scopeData));
 				}
+				cnxt = cnxt.CloneForEdit().MakeNatural();
 
 				scopeData.AddVariable("$recursion",
 					(scope) => cnxt.Options.CreateContextObject("$recursion", context.CancellationToken,
@@ -171,7 +172,7 @@ namespace Morestachio.Document.Items
 						{
 							partialFromStore.Document
 						})(stream, cnxt, scopeData);
-						doneAction(stream, cnxt, scopeData);
+						await doneAction(stream, cnxt, scopeData);
 					}
 				}
 
@@ -222,6 +223,8 @@ namespace Morestachio.Document.Items
 			{
 				cnxt = (await Context.GetValue(context, scopeData));
 			}
+
+			cnxt = cnxt.CloneForEdit().MakeNatural();
 
 			scopeData.AddVariable("$recursion",
 				(scope) => cnxt.Options.CreateContextObject("$recursion", context.CancellationToken,

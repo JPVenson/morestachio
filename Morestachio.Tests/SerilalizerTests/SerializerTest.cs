@@ -250,7 +250,7 @@ namespace Morestachio.Tests.SerilalizerTests
 		[Test]
 		public void TestLocIsSerializable()
 		{
-			var template = "{{#loc 'Texts.Welcome'}} " +
+			var template = "{{#loc 'Texts.Welcome' #CULTURE 'DE-DE'}} " +
 						   "{{#LocCulture 'de-AT'}}" +
 						   "{{#loc 'Texts.Welcome'}} " +
 						   "{{/LocCulture}}" +

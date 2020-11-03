@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using System.Xml;
 using JetBrains.Annotations;
 using Morestachio.Document;
 using Morestachio.Document.Contracts;
@@ -133,7 +134,15 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 		public void Render(ToParsableStringDocumentVisitor visitor)
 		{
 			visitor.StringBuilder.Append("{{");
-			visitor.StringBuilder.Append(MorestachioLocalizationTagProvider.OpenTag);
+			if (Children.Any())
+			{
+				visitor.StringBuilder.Append(MorestachioLocalizationBlockProvider.OpenTag);
+			}
+			else
+			{
+				visitor.StringBuilder.Append(MorestachioLocalizationTagProvider.OpenTag);
+			}
+			
 			visitor.StringBuilder.Append(visitor.ReparseExpression(MorestachioExpression));
 			if (ExplicitCulture != null)
 			{
@@ -151,6 +160,42 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 			visitor.StringBuilder.Append("{{");
 			visitor.StringBuilder.Append(MorestachioLocalizationBlockProvider.CloseTag);
 			visitor.StringBuilder.Append("}}");
+		}
+
+		protected override void DeSerializeXml(XmlReader reader)
+		{
+			reader.ReadStartElement();
+			base.DeSerializeXml(reader.ReadSubtree());
+			reader.Skip();
+			if (reader.Name == nameof(ExplicitCulture))
+			{
+				reader.ReadStartElement();
+				var subtree = reader.ReadSubtree();
+				subtree.Read();
+				ExplicitCulture = subtree.ParseExpressionFromKind();
+				reader.Skip();
+			}
+		}
+
+		protected override void SerializeXml(XmlWriter writer)
+		{
+			writer.WriteStartElement("Path");
+			writer.WriteExpressionToXml(MorestachioExpression);
+			writer.WriteEndElement();
+
+			if (ExplicitCulture == null)
+			{
+				return;
+			}
+			writer.WriteStartElement("ExplicitCulture");
+			writer.WriteExpressionToXml(ExplicitCulture);
+			writer.WriteEndElement();
+		}
+
+		protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
+		{
+			info.AddValue(nameof(ExplicitCulture), ExplicitCulture);
+			base.SerializeBinaryCore(info, context);
 		}
 	}
 }

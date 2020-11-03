@@ -33,6 +33,7 @@ namespace Morestachio.Framework.Expression
 			operators.Add(BinaryOperator("||", OperatorTypes.Or));
 			operators.Add(BinaryOperator("<?", OperatorTypes.Bigger));
 			operators.Add(BinaryOperator(">?", OperatorTypes.Smaller));
+			operators.Add(BinaryOperator("??", OperatorTypes.NullCoalescing));
 			Operators = operators;
 		}
 

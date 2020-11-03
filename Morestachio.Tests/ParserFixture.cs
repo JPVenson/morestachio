@@ -853,8 +853,6 @@ namespace Morestachio.Tests
 			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
 		}
 
-
-
 		[Test]
 		public async Task ParserCanIncludePartialsWithExplicitScope()
 		{
@@ -885,6 +883,53 @@ namespace Morestachio.Tests
 				@"{{#DECLARE TestPartial}}{{self.Test}}{{/DECLARE}}{{#IMPORT 'TestPartial' #WITH Data.ElementAt(1)}}";
 
 			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
+			var parsedTemplate = await Parser.ParseWithOptionsAsync(parsingOptions);
+			TestLocationsInOrder(parsedTemplate);
+			var andStringify = await parsedTemplate.CreateAndStringifyAsync(data);
+			Assert.That(andStringify, Is.EqualTo("2"));
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
+		}
+
+		[Test]
+		public async Task ParserCanIncludePartialsWithExplicitScopeFromFormatter()
+		{
+			var data = new Dictionary<string, object>();
+			data["Data"] = new List<object>
+			{
+				new Dictionary<string, object>
+				{
+					{
+						"self", new Dictionary<string, object>
+						{
+							{"Test", 1}
+						}
+					}
+				},
+				new Dictionary<string, object>
+				{
+					{
+						"self", new Dictionary<string, object>
+						{
+							{"Test", 2}
+						}
+					}
+				},
+			};
+
+			var template =
+				@"{{#DECLARE TestPartial}}{{ExportedValue.ElementAt(1).self.Test}}{{/DECLARE}}{{#IMPORT 'TestPartial' #WITH Data.Self($name)}}";
+
+			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
+			parsingOptions.Formatters.AddSingle(new Func<object, string, object>((sourceObject, name) =>
+			{
+				return new Dictionary<string, object>()
+				{
+					{"ExportedValue", sourceObject},
+					{"XNAME", name}
+				};
+			}), "Self");
+			parsingOptions.Formatters.AddFromType(typeof(DynamicLinq));
+
 			var parsedTemplate = await Parser.ParseWithOptionsAsync(parsingOptions);
 			TestLocationsInOrder(parsedTemplate);
 			var andStringify = await parsedTemplate.CreateAndStringifyAsync(data);
