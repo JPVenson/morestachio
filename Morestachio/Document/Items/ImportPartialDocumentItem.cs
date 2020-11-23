@@ -14,11 +14,15 @@ using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Error;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
-
+using Morestachio.Helper;
 #if ValueTask
 using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using CoreActionPromise = System.Threading.Tasks.ValueTask<System.Tuple<Morestachio.Document.Contracts.IDocumentItem, Morestachio.Framework.Context.ContextObject>>;
+using BooleanPromise = System.Threading.Tasks.ValueTask<bool>;
 #else
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+using CoreActionPromise = System.Threading.Tasks.Task<System.Tuple<Morestachio.Document.Contracts.IDocumentItem, Morestachio.Framework.Context.ContextObject>>;
+using BooleanPromise = System.Threading.Tasks.Task<bool>;
 #endif
 
 namespace Morestachio.Document.Items
@@ -92,99 +96,10 @@ namespace Morestachio.Document.Items
 			}
 		}
 
-		public Compilation Compile()
-		{
-			var doneAction = new RenderPartialDoneDocumentItem().Compile();
-			return async (stream, context, scopeData) =>
-			{
-				var partialName = (await MorestachioExpression.GetValue(context, scopeData)).Value?.ToString();
-
-				if (partialName == null)
-				{
-					throw new MorestachioRuntimeException(
-						$"Get partial requested by the expression: '{MorestachioExpression.ToString()}' returned null and is therefor not valid");
-				}
-
-				scopeData.PartialDepth.Push(new Tuple<string, int>(partialName, scopeData.PartialDepth.Count));
-				if (scopeData.PartialDepth.Count >= context.Options.PartialStackSize)
-				{
-					switch (context.Options.StackOverflowBehavior)
-					{
-						case PartialStackOverflowBehavior.FailWithException:
-							throw new MustachioStackOverflowException(
-								$"You have exceeded the maximum stack Size for nested Partial calls of '{context.Options.PartialStackSize}'. See Data for call stack")
-							{
-								Data =
-								{
-									{"Callstack", scopeData.PartialDepth}
-								}
-							};
-						case PartialStackOverflowBehavior.FailSilent:
-							return;
-						default:
-							throw new ArgumentOutOfRangeException();
-					}
-				}
-
-				scopeData.AddVariable("$name",
-					(scope) => context.Options.CreateContextObject("$name", context.CancellationToken,
-						scope.PartialDepth.Peek().Item1, context), 0);
-
-				var cnxt = context;
-				if (Context != null)
-				{
-					cnxt = (await Context.GetValue(context, scopeData));
-				}
-				cnxt = cnxt.CloneForEdit().MakeNatural();
-
-				scopeData.AddVariable("$recursion",
-					(scope) => cnxt.Options.CreateContextObject("$recursion", context.CancellationToken,
-						scope.PartialDepth.Count, cnxt), 0);
-
-				if (scopeData.CompiledPartials.TryGetValue(partialName, out var partialWithContext))
-				{
-					await partialWithContext(stream, cnxt, scopeData);
-					await doneAction(stream, cnxt, scopeData);
-					return;
-				}
-
-				if (context.Options.PartialsStore != null)
-				{
-					MorestachioDocumentInfo partialFromStore;
-					if (context.Options.PartialsStore is IAsyncPartialsStore asyncPs)
-					{
-						partialFromStore = await asyncPs.GetPartialAsync(partialName);
-					}
-					else
-					{
-						partialFromStore = context.Options.PartialsStore.GetPartial(partialName);
-					}
-
-					if (partialFromStore != null)
-					{
-						if (partialFromStore.Errors.Any())
-						{
-							throw new MorestachioRuntimeException(
-								$"The partial named '{partialName}' obtained from external partial store contains one or more errors");
-						}
-
-						await MorestachioDocument.CompileItemsAndChildren(new IDocumentItem[]
-						{
-							partialFromStore.Document
-						})(stream, cnxt, scopeData);
-						await doneAction(stream, cnxt, scopeData);
-					}
-				}
-
-				throw new MorestachioRuntimeException(
-					$"Could not obtain a partial named '{partialName}' from the template nor the Partial store");
-			};
-		}
-
-		/// <inheritdoc />
-		public override async ItemExecutionPromise Render(IByteCounterStream outputStream,
+		private async CoreActionPromise CoreAction(
 			ContextObject context,
-			ScopeData scopeData)
+			ScopeData scopeData,
+			Func<string, ContextObject, BooleanPromise> obtainPartialFromStore)
 		{
 			var partialName = (await MorestachioExpression.GetValue(context, scopeData)).Value?.ToString();
 
@@ -192,7 +107,7 @@ namespace Morestachio.Document.Items
 			{
 				throw new MorestachioRuntimeException($"Get partial requested by the expression: '{MorestachioExpression.ToString()}' returned null and is therefor not valid");
 			}
-			
+
 			scopeData.PartialDepth.Push(new Tuple<string, int>(partialName, scopeData.PartialDepth.Count));
 			if (scopeData.PartialDepth.Count >= context.Options.PartialStackSize)
 			{
@@ -208,12 +123,12 @@ namespace Morestachio.Document.Items
 							}
 						};
 					case PartialStackOverflowBehavior.FailSilent:
-						return new DocumentItemExecution[0];
+						return null;
 					default:
 						throw new ArgumentOutOfRangeException();
 				}
 			}
-			
+
 			scopeData.AddVariable("$name",
 				(scope) => context.Options.CreateContextObject("$name", context.CancellationToken,
 					scope.PartialDepth.Peek().Item1, context), 0);
@@ -224,19 +139,15 @@ namespace Morestachio.Document.Items
 				cnxt = (await Context.GetValue(context, scopeData));
 			}
 
-			cnxt = cnxt.CloneForEdit().MakeNatural();
+			cnxt = cnxt.Copy().MakeNatural();
 
 			scopeData.AddVariable("$recursion",
 				(scope) => cnxt.Options.CreateContextObject("$recursion", context.CancellationToken,
 					scope.PartialDepth.Count, cnxt), 0);
 
-			if (scopeData.Partials.TryGetValue(partialName, out var partialWithContext))
+			if (await obtainPartialFromStore(partialName, cnxt))
 			{
-				return new[]
-				{
-					new DocumentItemExecution(partialWithContext, cnxt),
-					new DocumentItemExecution(new RenderPartialDoneDocumentItem(), cnxt),
-				};
+				return null;
 			}
 
 			if (context.Options.PartialsStore != null)
@@ -258,16 +169,67 @@ namespace Morestachio.Document.Items
 						throw new MorestachioRuntimeException($"The partial named '{partialName}' obtained from external partial store contains one or more errors");
 					}
 
-					return new[]
-					{
-						new DocumentItemExecution(partialFromStore.Document, cnxt),
-						new DocumentItemExecution(new RenderPartialDoneDocumentItem(), cnxt),
-					};
+					return Tuple.Create(partialFromStore.Document, cnxt);
 				}
 			}
 
-
 			throw new MorestachioRuntimeException($"Could not obtain a partial named '{partialName}' from the template nor the Partial store");
+		}
+
+		public Compilation Compile()
+		{
+			var doneAction = new RenderPartialDoneDocumentItem().Compile();
+			return async (stream, context, scopeData) =>
+			{
+				var toExecute = await CoreAction(context, scopeData, async (partialName, cnxt) =>
+				 {
+					 if (scopeData.CompiledPartials.TryGetValue(partialName, out var partialWithContext))
+					 {
+						 await partialWithContext(stream, cnxt, scopeData);
+						 await doneAction(stream, cnxt, scopeData);
+						 return true;
+					 }
+
+					 return false;
+				 });
+				if (toExecute != null)
+				{
+					await MorestachioDocument.CompileItemsAndChildren(new IDocumentItem[]
+					{
+						toExecute.Item1
+					})(stream, toExecute.Item2, scopeData);
+					await doneAction(stream, toExecute.Item2, scopeData);
+				}
+			};
+		}
+
+		/// <inheritdoc />
+		public override async ItemExecutionPromise Render(IByteCounterStream outputStream,
+			ContextObject context,
+			ScopeData scopeData)
+		{
+			Tuple<IDocumentItem, ContextObject> action = null;
+			Tuple<IDocumentItem, ContextObject> actiona = null;
+			action = await CoreAction(context, scopeData, (partialName, cnxt) =>
+			 {
+				 if (scopeData.Partials.TryGetValue(partialName, out var partialWithContext))
+				 {
+					 actiona = new Tuple<IDocumentItem, ContextObject>(partialWithContext, cnxt);
+					 return true.ToPromise();
+				 }
+
+				 return false.ToPromise();
+			 });
+			action = action ?? actiona;
+			if (action != null)
+			{
+				return new[]
+				{
+					new DocumentItemExecution(action.Item1, action.Item2),
+					new DocumentItemExecution(new RenderPartialDoneDocumentItem(), action.Item2),
+				};
+			}
+			return Enumerable.Empty<DocumentItemExecution>();
 		}
 
 		/// <inheritdoc />

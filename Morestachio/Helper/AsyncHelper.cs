@@ -55,66 +55,107 @@ namespace Morestachio.Helper
 			await Task.CompletedTask;
 #endif
 		}
-		
+
+		//		/// <summary>
+		//		///		Wraps the object to ether an TaskT or an ValueTaskT
+		//		/// </summary>
+		//		/// <param name="data"></param>
+		//		/// <returns></returns>
+		//		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		//		public static ContextObjectPromise ToPromise(this ContextObject data)
+		//		{
+		//#if ValueTask
+		//			return new ContextObjectPromise(data);
+		//#else
+		//			return Promise.FromResult(data);
+		//#endif
+		//		}
+
+		//		/// <summary>
+		//		///		Wraps the object to ether an TaskT or an ValueTaskT
+		//		/// </summary>
+		//		/// <param name="data"></param>
+		//		/// <returns></returns>
+		//		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		//		public static StringPromise ToPromise(this string data)
+		//		{
+		//#if ValueTask
+		//			return new StringPromise(data);
+		//#else
+		//			return Promise.FromResult(data);
+		//#endif
+		//		}
+
+		//		/// <summary>
+		//		///		Wraps the object to ether an TaskT or an ValueTaskT
+		//		/// </summary>
+		//		/// <param name="data"></param>
+		//		/// <returns></returns>
+		//		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		//		public static ObjectPromise ToPromise(this object data)
+		//		{
+		//#if ValueTask
+		//			return new ObjectPromise(data);
+		//#else
+		//			return Task.FromResult(data);
+		//#endif
+		//		}
+
+
 		/// <summary>
 		///		Wraps the object to ether an TaskT or an ValueTaskT
 		/// </summary>
 		/// <param name="data"></param>
 		/// <returns></returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static ContextObjectPromise ToPromise(this ContextObject data)
-		{
 #if ValueTask
-			return new ContextObjectPromise(data);
+		public static ValueTask<T> ToPromise<T>(this T data)
 #else
-			return Promise.FromResult(data);
+		public static Task<T> ToPromise<T>(this T data)
 #endif
-		}
-		
-		/// <summary>
-		///		Wraps the object to ether an TaskT or an ValueTaskT
-		/// </summary>
-		/// <param name="data"></param>
-		/// <returns></returns>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static StringPromise ToPromise(this string data)
 		{
 #if ValueTask
-			return new StringPromise(data);
-#else
-			return Promise.FromResult(data);
-#endif
-		}
-		
-		/// <summary>
-		///		Wraps the object to ether an TaskT or an ValueTaskT
-		/// </summary>
-		/// <param name="data"></param>
-		/// <returns></returns>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static ObjectPromise ToPromise(this object data)
-		{
-#if ValueTask
-			return new ObjectPromise(data);
+			return new ValueTask<T>(data);
 #else
 			return Task.FromResult(data);
 #endif
+
 		}
-		
+
 		/// <summary>
 		///		Wraps the object to ether an TaskT or an ValueTaskT
 		/// </summary>
 		/// <param name="data"></param>
 		/// <returns></returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static BoolPromise ToPromise(this bool data)
+#if ValueTask
+		public static ValueTask<T> EmptyPromise<T>() where T : class
+#else
+		public static Task<T> EmptyPromise<T>()
+#endif
 		{
 #if ValueTask
-			return new BoolPromise(data);
+			return new ValueTask<T>((T)null);
 #else
-			return Task.FromResult(data);
+			return Task.FromResult<T>(default);
 #endif
+
 		}
+
+		//		/// <summary>
+		//		///		Wraps the object to ether an TaskT or an ValueTaskT
+		//		/// </summary>
+		//		/// <param name="data"></param>
+		//		/// <returns></returns>
+		//		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		//		public static BoolPromise ToPromise(this bool data)
+		//		{
+		//#if ValueTask
+		//			return new BoolPromise(data);
+		//#else
+		//			return Task.FromResult(data);
+		//#endif
+		//		}
 
 
 		/// <summary>
@@ -145,9 +186,9 @@ namespace Morestachio.Helper
 			}
 
 #if ValueTask
-			if(maybeTask is ValueTask valTask)
+			if (maybeTask is ValueTask valTask)
 			{
-				await valTask;		
+				await valTask;
 				var taskType = valTask.GetType();
 				if (taskType != typeof(ValueTask))
 				{

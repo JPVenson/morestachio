@@ -252,7 +252,8 @@ namespace Morestachio.Framework.Expression
 			text = text.TrimEnd(Tokenizer.GetWhitespaceDelimiters());
 			var orIndx = index;
 
-			if (!text.Contains("(") && !text.Any(Tokenizer.IsOperationChar))//this is the fast parsing branch. In case there are no operators or formatters used we can take the whole text as an single expression
+			if (!text.Contains("(") && !text.Any(Tokenizer.IsOperationChar))
+				//this is the fast parsing branch. In case there are no operators or formatters used we can take the whole text as an single expression
 			{
 				if (text.Length > 0 && char.IsDigit(text[0]))
 				{

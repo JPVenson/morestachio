@@ -1504,7 +1504,7 @@ namespace Morestachio.Tests
 			{
 				var firstOrDefault = children.OfType<ContentDocumentItem>().FirstOrDefault();
 				outputStream.Write((Math.PI * int.Parse(firstOrDefault.Value)).ToString());
-				return Array.Empty<DocumentItemExecution>().ToPromise();
+				return Enumerable.Empty<DocumentItemExecution>().ToPromise();
 			}));
 
 			var results = Parser.ParseWithOptions(parsingOptions);
