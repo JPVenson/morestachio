@@ -89,6 +89,7 @@ namespace Morestachio.Document.Items
 		/// </summary>
 		public IDocumentItem Partial { get; private set; }
 
+		/// <inheritdoc />
 		public Compilation Compile()
 		{
 			var children = MorestachioDocument.CompileItemsAndChildren(new IDocumentItem[]

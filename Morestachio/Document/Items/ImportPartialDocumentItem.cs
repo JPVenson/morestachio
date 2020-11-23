@@ -176,6 +176,7 @@ namespace Morestachio.Document.Items
 			throw new MorestachioRuntimeException($"Could not obtain a partial named '{partialName}' from the template nor the Partial store");
 		}
 
+		/// <inheritdoc />
 		public Compilation Compile()
 		{
 			var doneAction = new RenderPartialDoneDocumentItem().Compile();
