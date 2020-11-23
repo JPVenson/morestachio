@@ -33,6 +33,29 @@ namespace Morestachio.Tests
 	{
 		public static Encoding DefaultEncoding { get; set; } = new UnicodeEncoding(true, false, false);
 
+		public static async Task<string> CreateAndParseWithOptions(string template, object data, ParserOptionTypes opt, Action<ParserOptions> option = null)
+		{
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			option?.Invoke(parsingOptions);
+			var document = await Parser.ParseWithOptionsAsync(parsingOptions);
+			if (!opt.HasFlag(ParserOptionTypes.NoRerenderingTest))
+			{
+				SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, document.Document);
+			}
+
+			if (opt.HasFlag(ParserOptionTypes.UseOnDemandCompile))
+			{
+				return await document.CreateAndStringifyAsync(data);
+			}
+			if (opt.HasFlag(ParserOptionTypes.Precompile))
+			{
+				var compilation = document.Compile();
+				return (await compilation(data, CancellationToken.None)).Stream.Stringify(true, parsingOptions.Encoding);
+			}
+
+			return null;
+		}
+
 		public static void TestLocationsInOrder(MorestachioDocumentInfo documentInfo)
 		{
 			var api = documentInfo
