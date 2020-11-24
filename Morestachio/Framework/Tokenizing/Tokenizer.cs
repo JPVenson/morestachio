@@ -35,14 +35,14 @@ namespace Morestachio.Framework.Tokenizing
 
 
 		internal static readonly Regex PartialIncludeRegEx = new Regex("Include (\\w*)( (?:With) )?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-		internal static CharacterLocation HumanizeCharacterLocation(int characterIndex, int[] lines)
+		internal static CharacterLocation HumanizeCharacterLocation(int characterIndex, List<int> lines)
 		{
-			var line = Array.BinarySearch(lines, characterIndex);
+			var line = lines.BinarySearch(characterIndex);
 			line = line < 0 ? ~line : line;
 
 			var charIdx = characterIndex;
 			//in both of these cases, we want to increment the char index by one to account for the '\n' that is skipped in the indexes.
-			if (line < lines.Length && line > 0)
+			if (line < lines.Count && line > 0)
 			{
 				charIdx = characterIndex - (lines[line - 1] + 1);
 			}
@@ -193,31 +193,66 @@ namespace Morestachio.Framework.Tokenizing
 
 		private readonly struct TokenMatch
 		{
-			public TokenMatch(int index, string value)
+			public TokenMatch(int index, string value, string preText, int length, bool contentToken)
 			{
 				Index = index;
 				Value = value;
-				Length = value.Length;
+				PreText = preText;
+				ContentToken = contentToken;
+				Length = length;
 			}
 
 			public int Index { get; }
 			public int Length { get; }
 			public string Value { get; }
+			public string PreText { get; }
+			public bool ContentToken { get; }
 		}
 
-		private static IEnumerable<TokenMatch> MatchTokens(string template,
+		private class CharComparer : IEqualityComparer<char>
+		{
+			public bool Equals(char x, char y)
+			{
+				return ((int) x) == ((int) y);
+			}
+
+			public int GetHashCode(char obj)
+			{
+				return obj.GetHashCode();
+			}
+		}
+
+		private static IEnumerable<TokenMatch> MatchTokens(ITemplateContainer template,
 			TokenzierContext context,
 			RollingArray<char> lastChars)
 		{
-
-			var elementIndex = -1;
+			var elementIndex = 0;
 			char? isInString = null;
 			var stringEscape = false;
 
-			for (int i = 0; i < template.Length; i++)
+			var tokenCount = 0;
+			var inToken = false;
+			var tokenBuffer = new char[20240];
+			string preText = null;
+			var charComparer = new CharComparer();
+
+			while (template.ReadChar(out var c))
 			{
-				var c = template[i];
 				lastChars.Add(c);
+				if (tokenBuffer.Length <= tokenCount)//basic expandable array
+				{
+					Array.Resize(ref tokenBuffer, tokenBuffer.Length + 2024);
+				}
+
+				// all chars are buffered 
+				tokenBuffer[tokenCount] = c;
+				tokenCount++;
+
+				if (c == '\n')
+				{
+					context.Lines.Add(elementIndex);
+				}
+
 				if (isInString.HasValue && context.CommentIntend == 0)
 				{
 					if (c == '\\')
@@ -233,26 +268,57 @@ namespace Morestachio.Framework.Tokenizing
 						isInString = null;
 					}
 				}
-				else if (lastChars.EndsWith(context.PrefixToken))
+				else if (!inToken)
 				{
-					elementIndex = i - 1;
+					if (lastChars.EndsWith(context.PrefixToken, charComparer))//something like "content {{"
+					{
+						if (tokenCount - context.PrefixToken.Length > 0)
+						{
+							preText = new string(tokenBuffer, 0, tokenCount - context.PrefixToken.Length);
+						}
+						tokenCount = 0;
+						inToken = true;
+					}
 				}
-				else if (elementIndex != -1 && lastChars.EndsWith(context.SuffixToken))
+				else
 				{
-					var token = template.Substring(elementIndex, i - elementIndex + 1);
-					yield return new TokenMatch(elementIndex, token);
-					elementIndex = -1;
+					if (lastChars.EndsWith(context.PrefixToken))//something like "content {{"
+					{
+						preText = preText ?? string.Empty;
+						preText += c;
+						tokenCount = 0;
+					}
+					else
+					if (lastChars.EndsWith(context.SuffixToken, charComparer))//something like "zzddata }}"
+					{
+						var tokenLength = tokenCount - context.SuffixToken.Length;
+						yield return new TokenMatch(elementIndex - tokenLength - 2 - 1,
+							new string(tokenBuffer, 0, tokenLength),
+							preText,
+							tokenLength + context.SuffixToken.Length + context.PrefixToken.Length,
+							false);
+						tokenCount = 0;
+						preText = null;
+						inToken = false;
+					}
+					else if (IsStringDelimiter(c) && context.CommentIntend == 0)
+					{
+						isInString = c;
+					}
 				}
-				else if (elementIndex != -1 && IsStringDelimiter(c) && context.CommentIntend == 0)
-				{
-					isInString = c;
-				}
+
+				elementIndex++;
+			}
+			if (isInString.HasValue && tokenCount != 0)
+			{
+				//var token = template.Substring(elementIndex, template.Length - elementIndex);
+				yield return new TokenMatch(elementIndex, new string(tokenBuffer, 0, tokenCount), null, tokenCount, false);
+				tokenCount = 0;
 			}
 
-			if (isInString.HasValue && elementIndex != -1)
+			if (tokenCount > 0)
 			{
-				var token = template.Substring(elementIndex, template.Length - elementIndex);
-				yield return new TokenMatch(elementIndex, token);
+				yield return new TokenMatch(elementIndex, new string(tokenBuffer, 0, tokenCount), null, tokenCount, true);
 			}
 		}
 
@@ -339,11 +405,15 @@ namespace Morestachio.Framework.Tokenizing
 
 			foreach (var match in MatchTokens(templateString, context, lastChars))
 			{
+				if (match.ContentToken)
+				{
+					tokens.Add(new TokenPair(TokenType.Content, match.Value,
+						   context.CurrentLocation));
+					continue;
+				}
+
 				var tokenValue = match.Value;
 				var trimmedToken = tokenValue
-					.Remove(0, context.PrefixToken.Length);
-				trimmedToken = trimmedToken
-					.Remove(trimmedToken.Length - context.SuffixToken.Length)
 					.Trim(GetWhitespaceDelimiters());
 
 				if (context.CommentIntend > 0)
@@ -411,8 +481,7 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							tokens.Add(new TokenPair(TokenType.TrimPrependedLineBreaks, trimmedToken, context.CurrentLocation, EmbeddedState.Previous));
 						}
-						tokens.Add(new TokenPair(TokenType.Content, templateString.Substring(context.Character, match.Index - context.Character),
-							context.CurrentLocation));
+						tokens.Add(new TokenPair(TokenType.Content, match.PreText, context.CurrentLocation));
 					}
 
 					context.SetLocation(match.Index + context.PrefixToken.Length);
@@ -530,11 +599,11 @@ namespace Morestachio.Framework.Tokenizing
 						}
 
 						//late bound expression, cannot check at parse time for existance
-						tokens.Add(new TokenPair(TokenType.ImportPartial, 
-							tokenNameExpression, 
-							context.CurrentLocation, new []
+						tokens.Add(new TokenPair(TokenType.ImportPartial,
+							tokenNameExpression,
+							context.CurrentLocation, new[]
 							{
-								new TokenOption("Context", contextExpression), 
+								new TokenOption("Context", contextExpression),
 							}));
 					}
 					else if (trimmedToken.StartsWith("#each ", true, CultureInfo.InvariantCulture))
@@ -1086,12 +1155,6 @@ namespace Morestachio.Framework.Tokenizing
 
 					context.SetLocation(match.Index + match.Length);
 				}
-			}
-
-			if (context.Character < templateString.Length)
-			{
-				tokens.Add(new TokenPair(TokenType.Content, templateString.Substring(context.Character),
-					context.CurrentLocation));
 			}
 
 			if (scopestack.Any() || parserOptions.CustomDocumentItemProviders.Any(f => f.ScopeStack.Any()))

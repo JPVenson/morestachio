@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using Morestachio.Document;
 using Morestachio.Framework.Context;
@@ -22,7 +23,7 @@ namespace Morestachio.Framework.Expression.Framework
 		/// <summary>
 		///		Creates a new <see cref="TokenzierContext"/>
 		/// </summary>
-		public TokenzierContext(int[] lines, CultureInfo culture)
+		public TokenzierContext(List<int> lines, CultureInfo culture)
 		{
 			Lines = lines;
 			Errors = new MorestachioErrorCollection();
@@ -37,7 +38,7 @@ namespace Morestachio.Framework.Expression.Framework
 		public static TokenzierContext FromText(string expression, CultureInfo culture = null)
 		{
 			var tokenzierContext = new TokenzierContext(
-				Tokenizer.FindNewLines(expression).ToArray(), culture);
+				Tokenizer.FindNewLines(expression), culture);
 			tokenzierContext.SetLocation(0);
 			return tokenzierContext;
 		}
@@ -55,7 +56,7 @@ namespace Morestachio.Framework.Expression.Framework
 		/// <summary>
 		///		Indexes of new lines
 		/// </summary>
-		public int[] Lines { get; private set; }
+		public List<int> Lines { get; private set; }
 
 		/// <summary>
 		///		The current location responding to the Character

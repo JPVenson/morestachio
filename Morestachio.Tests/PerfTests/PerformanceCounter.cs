@@ -28,6 +28,7 @@ namespace Morestachio.Tests.PerfTests
 			public int ModelDepth { get; set; }
 			public int SubstitutionCount { get; set; }
 			public int TemplateSize { get; set; }
+			public TimeSpan TokenizingTime { get; set; }
 			public TimeSpan ParseTime { get; set; }
 			public TimeSpan RenderTime { get; set; }
 			public TimeSpan TotalTime { get; set; }
@@ -41,6 +42,7 @@ namespace Morestachio.Tests.PerfTests
 					$"Model Depth{delimiter} " +
 					$"SubstitutionCount{delimiter} " +
 					$"Template Size(byte){delimiter} " +
+					$"TokenizingTime{delimiter} " +
 					$"ParseTime{delimiter} " +
 					$"RenderTime{delimiter} " +
 					$"Total Time ";
@@ -55,6 +57,7 @@ namespace Morestachio.Tests.PerfTests
 					$"{ModelDepth}{delimiter}" +
 					$"{SubstitutionCount}{delimiter}" +
 					$"{TemplateSize}{delimiter}" +
+					$"{TokenizingTime:c}{delimiter}" +
 					$"{ParseTime:c}{delimiter}" +
 					$"{RenderTime:c}{delimiter}" +
 					$"{TotalTime:c}";

@@ -260,7 +260,7 @@ namespace Morestachio.Framework.Expression
 			//	new TokenzierContext(Tokenizer.NewlineFinder.Matches(expression).OfType<Match>().Select(k => k.Index)
 			//	.ToArray());
 			context =
-				new TokenzierContext(Tokenizer.FindNewLines(expression).ToArray(), cultureInfo ?? CultureInfo.CurrentCulture);
+				new TokenzierContext(Tokenizer.FindNewLines(expression), cultureInfo ?? CultureInfo.CurrentCulture);
 			context.SetLocation(0);
 			return ParseExpression(expression,
 				context);

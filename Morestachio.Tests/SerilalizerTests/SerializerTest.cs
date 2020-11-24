@@ -21,6 +21,12 @@ namespace Morestachio.Tests.SerilalizerTests
 
 		public IDocumentSerializerStrategy DocumentSerializerStrategy { get; private set; }
 
+		public static void AssertDocumentItemIsSameAsTemplate(ITemplateContainer textContainer, IDocumentItem documentItem)
+		{
+			var text = (textContainer as StringTemplateContainer).Template;
+			AssertDocumentItemIsSameAsTemplate(text, documentItem);
+		}
+
 		public static void AssertDocumentItemIsSameAsTemplate(string text, IDocumentItem documentItem)
 		{
 			var visitor = new ToParsableStringDocumentVisitor();
@@ -158,7 +164,7 @@ namespace Morestachio.Tests.SerilalizerTests
 						   "{{#DECLARE PartialA}}" +
 						   "I am <Text> {{Data.data('test')}}" +
 						   "{{/DECLARE}}" +
-						   "{{#IMPORT 'PartialA}'}";
+						   "{{#IMPORT 'PartialA}'}}";
 			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(template));
 			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
 			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document);

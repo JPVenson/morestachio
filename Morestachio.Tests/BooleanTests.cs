@@ -37,7 +37,7 @@ namespace Morestachio.Tests
 				data = realData,
 				templateData = templateData
 			};
-			var result = ParserFixture.CreateAndParseWithOptions(template, data, _opts);
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts);
 			//var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
 			//var result = await Parser.ParseWithOptions(parsingOptions).CreateAndStringifyAsync(data);
 			Assert.That(result, Is.EqualTo(expected.ToString()));

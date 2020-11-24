@@ -32,10 +32,10 @@ namespace Morestachio
 		/// </summary>
 		/// <param name="template"></param>
 		/// <returns></returns>
-		public static async Task<IEnumerable<IMorestachioError>> Validate(string template)
+		public static async Task<IEnumerable<IMorestachioError>> Validate(ITemplateContainer template)
 		{
 			var options = new ParserOptions(template);
-			var tokenzierContext = TokenzierContext.FromText(template);
+			var tokenzierContext = new TokenzierContext(new List<int>(), null);
 			await Tokenizer.Tokenize(options, tokenzierContext);
 			return tokenzierContext.Errors;
 		}
@@ -56,7 +56,7 @@ namespace Morestachio
 
 			parsingOptions.Seal();
 
-			var tokenzierContext = TokenzierContext.FromText(parsingOptions.Template, parsingOptions.CultureInfo);
+			var tokenzierContext = new TokenzierContext(new List<int>(), parsingOptions.CultureInfo);
 			var tokenizerResult = await Tokenizer.Tokenize(parsingOptions, tokenzierContext);
 
 			//if there are any errors do not parse the template
@@ -115,7 +115,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.IfNot))
 				{
-					var nestedDocument = new IfNotExpressionScopeDocumentItem(currentToken.TokenLocation, 
+					var nestedDocument = new IfNotExpressionScopeDocumentItem(currentToken.TokenLocation,
 						currentToken.MorestachioExpression);
 					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					currentDocumentItem.Document.Add(nestedDocument);
@@ -178,7 +178,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.InvertedElementOpen))
 				{
-					var invertedScope = new InvertedExpressionScopeDocumentItem(currentToken.TokenLocation, 
+					var invertedScope = new InvertedExpressionScopeDocumentItem(currentToken.TokenLocation,
 						currentToken.MorestachioExpression);
 					buildStack.Push(new DocumentScope(invertedScope, getScope));
 					currentDocumentItem.Document.Add(invertedScope);
@@ -199,7 +199,7 @@ namespace Morestachio
 					{
 						foreach (var scopeLocalVariable in scope.LocalVariables)
 						{
-							currentDocumentItem.Document.Add(new RemoveAliasDocumentItem(currentToken.TokenLocation, 
+							currentDocumentItem.Document.Add(new RemoveAliasDocumentItem(currentToken.TokenLocation,
 								scopeLocalVariable,
 								scope.VariableScopeNumber));
 						}
@@ -230,14 +230,14 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.RenderPartial))
 				{
-					currentDocumentItem.Document.Add(new RenderPartialDocumentItem(currentToken.TokenLocation, 
-						currentToken.Value, 
+					currentDocumentItem.Document.Add(new RenderPartialDocumentItem(currentToken.TokenLocation,
+						currentToken.Value,
 						currentToken.MorestachioExpression));
 				}
 				else if (currentToken.Type.Equals(TokenType.ImportPartial))
 				{
-					currentDocumentItem.Document.Add(new ImportPartialDocumentItem(currentToken.TokenLocation, 
-						currentToken.MorestachioExpression, 
+					currentDocumentItem.Document.Add(new ImportPartialDocumentItem(currentToken.TokenLocation,
+						currentToken.MorestachioExpression,
 						currentToken.FindOption<IMorestachioExpression>("Context")));
 				}
 				else if (currentToken.Type.Equals(TokenType.Alias))
@@ -258,7 +258,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.WriteLineBreak))
 				{
-					currentDocumentItem.Document.Add(new TextEditDocumentItem(currentToken.TokenLocation, 
+					currentDocumentItem.Document.Add(new TextEditDocumentItem(currentToken.TokenLocation,
 						new AppendLineBreakTextOperation(),
 						currentToken.IsEmbeddedToken));
 				}
@@ -266,33 +266,33 @@ namespace Morestachio
 				{
 					currentDocumentItem.Document.Add(new TextEditDocumentItem(currentToken.TokenLocation,
 						new TrimLineBreakTextOperation()
-					{
-						LineBreaks = 1,
-						LineBreakTrimDirection = LineBreakTrimDirection.Begin
-					}, currentToken.IsEmbeddedToken));
+						{
+							LineBreaks = 1,
+							LineBreakTrimDirection = LineBreakTrimDirection.Begin
+						}, currentToken.IsEmbeddedToken));
 				}
 				else if (currentToken.Type.Equals(TokenType.TrimLineBreaks))
 				{
 					currentDocumentItem.Document.Add(new TextEditDocumentItem(currentToken.TokenLocation,
 						new TrimLineBreakTextOperation()
-					{
-						LineBreaks = 0,
-						LineBreakTrimDirection = LineBreakTrimDirection.Begin
-					}, currentToken.IsEmbeddedToken));
+						{
+							LineBreaks = 0,
+							LineBreakTrimDirection = LineBreakTrimDirection.Begin
+						}, currentToken.IsEmbeddedToken));
 				}
 				else if (currentToken.Type.Equals(TokenType.TrimPrependedLineBreaks))
 				{
 					currentDocumentItem.Document.Add(new TextEditDocumentItem(currentToken.TokenLocation,
 						new TrimLineBreakTextOperation()
-					{
-						LineBreaks = 0,
-						LineBreakTrimDirection = LineBreakTrimDirection.End
-					}, currentToken.IsEmbeddedToken));
+						{
+							LineBreaks = 0,
+							LineBreakTrimDirection = LineBreakTrimDirection.End
+						}, currentToken.IsEmbeddedToken));
 				}
 				else if (currentToken.Type.Equals(TokenType.TrimEverything))
 				{
 					currentDocumentItem.Document.Add(new TextEditDocumentItem(currentToken.TokenLocation,
-						new TrimAllWhitespacesTextOperation(), 
+						new TrimAllWhitespacesTextOperation(),
 						currentToken.IsEmbeddedToken));
 				}
 				else if (currentToken.Type.Equals(TokenType.VariableLet))

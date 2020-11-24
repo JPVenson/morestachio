@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -20,7 +21,48 @@ using Morestachio.Util.Sealing;
 
 namespace Morestachio
 {
+	public interface ITemplateContainer
+	{
+		bool ReadChar(out char c);
+	}
 
+	public class StringTemplateContainer : ITemplateContainer
+	{
+		public StringTemplateContainer(string template)
+		{
+			_template = template;
+			_index = 0;
+		}
+
+		public string Template
+		{
+			get { return _template; }
+		}
+
+		private int _index;
+		private readonly string _template;
+
+		public bool ReadChar(out char c)
+		{
+			if (_index < _template.Length)
+			{
+				c = _template[_index++];
+				return true;
+			}
+
+			c = ' ';
+			return false;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="template"></param>
+		public static implicit operator StringTemplateContainer(string template)
+		{
+			return new StringTemplateContainer(template);
+		}
+	}
 
 	/// <summary>
 	///     Options for Parsing run
@@ -41,7 +83,7 @@ namespace Morestachio
 		private PartialStackOverflowBehavior _stackOverflowBehavior;
 		private UnmatchedFormatterBehavior _unmatchedFormatterBehavior;
 		private TimeSpan _timeout;
-		[NotNull] private string _template;
+		[NotNull] private ITemplateContainer _template;
 		private bool _disableContentEscaping;
 		private long _maxSize;
 		[NotNull] private ByteCounterFactory _streamFactory;
@@ -52,16 +94,16 @@ namespace Morestachio
 		/// <summary>
 		///		Creates a new object without any template
 		/// </summary>
-		public ParserOptions() : this(string.Empty)
+		public ParserOptions() : this(new StringTemplateContainer(""))
 		{
-			
+
 		}
 
 		/// <summary>
 		///     ctor
 		/// </summary>
 		/// <param name="template"></param>
-		public ParserOptions([NotNull]string template)
+		public ParserOptions([NotNull] ITemplateContainer template)
 			: this(template, null)
 		{
 		}
@@ -71,8 +113,8 @@ namespace Morestachio
 		/// </summary>
 		/// <param name="template"></param>
 		/// <param name="sourceStream">The factory that is used for each template generation</param>
-		public ParserOptions([NotNull]string template,
-			[CanBeNull]Func<Stream> sourceStream)
+		public ParserOptions([NotNull] ITemplateContainer template,
+			[CanBeNull] Func<Stream> sourceStream)
 			: this(template, sourceStream, null)
 		{
 		}
@@ -83,11 +125,11 @@ namespace Morestachio
 		/// <param name="template">The template.</param>
 		/// <param name="sourceStream">The source stream.</param>
 		/// <param name="encoding">The encoding.</param>
-		public ParserOptions([NotNull]string template,
-			[CanBeNull]Func<Stream> sourceStream,
-			[CanBeNull]Encoding encoding)
+		public ParserOptions([NotNull] ITemplateContainer template,
+			[CanBeNull] Func<Stream> sourceStream,
+			[CanBeNull] Encoding encoding)
 		{
-			Template = template ?? "";
+			Template = template ?? new StringTemplateContainer("");
 			StreamFactory = new ByteCounterFactory(sourceStream);
 			Encoding = encoding ?? Encoding.UTF8;
 			_formatters = new MorestachioFormatterService();
@@ -108,9 +150,9 @@ namespace Morestachio
 		/// <param name="encoding">The encoding.</param>
 		/// <param name="maxSize">The maximum size.</param>
 		/// <param name="disableContentEscaping">if set to <c>true</c> [disable content escaping].</param>
-		public ParserOptions([NotNull]string template,
-			[CanBeNull]Func<Stream> sourceStream,
-			[CanBeNull]Encoding encoding,
+		public ParserOptions([NotNull] ITemplateContainer template,
+			[CanBeNull] Func<Stream> sourceStream,
+			[CanBeNull] Encoding encoding,
 			long maxSize,
 			bool disableContentEscaping = false)
 			: this(template, sourceStream, encoding)
@@ -126,9 +168,76 @@ namespace Morestachio
 		/// <param name="sourceStream">The source stream.</param>
 		/// <param name="encoding">The encoding.</param>
 		/// <param name="disableContentEscaping">if set to <c>true</c> [disable content escaping].</param>
-		public ParserOptions([NotNull]string template,
-			[CanBeNull]Func<Stream> sourceStream,
-			[CanBeNull]Encoding encoding,
+		public ParserOptions([NotNull] ITemplateContainer template,
+			[CanBeNull] Func<Stream> sourceStream,
+			[CanBeNull] Encoding encoding,
+			bool disableContentEscaping = false)
+			: this(template, sourceStream, encoding, 0, disableContentEscaping)
+		{
+		}
+
+		/// <summary>
+		///     ctor
+		/// </summary>
+		/// <param name="template"></param>
+		public ParserOptions([NotNull] string template)
+			: this(template, null)
+		{
+		}
+
+		/// <summary>
+		///     ctor
+		/// </summary>
+		/// <param name="template"></param>
+		/// <param name="sourceStream">The factory that is used for each template generation</param>
+		public ParserOptions([NotNull] string template,
+			[CanBeNull] Func<Stream> sourceStream)
+			: this(template, sourceStream, null)
+		{
+		}
+
+		/// <summary>
+		///     Initializes a new instance of the <see cref="ParserOptions" /> class.
+		/// </summary>
+		/// <param name="template">The template.</param>
+		/// <param name="sourceStream">The source stream.</param>
+		/// <param name="encoding">The encoding.</param>
+		public ParserOptions([NotNull] string template,
+			[CanBeNull] Func<Stream> sourceStream,
+			[CanBeNull] Encoding encoding)
+		: this(new StringTemplateContainer(template), sourceStream, encoding)
+		{
+		}
+
+		/// <summary>
+		///     Initializes a new instance of the <see cref="ParserOptions" /> class.
+		/// </summary>
+		/// <param name="template">The template.</param>
+		/// <param name="sourceStream">The source stream.</param>
+		/// <param name="encoding">The encoding.</param>
+		/// <param name="maxSize">The maximum size.</param>
+		/// <param name="disableContentEscaping">if set to <c>true</c> [disable content escaping].</param>
+		public ParserOptions([NotNull] string template,
+			[CanBeNull] Func<Stream> sourceStream,
+			[CanBeNull] Encoding encoding,
+			long maxSize,
+			bool disableContentEscaping = false)
+			: this(template, sourceStream, encoding)
+		{
+			MaxSize = maxSize;
+			DisableContentEscaping = disableContentEscaping;
+		}
+
+		/// <summary>
+		///     Initializes a new instance of the <see cref="ParserOptions" /> class.
+		/// </summary>
+		/// <param name="template">The template.</param>
+		/// <param name="sourceStream">The source stream.</param>
+		/// <param name="encoding">The encoding.</param>
+		/// <param name="disableContentEscaping">if set to <c>true</c> [disable content escaping].</param>
+		public ParserOptions([NotNull] string template,
+			[CanBeNull] Func<Stream> sourceStream,
+			[CanBeNull] Encoding encoding,
 			bool disableContentEscaping = false)
 			: this(template, sourceStream, encoding, 0, disableContentEscaping)
 		{
@@ -206,7 +315,7 @@ namespace Morestachio
 		///		Can be used to observe unresolved paths
 		/// </summary>
 		public event InvalidPath UnresolvedPath;
-		
+
 		/// <summary>
 		///     Adds an Formatter overwrite or new Formatter for an Type
 		/// </summary>
@@ -296,7 +405,7 @@ namespace Morestachio
 		///     The template content to parse.
 		/// </summary>
 		[NotNull]
-		public string Template
+		public ITemplateContainer Template
 		{
 			get { return _template; }
 			set

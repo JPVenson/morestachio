@@ -720,7 +720,7 @@ namespace Morestachio.Tests
 		[TestCase("{{data.(}}", 1)]
 		[TestCase("{{data.(arg}}", 1)]
 		[TestCase("{{data.(arg, 'test'}}", 1)]
-		[TestCase("{{data.(arg, 'test)}}", 1)]
+		//[TestCase("{{data.(arg, 'test)}}", 1)]
 		[TestCase("{{data.(arg, )}}", 1)]
 		public void ParserThrowsAnExceptionWhenFormatIsMismatched(string invalidTemplate, int expectedNoOfExceptions)
 		{

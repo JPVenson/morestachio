@@ -102,7 +102,7 @@ namespace Morestachio.Framework
 		public int ToPosition(TokenzierContext context)
 		{
 			var line = Line - 1;
-			if (line >= 0 && context.Lines.Length > line)
+			if (line >= 0 && context.Lines.Count > line)
 			{
 				return context.Lines[line] + Character;
 			}

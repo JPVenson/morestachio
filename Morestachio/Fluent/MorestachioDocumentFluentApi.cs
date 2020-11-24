@@ -227,7 +227,7 @@ namespace Morestachio.Fluent
 		/// <returns></returns>
 		public MorestachioDocumentFluentApi ParseAndAdd(string documentPart)
 		{
-			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(documentPart));
+			var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(new StringTemplateContainer(documentPart)));
 			AddChildInternal(f => morestachioDocumentInfo.Document);
 			return this;
 		}

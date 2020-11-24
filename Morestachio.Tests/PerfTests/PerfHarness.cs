@@ -8,6 +8,7 @@ using Morestachio.Document;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
+using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
 using NUnit.Framework;
 
@@ -31,7 +32,7 @@ namespace Morestachio.Tests.PerfTests
 			sw.Stop();
 			var csAdd = sw.Elapsed;
 			sw.Reset();
-			
+
 			Number b = 0;
 			Number c = 1;
 			sw.Start();
@@ -43,8 +44,8 @@ namespace Morestachio.Tests.PerfTests
 			var nrAdd = sw.Elapsed;
 
 			Console.WriteLine($"C# calls took '{csAdd}'({csAdd.Ticks / iterrations}) " +
-			                  $"and Number took '{nrAdd}'({nrAdd.Ticks / iterrations}) that is " +
-			                  $"'{(nrAdd.Ticks / (float)csAdd.Ticks) * 100}'% of baseline");
+							  $"and Number took '{nrAdd}'({nrAdd.Ticks / iterrations}) that is " +
+							  $"'{(nrAdd.Ticks / (float)csAdd.Ticks) * 100}'% of baseline");
 		}
 
 		[Test]
@@ -167,23 +168,35 @@ namespace Morestachio.Tests.PerfTests
 			}
 
 			MorestachioDocumentInfo template = null;
+			TokenizerResult tokenizerResult = null;
 
 			//make sure this class is JIT'd before we start timing.
-			Parser.ParseWithOptions(new ParserOptions("asdf"));
+			await Parser.ParseWithOptionsAsync(new ParserOptions("asdf"));
 
 			var totalTime = Stopwatch.StartNew();
-			var parseTime = Stopwatch.StartNew();
-			Stopwatch renderTime;
+			var tokenizingTime = Stopwatch.StartNew();
+
 			for (var i = 0; i < runs; i++)
 			{
-				template = Parser.ParseWithOptions(new ParserOptions(baseTemplate, () => Stream.Null));
+				var options = new ParserOptions(baseTemplate, () => Stream.Null);
+				var tokenzierContext = new TokenzierContext(new List<int>(), options.CultureInfo);
+				tokenizerResult = await Tokenizer.Tokenize(options, tokenzierContext);
+			}
+
+			tokenizingTime.Stop();
+
+			var parseTime = Stopwatch.StartNew();
+			for (var i = 0; i < runs; i++)
+			{
+				var options = new ParserOptions(baseTemplate, () => Stream.Null);
+				template = new MorestachioDocumentInfo(options, Parser.Parse(tokenizerResult, options));
 			}
 
 			parseTime.Stop();
 
-			var tmp = template.CreateAndStringifyAsync(model.Item1);
+			var tmp = await template.CreateAndStringifyAsync(model.Item1);
 
-			renderTime = Stopwatch.StartNew();
+			var renderTime = Stopwatch.StartNew();
 			for (var i = 0; i < runs; i++)
 			{
 				var morestachioDocumentResult = await template.CreateAsync(model.Item1);
@@ -197,11 +210,14 @@ namespace Morestachio.Tests.PerfTests
 
 			var modelPerformanceCounterEntity = new PerformanceCounter.ModelPerformanceCounterEntity(variation)
 			{
-				TimePerRun = new TimeSpan(totalTime.ElapsedTicks / runs),
+				TimePerRun = new TimeSpan((tokenizingTime.ElapsedTicks / runs) +
+				                          (parseTime.ElapsedTicks / runs) +
+				                          (renderTime.ElapsedTicks / runs)),
 				RunOver = runs,
 				ModelDepth = modelDepth,
 				SubstitutionCount = inserts,
 				TemplateSize = sizeOfTemplate,
+				TokenizingTime = tokenizingTime.Elapsed,
 				ParseTime = parseTime.Elapsed,
 				RenderTime = renderTime.Elapsed,
 				TotalTime = totalTime.Elapsed

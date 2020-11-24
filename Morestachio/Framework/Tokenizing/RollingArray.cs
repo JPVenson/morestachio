@@ -117,7 +117,7 @@ namespace Morestachio.Framework.Tokenizing
 		/// </summary>
 		/// <param name="elements"></param>
 		/// <returns></returns>
-		public bool StartsWith(T[] elements)
+		public bool StartsWith(T[] elements, IEqualityComparer<T> comparer = null)
 		{
 			if (elements.Length > _buffer.Length)
 			{
@@ -128,7 +128,7 @@ namespace Morestachio.Framework.Tokenizing
 			{
 				var objA = elements[i];
 				var objB = this[i];
-				if (!Equals(objA, objB))
+				if (!comparer?.Equals(objA, objB) ?? !Equals(objA, objB))
 				{
 					return false;
 				}
@@ -142,7 +142,7 @@ namespace Morestachio.Framework.Tokenizing
 		/// </summary>
 		/// <param name="elements"></param>
 		/// <returns></returns>
-		public bool EndsWith(T[] elements)
+		public bool EndsWith(T[] elements, IEqualityComparer<T> comparer = null)
 		{
 			if (elements.Length > _buffer.Length)
 			{
@@ -150,9 +150,9 @@ namespace Morestachio.Framework.Tokenizing
 			}
 			for (int i = 0; i < elements.Length; i++)
 			{
-				var tC = elements[elements.Length - (i + 1)];
-				var bC = this[_buffer.Length - (i + 1)];
-				if (!Equals(tC, bC))
+				var objA = elements[elements.Length - (i + 1)];
+				var objB = this[_buffer.Length - (i + 1)];
+				if (!comparer?.Equals(objA, objB) ?? !Equals(objA, objB))
 				{
 					return false;
 				}
