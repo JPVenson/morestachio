@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Morestachio.Document;
 using Morestachio.Framework.Context;
@@ -171,7 +172,7 @@ namespace Morestachio.Tests.PerfTests
 			TokenizerResult tokenizerResult = null;
 
 			//make sure this class is JIT'd before we start timing.
-			await Parser.ParseWithOptionsAsync(new ParserOptions("asdf"));
+			(await Parser.ParseWithOptionsAsync(new ParserOptions("asdf"))).Create(new object()).Stream.Dispose();
 
 			var totalTime = Stopwatch.StartNew();
 			var tokenizingTime = Stopwatch.StartNew();
@@ -200,13 +201,29 @@ namespace Morestachio.Tests.PerfTests
 			for (var i = 0; i < runs; i++)
 			{
 				var morestachioDocumentResult = await template.CreateAsync(model.Item1);
-				using (var f = morestachioDocumentResult.Stream)
-				{
-				}
+				morestachioDocumentResult.Stream.Dispose();
 			}
 
 			renderTime.Stop();
 			totalTime.Stop();
+
+			var compileTime = Stopwatch.StartNew();
+			CompilationResult compilationResult = null;
+			for (var i = 0; i < runs; i++)
+			{
+				compilationResult = template.Compile();
+			}
+
+			compileTime.Stop();
+
+			var compiledRenderTime = Stopwatch.StartNew();
+			for (var i = 0; i < runs; i++)
+			{
+				var morestachioDocumentResult = await compilationResult(model.Item1, CancellationToken.None);
+				morestachioDocumentResult.Stream.Dispose();
+			}
+
+			compiledRenderTime.Stop();
 
 			var modelPerformanceCounterEntity = new PerformanceCounter.ModelPerformanceCounterEntity(variation)
 			{
@@ -220,14 +237,16 @@ namespace Morestachio.Tests.PerfTests
 				TokenizingTime = tokenizingTime.Elapsed,
 				ParseTime = parseTime.Elapsed,
 				RenderTime = renderTime.Elapsed,
-				TotalTime = totalTime.Elapsed
+				TotalTime = totalTime.Elapsed,
+				CompilerTime = compileTime.Elapsed,
+				CompiledRenderTime = compiledRenderTime.Elapsed
 			};
 			PerformanceCounter.PerformanceCounters.Add(modelPerformanceCounterEntity);
 			Console.WriteLine(PerformanceCounter.ModelPerformanceCounterEntity.Header(" | "));
 			Console.WriteLine(modelPerformanceCounterEntity.PrintAsCsv(" | "));
 		}
 
-		private Tuple<Dictionary<string, object>, string> ConstructModelAndPath(int modelDepth, string path = null)
+		public static Tuple<Dictionary<string, object>, string> ConstructModelAndPath(int modelDepth, string path = null)
 		{
 			path = "D380C66729254CA2BAECA9ABFF90EA1C";
 			var model = new Dictionary<string, object>();

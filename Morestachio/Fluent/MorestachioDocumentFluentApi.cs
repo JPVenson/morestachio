@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Visitor;
 using Morestachio.Fluent.Expression;
+using Morestachio.TemplateContainers;
 
 namespace Morestachio.Fluent
 {

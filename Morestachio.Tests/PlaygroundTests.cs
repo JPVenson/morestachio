@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Morestachio.Framework.Context.Resolver;
+using Morestachio.Framework.Expression.Framework;
+using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
 using Morestachio.Profiler;
+using Morestachio.Tests.PerfTests;
 using NUnit.Framework;
 
 #if ValueTask
@@ -144,6 +148,82 @@ namespace Morestachio.Tests
 
 		[Test]
 		[Explicit]
+		public async Task ProfileTest()
+		{
+			string variation = "Template Size";
+			int modelDepth = 5;
+			int sizeOfTemplate = 100000;
+			int inserts = 5;
+			int runs = 1;
+
+			var model = PerfHarness.ConstructModelAndPath(modelDepth);
+			var baseTemplate = Enumerable.Range(1, 5)
+				.Aggregate("", (seed, current) => seed += " {{" + model.Item2 + "}}");
+			while (baseTemplate.Length <= sizeOfTemplate)
+			{
+				baseTemplate += model.Item2 + "\r\n";
+			}
+
+			MorestachioDocumentInfo template = null;
+			TokenizerResult tokenizerResult = null;
+
+			//make sure this class is JIT'd before we start timing.
+			//await Parser.ParseWithOptionsAsync(new ParserOptions("asdf"));
+
+			var totalTime = Stopwatch.StartNew();
+			var tokenizingTime = Stopwatch.StartNew();
+
+			for (var i = 0; i < runs; i++)
+			{
+				var options = new ParserOptions(baseTemplate, () => Stream.Null);
+				var tokenzierContext = new TokenzierContext(new List<int>(), options.CultureInfo);
+				tokenizerResult = await Tokenizer.Tokenize(options, tokenzierContext);
+			}
+
+			tokenizingTime.Stop();
+
+			//var parseTime = Stopwatch.StartNew();
+			//for (var i = 0; i < runs; i++)
+			//{
+			//	var options = new ParserOptions(baseTemplate, () => Stream.Null);
+			//	template = new MorestachioDocumentInfo(options, Parser.Parse(tokenizerResult, options));
+			//}
+
+			//parseTime.Stop();
+
+			//var tmp = await template.CreateAndStringifyAsync(model.Item1);
+
+			//var renderTime = Stopwatch.StartNew();
+			//for (var i = 0; i < runs; i++)
+			//{
+			//	var morestachioDocumentResult = await template.CreateAsync(model.Item1);
+			//	morestachioDocumentResult.Stream.Dispose();
+			//}
+
+			//renderTime.Stop();
+			//totalTime.Stop();
+
+			//var compileTime = Stopwatch.StartNew();
+			//CompilationResult compilationResult = null;
+			//for (var i = 0; i < runs; i++)
+			//{
+			//	compilationResult = template.Compile();
+			//}
+
+			//compileTime.Stop();
+
+			//var compiledRenderTime = Stopwatch.StartNew();
+			//for (var i = 0; i < runs; i++)
+			//{
+			//	var morestachioDocumentResult = await compilationResult(model.Item1, CancellationToken.None);
+			//	morestachioDocumentResult.Stream.Dispose();
+			//}
+
+			//compiledRenderTime.Stop();
+		}
+
+		[Test]
+		[Explicit]
 		[Repeat(5)]
 		public async Task PerformanceDebuggerTest()
 		{
@@ -166,7 +246,7 @@ namespace Morestachio.Tests
 
 			var parsingOptions = new ParserOptions(TextTemplateMorestachio, null, Encoding.UTF8, true);
 			parsingOptions.ProfileExecution = false;
-			var parsed = Parser.ParseWithOptions(parsingOptions);
+			var parsed = await Parser.ParseWithOptionsAsync(parsingOptions);
 			var andStringifyAsync = await parsed.CreateAndStringifyAsync(new
 			{
 				Products = _products
@@ -179,17 +259,22 @@ namespace Morestachio.Tests
 					Products = _products
 				});
 			}
+
+			var compiled = parsed.Compile();
+
 			var sw = new Stopwatches();
-			var profiler = new List<PerformanceProfiler>();
 			for (int i = 0; i < runs; i++)
 			{
 				sw.Start();
-				var f = await parsed.CreateAsync(new
+				await compiled(new
 				{
 					Products = _products
-				});
+				}, CancellationToken.None);
+				//var f = await parsed.CreateAsync(new
+				//{
+				//	Products = _products
+				//});
 				sw.Stop();
-				profiler.Add(f.Profiler);
 			}
 
 			var swElapsed = sw.Elapsed;

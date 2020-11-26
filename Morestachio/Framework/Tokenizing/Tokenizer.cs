@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Morestachio.Document.Custom;
 using Morestachio.Framework.Context.Options;
@@ -9,7 +10,7 @@ using Morestachio.Framework.Error;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Parsing.ParserErrors;
-
+using Morestachio.TemplateContainers;
 #if ValueTask
 using TokenizerResultPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.Tokenizing.TokenizerResult>;
 using Promise = System.Threading.Tasks.ValueTask;
@@ -30,8 +31,7 @@ namespace Morestachio.Framework.Tokenizing
 		//internal static readonly Regex NewlineFinder
 		//	= new Regex("\n", RegexOptions.Compiled);
 
-		private static readonly Regex ExpressionAliasFinder
-			= new Regex("(?:\\s+(?:AS|as|As|aS)\\s+)([A-Za-z]+)$", RegexOptions.Compiled);
+
 
 
 		internal static readonly Regex PartialIncludeRegEx = new Regex("Include (\\w*)( (?:With) )?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -74,23 +74,26 @@ namespace Morestachio.Framework.Tokenizing
 
 			return nlIdxes;
 		}
-
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static bool IsStringDelimiter(char formatChar)
 		{
 			return formatChar == '\'' || formatChar == '\"';
 		}
 
 		private static char[] _whitespaceDelimiters = new[] { '\r', '\n', '\t', ' ' };
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static char[] GetWhitespaceDelimiters()
 		{
 			return _whitespaceDelimiters;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static bool IsWhiteSpaceDelimiter(char formatChar)
 		{
 			return formatChar == '\r' || formatChar == '\n' || formatChar == '\t' || formatChar == ' ';
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static bool IsExpressionPathChar(char formatChar)
 		{
 			return formatChar == '?'
@@ -98,12 +101,14 @@ namespace Morestachio.Framework.Tokenizing
 				   || IsStartOfExpressionPathChar(formatChar);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static bool IsStartOfExpressionPathChar(char formatChar)
 		{
 			return formatChar == '$'
 				   || IsSingleExpressionPathChar(formatChar);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static bool IsSingleExpressionPathChar(char formatChar)
 		{
 			return formatChar == '.'
@@ -112,16 +117,19 @@ namespace Morestachio.Framework.Tokenizing
 			//|| IsCharRegex.IsMatch(formatChar.ToString());
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static bool IsExpressionDataPathChar(char formatChar)
 		{
 			return char.IsLetterOrDigit(formatChar) || formatChar == '_';
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static bool IsNumberExpressionChar(char formatChar)
 		{
 			return char.IsDigit(formatChar);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static bool IsExpressionChar(char formatChar)
 		{
 			return IsExpressionPathChar(formatChar) ||
@@ -129,11 +137,13 @@ namespace Morestachio.Framework.Tokenizing
 				   formatChar == ')';
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static bool IsPathDelimiterChar(char formatChar)
 		{
 			return formatChar == ',';
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static bool IsOperationChar(char formatChar)
 		{
 			return
@@ -152,6 +162,7 @@ namespace Morestachio.Framework.Tokenizing
 			//return MorestachioOperator.Yield().Any(f => f.OperatorText[0] == formatChar);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static bool IsEndOfFormatterArgument(char? formatChar)
 		{
 			return formatChar == ',' || formatChar == '.' || formatChar == ')';
@@ -189,137 +200,6 @@ namespace Morestachio.Framework.Tokenizing
 			///		The index in the template
 			/// </summary>
 			public int Index { get; }
-		}
-
-		private readonly struct TokenMatch
-		{
-			public TokenMatch(int index, string value, string preText, int length, bool contentToken)
-			{
-				Index = index;
-				Value = value;
-				PreText = preText;
-				ContentToken = contentToken;
-				Length = length;
-			}
-
-			public int Index { get; }
-			public int Length { get; }
-			public string Value { get; }
-			public string PreText { get; }
-			public bool ContentToken { get; }
-		}
-
-		private class CharComparer : IEqualityComparer<char>
-		{
-			public bool Equals(char x, char y)
-			{
-				return ((int) x) == ((int) y);
-			}
-
-			public int GetHashCode(char obj)
-			{
-				return obj.GetHashCode();
-			}
-		}
-
-		private static IEnumerable<TokenMatch> MatchTokens(ITemplateContainer template,
-			TokenzierContext context,
-			RollingArray<char> lastChars)
-		{
-			var elementIndex = 0;
-			char? isInString = null;
-			var stringEscape = false;
-
-			var tokenCount = 0;
-			var inToken = false;
-			var tokenBuffer = new char[20240];
-			string preText = null;
-			var charComparer = new CharComparer();
-
-			while (template.ReadChar(out var c))
-			{
-				lastChars.Add(c);
-				if (tokenBuffer.Length <= tokenCount)//basic expandable array
-				{
-					Array.Resize(ref tokenBuffer, tokenBuffer.Length + 2024);
-				}
-
-				// all chars are buffered 
-				tokenBuffer[tokenCount] = c;
-				tokenCount++;
-
-				if (c == '\n')
-				{
-					context.Lines.Add(elementIndex);
-				}
-
-				if (isInString.HasValue && context.CommentIntend == 0)
-				{
-					if (c == '\\')
-					{
-						stringEscape = true;
-					}
-					else if (stringEscape && c == isInString.Value)
-					{
-						stringEscape = false;
-					}
-					else if (!stringEscape && c == isInString.Value)
-					{
-						isInString = null;
-					}
-				}
-				else if (!inToken)
-				{
-					if (lastChars.EndsWith(context.PrefixToken, charComparer))//something like "content {{"
-					{
-						if (tokenCount - context.PrefixToken.Length > 0)
-						{
-							preText = new string(tokenBuffer, 0, tokenCount - context.PrefixToken.Length);
-						}
-						tokenCount = 0;
-						inToken = true;
-					}
-				}
-				else
-				{
-					if (lastChars.EndsWith(context.PrefixToken))//something like "content {{"
-					{
-						preText = preText ?? string.Empty;
-						preText += c;
-						tokenCount = 0;
-					}
-					else
-					if (lastChars.EndsWith(context.SuffixToken, charComparer))//something like "zzddata }}"
-					{
-						var tokenLength = tokenCount - context.SuffixToken.Length;
-						yield return new TokenMatch(elementIndex - tokenLength - 2 - 1,
-							new string(tokenBuffer, 0, tokenLength),
-							preText,
-							tokenLength + context.SuffixToken.Length + context.PrefixToken.Length,
-							false);
-						tokenCount = 0;
-						preText = null;
-						inToken = false;
-					}
-					else if (IsStringDelimiter(c) && context.CommentIntend == 0)
-					{
-						isInString = c;
-					}
-				}
-
-				elementIndex++;
-			}
-			if (isInString.HasValue && tokenCount != 0)
-			{
-				//var token = template.Substring(elementIndex, template.Length - elementIndex);
-				yield return new TokenMatch(elementIndex, new string(tokenBuffer, 0, tokenCount), null, tokenCount, false);
-				tokenCount = 0;
-			}
-
-			if (tokenCount > 0)
-			{
-				yield return new TokenMatch(elementIndex, new string(tokenBuffer, 0, tokenCount), null, tokenCount, true);
-			}
 		}
 
 		/// <summary>
@@ -399,11 +279,8 @@ namespace Morestachio.Framework.Tokenizing
 
 				return token;
 			}
-
-
-			var lastChars = new RollingArray<char>(Math.Max(context.PrefixToken.Length, context.SuffixToken.Length) + 1);
-
-			foreach (var match in MatchTokens(templateString, context, lastChars))
+			
+			foreach (var match in templateString.Matches(context))
 			{
 				if (match.ContentToken)
 				{
@@ -484,7 +361,7 @@ namespace Morestachio.Framework.Tokenizing
 						tokens.Add(new TokenPair(TokenType.Content, match.PreText, context.CurrentLocation));
 					}
 
-					context.SetLocation(match.Index + context.PrefixToken.Length);
+					context.SetLocation(match.Index + context._prefixToken.Length);
 
 					//check if the token is appended by a |- in that case we want to trim all folowing whitespaces
 					if (trimmedToken.EndsWith("-"))
@@ -1177,6 +1054,9 @@ namespace Morestachio.Framework.Tokenizing
 
 			return new TokenizerResult(tokens);
 		}
+
+		private static readonly Regex ExpressionAliasFinder
+			= new Regex("(?:\\s+(?:AS|as|As|aS)\\s+)([A-Za-z]+)$", RegexOptions.Compiled);
 
 		internal static NameValueToken EvaluateNameFromToken(string token)
 		{

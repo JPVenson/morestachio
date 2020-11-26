@@ -20,6 +20,8 @@ namespace Morestachio.Framework.Expression.Framework
 	/// </summary>
 	public class TokenzierContext
 	{
+		internal char[] _prefixToken = new[] { '{', '{' };
+
 		/// <summary>
 		///		Creates a new <see cref="TokenzierContext"/>
 		/// </summary>
@@ -71,7 +73,11 @@ namespace Morestachio.Framework.Expression.Framework
 		/// <summary>
 		///		Gets or sets the starting of an Token
 		/// </summary>
-		public char[] PrefixToken { get; set; } = new[] { '{', '{' };
+		public char[] PrefixToken
+		{
+			get { return _prefixToken; }
+			set { _prefixToken = value; }
+		}
 
 		/// <summary>
 		///		Gets or sets the ending of an Token

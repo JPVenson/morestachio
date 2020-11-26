@@ -15,55 +15,13 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Context.Resolver;
 using Morestachio.Framework.IO;
+using Morestachio.TemplateContainers;
 using Morestachio.Util.Sealing;
 
 #endregion
 
 namespace Morestachio
 {
-	public interface ITemplateContainer
-	{
-		bool ReadChar(out char c);
-	}
-
-	public class StringTemplateContainer : ITemplateContainer
-	{
-		public StringTemplateContainer(string template)
-		{
-			_template = template;
-			_index = 0;
-		}
-
-		public string Template
-		{
-			get { return _template; }
-		}
-
-		private int _index;
-		private readonly string _template;
-
-		public bool ReadChar(out char c)
-		{
-			if (_index < _template.Length)
-			{
-				c = _template[_index++];
-				return true;
-			}
-
-			c = ' ';
-			return false;
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="template"></param>
-		public static implicit operator StringTemplateContainer(string template)
-		{
-			return new StringTemplateContainer(template);
-		}
-	}
-
 	/// <summary>
 	///     Options for Parsing run
 	/// </summary>
@@ -125,7 +83,7 @@ namespace Morestachio
 		/// <param name="template">The template.</param>
 		/// <param name="sourceStream">The source stream.</param>
 		/// <param name="encoding">The encoding.</param>
-		public ParserOptions([NotNull] ITemplateContainer template,
+		public ParserOptions(ITemplateContainer template,
 			[CanBeNull] Func<Stream> sourceStream,
 			[CanBeNull] Encoding encoding)
 		{

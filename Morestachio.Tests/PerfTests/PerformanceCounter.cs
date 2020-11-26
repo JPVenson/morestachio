@@ -31,6 +31,8 @@ namespace Morestachio.Tests.PerfTests
 			public TimeSpan TokenizingTime { get; set; }
 			public TimeSpan ParseTime { get; set; }
 			public TimeSpan RenderTime { get; set; }
+			public TimeSpan CompilerTime { get; set; }
+			public TimeSpan CompiledRenderTime { get; set; }
 			public TimeSpan TotalTime { get; set; }
 
 			public static string Header(string delimiter)
@@ -45,6 +47,8 @@ namespace Morestachio.Tests.PerfTests
 					$"TokenizingTime{delimiter} " +
 					$"ParseTime{delimiter} " +
 					$"RenderTime{delimiter} " +
+					$"CompilerTime{delimiter} " +
+					$"CompiledRenderTime{delimiter} " +
 					$"Total Time ";
 			}
 
@@ -60,6 +64,8 @@ namespace Morestachio.Tests.PerfTests
 					$"{TokenizingTime:c}{delimiter}" +
 					$"{ParseTime:c}{delimiter}" +
 					$"{RenderTime:c}{delimiter}" +
+					$"{CompilerTime:c}{delimiter}" +
+					$"{CompiledRenderTime:c}{delimiter}" +
 					$"{TotalTime:c}";
 			}
 		}

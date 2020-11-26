@@ -4,6 +4,7 @@ using Morestachio.Document.Items;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Helper.Localization;
+using Morestachio.TemplateContainers;
 using Morestachio.Tests.SerilalizerTests.Strategies;
 using NUnit.Framework;
 

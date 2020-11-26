@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Morestachio.Framework.Tokenizing
 {
@@ -15,12 +16,12 @@ namespace Morestachio.Framework.Tokenizing
 		/// <param name="size"></param>
 		public RollingArray(int size)
 		{
-			_buffer = new T[size];
+			Buffer = new T[size];
 			_writerIndex = -1;
 		}
 
 		private int _writerIndex;
-		private readonly T[] _buffer;
+		protected readonly T[] Buffer;
 
 		/// <summary>
 		///		Gets the length of the <see cref="RollingArray{T}"/>
@@ -29,17 +30,18 @@ namespace Morestachio.Framework.Tokenizing
 		{
 			get
 			{
-				return _buffer.Length;
+				return Buffer.Length;
 			}
 		}
 
 		/// <summary>
-		///		Gets the current writer position within the bounds of <see cref="_buffer"/>
+		///		Gets the current writer position within the bounds of <see cref="Buffer"/>
 		/// </summary>
 		/// <returns></returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal int Pos()
 		{
-			return _writerIndex % _buffer.Length;
+			return _writerIndex % Buffer.Length;
 		}
 
 		/// <summary>
@@ -51,26 +53,36 @@ namespace Morestachio.Framework.Tokenizing
 		{
 			get
 			{
-				return _buffer[Translate(index)];
+				return Get(index);
 			}
 		}
 
 		/// <summary>
-		///		Translates a natural index 0-Length to a real index depending on the current writer index
+		///		Gets the char at the natural index
 		/// </summary>
 		/// <param name="index"></param>
 		/// <returns></returns>
-		internal int Translate(int index)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public T Get(int index)
 		{
-			var inx = (Pos() + 1) + index;
-			if (inx >= _buffer.Length)
+			var inx = (_writerIndex % Buffer.Length + 1) + index;
+			if (inx >= Buffer.Length)
 			{
 				//in this case we underflow the array length so set it back to the end of the array
-				return inx - _buffer.Length;
+				return Buffer[inx - Buffer.Length];
 			}
-
-			return inx;
+			return Buffer[inx];
 		}
+
+		///// <summary>
+		/////		Translates a natural index 0-Length to a real index depending on the current writer index
+		///// </summary>
+		///// <param name="index"></param>
+		///// <returns></returns>
+		//internal int Translate(int index)
+		//{
+			
+		//}
 
 		/// <summary>
 		///		Returns the contents of the array
@@ -80,19 +92,19 @@ namespace Morestachio.Framework.Tokenizing
 		{
 			T[] arr;
 
-			if (_writerIndex < _buffer.Length)
+			if (_writerIndex < Buffer.Length)
 			{
 				//if there are less written elements than the size of the buffer, omit those
 				arr = new T[_writerIndex + 1];
 				for (int i = 0; i < _writerIndex + 1; i++)
 				{
-					arr[i] = _buffer[i];
+					arr[i] = Buffer[i];
 				}
 			}
 			else
 			{
-				arr = new T[_buffer.Length];
-				for (int i = 0; i < _buffer.Length; i++)
+				arr = new T[Buffer.Length];
+				for (int i = 0; i < Buffer.Length; i++)
 				{
 					arr[i] = this[i];
 				}
@@ -109,7 +121,7 @@ namespace Morestachio.Framework.Tokenizing
 		public void Add(T c)
 		{
 			_writerIndex += 1;
-			_buffer[Pos()] = c;
+			Buffer[_writerIndex % Buffer.Length] = c;
 		}
 
 		/// <summary>
@@ -117,9 +129,9 @@ namespace Morestachio.Framework.Tokenizing
 		/// </summary>
 		/// <param name="elements"></param>
 		/// <returns></returns>
-		public bool StartsWith(T[] elements, IEqualityComparer<T> comparer = null)
+		public virtual bool StartsWith(T[] elements, IEqualityComparer<T> comparer = null)
 		{
-			if (elements.Length > _buffer.Length)
+			if (elements.Length > Buffer.Length)
 			{
 				throw new IndexOutOfRangeException("The number of elements exceeds the size of the array");
 			}
@@ -142,16 +154,16 @@ namespace Morestachio.Framework.Tokenizing
 		/// </summary>
 		/// <param name="elements"></param>
 		/// <returns></returns>
-		public bool EndsWith(T[] elements, IEqualityComparer<T> comparer = null)
+		public virtual bool EndsWith(T[] elements, IEqualityComparer<T> comparer = null)
 		{
-			if (elements.Length > _buffer.Length)
+			if (elements.Length > Buffer.Length)
 			{
 				throw new IndexOutOfRangeException("The number of elements exceeds the size of the array");
 			}
 			for (int i = 0; i < elements.Length; i++)
 			{
 				var objA = elements[elements.Length - (i + 1)];
-				var objB = this[_buffer.Length - (i + 1)];
+				var objB = this[Buffer.Length - (i + 1)];
 				if (!comparer?.Equals(objA, objB) ?? !Equals(objA, objB))
 				{
 					return false;
@@ -216,6 +228,24 @@ namespace Morestachio.Framework.Tokenizing
 		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return GetEnumerator();
+		}
+	}
+
+	public class MorestachioDefaultRollingArray : RollingArray<char>
+	{
+		public MorestachioDefaultRollingArray() : base(3)
+		{
+		}
+
+		public override bool EndsWith(char[] elements, IEqualityComparer<char> comparer = null)
+		{
+			if (elements.Length > Buffer.Length)
+			{
+				throw new IndexOutOfRangeException("The number of elements exceeds the size of the array");
+			}
+
+			return elements[elements.Length - 1] == Get(Buffer.Length - 1) 
+			       && elements[elements.Length - 2] == Get(Buffer.Length - 2);
 		}
 	}
 }
