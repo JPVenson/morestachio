@@ -27,6 +27,7 @@ namespace Morestachio.Framework
 				return;
 			}
 
+			node.HasValue = true;
 			node.Current = values[0];
 			node.Count = values.Length - 1;
 
@@ -34,6 +35,7 @@ namespace Morestachio.Framework
 			{
 				var keyValuePair = values[index];
 				node._next = new Traversable(keyValuePair, values.Length - index - 1);
+				node.HasValue = true;
 				node = node._next;
 			}
 		}
@@ -121,10 +123,8 @@ namespace Morestachio.Framework
 		/// </summary>
 		public bool HasValue
 		{
-			get
-			{
-				return !Equals(Current, default(KeyValuePair<string, PathType>));
-			}
+			get;
+			private set;
 		}
 
 		/// <summary>

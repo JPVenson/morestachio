@@ -27,13 +27,6 @@ namespace Morestachio.Framework.Tokenizing
 	/// <exception cref="IndexedParseException"></exception>
 	public class Tokenizer
 	{
-
-		//internal static readonly Regex NewlineFinder
-		//	= new Regex("\n", RegexOptions.Compiled);
-
-
-
-
 		internal static readonly Regex PartialIncludeRegEx = new Regex("Include (\\w*)( (?:With) )?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 		internal static CharacterLocation HumanizeCharacterLocation(int characterIndex, List<int> lines)
 		{
@@ -74,6 +67,7 @@ namespace Morestachio.Framework.Tokenizing
 
 			return nlIdxes;
 		}
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static bool IsStringDelimiter(char formatChar)
 		{

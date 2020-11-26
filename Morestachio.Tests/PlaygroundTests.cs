@@ -316,31 +316,37 @@ namespace Morestachio.Tests
 
 			var parsingOptions = new ParserOptions(TextTemplateMorestachio, null, Encoding.UTF8, true);
 			parsingOptions.ProfileExecution = false;
-			var parsed = Parser.ParseWithOptions(parsingOptions).Compile();
-			var andStringifyAsync = await parsed(new
+			var parsed = await Parser.ParseWithOptionsAsync(parsingOptions);
+			var andStringifyAsync = await parsed.CreateAndStringifyAsync(new
 			{
 				Products = _products
-			}, CancellationToken.None);
+			});
 			var runs = 200;
 			for (int i = 0; i < runs / 5; i++)
 			{
-				andStringifyAsync = await parsed(new
+				andStringifyAsync = await parsed.CreateAndStringifyAsync(new
 				{
 					Products = _products
-				}, CancellationToken.None);
+				});
 			}
+
+			var compiled = parsed.Compile();
+
 			var sw = new Stopwatches();
-			var profiler = new List<PerformanceProfiler>();
 			for (int i = 0; i < runs; i++)
 			{
 				sw.Start();
-				var f = await parsed(new
+				await compiled(new
 				{
 					Products = _products
 				}, CancellationToken.None);
+				//var f = await parsed.CreateAsync(new
+				//{
+				//	Products = _products
+				//});
 				sw.Stop();
-				profiler.Add(f.Profiler);
 			}
+
 
 			var swElapsed = sw.Elapsed;
 			Console.WriteLine("Done in: " 
