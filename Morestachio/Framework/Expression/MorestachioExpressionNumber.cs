@@ -144,6 +144,13 @@ namespace Morestachio.Framework.Expression
 				contextObject).ToPromise();
 		}
 
+		public CompiledExpression Compile()
+		{
+			return (contextObject, data) => contextObject.Options.CreateContextObject(".",
+				contextObject.CancellationToken, Number,
+				contextObject).ToPromise();
+		}
+
 		/// <inheritdoc />
 		public void Accept(IMorestachioExpressionVisitor visitor)
 		{

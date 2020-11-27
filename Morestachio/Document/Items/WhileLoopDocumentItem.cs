@@ -71,6 +71,8 @@ namespace Morestachio.Document.Items
 		public Compilation Compile()
 		{
 			var children = MorestachioDocument.CompileItemsAndChildren(Children);
+			var expression = MorestachioExpression.Compile();
+
 			return async (outputStream, context, scopeData) =>
 			{
 				var index = 0;
@@ -80,7 +82,7 @@ namespace Morestachio.Document.Items
 					context.Value);
 
 				while (ContinueBuilding(outputStream, context) &&
-				       (await MorestachioExpression.GetValue(collectionContext, scopeData)).Exists())
+				       (await expression(collectionContext, scopeData)).Exists())
 				{
 					await children(outputStream, collectionContext, scopeData);
 					collectionContext = new ContextCollection(++index, false, context.Options, context.Key,

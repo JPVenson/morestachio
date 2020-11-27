@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 using Morestachio.Document;
@@ -11,6 +12,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.Visitors;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Helper;
 using Morestachio.Parsing.ParserErrors;
 #if ValueTask
 using ContextObjectPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.Context.ContextObject>;
@@ -38,7 +40,7 @@ namespace Morestachio.Framework.Expression
 			Location = location;
 			_pathTokenizer = new PathTokenizer();
 		}
-		
+
 		/// <summary>
 		///		Serialization constructor 
 		/// </summary>
@@ -188,6 +190,146 @@ namespace Morestachio.Framework.Expression
 		/// </summary>
 		public bool EndsWithDelimiter { get; private set; }
 
+		public CompiledExpression Compile()
+		{
+			if (!PathParts.HasValue)
+			{
+				return (contextObject, data) => contextObject.ToPromise();
+			}
+
+			if (PathParts.Count == 1 && PathParts.Current.Value == PathType.Null)
+			{
+				return (contextObject, data) => contextObject.Options
+					.CreateContextObject("x:null", contextObject.CancellationToken, null).ToPromise();
+			}
+
+			var pathQueue = new List<Func<ContextObject, ScopeData, IMorestachioExpression, ContextObjectPromise>>();
+			var pathParts = PathParts.ToArray();
+
+			if (pathParts.First().Value == PathType.DataPath)
+			{
+				var firstItem = pathParts.First();
+
+				pathQueue.Add((context, scopeData, expression) =>
+				{
+					var variable = scopeData.GetVariable(firstItem.Key);
+					if (variable != null)
+					{
+						return variable.ToPromise();
+					}
+
+					return context.ExecuteDataPath(firstItem.Key, expression, context.Value?.GetType()).ToPromise();
+				});
+				pathParts = pathParts.Skip(1).ToArray();
+			}
+
+			foreach (var pathPart in pathParts)
+			{
+				switch (pathPart.Value)
+				{
+					case PathType.DataPath:
+						pathQueue.Add((contextObject, scopeData, expression) =>
+						{
+							return contextObject.ExecuteDataPath(pathPart.Key, expression, contextObject.Value?.GetType()).ToPromise();
+						});
+						break;
+					case PathType.RootSelector:
+						pathQueue.Add((contextObject, scopeData, expression) =>
+						{
+							return contextObject.ExecuteRootSelector().ToPromise();
+						});
+						break;
+					case PathType.ParentSelector:
+						pathQueue.Add((contextObject, scopeData, expression) =>
+						{
+							var natContext = contextObject.FindNextNaturalContextObject();
+							return (natContext?.Parent ?? contextObject).ToPromise();
+						});
+						break;
+					case PathType.ObjectSelector:
+						pathQueue.Add((contextObject, scopeData, expression) =>
+						{
+							return contextObject.ExecuteObjectSelector(pathPart.Key, contextObject.Value?.GetType())
+								.ToPromise();
+						});
+						break;
+					case PathType.Null:
+						pathQueue.Add((contextObject, scopeData, expression) =>
+						{
+							return contextObject.Options.CreateContextObject("x:null", contextObject.CancellationToken, null)
+								.ToPromise();
+						});
+						break;
+					case PathType.Boolean:
+						pathQueue.Add((contextObject, scopeData, expression) =>
+						{
+							var booleanContext =
+								contextObject.Options.CreateContextObject(".", contextObject.CancellationToken,
+									pathPart.Key == "true", contextObject);
+							booleanContext.IsNaturalContext = contextObject.IsNaturalContext;
+							return booleanContext.ToPromise();
+						});
+						break;
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
+			}
+
+			var getContext = new Func<ContextObject, ScopeData, IMorestachioExpression, ContextObjectPromise>(
+				async (contextObject, data, expression) =>
+			{
+				foreach (var func in pathQueue)
+				{
+					contextObject = await func(contextObject, data, expression);
+				}
+
+				return contextObject;
+			});
+
+			if (!Formats.Any() && FormatterName == null)
+			{
+				return (contextObject, data) => getContext(contextObject, data, this);
+			}
+
+			var formatsCompiled = Formats.ToDictionary(f => f, f => f.Compile()).ToArray();
+
+			return async (contextObject, scopeData) =>
+			{
+				var ctx = await getContext(contextObject, scopeData, this);
+
+				if (ctx == contextObject)
+				{
+					ctx = contextObject.CloneForEdit();
+				}
+
+				var arguments = new FormatterArgumentType[formatsCompiled.Length];
+				var naturalValue = contextObject.FindNextNaturalContextObject();
+				for (var index = 0; index < formatsCompiled.Length; index++)
+				{
+					var formatterArgument = formatsCompiled[index];
+					var value = await formatterArgument.Value(naturalValue, scopeData);
+					arguments[index] = new FormatterArgumentType(index, formatterArgument.Key.Name, value?.Value);
+				}
+
+				if (Cache == null)
+				{
+					Cache = ctx.PrepareFormatterCall(
+						ctx.Value?.GetType() ?? typeof(object),
+						FormatterName,
+						arguments,
+						scopeData);
+				}
+
+				if (Cache != null && !Equals(Cache.Value, default(FormatterCache)))
+				{
+					ctx.Value = await contextObject.Options.Formatters.Execute(Cache.Value, ctx.Value, arguments);
+					ctx.MakeSyntetic();
+				}
+
+				return ctx;
+			};
+		}
+
 		/// <inheritdoc />
 		public async ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
 		{
@@ -236,7 +378,7 @@ namespace Morestachio.Framework.Expression
 		}
 
 		private readonly PathTokenizer _pathTokenizer;
-		
+
 		/// <summary>
 		///		Parses the text into one or more expressions
 		/// </summary>
@@ -253,7 +395,7 @@ namespace Morestachio.Framework.Expression
 			var orIndx = index;
 
 			if (!text.Contains("(") && !text.Any(Tokenizer.IsOperationChar))
-				//this is the fast parsing branch. In case there are no operators or formatters used we can take the whole text as an single expression
+			//this is the fast parsing branch. In case there are no operators or formatters used we can take the whole text as an single expression
 			{
 				if (text.Length > 0 && char.IsDigit(text[0]))
 				{
@@ -310,7 +452,7 @@ namespace Morestachio.Framework.Expression
 			bool reprocess;
 
 			//var currentPathPart = new StringBuilder();
-			while(index < text.Length)
+			while (index < text.Length)
 			//for (; index < text.Length; index++)
 			{
 				reprocess = false;
@@ -379,7 +521,7 @@ namespace Morestachio.Framework.Expression
 								currentScope.Value = MorestachioExpressionNumber.ParseFrom(text, index, context, out index);
 								currentScope.State = TokenState.Expression;
 								context.SetLocation(cidx);
-								
+
 								if (SeekNext(text, index, out _) == '.')
 								{
 									var morestachioExpressionList = new MorestachioMultiPartExpressionList(new List<IMorestachioExpression>()
@@ -676,7 +818,7 @@ namespace Morestachio.Framework.Expression
 						index--;
 						break;
 					}
-					
+
 				}
 
 				if (!reprocess)
@@ -765,8 +907,8 @@ namespace Morestachio.Framework.Expression
 		private static char? SeekNext(string text, int index, out int nIndex)
 		{
 			index = Seek(text, index, f => Tokenizer.IsExpressionChar(f) ||
-			                               Tokenizer.IsPathDelimiterChar(f) ||
-			                               Tokenizer.IsOperationChar(f), false);
+										   Tokenizer.IsPathDelimiterChar(f) ||
+										   Tokenizer.IsOperationChar(f), false);
 			if (index != -1 && index < text.Length)
 			{
 				nIndex = index;
@@ -1059,7 +1201,7 @@ namespace Morestachio.Framework.Expression
 			}
 
 			var opList = MorestachioOperator.Yield().Where(e => e.OperatorText.StartsWith(text[index].ToString())).ToArray();
-			
+
 			nIndex = index;
 			if (opList.Length > 0)
 			{

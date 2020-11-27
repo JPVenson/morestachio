@@ -99,15 +99,9 @@ namespace Morestachio.Document.Items
 		private async CoreActionPromise CoreAction(
 			ContextObject context,
 			ScopeData scopeData,
-			Func<string, ContextObject, BooleanPromise> obtainPartialFromStore)
+			Func<string, ContextObject, BooleanPromise> obtainPartialFromStore,
+			string partialName)
 		{
-			var partialName = (await MorestachioExpression.GetValue(context, scopeData)).Value?.ToString();
-
-			if (partialName == null)
-			{
-				throw new MorestachioRuntimeException($"Get partial requested by the expression: '{MorestachioExpression.ToString()}' returned null and is therefor not valid");
-			}
-
 			scopeData.PartialDepth.Push(new Tuple<string, int>(partialName, scopeData.PartialDepth.Count));
 			if (scopeData.PartialDepth.Count >= context.Options.PartialStackSize)
 			{
@@ -180,11 +174,19 @@ namespace Morestachio.Document.Items
 		public Compilation Compile()
 		{
 			var doneAction = new RenderPartialDoneDocumentItem().Compile();
+			var expression = MorestachioExpression.Compile();
 			return async (stream, context, scopeData) =>
 			{
-				var toExecute = await CoreAction(context, scopeData, async (partialName, cnxt) =>
+				var partialName = (await expression(context, scopeData)).Value?.ToString();
+
+				if (partialName == null)
+				{
+					throw new MorestachioRuntimeException($"Get partial requested by the expression: '{MorestachioExpression.ToString()}' returned null and is therefor not valid");
+				}
+
+				var toExecute = await CoreAction(context, scopeData, async (pn, cnxt) =>
 				 {
-					 if (scopeData.CompiledPartials.TryGetValue(partialName, out var partialWithContext))
+					 if (scopeData.CompiledPartials.TryGetValue(pn, out var partialWithContext))
 					 {
 						 await partialWithContext(stream, cnxt, scopeData);
 						 await doneAction(stream, cnxt, scopeData);
@@ -192,7 +194,7 @@ namespace Morestachio.Document.Items
 					 }
 
 					 return false;
-				 });
+				 }, partialName);
 				if (toExecute != null)
 				{
 					await MorestachioDocument.CompileItemsAndChildren(new IDocumentItem[]
@@ -211,16 +213,24 @@ namespace Morestachio.Document.Items
 		{
 			Tuple<IDocumentItem, ContextObject> action = null;
 			Tuple<IDocumentItem, ContextObject> actiona = null;
-			action = await CoreAction(context, scopeData, (partialName, cnxt) =>
+
+			var partialName = (await MorestachioExpression.GetValue(context, scopeData)).Value?.ToString();
+
+			if (partialName == null)
+			{
+				throw new MorestachioRuntimeException($"Get partial requested by the expression: '{MorestachioExpression.ToString()}' returned null and is therefor not valid");
+			}
+
+			action = await CoreAction(context, scopeData, (pn, cnxt) =>
 			 {
-				 if (scopeData.Partials.TryGetValue(partialName, out var partialWithContext))
+				 if (scopeData.Partials.TryGetValue(pn, out var partialWithContext))
 				 {
 					 actiona = new Tuple<IDocumentItem, ContextObject>(partialWithContext, cnxt);
 					 return true.ToPromise();
 				 }
 
 				 return false.ToPromise();
-			 });
+			 }, partialName);
 			action = action ?? actiona;
 			if (action != null)
 			{

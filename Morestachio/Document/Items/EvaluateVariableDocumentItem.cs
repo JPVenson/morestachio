@@ -95,9 +95,10 @@ namespace Morestachio.Document.Items
 
 		public Compilation Compile()
 		{
+			var expression = MorestachioExpression.Compile();
 			return async (stream, context, scopeData) =>
 			{
-				context = await MorestachioExpression.GetValue(context, scopeData);
+				context = await expression(context, scopeData);
 				scopeData.AddVariable(Value, context, IdVariableScope);
 			};
 		}

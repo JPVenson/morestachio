@@ -70,13 +70,14 @@ namespace Morestachio.Document.Items
 		public Compilation Compile()
 		{
 			var children = MorestachioDocument.CompileItemsAndChildren(Children);
+			var expression = MorestachioExpression.Compile();
 			return async (stream, context, scopeData) =>
 			{
 				//we are checking the parent value not our current value
 				var contextObject = context.Parent ?? context;
 
 				//var c = await context.GetContextForPath(Value, scopeData);
-				var c = await MorestachioExpression.GetValue(contextObject, scopeData);
+				var c = await expression(contextObject, scopeData);
 				if (!c.Exists())
 				{
 					scopeData.ExecuteElse = false;

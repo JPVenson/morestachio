@@ -35,7 +35,7 @@ namespace Morestachio.Framework
 			{
 				var keyValuePair = values[index];
 				node._next = new Traversable(keyValuePair, values.Length - index - 1);
-				node.HasValue = true;
+				node._next.HasValue = true;
 				node = node._next;
 			}
 		}

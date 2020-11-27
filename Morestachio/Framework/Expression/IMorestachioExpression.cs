@@ -31,9 +31,17 @@ namespace Morestachio.Framework.Expression
 		ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData);
 
 		/// <summary>
+		///		Compiles the Expression for later faster execution
+		/// </summary>
+		/// <returns></returns>
+		CompiledExpression Compile();
+
+		/// <summary>
 		///		Visits this Expression
 		/// </summary>
 		/// <param name="visitor"></param>
 		void Accept(IMorestachioExpressionVisitor visitor);
 	}
+
+	public delegate ContextObjectPromise CompiledExpression(ContextObject contextObject, ScopeData scopeData);
 }

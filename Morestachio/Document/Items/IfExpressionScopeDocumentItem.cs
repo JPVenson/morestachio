@@ -48,9 +48,10 @@ namespace Morestachio.Document.Items
 		public Compilation Compile()
 		{
 			var children = MorestachioDocument.CompileItemsAndChildren(Children);
+			var expression = MorestachioExpression.Compile();
 			return async (stream, context, scopeData) =>
 			{
-				var c = await MorestachioExpression.GetValue(context, scopeData);
+				var c = await expression(context, scopeData);
 				if (c.Exists())
 				{
 					await children(stream, context.IsNaturalContext || context.Parent == null ? context : context.Parent,

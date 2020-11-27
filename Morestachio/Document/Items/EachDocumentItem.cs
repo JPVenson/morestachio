@@ -42,45 +42,46 @@ namespace Morestachio.Document.Items
 		public EachDocumentItem(CharacterLocation location, IMorestachioExpression value) : base(location, value)
 		{
 		}
-		
+
 		/// <inheritdoc />
 		[UsedImplicitly]
 		protected EachDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}
-		
+
 		/// <inheritdoc />
 		public Compilation Compile()
 		{
 			var children = MorestachioDocument.CompileItemsAndChildren(Children);
+			var expression = MorestachioExpression.Compile();
 
 			return async (outputStream, context, scopeData) =>
 			{
-				await CoreAction(outputStream, context, scopeData,
+				await CoreAction(outputStream, await expression(context, scopeData), scopeData,
 					async o => { await children(outputStream, o, scopeData); });
 			};
 		}
-		
+
 		/// <exception cref="IndexedParseException"></exception>
 		/// <inheritdoc />
 		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
 			var contexts = new List<DocumentItemExecution>();
-			await CoreAction(outputStream, context, scopeData, async itemContext =>
+			await CoreAction(outputStream,
+				await MorestachioExpression.GetValue(context, scopeData)
+				, scopeData, async itemContext =>
 			{
 				contexts.AddRange(Children.WithScope(itemContext));
 			});
 			return contexts;
 		}
-		
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private async Promise CoreAction(IByteCounterStream outputStream,
-			ContextObject context,
+			ContextObject c,
 			ScopeData scopeData,
 			Func<ContextObject, Promise> onItem)
 		{
-			var c = await MorestachioExpression.GetValue(context, scopeData);
-
 			if (!c.Exists())
 			{
 				return;
@@ -89,7 +90,7 @@ namespace Morestachio.Document.Items
 			if (!(c.Value is IEnumerable value) || value is string || value is IDictionary<string, object>)
 			{
 				var path = new Stack<string>();
-				var parent = context.Parent;
+				var parent = c.Parent;
 				while (parent != null)
 				{
 					path.Push(parent.Key);
@@ -103,7 +104,7 @@ namespace Morestachio.Document.Items
 						MorestachioExpression, ExpressionStart,
 						(path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 			}
-			
+
 			//Use this "lookahead" enumeration to allow the $last keyword
 			var index = 0;
 			var enumerator = value.GetEnumerator();
@@ -118,12 +119,12 @@ namespace Morestachio.Document.Items
 				var next = enumerator.MoveNext() ? enumerator.Current : null;
 
 				var innerContext =
-					new ContextCollection(index, next == null, context.Options, $"[{index}]", c, current)
+					new ContextCollection(index, next == null, c.Options, $"[{index}]", c, current)
 						.MakeNatural();
 				await onItem(innerContext);
 				index++;
 				current = next;
-			} while (current != null && ContinueBuilding(outputStream, context));
+			} while (current != null && ContinueBuilding(outputStream, c));
 		}
 
 		/// <inheritdoc />

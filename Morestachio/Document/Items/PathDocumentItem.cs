@@ -83,10 +83,11 @@ namespace Morestachio.Document.Items
 		public Compilation Compile()
 		{
 			var children = MorestachioDocument.CompileItemsAndChildren(Children);
+			var expression = MorestachioExpression.Compile();
 			return async (outputStream, context, scopeData) =>
 			{
 				//try to locate the value in the context, if it exists, append it.
-				var contextObject = context != null ? (await MorestachioExpression.GetValue(context, scopeData)) : null;
+				var contextObject = context != null ? (await expression(context, scopeData)) : null;
 				if (contextObject != null)
 				{
 					//await contextObject.EnsureValue();

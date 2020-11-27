@@ -13,6 +13,7 @@ using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.StringParts;
 using Morestachio.Framework.Expression.Visitors;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Helper;
 using Morestachio.Parsing.ParserErrors;
 #if ValueTask
 using ContextObjectPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.Context.ContextObject>;
@@ -125,6 +126,15 @@ namespace Morestachio.Framework.Expression
 			return contextObject.Options.CreateContextObject(".", contextObject.CancellationToken,
 				string.Join("", StringParts.Select(f => f.PartText)),
 				contextObject);
+		}
+
+		public CompiledExpression Compile()
+		{
+			var str = string.Join("", StringParts.Select(f => f.PartText));
+			return (contextObject, data) => contextObject.Options.CreateContextObject(".",
+				contextObject.CancellationToken,
+				str,
+				contextObject).ToPromise();
 		}
 
 		/// <summary>

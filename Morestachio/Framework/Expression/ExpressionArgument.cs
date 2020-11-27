@@ -58,6 +58,12 @@ namespace Morestachio.Framework.Expression
 		public IMorestachioExpression MorestachioExpression { get; set; }
 
 		/// <inheritdoc />
+		public CompiledExpression Compile()
+		{
+			return MorestachioExpression.Compile();
+		}
+
+		/// <inheritdoc />
 		public bool Equals(ExpressionArgument other)
 		{
 			if (ReferenceEquals(null, other))

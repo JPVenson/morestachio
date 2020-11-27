@@ -75,6 +75,20 @@ namespace Morestachio.Framework.Expression
 			return contextObject;
 		}
 
+		public CompiledExpression Compile()
+		{
+			var exps = Expressions.Select(f => f.Compile()).ToArray();
+			return async (contextObject, data) =>
+			{
+				foreach (var compiledExpression in exps)
+				{
+					contextObject = await compiledExpression(contextObject, data);
+				}
+
+				return contextObject;
+			};
+		}
+
 		/// <inheritdoc />
 		public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
 		{

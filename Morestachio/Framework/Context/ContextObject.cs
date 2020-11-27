@@ -116,7 +116,7 @@ namespace Morestachio.Framework.Context
 		///     Gets a value indicating whether this instance is natural context.
 		///     A Natural context is a context outside an Isolated scope
 		/// </summary>
-		public bool IsNaturalContext { get; protected set; }
+		public bool IsNaturalContext { get; protected internal set; }
 
 		/// <summary>
 		///     The set of allowed types that may be printed. Complex types (such as arrays and dictionaries)
@@ -254,51 +254,18 @@ namespace Morestachio.Framework.Context
 			}
 
 			var type = Value?.GetType();
-
 			if (elements.Current.Value == PathType.RootSelector) //go the root object
 			{
-				var parent = Parent ?? this;
-				var lastParent = parent;
-				while (parent != null)
-				{
-					parent = parent.Parent;
-					if (parent != null)
-					{
-						lastParent = parent;
-					}
-				}
-
-				if (lastParent != null)
-				{
-					retval = await lastParent.GetContextForPathInternal(elements.Next(), scopeData,
-						morestachioExpression);
-				}
+				return ExecuteRootSelector() ?? this;
 			}
 			else if (elements.Current.Value == PathType.ParentSelector) //go one level up
 			{
 				if (Parent != null)
 				{
-					var parent = FindNextNaturalContextObject();
-					ContextObject parentsRetVal = null;
-					if (parent != null && parent.Parent != null)
-					{
-						parentsRetVal = await parent.Parent
-							.GetContextForPathInternal(elements.Next(), scopeData, morestachioExpression);
-					}
+					return FindNextNaturalContextObject()?.Parent ?? this.Parent ?? this;
+				}
 
-					if (parentsRetVal != null)
-					{
-						retval = parentsRetVal;
-					}
-					else
-					{
-						retval = await GetContextForPathInternal(elements.Next(), scopeData, morestachioExpression);
-					}
-				}
-				else
-				{
-					retval = await GetContextForPathInternal(elements.Next(), scopeData, morestachioExpression);
-				}
+				return this;
 			}
 			else if (elements.Current.Value == PathType.ObjectSelector) 
 				//enumerate ether an IDictionary, an cs object or an IEnumerable to a KeyValuePair array
@@ -310,35 +277,7 @@ namespace Morestachio.Framework.Context
 				}
 
 				//ALWAYS return the context, even if the value is null.
-				ContextObject innerContext = null;
-				if (!Options.HandleDictionaryAsObject && Value is IDictionary<string, object> dictList)
-				{
-					innerContext = Options.CreateContextObject(elements.Current.Key, CancellationToken,
-						dictList.Select(e => e), this);
-				}
-				else
-				{
-					if (Value != null)
-					{
-						innerContext = Options.CreateContextObject(elements.Current.Key, CancellationToken,
-							type
-								.GetTypeInfo()
-								.GetProperties(BindingFlags.Instance | BindingFlags.Public)
-								.Where(e => !e.IsSpecialName && !e.GetIndexParameters().Any())
-								.Select(e => new KeyValuePair<string, object>(e.Name, e.GetValue(Value))),
-							this);
-					}
-				}
-
-				if (innerContext != null)
-				{
-					retval = await innerContext.GetContextForPathInternal(elements.Next(), scopeData,
-						morestachioExpression) ?? this;
-				}
-				else
-				{
-					retval = this;
-				}
+				return ExecuteObjectSelector(elements.Current.Key, type);
 			}
 			else if (elements.Current.Value == PathType.Boolean)
 			{
@@ -347,9 +286,10 @@ namespace Morestachio.Framework.Context
 					var booleanContext =
 						Options.CreateContextObject(".", CancellationToken, elements.Current.Key == "true", this);
 					booleanContext.IsNaturalContext = IsNaturalContext;
-					return await booleanContext.GetContextForPathInternal(elements.Next(), scopeData,
-						morestachioExpression);
+					return booleanContext;
 				}
+
+				return this;
 			}
 			else if (elements.Current.Value == PathType.Null)
 			{
@@ -357,79 +297,124 @@ namespace Morestachio.Framework.Context
 			}
 			else if (elements.Current.Value == PathType.DataPath)
 			{
-				//await EnsureValue();
-				if (Value is null)
-				{
-					return Options.CreateContextObject("x:null", CancellationToken, null);
-				}
-				//TODO: handle array accessors and maybe "special" keys.
-				//ALWAYS return the context, even if the value is null.
+				return ExecuteDataPath(elements.Current.Key, morestachioExpression, type);
+			}
 
-				var innerContext = Options.CreateContextObject(elements.Current.Key, CancellationToken, null, this);
-				if (Options.ValueResolver?.CanResolve(type, Value, elements.Current.Key, innerContext) == true)
-				{
-					innerContext._value = Options.ValueResolver.Resolve(type, Value, elements.Current.Key, innerContext);
-				}
-				else if (!Options.HandleDictionaryAsObject && Value is IDictionary<string, object> ctx)
-				{
-					if (!ctx.TryGetValue(elements.Current.Key, out var o))
-					{
-						Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
-							elements.Current.Key, Value?.GetType()));
-					}
+			return retval;
+		}
 
-					innerContext._value = o;
-				}
-				else if (Value is IMorestachioPropertyResolver cResolver)
+		internal ContextObject ExecuteObjectSelector(string key, Type type)
+		{
+			ContextObject innerContext = null;
+			if (!Options.HandleDictionaryAsObject && Value is IDictionary<string, object> dictList)
+			{
+				innerContext = Options.CreateContextObject(key, CancellationToken,
+					dictList.Select(e => e), this);
+			}
+			else
+			{
+				if (Value != null)
 				{
-					if (!cResolver.TryGetValue(elements.Current.Key, out var o))
-					{
-						Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
-							elements.Current.Key, Value?.GetType()));
-					}
+					innerContext = Options.CreateContextObject(key, CancellationToken,
+						type
+							.GetTypeInfo()
+							.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+							.Where(e => !e.IsSpecialName && !e.GetIndexParameters().Any())
+							.Select(e => new KeyValuePair<string, object>(e.Name, e.GetValue(Value))),
+						this);
+				}
+			}
 
-					innerContext._value = o;
-				}
-				else if (Value != null)
+			return innerContext ?? this;
+		}
+
+		internal ContextObject ExecuteDataPath(string key, IMorestachioExpression morestachioExpression, Type type)
+		{
+			//await EnsureValue();
+			if (Value is null)
+			{
+				return Options.CreateContextObject("x:null", CancellationToken, null);
+			}
+			//TODO: handle array accessors and maybe "special" keys.
+			//ALWAYS return the context, even if the value is null.
+
+			var innerContext = Options.CreateContextObject(key, CancellationToken, null, this);
+			if (Options.ValueResolver?.CanResolve(type, Value, key, innerContext) == true)
+			{
+				innerContext._value = Options.ValueResolver.Resolve(type, Value, key, innerContext);
+			}
+			else if (!Options.HandleDictionaryAsObject && Value is IDictionary<string, object> ctx)
+			{
+				if (!ctx.TryGetValue(key, out var o))
 				{
-					if (Value is ICustomTypeDescriptor descriptor)
+					Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+						key, Value?.GetType()));
+				}
+
+				innerContext._value = o;
+			}
+			else if (Value is IMorestachioPropertyResolver cResolver)
+			{
+				if (!cResolver.TryGetValue(key, out var o))
+				{
+					Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+						key, Value?.GetType()));
+				}
+
+				innerContext._value = o;
+			}
+			else if (Value != null)
+			{
+				if (Value is ICustomTypeDescriptor descriptor)
+				{
+					var propertyDescriptor = descriptor.GetProperties().Find(key, false);
+					if (propertyDescriptor != null)
 					{
-						var propertyDescriptor = descriptor.GetProperties().Find(elements.Current.Key, false);
-						if (propertyDescriptor != null)
-						{
-							innerContext._value = propertyDescriptor.GetValue(Value);
-						}
-						else
-						{
-							Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
-								elements.Current.Key, Value?.GetType()));
-						}
+						innerContext._value = propertyDescriptor.GetValue(Value);
 					}
 					else
 					{
-						var propertyInfo = type.GetTypeInfo().GetProperty(elements.Current.Key);
-						if (propertyInfo != null)
-						{
-							innerContext._value = propertyInfo.GetValue(Value);
-						}
-						else
-						{
-							Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
-								elements.Current.Key, Value?.GetType()));
-						}
+						Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+							key, Value?.GetType()));
 					}
 				}
 				else
 				{
-					Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
-						elements.Current.Key, Value?.GetType()));
+					var propertyInfo = type.GetTypeInfo().GetProperty(key);
+					if (propertyInfo != null)
+					{
+						innerContext._value = propertyInfo.GetValue(Value);
+					}
+					else
+					{
+						Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+							key, Value?.GetType()));
+					}
 				}
-
-				retval = await innerContext.GetContextForPathInternal(elements.Next(), scopeData,
-					morestachioExpression);
+			}
+			else
+			{
+				Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+					key, Value?.GetType()));
 			}
 
-			return retval;
+			return innerContext;
+		}
+
+		internal ContextObject ExecuteRootSelector()
+		{
+			var parent = this.Parent ?? this;
+			var lastParent = parent;
+			while (parent != null)
+			{
+				parent = parent.Parent;
+				if (parent != null)
+				{
+					lastParent = parent;
+				}
+			}
+
+			return lastParent;
 		}
 
 		/// <summary>
@@ -451,17 +436,33 @@ namespace Morestachio.Framework.Context
 				return Options.CreateContextObject("x:null", CancellationToken, null);
 			}
 
+			var targetContext = this;
 			if (elements.Current.Value == PathType.DataPath)
 			{
 				var getFromAlias = scopeData.GetVariable(elements.Current.Key);
 				if (getFromAlias != null)
 				{
 					elements = elements.Next();
-					return await getFromAlias.GetContextForPathInternal(elements, scopeData, morestachioExpression);
+					targetContext = getFromAlias;
 				}
 			}
 
-			return await GetContextForPathInternal(elements, scopeData, morestachioExpression);
+			return await targetContext.LoopContextTraversable(elements, scopeData, morestachioExpression);
+			//return await targetContext.GetContextForPathInternal(elements, scopeData, morestachioExpression);
+		}
+
+		internal async ContextObjectPromise LoopContextTraversable(Traversable elements,
+			ScopeData scopeData,
+			IMorestachioExpression morestachioExpression)
+		{
+			ContextObject context = this;
+			while (elements != null && elements.HasValue)
+			{
+				context = await context.GetContextForPathInternal(elements, scopeData, morestachioExpression);
+				elements = elements.Next();
+			}
+
+			return context;
 		}
 
 		/// <summary>

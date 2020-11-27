@@ -44,7 +44,7 @@ namespace Morestachio.Framework.Expression
 		///		The right site of the operator
 		/// </summary>
 		public IMorestachioExpression RightExpression { get; set; }
-		
+
 
 		/// <summary>
 		/// 
@@ -195,7 +195,7 @@ namespace Morestachio.Framework.Expression
 				arguments = new FormatterArgumentType[0];
 			}
 
-			
+
 			var operatorFormatterName = "op_" + Operator.OperatorType;
 
 			if (Cache == null)
@@ -206,7 +206,7 @@ namespace Morestachio.Framework.Expression
 					arguments,
 					scopeData);
 			}
-			
+
 			if (Cache != null && !Equals(Cache.Value, default(FormatterCache)))
 			{
 				return contextObject.Options.CreateContextObject(".",
@@ -221,6 +221,45 @@ namespace Morestachio.Framework.Expression
 				contextObject.Parent);
 		}
 
+		public CompiledExpression Compile()
+		{
+			var left = LeftExpression.Compile();
+			var right = RightExpression?.Compile();
+
+			var operatorFormatterName = "op_" + Operator.OperatorType;
+			return async (contextObject, data) =>
+			{
+				var leftValue = await left(contextObject, data);
+				var arguments = right != null
+					? new FormatterArgumentType[]
+					{
+						new FormatterArgumentType(0, null, (await right(contextObject, data)).Value),
+					}
+					: new FormatterArgumentType[0];
+				if (Cache == null)
+				{
+					Cache = leftValue.PrepareFormatterCall(
+						leftValue.Value?.GetType() ?? typeof(object),
+						operatorFormatterName,
+						arguments,
+						data);
+				}
+
+				if (Cache != null && !Equals(Cache.Value, default(FormatterCache)))
+				{
+					return contextObject.Options.CreateContextObject(".",
+						contextObject.CancellationToken,
+						await contextObject.Options.Formatters.Execute(Cache.Value, leftValue.Value, arguments),
+						contextObject.Parent);
+				}
+
+				return contextObject.Options.CreateContextObject(".",
+					contextObject.CancellationToken,
+					null,
+					contextObject.Parent);
+			};
+		}
+
 		/// <inheritdoc />
 		public void Accept(IMorestachioExpressionVisitor visitor)
 		{
@@ -233,8 +272,8 @@ namespace Morestachio.Framework.Expression
 			var visitor = new DebuggerViewExpressionVisitor();
 			Accept(visitor);
 			return visitor.StringBuilder.ToString();
-		}	
-		
+		}
+
 		private class ExpressionDebuggerDisplay
 		{
 			private readonly MorestachioOperatorExpression _exp;
