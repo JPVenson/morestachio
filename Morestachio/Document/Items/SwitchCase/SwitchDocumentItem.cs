@@ -60,7 +60,7 @@ namespace Morestachio.Document.Items.SwitchCase
 				.Concat(Children.OfType<SwitchDefaultDocumentItem>())
 				.Select(e => new SwitchExecutionContainerDocumentItem()
 				{
-					Expression = (e as SwitchCaseDocumentItem)?.MorestachioExpression,
+					Expression = (contextObject, data) => (e as SwitchCaseDocumentItem)?.MorestachioExpression.GetValue(contextObject, data),
 					Document = e
 				}).ToArray();
 			
@@ -86,12 +86,13 @@ namespace Morestachio.Document.Items.SwitchCase
 			var children = Children.Select(e => new SwitchExecutionContainerCompiledAction()
 			{
 				Callback = MorestachioDocument.CompileItemsAndChildren(e.Children),
-				Expression = (e as SwitchCaseDocumentItem)?.MorestachioExpression
+				Expression = (e as SwitchCaseDocumentItem)?.MorestachioExpression.Compile()
 			}).ToArray();
+			var expression = MorestachioExpression.Compile();
 
 			return async (outputStream, context, scopeData) =>
 			{
-				var value = await MorestachioExpression.GetValue(context, scopeData);
+				var value = await expression(context, scopeData);
 				if (ScopeToValue)
 				{
 					context = value;
@@ -108,7 +109,7 @@ namespace Morestachio.Document.Items.SwitchCase
 
 		private class SwitchExecutionContainer
 		{
-			public IMorestachioExpression Expression { get; set; }
+			public CompiledExpression Expression { get; set; }
 		}
 
 		private class SwitchExecutionContainerCompiledAction : SwitchExecutionContainer
@@ -130,7 +131,7 @@ namespace Morestachio.Document.Items.SwitchCase
 			T matchingCase = null;
 			foreach (var switchCaseDocumentItem in containers.Where(e => e.Expression != null))
 			{
-				var contextObject = await switchCaseDocumentItem.Expression.GetValue(context, scopeData);
+				var contextObject = await switchCaseDocumentItem.Expression(context, scopeData);
 				if (Equals(contextObject.Value, context.Value))
 				{
 					matchingCase = switchCaseDocumentItem;
