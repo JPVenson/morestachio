@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 using Morestachio.Document;
@@ -190,9 +189,10 @@ namespace Morestachio.Framework.Expression
 		/// </summary>
 		public bool EndsWithDelimiter { get; private set; }
 
+		/// <inheritdoc />
 		public CompiledExpression Compile()
 		{
-			if (!PathParts.HasValue)
+			if (!PathParts.HasValue && Formats.Count == 0 && FormatterName == null)
 			{
 				return (contextObject, data) => contextObject.ToPromise();
 			}
@@ -206,7 +206,7 @@ namespace Morestachio.Framework.Expression
 			var pathQueue = new List<Func<ContextObject, ScopeData, IMorestachioExpression, ContextObjectPromise>>();
 			var pathParts = PathParts.ToArray();
 
-			if (pathParts.First().Value == PathType.DataPath)
+			if (pathParts.Length > 0 && pathParts.First().Value == PathType.DataPath)
 			{
 				var firstItem = pathParts.First();
 
@@ -270,21 +270,34 @@ namespace Morestachio.Framework.Expression
 							return booleanContext.ToPromise();
 						});
 						break;
+					case PathType.SelfAssignment:
+						pathQueue.Add((contextObject, scopeDate, expression) => contextObject.ToPromise());
+						break;
 					default:
 						throw new ArgumentOutOfRangeException();
 				}
 			}
 
-			var getContext = new Func<ContextObject, ScopeData, IMorestachioExpression, ContextObjectPromise>(
-				async (contextObject, data, expression) =>
-			{
-				foreach (var func in pathQueue)
-				{
-					contextObject = await func(contextObject, data, expression);
-				}
+			Func<ContextObject, ScopeData, IMorestachioExpression, ContextObjectPromise> getContext;
 
-				return contextObject;
-			});
+			if (pathQueue.Count != 0)
+			{
+				getContext = new Func<ContextObject, ScopeData, IMorestachioExpression, ContextObjectPromise>(
+					async (contextObject, data, expression) =>
+					{
+						foreach (var func in pathQueue)
+						{
+							contextObject = await func(contextObject, data, expression);
+						}
+
+						return contextObject;
+					});
+			}
+			else
+			{
+				getContext = (context, scopeData, expression) => context.ToPromise();
+			}
+
 
 			if (!Formats.Any() && FormatterName == null)
 			{

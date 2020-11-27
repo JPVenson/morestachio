@@ -9,22 +9,38 @@ using NUnit.Framework;
 
 namespace Morestachio.Tests
 {
-	[TestFixture]
+	[TestFixture(ParserOptionTypes.UseOnDemandCompile)]
+	[TestFixture(ParserOptionTypes.Precompile)]
+	[Parallelizable(ParallelScope.All)]
 	public class LinqTests
 	{
-		private async Task<TE> CreateAndExecute<TE, T>(string template, T data)
+		private readonly ParserOptionTypes _options;
+
+		private async Task<TE> CreateAndExecute<TE, T>(string template, T data, ParserOptionTypes opt)
 			where T : class, IEnumerable
 			where TE : class, IEnumerable
 		{
-			var parserOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
-			parserOptions.Formatters.AddFromType(typeof(DynamicLinq));
-			var document = (await Parser.ParseWithOptionsAsync(parserOptions));
-			document.CaptureVariables = true;
-			var andStringifyAsync = await document.CreateAsync(new Dictionary<string, object>()
+			IDictionary<string, object> variables = null;
+			var result = await ParserFixture.CreateAndParseWithOptions(template, new Dictionary<string, object>()
 			{
 				{ "data", data}
+			}, opt, options =>
+			{
+				options.Formatters.AddFromType(typeof(DynamicLinq));
+			}, info =>
+			{
+				info.CaptureVariables = true;
+			}, documentResult =>
+			{
+				variables = documentResult.CapturedVariables;
 			});
-			return andStringifyAsync.CapturedVariables["result"] as TE;
+
+			return variables["result"] as TE;
+		}
+
+		public LinqTests(ParserOptionTypes options)
+		{
+			_options = options;
 		}
 
 		[Test]
@@ -36,12 +52,12 @@ namespace Morestachio.Tests
 				"ACB",
 				"CBA"
 			};
-			var simple = await CreateAndExecute<IEnumerable<string>, IEnumerable<string>>("{{#var result = data.Where('it.StartsWith(\"A\")')}}", sl);
+			var simple = await CreateAndExecute<IEnumerable<string>, IEnumerable<string>>("{{#var result = data.Where('it.StartsWith(\"A\")')}}", sl, _options);
 			Assert.That(simple, Contains.Item("ABC"));
 			Assert.That(simple, Contains.Item("ACB"));
 			Assert.That(simple, Is.Not.Contain("CBA"));
 
-			var withArg = await CreateAndExecute<IEnumerable<string>, IEnumerable<string>>("{{#var result = data.Where('it.StartsWith(@0)', 'A')}}", sl);
+			var withArg = await CreateAndExecute<IEnumerable<string>, IEnumerable<string>>("{{#var result = data.Where('it.StartsWith(@0)', 'A')}}", sl, _options);
 			Assert.That(withArg, Contains.Item("ABC"));
 			Assert.That(withArg, Contains.Item("ACB"));
 			Assert.That(withArg, Is.Not.Contain("CBA"));
@@ -56,12 +72,12 @@ namespace Morestachio.Tests
 				"ACB",
 				"CBA"
 			};
-			var simple = await CreateAndExecute<IEnumerable<string>, IEnumerable<string>>("{{#var result = data.Select('it + \"Bla\"')}}", sl);
+			var simple = await CreateAndExecute<IEnumerable<string>, IEnumerable<string>>("{{#var result = data.Select('it + \"Bla\"')}}", sl, _options);
 			Assert.That(simple, Contains.Item("ABCBla"));
 			Assert.That(simple, Contains.Item("ACBBla"));
 			Assert.That(simple, Contains.Item("CBABla"));
 
-			var withArg = await CreateAndExecute<IEnumerable<string>, IEnumerable<string>>("{{#var result = data.Select('it + @0', 'Bla')}}", sl);
+			var withArg = await CreateAndExecute<IEnumerable<string>, IEnumerable<string>>("{{#var result = data.Select('it + @0', 'Bla')}}", sl, _options);
 			Assert.That(withArg, Contains.Item("ABCBla"));
 			Assert.That(withArg, Contains.Item("ACBBla"));
 			Assert.That(withArg, Contains.Item("CBABla"));

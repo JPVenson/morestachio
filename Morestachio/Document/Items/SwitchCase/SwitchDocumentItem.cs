@@ -58,10 +58,18 @@ namespace Morestachio.Document.Items.SwitchCase
 		{
 			var children = Children.OfType<SwitchCaseDocumentItem>().Cast<IDocumentItem>()
 				.Concat(Children.OfType<SwitchDefaultDocumentItem>())
-				.Select(e => new SwitchExecutionContainerDocumentItem()
+				.Select(e =>
 				{
-					Expression = (contextObject, data) => (e as SwitchCaseDocumentItem)?.MorestachioExpression.GetValue(contextObject, data),
-					Document = e
+					var item = new SwitchExecutionContainerDocumentItem()
+					{
+						Document = e
+					};
+					if (e is SwitchCaseDocumentItem switchCaseItem)
+					{
+						item.Expression = (contextObject, data) =>
+							switchCaseItem.MorestachioExpression.GetValue(contextObject, data);
+					}
+					return item;
 				}).ToArray();
 			
 			var value = await MorestachioExpression.GetValue(context, scopeData);

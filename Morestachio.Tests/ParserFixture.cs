@@ -33,7 +33,12 @@ namespace Morestachio.Tests
 	{
 		public static Encoding DefaultEncoding { get; set; } = new UnicodeEncoding(true, false, false);
 
-		public static async Task<string> CreateAndParseWithOptions(string template, object data, ParserOptionTypes opt, Action<ParserOptions> option = null)
+		public static async Task<string> CreateAndParseWithOptions(string template,
+			object data,
+			ParserOptionTypes opt,
+			Action<ParserOptions> option = null,
+			Action<MorestachioDocumentInfo> documentCallback = null,
+			Action<MorestachioDocumentResult> documentResultCallback = null)
 		{
 			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
 			option?.Invoke(parsingOptions);
@@ -42,10 +47,18 @@ namespace Morestachio.Tests
 			{
 				SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, document.Document);
 			}
+			documentCallback?.Invoke(document);
+			MorestachioDocumentResult docInfo = null;
+			if (documentResultCallback != null)
+			{
+				docInfo = await document.CreateAsync(data);
+				documentResultCallback(docInfo);
+			}
 
 			if (opt.HasFlag(ParserOptionTypes.UseOnDemandCompile))
 			{
-				return await document.CreateAndStringifyAsync(data);
+				docInfo = docInfo ?? await document.CreateAsync(data);
+				return docInfo.Stream.Stringify(true, DefaultEncoding);
 			}
 			if (opt.HasFlag(ParserOptionTypes.Precompile))
 			{
@@ -55,7 +68,7 @@ namespace Morestachio.Tests
 
 			return null;
 		}
-
+		
 		public static void TestLocationsInOrder(MorestachioDocumentInfo documentInfo)
 		{
 			var api = documentInfo
