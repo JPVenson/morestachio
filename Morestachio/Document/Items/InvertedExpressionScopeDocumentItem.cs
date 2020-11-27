@@ -54,7 +54,6 @@ namespace Morestachio.Document.Items
 				if (!c.Exists())
 				{
 					await children(stream, c, scopeData);
-					//return Children.WithScope(c);
 				}
 			};
 		}

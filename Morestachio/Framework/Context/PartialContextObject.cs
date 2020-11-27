@@ -17,10 +17,8 @@ namespace Morestachio.Framework.Context
 		}
 
 		/// <inheritdoc />
-		protected override ContextObject HandlePathContext(
-			Traversable elements,
-			KeyValuePair<string, PathType> currentElement,
-			IMorestachioExpression morestachioExpression, 
+		public override ContextObject HandlePathContext(KeyValuePair<string, PathType> currentElement,
+			IMorestachioExpression morestachioExpression,
 			ScopeData scopeData)
 		{
 			if (currentElement.Value != PathType.DataPath || !currentElement.Key.StartsWith("$"))

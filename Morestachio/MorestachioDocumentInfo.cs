@@ -179,7 +179,7 @@ namespace Morestachio
 
 				return new MorestachioDocumentResult(byteCounterStream.Stream,
 					profiler,
-					scopeData.Variables.ToDictionary(e => e.Key, e => scopeData.GetFromVariable(e.Value).Value));
+					scopeData.Variables.ToDictionary(e => e.Key, e => scopeData.GetFromVariable(null, e.Value)?.Value));
 			}
 		}
 

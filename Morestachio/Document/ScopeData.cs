@@ -24,6 +24,25 @@ namespace Morestachio.Document
 			Alias = new Dictionary<string, IDictionary<int, object>>();
 			Variables = new Dictionary<string, object>();
 			CustomData = new Dictionary<string, object>();
+
+			AddCollectionContextSpecialVariables();
+		}
+
+		private void AddCollectionContextSpecialVariables()
+		{
+			foreach (var keyValuePair in ContextCollection.GetVariables())
+			{
+				AddVariable(keyValuePair.Key, (data, context) =>
+				{
+					if (context is ContextCollection coll)
+					{
+						return context.Options.CreateContextObject(keyValuePair.Key, context.CancellationToken,
+							keyValuePair.Value(coll), context);
+					}
+
+					return null;
+				});
+			}
 		}
 
 		/// <summary>
@@ -31,10 +50,15 @@ namespace Morestachio.Document
 		/// </summary>
 		public IDictionary<string, IDocumentItem> Partials { get; private set; }
 
+		/// <summary>
+		///		List of all Partials that where added by using the compile method
+		/// </summary>
 		public IDictionary<string, Compilation> CompiledPartials { get; private set; }
 
 		///  <summary>
-		/// 		Adds a new variable or alias. An alias is bound to its scope and will be reset when the scoping <see cref="IDocumentItem"/> is closed. An Variable is global
+		/// 		Adds a new variable or alias. An alias is bound to its scope and will
+		/// be reset when the scoping <see cref="IDocumentItem"/> is closed.
+		/// An Variable is global when the <see cref="idVariableScope"/> is 0
 		///  </summary>
 		private void AddVariableInternal(string name, object value, int idVariableScope)
 		{
@@ -54,7 +78,7 @@ namespace Morestachio.Document
 			}
 		}
 
-		internal ContextObject GetFromVariable(object variableValue)
+		internal ContextObject GetFromVariable(ContextObject contextObject, object variableValue)
 		{
 			if (variableValue is ContextObject ctx)
 			{
@@ -65,21 +89,40 @@ namespace Morestachio.Document
 			{
 				return fnc(this);
 			}
+
+			if (variableValue is Func<ScopeData, ContextObject, ContextObject> fncC)
+			{
+				return fncC(this, contextObject);
+			}
 			throw new InvalidOperationException("Cannot evaluate the variable or factory: " + variableValue);
 		}
 
 		///  <summary>
-		/// 		Adds a new variable or alias. An alias is bound to its scope and will be reset when the scoping <see cref="IDocumentItem"/> is closed. An Variable is global
+		/// 		Adds a new variable or alias.
+		/// An alias is bound to its scope and will be reset when the scoping <see cref="IDocumentItem"/> is closed.
+		/// An Variable is global when the <see cref="idVariableScope"/> is 0
 		///  </summary>
-		public void AddVariable(string name, ContextObject value, int idVariableScope)
+		public void AddVariable(string name, ContextObject value, int idVariableScope = 0)
 		{
 			AddVariableInternal(name, value, idVariableScope);
 		}
 
 		///  <summary>
-		/// 		Adds a new variable or alias. An alias is bound to its scope and will be reset when the scoping <see cref="IDocumentItem"/> is closed. An Variable is global
+		/// 		Adds a new variable or alias.
+		/// An alias is bound to its scope and will be reset when the scoping <see cref="IDocumentItem"/> is closed.
+		/// An Variable is global when the <see cref="idVariableScope"/> is 0
 		///  </summary>
-		public void AddVariable(string name, Func<ScopeData, ContextObject> value, int idVariableScope)
+		public void AddVariable(string name, Func<ScopeData, ContextObject> value, int idVariableScope = 0)
+		{
+			AddVariableInternal(name, value, idVariableScope);
+		}
+
+		///  <summary>
+		/// 		Adds a new variable or alias.
+		/// An alias is bound to its scope and will be reset when the scoping <see cref="IDocumentItem"/> is closed.
+		/// An Variable is global when the <see cref="idVariableScope"/> is 0
+		///  </summary>
+		public void AddVariable(string name, Func<ScopeData, ContextObject, ContextObject> value, int idVariableScope = 0)
 		{
 			AddVariableInternal(name, value, idVariableScope);
 		}
@@ -97,21 +140,22 @@ namespace Morestachio.Document
 			}
 		}
 
-		/// <summary>
-		///		Gets the Variable with the given name
-		/// </summary>
-		/// <param name="name"></param>
-		/// <returns></returns>
-		public ContextObject GetVariable(string name)
+		///  <summary>
+		/// 		Gets the Variable with the given name
+		///  </summary>
+		///  <param name="contextObject"></param>
+		///  <param name="name"></param>
+		///  <returns></returns>
+		public ContextObject GetVariable(ContextObject contextObject, string name)
 		{
 			if (Alias.TryGetValue(name, out var stack) && stack.Count > 0)
 			{
-				return GetFromVariable(stack.LastOrDefault().Value).CloneForEdit();
+				return GetFromVariable(contextObject, stack.LastOrDefault().Value).CloneForEdit();
 			}
 
 			if (Variables.TryGetValue(name, out var value))
 			{
-				return GetFromVariable(value).CloneForEdit();
+				return GetFromVariable(contextObject, value).CloneForEdit();
 			}
 
 			return null;
@@ -148,11 +192,11 @@ namespace Morestachio.Document
 		/// <inheritdoc />
 		public void Dispose()
 		{
-			foreach (var disposable in CustomData.OfType<IDisposable>())
+			foreach (var disposable in CustomData.Values.OfType<IDisposable>())
 			{
 				disposable.Dispose();
 			}
-			foreach (var disposable in Variables.OfType<IDisposable>())
+			foreach (var disposable in Variables.Values.OfType<IDisposable>())
 			{
 				disposable.Dispose();
 			}

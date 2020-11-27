@@ -212,7 +212,7 @@ namespace Morestachio.Framework.Expression
 
 				pathQueue.Add((context, scopeData, expression) =>
 				{
-					var variable = scopeData.GetVariable(firstItem.Key);
+					var variable = scopeData.GetVariable(context, firstItem.Key);
 					if (variable != null)
 					{
 						return variable.ToPromise();
@@ -282,7 +282,7 @@ namespace Morestachio.Framework.Expression
 
 			if (pathQueue.Count != 0)
 			{
-				getContext = new Func<ContextObject, ScopeData, IMorestachioExpression, ContextObjectPromise>(
+				getContext =
 					async (contextObject, data, expression) =>
 					{
 						foreach (var func in pathQueue)
@@ -291,7 +291,7 @@ namespace Morestachio.Framework.Expression
 						}
 
 						return contextObject;
-					});
+					};
 			}
 			else
 			{
@@ -306,6 +306,7 @@ namespace Morestachio.Framework.Expression
 
 			var formatsCompiled = Formats.ToDictionary(f => f, f => f.Compile()).ToArray();
 
+			FormatterCache? cache = null;
 			return async (contextObject, scopeData) =>
 			{
 				var ctx = await getContext(contextObject, scopeData, this);
@@ -324,18 +325,18 @@ namespace Morestachio.Framework.Expression
 					arguments[index] = new FormatterArgumentType(index, formatterArgument.Key.Name, value?.Value);
 				}
 
-				if (Cache == null)
+				if (cache == null)
 				{
-					Cache = ctx.PrepareFormatterCall(
+					cache = ctx.PrepareFormatterCall(
 						ctx.Value?.GetType() ?? typeof(object),
 						FormatterName,
 						arguments,
 						scopeData);
 				}
 
-				if (Cache != null && !Equals(Cache.Value, default(FormatterCache)))
+				if (cache != null && !Equals(cache.Value, default(FormatterCache)))
 				{
-					ctx.Value = await contextObject.Options.Formatters.Execute(Cache.Value, ctx.Value, arguments);
+					ctx.Value = await contextObject.Options.Formatters.Execute(cache.Value, ctx.Value, arguments);
 					ctx.MakeSyntetic();
 				}
 

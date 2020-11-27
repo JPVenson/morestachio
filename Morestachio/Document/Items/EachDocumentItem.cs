@@ -54,25 +54,28 @@ namespace Morestachio.Document.Items
 		{
 			var children = MorestachioDocument.CompileItemsAndChildren(Children);
 			var expression = MorestachioExpression.Compile();
-
 			return async (outputStream, context, scopeData) =>
 			{
 				await CoreAction(outputStream, await expression(context, scopeData), scopeData,
-					async o => { await children(outputStream, o, scopeData); });
+					async o =>
+					{
+						await children(outputStream, o, scopeData);
+					});
 			};
 		}
 
 		/// <exception cref="IndexedParseException"></exception>
 		/// <inheritdoc />
-		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
+			ScopeData scopeData)
 		{
 			var contexts = new List<DocumentItemExecution>();
 			await CoreAction(outputStream,
 				await MorestachioExpression.GetValue(context, scopeData)
 				, scopeData, async itemContext =>
-			{
-				contexts.AddRange(Children.WithScope(itemContext));
-			});
+				{
+					contexts.AddRange(Children.WithScope(itemContext));
+				});
 			return contexts;
 		}
 
@@ -80,7 +83,7 @@ namespace Morestachio.Document.Items
 		private async Promise CoreAction(IByteCounterStream outputStream,
 			ContextObject c,
 			ScopeData scopeData,
-			Func<ContextObject, Promise> onItem)
+			Func<ContextCollection, Promise> onItem)
 		{
 			if (!c.Exists())
 			{
@@ -120,7 +123,7 @@ namespace Morestachio.Document.Items
 
 				var innerContext =
 					new ContextCollection(index, next == null, c.Options, $"[{index}]", c, current)
-						.MakeNatural();
+						.MakeNatural() as ContextCollection;
 				await onItem(innerContext);
 				index++;
 				current = next;

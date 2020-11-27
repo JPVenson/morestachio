@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Morestachio.Document;
 using Morestachio.Framework.Expression;
@@ -40,42 +41,45 @@ namespace Morestachio.Framework.Context
 		/// </summary>
 		public bool Last { get; internal set; }
 
-		/// <inheritdoc />
-		protected override ContextObject HandlePathContext(Traversable elements,
-			KeyValuePair<string, PathType> path,
-			IMorestachioExpression expression, ScopeData scopeData)
+		public static IEnumerable<KeyValuePair<string, Func<ContextCollection, object>>> GetVariables()
 		{
-			if (path.Value != PathType.DataPath || !path.Key.StartsWith("$"))
-			{
-				return null;
-			}
-			
-			object value = null;
-			if (path.Key.Equals("$first"))
-			{
-				value = Index == 0;
-			}
-			else if (path.Key.Equals("$index"))
-			{
-				value = Index;
-			}
-			else if (path.Key.Equals("$middel"))
-			{
-				value = Index != 0 && !Last;
-			}
-			else if (path.Key.Equals("$last"))
-			{
-				value = Last;
-			}
-			else if (path.Key.Equals("$odd"))
-			{
-				value = Index % 2 != 0;
-			}
-			else if (path.Key.Equals("$even"))
-			{
-				value = Index % 2 == 0;
-			}
-			return value == null ? null : Options.CreateContextObject(path.Key, CancellationToken, value, this);
+			yield return new KeyValuePair<string, Func<ContextCollection, object>>("$first", context => context.Index == 0);
+			yield return new KeyValuePair<string, Func<ContextCollection, object>>("$index", context => context.Index);
+			yield return new KeyValuePair<string, Func<ContextCollection, object>>("$middel", context => context.Index != 0 && !context.Last);
+			yield return new KeyValuePair<string, Func<ContextCollection, object>>("$last", context => context.Last);
+			yield return new KeyValuePair<string, Func<ContextCollection, object>>("$odd", context => context.Index % 2 != 0);
+			yield return new KeyValuePair<string, Func<ContextCollection, object>>("$even", context => context.Index % 2 == 0);
 		}
+
+		///// <inheritdoc />
+		//public override ContextObject GetContextVariable(string path)
+		//{
+		//	object value = null;
+		//	if (path.Equals("$first"))
+		//	{
+		//		value = Index == 0;
+		//	}
+		//	else if (path.Equals("$index"))
+		//	{
+		//		value = Index;
+		//	}
+		//	else if (path.Equals("$middel"))
+		//	{
+		//		value = Index != 0 && !Last;
+		//	}
+		//	else if (path.Equals("$last"))
+		//	{
+		//		value = Last;
+		//	}
+		//	else if (path.Equals("$odd"))
+		//	{
+		//		value = Index % 2 != 0;
+		//	}
+		//	else if (path.Equals("$even"))
+		//	{
+		//		value = Index % 2 == 0;
+		//	}
+		//	return value == null ? null : Options.CreateContextObject(path, CancellationToken, value, this);
+		//}
 	}
 }

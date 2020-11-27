@@ -229,8 +229,7 @@ namespace Morestachio.Framework.Context
 		///     <value>null</value>
 		/// </summary>
 		/// <returns></returns>
-		protected virtual ContextObject HandlePathContext(Traversable elements,
-			PathPartElement currentElement,
+		public virtual ContextObject HandlePathContext(PathPartElement currentElement,
 			IMorestachioExpression morestachioExpression, ScopeData scopeData)
 		{
 			return null;
@@ -247,7 +246,7 @@ namespace Morestachio.Framework.Context
 				return retval;
 			}
 
-			var preHandeld = HandlePathContext(elements, elements.Current, morestachioExpression, scopeData);
+			var preHandeld = HandlePathContext(elements.Current, morestachioExpression, scopeData);
 			if (preHandeld != null)
 			{
 				return preHandeld;
@@ -416,6 +415,16 @@ namespace Morestachio.Framework.Context
 
 			return lastParent;
 		}
+		
+		/// <summary>
+		///		Returns a variable that is only present in this context but not below it
+		/// </summary>
+		/// <param name="path"></param>
+		/// <returns></returns>
+		public virtual ContextObject GetContextVariable(string path)
+		{
+			return null;
+		}
 
 		/// <summary>
 		///     Will walk the path by using the path seperator "." and evaluate the object at the end
@@ -439,7 +448,7 @@ namespace Morestachio.Framework.Context
 			var targetContext = this;
 			if (elements.Current.Value == PathType.DataPath)
 			{
-				var getFromAlias = scopeData.GetVariable(elements.Current.Key);
+				var getFromAlias = scopeData.GetVariable(targetContext, elements.Current.Key);
 				if (getFromAlias != null)
 				{
 					elements = elements.Next();
