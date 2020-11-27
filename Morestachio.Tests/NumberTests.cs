@@ -5,10 +5,18 @@ using NUnit.Framework;
 
 namespace Morestachio.Tests
 {
-	[TestFixture]
+	[TestFixture(ParserOptionTypes.UseOnDemandCompile)]
+	[TestFixture(ParserOptionTypes.Precompile)]
 	[Parallelizable(ParallelScope.All)]
 	public class NumberTests
 	{
+		private readonly ParserOptionTypes _options;
+
+		public NumberTests(ParserOptionTypes options)
+		{
+			_options = options;
+		}
+
 		[Test]
 		//default cs number test: int
 		[TestCase("-1", -1)]
@@ -148,8 +156,7 @@ namespace Morestachio.Tests
 			{
 				data = realData
 			};
-			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
-			var result = await Parser.ParseWithOptions(parsingOptions).CreateAndStringifyAsync(data);
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
 			Assert.That(result, Is.EqualTo(expected));
 		}
 
@@ -201,8 +208,7 @@ namespace Morestachio.Tests
 				data = realData,
 				templateData = templateData
 			};
-			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
-			var result = await Parser.ParseWithOptions(parsingOptions).CreateAndStringifyAsync(data);
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
 			Assert.That(result, Is.EqualTo(expected.ToString()));
 		}
 		

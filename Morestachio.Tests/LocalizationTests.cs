@@ -10,7 +10,7 @@ namespace Morestachio.Tests
 {
 	[TestFixture(ParserOptionTypes.UseOnDemandCompile)]
 	[TestFixture(ParserOptionTypes.Precompile)]
-	[Parallelizable(ParallelScope.All)]
+	//[Parallelizable(ParallelScope.All)]
 	public class LocalizationTests
 	{
 		private readonly ParserOptionTypes _options;

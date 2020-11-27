@@ -1,16 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Morestachio.Formatter.Framework;
 using Morestachio.Linq;
 using NUnit.Framework;
 
 namespace Morestachio.Tests
 {
-	[TestFixture]
+	[TestFixture(ParserOptionTypes.UseOnDemandCompile)]
+	[TestFixture(ParserOptionTypes.Precompile)]
 	[Parallelizable(ParallelScope.All)]
 	public class ParserCollectionFixture
 	{
+		private readonly ParserOptionTypes _options;
+
+		public ParserCollectionFixture(ParserOptionTypes options)
+		{
+			_options = options;
+		}
+
 		public class EveryObjectTest
 		{
 			public string TestA { get; set; }
@@ -19,42 +28,44 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
-		public void TestEveryKeywordOnObject()
+		public async Task TestEveryKeywordOnObject()
 		{
-			var options = new ParserOptions("{{#each ?}}{{Key}}:\"{{Value}}\"{{^$last}},{{/$last}}{{/each}}", null,
-				ParserFixture.DefaultEncoding);
-			var andStringify = Parser.ParseWithOptions(options).CreateAndStringify(new EveryObjectTest()
+			var template = "{{#each ?}}{{Key}}:\"{{Value}}\"{{^$last}},{{/$last}}{{/each}}";
+			var data = new EveryObjectTest()
 			{
 				TestA = "Du",
 				TestB = "Hast"
-			});
-			Assert.That(andStringify, Is.EqualTo($"{nameof(EveryObjectTest.TestA)}:\"Du\"," +
-												 $"{nameof(EveryObjectTest.TestB)}:\"Hast\"," +
-												 $"{nameof(EveryObjectTest.ObjectTest)}:\"\""));
+			};
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
+			Assert.That(result, Is.EqualTo($"{nameof(EveryObjectTest.TestA)}:\"Du\"," +
+			                               $"{nameof(EveryObjectTest.TestB)}:\"Hast\"," +
+			                               $"{nameof(EveryObjectTest.ObjectTest)}:\"\""));
 		}
 
 		[Test]
-		public void TestEveryKeywordOnDictionary()
+		public async Task TestEveryKeywordOnDictionary()
 		{
-			var options = new ParserOptions("{{#each ?}}{{Key}}:\"{{Value}}\"{{^$last}},{{/$last}}{{/each}}", null,
-				ParserFixture.DefaultEncoding);
-			var andStringify = Parser.ParseWithOptions(options).CreateAndStringify(new Dictionary<string, object>()
+			
+			var template = "{{#each ?}}{{Key}}:\"{{Value}}\"{{^$last}},{{/$last}}{{/each}}";
+			var data = new Dictionary<string, object>()
 			{
 				{nameof(EveryObjectTest.TestA), "Du"},
 				{nameof(EveryObjectTest.TestB), "Hast"},
 				{nameof(EveryObjectTest.ObjectTest), null},
-			});
-			Assert.That(andStringify, Is.EqualTo($"{nameof(EveryObjectTest.TestA)}:\"Du\"," +
-												 $"{nameof(EveryObjectTest.TestB)}:\"Hast\"," +
-												 $"{nameof(EveryObjectTest.ObjectTest)}:\"\""));
+			};
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
+			Assert.That(result, Is.EqualTo($"{nameof(EveryObjectTest.TestA)}:\"Du\"," +
+			                               $"{nameof(EveryObjectTest.TestB)}:\"Hast\"," +
+			                               $"{nameof(EveryObjectTest.ObjectTest)}:\"\""));
 		}
 
 		[Test]
-		public void TestEveryKeywordOnComplexPathDictionary()
+		public async Task TestEveryKeywordOnComplexPathDictionary()
 		{
-			var options = new ParserOptions("{{#each Data.?}}{{Key}}:\"{{Value}}\"{{^$last}},{{/$last}}{{/each}}", null,
-				ParserFixture.DefaultEncoding);
-			var andStringify = Parser.ParseWithOptions(options).CreateAndStringify(new Dictionary<string, object>()
+			var template = "{{#each Data.?}}{{Key}}:\"{{Value}}\"{{^$last}},{{/$last}}{{/each}}";
+			var data = new Dictionary<string, object>()
 			{
 				{
 					"Data", new Dictionary<string, object>()
@@ -64,69 +75,79 @@ namespace Morestachio.Tests
 						{nameof(EveryObjectTest.ObjectTest), null},
 					}
 				}
-			});
-			Assert.That(andStringify, Is.EqualTo($"{nameof(EveryObjectTest.TestA)}:\"Du\"," +
-												 $"{nameof(EveryObjectTest.TestB)}:\"Hast\"," +
-												 $"{nameof(EveryObjectTest.ObjectTest)}:\"\""));
+			};
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
+			Assert.That(result, Is.EqualTo($"{nameof(EveryObjectTest.TestA)}:\"Du\"," +
+			                               $"{nameof(EveryObjectTest.TestB)}:\"Hast\"," +
+			                               $"{nameof(EveryObjectTest.ObjectTest)}:\"\""));
 		}
 
 		[Test]
-		public void TestCollectionSpecialKeyFormatting()
+		public async Task TestCollectionSpecialKeyFormatting()
 		{
-			var options = new ParserOptions("{{#each data}}{{$index.PlusOne()}},{{/each}}", null,
-				ParserFixture.DefaultEncoding);
+			var template = "{{#each data}}{{$index.PlusOne()}},{{/each}}";
 			var collection = new[] { 10, 11, 12, 14 };
-			options.Formatters.AddSingle(new Func<long, long>((value) => value + 1), "PlusOne");
-
-			var report = Parser.ParseWithOptions(options).CreateAndStringify(new Dictionary<string, object>
+			var data = new Dictionary<string, object>
 			{
 				{
 					"data", collection
 				}
+			};
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.Formatters.AddSingle(new Func<long, long>((value) => value + 1), "PlusOne");
 			});
-			Assert.That(report,
+
+			Assert.That(result,
 				Is.EqualTo(Enumerable.Range(1, collection.Length).Select(e => e.ToString()).Aggregate((e, f) => e + "," + f) + ","));
-			Console.WriteLine(report);
 		}
 
 		[Test]
-		public void TestCollectionFormatting()
+		public async Task TestCollectionFormatting()
 		{
-			var options = new ParserOptions("{{#each data.OrderBy()}}{{.}},{{/each}}", null,
-				ParserFixture.DefaultEncoding);
+			var template = "{{#each data.OrderBy()}}{{.}},{{/each}}";
 			var collection = new[] { 0, 1, 2, 3, 5, 4, 6, 7 };
-			options.Formatters.AddFromType(typeof(DynamicLinq));
-			var report = Parser.ParseWithOptions(options).CreateAndStringify(new Dictionary<string, object>
+			var data = new Dictionary<string, object>
 			{
 				{
 					"data", collection
 				}
+			};
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.Formatters.AddFromType(typeof(DynamicLinq));
 			});
-			Assert.That(report,
+
+			Assert.That(result,
 				Is.EqualTo(collection.OrderBy(e => e).Select(e => e.ToString()).Aggregate((e, f) => e + "," + f) + ","));
-			Console.WriteLine(report);
 		}
 
 		[Test]
-		public void TestCollectionFormattingScope()
+		public async Task TestCollectionFormattingScope()
 		{
-			var options = new ParserOptions("{{#each data.OrderBy()}}{{.}},{{/each}}|{{#each data}}{{.}},{{/each}}", null,
-				ParserFixture.DefaultEncoding);
+
+
+			var template = "{{#each data.OrderBy()}}{{.}},{{/each}}|{{#each data}}{{.}},{{/each}}";
 			var collection = new[] { 0, 1, 2, 3, 5, 4, 6, 7 };
-			options.Formatters.AddFromType(typeof(DynamicLinq));
-			var report = Parser.ParseWithOptions(options).CreateAndStringify(new Dictionary<string, object>
+			var data = new Dictionary<string, object>
 			{
 				{
 					"data", collection
 				}
-			});
+			};
 
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.Formatters.AddFromType(typeof(DynamicLinq));
+			});
+			
 			var resultLeftExpressionOrdered =
 				collection.OrderBy(e => e).Select(e => e.ToString()).Aggregate((e, f) => e + "," + f) + ",";
 			var resultRightExpression = collection.Select(e => e.ToString()).Aggregate((e, f) => e + "," + f) + ",";
-
-			Assert.That(report, Is.EqualTo(resultLeftExpressionOrdered + "|" + resultRightExpression));
-			Console.WriteLine(report);
+			Assert.That(result, Is.EqualTo(resultLeftExpressionOrdered + "|" + resultRightExpression));
 		}
 	}
 }
