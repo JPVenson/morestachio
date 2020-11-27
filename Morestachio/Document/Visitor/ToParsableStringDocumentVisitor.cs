@@ -224,7 +224,13 @@ namespace Morestachio.Document.Visitor
 		/// <inheritdoc />
 		public void Visit(ExpressionScopeDocumentItem documentItem)
 		{
-			StringBuilder.Append("{{#");
+			VisitExpressionScope(documentItem, '#');
+		}
+
+		private void VisitExpressionScope(ExpressionDocumentItemBase documentItem, char prefix)
+		{
+			StringBuilder.Append("{{");
+			StringBuilder.Append(prefix);
 			StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
 			var children = documentItem.Children.ToList();
 			var aliasDocumentItem = children.FirstOrDefault() as AliasDocumentItem;
@@ -268,7 +274,7 @@ namespace Morestachio.Document.Visitor
 		/// <inheritdoc />
 		public void Visit(InvertedExpressionScopeDocumentItem documentItem)
 		{
-			Visit(documentItem, "", "^");
+			VisitExpressionScope(documentItem, '^');
 		}
 
 		public void Visit(SwitchDocumentItem documentItem)
