@@ -27,10 +27,18 @@ using ExpressionParser = Morestachio.Framework.Expression.ExpressionParser;
 
 namespace Morestachio.Tests
 {
-	[TestFixture]
+	[TestFixture(ParserOptionTypes.UseOnDemandCompile)]
+	[TestFixture(ParserOptionTypes.Precompile)]
 	[Parallelizable(ParallelScope.All)]
 	public class ParserFixture
 	{
+		private readonly ParserOptionTypes _options;
+
+		public ParserFixture(ParserOptionTypes options)
+		{
+			_options = options;
+		}
+
 		public static Encoding DefaultEncoding { get; set; } = new UnicodeEncoding(true, false, false);
 
 		public static async Task<string> CreateAndParseWithOptions(string template,
@@ -38,14 +46,16 @@ namespace Morestachio.Tests
 			ParserOptionTypes opt,
 			Action<ParserOptions> option = null,
 			Action<MorestachioDocumentInfo> documentCallback = null,
-			Action<MorestachioDocumentResult> documentResultCallback = null)
+			Action<MorestachioDocumentResult> documentResultCallback = null,
+			CancellationTokenSource cancellationTokenSource = null)
 		{
 			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
 			option?.Invoke(parsingOptions);
 			var document = await Parser.ParseWithOptionsAsync(parsingOptions);
 			if (!opt.HasFlag(ParserOptionTypes.NoRerenderingTest))
 			{
-				SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, document.Document);
+				SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, document.Document, parsingOptions);
+				TestLocationsInOrder(document);
 			}
 			documentCallback?.Invoke(document);
 			MorestachioDocumentResult docInfo = null;
@@ -55,27 +65,29 @@ namespace Morestachio.Tests
 				documentResultCallback(docInfo);
 			}
 
+			var cToken = cancellationTokenSource?.Token ?? CancellationToken.None;
+
 			if (opt.HasFlag(ParserOptionTypes.UseOnDemandCompile))
 			{
-				docInfo = docInfo ?? await document.CreateAsync(data);
+				docInfo = docInfo ?? await document.CreateAsync(data, cToken);
 				return docInfo.Stream.Stringify(true, DefaultEncoding);
 			}
 			if (opt.HasFlag(ParserOptionTypes.Precompile))
 			{
 				var compilation = document.Compile();
-				return (await compilation(data, CancellationToken.None)).Stream.Stringify(true, parsingOptions.Encoding);
+				return (await compilation(data, cToken)).Stream.Stringify(true, parsingOptions.Encoding);
 			}
 
 			return null;
 		}
-		
+
 		public static void TestLocationsInOrder(MorestachioDocumentInfo documentInfo)
 		{
 			var api = documentInfo
 				.Fluent()
 				.SearchForward(f => !(f is MorestachioDocument), false);
 			var lastLocation = new CharacterLocation(0, -1);
-			var visitor = new ToParsableStringDocumentVisitor();
+			var visitor = new ToParsableStringDocumentVisitor(documentInfo.ParserOptions);
 
 			while (api.Context.OperationStatus)
 			{
@@ -324,24 +336,22 @@ namespace Morestachio.Tests
 			Assert.That(visitor.StringBuilder.ToString(), Is.EqualTo(query));
 			Assert.That(context.Errors, Is.Empty, () => context.Errors.GetErrorText());
 
-			var parsingOptions = new ParserOptions("{{" + query + "}}", null,
-				DefaultEncoding);
-			parsingOptions.Formatters.AddSingleGlobal<object, object>(f =>
-			{
-				return f;
-			}, "Self");
 
-			var results = Parser.ParseWithOptions(parsingOptions);
-			var dict = new Dictionary<string, object>();
+			var template = "{{" + query + "}}";
+			var data = new Dictionary<string, object>();
 			for (var index = 0; index < args.Length; index++)
 			{
 				var arg = args[index];
-				dict.Add(((char)('A' + index)).ToString(), arg);
+				data.Add(((char)('A' + index)).ToString(), arg);
 			}
-			TestLocationsInOrder(results);
-
-			var andStringifyAsync = await results.CreateAndStringifyAsync(dict);
-			Assert.That(andStringifyAsync, Is.EqualTo((valExp).ToString()));
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.Formatters.AddSingleGlobal<object, object>(f =>
+				{
+					return f;
+				}, "Self");
+			});
+			Assert.That(result, Is.EqualTo((valExp).ToString()));
 		}
 
 		[Test]
@@ -350,214 +360,197 @@ namespace Morestachio.Tests
 		[TestCase("f")]
 		[TestCase("F")]
 		[TestCase("dd,,MM,,YYY")]
-		public void ParserCanFormat(string dtFormat)
+		public async Task ParserCanFormat(string dtFormat)
 		{
-			var data = DateTime.UtcNow;
-			var results =
-				Parser.ParseWithOptions(new ParserOptions("{{data.(\"" + dtFormat + "\")}},{{data}}", null,
-					DefaultEncoding));
-			TestLocationsInOrder(results);
-			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
-			Assert.That(result, Is.EqualTo(data.ToString(dtFormat) + "," + data));
+			var template = "{{data.(\"" + dtFormat + "\")}},{{data}}";
+			var dataValue = DateTime.UtcNow;
+			var data = new Dictionary<string, object> { { "data", dataValue } };
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
+
+			Assert.That(result, Is.EqualTo(dataValue.ToString(dtFormat) + "," + dataValue));
 		}
 
 		[Test]
-		public void ParserCanVariableStaticExpression()
+		public async Task ParserCanVariableStaticExpression()
 		{
-			var parsingOptions = new ParserOptions("{{#var f = data}}|{{f}}", null,
-				DefaultEncoding);
-			var results =
-				Parser.ParseWithOptions(parsingOptions);
-			TestLocationsInOrder(results);
-			var result = results.CreateAndStringify(new Dictionary<string, object>
+			var template = "{{#var f = data}}|{{f}}";
+			var data = new Dictionary<string, object>
 			{
 				{ "data", "test" },
-			});
+			};
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
 			Assert.That(result, Is.EqualTo("|test"));
 		}
 
 		[Test]
-		public void ParserCanVariableExpression()
+		public async Task ParserCanVariableExpression()
 		{
-			var parsingOptions = new ParserOptions("{{#var f = data.('G')}}|{{f}}", null,
-				DefaultEncoding);
-			var results =
-				Parser.ParseWithOptions(parsingOptions);
-			var date = DateTime.Now;
-			TestLocationsInOrder(results);
-			var result = results.CreateAndStringify(new Dictionary<string, object>
+			var template = "{{#var f = data.('G')}}|{{f}}";
+			var dataValue = DateTime.Now;
+			var data = new Dictionary<string, object>
 			{
-				{ "data", date },
-			});
-			Assert.That(result, Is.EqualTo("|" + date.ToString("G")));
+				{ "data", dataValue },
+			};
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
+			Assert.That(result, Is.EqualTo("|" + dataValue.ToString("G")));
 		}
 
 		[Test]
-		public void ParserCanVariableExpressionWithFormats()
+		public async Task ParserCanVariableExpressionWithFormats()
 		{
-			var parsingOptions = new ParserOptions("{{#VAR f = data.('G').PadLeft(123)}}|{{f}}", null,
-				DefaultEncoding);
-			parsingOptions.Formatters.AddSingle((string value, int nr) =>
+			var template = "{{#VAR f = data.('G').PadLeft(123)}}|{{f}}";
+			var dataValue = DateTime.Now;
+			var data = new Dictionary<string, object>
 			{
-				return value.PadLeft(nr);
-			}, "PadLeft");
-			var parsedTemplate =
-				Parser.ParseWithOptions(parsingOptions);
-			var date = DateTime.Now;
-			var result = parsedTemplate.CreateAndStringify(new Dictionary<string, object>
+				{ "data", dataValue },
+			};
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
 			{
-				{ "data", date },
+				options.Formatters.AddSingle((string value, int nr) =>
+				{
+					return value.PadLeft(nr);
+				}, "PadLeft");
 			});
-			TestLocationsInOrder(parsedTemplate);
-			Assert.That(result, Is.EqualTo("|" + date.ToString("G").PadLeft(123)));
-			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
+			Assert.That(result, Is.EqualTo("|" + dataValue.ToString("G").PadLeft(123)));
 		}
 
 		[Test]
-		public void ParserCanVariableSetToOtherVariable()
+		public async Task ParserCanVariableSetToOtherVariable()
 		{
-			var parsingOptions = new ParserOptions("{{#var f = data}}" +
-												   "{{#var e = f.('G')}}" +
-												   "{{e.PadLeft(123)}}", null,
-				DefaultEncoding);
-			parsingOptions.Formatters.AddSingle((string value, int nr) =>
+			var template = "{{#var f = data}}" +
+						   "{{#var e = f.('G')}}" +
+						   "{{e.PadLeft(123)}}";
+			var dataValue = DateTime.Now;
+			var data = new Dictionary<string, object>
 			{
-				return value.PadLeft(nr);
-			}, "PadLeft");
-			var results =
-				Parser.ParseWithOptions(parsingOptions);
-			var date = DateTime.Now;
-			TestLocationsInOrder(results);
-			var result = results.CreateAndStringify(new Dictionary<string, object>
+				{ "data", dataValue },
+			};
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
 			{
-				{ "data", date },
+				options.Formatters.AddSingle((string value, int nr) =>
+				{
+					return value.PadLeft(nr);
+				}, "PadLeft"); ;
 			});
-			Assert.That(result, Is.EqualTo(date.ToString("G").PadLeft(123)));
+			Assert.That(result, Is.EqualTo(dataValue.ToString("G").PadLeft(123)));
 		}
 
 		[Test]
-		public void ParserCanVariableScope()
+		public async Task ParserCanVariableScope()
 		{
 			var template =
-				@"{{#var global = data |-}}
-{{#data|-}}
-		{{global|-}}
-		{{#let global = 'Burns '|-}}
-		{{global|-}}
-		{{#let global = 'Likes '|-}}
-		{{global|-}}
-		{{#let local = 'Likes '|-}}
-		{{#var global = 'Miss '|-}}
-{{/data|-}}
-{{local|-}}
-{{global|-}}
-{{#var global = 'Money '|-}}
-{{global|-}}
-{{#let global = 'Alot'|-}}
-{{global|-}}";
-			var parsingOptions = new ParserOptions(template, null,
-				DefaultEncoding);
-
-			var results =
-				Parser.ParseWithOptions(parsingOptions);
-			TestLocationsInOrder(results);
-			var result = results.CreateAndStringify(new Dictionary<string, object>
+				@"{{#VAR global = data |-}}
+{{#data |-}}
+		{{global |-}}
+		{{#LET global = 'Burns ' |-}}
+		{{global |-}}
+		{{#LET global = 'Likes ' |-}}
+		{{global |-}}
+		{{#LET local = 'Likes ' |-}}
+		{{#VAR global = 'Miss ' |-}}
+{{/data |-}}
+{{local |-}}
+{{global |-}}
+{{#VAR global = 'Money ' |-}}
+{{global |-}}
+{{#LET global = 'Alot' |-}}
+{{global |-}}";
+			var data = new Dictionary<string, object>
 			{
 				{ "data", "Mr " },
-			});
+			};
+			//TODO this should still fail as the |- can currently not always be rendered
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest );
 			Assert.That(result, Is.EqualTo("Mr Burns Likes Miss Money Alot"));
 		}
 
 		[Test]
-		public void ParserCanVariableSetToNull()
+		public async Task ParserCanVariableSetToNull()
 		{
-			var parsingOptions = new ParserOptions("{{#var f = data}}" +
-												   "{{#var f = null}}" +
-												   "{{f.PadLeft(123)}}", null,
-				DefaultEncoding);
-			parsingOptions.Formatters.AddSingle((string value, int nr) =>
+			var template = "{{#var f = data}}" +
+						   "{{#var f = null}}" +
+						   "{{f.PadLeft(123)}}";
+			var dataValue = DateTime.Now;
+			var data = new Dictionary<string, object>
 			{
-				return value.PadLeft(nr);
-			}, "PadLeft");
-			parsingOptions.Null = "{NULL}";
-			var results =
-				Parser.ParseWithOptions(parsingOptions);
-			var date = DateTime.Now;
-			TestLocationsInOrder(results);
-			var result = results.CreateAndStringify(new Dictionary<string, object>
+				{ "data", dataValue },
+			};
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
 			{
-				{ "data", date },
+				options.Formatters.AddSingle((string value, int nr) =>
+				{
+					return value.PadLeft(nr);
+				}, "PadLeft");
+				options.Null = "{NULL}";
 			});
-			Assert.That(result, Is.EqualTo(parsingOptions.Null));
+			Assert.That(result, Is.EqualTo("{NULL}"));
 		}
 
 		[Test]
-		public void ParserCanVariableSetToString()
+		public async Task ParserCanVariableSetToString()
 		{
-			var parsingOptions = new ParserOptions("{{#var f = data}}" +
-												   "{{#var f = 'Test'}}" +
-												   "{{f.PadLeft(123)}}", null,
-				DefaultEncoding);
-			parsingOptions.Formatters.AddSingle((string value, int nr) =>
+			var template = "{{#var f = data}}" +
+						 "{{#var f = 'Test'}}" +
+						 "{{f.PadLeft(123)}}";
+			var dataValue = DateTime.Now;
+			var data = new Dictionary<string, object>
 			{
-				return value.PadLeft(nr);
-			}, "PadLeft");
-			var results =
-				Parser.ParseWithOptions(parsingOptions);
-			var date = DateTime.Now;
-			TestLocationsInOrder(results);
-			var result = results.CreateAndStringify(new Dictionary<string, object>
+				{ "data", dataValue },
+			};
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
 			{
-				{ "data", date },
+				options.Formatters.AddSingle((string value, int nr) =>
+				{
+					return value.PadLeft(nr);
+				}, "PadLeft");
 			});
 			Assert.That(result, Is.EqualTo("Test".PadLeft(123)));
 		}
 
 		[Test]
-		public void ParserCanVariableSetToStringWithEscaptedValues()
+		public async Task ParserCanVariableSetToStringWithEscaptedValues()
 		{
-			var parsingOptions = new ParserOptions("{{#var f = data}}" +
-												   "{{#var f = 'Te\\'st'}}" +
-												   "{{f.PadLeft(123)}}", null,
-				DefaultEncoding, true);
-			parsingOptions.Formatters.AddSingle((string value, int nr) =>
+			var template = "{{#var f = data}}" +
+						   "{{#var f = 'Te\\'st'}}" +
+						   "{{f.PadLeft(123)}}";
+			var dataValue = DateTime.Now;
+			var data = new Dictionary<string, object>
 			{
-				return value.PadLeft(nr);
-			}, "PadLeft");
-			var results =
-				Parser.ParseWithOptions(parsingOptions);
-			var date = DateTime.Now;
-			TestLocationsInOrder(results);
-			var result = results.CreateAndStringify(new Dictionary<string, object>
+				{ "data", dataValue },
+			};
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
 			{
-				{ "data", date },
+				options.Formatters.AddSingle((string value, int nr) =>
+				{
+					return value.PadLeft(nr);
+				}, "PadLeft");
+				options.DisableContentEscaping = true;
 			});
 			Assert.That(result, Is.EqualTo("Te'st".PadLeft(123)));
 		}
 
 		[Test]
-		public void ParserCanVariableSetToEmptyString()
+		public async Task ParserCanVariableSetToEmptyString()
 		{
-			var parsingOptions = new ParserOptions("{{#var f = ''}}" +
-												   "{{f.PadLeft(123)}}", null,
-				DefaultEncoding);
-			parsingOptions.Formatters.AddSingle((string value, int nr) =>
+			var template = "{{#var f = ''}}" +
+						   "{{f.PadLeft(123)}}";
+			var dataValue = DateTime.Now;
+			var data = new Dictionary<string, object>
 			{
-				return value.PadLeft(nr);
-			}, "PadLeft");
-			var results =
-				Parser.ParseWithOptions(parsingOptions);
-			var date = DateTime.Now;
-			TestLocationsInOrder(results);
-			var result = results.CreateAndStringify(new Dictionary<string, object>
+				{ "data", dataValue },
+			};
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
 			{
-				{ "data", date },
+				options.Formatters.AddSingle((string value, int nr) =>
+				{
+					return value.PadLeft(nr);
+				}, "PadLeft");
 			});
 			Assert.That(result, Is.EqualTo("".PadLeft(123)));
 		}
 
 		[Test]
-		public void ParserCanSetOption()
+		public async Task ParserCanSetOption()
 		{
 			var template = "{{valueA}}," +
 						   "{{#SET OPTION TokenPrefix = '<%'}}" +
@@ -574,73 +567,65 @@ namespace Morestachio.Tests
 				{"valueC", "World" },
 			};
 
-			var parserOptions = new ParserOptions(template, null, DefaultEncoding);
-			var results = Parser.ParseWithOptions(parserOptions);
-			TestLocationsInOrder(results);
-			Assert.That(results.CreateAndStringify(data), Is.EqualTo("Hello,{{valueA}}_,World"));
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest);
+
+			Assert.That(result, Is.EqualTo("Hello,{{valueA}}_,World"));
 		}
 
 		[Test]
-		public void ParserCanNullableFormatTest()
+		public async Task ParserCanNullableFormatTest()
 		{
-			var parsingOptions = new ParserOptions("ShouldBe: {{data}}, ButNot: {{extData}}", null,
-				DefaultEncoding)
-			{
-				Null = "IAmTheLaw!"
-			};
-			var results =
-				Parser.ParseWithOptions(parsingOptions);
-			TestLocationsInOrder(results);
-			var result = results.CreateAndStringify(new Dictionary<string, object>
+			var template = "ShouldBe: {{data}}, ButNot: {{extData}}";
+			var data = new Dictionary<string, object>
 			{
 				{ "data", (string)null },
 				{ "extData", "Test" }
+			};
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.Null = "IAmTheLaw!";
 			});
-			Assert.That(result, Is.EqualTo($"ShouldBe: {parsingOptions.Null}, ButNot: Test"));
+			Assert.That(result, Is.EqualTo($"ShouldBe: IAmTheLaw!, ButNot: Test"));
 		}
 
 		[Test]
-		public void ParserCanParseIntegerNumber()
+		public async Task ParserCanParseIntegerNumber()
 		{
-			var parsingOptions = new ParserOptions("{{1111}}", null,
-				DefaultEncoding);
-			var results =
-				Parser.ParseWithOptions(parsingOptions);
-			TestLocationsInOrder(results);
-			var result = results.CreateAndStringify(new Dictionary<string, object>
+			var template = "{{1111}}";
+			var data = new Dictionary<string, object>
 			{
-			});
+			};
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
 			Assert.That(result, Is.EqualTo("1111"));
 		}
 
 		[Test]
-		public void ParserCanParseNumberAsFormatterArg()
+		public async Task ParserCanParseNumberAsFormatterArg()
 		{
-			var parsingOptions = new ParserOptions("{{f.(123)}}", null,
-				DefaultEncoding);
-			parsingOptions.Formatters.AddSingle(new Func<string, int, string>((e, f) => f.ToString(e)));
-			var results =
-				Parser.ParseWithOptions(parsingOptions);
-			TestLocationsInOrder(results);
-			var result = results.CreateAndStringify(new Dictionary<string, object>
+			var template = "{{f.(123)}}";
+			var data = new Dictionary<string, object>
 			{
 				{"f", "F5" }
+			};
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.Formatters.AddSingle(new Func<string, int, string>((e, f) => f.ToString(e)));
 			});
 			Assert.That(result, Is.EqualTo(123.ToString("F5")));
 		}
 
 		[Test]
-		public void ParserCanParseFloatingNumber()
+		public async Task ParserCanParseFloatingNumber()
 		{
-			var parsingOptions = new ParserOptions("{{1.123.('F5')}}", null,
-				DefaultEncoding);
-			var results =
-				Parser.ParseWithOptions(parsingOptions);
-			TestLocationsInOrder(results);
-			var result = results.CreateAndStringify(new Dictionary<string, object>
+			var template = "{{1.123.('F5')}}";
+			var data = new Dictionary<string, object>
 			{
+			};
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest, options =>
+			{
+				options.Formatters.AddSingle(new Func<string, int, string>((e, f) => f.ToString(e)));
 			});
-			Assert.That(result, Is.EqualTo(1.123.ToString("F5", parsingOptions.CultureInfo)));
+			Assert.That(result, Is.EqualTo(1.123.ToString("F5")));
 		}
 
 		[Test]
@@ -651,12 +636,7 @@ namespace Morestachio.Tests
 								  "{{/EACH}}" +
 								  "{{eachValue}} = {{~data.testInt}} = {{data.testInt}}";
 
-			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
-			parsingOptions.Formatters.AddFromType(typeof(DynamicLinq));
-			parsingOptions.Formatters.AddFromType(typeof(FormatterTests.NumberFormatter));
-			var results = await Parser.ParseWithOptionsAsync(parsingOptions);
-
-			var modelWorking = new Dictionary<string, object>()
+			var data = new Dictionary<string, object>()
 			{
 				{
 					"data", new Dictionary<string, object>()
@@ -676,24 +656,29 @@ namespace Morestachio.Tests
 				}
 			};
 
-			var result = await results.CreateAndStringifyAsync(modelWorking);
-			TestLocationsInOrder(results);
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.Formatters.AddFromType(typeof(DynamicLinq));
+				options.Formatters.AddFromType(typeof(FormatterTests.NumberFormatter));
+			});
+
 			Assert.AreEqual("2 = 2 = 2", result);
-			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, results.Document);
 		}
 
 		[Test]
-		public void TestMethodAsArgumentAccess()
+		public async Task TestMethodAsArgumentAccess()
 		{
-			var options = new ParserOptions("{{data.Multiply(data.Multiply(data))}}", null, DefaultEncoding);
-			options.Formatters.AddFromType(typeof(NumberFormatter));
-			var template = Parser.ParseWithOptions(options);
-			var andStringify = template.CreateAndStringify(new Dictionary<string, object>()
+			var template = "{{data.Multiply(data.Multiply(data))}}";
+			var data = new Dictionary<string, object>()
 			{
 				{"data", 2}
+			};
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.Formatters.AddFromType(typeof(NumberFormatter));
 			});
 
-			Assert.That(andStringify, Is.EqualTo("8"));
+			Assert.That(result, Is.EqualTo("8"));
 		}
 
 		public static class NumberFormatter
@@ -715,15 +700,16 @@ namespace Morestachio.Tests
 		[TestCase("f")]
 		[TestCase("F")]
 		[TestCase("dd,,MM,,YYY")]
-		public void ParserCanSelfFormat(string dtFormat)
+		public async Task ParserCanSelfFormat(string dtFormat)
 		{
-			var data = DateTime.UtcNow;
-			var parsingOptions = new ParserOptions(
-				"{{#data}}{{.(\"" + dtFormat + "\")}}{{/data}},{{data}}",
-				null, DefaultEncoding);
-			var results = Parser.ParseWithOptions(parsingOptions);
-			var result = results.CreateAndStringify(new Dictionary<string, object> { { "data", data } });
-			Assert.That(result, Is.EqualTo(data.ToString(dtFormat, parsingOptions.CultureInfo) + "," + data));
+			var template = "{{#data}}{{.(\"" + dtFormat + "\")}}{{/data}},{{data}}";
+			var dataValue = DateTime.UtcNow;
+			var data = new Dictionary<string, object> { { "data", dataValue } };
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.Formatters.AddFromType(typeof(NumberFormatter));
+			});
+			Assert.That(result, Is.EqualTo(dataValue.ToString(dtFormat) + "," + dataValue));
 		}
 
 		[Test]
@@ -829,30 +815,36 @@ namespace Morestachio.Tests
 		[Test]
 		[TestCase("<wbr>", "{{content}}", "&lt;wbr&gt;")]
 		[TestCase("<wbr>", "{{&content}}", "<wbr>")]
-		public void ValueEscapingIsActivatedBasedOnValueInterpolationMustacheSyntax(string content, string template,
+		public async Task ValueEscapingIsActivatedBasedOnValueInterpolationMustacheSyntax(string content, string template,
 			string expected)
 		{
-			var model = new Dictionary<string, object>
+			var data = new Dictionary<string, object>
 			{
 				{"content", content}
 			};
-			var value = Parser.ParseWithOptions(new ParserOptions(template, null, DefaultEncoding))
-				.CreateAndStringify(model);
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.Formatters.AddFromType(typeof(NumberFormatter));
+			});
 
-			Assert.That(value, Is.EqualTo(expected));
+			Assert.That(result, Is.EqualTo(expected));
 		}
 
 		[Test]
 		[TestCase("<wbr>", "{{content}}", "<wbr>")]
 		[TestCase("<wbr>", "{{&content}}", "<wbr>")]
-		public void ValueEscapingIsDisabledWhenRequested(string content, string template, string expected)
+		public async Task ValueEscapingIsDisabledWhenRequested(string content, string template, string expected)
 		{
-			var model = new Dictionary<string, object>
+			var data = new Dictionary<string, object>
 			{
 				{"content", content}
 			};
-			Assert.That(Parser.ParseWithOptions(new ParserOptions(template, null, DefaultEncoding, 0, true))
-				.CreateAndStringify(model), Is.EqualTo(expected));
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.Formatters.AddFromType(typeof(NumberFormatter));
+				options.DisableContentEscaping = true;
+			});
+			Assert.That(result, Is.EqualTo(expected));
 		}
 
 
@@ -860,6 +852,8 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task ParserCanPartials()
 		{
+			var template =
+				@"{{#DECLARE TestPartial}}{{self.Test}}{{/DECLARE}}{{#EACH Data}}{{#IMPORT 'TestPartial'}}{{/EACH}}";
 			var data = new Dictionary<string, object>();
 			data["Data"] = new List<object>
 			{
@@ -892,15 +886,12 @@ namespace Morestachio.Tests
 				}
 			};
 
-			var template =
-				@"{{#DECLARE TestPartial}}{{self.Test}}{{/DECLARE}}{{#EACH Data}}{{#IMPORT 'TestPartial'}}{{/EACH}}";
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.Formatters.AddFromType(typeof(NumberFormatter));
+			});
 
-			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
-			var parsedTemplate = await Parser.ParseWithOptionsAsync(parsingOptions);
-			TestLocationsInOrder(parsedTemplate);
-			var andStringify = await parsedTemplate.CreateAndStringifyAsync(data);
-			Assert.That(andStringify, Is.EqualTo("123"));
-			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
+			Assert.That(result, Is.EqualTo("123"));
 		}
 
 		[Test]
@@ -932,12 +923,12 @@ namespace Morestachio.Tests
 			var template =
 				@"{{#DECLARE TestPartial}}{{self.Test}}{{/DECLARE}}{{#IMPORT 'TestPartial' #WITH Data.ElementAt(1)}}";
 
-			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
-			var parsedTemplate = await Parser.ParseWithOptionsAsync(parsingOptions);
-			TestLocationsInOrder(parsedTemplate);
-			var andStringify = await parsedTemplate.CreateAndStringifyAsync(data);
-			Assert.That(andStringify, Is.EqualTo("2"));
-			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.Formatters.AddFromType(typeof(NumberFormatter));
+			});
+			Assert.That(result, Is.EqualTo("2"));
 		}
 
 		[Test]
@@ -969,22 +960,21 @@ namespace Morestachio.Tests
 			var template =
 				@"{{#DECLARE TestPartial}}{{ExportedValue.ElementAt(1).self.Test}}{{/DECLARE}}{{#IMPORT 'TestPartial' #WITH Data.Self($name)}}";
 
-			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
-			parsingOptions.Formatters.AddSingle(new Func<object, string, object>((sourceObject, name) =>
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
 			{
-				return new Dictionary<string, object>()
-				{
-					{"ExportedValue", sourceObject},
-					{"XNAME", name}
-				};
-			}), "Self");
-			parsingOptions.Formatters.AddFromType(typeof(DynamicLinq));
+				options.Formatters.AddFromType(typeof(DynamicLinq));
 
-			var parsedTemplate = await Parser.ParseWithOptionsAsync(parsingOptions);
-			TestLocationsInOrder(parsedTemplate);
-			var andStringify = await parsedTemplate.CreateAndStringifyAsync(data);
-			Assert.That(andStringify, Is.EqualTo("2"));
-			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
+				options.Formatters.AddSingle(new Func<object, string, object>((sourceObject, name) =>
+				{
+					return new Dictionary<string, object>()
+					{
+						{"ExportedValue", sourceObject},
+						{"XNAME", name}
+					};
+				}), "Self");
+			});
+
+			Assert.That(result, Is.EqualTo("2"));
 		}
 
 		[Test]
@@ -1020,12 +1010,10 @@ namespace Morestachio.Tests
 				"{{#VAR partialName = 'TestPartial'}}" +
 				"{{#IMPORT partialName #WITH Data.ElementAt(1)}}";
 
-			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
-			var parsedTemplate = await Parser.ParseWithOptionsAsync(parsingOptions);
-			TestLocationsInOrder(parsedTemplate);
-			var andStringify = await parsedTemplate.CreateAndStringifyAsync(data);
-			Assert.That(andStringify, Is.EqualTo("2"));
-			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
+
+			Assert.That(result, Is.EqualTo("2"));
 		}
 
 		[Test]
@@ -1071,12 +1059,8 @@ namespace Morestachio.Tests
 				"	{{#IMPORT 'TestPartial'}}" +
 				"{{/EACH}}";
 
-			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
-			var parsedTemplate = await Parser.ParseWithOptionsAsync(parsingOptions);
-			TestLocationsInOrder(parsedTemplate);
-			var andStringify = await parsedTemplate.CreateAndStringifyAsync(data);
-			Assert.That(andStringify, Is.EqualTo("	Is:1	Is:2"));
-			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
+			Assert.That(result, Is.EqualTo("	Is:1	Is:2"));
 		}
 
 		[Test]
@@ -1090,7 +1074,7 @@ namespace Morestachio.Tests
 			TestLocationsInOrder(parsedTemplate);
 			Assert.That(async () => await parsedTemplate.CreateAndStringifyAsync(data),
 				Throws.Exception.TypeOf<MustachioStackOverflowException>());
-			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document, parsingOptions);
 		}
 
 		[Test]
@@ -1100,12 +1084,8 @@ namespace Morestachio.Tests
 			var template =
 				@"{{#declare TestPartial}}{{#declare InnerPartial}}1{{/declare}}2{{/declare}}{{#IMPORT 'TestPartial'}}{{#IMPORT 'InnerPartial'}}";
 
-			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
-			var parsedTemplate = await Parser.ParseWithOptionsAsync(parsingOptions);
-			TestLocationsInOrder(parsedTemplate);
-			var result = await parsedTemplate.CreateAndStringifyAsync(data);
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
 			Assert.That(result, Is.EqualTo("21"));
-			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
 		}
 
 		[Test]
@@ -1117,18 +1097,15 @@ namespace Morestachio.Tests
 			var template =
 				@"{{#declare TestPartial}}{{$recursion}}{{#$recursion.() as rec}}{{#IMPORT 'TestPartial'}}{{/rec}}{{/declare}}{{#IMPORT 'TestPartial'}}";
 
-			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
-			parsingOptions.Formatters.AddSingle<int, bool>(e => { return e < 9; });
-			var parsedTemplate = await Parser.ParseWithOptionsAsync(parsingOptions);
-			TestLocationsInOrder(parsedTemplate);
-			var result = await parsedTemplate.CreateAndStringifyAsync(data);
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.Formatters.AddSingle<int, bool>(e => { return e < 9; });
+			});
 			Assert.That(result, Is.EqualTo("123456789"));
-
-			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
 		}
 
 		[Test]
-		public void ParserCanParseEmailAcidTest()
+		public async Task ParserCanParseEmailAcidTest()
 		{
 			#region Email ACID Test Body:
 
@@ -1407,7 +1384,8 @@ namespace Morestachio.Tests
 
 			#endregion
 
-			Assert.That(() => Parser.ParseWithOptions(new ParserOptions(emailACIDTest)), Throws.Nothing);
+			var result = await ParserFixture.CreateAndParseWithOptions(emailACIDTest, new object(), _options);
+			Assert.That(result, Is.Not.Null);
 		}
 
 		[Test]
@@ -1487,65 +1465,70 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
-		public void ParserChangeDefaultFormatter()
+		public async Task ParserChangeDefaultFormatter()
 		{
 			var dateTime = DateTime.UtcNow;
-			var parsingOptions = new ParserOptions("{{d.().a}},{{d}}", null, DefaultEncoding);
-			parsingOptions.Formatters.AddSingle<DateTime, object>(dt => new
-			{
-				Dt = dt,
-				a = 2
-			});
-			var results = Parser.ParseWithOptions(parsingOptions);
 			//this should not work as the Default settings for DateTime are ToString(Arg) so it should return a string and not an object
-			Assert.That(results.CreateAndStringify(new Dictionary<string, object>
+			var template = "{{d.().a}},{{d}}";
+			var data = new Dictionary<string, object>
 			{
 				{
 					"d", dateTime
 				}
-			}), Is.EqualTo("2," + dateTime));
+			};
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.Formatters.AddSingle<DateTime, object>(dt => new
+				{
+					Dt = dt,
+					a = 2
+				});
+			});
+			Assert.That(result, Is.EqualTo("2," + dateTime));
 		}
 
 		[Test]
-		public void ParserCanParseCustomTag()
+		public async Task ParserCanParseCustomTag()
 		{
-			var parsingOptions = new ParserOptions("{{#PI 3}}", null, DefaultEncoding);
-
-			parsingOptions.CustomDocumentItemProviders.Add(new TagDocumentItemProvider("#PI", async
-			(outputStream,
-				context,
-				scopeData,
-				value) =>
+			var template = "{{#PI 3}}";
+			var data = new Dictionary<string, object>();
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options| ParserOptionTypes.NoRerenderingTest, options =>
 			{
-				outputStream.Write((Math.PI * int.Parse(value)).ToString());
-				await Task.CompletedTask;
-			}));
-
-			var results = Parser.ParseWithOptions(parsingOptions);
-			TestLocationsInOrder(results);
-			Assert.That(results.CreateAndStringify(new object()), Is.EqualTo((Math.PI * 3).ToString()));
+				options.CustomDocumentItemProviders.Add(new TagDocumentItemProvider("#PI", async
+				(outputStream,
+					context,
+					scopeData,
+					value) =>
+				{
+					outputStream.Write((Math.PI * int.Parse(value)).ToString());
+					await Task.CompletedTask;
+				}));
+			});
+			Assert.That(result, Is.EqualTo((Math.PI * 3).ToString()));
 		}
 
 		[Test]
-		public void ParserCanParseCustomBlock()
+		public async Task ParserCanParseCustomBlock()
 		{
-			var parsingOptions = new ParserOptions("{{#PI}}3{{/PI}}", null, DefaultEncoding);
+			var data = new Dictionary<string, object>();
+			var template = @"{{#PI}}3{{/PI}}";
 
-			parsingOptions.CustomDocumentItemProviders.Add(new BlockDocumentItemProvider("#PI", "/PI",
-			 (outputStream,
-				 context,
-				 scopeData,
-				 value,
-				 children) =>
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest, options =>
 			{
-				var firstOrDefault = children.OfType<ContentDocumentItem>().FirstOrDefault();
-				outputStream.Write((Math.PI * int.Parse(firstOrDefault.Value)).ToString());
-				return Enumerable.Empty<DocumentItemExecution>().ToPromise();
-			}));
+				options.CustomDocumentItemProviders.Add(new BlockDocumentItemProvider("#PI", "/PI",
+					(outputStream,
+						context,
+						scopeData,
+						value,
+						children) =>
+					{
+						var firstOrDefault = children.OfType<ContentDocumentItem>().FirstOrDefault();
+						outputStream.Write((Math.PI * int.Parse(firstOrDefault.Value)).ToString());
+						return Enumerable.Empty<DocumentItemExecution>().ToPromise();
+					}));
+			});
 
-			var results = Parser.ParseWithOptions(parsingOptions);
-			TestLocationsInOrder(results);
-			Assert.That(results.CreateAndStringify(new object()), Is.EqualTo((Math.PI * 3).ToString()));
+			Assert.That(result, Is.EqualTo((Math.PI * 3).ToString()));
 		}
 
 		[Test]
@@ -1570,22 +1553,18 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
-		public void TestCancelation()
+		public async Task TestCancelation()
 		{
 			var token = new CancellationTokenSource();
-			var model = new ParserCancellationional(token);
-			var results = Parser.ParseWithOptions(
-				new ParserOptions("{{data.ValueA}}{{data.ValueCancel}}{{data.ValueB}}", null, DefaultEncoding));
-			var template = results.CreateAndStringify(new Dictionary<string, object>
-			{
-				{"data", model}
-			}, token.Token);
-			TestLocationsInOrder(results);
-			Assert.That(template, Is.EqualTo(model.ValueA + model.ValueCancel));
+			var data = new ParserCancellationional(token);
+			var template = @"{{ValueA}}{{ValueCancel}}{{ValueB}}";
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, null, null, null, token);
+			Assert.That(result, Is.EqualTo(data.ValueA + data.ValueCancel));
 		}
 
 		[Test]
-		public void TestScopeOfIfInScoping()
+		public async Task TestScopeOfIfInScoping()
 		{
 			var template = "{{#Data}}{{#Failed}}{{#IF ~Value}}{{.}}{{/IF}}{{/Failed}}{{/Data}}";
 			var data = new
@@ -1597,17 +1576,25 @@ namespace Morestachio.Tests
 				Value = "FAILED",
 			};
 
-			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
-			var results = Parser.ParseWithOptions(
-				parsingOptions);
-			TestLocationsInOrder(results);
-			var andStringify = results.CreateAndStringify(data);
-			Assert.That(andStringify, Is.EqualTo("Success"));
-			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, results.Document);
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.CustomDocumentItemProviders.Add(new BlockDocumentItemProvider("#PI", "/PI",
+					(outputStream,
+						context,
+						scopeData,
+						value,
+						children) =>
+					{
+						var firstOrDefault = children.OfType<ContentDocumentItem>().FirstOrDefault();
+						outputStream.Write((Math.PI * int.Parse(firstOrDefault.Value)).ToString());
+						return Enumerable.Empty<DocumentItemExecution>().ToPromise();
+					}));
+			});
+			Assert.That(result, Is.EqualTo("Success"));
 		}
 
 		[Test]
-		public void TestCollectionContext()
+		public async Task TestCollectionContext()
 		{
 			var template = "{{#each data}}{{$index}},{{$first}},{{$middel}},{{$last}},{{$odd}},{{$even}}.{{/each}}";
 
@@ -1642,17 +1629,27 @@ namespace Morestachio.Tests
 				}
 			};
 
-			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
-			var results = Parser.ParseWithOptions(parsingOptions);
-			TestLocationsInOrder(results);
-			var genTemplate = results.CreateAndStringify(new Dictionary<string, object> { { "data", elementdata } });
-			var realData = elementdata.Select(e => e.ToString()).Aggregate((e, f) => e + f);
-			Assert.That(genTemplate, Is.EqualTo(realData));
-			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, results.Document);
+			var data = new Dictionary<string, object> { { "data", elementdata } };
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.CustomDocumentItemProviders.Add(new BlockDocumentItemProvider("#PI", "/PI",
+					(outputStream,
+						context,
+						scopeData,
+						value,
+						children) =>
+					{
+						var firstOrDefault = children.OfType<ContentDocumentItem>().FirstOrDefault();
+						outputStream.Write((Math.PI * int.Parse(firstOrDefault.Value)).ToString());
+						return Enumerable.Empty<DocumentItemExecution>().ToPromise();
+					}));
+			});
+			Assert.That(result, Is.EqualTo(elementdata.Select(e => e.ToString()).Aggregate((e, f) => e + f)));
 		}
 
 		[Test]
-		public void TestRepeatContext()
+		public async Task TestRepeatContext()
 		{
 			var template = "{{#repeat data.Count}}{{$index}},{{$first}},{{$middel}},{{$last}},{{$odd}},{{$even}}.{{/repeat}}";
 
@@ -1687,136 +1684,127 @@ namespace Morestachio.Tests
 				}
 			};
 
-			var parsingOptions = new ParserOptions(template, null, DefaultEncoding);
-			var results = Parser.ParseWithOptions(parsingOptions);
-			TestLocationsInOrder(results);
+			var data = new Dictionary<string, object> { { "data", elementdata } };
 
-			var genTemplate = results.CreateAndStringify(new Dictionary<string, object> { { "data", elementdata } });
-			var realData = elementdata.Select(e => e.ToString()).Aggregate((e, f) => e + f);
-			Assert.That(genTemplate, Is.EqualTo(realData));
-			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, results.Document);
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.CustomDocumentItemProviders.Add(new BlockDocumentItemProvider("#PI", "/PI",
+					(outputStream,
+						context,
+						scopeData,
+						value,
+						children) =>
+					{
+						var firstOrDefault = children.OfType<ContentDocumentItem>().FirstOrDefault();
+						outputStream.Write((Math.PI * int.Parse(firstOrDefault.Value)).ToString());
+						return Enumerable.Empty<DocumentItemExecution>().ToPromise();
+					}));
+			});
+
+			Assert.That(result, Is.EqualTo(elementdata.Select(e => e.ToString()).Aggregate((e, f) => e + f)));
 		}
 
 		[Test]
-		public void TestRepeatLoopContext()
+		public async Task TestRepeatLoopContext()
 		{
 			var template = "{{#REPEAT 5}}" +
 						   "{{$index}}," +
 						   "{{/REPEAT}}";
+			var data = new Dictionary<string, object> { };
 
-			var parsingOptions = new ParserOptions(template, null, DefaultEncoding)
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
 			{
-				//Timeout = TimeSpan.FromSeconds(5)
-			};
-			parsingOptions.Formatters.AddFromType(typeof(EqualityFormatter));
-			var results = Parser.ParseWithOptions(parsingOptions);
-			TestLocationsInOrder(results);
-			var genTemplate = results.CreateAndStringify(new object());
-			Assert.That(genTemplate, Is.EqualTo("0,1,2,3,4,"));
-			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, results.Document);
+				options.Formatters.AddFromType(typeof(EqualityFormatter));
+			});
+			Assert.That(result, Is.EqualTo("0,1,2,3,4,"));
 		}
 
 
 		[Test]
-		public void TestWhileLoopContext()
+		public async Task TestWhileLoopContext()
 		{
-			var template = @"{{#WHILE $index.SmallerAs(5) | -}}
+			var template = @"{{#WHILE $index.SmallerAs(5) |-}}
 						   {{$index}},
-						   {{- | /WHILE}}";
+						   {{-| /WHILE}}";
+			var data = new Dictionary<string, object> { };
 
-			var parsingOptions = new ParserOptions(template, null, DefaultEncoding)
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
 			{
-				//Timeout = TimeSpan.FromSeconds(5)
-			};
-			parsingOptions.Formatters.AddFromType(typeof(EqualityFormatter));
-			var results = Parser.ParseWithOptions(parsingOptions);
-			TestLocationsInOrder(results);
-
-			var genTemplate = results.CreateAndStringify(new object());
-			Assert.That(genTemplate, Is.EqualTo("0,1,2,3,4,"));
-			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, results.Document);
+				options.Formatters.AddFromType(typeof(EqualityFormatter));
+			});
+			Assert.That(result, Is.EqualTo("0,1,2,3,4,"));
 		}
 
 		[Test]
-		public void TestDoLoopContext()
+		public async Task TestDoLoopContext()
 		{
 			var template = @"{{#DO $index.SmallerAs(5)}}
-							 {{- | $index}},
-							 {{- | /DO}}";
+							 {{-| $index}},
+							 {{-| /DO}}";
 
-			var parsingOptions = new ParserOptions(template, null, DefaultEncoding)
+			var data = new Dictionary<string, object> { };
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
 			{
-				//Timeout = TimeSpan.FromSeconds(5)
-			};
-			parsingOptions.Formatters.AddFromType(typeof(EqualityFormatter));
-			var parsedTemplate = Parser.ParseWithOptions(parsingOptions);
-			var genTemplate = parsedTemplate.CreateAndStringify(new object());
-			Assert.That(genTemplate, Is.EqualTo("0,1,2,3,4,5,"));
-			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
+				options.Formatters.AddFromType(typeof(EqualityFormatter));
+			});
+			Assert.That(result, Is.EqualTo("0,1,2,3,4,5,"));
 		}
 
 		[Test]
-		public void TestCanRemoveLineBreaks()
+		public async Task TestCanRemoveLineBreaks()
 		{
 			var template = @"{{#TNLS}}
 
 Test{{#NL}}";
 
-			var parsingOptions = new ParserOptions(template, null, DefaultEncoding)
+			var data = new Dictionary<string, object> { };
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
 			{
-				//Timeout = TimeSpan.FromSeconds(5)
-			};
-			parsingOptions.Formatters.AddFromType(typeof(EqualityFormatter));
-			var results = Parser.ParseWithOptions(parsingOptions);
-			TestLocationsInOrder(results);
-			var genTemplate = results.CreateAndStringify(new object());
-			Assert.That(genTemplate, Is.EqualTo(@"Test
+				options.Formatters.AddFromType(typeof(EqualityFormatter));
+			});
+			Assert.That(result, Is.EqualTo(@"Test
 "));
 		}
 
 		[Test]
-		public void TestCanRemoveLineBreaksWithinKeyword()
+		public async Task TestCanRemoveLineBreaksWithinKeyword()
 		{
-			var template = @"{{data|-}}
+			var template = @"{{data |-}}
 Static
 
-{{-|data}}";
-
-			var parsingOptions = new ParserOptions(template, null, DefaultEncoding)
-			{
-				//Timeout = TimeSpan.FromSeconds(5)
-			};
-			parsingOptions.Formatters.AddFromType(typeof(EqualityFormatter));
-			var results = Parser.ParseWithOptions(parsingOptions);
-			TestLocationsInOrder(results);
-			var genTemplate = results.CreateAndStringify(new
+{{-| data}}";
+			var data = new
 			{
 				data = "World"
+			};
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.Formatters.AddFromType(typeof(EqualityFormatter));
 			});
-			Assert.That(genTemplate, Is.EqualTo(@"WorldStaticWorld"));
+			Assert.That(result, Is.EqualTo(@"WorldStaticWorld"));
 		}
 
 		[Test]
-		public void TestCanRemoveLineBreaksWithOption()
+		public async Task TestCanRemoveLineBreaksWithOption()
 		{
 			var template = @"{{#SET OPTION TrimTailing = true}}{{#SET OPTION TrimLeading = true}}
 {{data}}
 Static
 
 {{data}}";
-
-			var parsingOptions = new ParserOptions(template, null, DefaultEncoding)
-			{
-				//Timeout = TimeSpan.FromSeconds(5)
-			};
-			parsingOptions.Formatters.AddFromType(typeof(EqualityFormatter));
-			var results = Parser.ParseWithOptions(parsingOptions);
-			TestLocationsInOrder(results);
-			var genTemplate = results.CreateAndStringify(new
+			var data = new
 			{
 				data = "World"
+			};
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest, options =>
+			{
+				options.Formatters.AddFromType(typeof(EqualityFormatter));
 			});
-			Assert.That(genTemplate, Is.EqualTo(@"WorldStaticWorld"));
+			Assert.That(result, Is.EqualTo(@"WorldStaticWorld"));
 		}
 
 		private class CollectionContextInfo

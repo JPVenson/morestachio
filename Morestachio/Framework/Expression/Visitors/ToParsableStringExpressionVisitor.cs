@@ -133,9 +133,13 @@ namespace Morestachio.Framework.Expression.Visitors
 		/// <inheritdoc />
 		public void Visit(MorestachioExpressionString expression)
 		{
-			StringBuilder.Append(expression.Delimiter +
-								 string.Join("", expression.StringParts.Select(f => f.PartText))
-								 + expression.Delimiter);
+			StringBuilder.Append(expression.Delimiter);
+			foreach (var expressionStringConstPart in expression.StringParts)
+			{
+				var str = expressionStringConstPart.PartText.Replace(expression.Delimiter.ToString(), "\\" + expression.Delimiter);
+				StringBuilder.Append(str);
+			}
+			StringBuilder.Append(expression.Delimiter);
 		}
 
 		/// <inheritdoc />

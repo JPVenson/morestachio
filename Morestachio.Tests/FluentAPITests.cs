@@ -5,6 +5,7 @@ using NUnit.Framework;
 namespace Morestachio.Tests
 {
 	[TestFixture]
+	[Parallelizable(ParallelScope.All)]
 	public class FluentAPITests
 	{
 		public FluentAPITests()

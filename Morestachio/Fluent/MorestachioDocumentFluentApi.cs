@@ -144,7 +144,7 @@ namespace Morestachio.Fluent
 		/// <returns></returns>
 		public MorestachioDocumentFluentApi RenderTree(Action<string> template)
 		{
-			var visitor = new ToParsableStringDocumentVisitor();
+			var visitor = new ToParsableStringDocumentVisitor(Context.Options);
 			Context.CurrentNode.Item.Accept(visitor);
 			template(visitor.StringBuilder.ToString());
 			return this;

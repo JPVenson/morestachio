@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Morestachio.Document.Contracts;
@@ -17,11 +18,15 @@ namespace Morestachio.Document.Visitor
 	/// </summary>
 	public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 	{
+		private readonly ParserOptions _contextOptions;
+
 		/// <summary>
 		/// 
 		/// </summary>
-		public ToParsableStringDocumentVisitor()
+		/// <param name="contextOptions"></param>
+		public ToParsableStringDocumentVisitor(ParserOptions contextOptions)
 		{
+			_contextOptions = contextOptions;
 			StringBuilder = new StringBuilder();
 		}
 
@@ -82,7 +87,7 @@ namespace Morestachio.Document.Visitor
 					if (documentItemChildren[index - 1] is TextEditDocumentItem ntxtOp)
 					{
 						if (ntxtOp.Operation is TrimLineBreakTextOperation tl &&
-						    (tl.LineBreakTrimDirection != LineBreakTrimDirection.Begin && index != 0))
+							(tl.LineBreakTrimDirection != LineBreakTrimDirection.Begin && index != 0))
 						{
 							RenderLineBreak |= tl.LineBreakTrimDirection;
 						}
@@ -94,7 +99,7 @@ namespace Morestachio.Document.Visitor
 					if (documentItemChildren[index + 1] is TextEditDocumentItem ntxtOp)
 					{
 						if (ntxtOp.Operation is TrimLineBreakTextOperation tl &&
-						    tl.LineBreakTrimDirection != LineBreakTrimDirection.End)
+							tl.LineBreakTrimDirection != LineBreakTrimDirection.End)
 						{
 							RenderLineBreak |= tl.LineBreakTrimDirection;
 						}
@@ -104,7 +109,25 @@ namespace Morestachio.Document.Visitor
 				documentItemChild.Accept(this);
 			}
 		}
-		
+
+		private void CheckForTnlInlineBegin()
+		{
+			if (RenderLineBreak.HasFlagFast(LineBreakTrimDirection.End))
+			{
+				StringBuilder.Append("-| ");
+			}
+		}
+
+		private void CheckForTnlInlineEnd(ICollection<IDocumentItem> children)
+		{
+			var preLastItem = children.ElementAtOrDefault(children.Count - 2);
+			if (preLastItem is TextEditDocumentItem lastTxtDoc &&
+			    lastTxtDoc.Operation is TrimLineBreakTextOperation lastTrim &&
+			    lastTrim.LineBreakTrimDirection == LineBreakTrimDirection.End)
+			{
+				StringBuilder.Append("-| ");
+			}
+		}
 
 		/// <summary>
 		///		Writes the tag with the leading char as well as all of the documentItems children
@@ -115,10 +138,7 @@ namespace Morestachio.Document.Visitor
 		public void Visit(ExpressionDocumentItemBase documentItem, string tag, string cmdChar = "#")
 		{
 			StringBuilder.Append("{{");
-			if (RenderLineBreak.HasFlagFast(LineBreakTrimDirection.End))
-			{
-				StringBuilder.Append("- | ");
-			}
+			CheckForTnlInlineBegin();
 			StringBuilder.Append(cmdChar);
 			StringBuilder.Append(tag);
 			StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
@@ -129,15 +149,15 @@ namespace Morestachio.Document.Visitor
 				StringBuilder.Append(" AS ");
 				StringBuilder.Append(aliasDocumentItem.Value);
 			}
-			
+
 			if (RenderLineBreak.HasFlagFast(LineBreakTrimDirection.Begin)
 			||
-			(children.Any() && 
-			 children.First() is TextEditDocumentItem txtDoc && 
-			 txtDoc.Operation is TrimLineBreakTextOperation trim && 
+			(children.Any() &&
+			 children.First() is TextEditDocumentItem txtDoc &&
+			 txtDoc.Operation is TrimLineBreakTextOperation trim &&
 			 trim.LineBreakTrimDirection == LineBreakTrimDirection.Begin))
 			{
-				StringBuilder.Append(" | -");
+				StringBuilder.Append(" |-");
 			}
 
 			RenderLineBreak = LineBreakTrimDirection.None;
@@ -148,16 +168,9 @@ namespace Morestachio.Document.Visitor
 				VisitChildren(documentItem);
 
 				StringBuilder.Append("{{");
-
-				var preLastItem = children.ElementAtOrDefault(children.Count - 2);
-				if(preLastItem  is TextEditDocumentItem lastTxtDoc && 
-				   lastTxtDoc.Operation is TrimLineBreakTextOperation lastTrim && 
-				   lastTrim.LineBreakTrimDirection == LineBreakTrimDirection.End)
-				{
-					StringBuilder.Append("- | ");
-				}
-
+				CheckForTnlInlineEnd(children);
 				StringBuilder.Append("/");
+
 				if (!(aliasDocumentItem is null))
 				{
 					StringBuilder.Append(aliasDocumentItem.Value);
@@ -169,7 +182,7 @@ namespace Morestachio.Document.Visitor
 				StringBuilder.Append("}}");
 			}
 		}
-		
+
 		/// <summary>
 		///		Writes the Tag and all of the documentItems children
 		/// </summary>
@@ -185,7 +198,9 @@ namespace Morestachio.Document.Visitor
 			{
 				VisitChildren(documentItem);
 
-				StringBuilder.Append("{{/");
+				StringBuilder.Append("{{");
+				CheckForTnlInlineEnd(documentItem.Children);
+				StringBuilder.Append("/");
 				StringBuilder.Append(tag);
 				StringBuilder.Append("}}");
 			}
@@ -213,11 +228,14 @@ namespace Morestachio.Document.Visitor
 		/// <inheritdoc />
 		public void Visit(EvaluateVariableDocumentItem documentItem)
 		{
-			StringBuilder.Append("{{#");
+			StringBuilder.Append("{{");
+			CheckForTnlInlineBegin();
+			StringBuilder.Append("#");
 			StringBuilder.Append(documentItem.IdVariableScope == 0 ? "VAR " : "LET ");
 			StringBuilder.Append(documentItem.Value);
 			StringBuilder.Append(" = ");
 			StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
+			CheckForTnlInlineEnd(documentItem.Children);
 			StringBuilder.Append("}}");
 		}
 
@@ -230,6 +248,7 @@ namespace Morestachio.Document.Visitor
 		private void VisitExpressionScope(ExpressionDocumentItemBase documentItem, char prefix)
 		{
 			StringBuilder.Append("{{");
+			CheckForTnlInlineBegin();
 			StringBuilder.Append(prefix);
 			StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
 			var children = documentItem.Children.ToList();
@@ -255,31 +274,35 @@ namespace Morestachio.Document.Visitor
 				{
 					StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
 				}
+				CheckForTnlInlineEnd(children);
 				StringBuilder.Append("}}");
 			}
 		}
-		
+
 		/// <inheritdoc />
 		public void Visit(IfExpressionScopeDocumentItem documentItem)
 		{
 			Visit(documentItem, "IF ");
 		}
-		
+
 		/// <inheritdoc />
 		public void Visit(IfNotExpressionScopeDocumentItem documentItem)
 		{
 			Visit(documentItem, "IF ", "^");
 		}
-		
+
 		/// <inheritdoc />
 		public void Visit(InvertedExpressionScopeDocumentItem documentItem)
 		{
 			VisitExpressionScope(documentItem, '^');
 		}
-
+		
+		/// <inheritdoc />
 		public void Visit(SwitchDocumentItem documentItem)
 		{
-			StringBuilder.Append("{{#SWITCH ");
+			StringBuilder.Append("{{");
+			CheckForTnlInlineBegin();
+			StringBuilder.Append("#SWITCH ");
 			StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
 			if (documentItem.ScopeToValue)
 			{
@@ -290,14 +313,18 @@ namespace Morestachio.Document.Visitor
 
 			VisitChildren(documentItem);
 
-			StringBuilder.Append("{{/SWITCH}}");
+			StringBuilder.Append("{{");
+			CheckForTnlInlineEnd(documentItem.Children);
+			StringBuilder.Append("/SWITCH}}");
 		}
-
+		
+		/// <inheritdoc />
 		public void Visit(SwitchCaseDocumentItem documentItem)
 		{
 			Visit(documentItem, "CASE ");
 		}
-
+		
+		/// <inheritdoc />
 		public void Visit(SwitchDefaultDocumentItem documentItem)
 		{
 			Visit(documentItem, "DEFAULT ");
@@ -308,52 +335,63 @@ namespace Morestachio.Document.Visitor
 		{
 			VisitChildren(documentItem);
 		}
-		
+
 		/// <inheritdoc />
 		public void Visit(PartialDocumentItem documentItem)
 		{
-			StringBuilder.Append("{{#DECLARE ");
+			StringBuilder.Append("{{");
+			CheckForTnlInlineBegin();
+			StringBuilder.Append("#DECLARE ");
 			StringBuilder.Append(documentItem.Value);
 			StringBuilder.Append("}}");
 
 			Visit(documentItem.Partial as MorestachioDocument);
 
-			StringBuilder.Append("{{/DECLARE}}");
+			StringBuilder.Append("{{");
+			CheckForTnlInlineEnd(documentItem.Children);
+			StringBuilder.Append("/DECLARE}}");
 		}
-		
+
 		/// <inheritdoc />
 		public void Visit(PathDocumentItem documentItem)
 		{
-			Visit(documentItem, "", "");
+			Visit(documentItem, "", documentItem.EscapeValue ? "" : "&");
 		}
-		
+
 		/// <inheritdoc />
 		public void Visit(RemoveAliasDocumentItem documentItem)
 		{
 		}
-		
+
 		/// <inheritdoc />
 		public void Visit(RenderPartialDocumentItem documentItem)
 		{
-			StringBuilder.Append("{{#INCLUDE ");
+			StringBuilder.Append("{{");
+			CheckForTnlInlineBegin();
+			StringBuilder.Append("#INCLUDE ");
 			StringBuilder.Append(documentItem.Value);
 			if (documentItem.Context != null)
 			{
 				StringBuilder.Append(" WITH ");
 				StringBuilder.Append(ReparseExpression(documentItem.Context));
 			}
+			CheckForTnlInlineEnd(documentItem.Children);
 			StringBuilder.Append("}}");
 		}
-
+		
+		/// <inheritdoc />
 		public void Visit(ImportPartialDocumentItem documentItem)
 		{
-			StringBuilder.Append("{{#IMPORT ");
+			StringBuilder.Append("{{");
+			CheckForTnlInlineBegin();
+			StringBuilder.Append("#IMPORT ");
 			StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
 			if (documentItem.Context != null)
 			{
 				StringBuilder.Append(" #WITH ");
 				StringBuilder.Append(ReparseExpression(documentItem.Context));
 			}
+			CheckForTnlInlineEnd(documentItem.Children);
 			StringBuilder.Append("}}");
 		}
 
@@ -367,7 +405,8 @@ namespace Morestachio.Document.Visitor
 		{
 			Visit(documentItem, "WHILE ");
 		}
-
+		
+		/// <inheritdoc />
 		public void Visit(RepeatDocumentItem documentItem)
 		{
 			Visit(documentItem, "REPEAT ");
@@ -386,7 +425,7 @@ namespace Morestachio.Document.Visitor
 					{
 						StringBuilder.Append("{{#TNL}}");
 					}
-					else if (op.LineBreaks == -1)
+					else if (op.LineBreaks == 0)
 					{
 						StringBuilder.Append("{{#TNLS}}");
 					}

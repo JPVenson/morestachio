@@ -33,7 +33,7 @@ namespace Morestachio.Document.Items
 		}
 
 		/// <inheritdoc />
-		public PathDocumentItem(CharacterLocation location, [NotNull] IMorestachioExpression value, bool escapeValue = false) 
+		public PathDocumentItem(CharacterLocation location, [NotNull] IMorestachioExpression value, bool escapeValue = true) 
 			: base(location, value)
 		{
 			EscapeValue = escapeValue;
@@ -80,6 +80,7 @@ namespace Morestachio.Document.Items
 			return WebUtility.HtmlEncode(context);
 		}
 
+		/// <inheritdoc />
 		public Compilation Compile()
 		{
 			var children = MorestachioDocument.CompileItemsAndChildren(Children);

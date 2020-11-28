@@ -226,7 +226,7 @@ namespace Morestachio.Tests
 			Assert.AreEqual("<li>name 0 and version 0 and has a CEO: Smith</li>" +
 						 "<li>name 1 and version 1 and has a CEO: Smith</li>" +
 						 "<li>name 2 and version 2 and has a CEO: Smith</li>", result);
-			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document, parsingOptions);
 		}
 
 		[Test]
@@ -263,7 +263,7 @@ namespace Morestachio.Tests
 			Assert.AreEqual("<li>name 0 and version 0 and has a CEO: Smith</li>" +
 						 "<li>name 1 and version 1 and has a CEO: Smith</li>" +
 						 "<li>name 2 and version 2 and has a CEO: Smith</li>", result);
-			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document, parsingOptions);
 		}
 
 		[Test]
@@ -345,7 +345,7 @@ namespace Morestachio.Tests
 			var result = parsedTemplate.CreateAndStringify(model);
 
 			Assert.AreEqual(model["data"], result);
-			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document, parsingOptions);
 		}
 
 		[Test]
@@ -367,7 +367,7 @@ namespace Morestachio.Tests
 			var result = parsedTemplate.CreateAndStringify(model);
 
 			Assert.That(result, Is.EqualTo("SHOULD PRINT"));
-			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document);
+			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document, parsingOptions);
 		}
 
 		[Test]

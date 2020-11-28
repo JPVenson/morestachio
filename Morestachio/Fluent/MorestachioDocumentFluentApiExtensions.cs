@@ -109,7 +109,7 @@ namespace Morestachio.Fluent
 		/// </summary>
 		public static MorestachioDocumentFluentApi AddPath(this MorestachioDocumentFluentApi api,
 			Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> condition,
-			bool escapeValue = false)
+			bool escapeValue = true)
 		{
 			return api.AddChild(builder => new PathDocumentItem(CharacterLocation.Unknown, condition(builder).Compile(), escapeValue));
 		}

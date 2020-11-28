@@ -211,7 +211,7 @@ namespace Morestachio
 						currentToken.Type.Equals(TokenType.UnescapedSingleValue))
 				{
 					currentDocumentItem.Document.Add(new PathDocumentItem(currentToken.TokenLocation, currentToken.MorestachioExpression,
-							currentToken.Type.Equals(TokenType.EscapedSingleValue)));
+						currentToken.Type.Equals(TokenType.EscapedSingleValue)));
 				}
 				else if (currentToken.Type.Equals(TokenType.PartialDeclarationOpen))
 				{

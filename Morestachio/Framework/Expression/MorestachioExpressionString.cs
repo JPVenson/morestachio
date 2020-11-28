@@ -128,6 +128,7 @@ namespace Morestachio.Framework.Expression
 				contextObject);
 		}
 
+		/// <inheritdoc />
 		public CompiledExpression Compile()
 		{
 			var str = string.Join("", StringParts.Select(f => f.PartText));

@@ -10,7 +10,7 @@ namespace Morestachio.Tests
 {
 	[TestFixture(ParserOptionTypes.UseOnDemandCompile)]
 	[TestFixture(ParserOptionTypes.Precompile)]
-	//[Parallelizable(ParallelScope.All)]
+	[Parallelizable(ParallelScope.All)]
 	public class LocalizationTests
 	{
 		private readonly ParserOptionTypes _options;
@@ -190,7 +190,7 @@ namespace Morestachio.Tests
 			{
 				parserOptions.RegisterLocalizationService(() =>
 				{
-					return new MorestachioLocalizationService()
+					var morestachioLocalizationService = new MorestachioLocalizationService()
 						.AddResource(new MemoryTranslationResource()
 							.Add("Texts.Welcome", CultureInfo.GetCultureInfo("EN-US"), "Welcome")
 							.Add("Texts.Welcome", CultureInfo.GetCultureInfo("DE-DE"), "Moin")
@@ -201,6 +201,7 @@ namespace Morestachio.Tests
 							CultureInfo.GetCultureInfo("DE-DE"),
 							CultureInfo.GetCultureInfo("DE-AT")
 						});
+					return morestachioLocalizationService;
 				});
 				parserOptions.CultureInfo = CultureInfo.GetCultureInfo("EN-US");
 			});
