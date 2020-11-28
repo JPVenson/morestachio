@@ -187,6 +187,70 @@ namespace Morestachio.Document.Items
 
 		private static Compilation FastExecuteItems(Compilation[] actions)
 		{
+			async Promise ExecuteTenItems(IByteCounterStream stream, ContextObject context, ScopeData data)
+			{
+				if (!ContinueBuilding(stream, context))
+				{
+					return;
+				}
+
+				await actions[0](stream, context, data);
+				if (!ContinueBuilding(stream, context))
+				{
+					return;
+				}
+
+				await actions[1](stream, context, data);
+				if (!ContinueBuilding(stream, context))
+				{
+					return;
+				}
+
+				await actions[2](stream, context, data);
+				if (!ContinueBuilding(stream, context))
+				{
+					return;
+				}
+
+				await actions[3](stream, context, data);
+				if (!ContinueBuilding(stream, context))
+				{
+					return;
+				}
+
+				await actions[4](stream, context, data);
+				if (!ContinueBuilding(stream, context))
+				{
+					return;
+				}
+
+				await actions[5](stream, context, data);
+				if (!ContinueBuilding(stream, context))
+				{
+					return;
+				}
+
+				await actions[6](stream, context, data);
+				if (!ContinueBuilding(stream, context))
+				{
+					return;
+				}
+
+				await actions[7](stream, context, data);
+				if (!ContinueBuilding(stream, context))
+				{
+					return;
+				}
+
+				await actions[8](stream, context, data);
+				if (!ContinueBuilding(stream, context))
+				{
+					return;
+				}
+
+				await actions[9](stream, context, data);
+			}
+
 			if (actions.Length == 0)
 			{
 				return async (stream, context, data) =>
@@ -473,66 +537,18 @@ namespace Morestachio.Document.Items
 					await actions[8](stream, context, data);
 				};
 			}
-			else if (actions.Length == 10)
+			else
 			{
-				return async (stream, context, data) =>
+				if (actions.Length == 10)
 				{
-					if (!ContinueBuilding(stream, context))
-					{
-						return;
-					}
-					await actions[0](stream, context, data);
-					if (!ContinueBuilding(stream, context))
-					{
-						return;
-					}
-					await actions[1](stream, context, data);
-					if (!ContinueBuilding(stream, context))
-					{
-						return;
-					}
-					await actions[2](stream, context, data);
-					if (!ContinueBuilding(stream, context))
-					{
-						return;
-					}
-					await actions[3](stream, context, data);
-					if (!ContinueBuilding(stream, context))
-					{
-						return;
-					}
-					await actions[4](stream, context, data);
-					if (!ContinueBuilding(stream, context))
-					{
-						return;
-					}
-					await actions[5](stream, context, data);
-					if (!ContinueBuilding(stream, context))
-					{
-						return;
-					}
-					await actions[6](stream, context, data);
-					if (!ContinueBuilding(stream, context))
-					{
-						return;
-					}
-					await actions[7](stream, context, data);
-					if (!ContinueBuilding(stream, context))
-					{
-						return;
-					}
-					await actions[8](stream, context, data);
-					if (!ContinueBuilding(stream, context))
-					{
-						return;
-					}
-					await actions[9](stream, context, data);
-				};
+					return ExecuteTenItems;
+				}
 			}
 
 			return async (stream, context, data) =>
 			{
-				for (int i = 0; i < actions.Length; i++)
+				await ExecuteTenItems(stream, context, data);
+				for (int i = 10; i < actions.Length; i++)
 				{
 					if (!ContinueBuilding(stream, context))
 					{
