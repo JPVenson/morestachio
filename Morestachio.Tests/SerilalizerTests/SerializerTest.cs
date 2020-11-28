@@ -48,18 +48,19 @@ namespace Morestachio.Tests.SerilalizerTests
 			}
 		}
 
-		private void SerilalizeAndDeserialize(IDocumentItem document)
+		public void SerilalizeAndDeserialize(IDocumentItem document)
 		{
 			var text = DocumentSerializerStrategy.SerializeToText(document);
 			var deserialized = DocumentSerializerStrategy.DeSerializeToText(text, document.GetType());
 			var deserializedText = DocumentSerializerStrategy.SerializeToText(deserialized);
+			Assert.That(text, Is.EqualTo(deserializedText));
 			Assert.That(document, Is.EqualTo(deserialized), () =>
 				{
 					return $"Object left is: \r\n" +
-						   $"\"{text}\" \r\n" +
-						   $"and right ist \r\n" +
-						   $"\"{deserializedText}\"" +
-						   $"";
+					       $"\"{text}\" \r\n" +
+					       $"and right ist \r\n" +
+					       $"\"{deserializedText}\"" +
+					       $"";
 				});
 
 			Assert.That(deserializedText, Is.EqualTo(text));

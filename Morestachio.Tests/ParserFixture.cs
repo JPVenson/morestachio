@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -21,6 +22,8 @@ using Morestachio.Framework.Error;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Parsing.ParserErrors;
+using Morestachio.Tests.SerilalizerTests;
+using Morestachio.Tests.SerilalizerTests.Strategies;
 using ExpressionParser = Morestachio.Framework.Expression.ExpressionParser;
 
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
@@ -49,15 +52,34 @@ namespace Morestachio.Tests
 			Action<MorestachioDocumentResult> documentResultCallback = null,
 			CancellationTokenSource cancellationTokenSource = null)
 		{
+			return (await CreateAndParseWithOptionsStream(template, data, opt, option, documentCallback,
+				documentResultCallback, cancellationTokenSource))?.Stringify(true, DefaultEncoding);
+		}
+
+		public static async Task<Stream> CreateAndParseWithOptionsStream(string template,
+			object data,
+			ParserOptionTypes opt,
+			Action<ParserOptions> option = null,
+			Action<MorestachioDocumentInfo> documentCallback = null,
+			Action<MorestachioDocumentResult> documentResultCallback = null,
+			CancellationTokenSource cancellationTokenSource = null)
+		{
 			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
 			option?.Invoke(parsingOptions);
 			var document = await Parser.ParseWithOptionsAsync(parsingOptions);
-			if (!opt.HasFlag(ParserOptionTypes.NoRerenderingTest))
+			if (!opt.HasFlag(ParserOptionTypes.NoRerenderingTest) && document.Document != null)
 			{
-				SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(template, document.Document, parsingOptions);
+				SerializerTest.AssertDocumentItemIsSameAsTemplate(template, document.Document, parsingOptions);
+				//var xml = new SerializerTest(typeof(DocumentSerializerXmlStrategy));
+				//xml.SerilalizeAndDeserialize(document.Document);
+
 				TestLocationsInOrder(document);
 			}
 			documentCallback?.Invoke(document);
+			if (document.Document == null)
+			{
+				return null;
+			}
 			MorestachioDocumentResult docInfo = null;
 			if (documentResultCallback != null)
 			{
@@ -70,12 +92,12 @@ namespace Morestachio.Tests
 			if (opt.HasFlag(ParserOptionTypes.UseOnDemandCompile))
 			{
 				docInfo = docInfo ?? await document.CreateAsync(data, cToken);
-				return docInfo.Stream.Stringify(true, DefaultEncoding);
+				return docInfo.Stream;
 			}
 			if (opt.HasFlag(ParserOptionTypes.Precompile))
 			{
 				var compilation = document.Compile();
-				return (await compilation(data, cToken)).Stream.Stringify(true, parsingOptions.Encoding);
+				return (await compilation(data, cToken)).Stream;
 			}
 
 			return null;
@@ -97,7 +119,7 @@ namespace Morestachio.Tests
 				}
 				else
 				{
-					Assert.That(api.Context.CurrentNode.Item.ExpressionStart, Is.GreaterThan(lastLocation));
+					Assert.That(api.Context.CurrentNode.Item.ExpressionStart, Is.GreaterThan(lastLocation), () => "Positions dont match");
 					lastLocation = api.Context.CurrentNode.Item.ExpressionStart;
 				}
 
