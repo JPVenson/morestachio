@@ -198,6 +198,10 @@ namespace Morestachio.Document.Items
 			{
 				return async (stream, context, data) =>
 				{
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[0](stream, context, data);
 				};
 			}
@@ -205,7 +209,15 @@ namespace Morestachio.Document.Items
 			{
 				return async (stream, context, data) =>
 				{
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[0](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[1](stream, context, data);
 				};
 			}
@@ -213,8 +225,20 @@ namespace Morestachio.Document.Items
 			{
 				return async (stream, context, data) =>
 				{
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[0](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[1](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[2](stream, context, data);
 				};
 			}
@@ -222,9 +246,25 @@ namespace Morestachio.Document.Items
 			{
 				return async (stream, context, data) =>
 				{
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[0](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[1](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[2](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[3](stream, context, data);
 				};
 			}
@@ -232,10 +272,30 @@ namespace Morestachio.Document.Items
 			{
 				return async (stream, context, data) =>
 				{
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[0](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[1](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[2](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[3](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[4](stream, context, data);
 				};
 			}
@@ -243,11 +303,35 @@ namespace Morestachio.Document.Items
 			{
 				return async (stream, context, data) =>
 				{
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[0](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[1](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[2](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[3](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[4](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[5](stream, context, data);
 				};
 			}
@@ -255,12 +339,40 @@ namespace Morestachio.Document.Items
 			{
 				return async (stream, context, data) =>
 				{
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[0](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[1](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[2](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[3](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[4](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[5](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[6](stream, context, data);
 				};
 			}
@@ -268,13 +380,45 @@ namespace Morestachio.Document.Items
 			{
 				return async (stream, context, data) =>
 				{
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[0](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[1](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[2](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[3](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[4](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[5](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[6](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[7](stream, context, data);
 				};
 			}
@@ -282,14 +426,50 @@ namespace Morestachio.Document.Items
 			{
 				return async (stream, context, data) =>
 				{
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[0](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[1](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[2](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[3](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[4](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[5](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[6](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[7](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[8](stream, context, data);
 				};
 			}
@@ -297,15 +477,55 @@ namespace Morestachio.Document.Items
 			{
 				return async (stream, context, data) =>
 				{
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[0](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[1](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[2](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[3](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[4](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[5](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[6](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[7](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[8](stream, context, data);
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[9](stream, context, data);
 				};
 			}
@@ -314,6 +534,10 @@ namespace Morestachio.Document.Items
 			{
 				for (int i = 0; i < actions.Length; i++)
 				{
+					if (!ContinueBuilding(stream, context))
+					{
+						return;
+					}
 					await actions[i](stream, context, data);	
 				}
 			};
