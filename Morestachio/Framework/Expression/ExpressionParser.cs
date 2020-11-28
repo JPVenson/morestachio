@@ -178,7 +178,7 @@ namespace Morestachio.Framework.Expression
 				return default;
 			}
 
-			return new TokenPair(type, variableName, ParseExpression(expression, context), startOfExpression);
+			return new TokenPair(type, variableName, startOfExpression, ParseExpression(expression, context));
 		}
 
 		/// <summary>
