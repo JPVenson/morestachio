@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -98,7 +99,7 @@ namespace Morestachio.Helper.Localization
 		/// <inheritdoc />
 		public KeyValuePair<string, object>[] Get(CultureInfo culture)
 		{
-			return Translations.Where(e => e.Culture == culture)
+			return Translations.Where(e => Equals(e.Culture, culture))
 				.Select(f => new KeyValuePair<string, object>(f.Key, f.Value))
 				.ToArray();
 		}
@@ -106,7 +107,7 @@ namespace Morestachio.Helper.Localization
 		/// <inheritdoc />
 		public BoolPromise GetTranslation(string key, CultureInfo culture, out object translation)
 		{
-			var firstOrDefault = Translations.FirstOrDefault(e => e.Key == key && e.Culture == culture);
+			var firstOrDefault = Translations.FirstOrDefault(e => e.Key == key && Equals(e.Culture, culture));
 			translation = firstOrDefault
 				.Value;
 			if (Equals(firstOrDefault.Key, key))

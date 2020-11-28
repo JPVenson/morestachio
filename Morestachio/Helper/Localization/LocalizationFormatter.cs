@@ -12,18 +12,18 @@ namespace Morestachio.Helper.Localization
 		/// 
 		/// </summary>
 		/// <param name="key"></param>
-		/// <param name="LocalizationService"></param>
+		/// <param name="localizationService"></param>
 		/// <param name="parserOptions"></param>
 		/// <param name="arguments"></param>
 		/// <returns></returns>
 		[MorestachioGlobalFormatter("Loc", "Translates the given key in the current Culture")]
 		[MorestachioFormatter("Loc", "Translates the given key in the current Culture")]
-		public static object Translate(string key, 
-			[ExternalData] IMorestachioLocalizationService LocalizationService,
+		public static object Translate(string key,
+			[ExternalData] IMorestachioLocalizationService localizationService,
 			[ExternalData] ParserOptions parserOptions,
-			[RestParameter]params object[] arguments)
+			[RestParameter] params object[] arguments)
 		{
-			return LocalizationService.GetTranslationOrNull(key, parserOptions.CultureInfo, arguments);
+			return localizationService.GetTranslationOrNull(key, parserOptions.CultureInfo, arguments);
 		}
 	}
 }
