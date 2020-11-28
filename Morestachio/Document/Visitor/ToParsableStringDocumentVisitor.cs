@@ -327,7 +327,7 @@ namespace Morestachio.Document.Visitor
 		/// <inheritdoc />
 		public void Visit(SwitchDefaultDocumentItem documentItem)
 		{
-			Visit(documentItem, "DEFAULT ");
+			Visit(documentItem, "DEFAULT");
 		}
 
 		/// <inheritdoc />
