@@ -71,7 +71,7 @@ namespace Morestachio.Document.Items.SwitchCase
 					}
 					return item;
 				}).ToArray();
-			
+
 			var value = await MorestachioExpression.GetValue(context, scopeData);
 			if (ScopeToValue)
 			{
@@ -87,11 +87,12 @@ namespace Morestachio.Document.Items.SwitchCase
 
 			return Enumerable.Empty<DocumentItemExecution>();
 		}
-		
+
 		/// <inheritdoc />
 		public Compilation Compile()
 		{
-			var children = Children.Select(e => new SwitchExecutionContainerCompiledAction()
+			var children = Children.Where(e => e is SwitchCaseDocumentItem || e is SwitchDefaultDocumentItem)
+				.Select(e => new SwitchExecutionContainerCompiledAction()
 			{
 				Callback = MorestachioDocument.CompileItemsAndChildren(e.Children),
 				Expression = (e as SwitchCaseDocumentItem)?.MorestachioExpression.Compile()
@@ -154,14 +155,14 @@ namespace Morestachio.Document.Items.SwitchCase
 
 			return containers.FirstOrDefault(e => e.Expression is null);
 		}
-		
+
 		/// <inheritdoc />
 		protected override void DeSerializeXml(XmlReader reader)
 		{
 			ScopeToValue = reader.GetAttribute(nameof(ScopeToValue)) == bool.TrueString;
 			base.DeSerializeXml(reader);
 		}
-		
+
 		/// <inheritdoc />
 		protected override void SerializeXml(XmlWriter writer)
 		{
