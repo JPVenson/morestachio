@@ -35,38 +35,82 @@ namespace Morestachio.Tests.PerfTests
 			public TimeSpan CompiledRenderTime { get; set; }
 			public TimeSpan TotalTime { get; set; }
 
-			public static string Header(string delimiter)
+			private static string MakeHeaderField(
+				IList<ModelPerformanceCounterEntity> all, 
+				Func<ModelPerformanceCounterEntity, string> prop,
+				string fieldName)
+			{
+				try
+				{
+					var maxValue = Math.Max(all.Select(prop).Select(f => f.Length).Max() - fieldName.Length, 0);
+					var spaces = "";
+					if (maxValue > 0)
+					{
+						spaces = Enumerable.Repeat(" ", maxValue).Aggregate((e, f) => e + f);
+					}
+					return $"{fieldName}{spaces}";
+				}
+				catch (Exception e)
+				{
+					Console.WriteLine(e);
+					throw;
+				}
+			}
+			private static string MakeHeaderFieldSeperator(
+				IList<ModelPerformanceCounterEntity> all, 
+				Func<ModelPerformanceCounterEntity, string> prop,
+				string fieldName)
+			{
+				var maxValue = Math.Max(all.Select(prop).Select(f => f.Length).Max(), fieldName.Length) + 2;
+				return $"{Enumerable.Repeat("-", maxValue).Aggregate((e, f) => e + f)}";
+			}
+
+			public static string Header(string delimiter, IList<ModelPerformanceCounterEntity> all)
 			{
 				return
-					$"Variation{delimiter} " +
-					$"Time/Run{delimiter} " +
-					$"Runs{delimiter} " +
-					$"Model Depth{delimiter} " +
-					$"SubstitutionCount{delimiter} " +
-					$"Template Size(byte){delimiter} " +
-					$"TokenizingTime{delimiter} " +
-					$"ParseTime{delimiter} " +
-					$"RenderTime{delimiter} " +
-					$"CompilerTime{delimiter} " +
-					$"CompiledRenderTime{delimiter} " +
-					$"Total Time ";
+					$"{delimiter} {MakeHeaderField(all, f => f.Name, "Variation")} {delimiter} " +
+					$"{MakeHeaderField(all, f => f.Name, "Time/Run")} {delimiter} " +
+					$"{MakeHeaderField(all, f => f.TimePerRun.ToString("c"), "Runs")} {delimiter} " +
+					$"{MakeHeaderField(all, f => f.RunOver.ToString(), "Model Depth")} {delimiter} " +
+					$"{MakeHeaderField(all, f => f.ModelDepth.ToString(), "SubstitutionCount")} {delimiter} " +
+					$"{MakeHeaderField(all, f => f.SubstitutionCount.ToString(), "Template Size(byte)")} {delimiter} " +
+					$"{MakeHeaderField(all, f => f.TemplateSize.ToString(), "TokenizingTime")} {delimiter} " +
+					$"{MakeHeaderField(all, f => f.TokenizingTime.ToString("c"), "ParseTime")} {delimiter} " +
+					$"{MakeHeaderField(all, f => f.RenderTime.ToString("c"), "RenderTime")} {delimiter} " +
+					$"{MakeHeaderField(all, f => f.CompilerTime.ToString("c"), "CompilerTime")} {delimiter} " +
+					$"{MakeHeaderField(all, f => f.CompiledRenderTime.ToString("c"), "CompiledRenderTime")} {delimiter} " +
+					$"{MakeHeaderField(all, f => f.TotalTime.ToString("c"), "Total Time")} {delimiter}" +
+					$"\r\n" +
+					$"{delimiter}{MakeHeaderFieldSeperator(all, f => f.Name, "Variation")}{delimiter}" +
+					$"{MakeHeaderFieldSeperator(all, f => f.Name, "Time/Run")}{delimiter}" +
+					$"{MakeHeaderFieldSeperator(all, f => f.TimePerRun.ToString("c"), "Runs")}{delimiter}" +
+					$"{MakeHeaderFieldSeperator(all, f => f.RunOver.ToString(), "Model Depth")}{delimiter}" +
+					$"{MakeHeaderFieldSeperator(all, f => f.ModelDepth.ToString(), "SubstitutionCount")}{delimiter}" +
+					$"{MakeHeaderFieldSeperator(all, f => f.SubstitutionCount.ToString(), "Template Size(byte)")}{delimiter}" +
+					$"{MakeHeaderFieldSeperator(all, f => f.TemplateSize.ToString(), "TokenizingTime")}{delimiter}" +
+					$"{MakeHeaderFieldSeperator(all, f => f.TokenizingTime.ToString("c"), "ParseTime")}{delimiter}" +
+					$"{MakeHeaderFieldSeperator(all, f => f.RenderTime.ToString("c"), "RenderTime")}{delimiter}" +
+					$"{MakeHeaderFieldSeperator(all, f => f.CompilerTime.ToString("c"), "CompilerTime")}{delimiter}" +
+					$"{MakeHeaderFieldSeperator(all, f => f.CompiledRenderTime.ToString("c"), "CompiledRenderTime")}{delimiter}" +
+					$"{MakeHeaderFieldSeperator(all, f => f.TotalTime.ToString("c"), "Total Time")}{delimiter}" 
+					;
 			}
 
 			public string PrintAsCsv(string delimiter)
 			{
 				return
-					$"{Name}{delimiter}" +
-					$"{TimePerRun:c}{delimiter}" +
-					$"{RunOver}{delimiter}" +
-					$"{ModelDepth}{delimiter}" +
-					$"{SubstitutionCount}{delimiter}" +
-					$"{TemplateSize}{delimiter}" +
-					$"{TokenizingTime:c}{delimiter}" +
-					$"{ParseTime:c}{delimiter}" +
-					$"{RenderTime:c}{delimiter}" +
-					$"{CompilerTime:c}{delimiter}" +
-					$"{CompiledRenderTime:c}{delimiter}" +
-					$"{TotalTime:c}";
+					$"{delimiter} {Name} {delimiter} " +
+					$"{TimePerRun:c} {delimiter} " +
+					$"{RunOver} {delimiter} " +
+					$"{ModelDepth} {delimiter} " +
+					$"{SubstitutionCount} {delimiter} " +
+					$"{TemplateSize} {delimiter} " +
+					$"{TokenizingTime:c} {delimiter} " +
+					$"{ParseTime:c} {delimiter} " +
+					$"{RenderTime:c} {delimiter} " +
+					$"{CompilerTime:c} {delimiter} " +
+					$"{CompiledRenderTime:c} {delimiter} " +
+					$"{TotalTime:c} {delimiter}";
 			}
 		}
 		public class ExpressionPerformanceCounterEntity : IPerformanceCounterEntity
@@ -116,16 +160,26 @@ namespace Morestachio.Tests.PerfTests
 			//	" Template Size: {3}, ParseTime: {4}, RenderTime: {5}, Total Time: {6}",
 			//	runs, modelDepth, inserts, sizeOfTemplate, parseTime.Elapsed, renderTime.Elapsed, totalTime.Elapsed,
 			//	totalTime.ElapsedMilliseconds / (double) runs, variation);
-			var delimiter = " | ";
-			output.AppendLine(ModelPerformanceCounterEntity.Header(delimiter));
-			foreach (var performanceCounter in PerformanceCounters.OfType<ModelPerformanceCounterEntity>())
+			var delimiter = "|";
+			var perfCounter = PerformanceCounters.OfType<ModelPerformanceCounterEntity>().ToArray();
+			if (perfCounter.Any())
 			{
-				output.AppendLine("| " + performanceCounter.PrintAsCsv(delimiter) + "|");
+				output.AppendLine(ModelPerformanceCounterEntity.Header(delimiter, perfCounter));
+				foreach (var performanceCounter in perfCounter)
+				{
+					output.AppendLine(performanceCounter.PrintAsCsv(delimiter));
+				}
 			}
-			output.AppendLine(ExpressionPerformanceCounterEntity.Header(delimiter));
-			foreach (var performanceCounter in PerformanceCounters.OfType<ExpressionPerformanceCounterEntity>())
+			var expPerCounter = PerformanceCounters.OfType<ExpressionPerformanceCounterEntity>();
+
+			if (expPerCounter.Any())
 			{
-				output.AppendLine("| " + performanceCounter.PrintAsCsv(delimiter) + "|");
+				
+				output.AppendLine(ExpressionPerformanceCounterEntity.Header(delimiter));
+				foreach (var performanceCounter in expPerCounter)
+				{
+					output.AppendLine("| " + performanceCounter.PrintAsCsv(delimiter) + "|");
+				}
 			}
 
 			Console.WriteLine(output.ToString());

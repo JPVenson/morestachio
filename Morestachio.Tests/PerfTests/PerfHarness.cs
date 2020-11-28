@@ -242,8 +242,8 @@ namespace Morestachio.Tests.PerfTests
 				CompiledRenderTime = compiledRenderTime.Elapsed
 			};
 			PerformanceCounter.PerformanceCounters.Add(modelPerformanceCounterEntity);
-			Console.WriteLine(PerformanceCounter.ModelPerformanceCounterEntity.Header(" | "));
-			Console.WriteLine(modelPerformanceCounterEntity.PrintAsCsv(" | "));
+			//Console.WriteLine(PerformanceCounter.ModelPerformanceCounterEntity.Header(" | "));
+			//Console.WriteLine(modelPerformanceCounterEntity.PrintAsCsv(" | "));
 		}
 
 		public static Tuple<Dictionary<string, object>, string> ConstructModelAndPath(int modelDepth, string path = null)
