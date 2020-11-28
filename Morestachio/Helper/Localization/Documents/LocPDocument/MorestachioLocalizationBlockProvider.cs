@@ -28,7 +28,7 @@ namespace Morestachio.Helper.Localization.Documents.LocPDocument
 			var trim = token.Token;
 			if (trim.StartsWith(TagOpen, true, CultureInfo.InvariantCulture))
 			{
-				yield return new TokenPair(TagOpen.Trim(), ExpressionParser.ParseExpression(trim.Remove(0, OpenTag.Length).Trim(), token.TokenizerContext), token.TokenizerContext.CurrentLocation);
+				yield return new TokenPair(TagOpen.Trim(), token.TokenizerContext.CurrentLocation, ExpressionParser.ParseExpression(trim.Remove(0, OpenTag.Length).Trim(), token.TokenizerContext));
 			}
 			if (string.Equals(trim, TagClose, StringComparison.InvariantCultureIgnoreCase))
 			{

@@ -34,9 +34,8 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 				tokenOptions.Add(new TokenOption("Culture", ExpressionParser.ParseExpression(locToken, token.TokenizerContext)));
 			}
 
-			yield return new TokenPair(OpenTag.Trim(),
-				locExpression, 
-				token.TokenizerContext.CurrentLocation, tokenOptions);
+			yield return new TokenPair(OpenTag.Trim(), 
+				token.TokenizerContext.CurrentLocation, locExpression, tokenOptions);
 		}
 
 		/// <inheritdoc />
