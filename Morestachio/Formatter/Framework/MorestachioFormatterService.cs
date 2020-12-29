@@ -92,6 +92,9 @@ namespace Morestachio.Formatter.Framework
 		[Obsolete("The Formatter name must now always be in the exact casing as the given name", true)]
 		public StringComparison FormatterNameCompareMode { get; set; } = StringComparison.Ordinal;
 
+		/// <summary>
+		/// 
+		/// </summary>
 		public FormatterServiceExceptionHandling ExceptionHandling { get; set; }
 
 		/// <inheritdoc />
@@ -220,6 +223,7 @@ namespace Morestachio.Formatter.Framework
 			services.AddService(parserOptions);
 			services.AddService(scope.Profiler);
 			services.AddService(scope);
+			services.AddService(parserOptions.Logger);
 
 			foreach (var morestachioFormatterModel in hasFormatter)
 			{

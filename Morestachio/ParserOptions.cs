@@ -15,6 +15,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Context.Resolver;
 using Morestachio.Framework.IO;
+using Morestachio.Helper.Logging;
 using Morestachio.TemplateContainers;
 using Morestachio.Util.Sealing;
 
@@ -48,6 +49,7 @@ namespace Morestachio
 		[NotNull] private Encoding _encoding;
 		[NotNull] private string _null;
 		private bool _handleDictionaryAsObject;
+		private ILogger _logger;
 
 		/// <summary>
 		///		Creates a new object without any template
@@ -428,6 +430,19 @@ namespace Morestachio
 			{
 				CheckSealed();
 				_encoding = value ?? throw new ArgumentException();
+			}
+		}
+
+		/// <summary>
+		///		The Logger used for this template
+		/// </summary>
+		public ILogger Logger
+		{
+			get { return _logger; }
+			set
+			{
+				CheckSealed();
+				_logger = value;
 			}
 		}
 

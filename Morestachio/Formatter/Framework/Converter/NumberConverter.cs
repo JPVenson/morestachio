@@ -19,16 +19,16 @@ namespace Morestachio.Formatter.Framework.Converter
 		{
 			if (sourceType == typeof(Number))
 			{
-				if (Number.CsFrameworkFloatingPointNumberTypes.Contains(requestedType) ||
-				    Number.CsFrameworkIntegralTypes.Contains(requestedType))
+				if (Number.IsFloatingPointNumber(requestedType) ||
+				    Number.IsIntegralNumber(requestedType))
 				{
 					return true;
 				}
 			}
 			if (requestedType == typeof(Number))
 			{
-				if (Number.CsFrameworkFloatingPointNumberTypes.Contains(sourceType) ||
-				    Number.CsFrameworkIntegralTypes.Contains(sourceType))
+				if (Number.IsFloatingPointNumber(sourceType) ||
+				    Number.IsIntegralNumber(sourceType))
 				{
 					return true;
 				}

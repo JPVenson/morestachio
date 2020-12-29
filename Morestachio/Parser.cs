@@ -10,6 +10,7 @@ using Morestachio.Document.TextOperations;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Helper.Logging;
 using Morestachio.Parsing;
 using Morestachio.Parsing.ParserErrors;
 using Morestachio.TemplateContainers;
@@ -56,9 +57,15 @@ namespace Morestachio
 
 			parsingOptions.Seal();
 
+			parsingOptions.Logger?.LogDebug(LoggingFormatter.ParserEventId, "Parse new Template");
+
 			var tokenzierContext = new TokenzierContext(new List<int>(), parsingOptions.CultureInfo);
 			var tokenizerResult = await Tokenizer.Tokenize(parsingOptions, tokenzierContext);
 
+			parsingOptions.Logger?.LogDebug(LoggingFormatter.ParserEventId, "Template Parsed", new Dictionary<string, object>()
+			{
+				{"Errors", tokenzierContext.Errors}
+			});
 			//if there are any errors do not parse the template
 			var documentInfo = new MorestachioDocumentInfo(parsingOptions,
 				tokenzierContext.Errors.Any() ? null : Parse(tokenizerResult, parsingOptions), tokenzierContext.Errors);

@@ -5,6 +5,7 @@ using System.IO;
 using System.Xml.Serialization;
 using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Framework.Context.Resolver;
+using Morestachio.Helper.Logging;
 
 namespace Morestachio.Formatter.Predefined
 {
@@ -14,17 +15,29 @@ namespace Morestachio.Formatter.Predefined
 	/// </summary>
 	public static class ObjectStringFormatter
 	{
-		[MorestachioFormatter("ToString", "")]
-		[MorestachioFormatter(null, null)]
+		[MorestachioFormatter("ToString", "Formats a value according to the structure set by the argument")]
 		public static string Formattable(IFormattable source, string argument, [ExternalData]ParserOptions options)
 		{
 			return source.ToString(argument, options.CultureInfo);
 		}
 
-		[MorestachioFormatter("ToString", null)]
 		[MorestachioFormatter(null, null)]
+		public static string FormattableObsolete(IFormattable source, string argument, [ExternalData]ParserOptions options)
+		{
+			options.Logger.LogWarn(LoggingFormatter.FormatterObsoleteEventId, "The null ToString formatter is obsolete. Please use the named 'ToString()' formatter");
+			return source.ToString(argument, options.CultureInfo);
+		}
+
+		[MorestachioFormatter("ToString", "Formats the value according to the build in rules for that object")]
 		public static string Formattable(object source)
 		{
+			return source.ToString();
+		}
+
+		[MorestachioFormatter(null, null)]
+		public static string FormattableObsolete(object source, [ExternalData]ILogger logger)
+		{
+			logger?.LogWarn(LoggingFormatter.FormatterObsoleteEventId, "The null ToString formatter is obsolete. Please use the named 'ToString()' formatter");
 			return source.ToString();
 		}
 		

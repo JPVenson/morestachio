@@ -14,6 +14,7 @@ using Morestachio.Framework.Context.Resolver;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Helper;
+using Morestachio.Helper.Logging;
 using PathPartElement =
 	System.Collections.Generic.KeyValuePair<string, Morestachio.Framework.Expression.Framework.PathType>;
 #if ValueTask
@@ -65,6 +66,7 @@ namespace Morestachio.Framework.Context
 			DefaultFormatter.AddFromType(typeof(Worktime));
 			DefaultFormatter.AddFromType(typeof(Money));
 			DefaultFormatter.AddFromType(typeof(HtmlFormatter));
+			DefaultFormatter.AddFromType(typeof(LoggingFormatter));
 
 			DefaultDefinitionOfFalse = value => value != null &&
 												value as bool? != false &&

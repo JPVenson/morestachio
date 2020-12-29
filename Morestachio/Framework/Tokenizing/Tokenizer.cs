@@ -9,6 +9,7 @@ using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Error;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
+using Morestachio.Helper.Logging;
 using Morestachio.Parsing.ParserErrors;
 using Morestachio.TemplateContainers;
 #if ValueTask
@@ -424,6 +425,10 @@ namespace Morestachio.Framework.Tokenizing
 					}
 					else if (trimmedToken.StartsWith("#include ", true, CultureInfo.InvariantCulture))
 					{
+						parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId, "Use the new #Import tag instead of the #include tag", new Dictionary<string, object>()
+						{
+							{"Location", context.CurrentLocation},
+						});
 						var token = trimmedToken.TrimStart('#').Trim();
 						var partialRegex = PartialIncludeRegEx.Match(token);
 						var partialName = partialRegex.Groups[1].Value;
@@ -832,6 +837,14 @@ namespace Morestachio.Framework.Tokenizing
 					}
 					else if (trimmedToken.StartsWith("#let ", true, CultureInfo.InvariantCulture))
 					{
+						if (scopestack.Count == 0)
+						{
+							parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId, "Using an #let on the topmost of your template has the same effect as using an #var", new Dictionary<string, object>()
+							{
+								{"Location", context.CurrentLocation},
+							});
+						}
+
 						tokens.Add(ExpressionParser.TokenizeVariableAssignment(trimmedToken,
 							context, TokenType.VariableLet));
 					}

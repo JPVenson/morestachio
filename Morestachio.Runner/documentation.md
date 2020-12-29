@@ -9,50 +9,48 @@ See https://github.com/JPVenson/morestachio/wiki/Formatter#formatter-framework f
 > To Regenerate this Documentation if you added an build-in formatter invoke "Morestachio.Runner.exe --source-type NetFunction --source-data "Morestachio.Runner.dll" --source-data-net-type "Morestachio.Runner.Program" --source-data-net-function "GetMorestachioFormatterDocumentation" --target-path "documentation-out.md" --template-data "documentation.md""   
 > Template: https://github.com/JPVenson/morestachio/blob/master/Morestachio.Runner/documentation.md
 # Overview
-
-{{#each Data AS formatter}}{{#TNLS}}
+{{#EACH Data AS formatter |-}}
 - [`{{formatter.DeclaringType.Name.Remove("Formatter")}}` functions](#class-{{formatter.DeclaringType.Name}})
-{{#each formatter.Methods.OrderBy("MethodName").GroupBy('MethodName') AS methods}}{{#TNLS}}
-{{#var method = methods.FlatGroup().First()}}{{#TNLS}}
-    - [`{{method.MethodName}}` function{{#IF methods.FlatGroup().Count().GreaterThen(1)}}s{{/IF}}](#{{formatter.DeclaringType.Name}}{{method.MethodName}})
-{{/each}}
-{{/each}}
+{{#EACH formatter.Methods.OrderBy("MethodName").GroupBy('MethodName') AS methods |-}}
+{{#VAR method = methods.FlatGroup().First() |-}}
+	- [`{{method.MethodName}}` function{{#IF methods.FlatGroup().Count().GreaterThen(1)}}s{{/IF}}](#{{formatter.DeclaringType.Name}}{{method.MethodName}})
+{{/EACH}}
+{{/EACH}}
 
-{{#each Data AS formatter}}
+{{#EACH Data AS formatter}}
 ## class {{formatter.DeclaringType.Name}}
-	{{#each formatter.Methods.OrderBy("MethodName") AS method}}
-{{#var sourceParam = method.Parameters.FirstOrDefault("IsSourceObject")}}
+	{{#EACH formatter.Methods.OrderBy("MethodName") AS method}}
+{{#VAR sourceParam = method.Parameters.FirstOrDefault("IsSourceObject")}}
 ### {{formatter.DeclaringType.Name}}.{{method.MethodName}}
-Example: {{#TNLS}}
-`{{#TNLS}}
-{{#IF method.Functions.All("it.IsOperator")}}{{#TNLS}}
-{{#var leftOpParam = method.Parameters.FirstOrDefault("IsInjected == false")}}{{#TNLS}}
-{{#var rightOpParam = method.Parameters.Skip(1).FirstOrDefault("IsSourceObject == false && IsInjected == false")}}{{#TNLS}}
-{{leftOpParam.Type.Remove("`")}} {{leftOpParam.Name}} {{#TNLS}}
-{{!.Select('Type + " " + Name').Join(", ").Remove("`")}}{{#TNLS}}
-{{method.Functions.FirstOrDefault().FormatterName.Remove("`")}} {{#TNLS}}
-{{rightOpParam.Type.Remove("`")}} {{rightOpParam.Name}}{{#TNLS}}
-{{#IFELSE}}{{#TNLS}}
-{{#IF sourceParam}}{{#TNLS}}
-({{sourceParam.Type.ToString().Remove("`")}}).{{#TNLS}}
-{{/IF}}{{#TNLS}}
-{{method.Functions.FirstOrDefault("!IsOperator").FormatterName.Remove("`")}}{{#TNLS}}
-({{method.Parameters.Where("IsSourceObject == false && IsInjected == false").Select('Type + " " + Name').Join(", ").Remove("`")}}){{#TNLS}}
-{{/ELSE}}{{#TNLS}}
+Example: `
+{{-| #IF method.Functions.All("it.IsOperator") |-}}
+{{#VAR leftOpParam = method.Parameters.FirstOrDefault("IsInjected == false") |-}}
+{{#VAR rightOpParam = method.Parameters.Skip(1).FirstOrDefault("IsSourceObject == false && IsInjected == false") |-}}
+{{leftOpParam.Type.Remove("`")}} {{leftOpParam.Name |-}} 
+{{!.Select('Type + " " + Name').Join(", ").Remove("`") |-}}
+{{method.Functions.FirstOrDefault().FormatterName.Remove("`") |-}}
+{{rightOpParam.Type.Remove("`")}} {{rightOpParam.Name |-}}
+{{#IFELSE |-}}
+{{#IF sourceParam |-}}
+({{sourceParam.Type.ToString().Remove("`")}}).
+{{-| /IF |-}}
+{{method.Functions.FirstOrDefault("!IsOperator").FormatterName.Remove("`") |-}}
+({{method.Parameters.Where("IsSourceObject == false && IsInjected == false").Select('Type + " " + Name').Join(", ").Remove("`")}})
+{{-| /ELSE |-}}
 `   
 FormatterName: {{method.Functions.Select('"`" + FormatterName + "`"').Join(" | ")}}   
-{{#IF method.Parameters}}{{#TNLS}}
+{{#IF method.Parameters |-}}
 Arguments:  
-{{#each method.Parameters.Where("IsInjected == false") AS param}}{{#TNLS}}
-- {{#IF param.IsSourceObject}}[SourceObject]{{/IF}}{{#TNLS}}
-{{#IF param.IsRestObject}}[RestParameter]{{/IF}}{{#TNLS}}
-`{{param.Type.ToString().Remove("`")}}`{{#TNLS}}
-{{#IF param.IsOptional}}[Optional]{{/IF}}: {{param.Name}}  
-{{/each}}{{#TNLS}}
+{{#EACH method.Parameters.Where("IsInjected == false") AS param |-}}
+- {{#IF param.IsSourceObject}}[SourceObject]{{/IF |-}}
+{{#IF param.IsRestObject}}[RestParameter]{{/IF |-}}
+`{{param.Type.ToString().Remove("`")}}`
+{{-| #IF param.IsOptional}}[Optional]{{/IF}}: {{param.Name}}  
+{{/EACH |-}}
 {{/IF}}   
 Returns: `{{method.Returns.ToString().Remove("`")}}`   
 {{#IF method.Functions.FirstOrDefault().Description}}Description:  
-> {{method.Functions.FirstOrDefault().Description}}{{#TNLS}}
+> {{method.Functions.FirstOrDefault().Description |-}}
 {{/IF}}   
-{{/each}}{{#TNLS}}
-{{/each}}
+{{/EACH |-}}
+{{/EACH}}
