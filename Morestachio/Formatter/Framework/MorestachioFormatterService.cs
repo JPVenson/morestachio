@@ -219,6 +219,7 @@ namespace Morestachio.Formatter.Framework
 			var services = new ServiceCollection(ServiceCollectionAccess);
 			services.AddService(parserOptions);
 			services.AddService(scope.Profiler);
+			services.AddService(scope);
 
 			foreach (var morestachioFormatterModel in hasFormatter)
 			{
