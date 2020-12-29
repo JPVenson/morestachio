@@ -51,6 +51,7 @@ namespace Morestachio.TemplateContainers
 				var tokenCount = 0;
 
 				var nlsIdx = 0;
+				//iterrate all newlines for character humanization
 				while ((nlsIdx = preText.IndexOf('\n', nlsIdx)) != -1)
 				{
 					context.Lines.Add(nlsIdx + preLastIndex);
