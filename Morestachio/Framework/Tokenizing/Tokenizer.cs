@@ -312,38 +312,21 @@ namespace Morestachio.Framework.Tokenizing
 				else
 				{
 					var trimLeading = context.TrimLeading;
+					var trimAllLeading = false;
 					var trimTailing = context.TrimTailing;
+					var trimAllTailing = false;
 
-					//check if the token is appended by a -| in that case we want to trim all whitespaces at the end of any following content
-					if (trimmedToken.StartsWith("-"))
+					//check if the token is appended by a -|
+					if (trimmedToken.StartsWith("-|"))
 					{
-						var pipeIndex = trimmedToken.IndexOf('|');
-						if (pipeIndex != -1)
-						{
-							var stopEx = false;
-							//it is possible for an number or an operation to start with an - so the pipe is optional here
-							for (int i = 1; i < pipeIndex - 1; i++)
-							{
-								if (trimmedToken[i] != ' ')
-								{
-									context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation
-											.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "trim", "trim",
-										"{{operation | -}}", $" expected to find '- |' with only whitespaces between the pipe and minus but found '{trimmedToken[i]}'"));
-									stopEx = true;
-									break;
-								}
-							}
-
-							if (stopEx)
-							{
-								continue;
-							}
-
-							trimmedToken = trimmedToken.Substring(pipeIndex + 1).Trim();
-							trimLeading = true;
-
-							tokens.Add(new TokenPair(TokenType.TrimPrependedLineBreaks, trimmedToken, context.CurrentLocation, EmbeddedState.Previous));
-						}
+						trimLeading = true;
+						trimmedToken = trimmedToken.Substring("-|".Length).Trim();
+					}		
+					if (trimmedToken.StartsWith("--|"))
+					{
+						trimLeading = true;
+						trimAllLeading = true;
+						trimmedToken = trimmedToken.Substring("--|".Length).Trim();
 					}
 
 					//yield front content.
@@ -351,44 +334,27 @@ namespace Morestachio.Framework.Tokenizing
 					{
 						if (trimLeading)
 						{
-							tokens.Add(new TokenPair(TokenType.TrimPrependedLineBreaks, trimmedToken, context.CurrentLocation, EmbeddedState.Previous));
+							tokens.Add(new TokenPair(TokenType.TrimPrependedLineBreaks, trimmedToken, context.CurrentLocation, new[]
+							{
+								new TokenOption("All", trimAllLeading), 
+							}, EmbeddedState.Previous));
 						}
 						tokens.Add(new TokenPair(TokenType.Content, match.PreText, context.CurrentLocation));
 					}
 
 					context.SetLocation(match.Index + context._prefixToken.Length);
 
-					//check if the token is appended by a |- in that case we want to trim all folowing whitespaces
-					if (trimmedToken.EndsWith("-"))
+					//check if the token is appended by a |-
+					if (trimmedToken.EndsWith("|-"))
 					{
-						var pipeIndex = trimmedToken.LastIndexOf('|');
-						if (pipeIndex == -1)
-						{
-							context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation
-									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "trim", "trim",
-								"{{operation | -}}", $" expected to find '| -' but missing '|'"));
-						}
-
-						var stopEx = false;
-						for (int i = pipeIndex + 1; i < trimmedToken.Length - 1; i++)
-						{
-							if (trimmedToken[i] != ' ')
-							{
-								context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation.Offset(1)
-										.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "trim", "trim",
-									"{{operation | -}}", $" expected to find '| -' with only whitespaces between the pipe and minus but found '{trimmedToken[i]}'"));
-								stopEx = true;
-								break;
-							}
-						}
-
-						if (stopEx)
-						{
-							continue;
-						}
-
-						trimmedToken = trimmedToken.Remove(pipeIndex).Trim();
+						trimmedToken = trimmedToken.Remove(trimmedToken.Length - "|-".Length).Trim();
 						trimTailing = true;
+					}
+					if (trimmedToken.EndsWith("|--"))
+					{
+						trimmedToken = trimmedToken.Remove(trimmedToken.Length - "|--".Length).Trim();
+						trimTailing = true;
+						trimAllTailing = true;
 					}
 
 					if (trimmedToken.StartsWith("#declare ", true, CultureInfo.InvariantCulture))
@@ -1025,7 +991,10 @@ namespace Morestachio.Framework.Tokenizing
 
 					if (trimTailing)
 					{
-						tokens.Add(new TokenPair(TokenType.TrimLineBreaks, trimmedToken, context.CurrentLocation, EmbeddedState.Next));
+						tokens.Add(new TokenPair(TokenType.TrimLineBreaks, trimmedToken, context.CurrentLocation, new[]
+						{
+							new TokenOption("All", trimAllTailing), 
+						}, EmbeddedState.Next));
 					}
 
 					//move forward in the string.

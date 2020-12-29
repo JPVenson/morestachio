@@ -283,7 +283,7 @@ namespace Morestachio
 					currentDocumentItem.Document.Add(new TextEditDocumentItem(currentToken.TokenLocation,
 						new TrimLineBreakTextOperation()
 						{
-							LineBreaks = 0,
+							LineBreaks = currentToken.FindOption<bool>("All") ? -1 : 0,
 							LineBreakTrimDirection = LineBreakTrimDirection.Begin
 						}, currentToken.IsEmbeddedToken));
 				}
@@ -292,7 +292,7 @@ namespace Morestachio
 					currentDocumentItem.Document.Add(new TextEditDocumentItem(currentToken.TokenLocation,
 						new TrimLineBreakTextOperation()
 						{
-							LineBreaks = 0,
+							LineBreaks = currentToken.FindOption<bool>("All") ? -1 : 0,
 							LineBreakTrimDirection = LineBreakTrimDirection.End
 						}, currentToken.IsEmbeddedToken));
 				}

@@ -14,43 +14,44 @@ See https://github.com/JPVenson/morestachio/wiki/Formatter#formatter-framework f
 {{#EACH formatter.Methods.OrderBy("MethodName").GroupBy('MethodName') AS methods |-}}
 {{#VAR method = methods.FlatGroup().First() |-}}
 	- [`{{method.MethodName}}` function{{#IF methods.FlatGroup().Count().GreaterThen(1)}}s{{/IF}}](#{{formatter.DeclaringType.Name}}{{method.MethodName}})
-{{/EACH}}
-{{/EACH}}
+{{/EACH |-}}
+{{/EACH |-}}
 
-{{#EACH Data AS formatter}}
+
+
+{{#EACH Data AS formatter |-}}
 ## class {{formatter.DeclaringType.Name}}
 	{{#EACH formatter.Methods.OrderBy("MethodName") AS method}}
-{{#VAR sourceParam = method.Parameters.FirstOrDefault("IsSourceObject")}}
+	{{#VAR sourceParam = method.Parameters.FirstOrDefault("IsSourceObject")}}
 ### {{formatter.DeclaringType.Name}}.{{method.MethodName}}
 Example: `
-{{-| #IF method.Functions.All("it.IsOperator") |-}}
-{{#VAR leftOpParam = method.Parameters.FirstOrDefault("IsInjected == false") |-}}
-{{#VAR rightOpParam = method.Parameters.Skip(1).FirstOrDefault("IsSourceObject == false && IsInjected == false") |-}}
-{{leftOpParam.Type.Remove("`")}} {{leftOpParam.Name |-}} 
-{{!.Select('Type + " " + Name').Join(", ").Remove("`") |-}}
-{{method.Functions.FirstOrDefault().FormatterName.Remove("`") |-}}
-{{rightOpParam.Type.Remove("`")}} {{rightOpParam.Name |-}}
-{{#IFELSE |-}}
-{{#IF sourceParam |-}}
-({{sourceParam.Type.ToString().Remove("`")}}).
-{{-| /IF |-}}
-{{method.Functions.FirstOrDefault("!IsOperator").FormatterName.Remove("`") |-}}
-({{method.Parameters.Where("IsSourceObject == false && IsInjected == false").Select('Type + " " + Name').Join(", ").Remove("`")}})
-{{-| /ELSE |-}}
+	{{-| #IF method.Functions.All("it.IsOperator")}}
+		{{-| #VAR leftOpParam = method.Parameters.FirstOrDefault("IsInjected == false")}}
+		{{-| #VAR rightOpParam = method.Parameters.Skip(1).FirstOrDefault("IsSourceObject == false && IsInjected == false")}}
+		{{-| leftOpParam.Type.Remove("`")}} {{leftOpParam.Name}}
+		{{-| method.Functions.FirstOrDefault().FormatterName.Remove("`")}}
+		{{-| rightOpParam.Type.Remove("`")}} {{rightOpParam.Name}}
+	{{-| #IFELSE}}
+		{{-| #IF sourceParam |--}}
+			({{sourceParam.Type.ToString().Remove("`")}}).
+		{{-| /IF}}
+	{{-| method.Functions.FirstOrDefault("!IsOperator").FormatterName.Remove("`") |--}}
+	({{method.Parameters.Where("IsSourceObject == false && IsInjected == false").Select('Type + " " + Name').Join(", ").Remove("`")}})
+	{{-| /ELSE |-}}
 `   
 FormatterName: {{method.Functions.Select('"`" + FormatterName + "`"').Join(" | ")}}   
-{{#IF method.Parameters |-}}
+	{{-| #IF method.Parameters |-}}
 Arguments:  
-{{#EACH method.Parameters.Where("IsInjected == false") AS param |-}}
-- {{#IF param.IsSourceObject}}[SourceObject]{{/IF |-}}
-{{#IF param.IsRestObject}}[RestParameter]{{/IF |-}}
+	{{-| #EACH method.Parameters.Where("IsInjected == false") AS param |-}}
+- {{#IF param.IsSourceObject |-}} [SourceObject] {{-| /IF |-}}
+		{{-| #IF param.IsRestObject |-}} [RestParameter] {{-| /IF |-}}
 `{{param.Type.ToString().Remove("`")}}`
-{{-| #IF param.IsOptional}}[Optional]{{/IF}}: {{param.Name}}  
-{{/EACH |-}}
-{{/IF}}   
+		{{-| #IF param.IsOptional |-}} [Optional] {{-| /IF}}: {{param.Name}}  
+	{{-| /EACH |-}}
+	{{-| /IF}}   
 Returns: `{{method.Returns.ToString().Remove("`")}}`   
-{{#IF method.Functions.FirstOrDefault().Description}}Description:  
+	{{-| #IF method.Functions.FirstOrDefault().Description}}Description:  
 > {{method.Functions.FirstOrDefault().Description |-}}
-{{/IF}}   
-{{/EACH |-}}
+	{{-| /IF}}   
+	{{-| /EACH}}
 {{/EACH}}
