@@ -43,10 +43,10 @@ FormatterName: {{method.Functions.Select('"`" + FormatterName + "`"').Join(" | "
 {{#IF method.Parameters.Where("IsInjected == false") |-}}
 Arguments:  
 	{{-| #EACH method.Parameters.Where("IsInjected == false") AS param}}
-- {{#IF param.IsSourceObject |-}} `[SourceObject]` {{-| /IF}}
-		{{--| #IF param.IsRestObject |-}} `[RestParameter]` {{-| /IF |-}}
+- {{#IF param.IsSourceObject |-}} `[SourceObject]` {{/IF}}
+		{{--| #IF param.IsRestObject |-}} `[RestParameter]` {{/IF |-}}
 `{{param.Type.ToString().Remove("`")}}`
-		{{--| #IF param.IsOptional |-}} [Optional] {{-| /IF}}: {{param.Name}}  
+		{{--| #IF param.IsOptional |-}} `[Optional]` {{-| /IF}}: {{param.Name}}  
 	{{-| /EACH}}
 	{{--| /IF}}   
 
