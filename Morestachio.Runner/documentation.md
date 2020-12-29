@@ -40,17 +40,19 @@ Example: `
 	{{-| /ELSE |-}}
 `   
 FormatterName: {{method.Functions.Select('"`" + FormatterName + "`"').Join(" | ")}}   
-	{{-| #IF method.Parameters |-}}
+{{#IF method.Parameters.Where("IsInjected == false") |-}}
 Arguments:  
-	{{-| #EACH method.Parameters.Where("IsInjected == false") AS param |-}}
-- {{#IF param.IsSourceObject |-}} [SourceObject] {{-| /IF |-}}
-		{{-| #IF param.IsRestObject |-}} [RestParameter] {{-| /IF |-}}
+	{{-| #EACH method.Parameters.Where("IsInjected == false") AS param}}
+- {{#IF param.IsSourceObject |-}} `[SourceObject]` {{-| /IF}}
+		{{--| #IF param.IsRestObject |-}} `[RestParameter]` {{-| /IF |-}}
 `{{param.Type.ToString().Remove("`")}}`
-		{{-| #IF param.IsOptional |-}} [Optional] {{-| /IF}}: {{param.Name}}  
-	{{-| /EACH |-}}
-	{{-| /IF}}   
-Returns: `{{method.Returns.ToString().Remove("`")}}`   
-	{{-| #IF method.Functions.FirstOrDefault().Description}}Description:  
+		{{--| #IF param.IsOptional |-}} [Optional] {{-| /IF}}: {{param.Name}}  
+	{{-| /EACH}}
+	{{--| /IF}}   
+
+Returns: `{{method.Returns.ToString().Remove("`")}}`
+	{{--| #IF method.Functions.FirstOrDefault().Description}}   
+Description:  
 > {{method.Functions.FirstOrDefault().Description |-}}
 	{{-| /IF}}   
 	{{-| /EACH}}
