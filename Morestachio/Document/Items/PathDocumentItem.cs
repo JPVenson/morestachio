@@ -4,6 +4,7 @@ using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 #endif
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Runtime.Serialization;
 using System.Xml;
@@ -15,6 +16,7 @@ using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
+using Morestachio.Framework.Tokenizing;
 
 namespace Morestachio.Document.Items
 {
@@ -27,14 +29,15 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal PathDocumentItem() : base(CharacterLocation.Unknown, null)
+		internal PathDocumentItem()
 		{
 
 		}
 
 		/// <inheritdoc />
-		public PathDocumentItem(CharacterLocation location, [NotNull] IMorestachioExpression value, bool escapeValue = true) 
-			: base(location, value)
+		public PathDocumentItem(CharacterLocation location, [NotNull] IMorestachioExpression value, bool escapeValue,
+			IEnumerable<ITokenOption> tagCreationOptions) 
+			: base(location, value,tagCreationOptions)
 		{
 			EscapeValue = escapeValue;
 		}

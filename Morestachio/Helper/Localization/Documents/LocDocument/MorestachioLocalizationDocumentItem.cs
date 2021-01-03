@@ -14,6 +14,7 @@ using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
+using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper.Localization.Documents.CustomCultureDocument;
 using Morestachio.Helper.Localization.Documents.LocPDocument;
 #if ValueTask
@@ -31,19 +32,23 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 	///		Allows the usage of {{#loc expression}} in combination with an <see cref="IMorestachioLocalizationService"/>
 	/// </summary>
 	[System.Serializable]
-	public class MorestachioLocalizationDocumentItem : ExpressionDocumentItemBase,
-		ToParsableStringDocumentVisitor.IStringVisitor
+	public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
+		ToParsableStringDocumentVisitor.IStringVisitor, IEquatable<MorestachioLocalizationDocumentItem>
 	{
 
-		internal MorestachioLocalizationDocumentItem() : base(CharacterLocation.Unknown, null)
+		internal MorestachioLocalizationDocumentItem()
 		{
 
 		}
 
 		/// <inheritdoc />
-		public MorestachioLocalizationDocumentItem(CharacterLocation location, IMorestachioExpression value, [CanBeNull] IMorestachioExpression explicitCulture = null) : base(location, value)
+		public MorestachioLocalizationDocumentItem(CharacterLocation location,
+			IMorestachioExpression value,
+			[CanBeNull] IMorestachioExpression explicitCulture,
+			IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
 		{
 			ExplicitCulture = explicitCulture;
+			MorestachioExpression = value;
 		}
 
 		/// <inheritdoc />
@@ -57,6 +62,11 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 		/// </summary>
 		[CanBeNull]
 		public IMorestachioExpression ExplicitCulture { get; private set; }
+
+		/// <summary>
+		///     The Expression to be evaluated
+		/// </summary>
+		public IMorestachioExpression MorestachioExpression { get; protected set; }
 
 		/// <inheritdoc />
 		public override async ItemExecutionPromise Render(IByteCounterStream outputStream,
@@ -165,17 +175,22 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 
 		protected override void DeSerializeXml(XmlReader reader)
 		{
-			reader.ReadStartElement();
-			base.DeSerializeXml(reader.ReadSubtree());
+			reader.ReadStartElement();//Path
+			var subTree = reader.ReadSubtree();
+			subTree.ReadStartElement();
+			MorestachioExpression = subTree.ParseExpressionFromKind();
 			reader.Skip();
+			//reader.ReadEndElement();//Path
 			if (reader.Name == nameof(ExplicitCulture))
 			{
-				reader.ReadStartElement();
+				reader.ReadStartElement();//nameof(ExplicitCulture)
 				var subtree = reader.ReadSubtree();
 				subtree.Read();
 				ExplicitCulture = subtree.ParseExpressionFromKind();
 				reader.Skip();
+				reader.ReadEndElement();//nameof(ExplicitCulture)
 			}
+			base.DeSerializeXml(reader);
 		}
 
 		protected override void SerializeXml(XmlWriter writer)
@@ -186,17 +201,62 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 
 			if (ExplicitCulture == null)
 			{
+				base.SerializeXml(writer);
 				return;
 			}
 			writer.WriteStartElement("ExplicitCulture");
 			writer.WriteExpressionToXml(ExplicitCulture);
 			writer.WriteEndElement();
+			base.SerializeXml(writer);
 		}
 
 		protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
 		{
 			info.AddValue(nameof(ExplicitCulture), ExplicitCulture);
 			base.SerializeBinaryCore(info, context);
+		}
+
+		public bool Equals(MorestachioLocalizationDocumentItem other)
+		{
+			if (ReferenceEquals(null, other))
+			{
+				return false;
+			}
+
+			if (ReferenceEquals(this, other))
+			{
+				return true;
+			}
+
+			return base.Equals(other) && Equals(ExplicitCulture, other.ExplicitCulture);
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj))
+			{
+				return false;
+			}
+
+			if (ReferenceEquals(this, obj))
+			{
+				return true;
+			}
+
+			if (obj.GetType() != this.GetType())
+			{
+				return false;
+			}
+
+			return Equals((MorestachioLocalizationDocumentItem) obj);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				return (base.GetHashCode() * 397) ^ (ExplicitCulture != null ? ExplicitCulture.GetHashCode() : 0);
+			}
 		}
 	}
 }

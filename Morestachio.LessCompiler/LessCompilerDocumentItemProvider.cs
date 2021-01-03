@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Collections.Generic;
+using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Custom;
 using Morestachio.Framework.Tokenizing;
@@ -15,9 +16,9 @@ namespace Morestachio.LessCompiler
 		}
 
 		/// <inheritdoc />
-		public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token, ParserOptions options)
+		public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token, ParserOptions options, IEnumerable<ITokenOption> tagTokenOptions)
 		{
-			return new CompileLessDocumentItem(token.TokenLocation);
+			return new CompileLessDocumentItem(token.TokenLocation, tagTokenOptions);
 		}
 	}
 }

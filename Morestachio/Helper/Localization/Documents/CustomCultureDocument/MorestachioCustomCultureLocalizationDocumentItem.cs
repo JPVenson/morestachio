@@ -4,6 +4,7 @@ using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 #endif
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -16,6 +17,7 @@ using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
+using Morestachio.Framework.Tokenizing;
 
 namespace Morestachio.Helper.Localization.Documents.CustomCultureDocument
 {
@@ -26,7 +28,7 @@ namespace Morestachio.Helper.Localization.Documents.CustomCultureDocument
 	public class MorestachioCustomCultureLocalizationDocumentItem : ExpressionDocumentItemBase,
 		ToParsableStringDocumentVisitor.IStringVisitor, ISupportCustomCompilation
 	{
-		internal MorestachioCustomCultureLocalizationDocumentItem() : base(CharacterLocation.Unknown, null)
+		internal MorestachioCustomCultureLocalizationDocumentItem()
 		{
 
 		}
@@ -37,7 +39,10 @@ namespace Morestachio.Helper.Localization.Documents.CustomCultureDocument
 		}
 
 		/// <inheritdoc />
-		public MorestachioCustomCultureLocalizationDocumentItem(CharacterLocation location, IMorestachioExpression expression) : base(location, expression)
+		public MorestachioCustomCultureLocalizationDocumentItem(CharacterLocation location,
+			IMorestachioExpression expression,
+			IEnumerable<ITokenOption> tagCreationOptions) 
+			: base(location, expression, tagCreationOptions)
 		{
 		}
 
@@ -103,7 +108,7 @@ namespace Morestachio.Helper.Localization.Documents.CustomCultureDocument
 			scopeData.CustomData[LocalizationCultureKey] = requestedCulture;
 
 			var childs = Children.ToList();
-			childs.Add(new ResetCultureDocumentItem(base.ExpressionStart, oldCulture));
+			childs.Add(new ResetCultureDocumentItem(base.ExpressionStart, oldCulture, TagCreationOptions));
 			return childs.WithScope(context);
 		}
 
@@ -116,13 +121,14 @@ namespace Morestachio.Helper.Localization.Documents.CustomCultureDocument
 
 
 			/// <inheritdoc />
-			public ResetCultureDocumentItem() : base(CharacterLocation.Unknown)
+			public ResetCultureDocumentItem()
 			{
 
 			}
 
 			/// <inheritdoc />
-			public ResetCultureDocumentItem(CharacterLocation location, CultureInfo culture) : base(location)
+			public ResetCultureDocumentItem(CharacterLocation location, CultureInfo culture,
+				IEnumerable<ITokenOption> tagCreationOptions) : base(location, (IEnumerable<ITokenOption>) tagCreationOptions)
 			{
 				_culture = culture;
 			}

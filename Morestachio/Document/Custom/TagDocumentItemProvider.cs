@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
@@ -40,7 +41,7 @@ namespace Morestachio.Document.Custom
 			private readonly TagDocumentProviderFunction _action;
 			
 			/// <inheritdoc />
-			public TagDocumentItem() : base(CharacterLocation.Unknown, null)
+			public TagDocumentItem()
 			{
 
 			}
@@ -48,7 +49,8 @@ namespace Morestachio.Document.Custom
 			/// <inheritdoc />
 			public TagDocumentItem(CharacterLocation location,
 				TagDocumentProviderFunction action, 
-				string value) : base(location, value)
+				string value,
+				IEnumerable<ITokenOption> tagCreationOptions) : base(location, value, tagCreationOptions)
 			{
 				_action = action;
 			}
@@ -68,9 +70,10 @@ namespace Morestachio.Document.Custom
 		}
 
 		/// <inheritdoc />
-		public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token, ParserOptions options)
+		public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token,
+			ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions)
 		{
-			return new TagDocumentItem(token.TokenLocation, _action, value);
+			return new TagDocumentItem(token.TokenLocation, _action, value, tagCreationOptions);
 		}
 	}
 }

@@ -5,6 +5,7 @@ using Promise = System.Threading.Tasks.ValueTask;
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 #endif
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
@@ -15,6 +16,7 @@ using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
+using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
 
 namespace Morestachio.Document.Items
@@ -28,13 +30,14 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal RenderPartialDoneDocumentItem() : base(CharacterLocation.Unknown, null)
+		internal RenderPartialDoneDocumentItem()
 		{
 
 		}
 
 		/// <inheritdoc />
-		public RenderPartialDoneDocumentItem(CharacterLocation location, [NotNull] string partialName) : base(location, partialName)
+		public RenderPartialDoneDocumentItem(CharacterLocation location, [NotNull] string partialName,
+			IEnumerable<ITokenOption> tagCreationOptions) : base(location, partialName,tagCreationOptions)
 		{
 		}
 		

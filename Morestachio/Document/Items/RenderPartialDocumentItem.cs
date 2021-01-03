@@ -4,6 +4,7 @@ using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 #endif
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml;
@@ -17,6 +18,7 @@ using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Error;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
+using Morestachio.Framework.Tokenizing;
 
 namespace Morestachio.Document.Items
 {
@@ -29,14 +31,15 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal RenderPartialDocumentItem() : base(CharacterLocation.Unknown, null)
+		internal RenderPartialDocumentItem()
 		{
 
 		}
 
 		/// <inheritdoc />
-		public RenderPartialDocumentItem(CharacterLocation location, [NotNull] string value, [CanBeNull] IMorestachioExpression context)
-			: base(location, value)
+		public RenderPartialDocumentItem(CharacterLocation location, [NotNull] string value, [CanBeNull] IMorestachioExpression context,
+			IEnumerable<ITokenOption> tagCreationOptions)
+			: base(location, value,tagCreationOptions)
 		{
 			Context = context;
 		}
@@ -76,9 +79,6 @@ namespace Morestachio.Document.Items
 		protected override void DeSerializeXml(XmlReader reader)
 		{
 			base.DeSerializeXml(reader);
-			AssertElement(reader, nameof(Value));
-			reader.ReadEndElement();
-
 			if (reader.Name == "With")
 			{
 				reader.ReadStartElement();

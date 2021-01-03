@@ -4,6 +4,7 @@ using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 #endif
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml;
@@ -14,6 +15,7 @@ using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
+using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
 
 namespace Morestachio.Document.Items
@@ -27,7 +29,7 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal PartialDocumentItem() : base(CharacterLocation.Unknown, null)
+		internal PartialDocumentItem()
 		{
 
 		}
@@ -37,8 +39,9 @@ namespace Morestachio.Document.Items
 		/// </summary>
 		/// <param name="partialName">The partial name.</param>
 		/// <param name="partial">The partial.</param>
-		public PartialDocumentItem(CharacterLocation location, [NotNull] string partialName, [NotNull] IDocumentItem partial) 
-			: base(location, partialName)
+		public PartialDocumentItem(CharacterLocation location, [NotNull] string partialName, [NotNull] IDocumentItem partial,
+			IEnumerable<ITokenOption> tagCreationOptions) 
+			: base(location, partialName, tagCreationOptions)
 		{
 			Partial = partial ?? throw new ArgumentNullException(nameof(partial));
 		}
@@ -70,18 +73,16 @@ namespace Morestachio.Document.Items
 		protected override void DeSerializeXml(XmlReader reader)
 		{
 			base.DeSerializeXml(reader);
-
-			AssertElement(reader, nameof(Value));
-			reader.ReadEndElement();
-
 			AssertElement(reader, nameof(Partial));
-			reader.ReadStartElement();
+			reader.ReadStartElement();//nameof(Partial)
 			var child = DocumentExtensions.CreateDocumentItemInstance(reader.Name);
 			var childTree = reader.ReadSubtree();
 			childTree.Read();
 			child.DeSerializeXmlCore(childTree);
 			reader.Skip();
 			Partial = child;
+
+			reader.ReadEndElement();//nameof(Partial)
 		}
 		
 		/// <summary>

@@ -25,7 +25,7 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 			var locToken = token.Token.Remove(0, OpenTag.Length).Trim(Tokenizer.GetWhitespaceDelimiters());
 			var pre = token.TokenizerContext.Character;
 			var locExpression = ExpressionParser.ParseExpression(locToken, token.TokenizerContext);
-			var tokenOptions = new List<TokenOption>();
+			var tokenOptions = new List<ITokenOption>();
 
 			locToken = locToken.Substring(token.TokenizerContext.Character - pre).Trim(Tokenizer.GetWhitespaceDelimiters());
 			if (locToken.StartsWith("#CULTURE ", true, CultureInfo.InvariantCulture))
@@ -39,11 +39,13 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 		}
 
 		/// <inheritdoc />
-		public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token, ParserOptions options)
+		public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token,
+			ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions)
 		{
 			return new MorestachioLocalizationDocumentItem(token.TokenLocation, 
 				token.MorestachioExpression, 
-				token.FindOption<IMorestachioExpression>("Culture"));
+				token.FindOption<IMorestachioExpression>("Culture"),
+				tagCreationOptions);
 		}
 	}
 }

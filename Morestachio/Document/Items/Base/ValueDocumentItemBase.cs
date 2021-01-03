@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml;
 using Morestachio.Framework;
+using Morestachio.Framework.Tokenizing;
 
 namespace Morestachio.Document.Items.Base
 {
@@ -9,7 +11,7 @@ namespace Morestachio.Document.Items.Base
 	///		A common base class for emitting a single string value
 	/// </summary>
 	[Serializable]
-	public abstract class ValueDocumentItemBase : DocumentItemBase, IEquatable<ValueDocumentItemBase>
+	public abstract class ValueDocumentItemBase : BlockDocumentItemBase, IEquatable<ValueDocumentItemBase>
 	{
 		internal ValueDocumentItemBase()
 		{
@@ -18,7 +20,8 @@ namespace Morestachio.Document.Items.Base
 		/// <summary>
 		/// 
 		/// </summary>
-		protected ValueDocumentItemBase(CharacterLocation location, string value) : base(location)
+		protected ValueDocumentItemBase(CharacterLocation location, string value,
+			IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
 		{
 			Value = value;
 		}
@@ -66,6 +69,7 @@ namespace Morestachio.Document.Items.Base
 				}
 				//reader.ReadToFollowing(nameof(Value));
 				Value = reader.ReadString();
+				reader.ReadEndElement();
 			}
 		}
 		

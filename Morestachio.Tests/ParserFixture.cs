@@ -18,6 +18,7 @@ using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
 using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Framework;
+using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Error;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
@@ -113,9 +114,18 @@ namespace Morestachio.Tests
 
 			while (api.Context.OperationStatus)
 			{
-				if (api.Context.CurrentNode.Item is TextEditDocumentItem || api.Context.CurrentNode.Item is RemoveAliasDocumentItem)
+				if (api.Context.CurrentNode.Item is TextEditDocumentItem txtEdit)
 				{
-					Assert.That(api.Context.CurrentNode.Item.ExpressionStart, Is.GreaterThan(lastLocation).Or.EqualTo(lastLocation));
+					if (txtEdit.EmbeddedInstructionOrigin != EmbeddedInstructionOrigin.Self)
+					{
+						api.SearchForward(f => true, false);
+						continue;
+					}
+				}
+
+				if (api.Context.CurrentNode.Item is RemoveAliasDocumentItem)
+				{
+					Assert.That(api.Context.CurrentNode.Item.ExpressionStart, Is.GreaterThan(lastLocation), () => "");
 				}
 				else
 				{
@@ -461,22 +471,22 @@ namespace Morestachio.Tests
 		public async Task ParserCanVariableScope()
 		{
 			var template =
-				@"{{#VAR global = data |-}}
-{{#data |-}}
-		{{global |-}}
-		{{#LET global = 'Burns ' |-}}
-		{{global |-}}
-		{{#LET global = 'Likes ' |-}}
-		{{global |-}}
-		{{#LET local = 'Likes ' |-}}
-		{{#VAR global = 'Miss ' |-}}
-{{/data |-}}
-{{local |-}}
-{{global |-}}
-{{#VAR global = 'Money ' |-}}
-{{global |-}}
-{{#LET global = 'Alot' |-}}
-{{global |-}}";
+				@"{{#VAR global = data |--}}
+{{#data |--}}
+		{{global |--}}
+		{{#LET global = 'Burns ' |--}}
+		{{global |--}}
+		{{#LET global = 'Likes ' |--}}
+		{{global |--}}
+		{{#LET local = 'Likes ' |--}}
+		{{#VAR global = 'Miss ' |--}}
+{{/data |--}}
+{{local |--}}
+{{global |--}}
+{{#VAR global = 'Money ' |--}}
+{{global |--}}
+{{#LET global = 'Alot' |--}}
+{{global |--}}";
 			var data = new Dictionary<string, object>
 			{
 				{ "data", "Mr " },
@@ -1745,8 +1755,8 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task TestWhileLoopContext()
 		{
-			var template = @"{{#WHILE $index.SmallerAs(5) |-}}
-						   {{$index}},
+			var template = @"{{#WHILE $index.SmallerAs(5)}}
+						   {{-| $index}},
 						   {{-| /WHILE}}";
 			var data = new Dictionary<string, object> { };
 
@@ -1793,10 +1803,10 @@ Test{{#NL}}";
 		[Test]
 		public async Task TestCanRemoveLineBreaksWithinKeyword()
 		{
-			var template = @"{{data |-}}
+			var template = @"{{data |--}}
 Static
 
-{{-| data}}";
+{{--| data}}";
 			var data = new
 			{
 				data = "World"
@@ -1815,7 +1825,6 @@ Static
 			var template = @"{{#SET OPTION TrimTailing = true}}{{#SET OPTION TrimLeading = true}}
 {{data}}
 Static
-
 {{data}}";
 			var data = new
 			{

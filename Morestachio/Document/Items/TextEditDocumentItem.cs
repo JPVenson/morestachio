@@ -19,6 +19,7 @@ using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.IO;
+using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
 
 namespace Morestachio.Document.Items
@@ -37,32 +38,31 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		If set to true, indicates that this text operation is used as an appendix or suffix to another keyword
 		/// </summary>
-		public EmbeddedState EmbeddedState { get; private set; }
-		
-		internal TextEditDocumentItem() : base(CharacterLocation.Unknown)
+		public EmbeddedInstructionOrigin EmbeddedInstructionOrigin { get; private set; }
+
+		internal TextEditDocumentItem()
 		{
-			
+
 		}
 
 		/// <summary>
 		/// 
 		/// </summary>
-		public TextEditDocumentItem(CharacterLocation location, 
-			[NotNull] ITextOperation operation, 
-			EmbeddedState embeddedState = EmbeddedState.None)
-			: base(location)
+		public TextEditDocumentItem(CharacterLocation location,
+			[NotNull] ITextOperation operation,
+			EmbeddedInstructionOrigin embeddedInstructionOrigin,
+			IEnumerable<ITokenOption> tagCreationOptions)
+			: base(location, (IEnumerable<ITokenOption>) tagCreationOptions)
 		{
 			Operation = operation ?? throw new ArgumentNullException(nameof(operation));
-			EmbeddedState = embeddedState;
+			EmbeddedInstructionOrigin = embeddedInstructionOrigin;
 		}
-
-		
 
 		/// <inheritdoc />
 		[UsedImplicitly]
 		protected TextEditDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
-			EmbeddedState = (EmbeddedState) info.GetValue(nameof(EmbeddedState), typeof(EmbeddedState));
+			EmbeddedInstructionOrigin = (EmbeddedInstructionOrigin)info.GetValue(nameof(EmbeddedInstructionOrigin), typeof(EmbeddedInstructionOrigin));
 			Operation = info.GetValue(nameof(Operation), typeof(ITextOperation)) as ITextOperation;
 		}
 
@@ -73,7 +73,7 @@ namespace Morestachio.Document.Items
 				CoreAction(outputStream, scopeData);
 			};
 		}
-		
+
 		/// <inheritdoc />
 		public override ItemExecutionPromise Render(
 			IByteCounterStream outputStream,
@@ -83,7 +83,7 @@ namespace Morestachio.Document.Items
 			CoreAction(outputStream, scopeData);
 			return Enumerable.Empty<DocumentItemExecution>().ToPromise();
 		}
-		
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private void CoreAction(IByteCounterStream outputStream, ScopeData scopeData)
 		{
@@ -95,7 +95,7 @@ namespace Morestachio.Document.Items
 					scopeData.CustomData["TextOperationData"] = operationList;
 				}
 
-				((IList<ITextOperation>) operationList).Add(Operation);
+				((IList<ITextOperation>)operationList).Add(Operation);
 			}
 			else
 			{
@@ -108,30 +108,30 @@ namespace Morestachio.Document.Items
 		{
 			base.SerializeBinaryCore(info, context);
 			info.AddValue(nameof(Operation), Operation);
-			info.AddValue(nameof(EmbeddedState), EmbeddedState);
+			info.AddValue(nameof(EmbeddedInstructionOrigin), EmbeddedInstructionOrigin);
 		}
-		
+
 		/// <inheritdoc />
 		protected override void SerializeXml(XmlWriter writer)
 		{
 			base.SerializeXml(writer);
 			writer.WriteStartElement("TextOperation");
 			writer.WriteAttributeString(nameof(ITextOperation.TextOperationType), Operation.TextOperationType.ToString());
-			writer.WriteAttributeString(nameof(EmbeddedState), EmbeddedState.ToString());
+			writer.WriteAttributeString(nameof(EmbeddedInstructionOrigin), EmbeddedInstructionOrigin.ToString());
 			Operation.WriteXml(writer);
 			writer.WriteEndElement();//</TextOperation>
 		}
-		
+
 		/// <inheritdoc />
 		protected override void DeSerializeXml(XmlReader reader)
 		{
 			base.DeSerializeXml(reader);
 			reader.ReadStartElement();//<TextOperation>
 			AssertElement(reader, "TextOperation");
-			var embeddedState = reader.GetAttribute(nameof(EmbeddedState));
+			var embeddedState = reader.GetAttribute(nameof(EmbeddedInstructionOrigin));
 			if (!string.IsNullOrEmpty(embeddedState))
 			{
-				EmbeddedState = (EmbeddedState) Enum.Parse(typeof(EmbeddedState), embeddedState);
+				EmbeddedInstructionOrigin = (EmbeddedInstructionOrigin)Enum.Parse(typeof(EmbeddedInstructionOrigin), embeddedState);
 			}
 
 			var attribute = reader.GetAttribute(nameof(ITextOperation.TextOperationType));
@@ -150,7 +150,7 @@ namespace Morestachio.Document.Items
 			Operation.ReadXml(reader);
 			reader.ReadEndElement();//</TextOperation>
 		}
-		
+
 		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)
 		{

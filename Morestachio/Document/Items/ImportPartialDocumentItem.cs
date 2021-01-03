@@ -14,6 +14,7 @@ using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Error;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
+using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
 #if ValueTask
 using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
@@ -36,7 +37,7 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal ImportPartialDocumentItem() : base(CharacterLocation.Unknown, null)
+		internal ImportPartialDocumentItem()
 		{
 
 		}
@@ -44,8 +45,9 @@ namespace Morestachio.Document.Items
 		/// <inheritdoc />
 		public ImportPartialDocumentItem(CharacterLocation location,
 			[NotNull] IMorestachioExpression value,
-			[CanBeNull] IMorestachioExpression context)
-			: base(location, value)
+			[CanBeNull] IMorestachioExpression context,
+			IEnumerable<ITokenOption> tagCreationOptions)
+			: base(location, value,tagCreationOptions)
 		{
 			Context = context;
 		}

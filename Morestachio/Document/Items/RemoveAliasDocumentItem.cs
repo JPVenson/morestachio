@@ -4,6 +4,7 @@ using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 #endif
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
+using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
 
 namespace Morestachio.Document.Items
@@ -28,7 +30,7 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal RemoveAliasDocumentItem() : base(CharacterLocation.Unknown, null)
+		internal RemoveAliasDocumentItem()
 		{
 
 		}
@@ -38,8 +40,9 @@ namespace Morestachio.Document.Items
 		/// </summary>
 		/// <param name="aliasName"></param>
 		/// <param name="scopeVariableScopeNumber"></param>
-		public RemoveAliasDocumentItem(CharacterLocation location, [NotNull] string aliasName, int scopeVariableScopeNumber) 
-			: base(location, aliasName)
+		public RemoveAliasDocumentItem(CharacterLocation location, [NotNull] string aliasName, int scopeVariableScopeNumber,
+			IEnumerable<ITokenOption> tagCreationOptions) 
+			: base(location, aliasName,tagCreationOptions)
 		{
 			IdVariableScope = scopeVariableScopeNumber;
 		}

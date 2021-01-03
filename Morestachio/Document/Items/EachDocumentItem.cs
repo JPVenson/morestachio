@@ -20,6 +20,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.Error;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
+using Morestachio.Framework.Tokenizing;
 using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items
@@ -33,13 +34,15 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal EachDocumentItem() : base(CharacterLocation.Unknown, null)
+		internal EachDocumentItem()
 		{
 
 		}
 
 		/// <inheritdoc />
-		public EachDocumentItem(CharacterLocation location, IMorestachioExpression value) : base(location, value)
+		public EachDocumentItem(CharacterLocation location,
+			IMorestachioExpression value,
+			IEnumerable<ITokenOption> tagCreationOptions) : base(location, value,tagCreationOptions)
 		{
 		}
 

@@ -1,38 +1,59 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml;
 using Morestachio.Framework;
 using Morestachio.Framework.Expression;
+using Morestachio.Framework.Tokenizing;
 
 namespace Morestachio.Document.Items.Base
 {
 	/// <summary>
-	///		A common base class for emitting a single string value
+	///     A common base class for emitting a single string value
 	/// </summary>
 	[Serializable]
-	public abstract class ExpressionDocumentItemBase : DocumentItemBase, IEquatable<ExpressionDocumentItemBase>
+	public abstract class ExpressionDocumentItemBase : BlockDocumentItemBase, IEquatable<ExpressionDocumentItemBase>
 	{
 		internal ExpressionDocumentItemBase()
 		{
-
+			
 		}
 
 		/// <param name="location"></param>
 		/// <inheritdoc />
-		protected ExpressionDocumentItemBase(CharacterLocation location, IMorestachioExpression expression) : base(location)
+		protected ExpressionDocumentItemBase(CharacterLocation location,
+			IMorestachioExpression expression,
+			IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
 		{
 			MorestachioExpression = expression;
 		}
 
-		/// <summary>
-		///		The Expression to be evaluated
-		/// </summary>
-		public IMorestachioExpression MorestachioExpression { get; private set; }
-
 		/// <inheritdoc />
 		protected ExpressionDocumentItemBase(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
-			MorestachioExpression = info.GetValue(nameof(MorestachioExpression), typeof(IMorestachioExpression)) as IMorestachioExpression;
+			MorestachioExpression =
+				info.GetValue(nameof(MorestachioExpression), typeof(IMorestachioExpression)) as IMorestachioExpression;
+		}
+
+		/// <summary>
+		///     The Expression to be evaluated
+		/// </summary>
+		public IMorestachioExpression MorestachioExpression { get; protected set; }
+
+		/// <inheritdoc />
+		public bool Equals(ExpressionDocumentItemBase other)
+		{
+			if (ReferenceEquals(null, other))
+			{
+				return false;
+			}
+
+			if (ReferenceEquals(this, other))
+			{
+				return true;
+			}
+
+			return base.Equals(other) && MorestachioExpression.Equals(other.MorestachioExpression);
 		}
 
 		/// <inheritdoc />
@@ -40,7 +61,6 @@ namespace Morestachio.Document.Items.Base
 		{
 			base.SerializeBinaryCore(info, context);
 			info.AddValue(nameof(MorestachioExpression), MorestachioExpression);
-			base.SerializeBinaryCore(info, context);
 		}
 
 		/// <inheritdoc />
@@ -60,22 +80,6 @@ namespace Morestachio.Document.Items.Base
 			reader.Skip();
 			base.DeSerializeXml(reader);
 		}
-		/// <inheritdoc />
-
-		public bool Equals(ExpressionDocumentItemBase other)
-		{
-			if (ReferenceEquals(null, other))
-			{
-				return false;
-			}
-
-			if (ReferenceEquals(this, other))
-			{
-				return true;
-			}
-
-			return base.Equals(other) && MorestachioExpression.Equals(other.MorestachioExpression);
-		}
 
 		/// <inheritdoc />
 		public override bool Equals(object obj)
@@ -90,19 +94,19 @@ namespace Morestachio.Document.Items.Base
 				return true;
 			}
 
-			if (obj.GetType() != this.GetType())
+			if (obj.GetType() != GetType())
 			{
 				return false;
 			}
 
-			return Equals((ExpressionDocumentItemBase)obj);
+			return Equals((ExpressionDocumentItemBase) obj);
 		}
 
 		/// <inheritdoc />
 		public override int GetHashCode()
 		{
-			int hashCode = base.GetHashCode();
-			hashCode = (hashCode * 397) ^ (MorestachioExpression.GetHashCode());
+			var hashCode = base.GetHashCode();
+			hashCode = (hashCode * 397) ^ MorestachioExpression.GetHashCode();
 			return hashCode;
 		}
 	}

@@ -21,7 +21,7 @@ namespace Morestachio.Helper.Localization.Documents.LocPDocument
 
 		public const string OpenTag = "#LOCP ";
 		public const string CloseTag = "/LOCP";
-		
+
 		/// <inheritdoc />
 		public override IEnumerable<TokenPair> Tokenize(TokenInfo token, ParserOptions options)
 		{
@@ -35,11 +35,12 @@ namespace Morestachio.Helper.Localization.Documents.LocPDocument
 				yield return new TokenPair(TagClose, trim, token.TokenizerContext.CurrentLocation);
 			}
 		}
-		
+
 		/// <inheritdoc />
-		public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token, ParserOptions options)
+		public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token,
+			ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions)
 		{
-			return new MorestachioLocalizationDocumentItem(token.TokenLocation, token.MorestachioExpression);
+			return new MorestachioLocalizationDocumentItem(token.TokenLocation, token.MorestachioExpression, null, tagCreationOptions);
 		}
 	}
 }

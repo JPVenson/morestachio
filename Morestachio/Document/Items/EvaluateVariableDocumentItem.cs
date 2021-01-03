@@ -5,6 +5,7 @@ using Promise = System.Threading.Tasks.ValueTask;
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 #endif
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml;
@@ -16,6 +17,7 @@ using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
+using Morestachio.Framework.Tokenizing;
 
 namespace Morestachio.Document.Items
 {
@@ -26,7 +28,7 @@ namespace Morestachio.Document.Items
 	public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase, ISupportCustomCompilation
 	{
 
-		internal EvaluateVariableDocumentItem() : base(CharacterLocation.Unknown, null)
+		internal EvaluateVariableDocumentItem()
 		{
 			
 		}
@@ -37,18 +39,15 @@ namespace Morestachio.Document.Items
 		/// <param name="value"></param>
 		/// <param name="morestachioExpression"></param>
 		/// <param name="idVariableScope"></param>
-		public EvaluateVariableDocumentItem(CharacterLocation location, string value, IMorestachioExpression morestachioExpression, int idVariableScope) 
-			: base(location, morestachioExpression)
+		public EvaluateVariableDocumentItem(CharacterLocation location,
+			string value,
+			IMorestachioExpression morestachioExpression,
+			int idVariableScope,
+			IEnumerable<ITokenOption> tagCreationOptions) 
+			: base(location, morestachioExpression,tagCreationOptions)
 		{
 			Value = value;
 			IdVariableScope = idVariableScope;
-		}
-		/// <inheritdoc />
-		[UsedImplicitly]
-		protected EvaluateVariableDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
-		{
-			Value = info.GetString(nameof(Value));
-			IdVariableScope = info.GetInt32(nameof(IdVariableScope));
 		}
 
 		/// <summary>
@@ -56,11 +55,20 @@ namespace Morestachio.Document.Items
 		/// </summary>
 		/// <param name="value"></param>
 		/// <param name="morestachioExpression"></param>
-		public EvaluateVariableDocumentItem(CharacterLocation location,string value, IMorestachioExpression morestachioExpression)
-			: base(location, morestachioExpression)
+		public EvaluateVariableDocumentItem(CharacterLocation location,string value, IMorestachioExpression morestachioExpression,
+			IEnumerable<ITokenOption> tagCreationOptions)
+			: base(location, morestachioExpression, tagCreationOptions)
 		{
 			Value = value;
 			IdVariableScope = 0;
+		}
+
+		/// <inheritdoc />
+		[UsedImplicitly]
+		protected EvaluateVariableDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
+		{
+			Value = info.GetString(nameof(Value));
+			IdVariableScope = info.GetInt32(nameof(IdVariableScope));
 		}
 		
 		/// <inheritdoc />

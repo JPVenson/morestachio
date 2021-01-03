@@ -18,6 +18,7 @@ using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
+using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
 
 namespace Morestachio.Document.Items
@@ -31,7 +32,7 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal ContentDocumentItem() : base(CharacterLocation.Unknown, null)
+		internal ContentDocumentItem() 
 		{
 
 		}
@@ -40,7 +41,8 @@ namespace Morestachio.Document.Items
 		///		Creates a new ContentDocumentItem that represents some static content
 		/// </summary>
 		/// <param name="content">The content to write</param>
-		public ContentDocumentItem(CharacterLocation location, string content) : base(location, content)
+		public ContentDocumentItem(CharacterLocation location, string content,
+			IEnumerable<ITokenOption> tagCreationOptions) : base(location, content, tagCreationOptions)
 		{
 		}
 		
@@ -81,6 +83,11 @@ namespace Morestachio.Document.Items
 						textOps.Remove(textOperation);
 					}
 				}
+			}
+
+			foreach (var textEditDocumentItem in Children.OfType<TextEditDocumentItem>())
+			{
+				value = textEditDocumentItem.Operation.Apply(value);
 			}
 
 			if (value != string.Empty)

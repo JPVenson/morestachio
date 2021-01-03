@@ -1,4 +1,5 @@
-﻿using Morestachio.Document.Contracts;
+﻿using System.Collections.Generic;
+using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework;
@@ -43,7 +44,7 @@ namespace Morestachio.Document.Custom
 			/// <summary>
 			/// 
 			/// </summary>
-			public BlockDocumentItem() : base(CharacterLocation.Unknown, null)
+			public BlockDocumentItem()
 			{
 
 			}
@@ -51,7 +52,8 @@ namespace Morestachio.Document.Custom
 			/// <inheritdoc />
 			public BlockDocumentItem(CharacterLocation location, 
 				BlockDocumentProviderFunction action, 
-				string value) : base(location, value)
+				string value,
+				IEnumerable<ITokenOption> tagCreationOptions) : base(location, value, tagCreationOptions)
 			{
 				_action = action;
 			}
@@ -71,9 +73,10 @@ namespace Morestachio.Document.Custom
 		}
 
 		/// <inheritdoc />
-		public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token, ParserOptions options)
+		public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token,
+			ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions)
 		{
-			return new BlockDocumentItem(token.TokenLocation, _action, value);
+			return new BlockDocumentItem(token.TokenLocation, _action, value, tagCreationOptions);
 		}
 	}
 }

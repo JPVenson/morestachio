@@ -4,6 +4,8 @@ using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 #endif
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
@@ -13,6 +15,7 @@ using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
+using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
 
 namespace Morestachio.Document.Items.SwitchCase
@@ -27,13 +30,15 @@ namespace Morestachio.Document.Items.SwitchCase
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal SwitchCaseDocumentItem() : base(CharacterLocation.Unknown, null)
+		internal SwitchCaseDocumentItem()
 		{
 
 		}
 
 		/// <inheritdoc />
-		public SwitchCaseDocumentItem(CharacterLocation location, IMorestachioExpression value) : base(location, value)
+		public SwitchCaseDocumentItem(CharacterLocation location, 
+			IMorestachioExpression value,
+			IEnumerable<ITokenOption> tagCreationOptions) : base(location, value, tagCreationOptions)
 		{
 		}
 

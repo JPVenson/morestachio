@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Xml;
 using Morestachio.Document;
@@ -97,7 +98,8 @@ namespace Morestachio.Framework.Expression
 		internal static TokenPair TokenizeVariableAssignment(
 			string tokenValue,
 			TokenzierContext context,
-			TokenType type)
+			TokenType type,
+			IEnumerable<ITokenOption> options)
 		{
 			var startOfExpression = context.CurrentLocation;
 			//if (type != TokenType.VariableLet && type != TokenType.VariableVar)
@@ -178,7 +180,7 @@ namespace Morestachio.Framework.Expression
 				return default;
 			}
 
-			return new TokenPair(type, variableName, startOfExpression, ParseExpression(expression, context));
+			return new TokenPair(type, variableName, startOfExpression, ParseExpression(expression, context), options);
 		}
 
 		/// <summary>

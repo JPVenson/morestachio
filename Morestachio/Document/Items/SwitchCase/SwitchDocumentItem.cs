@@ -17,6 +17,7 @@ using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
+using Morestachio.Framework.Tokenizing;
 
 namespace Morestachio.Document.Items.SwitchCase
 {
@@ -29,14 +30,17 @@ namespace Morestachio.Document.Items.SwitchCase
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal SwitchDocumentItem() : base(CharacterLocation.Unknown, null)
+		internal SwitchDocumentItem()
 		{
 
 		}
 
 		/// <inheritdoc />
-		public SwitchDocumentItem(CharacterLocation location, IMorestachioExpression value, bool shouldScopeToValue)
-			: base(location, value)
+		public SwitchDocumentItem(CharacterLocation location,
+			IMorestachioExpression value,
+			bool shouldScopeToValue,
+			IEnumerable<ITokenOption> tagCreationOptions)
+			: base(location, value, tagCreationOptions)
 		{
 			ScopeToValue = shouldScopeToValue;
 		}
@@ -92,6 +96,7 @@ namespace Morestachio.Document.Items.SwitchCase
 		public Compilation Compile()
 		{
 			var children = Children.Where(e => e is SwitchCaseDocumentItem || e is SwitchDefaultDocumentItem)
+				.Cast<BlockDocumentItemBase>()
 				.Select(e => new SwitchExecutionContainerCompiledAction()
 			{
 				Callback = MorestachioDocument.CompileItemsAndChildren(e.Children),

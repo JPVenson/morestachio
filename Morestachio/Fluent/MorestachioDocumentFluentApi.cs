@@ -45,10 +45,12 @@ namespace Morestachio.Fluent
 				var morestachioNode = new MorestachioNode(parentNode, item.Item2);
 				nodes.Add(morestachioNode);
 				parentNode.Leafs.Add(morestachioNode);
-
-				foreach (var documentItem in item.Item2.Children.Reverse())
+				if (item.Item2 is IBlockDocumentItem blockDocument)
 				{
-					stack.Push(new Tuple<IDocumentItem, IDocumentItem>(item.Item2, documentItem));
+					foreach (var documentItem in blockDocument.Children.Reverse())
+					{
+						stack.Push(new Tuple<IDocumentItem, IDocumentItem>(item.Item2, documentItem));
+					}
 				}
 			}
 
@@ -216,7 +218,7 @@ namespace Morestachio.Fluent
 			}
 
 			currentNodeParent.Leafs.Remove(currentNodeParent);
-			currentNodeParent.Item.Children.Remove(Context.CurrentNode.Item);
+			((IBlockDocumentItem) currentNodeParent.Item).Children.Remove(Context.CurrentNode.Item);
 			Context.CurrentNode = currentNodeParent.Previous;
 			return this;
 		}
@@ -278,7 +280,7 @@ namespace Morestachio.Fluent
 			var itemInstance = item(new MorestachioExpressionBuilderBaseRootApi());
 			var node = CreateNodes(Context.CurrentNode, itemInstance, out _);
 			Context.CurrentNode.Leafs.Add(node);
-			Context.CurrentNode.Item.Children.Add(itemInstance);
+			((IBlockDocumentItem)Context.CurrentNode.Item).Children.Add(itemInstance);
 			return node;
 		}
 

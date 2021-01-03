@@ -4,6 +4,7 @@ using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 #endif
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
@@ -14,6 +15,7 @@ using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
+using Morestachio.Framework.Tokenizing;
 
 namespace Morestachio.Document.Items
 {
@@ -26,25 +28,26 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal WhileLoopDocumentItem() : base(CharacterLocation.Unknown, null)
+		internal WhileLoopDocumentItem()
 		{
 
 		}
 
 		/// <inheritdoc />
 		public WhileLoopDocumentItem(CharacterLocation location,
-			[NotNull] IMorestachioExpression value) : base(location, value)
+			[NotNull] IMorestachioExpression value,
+			IEnumerable<ITokenOption> tagCreationOptions) : base(location, value, tagCreationOptions)
 		{
-			
+
 		}
-		
+
 		/// <inheritdoc />
 		[UsedImplicitly]
 		protected WhileLoopDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
-			
+
 		}
-		
+
 		/// <inheritdoc />
 		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
@@ -82,7 +85,7 @@ namespace Morestachio.Document.Items
 					context.Value);
 
 				while (ContinueBuilding(outputStream, context) &&
-				       (await expression(collectionContext, scopeData)).Exists())
+					   (await expression(collectionContext, scopeData)).Exists())
 				{
 					await children(outputStream, collectionContext, scopeData);
 					collectionContext = new ContextCollection(++index, false, context.Options, context.Key,

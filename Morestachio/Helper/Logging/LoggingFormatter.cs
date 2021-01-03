@@ -128,7 +128,7 @@ namespace Morestachio.Helper.Logging
 		/// <param name="message"></param>
 		public static void LogWarn(this ILogger logger, string eventId, string message, IDictionary<string, object> data = null)
 		{
-			logger.Log("Warning", eventId, message, data);
+			logger?.Log("Warning", eventId, message, data);
 		}
 
 		/// <summary>
@@ -138,7 +138,7 @@ namespace Morestachio.Helper.Logging
 		/// <param name="message"></param>
 		public static void LogCritical(this ILogger logger, string eventId, string message, IDictionary<string, object> data = null)
 		{
-			logger.Log("Critical", eventId, message, data);
+			logger?.Log("Critical", eventId, message, data);
 		}
 
 		/// <summary>
@@ -148,7 +148,7 @@ namespace Morestachio.Helper.Logging
 		/// <param name="message"></param>
 		public static void LogDebug(this ILogger logger, string eventId, string message, IDictionary<string, object> data = null)
 		{
-			logger.Log("Debug", eventId, message, data);
+			logger?.Log("Debug", eventId, message, data);
 		}
 
 		/// <summary>
@@ -158,7 +158,7 @@ namespace Morestachio.Helper.Logging
 		/// <param name="message"></param>
 		public static void LogError(this ILogger logger, string eventId, string message, IDictionary<string, object> data = null)
 		{
-			logger.Log("Error", eventId, message, data);
+			logger?.Log("Error", eventId, message, data);
 		}
 
 		/// <summary>
@@ -168,7 +168,7 @@ namespace Morestachio.Helper.Logging
 		/// <param name="message"></param>
 		public static void LogInfo(this ILogger logger, string eventId, string message, IDictionary<string, object> data = null)
 		{
-			logger.Log("Info", eventId, message, data);
+			logger?.Log("Info", eventId, message, data);
 		}
 
 		/// <summary>
@@ -178,7 +178,7 @@ namespace Morestachio.Helper.Logging
 		/// <param name="message"></param>
 		public static void LogTrace(this ILogger logger, string eventId, string message, IDictionary<string, object> data = null)
 		{
-			logger.Log("Trace", eventId, message, data);
+			logger?.Log("Trace", eventId, message, data);
 		}
 	}
 

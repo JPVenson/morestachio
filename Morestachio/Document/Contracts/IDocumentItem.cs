@@ -4,6 +4,7 @@ using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
+using Morestachio.Framework.Tokenizing;
 #if ValueTask
 using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 using Promise = System.Threading.Tasks.ValueTask;
@@ -30,16 +31,10 @@ namespace Morestachio.Document.Contracts
 		ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
 			ScopeData scopeData);
 
-		
 		/// <summary>
-		///		The list of Children that are children of this Document item
+		///		Contains the list of TokenOptions used to construct this DocumentItem.
 		/// </summary>
-		IList<IDocumentItem> Children { get; }
-
-		/// <summary>
-		///		Adds the specified childs.
-		/// </summary>
-		void Add(params IDocumentItem[] documentChildren);
+		IEnumerable<ITokenOption> TagCreationOptions { get; }
 
 		/// <summary>
 		///		If this is a Natural Document item this defines the Position within the Template where the DocumentItem is parsed from

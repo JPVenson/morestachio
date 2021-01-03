@@ -15,7 +15,9 @@ using Morestachio.Document.Contracts;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Framework.Context;
+using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
+using Morestachio.Framework.Tokenizing;
 
 namespace Morestachio.Document.Items.Base
 {
@@ -23,21 +25,21 @@ namespace Morestachio.Document.Items.Base
 	///     Base class for Document items
 	/// </summary>
 	[Serializable]
-	public abstract class DocumentItemBase : IMorestachioDocument, 
+	public abstract class DocumentItemBase : IMorestachioDocument,
 		IEquatable<DocumentItemBase>
 	{
 		internal DocumentItemBase()
 		{
-
+			this.ExpressionStart = CharacterLocation.Unknown;
 		}
 
 		/// <summary>
 		///		Creates a new base object for encapsulating document items
 		/// </summary>
-		protected DocumentItemBase(CharacterLocation location)
+		protected DocumentItemBase(CharacterLocation location, IEnumerable<ITokenOption> tagCreationOptions)
 		{
-			Children = new List<IDocumentItem>();
 			ExpressionStart = location;
+			TagCreationOptions = tagCreationOptions;
 		}
 
 		/// <summary>
@@ -48,18 +50,19 @@ namespace Morestachio.Document.Items.Base
 		[SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
 		protected DocumentItemBase(SerializationInfo info, StreamingContext c)
 		{
-			var documentItemBases = info.GetValue(nameof(Children), typeof(IDocumentItem[])) as IDocumentItem[];
-			Children = new List<IDocumentItem>(documentItemBases ?? throw new InvalidOperationException());
 			var expStartLocation = info.GetString(nameof(ExpressionStart));
 			if (!string.IsNullOrWhiteSpace(expStartLocation))
 			{
 				ExpressionStart = CharacterLocation.FromFormatString(expStartLocation);
 			}
+
+			TagCreationOptions =
+				info.GetValue(nameof(TagCreationOptions), typeof(IEnumerable<ITokenOption>)) as IEnumerable<ITokenOption>;
 		}
 
 
 		/// <inheritdoc />
-		public bool Equals(DocumentItemBase other)
+		public virtual bool Equals(DocumentItemBase other)
 		{
 			if (other is null)
 			{
@@ -71,41 +74,32 @@ namespace Morestachio.Document.Items.Base
 				return true;
 			}
 
-			return Children.SequenceEqual(other.Children)
-			       && (ExpressionStart.Equals(other.ExpressionStart));
+			return (ExpressionStart.Equals(other.ExpressionStart))
+			       && (TagCreationOptions == other.TagCreationOptions
+			           || (TagCreationOptions?.SequenceEqual(other.TagCreationOptions) ?? false));
 		}
 
 		/// <inheritdoc />
 		public abstract ItemExecutionPromise Render(IByteCounterStream outputStream,
 			ContextObject context,
 			ScopeData scopeData);
-		
-		/// <inheritdoc />
-		public IList<IDocumentItem> Children { get; internal set; }
 
 		/// <inheritdoc />
 		public CharacterLocation ExpressionStart { get; private set; }
-		
+
 		/// <inheritdoc />
-		public void Add(params IDocumentItem[] documentChildren)
-		{
-			foreach (var documentItem in documentChildren)
-			{
-				//documentItem.Parent = this;
-				Children.Add(documentItem);
-			}
-		}
+		public IEnumerable<ITokenOption> TagCreationOptions { get; set; }
 
 		/// <inheritdoc />
 		[SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
 		public void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			info.AddValue(nameof(ExpressionStart), ExpressionStart.ToFormatString());
+			info.AddValue(nameof(TagCreationOptions), TagCreationOptions);
 			SerializeBinaryCore(info, context);
-			info.AddValue(nameof(Children), Children.ToArray(), typeof(IDocumentItem[]));
 		}
 
-		private static string GetSerializedMarkerName(Type type)
+		protected static string GetSerializedMarkerName(Type type)
 		{
 			return type.Name;
 		}
@@ -116,16 +110,7 @@ namespace Morestachio.Document.Items.Base
 			writer.WriteStartElement(GetSerializedMarkerName(GetType()));
 			writer.WriteAttributeString(nameof(ExpressionStart), ExpressionStart.ToFormatString() ?? string.Empty);
 			SerializeXml(writer);
-			if (Children.Any())
-			{
-				writer.WriteStartElement(nameof(Children));
-				foreach (var documentItem in Children)
-				{
-					documentItem.SerializeXmlCore(writer);
-				}
-
-				writer.WriteEndElement(); //nameof(Children)	
-			}
+			writer.WriteOptions(TagCreationOptions, nameof(TagCreationOptions));
 
 			writer.WriteEndElement(); //GetType().Name
 		}
@@ -145,23 +130,7 @@ namespace Morestachio.Document.Items.Base
 				var readSubtree = reader.ReadSubtree();
 				readSubtree.Read();
 				DeSerializeXml(readSubtree);
-
-				if (reader.Name == "Children" || reader.ReadToFollowing(nameof(Children)))
-				{
-					reader.ReadStartElement(); //nameof(Children)
-					while (!reader.Name.Equals(nameof(Children)) && reader.NodeType != XmlNodeType.EndElement)
-					{
-						var child = DocumentExtensions.CreateDocumentItemInstance(reader.Name);
-
-						var childTree = reader.ReadSubtree();
-						childTree.Read();
-						child.DeSerializeXmlCore(childTree);
-						reader.Skip();
-						Children.Add(child);
-					}
-
-					reader.ReadEndElement(); //nameof(Children)
-				}
+				TagCreationOptions = reader.ReadOptions(nameof(TagCreationOptions));
 
 				if (reader.NodeType == XmlNodeType.EndElement && reader.Name.Equals(GetSerializedMarkerName(GetType())))
 				{
@@ -188,24 +157,12 @@ namespace Morestachio.Document.Items.Base
 			xmlReaderSettings.IgnoreProcessingInstructions = true;
 			var xmlReader = XmlReader.Create(reader, xmlReaderSettings);
 			xmlReader.Read();
-			((IDocumentItem) this).DeSerializeXmlCore(xmlReader);
+			((IDocumentItem)this).DeSerializeXmlCore(xmlReader);
 		}
 
 		void IXmlSerializable.WriteXml(XmlWriter writer)
 		{
 			SerializeXml(writer);
-			if (Children.Any())
-			{
-				writer.WriteStartElement(nameof(Children));
-				foreach (var documentItem in Children)
-				{
-					documentItem.SerializeXmlCore(writer);
-				}
-
-				writer.WriteEndElement(); //nameof(Children)	
-			}
-
-			//writer.WriteEndElement(); //GetType().Name
 		}
 
 		/// <summary>
@@ -214,7 +171,7 @@ namespace Morestachio.Document.Items.Base
 		protected static bool ContinueBuilding(IByteCounterStream builder, ContextObject context)
 		{
 			return !context.AbortGeneration && !context.CancellationToken.IsCancellationRequested &&
-			       !builder.ReachedLimit;
+				   !builder.ReachedLimit;
 		}
 
 		/// <summary>
@@ -277,16 +234,17 @@ namespace Morestachio.Document.Items.Base
 				return false;
 			}
 
-			return Equals((DocumentItemBase) obj);
+			return Equals((DocumentItemBase)obj);
 		}
-		
+
 		/// <inheritdoc />
 		public override int GetHashCode()
 		{
 			unchecked
 			{
-				return ((Children.Any() ? Children.Select(f => f.GetHashCode()).Aggregate((e,f) => e ^ f) : 0) * 397) ^
-				       (ExpressionStart.GetHashCode());
+				int hashCode = ExpressionStart.GetHashCode();
+				hashCode = (hashCode * 397) ^ (TagCreationOptions.Any() ? TagCreationOptions.Select(f => f.GetHashCode()).Aggregate((e, f) => e ^ f) : 0);
+				return hashCode;
 			}
 		}
 	}

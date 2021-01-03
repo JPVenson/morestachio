@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 using JetBrains.Annotations;
 using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Expression;
@@ -20,8 +22,8 @@ namespace Morestachio.Framework.Tokenizing
 		public TokenPair(IComparable type,
 			string value,
 			CharacterLocation tokenLocation,
-			IEnumerable<TokenOption> tokenOptions,
-			EmbeddedState isEmbeddedToken = EmbeddedState.None)
+			IEnumerable<ITokenOption> tokenOptions,
+			EmbeddedInstructionOrigin isEmbeddedToken = EmbeddedInstructionOrigin.Self)
 			: this(type, value, tokenLocation, null, tokenOptions, isEmbeddedToken)
 		{
 		}
@@ -33,8 +35,8 @@ namespace Morestachio.Framework.Tokenizing
 		public TokenPair(IComparable type,
 			CharacterLocation tokenLocation,
 			IMorestachioExpression expression,
-			IEnumerable<TokenOption> tokenOptions,
-			EmbeddedState isEmbeddedToken = EmbeddedState.None)
+			IEnumerable<ITokenOption> tokenOptions,
+			EmbeddedInstructionOrigin isEmbeddedToken = EmbeddedInstructionOrigin.Self)
 			: this(type, null, tokenLocation, expression, tokenOptions, isEmbeddedToken)
 		{
 		}
@@ -47,12 +49,21 @@ namespace Morestachio.Framework.Tokenizing
 			string value,
 			CharacterLocation tokenLocation,
 			IMorestachioExpression expression,
-			IEnumerable<TokenOption> tokenOptions,
-			EmbeddedState isEmbeddedToken = EmbeddedState.None)
+			IEnumerable<ITokenOption> tokenOptions,
+			EmbeddedInstructionOrigin isEmbeddedToken = EmbeddedInstructionOrigin.Self)
 		{
 			Type = type;
 			MorestachioExpression = expression;
-			TokenOptions = tokenOptions;
+			var tokenOps = tokenOptions?.ToArray();
+			if (tokenOps?.Length > 0)
+			{
+				TokenOptions = tokenOps;
+			}
+			else
+			{
+				TokenOptions = null;
+			}
+			
 			IsEmbeddedToken = isEmbeddedToken;
 			TokenLocation = tokenLocation;
 			Value = value;
@@ -64,7 +75,7 @@ namespace Morestachio.Framework.Tokenizing
 		public TokenPair(IComparable type,
 			string value,
 			CharacterLocation tokenLocation,
-			EmbeddedState isEmbeddedToken = EmbeddedState.None)
+			EmbeddedInstructionOrigin isEmbeddedToken = EmbeddedInstructionOrigin.Self)
 			: this(type, value, tokenLocation, null, null, isEmbeddedToken)
 		{
 		}
@@ -76,7 +87,7 @@ namespace Morestachio.Framework.Tokenizing
 		public TokenPair(IComparable type,
 			CharacterLocation tokenLocation,
 			IMorestachioExpression expression,
-			EmbeddedState isEmbeddedToken = EmbeddedState.None)
+			EmbeddedInstructionOrigin isEmbeddedToken = EmbeddedInstructionOrigin.Self)
 			: this(type, null, tokenLocation, expression, null, isEmbeddedToken)
 		{
 		}
@@ -89,7 +100,7 @@ namespace Morestachio.Framework.Tokenizing
 			string value,
 			CharacterLocation tokenLocation,
 			IMorestachioExpression expression,
-			EmbeddedState isEmbeddedToken = EmbeddedState.None)
+			EmbeddedInstructionOrigin isEmbeddedToken = EmbeddedInstructionOrigin.Self)
 			: this(type, value, tokenLocation, expression, null, isEmbeddedToken)
 		{
 		}
@@ -97,7 +108,7 @@ namespace Morestachio.Framework.Tokenizing
 		/// <summary>
 		///		The type of this Token
 		/// </summary>
-		public EmbeddedState IsEmbeddedToken { get; }
+		public EmbeddedInstructionOrigin IsEmbeddedToken { get; }
 
 		/// <summary>
 		///		The type of this Token
@@ -112,7 +123,7 @@ namespace Morestachio.Framework.Tokenizing
 		/// <summary>
 		///		Gets the options set with the Token
 		/// </summary>
-		public IEnumerable<TokenOption> TokenOptions { get; }
+		public IEnumerable<ITokenOption> TokenOptions { get; }
 
 		/// <summary>
 		///		What is the Value of this token
@@ -144,7 +155,7 @@ namespace Morestachio.Framework.Tokenizing
 		/// <returns></returns>
 		public T FindOption<T>(string name, Func<T> getDefault)
 		{
-			if (TokenOptions.FirstOrDefault(e => e.Name.Equals(name)).Value is T val)
+			if (TokenOptions?.FirstOrDefault(e => string.Equals(name, e.Name))?.Value is T val)
 			{
 				return val;
 			}
@@ -159,7 +170,7 @@ namespace Morestachio.Framework.Tokenizing
 		/// <returns></returns>
 		public T[] FindOptions<T>(string name)
 		{
-			return (TokenOptions.FirstOrDefault(e => e.Name.Equals(name)).Value as IEnumerable<T>)?.ToArray();
+			return (TokenOptions.FirstOrDefault(e => e.Name.Equals(name))?.Value as IEnumerable<T>)?.ToArray();
 		}
 
 		[PublicAPI]
@@ -197,32 +208,5 @@ namespace Morestachio.Framework.Tokenizing
 			}
 		}
 
-	}
-
-	/// <summary>
-	///		Defines an option declared inline with the keyword
-	/// </summary>
-	public readonly struct TokenOption
-	{
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="name"></param>
-		/// <param name="value"></param>
-		public TokenOption(string name, object value)
-		{
-			Name = name;
-			Value = value;
-		}
-
-		/// <summary>
-		///		The name of the Option
-		/// </summary>
-		public string Name { get; }
-
-		/// <summary>
-		///		The value of the Option
-		/// </summary>
-		public object Value { get; }
 	}
 }

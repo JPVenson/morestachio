@@ -11,6 +11,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.Error;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
+using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
 using Morestachio.Parsing.ParserErrors;
 
@@ -28,7 +29,7 @@ namespace Morestachio.Document.Items
 	[System.Serializable]
 	public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomCompilation
 	{
-		internal RepeatDocumentItem() : base(CharacterLocation.Unknown, null)
+		internal RepeatDocumentItem()
 		{
 			
 		}
@@ -37,7 +38,8 @@ namespace Morestachio.Document.Items
 		///		Creates a new repeat document item
 		/// </summary>
 		/// <param name="value"></param>
-		public RepeatDocumentItem(CharacterLocation location, IMorestachioExpression value) : base(location, value)
+		public RepeatDocumentItem(CharacterLocation location, IMorestachioExpression value,
+			IEnumerable<ITokenOption> tagCreationOptions) : base(location, value,tagCreationOptions)
 		{
 		}
 

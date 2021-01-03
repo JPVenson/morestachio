@@ -25,7 +25,8 @@ namespace Morestachio.Document.Custom
 		/// <summary>
 		///		Will be called to produce an Document item that must be executed
 		/// </summary>
-		public abstract IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token, ParserOptions options);
+		public abstract IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token,
+			ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions);
 		
 		/// <inheritdoc />
 		public override IEnumerable<TokenPair> Tokenize(TokenInfo token, ParserOptions options)
@@ -34,16 +35,16 @@ namespace Morestachio.Document.Custom
 		}
 		
 		/// <inheritdoc />
-		public override bool ShouldParse(TokenPair token, ParserOptions options)
+		public override bool ShouldParse(TokenPair token, ParserOptions options, IEnumerable<ITokenOption> tokenOptions)
 		{
 			return token.Type.Equals(_tag.Trim());
 		}
 		
 		/// <inheritdoc />
 		public override IDocumentItem Parse(TokenPair token, ParserOptions options, Stack<DocumentScope> buildStack,
-			Func<int> getScope)
+			Func<int> getScope, IEnumerable<ITokenOption> tokenOptions)
 		{
-			return CreateDocumentItem(_tag, token.Value?.Trim('{', '}').Remove(0, _tag.Length).Trim(), token, options);
+			return CreateDocumentItem(_tag, token.Value?.Trim('{', '}').Remove(0, _tag.Length).Trim(), token, options, tokenOptions);
 		}
 		
 		/// <inheritdoc />

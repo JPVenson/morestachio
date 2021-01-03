@@ -167,6 +167,13 @@ namespace Morestachio.Helper
 			{
 				number = nr._value;
 			}
+
+			if (number is Type nrType)
+			{
+				return nrType == typeof(decimal) ||
+				       nrType == typeof(double) ||
+				       nrType == typeof(float);
+			}
 			return number is decimal ||
 				   number is double ||
 				   number is float;
@@ -192,6 +199,18 @@ namespace Morestachio.Helper
 			if (number is Number nr)
 			{
 				number = nr._value;
+			}
+
+			if (number is Type nrType)
+			{
+				return nrType == typeof(ulong) ||
+				       nrType == typeof(long) ||
+				       nrType == typeof(uint) ||
+				       nrType == typeof(int) ||
+				       nrType == typeof(ushort) ||
+				       nrType == typeof(short) ||
+				       nrType == typeof(byte) ||
+				       nrType == typeof(sbyte);
 			}
 
 			return number is ulong ||

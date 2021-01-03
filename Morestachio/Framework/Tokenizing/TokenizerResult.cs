@@ -4,11 +4,6 @@ using System.Collections.Generic;
 
 namespace Morestachio.Framework.Tokenizing
 {
-	internal interface ITokenizerResult : IEnumerable<TokenPair>, IEnumerator<TokenPair>
-	{
-
-	}
-
 	/// <summary>
 	///		Contains the result of an Tokenizer
 	/// </summary>
@@ -48,7 +43,7 @@ namespace Morestachio.Framework.Tokenizing
 		{
 			get
 			{
-				if (CurrentIndex - 2 > 0)
+				if (CurrentIndex - 2 < 0)
 				{
 					return null;
 				}

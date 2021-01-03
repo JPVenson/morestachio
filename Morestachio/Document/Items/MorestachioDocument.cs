@@ -19,6 +19,7 @@ using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
+using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
 
 namespace Morestachio.Document.Items
@@ -27,7 +28,7 @@ namespace Morestachio.Document.Items
 	///		Defines a document that can be rendered. Does only store its Children
 	/// </summary>
 	[Serializable]
-	public sealed class MorestachioDocument : DocumentItemBase,
+	public sealed class MorestachioDocument : BlockDocumentItemBase,
 		IEquatable<MorestachioDocument>, ISupportCustomCompilation
 	{
 		/// <summary>
@@ -42,14 +43,16 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		public MorestachioDocument() : this(CharacterLocation.Unknown)
+		public MorestachioDocument()
 		{
+			MorestachioVersion = GetMorestachioVersion();
 		}
 
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		public MorestachioDocument(CharacterLocation location) : base(location)
+		public MorestachioDocument(CharacterLocation location,
+			IEnumerable<ITokenOption> tagCreationOptions) : base(location,tagCreationOptions)
 		{
 			MorestachioVersion = GetMorestachioVersion();
 		}

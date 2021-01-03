@@ -3,6 +3,7 @@ using Morestachio.Document.Contracts;
 using Morestachio.Document.Items;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework;
+using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper.Localization;
 using Morestachio.TemplateContainers;
 using Morestachio.Tests.SerilalizerTests.Strategies;
@@ -264,7 +265,7 @@ namespace Morestachio.Tests.SerilalizerTests
 		[Test]
 		public void Alias()
 		{
-			var alias = new AliasDocumentItem(CharacterLocation.Unknown, "Alias", 101);
+			var alias = new AliasDocumentItem(CharacterLocation.Unknown, "Alias", 101, null);
 			SerilalizeAndDeserialize(alias);
 		}
 	}

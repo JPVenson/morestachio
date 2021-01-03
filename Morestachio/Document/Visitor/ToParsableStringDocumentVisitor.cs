@@ -58,74 +58,69 @@ namespace Morestachio.Document.Visitor
 			expression.Accept(visitor);
 			return visitor.StringBuilder.ToString();
 		}
-
-		public LineBreakTrimDirection RenderLineBreak { get; set; } = LineBreakTrimDirection.None;
-
+		
 		/// <summary>
 		///		Loops through all the document items children
 		/// </summary>
 		/// <param name="documentItem"></param>
 		public void VisitChildren(IDocumentItem documentItem)
 		{
-			var documentItemChildren = documentItem
-				.Children
-				.SkipWhile(f => f is TextEditDocumentItem txtOp && txtOp.EmbeddedState == EmbeddedState.Next)
-				.Reverse()
-				.SkipWhile(f => f is TextEditDocumentItem txtOp && txtOp.EmbeddedState == EmbeddedState.Previous)
-				.Reverse()
-				.ToArray();
-			for (var index = 0; index < documentItemChildren.Length; index++)
+			if (!(documentItem is IBlockDocumentItem blockItem))
 			{
-				var documentItemChild = documentItemChildren[index];
-				if (documentItemChild is TextEditDocumentItem txtOp && txtOp.EmbeddedState != EmbeddedState.None)
-				{
-					continue;
-				}
+				return;
+			}
 
-				if (index - 1 >= 0)
-				{
-					if (documentItemChildren[index - 1] is TextEditDocumentItem ntxtOp)
-					{
-						if (ntxtOp.Operation is TrimLineBreakTextOperation tl &&
-							(tl.LineBreakTrimDirection != LineBreakTrimDirection.Begin && index != 0))
-						{
-							RenderLineBreak |= tl.LineBreakTrimDirection;
-						}
-					}
-				}
-
-				if (index + 1 < documentItemChildren.Length)
-				{
-					if (documentItemChildren[index + 1] is TextEditDocumentItem ntxtOp)
-					{
-						if (ntxtOp.Operation is TrimLineBreakTextOperation tl &&
-							tl.LineBreakTrimDirection != LineBreakTrimDirection.End)
-						{
-							RenderLineBreak |= tl.LineBreakTrimDirection;
-						}
-					}
-				}
-
+			foreach (var documentItemChild in blockItem.Children)
+			{
 				documentItemChild.Accept(this);
 			}
 		}
 
-		private void CheckForTnlInlineBegin()
+		private void CheckForInlineTagLineBreakAtStart(IDocumentItem documentItem)
 		{
-			if (RenderLineBreak.HasFlagFast(LineBreakTrimDirection.End))
+			if (documentItem.TagCreationOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimLeading")?.Value is bool valSingle && valSingle)
 			{
 				StringBuilder.Append("-| ");
 			}
+			if (documentItem.TagCreationOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimAllLeading")?.Value is bool valAll && valAll)
+			{
+				StringBuilder.Append("--| ");
+			}
 		}
 
-		private void CheckForTnlInlineEnd(ICollection<IDocumentItem> children)
+		private void CheckForInlineTagLineBreakAtEnd(IDocumentItem documentItem)
 		{
-			var preLastItem = children.ElementAtOrDefault(children.Count - 2);
-			if (preLastItem is TextEditDocumentItem lastTxtDoc &&
-			    lastTxtDoc.Operation is TrimLineBreakTextOperation lastTrim &&
-			    lastTrim.LineBreakTrimDirection == LineBreakTrimDirection.End)
+			if (documentItem.TagCreationOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimTailing")?.Value is bool valSingle && valSingle)
+			{
+				StringBuilder.Append(" |-");
+			}
+			if (documentItem.TagCreationOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimAllTailing")?.Value is bool valAll && valAll)
+			{
+				StringBuilder.Append(" |--");
+			}
+		}
+
+		private void CheckForInlineBlockLineBreakAtStart(IBlockDocumentItem documentItem)
+		{
+			if (documentItem.BlockClosingOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimLeading")?.Value is bool valSingle && valSingle)
 			{
 				StringBuilder.Append("-| ");
+			}
+			if (documentItem.BlockClosingOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimAllLeading")?.Value is bool valAll && valAll)
+			{
+				StringBuilder.Append("--| ");
+			}
+		}
+
+		private void CheckForInlineBlockLineBreakAtEnd(IBlockDocumentItem documentItem)
+		{
+			if (documentItem.BlockClosingOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimTailing")?.Value is bool valSingle && valSingle)
+			{
+				StringBuilder.Append(" |-");
+			}
+			if (documentItem.BlockClosingOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimAllTailing")?.Value is bool valAll && valAll)
+			{
+				StringBuilder.Append(" |--");
 			}
 		}
 
@@ -138,7 +133,7 @@ namespace Morestachio.Document.Visitor
 		public void Visit(ExpressionDocumentItemBase documentItem, string tag, string cmdChar = "#")
 		{
 			StringBuilder.Append("{{");
-			CheckForTnlInlineBegin();
+			CheckForInlineTagLineBreakAtStart(documentItem);
 			StringBuilder.Append(cmdChar);
 			StringBuilder.Append(tag);
 			StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
@@ -149,18 +144,8 @@ namespace Morestachio.Document.Visitor
 				StringBuilder.Append(" AS ");
 				StringBuilder.Append(aliasDocumentItem.Value);
 			}
-
-			if (RenderLineBreak.HasFlagFast(LineBreakTrimDirection.Begin)
-			||
-			(children.Any() &&
-			 children.First() is TextEditDocumentItem txtDoc &&
-			 txtDoc.Operation is TrimLineBreakTextOperation trim &&
-			 trim.LineBreakTrimDirection == LineBreakTrimDirection.Begin))
-			{
-				StringBuilder.Append(" |-");
-			}
-
-			RenderLineBreak = LineBreakTrimDirection.None;
+			
+			CheckForInlineTagLineBreakAtEnd(documentItem);
 			StringBuilder.Append("}}");
 
 			if (children.Any())
@@ -168,7 +153,7 @@ namespace Morestachio.Document.Visitor
 				VisitChildren(documentItem);
 
 				StringBuilder.Append("{{");
-				CheckForTnlInlineEnd(children);
+				CheckForInlineBlockLineBreakAtStart(documentItem);
 				StringBuilder.Append("/");
 
 				if (!(aliasDocumentItem is null))
@@ -179,6 +164,7 @@ namespace Morestachio.Document.Visitor
 				{
 					StringBuilder.Append(tag.Trim());
 				}
+				CheckForInlineBlockLineBreakAtEnd(documentItem);
 				StringBuilder.Append("}}");
 			}
 		}
@@ -190,18 +176,22 @@ namespace Morestachio.Document.Visitor
 		/// <param name="tag"></param>
 		public void Visit(DocumentItemBase documentItem, string tag)
 		{
-			StringBuilder.Append("{{#");
+			StringBuilder.Append("{{");
+			CheckForInlineTagLineBreakAtStart(documentItem);
+			StringBuilder.Append("#");
 			StringBuilder.Append(tag);
+			CheckForInlineTagLineBreakAtEnd(documentItem);
 			StringBuilder.Append("}}");
 
-			if (documentItem.Children.Any())
+			if (documentItem is IBlockDocumentItem blockItem && blockItem.Children.Any())
 			{
 				VisitChildren(documentItem);
 
 				StringBuilder.Append("{{");
-				CheckForTnlInlineEnd(documentItem.Children);
+				CheckForInlineBlockLineBreakAtStart(blockItem);
 				StringBuilder.Append("/");
 				StringBuilder.Append(tag);
+				CheckForInlineBlockLineBreakAtEnd(blockItem);
 				StringBuilder.Append("}}");
 			}
 		}
@@ -229,13 +219,13 @@ namespace Morestachio.Document.Visitor
 		public void Visit(EvaluateVariableDocumentItem documentItem)
 		{
 			StringBuilder.Append("{{");
-			CheckForTnlInlineBegin();
+			CheckForInlineTagLineBreakAtStart(documentItem);
 			StringBuilder.Append("#");
 			StringBuilder.Append(documentItem.IdVariableScope == 0 ? "VAR " : "LET ");
 			StringBuilder.Append(documentItem.Value);
 			StringBuilder.Append(" = ");
 			StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
-			CheckForTnlInlineEnd(documentItem.Children);
+			CheckForInlineTagLineBreakAtEnd(documentItem);
 			StringBuilder.Append("}}");
 		}
 
@@ -248,7 +238,7 @@ namespace Morestachio.Document.Visitor
 		private void VisitExpressionScope(ExpressionDocumentItemBase documentItem, char prefix)
 		{
 			StringBuilder.Append("{{");
-			CheckForTnlInlineBegin();
+			CheckForInlineTagLineBreakAtStart(documentItem);
 			StringBuilder.Append(prefix);
 			StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
 			var children = documentItem.Children.ToList();
@@ -258,7 +248,8 @@ namespace Morestachio.Document.Visitor
 				StringBuilder.Append(" AS ");
 				StringBuilder.Append(aliasDocumentItem.Value);
 			}
-
+			
+			CheckForInlineTagLineBreakAtEnd(documentItem);
 			StringBuilder.Append("}}");
 
 			if (children.Any())
@@ -266,6 +257,7 @@ namespace Morestachio.Document.Visitor
 				VisitChildren(documentItem);
 
 				StringBuilder.Append("{{/");
+				CheckForInlineBlockLineBreakAtStart(documentItem);
 				if (!(aliasDocumentItem is null))
 				{
 					StringBuilder.Append(aliasDocumentItem.Value);
@@ -274,7 +266,7 @@ namespace Morestachio.Document.Visitor
 				{
 					StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
 				}
-				CheckForTnlInlineEnd(children);
+				CheckForInlineBlockLineBreakAtEnd(documentItem);
 				StringBuilder.Append("}}");
 			}
 		}
@@ -301,7 +293,7 @@ namespace Morestachio.Document.Visitor
 		public void Visit(SwitchDocumentItem documentItem)
 		{
 			StringBuilder.Append("{{");
-			CheckForTnlInlineBegin();
+			CheckForInlineTagLineBreakAtStart(documentItem);
 			StringBuilder.Append("#SWITCH ");
 			StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
 			if (documentItem.ScopeToValue)
@@ -309,13 +301,16 @@ namespace Morestachio.Document.Visitor
 				StringBuilder.Append(" #SCOPE");
 			}
 
+			CheckForInlineTagLineBreakAtEnd(documentItem);
 			StringBuilder.Append("}}");
 
 			VisitChildren(documentItem);
 
 			StringBuilder.Append("{{");
-			CheckForTnlInlineEnd(documentItem.Children);
-			StringBuilder.Append("/SWITCH}}");
+			CheckForInlineBlockLineBreakAtStart(documentItem);
+			StringBuilder.Append("/SWITCH");
+			CheckForInlineBlockLineBreakAtEnd(documentItem);
+			StringBuilder.Append("}}");
 		}
 		
 		/// <inheritdoc />
@@ -340,16 +335,19 @@ namespace Morestachio.Document.Visitor
 		public void Visit(PartialDocumentItem documentItem)
 		{
 			StringBuilder.Append("{{");
-			CheckForTnlInlineBegin();
+			CheckForInlineTagLineBreakAtStart(documentItem);
 			StringBuilder.Append("#DECLARE ");
 			StringBuilder.Append(documentItem.Value);
+			CheckForInlineTagLineBreakAtEnd(documentItem);
 			StringBuilder.Append("}}");
 
 			Visit(documentItem.Partial as MorestachioDocument);
 
 			StringBuilder.Append("{{");
-			CheckForTnlInlineEnd(documentItem.Children);
-			StringBuilder.Append("/DECLARE}}");
+			CheckForInlineBlockLineBreakAtStart(documentItem);
+			StringBuilder.Append("/DECLARE");
+			CheckForInlineBlockLineBreakAtEnd(documentItem);
+			StringBuilder.Append("}}");
 		}
 
 		/// <inheritdoc />
@@ -367,7 +365,7 @@ namespace Morestachio.Document.Visitor
 		public void Visit(RenderPartialDocumentItem documentItem)
 		{
 			StringBuilder.Append("{{");
-			CheckForTnlInlineBegin();
+			CheckForInlineTagLineBreakAtStart(documentItem);
 			StringBuilder.Append("#INCLUDE ");
 			StringBuilder.Append(documentItem.Value);
 			if (documentItem.Context != null)
@@ -375,7 +373,7 @@ namespace Morestachio.Document.Visitor
 				StringBuilder.Append(" WITH ");
 				StringBuilder.Append(ReparseExpression(documentItem.Context));
 			}
-			CheckForTnlInlineEnd(documentItem.Children);
+			CheckForInlineTagLineBreakAtEnd(documentItem);
 			StringBuilder.Append("}}");
 		}
 		
@@ -383,7 +381,7 @@ namespace Morestachio.Document.Visitor
 		public void Visit(ImportPartialDocumentItem documentItem)
 		{
 			StringBuilder.Append("{{");
-			CheckForTnlInlineBegin();
+			CheckForInlineTagLineBreakAtStart(documentItem);
 			StringBuilder.Append("#IMPORT ");
 			StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
 			if (documentItem.Context != null)
@@ -391,7 +389,7 @@ namespace Morestachio.Document.Visitor
 				StringBuilder.Append(" #WITH ");
 				StringBuilder.Append(ReparseExpression(documentItem.Context));
 			}
-			CheckForTnlInlineEnd(documentItem.Children);
+			CheckForInlineTagLineBreakAtEnd(documentItem);
 			StringBuilder.Append("}}");
 		}
 
@@ -425,7 +423,7 @@ namespace Morestachio.Document.Visitor
 					{
 						StringBuilder.Append("{{#TNL}}");
 					}
-					else if (op.LineBreaks == 0)
+					else if (op.LineBreaks == -1)
 					{
 						StringBuilder.Append("{{#TNLS}}");
 					}

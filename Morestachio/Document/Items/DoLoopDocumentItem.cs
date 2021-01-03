@@ -4,6 +4,7 @@ using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 #endif
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
+using Morestachio.Framework.Tokenizing;
 
 namespace Morestachio.Document.Items
 {
@@ -27,7 +29,7 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal DoLoopDocumentItem() : base(CharacterLocation.Unknown, null)
+		internal DoLoopDocumentItem() 
 		{
 
 		}
@@ -36,7 +38,9 @@ namespace Morestachio.Document.Items
 		///		Creates a new DoLoop DocumentItem that will render its children as long as the value expression meets the <see cref="ContextObject.DefinitionOfFalse"/>
 		/// </summary>
 		/// <param name="value"></param>
-		public DoLoopDocumentItem(CharacterLocation location, IMorestachioExpression value) : base(location, value)
+		public DoLoopDocumentItem(CharacterLocation location,
+			IMorestachioExpression value,
+			IEnumerable<ITokenOption> tagCreationOptions) : base(location, value, tagCreationOptions)
 		{
 		}
 		

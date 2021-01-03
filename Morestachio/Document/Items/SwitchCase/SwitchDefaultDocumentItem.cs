@@ -4,6 +4,7 @@ using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections
 using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 #endif
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
@@ -12,6 +13,7 @@ using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
+using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
 
 namespace Morestachio.Document.Items.SwitchCase
@@ -21,12 +23,12 @@ namespace Morestachio.Document.Items.SwitchCase
 	///		If used outside a <see cref="SwitchDocumentItem"/>, it will unconditionally render its items
 	/// </summary>
 	[Serializable]
-	public class SwitchDefaultDocumentItem : DocumentItemBase
+	public class SwitchDefaultDocumentItem : BlockDocumentItemBase
 	{
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal SwitchDefaultDocumentItem() : base(CharacterLocation.Unknown)
+		internal SwitchDefaultDocumentItem()
 		{
 
 		}
@@ -34,7 +36,8 @@ namespace Morestachio.Document.Items.SwitchCase
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		public SwitchDefaultDocumentItem(CharacterLocation location) : base(location)
+		public SwitchDefaultDocumentItem(CharacterLocation location,
+			IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
 		{
 
 		}

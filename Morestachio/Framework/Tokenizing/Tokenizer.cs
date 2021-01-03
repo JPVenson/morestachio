@@ -212,6 +212,7 @@ namespace Morestachio.Framework.Tokenizing
 			var partialsNames = new List<string>(parserOptions.PartialsStore?.GetNames() ?? new string[0]);
 			context.SetLocation(0);
 			var tokens = new List<TokenPair>();
+			var tokenOptions = new List<ITokenOption>();
 
 			void BeginElse(TokenMatch match)
 			{
@@ -231,7 +232,7 @@ namespace Morestachio.Framework.Tokenizing
 				{
 					scopestack.Push(new ScopeStackItem(TokenType.Else, firstNonContentToken.Value, match.Index));
 					tokens.Add(new TokenPair(TokenType.Else, firstNonContentToken.Value,
-						context.CurrentLocation));
+						context.CurrentLocation, tokenOptions));
 				}
 			}
 
@@ -251,7 +252,7 @@ namespace Morestachio.Framework.Tokenizing
 					{
 						var token = scopestack.Pop().Value;
 						tokens.Add(new TokenPair(TokenType.IfClose, token,
-							context.CurrentLocation));
+							context.CurrentLocation, tokenOptions));
 					}
 					else
 					{
@@ -274,7 +275,7 @@ namespace Morestachio.Framework.Tokenizing
 
 				return token;
 			}
-			
+
 			foreach (var match in templateString.Matches(context))
 			{
 				if (match.ContentToken)
@@ -311,52 +312,48 @@ namespace Morestachio.Framework.Tokenizing
 				}
 				else
 				{
-					var trimLeading = context.TrimLeading;
-					var trimAllLeading = false;
-					var trimTailing = context.TrimTailing;
-					var trimAllTailing = false;
-
 					//check if the token is appended by a -|
-					if (trimmedToken.StartsWith("-|"))
+					if (trimmedToken.StartsWith("-|") || context.TrimLeading)
 					{
-						trimLeading = true;
-						trimmedToken = trimmedToken.Substring("-|".Length).Trim();
-					}		
-					if (trimmedToken.StartsWith("--|"))
+						if (!context.TrimLeading)
+						{
+							trimmedToken = trimmedToken.Substring("-|".Length).Trim();
+						}
+						tokenOptions.Add(new PersistantTokenOption("Embedded.TrimLeading", true));
+					}
+					if (trimmedToken.StartsWith("--|") || context.TrimLeading)
 					{
-						trimLeading = true;
-						trimAllLeading = true;
-						trimmedToken = trimmedToken.Substring("--|".Length).Trim();
+						if (!context.TrimLeading)
+						{
+							trimmedToken = trimmedToken.Substring("--|".Length).Trim();
+						}
+						tokenOptions.Add(new PersistantTokenOption("Embedded.TrimAllLeading", true));
+					}
+					//check if the token is appended by a |-
+					if (trimmedToken.EndsWith("|-") || context.TrimTailing)
+					{
+						if (!context.TrimTailing)
+						{
+							trimmedToken = trimmedToken.Remove(trimmedToken.Length - "|-".Length).Trim();
+						}
+						tokenOptions.Add(new PersistantTokenOption("Embedded.TrimTailing", true));
+					}
+					if (trimmedToken.EndsWith("|--") || context.TrimTailing)
+					{
+						if (!context.TrimTailing)
+						{
+							trimmedToken = trimmedToken.Remove(trimmedToken.Length - "|--".Length).Trim();
+						}
+						tokenOptions.Add(new PersistantTokenOption("Embedded.TrimAllTailing", true));
 					}
 
 					//yield front content.
 					if (match.Index > context.Character)
 					{
-						if (trimLeading)
-						{
-							tokens.Add(new TokenPair(TokenType.TrimPrependedLineBreaks, trimmedToken, context.CurrentLocation, new[]
-							{
-								new TokenOption("All", trimAllLeading), 
-							}, EmbeddedState.Previous));
-						}
 						tokens.Add(new TokenPair(TokenType.Content, match.PreText, context.CurrentLocation));
 					}
 
 					context.SetLocation(match.Index + context._prefixToken.Length);
-
-					//check if the token is appended by a |-
-					if (trimmedToken.EndsWith("|-"))
-					{
-						trimmedToken = trimmedToken.Remove(trimmedToken.Length - "|-".Length).Trim();
-						trimTailing = true;
-					}
-					if (trimmedToken.EndsWith("|--"))
-					{
-						trimmedToken = trimmedToken.Remove(trimmedToken.Length - "|--".Length).Trim();
-						trimTailing = true;
-						trimAllTailing = true;
-					}
-
 					if (trimmedToken.StartsWith("#declare ", true, CultureInfo.InvariantCulture))
 					{
 						var token = TrimToken(trimmedToken, "declare ");
@@ -371,7 +368,7 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							partialsNames.Add(token);
 							tokens.Add(new TokenPair(TokenType.PartialDeclarationOpen, token,
-								context.CurrentLocation));
+								context.CurrentLocation, tokenOptions));
 						}
 					}
 					else if (trimmedToken.Equals("/declare", StringComparison.CurrentCultureIgnoreCase))
@@ -380,7 +377,7 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							var token = scopestack.Pop().Value;
 							tokens.Add(new TokenPair(TokenType.PartialDeclarationClose, token,
-								context.CurrentLocation));
+								context.CurrentLocation, tokenOptions));
 						}
 						else
 						{
@@ -421,7 +418,7 @@ namespace Morestachio.Framework.Tokenizing
 							{
 								exp = ExpressionParser.ParseExpression(partialContext, context);
 							}
-							tokens.Add(new TokenPair(TokenType.RenderPartial, partialName, context.CurrentLocation, exp));
+							tokens.Add(new TokenPair(TokenType.RenderPartial, partialName, context.CurrentLocation, exp, tokenOptions));
 						}
 					}
 					else if (trimmedToken.StartsWith("#import ", true, CultureInfo.InvariantCulture))
@@ -441,11 +438,9 @@ namespace Morestachio.Framework.Tokenizing
 						}
 
 						//late bound expression, cannot check at parse time for existance
+						tokenOptions.Add(new TokenOption("Context", contextExpression));
 						tokens.Add(new TokenPair(TokenType.ImportPartial,
-							context.CurrentLocation, tokenNameExpression, new[]
-							{
-								new TokenOption("Context", contextExpression),
-							}));
+							context.CurrentLocation, tokenNameExpression, tokenOptions));
 					}
 					else if (trimmedToken.StartsWith("#each ", true, CultureInfo.InvariantCulture))
 					{
@@ -460,7 +455,7 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							token = token.Trim();
 							tokens.Add(new TokenPair(TokenType.CollectionOpen,
-								token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context), EmbeddedState.None));
+								token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context), tokenOptions));
 						}
 						else
 						{
@@ -481,7 +476,7 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							var token = scopestack.Pop().Value;
 							tokens.Add(new TokenPair(TokenType.CollectionClose, token,
-								context.CurrentLocation));
+								context.CurrentLocation, tokenOptions));
 						}
 						else
 						{
@@ -499,7 +494,7 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							token = token.Trim();
 							tokens.Add(new TokenPair(TokenType.WhileLoopOpen,
-								token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context)));
+								token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context), tokenOptions));
 						}
 						else
 						{
@@ -513,7 +508,7 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							var token = scopestack.Pop().Value;
 							tokens.Add(new TokenPair(TokenType.WhileLoopClose, token,
-								context.CurrentLocation));
+								context.CurrentLocation, tokenOptions));
 						}
 						else
 						{
@@ -530,7 +525,7 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							token = token.Trim();
 							tokens.Add(new TokenPair(TokenType.DoLoopOpen,
-								token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context)));
+								token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context), tokenOptions));
 						}
 						else
 						{
@@ -544,7 +539,7 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							var token = scopestack.Pop().Value;
 							tokens.Add(new TokenPair(TokenType.DoLoopClose, token,
-								context.CurrentLocation));
+								context.CurrentLocation, tokenOptions));
 						}
 						else
 						{
@@ -561,7 +556,7 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							token = token.Trim();
 							tokens.Add(new TokenPair(TokenType.RepeatLoopOpen,
-								token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context)));
+								token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context), tokenOptions));
 						}
 						else
 						{
@@ -575,7 +570,7 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							var token = scopestack.Pop().Value;
 							tokens.Add(new TokenPair(TokenType.RepeatLoopClose, token,
-								context.CurrentLocation));
+								context.CurrentLocation, tokenOptions));
 						}
 						else
 						{
@@ -608,11 +603,9 @@ namespace Morestachio.Framework.Tokenizing
 						if (token.Trim() != "")
 						{
 							token = token.Trim();
+							tokenOptions.Add(new TokenOption("ScopeTo", shouldScope));
 							tokens.Add(new TokenPair(TokenType.SwitchOpen,
-								context.CurrentLocation, ExpressionParser.ParseExpression(token, context), new TokenOption[]
-								{
-									new TokenOption("ScopeTo", shouldScope),
-								}));
+								context.CurrentLocation, ExpressionParser.ParseExpression(token, context), tokenOptions));
 						}
 						else
 						{
@@ -626,7 +619,7 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							var token = scopestack.Pop().Value;
 							tokens.Add(new TokenPair(TokenType.SwitchClose, token,
-								context.CurrentLocation));
+								context.CurrentLocation, tokenOptions));
 						}
 						else
 						{
@@ -652,7 +645,7 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							token = token.Trim();
 							tokens.Add(new TokenPair(TokenType.SwitchCaseOpen,
-								token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context)));
+								token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context), tokenOptions));
 						}
 						else
 						{
@@ -666,7 +659,7 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							var token = scopestack.Pop().Value;
 							tokens.Add(new TokenPair(TokenType.SwitchCaseClose, token,
-								context.CurrentLocation));
+								context.CurrentLocation, tokenOptions));
 						}
 						else
 						{
@@ -693,7 +686,7 @@ namespace Morestachio.Framework.Tokenizing
 							token = token.Trim();
 							tokens.Add(new TokenPair(TokenType.SwitchDefaultOpen,
 								token,
-								context.CurrentLocation));
+								context.CurrentLocation, tokenOptions));
 						}
 						else
 						{
@@ -707,7 +700,7 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							var token = scopestack.Pop().Value;
 							tokens.Add(new TokenPair(TokenType.SwitchDefaultClose, token,
-								context.CurrentLocation));
+								context.CurrentLocation, tokenOptions));
 						}
 						else
 						{
@@ -733,7 +726,7 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							token = token.Trim();
 							tokens.Add(new TokenPair(TokenType.If,
-								token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context)));
+								token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context), tokenOptions));
 						}
 						else
 						{
@@ -759,7 +752,7 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							token = token.Trim();
 							tokens.Add(new TokenPair(TokenType.IfNot,
-								token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context)));
+								token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context), tokenOptions));
 						}
 						else
 						{
@@ -786,7 +779,7 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							var token = scopestack.Pop().Value;
 							tokens.Add(new TokenPair(TokenType.ElseClose, token,
-								context.CurrentLocation));
+								context.CurrentLocation, tokenOptions));
 						}
 						else
 						{
@@ -799,7 +792,7 @@ namespace Morestachio.Framework.Tokenizing
 					else if (trimmedToken.StartsWith("#var ", true, CultureInfo.InvariantCulture))
 					{
 						tokens.Add(ExpressionParser.TokenizeVariableAssignment(trimmedToken,
-							context, TokenType.VariableVar));
+							context, TokenType.VariableVar, tokenOptions));
 					}
 					else if (trimmedToken.StartsWith("#let ", true, CultureInfo.InvariantCulture))
 					{
@@ -812,7 +805,7 @@ namespace Morestachio.Framework.Tokenizing
 						}
 
 						tokens.Add(ExpressionParser.TokenizeVariableAssignment(trimmedToken,
-							context, TokenType.VariableLet));
+							context, TokenType.VariableLet, tokenOptions));
 					}
 					else if (trimmedToken.StartsWith("^"))
 					{
@@ -823,7 +816,7 @@ namespace Morestachio.Framework.Tokenizing
 						var alias = eval.Name;
 						scopestack.Push(new ScopeStackItem(TokenType.InvertedElementOpen, alias ?? token, match.Index));
 						tokens.Add(new TokenPair(TokenType.InvertedElementOpen,
-							token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context)));
+							token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context), tokenOptions));
 
 						if (!string.IsNullOrWhiteSpace(alias))
 						{
@@ -837,7 +830,7 @@ namespace Morestachio.Framework.Tokenizing
 						//escaped single element
 						var token = trimmedToken.TrimStart('&').Trim();
 						tokens.Add(new TokenPair(TokenType.UnescapedSingleValue,
-							token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context)));
+							token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context), tokenOptions));
 					}
 					else if (trimmedToken.StartsWith("!"))
 					{
@@ -850,19 +843,20 @@ namespace Morestachio.Framework.Tokenizing
 					}
 					else if (trimmedToken.Equals("#NL", StringComparison.InvariantCultureIgnoreCase))
 					{
-						tokens.Add(new TokenPair(TokenType.WriteLineBreak, trimmedToken, context.CurrentLocation));
+						tokens.Add(new TokenPair(TokenType.WriteLineBreak, trimmedToken, context.CurrentLocation, tokenOptions));
 					}
 					else if (trimmedToken.Equals("#TNL", StringComparison.InvariantCultureIgnoreCase))
 					{
-						tokens.Add(new TokenPair(TokenType.TrimLineBreak, trimmedToken, context.CurrentLocation));
+						tokens.Add(new TokenPair(TokenType.TrimLineBreak, trimmedToken, context.CurrentLocation, tokenOptions));
 					}
 					else if (trimmedToken.Equals("#TNLS", StringComparison.InvariantCultureIgnoreCase))
 					{
-						tokens.Add(new TokenPair(TokenType.TrimLineBreaks, trimmedToken, context.CurrentLocation));
+						tokenOptions.Add(new TokenOption("All", true));
+						tokens.Add(new TokenPair(TokenType.TrimLineBreaks, trimmedToken, context.CurrentLocation, tokenOptions));
 					}
 					else if (trimmedToken.Equals("#TRIMALL", StringComparison.InvariantCultureIgnoreCase))
 					{
-						tokens.Add(new TokenPair(TokenType.TrimEverything, trimmedToken, context.CurrentLocation));
+						tokens.Add(new TokenPair(TokenType.TrimEverything, trimmedToken, context.CurrentLocation, tokenOptions));
 					}
 					else if (trimmedToken.StartsWith("#SET OPTION ", StringComparison.InvariantCultureIgnoreCase))
 					{
@@ -928,7 +922,7 @@ namespace Morestachio.Framework.Tokenizing
 						if (customDocumentProvider != null)
 						{
 							var tokenPairs = customDocumentProvider
-								.Tokenize(new CustomDocumentItemProvider.TokenInfo(trimmedToken, context, scopestack),
+								.Tokenize(new CustomDocumentItemProvider.TokenInfo(trimmedToken, context, scopestack, tokenOptions),
 									parserOptions);
 							tokens.AddRange(tokenPairs);
 						}
@@ -942,7 +936,7 @@ namespace Morestachio.Framework.Tokenizing
 							var alias = eval.Name;
 							scopestack.Push(new ScopeStackItem(TokenType.ElementOpen, alias ?? token, match.Index));
 							tokens.Add(new TokenPair(TokenType.ElementOpen,
-								token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context)));
+								token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context), tokenOptions));
 
 							if (!string.IsNullOrWhiteSpace(alias))
 							{
@@ -970,7 +964,7 @@ namespace Morestachio.Framework.Tokenizing
 								{
 									scopestack.Pop();
 									tokens.Add(new TokenPair(TokenType.ElementClose, token,
-										context.CurrentLocation));
+										context.CurrentLocation, tokenOptions));
 								}
 								else
 								{
@@ -985,17 +979,11 @@ namespace Morestachio.Framework.Tokenizing
 							//unsingle value.
 							var token = trimmedToken.Trim();
 							tokens.Add(new TokenPair(TokenType.EscapedSingleValue,
-								token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context)));
+								token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context), tokenOptions));
 						}
 					}
 
-					if (trimTailing)
-					{
-						tokens.Add(new TokenPair(TokenType.TrimLineBreaks, trimmedToken, context.CurrentLocation, new[]
-						{
-							new TokenOption("All", trimAllTailing), 
-						}, EmbeddedState.Next));
-					}
+					tokenOptions.Clear();
 
 					//move forward in the string.
 					if (context.Character > match.Index + match.Length)
