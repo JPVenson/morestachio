@@ -124,26 +124,26 @@ namespace Morestachio.Framework.Expression.Framework
 		{
 			var val = (await value.GetValue(new ContextObject(parserOptions, ".", null, new object()), new ScopeData()))
 				.Value;
-			if (name.Equals("TokenPrefix", StringComparison.InvariantCultureIgnoreCase))
-			{
-				if (val == null)
-				{
-					Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
-						"SET OPTION", "VALUE", $"The expression returned null for option '{name}' that does not accept a null value"));
-					return;
-				}
-				PrefixToken = val.ToString().ToCharArray();
-			}
-			if (name.Equals("TokenSuffix", StringComparison.InvariantCultureIgnoreCase))
-			{
-				if (val == null)
-				{
-					Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
-						"SET OPTION", "VALUE", $"The expression returned null for option '{name}' that does not accept a null value"));
-					return;
-				}
-				SuffixToken = val.ToString().ToCharArray();
-			}
+			//if (name.Equals("TokenPrefix", StringComparison.InvariantCultureIgnoreCase))
+			//{
+			//	if (val == null)
+			//	{
+			//		Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+			//			"SET OPTION", "VALUE", $"The expression returned null for option '{name}' that does not accept a null value"));
+			//		return;
+			//	}
+			//	PrefixToken = val.ToString().ToCharArray();
+			//}
+			//if (name.Equals("TokenSuffix", StringComparison.InvariantCultureIgnoreCase))
+			//{
+			//	if (val == null)
+			//	{
+			//		Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+			//			"SET OPTION", "VALUE", $"The expression returned null for option '{name}' that does not accept a null value"));
+			//		return;
+			//	}
+			//	SuffixToken = val.ToString().ToCharArray();
+			//}
 			if (name.Equals("TrimTailing", StringComparison.InvariantCultureIgnoreCase))
 			{
 				if (val == null)

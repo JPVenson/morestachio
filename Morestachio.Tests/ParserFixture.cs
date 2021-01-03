@@ -581,7 +581,7 @@ namespace Morestachio.Tests
 			Assert.That(result, Is.EqualTo("".PadLeft(123)));
 		}
 
-		[Test]
+		[Test, Ignore("Support for this feature is retracted")]
 		public async Task ParserCanSetOption()
 		{
 			var template = "{{valueA}}," +
