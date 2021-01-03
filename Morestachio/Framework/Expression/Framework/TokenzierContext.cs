@@ -85,6 +85,7 @@ namespace Morestachio.Framework.Expression.Framework
 		public char[] SuffixToken { get; set; } = new[] { '}', '}' };
 
 		internal int CommentIntend { get; set; } = 0;
+		//internal int EscapeIntend { get; set; } = 0;
 
 		/// <summary>
 		///		Gets or sets the option for trimming all leading whitespaces and newlines

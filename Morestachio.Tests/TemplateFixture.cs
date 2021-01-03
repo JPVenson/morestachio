@@ -146,6 +146,15 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		public async Task TestMultiLineExcludesAreExcludedFromOutput()
+		{
+			var data = new Dictionary<string, object>();
+			var template = @"A{{!?}}ZZZ{{/!?}}B{{!?}} {{123}} {{'{{'}} {{'}} }} {{/!?}}C";
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest);
+			Assert.That(result, Is.EqualTo("AZZZB {{123}} {{'{{'}} {{'}} }} C"));
+		}
+
+		[Test]
 		public async Task HtmlIsEscapedByDefault()
 		{
 			var data = new Dictionary<string, object>()

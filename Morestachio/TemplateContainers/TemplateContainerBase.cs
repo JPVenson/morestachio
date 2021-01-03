@@ -45,6 +45,7 @@ namespace Morestachio.TemplateContainers
 				{
 					index++;
 				}
+
 				var preText = templateString.Substring(preLastIndex, index - context._prefixToken.Length - preLastIndex);
 
 				var startOfToken = index;
@@ -95,11 +96,66 @@ namespace Morestachio.TemplateContainers
 						{
 							var tokenLength = tokenCount - context.SuffixToken.Length;
 
-							yield return new TokenMatch(startOfToken - context._prefixToken.Length,
-								templateString.Substring(startOfToken, tokenLength),
-								preText,
-								tokenLength + context.SuffixToken.Length + context._prefixToken.Length,
-								false);
+							var tokenContent = templateString.Substring(startOfToken, tokenLength);
+							//it's a comment drop this on the floor, no need to even yield it.
+							if (tokenContent.StartsWith("!"))
+							{
+								if (preText != string.Empty)
+								{
+									yield return new TokenMatch(preLastIndex, preText, null, preText.Length, true);
+								}
+
+								if (tokenContent.Equals("!"))
+								{
+									context.CommentIntend++;
+									while (context.CommentIntend > 0)
+									{
+										var nextCommentIndex =
+											templateString.IndexOf("{{!}}", index, StringComparison.Ordinal);
+										var nextCommentCloseIndex =
+											templateString.IndexOf("{{/!}}", index, StringComparison.Ordinal);
+										if (nextCommentCloseIndex == -1 && nextCommentIndex == -1)
+										{
+											yield break;
+										}
+
+										if (nextCommentIndex < nextCommentCloseIndex && nextCommentIndex == -1)
+										{
+											context.CommentIntend++;
+											index = nextCommentIndex + "{{!}}".Length - 1;
+										}
+										else
+										{
+											context.CommentIntend--;
+											index = nextCommentCloseIndex + "{{/!}}".Length - 1;
+										}
+									}
+								}
+								else if (tokenContent.Equals("!?"))
+								{
+									var nextCommentCloseIndex =
+										templateString.IndexOf("{{/!?}}", index, StringComparison.Ordinal);
+
+									if (nextCommentCloseIndex == -1)
+									{
+										preText = templateString.Substring(index + 1);
+										yield return new TokenMatch(preLastIndex, preText, null, preText.Length, true);
+										yield break;
+									}
+									preText = templateString.Substring(index + 1, nextCommentCloseIndex - index - 1);
+									yield return new TokenMatch(preLastIndex, preText, null, preText.Length, true);
+									index = nextCommentCloseIndex + "{{/!?}}".Length - 1;
+								}
+								//intentionally do nothing to drop all tags with leading ! as they are considered comments
+							}
+							else
+							{
+								yield return new TokenMatch(startOfToken - context._prefixToken.Length,
+									tokenContent,
+									preText,
+									tokenLength + context.SuffixToken.Length + context._prefixToken.Length,
+									false);
+							}
 							break;
 						}
 						else if (Tokenizer.IsStringDelimiter(c) && context.CommentIntend == 0)
