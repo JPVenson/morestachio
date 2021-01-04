@@ -27,7 +27,7 @@ namespace Morestachio.Tests.SerilalizerTests
 			IDocumentItem documentItem, 
 			ParserOptions options)
 		{
-			var text = (textContainer as StringTemplateContainer).Template;
+			var text = ((textContainer as StringTemplateContainer).Template as StringTemplateResource).ToString();
 			AssertDocumentItemIsSameAsTemplate(text, documentItem, options);
 		}
 

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Tokenizing;
@@ -15,7 +14,7 @@ namespace Morestachio.TemplateContainers
 		/// 
 		/// </summary>
 		/// <param name="template"></param>
-		public TemplateContainerBase(string template)
+		public TemplateContainerBase(TemplateResource template)
 		{
 			Template = template;
 		}
@@ -23,7 +22,7 @@ namespace Morestachio.TemplateContainers
 		/// <summary>
 		///		The string template
 		/// </summary>
-		public string Template { get; }
+		public TemplateResource Template { get; }
 
 		/// <inheritdoc />
 		public virtual IEnumerable<TokenMatch> Matches(TokenzierContext context)
@@ -38,7 +37,7 @@ namespace Morestachio.TemplateContainers
 			var lastChars = new MorestachioDefaultRollingArray();
 
 			//use the index of method for fast lookup of the next token
-			while ((index = templateString.IndexOf(new string(context._prefixToken), index, StringComparison.Ordinal)) != -1)
+			while ((index = templateString.IndexOf(new string(context._prefixToken), index)) != -1)
 			{
 				index += context._prefixToken.Length;
 				while (templateString[index] == context._prefixToken[0])//skip all excess {
@@ -58,7 +57,7 @@ namespace Morestachio.TemplateContainers
 					context.Lines.Add(nlsIdx + preLastIndex);
 					nlsIdx += 1;
 				}
-				while (index < templateString.Length)
+				while (index < templateString.Length())
 				{
 					var c = templateString[index];
 					lastChars.Add(c);
@@ -111,9 +110,9 @@ namespace Morestachio.TemplateContainers
 									while (context.CommentIntend > 0)
 									{
 										var nextCommentIndex =
-											templateString.IndexOf("{{!}}", index, StringComparison.Ordinal);
+											templateString.IndexOf("{{!}}", index);
 										var nextCommentCloseIndex =
-											templateString.IndexOf("{{/!}}", index, StringComparison.Ordinal);
+											templateString.IndexOf("{{/!}}", index);
 										if (nextCommentCloseIndex == -1 && nextCommentIndex == -1)
 										{
 											yield break;
@@ -134,7 +133,7 @@ namespace Morestachio.TemplateContainers
 								else if (tokenContent.Equals("!?"))
 								{
 									var nextCommentCloseIndex =
-										templateString.IndexOf("{{/!?}}", index, StringComparison.Ordinal);
+										templateString.IndexOf("{{/!?}}", index);
 
 									if (nextCommentCloseIndex == -1)
 									{
@@ -145,6 +144,13 @@ namespace Morestachio.TemplateContainers
 									preText = templateString.Substring(index + 1, nextCommentCloseIndex - index - 1);
 									yield return new TokenMatch(preLastIndex, preText, null, preText.Length, true);
 									index = nextCommentCloseIndex + "{{/!?}}".Length - 1;
+								}
+								else if (tokenContent.StartsWith("!="))
+								{
+									preText = new string(context._prefixToken)
+										 + tokenContent.Substring("!=".Length)
+										+ new string(context.SuffixToken);
+									yield return new TokenMatch(preLastIndex, preText, null, preText.Length, true);
 								}
 								//intentionally do nothing to drop all tags with leading ! as they are considered comments
 							}
@@ -170,7 +176,7 @@ namespace Morestachio.TemplateContainers
 				preLastIndex = index + 1;
 			}
 
-			if (preLastIndex < templateString.Length)
+			if (preLastIndex < templateString.Length())
 			{
 				var substring = templateString.Substring(preLastIndex);
 				if (isInString.HasValue)

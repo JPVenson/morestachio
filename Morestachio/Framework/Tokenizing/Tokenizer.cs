@@ -310,37 +310,6 @@ namespace Morestachio.Framework.Tokenizing
 						context.CommentIntend++;
 					}
 				}
-				//else if (context.EscapeIntend > 0)
-				//{
-				//	if (match.PreText != null)
-				//	{
-				//		tokens.Add(new TokenPair(TokenType.Content, match.PreText, context.CurrentLocation));
-				//	}
-					
-				//	if (trimmedToken == "/!?")
-				//	{
-				//		context.EscapeIntend--;
-				//		if (context.EscapeIntend == 0)
-				//		{
-				//			//move forward in the string.
-				//			if (context.Character > match.Index + match.Length)
-				//			{
-				//				throw new InvalidOperationException("Internal index location error");
-				//			}
-
-				//			context.SetLocation(match.Index + match.Length);
-				//		}
-				//	}
-				//	else if (trimmedToken.Equals("!?"))
-				//	{
-				//		context.EscapeIntend++;
-				//	}
-				//	else
-				//	{
-				//		tokens.Add(new TokenPair(TokenType.Content, new string(context.PrefixToken) + match.Value + new string(context.SuffixToken),
-				//			context.CurrentLocation));
-				//	}
-				//}
 				else
 				{
 					//check if the token is appended by a -|
