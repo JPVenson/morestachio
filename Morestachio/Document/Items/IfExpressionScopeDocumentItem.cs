@@ -71,8 +71,6 @@ namespace Morestachio.Document.Items
 			ContextObject context, 
 			ScopeData scopeData)
 		{
-			//we are checking the parent value not our current value
-			//var c = await context.GetContextForPath(Value, scopeData);
 			var c = await MorestachioExpression.GetValue(context, scopeData);
 			if (c.Exists())
 			{

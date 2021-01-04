@@ -50,15 +50,12 @@ namespace Morestachio.Document.Items
 			ContextObject context,
 			ScopeData scopeData)
 		{
-			//we are checking the parent value not our current value
-			var contextObject = context.Parent ?? context;
-
 			//var c = await context.GetContextForPath(Value, scopeData);
-			var c = await MorestachioExpression.GetValue(contextObject, scopeData);
+			var c = await MorestachioExpression.GetValue(context, scopeData);
 			if (!c.Exists())
 			{
 				scopeData.ExecuteElse = false;
-				return Children.WithScope(contextObject.FindNextNaturalContextObject());
+				return Children.WithScope(context.FindNextNaturalContextObject());
 			}
 
 			scopeData.ExecuteElse = true;
@@ -76,15 +73,12 @@ namespace Morestachio.Document.Items
 			var expression = MorestachioExpression.Compile();
 			return async (stream, context, scopeData) =>
 			{
-				//we are checking the parent value not our current value
-				var contextObject = context.Parent ?? context;
-
 				//var c = await context.GetContextForPath(Value, scopeData);
-				var c = await expression(contextObject, scopeData);
+				var c = await expression(context, scopeData);
 				if (!c.Exists())
 				{
 					scopeData.ExecuteElse = false;
-					await children(stream, contextObject.FindNextNaturalContextObject(), scopeData);
+					await children(stream, context.FindNextNaturalContextObject(), scopeData);
 					return;
 				}
 
