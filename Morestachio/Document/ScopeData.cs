@@ -150,12 +150,12 @@ namespace Morestachio.Document
 		{
 			if (Alias.TryGetValue(name, out var stack) && stack.Count > 0)
 			{
-				return GetFromVariable(contextObject, stack.LastOrDefault().Value).CloneForEdit();
+				return GetFromVariable(contextObject, stack.LastOrDefault().Value)?.CloneForEdit();
 			}
 
 			if (Variables.TryGetValue(name, out var value))
 			{
-				return GetFromVariable(contextObject, value).CloneForEdit();
+				return GetFromVariable(contextObject, value)?.CloneForEdit();
 			}
 
 			return null;
