@@ -60,7 +60,7 @@ Morestachio is build upon Mustachio and extends the mustachio syntax in a few wa
 5. Cancellation of Template generation is supported
 6. Async calls are supported (For Formatters)
 7. Minimal Reference count (For .Net only Mirosoft.CSharp.dll & System.dll. Reference to JetBrains.Annotations.dll is optional)
-8. NetFramework, NetCore & NetStandard are supported
+8. NetFramework (net46;net461;net462;net47;net471;net472), NetCore(netcoreapp2.1;netcoreapp2.2;netcoreapp3.0;netcoreapp3.1) & NetStandard(netstandard2.0) & Net5.0 are supported
 9. Using of JetBrains Annotations for R# user ( if you are not a R# user just ignore this point )
 10. Supports user Encoding of the result template
 11. Supports Template Partials `{{#import 'secondary_template' }}`
@@ -79,7 +79,7 @@ A Partial must be declared before its usage with `{{#import 'NAME'}}` but you ca
 ###### Infos about new features
  
 Its possible to use plain C# objects they will be called by reflection. 
-Also you can now spezify the excact Size of the template to limit it (this could be come handy if you are in a hostet env) use the `ParserOptions.MaxSize` option to define a max size. It will be enforced on exact that amount of bytes in the stream.
+Also you can now set the excact size of the template to limit it (this could be come handy if you are in a hostet environment) use the `ParserOptions.MaxSize` option to define a max size. It will be enforced on exact that amount of bytes in the stream.
 
 ##### Streams
 One mayor component is the usage of Streams in morestachio. You can declare a Factory for the streams generated in the `ParserOptions.SourceFactory`. This is very important if you are rendering templates that will be very huge and you want to stream them directly to the harddrive or elsewhere. This has also a very positive effect on the performance as we will not use string concatination for compiling the template. If you do not set the `ParserOptions.SourceFactory` and the `ParserOptions.Encoding`, a memory stream will be created and the `Encoding.Default` will be used.
@@ -93,21 +93,19 @@ Use the `ContextObject.DefaultFormatter` collection to create own formatter for 
 The formatter CAN return a new object on wich you can call new Propertys or it can return a string.
 There are formatter prepaired for all Primitve types. That means per default you can call on an object hat contains a DateTime:
 ```csharp
-{{MyObject.DateTime.("D")}}
-Is the same as
-{{MyObject.DateTime.ToString("D")}}
+{{MyObject.DateTime.ToString("D")}} <-- this will resolve a property "MyObject" and then "DateTime" and will call ToString on it with the argument "D"
 ```
 that will call the `IFormattable` interface on the DateTime. 
 
 **Formatter References** 
 Can be used to reference another property/key in the template and then use it in a Formatter. Everything that is not a string (ether prefixed and suffixed with " or ') will be threaded as an expression that also can contain formatter calls
 ```csharp
-{{MyObject.Value.(Key)}}
+{{MyObject.Value.ToString(Key)}}
 ```
 This will call a formatter that is resposible for the type that `Value` has and will give it whats in `Key`. Example:
 ```csharp
 //create the template
-var template = "{{Value.(Key)}}";
+var template = "{{Value.ToString(Key)}}";
 //create the model
 var model = new Dictionary<string, object>();
 model["Value"] = DateTime.Now; 
