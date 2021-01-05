@@ -22,6 +22,7 @@ using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Error;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
+using Morestachio.Helper.Logging;
 using Morestachio.Parsing.ParserErrors;
 using Morestachio.Tests.SerilalizerTests;
 using Morestachio.Tests.SerilalizerTests.Strategies;
@@ -57,6 +58,18 @@ namespace Morestachio.Tests
 				documentResultCallback, cancellationTokenSource))?.Stringify(true, DefaultEncoding);
 		}
 
+		private class TestLogger : ILogger
+		{
+			public bool Enabled { get; set; }
+			public void Log(string logLevel, string eventId, string message, IDictionary<string, object> data)
+			{
+				if (eventId == LoggingFormatter.TokenizerEventId)
+				{
+					Assert.Fail($"{logLevel}:{eventId}:{message}");
+				}
+			}
+		}
+
 		public static async Task<Stream> CreateAndParseWithOptionsStream(string template,
 			object data,
 			ParserOptionTypes opt,
@@ -65,7 +78,10 @@ namespace Morestachio.Tests
 			Action<MorestachioDocumentResult> documentResultCallback = null,
 			CancellationTokenSource cancellationTokenSource = null)
 		{
-			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding)
+			{
+				Logger = !opt.HasFlag(ParserOptionTypes.NoLoggingTest) ? new TestLogger() : null
+			};
 			option?.Invoke(parsingOptions);
 			var document = await Parser.ParseWithOptionsAsync(parsingOptions);
 			if (!opt.HasFlag(ParserOptionTypes.NoRerenderingTest) && document.Document != null)
@@ -472,7 +488,7 @@ namespace Morestachio.Tests
 		{
 			var template =
 				@"{{#VAR global = data |--}}
-{{#data |--}}
+{{#SCOPE data |--}}
 		{{global |--}}
 		{{#LET global = 'Burns ' |--}}
 		{{global |--}}
@@ -480,7 +496,7 @@ namespace Morestachio.Tests
 		{{global |--}}
 		{{#LET local = 'Likes ' |--}}
 		{{#VAR global = 'Miss ' |--}}
-{{/data |--}}
+{{/SCOPE |--}}
 {{local |--}}
 {{global |--}}
 {{#VAR global = 'Money ' |--}}
@@ -492,7 +508,7 @@ namespace Morestachio.Tests
 				{ "data", "Mr " },
 			};
 			//TODO this should still fail as the |- can currently not always be rendered
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest );
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest | ParserOptionTypes.NoLoggingTest);
 			Assert.That(result, Is.EqualTo("Mr Burns Likes Miss Money Alot"));
 		}
 
@@ -734,7 +750,7 @@ namespace Morestachio.Tests
 		[TestCase("dd,,MM,,YYY")]
 		public async Task ParserCanSelfFormat(string dtFormat)
 		{
-			var template = "{{#data}}{{.(\"" + dtFormat + "\")}}{{/data}},{{data}}";
+			var template = "{{#SCOPE data}}{{.(\"" + dtFormat + "\")}}{{/SCOPE}},{{data}}";
 			var dataValue = DateTime.UtcNow;
 			var data = new Dictionary<string, object> { { "data", dataValue } };
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
@@ -1127,7 +1143,7 @@ namespace Morestachio.Tests
 			//declare TestPartial -> Print Recursion -> If Recursion is smaller then 10 -> Print TestPartial
 			//Print TestPartial
 			var template =
-				@"{{#declare TestPartial}}{{$recursion}}{{#$recursion.() as rec}}{{#IMPORT 'TestPartial'}}{{/rec}}{{/declare}}{{#IMPORT 'TestPartial'}}";
+				@"{{#declare TestPartial}}{{$recursion}}{{#SCOPE $recursion.() as rec}}{{#IMPORT 'TestPartial'}}{{/SCOPE}}{{/declare}}{{#IMPORT 'TestPartial'}}";
 
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
 			{
@@ -1598,7 +1614,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task TestScopeOfIfInScoping()
 		{
-			var template = "{{#Data}}{{#Failed}}{{#IF ~Value}}{{.}}{{/IF}}{{/Failed}}{{/Data}}";
+			var template = "{{#SCOPE Data}}{{#SCOPE Failed}}{{#IF ~Value}}{{.}}{{/IF}}{{/SCOPE}}{{/SCOPE}}";
 			var data = new
 			{
 				Data = new

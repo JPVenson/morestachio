@@ -85,7 +85,7 @@ namespace Morestachio.Tests
 				{"outer_level", falseyModelValue}
 			};
 
-			var template = "{{#outer_level}}Shouldn't be rendered!{{inner_level}}{{/outer_level}}";
+			var template = "{{#SCOPE outer_level}}Shouldn't be rendered!{{inner_level}}{{/SCOPE}}";
 
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
 			Assert.That(result, Is.EqualTo(string.Empty));
@@ -184,7 +184,7 @@ namespace Morestachio.Tests
 		public async Task NegationGroupRendersContentWhenValueNotSet()
 		{
 			var data = new Dictionary<string, object>();
-			var template = @"{{^stuff}}No Stuff Here.{{/stuff}}";
+			var template = @"{{^SCOPE stuff}}No Stuff Here.{{/SCOPE}}";
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
 			Assert.That(result, Is.EqualTo("No Stuff Here."));
 		}
@@ -237,7 +237,7 @@ namespace Morestachio.Tests
 		public async Task TemplateRendersWithComplexScopePath()
 		{
 			var template =
-				@"{{#Company.ceo}}{{#each products}}<li>{{name}} and {{version}} and has a CEO: {{../../last_name}}</li>{{/each}}{{/Company.ceo}}";
+				@"{{#SCOPE Company.ceo}}{{#each products}}<li>{{name}} and {{version}} and has a CEO: {{../../last_name}}</li>{{/each}}{{/SCOPE}}";
 
 			var data = new Dictionary<string, object>()
 			{
@@ -274,7 +274,7 @@ namespace Morestachio.Tests
 		public async Task TemplateRendersWithComplexRootScopePath()
 		{
 			var template =
-				@"{{#data}}{{~root}}{{/data}}";
+				@"{{#SCOPE data}}{{~root}}{{/SCOPE}}";
 
 			var data = new Dictionary<string, object>()
 			{
@@ -511,7 +511,7 @@ namespace Morestachio.Tests
 		public async Task TemplateRendersWithScopeWithAliasPath()
 		{
 			var template =
-				@"{{#data AS test}}{{#~root AS rootTest}}{{test}},{{rootTest}}{{/rootTest}}{{rootTest}}{{/test}}{{test}}";
+				@"{{#SCOPE data AS test}}{{#SCOPE ~root AS rootTest}}{{test}},{{rootTest}}{{/SCOPE}}{{rootTest}}{{/SCOPE}}{{test}}";
 
 			var data = new Dictionary<string, object>()
 			{
@@ -550,7 +550,7 @@ namespace Morestachio.Tests
 		public async Task TemplateRendersWithComplexUpScopePath()
 		{
 			var template =
-				@"{{#Data1.Data2.NullableInit}}{{../../../root}}{{/Data1.Data2.NullableInit}}";
+				@"{{#SCOPE Data1.Data2.NullableInit}}{{../../../root}}{{/SCOPE}}";
 
 			var data = new Dictionary<string, object>()
 			{
@@ -577,7 +577,7 @@ namespace Morestachio.Tests
 		public async Task TemplateRendersWithComplexRootScopePathWithFormatting()
 		{
 			var template =
-				@"{{#Data1.Data2.NullableInit}}{{~root}}{{/Data1.Data2.NullableInit}}";
+				@"{{#SCOPE Data1.Data2.NullableInit}}{{~root}}{{/SCOPE}}";
 
 			var data = new Dictionary<string, object>()
 			{
@@ -606,7 +606,7 @@ namespace Morestachio.Tests
 		public async Task TemplateRendersWithComplexUpScopePathWithFormatting()
 		{
 			var template =
-				@"{{#d.d.n}}{{../../../r.('c')}}{{/d.d.n}}";
+				@"{{#SCOPE d.d.n}}{{../../../r.('c')}}{{/SCOPE}}";
 
 			var data = new Dictionary<string, object>()
 			{
@@ -654,7 +654,7 @@ namespace Morestachio.Tests
 				{"placeholder", "a placeholder value"}
 			};
 
-			var template = "{{^not_here}}{{../placeholder}}{{/not_here}}";
+			var template = "{{^SCOPE not_here}}{{../placeholder}}{{/SCOPE}}";
 
 
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);

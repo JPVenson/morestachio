@@ -9,7 +9,8 @@ namespace Morestachio.Tests
 	{
 		UseOnDemandCompile = 1 << 0,
 		Precompile = 1 << 1,
-		NoRerenderingTest = 1 << 2
+		NoRerenderingTest = 1 << 2,
+		NoLoggingTest = 1 << 3,
 	}
 
 	[TestFixture(ParserOptionTypes.UseOnDemandCompile)]

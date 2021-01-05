@@ -55,11 +55,11 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task TestSelect()
 		{
-			var template = "{{#data}}" +
+			var template = "{{#SCOPE data}}" +
 						   "{{#each someList.Select('Entity')}}" +
 						   "{{SomeValue2}}*{{SomeValue3}}={{SomeValue2.Multiply(SomeValue3)}}" +
 						   "{{/each}}" +
-						   "{{/data}}";
+						   "{{/SCOPE}}";
 
 			var data = new Dictionary<string, object>()
 			{
@@ -424,7 +424,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task ParserCanChainFormat()
 		{
-			var template = "{{#data}}{{.('d').fnc()}}{{/data}}";
+			var template = "{{#SCOPE data}}{{.('d').fnc()}}{{/SCOPE}}";
 			var data = new Dictionary<string, object>() { { "data", DateTime.UtcNow } };
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
@@ -436,7 +436,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task ParserCanChainFormatSubExpression()
 		{
-			var template = "{{#data}}{{.('V').('V', r.d)}}{{/data}}";
+			var template = "{{#SCOPE data}}{{.('V').('V', r.d)}}{{/SCOPE}}";
 			var referenceDataValue = "reference data value";
 			var data = new Dictionary<string, object>
 			{
@@ -496,10 +496,10 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task ParserCanChainFormatWithLineBreak()
 		{
-			var template = @"{{#data}}{{
+			var template = @"{{#SCOPE data}}{{
 	.  (   'd'  )
 																.()
-}}{{/data}}";
+}}{{/SCOPE}}";
 			var data = new Dictionary<string, object>() { { "data", DateTime.UtcNow } };
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts | ParserOptionTypes.NoRerenderingTest, options =>
 			{
@@ -512,7 +512,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task ParserCanTransferChains()
 		{
-			var template = @"{{#data}}{{.('(d(a))')}}{{/data}}";
+			var template = @"{{#SCOPE data}}{{.('(d(a))')}}{{/SCOPE}}";
 			var data = new Dictionary<string, object>() { { "data", "d" } };
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
@@ -526,7 +526,7 @@ namespace Morestachio.Tests
 		public async Task ParserCanFormatMultipleUnnamedWithoutResult()
 		{
 			var formatterResult = "";
-			var template = "{{#data}}{{.('test', 'arg', 'arg, arg', ' spaced ', ' spaced with quote \\' ' , . )}}{{/data}}";
+			var template = "{{#SCOPE data}}{{.('test', 'arg', 'arg, arg', ' spaced ', ' spaced with quote \\' ' , . )}}{{/SCOPE}}";
 			var data = new Dictionary<string, object>() { { "data", 123123123 } };
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts| ParserOptionTypes.NoRerenderingTest, options =>
 			{
@@ -552,7 +552,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task ParserCanFormatMultipleUnnamed()
 		{
-			var template = "{{#data}}{{.('test', 'arg', 'arg, arg', ' spaced ', ' spaced with quote \\' ' , .)}}{{/data}}";
+			var template = "{{#SCOPE data}}{{.('test', 'arg', 'arg, arg', ' spaced ', ' spaced with quote \\' ' , .)}}{{/SCOPE}}";
 			var data = new Dictionary<string, object>() { { "data", 123123123 } };
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts | ParserOptionTypes.NoRerenderingTest, options =>
 			{
@@ -572,7 +572,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task ParserCanFormatMultipleUnnamedParams()
 		{
-			var template = "{{#data}}{{.( 'arg', 'arg, arg', ' spaced ', [testArgument]'test', ' spaced with quote \\' ' , .)}}{{/data}}";
+			var template = "{{#SCOPE data}}{{.( 'arg', 'arg, arg', ' spaced ', [testArgument]'test', ' spaced with quote \\' ' , .)}}{{/SCOPE}}";
 			var data = new Dictionary<string, object>() { { "data", 123123123 } };
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts| ParserOptionTypes.NoRerenderingTest, options =>
 			{
@@ -591,7 +591,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task ParserCanFormatMultipleNamed()
 		{
-			var template = "{{#data}}{{.([refSelf] ., 'arg',[Fob]'test', [twoArgs]'arg, arg', [anySpaceArg]' spaced ')}}{{/data}}";
+			var template = "{{#SCOPE data}}{{.([refSelf] ., 'arg',[Fob]'test', [twoArgs]'arg, arg', [anySpaceArg]' spaced ')}}{{/SCOPE}}";
 			var data = new Dictionary<string, object>() { { "data", 123123123 } };
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts | ParserOptionTypes.NoRerenderingTest, options =>
 			{
@@ -610,7 +610,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task ParserCanCheckCanFormat()
 		{
-			var template = "{{#data}}{{.('(d(a))')}}{{/data}}";
+			var template = "{{#SCOPE data}}{{.('(d(a))')}}{{/SCOPE}}";
 			var data = new Dictionary<string, object>() { { "data", "d" } };
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
@@ -808,7 +808,7 @@ namespace Morestachio.Tests
 		public async Task TemplateIfDoesNotScopeToRootWithFormatter()
 		{
 			var template =
-				@"{{#data}}{{#IF data2.()}}{{data3.dataSet}}{{/IF}}{{/data}}";
+				@"{{#SCOPE data}}{{#IF data2.()}}{{data3.dataSet}}{{/IF}}{{/SCOPE}}";
 			var data = new Dictionary<string, object>()
 			{
 				{
@@ -842,7 +842,7 @@ namespace Morestachio.Tests
 		public async Task TemplateIfDoesNotScopeToRootWithFormatterCustomized()
 		{
 			var template =
-				@"{{#data}}{{#EACH data3.dataList.()}}{{#IF .()}}{{.}}{{/IF}}{{/EACH}}{{/data}}";
+				@"{{#SCOPE data}}{{#EACH data3.dataList.()}}{{#IF .()}}{{.}}{{/IF}}{{/EACH}}{{/SCOPE}}";
 			var data = new Dictionary<string, object>()
 			{
 				{

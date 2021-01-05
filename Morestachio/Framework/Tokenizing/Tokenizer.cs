@@ -807,10 +807,10 @@ namespace Morestachio.Framework.Tokenizing
 						tokens.Add(ExpressionParser.TokenizeVariableAssignment(trimmedToken,
 							context, TokenType.VariableLet, tokenOptions));
 					}
-					else if (trimmedToken.StartsWith("^"))
+					else if (trimmedToken.StartsWith("^scope ", true, CultureInfo.InvariantCulture))
 					{
 						//open inverted group
-						var token = trimmedToken.TrimStart('^').Trim();
+						var token = TrimToken(trimmedToken, "scope ", '^');
 						var eval = EvaluateNameFromToken(token);
 						token = eval.Value;
 						var alias = eval.Name;
@@ -825,12 +825,51 @@ namespace Morestachio.Framework.Tokenizing
 								context.CurrentLocation));
 						}
 					}
-					else if (trimmedToken.StartsWith("&"))
+					else if (trimmedToken.StartsWith("#scope ", true, CultureInfo.InvariantCulture))
 					{
-						//escaped single element
-						var token = trimmedToken.TrimStart('&').Trim();
-						tokens.Add(new TokenPair(TokenType.UnescapedSingleValue,
-							token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context), tokenOptions));
+						var token = TrimToken(trimmedToken, "scope ");
+						var eval = EvaluateNameFromToken(token);
+						token = eval.Value;
+						var alias = eval.Name;
+
+						scopestack.Push(new ScopeStackItem(TokenType.ElementOpen, alias ?? token, match.Index));
+
+						if (token.Trim() != "")
+						{
+							token = token.Trim();
+							tokens.Add(new TokenPair(TokenType.ElementOpen,
+								token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context), tokenOptions));
+						}
+						else
+						{
+							context.Errors.Add(new InvalidPathSyntaxError(context.CurrentLocation
+								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), ""));
+						}
+
+						if (!string.IsNullOrWhiteSpace(alias))
+						{
+							context.AdvanceLocation("scope ".Length + alias.Length);
+							tokens.Add(new TokenPair(TokenType.Alias, alias,
+								context.CurrentLocation));
+						}
+					}
+					else if (trimmedToken.Equals("/scope", StringComparison.InvariantCultureIgnoreCase))
+					{
+						if (scopestack.Any() &&
+							(scopestack.Peek().TokenType == TokenType.ElementOpen ||
+							 scopestack.Peek().TokenType == TokenType.InvertedElementOpen))
+						{
+							var token = scopestack.Pop().Value;
+
+							tokens.Add(new TokenPair(TokenType.ElementClose, token,
+								context.CurrentLocation, tokenOptions));
+						}
+						else
+						{
+							context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
+									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "/", "{{#SCOPE path}}",
+								" There are more closing elements then open."));
+						}
 					}
 					else if (trimmedToken.Equals("#NL", StringComparison.InvariantCultureIgnoreCase))
 					{
@@ -899,10 +938,36 @@ namespace Morestachio.Framework.Tokenizing
 
 						await context.SetOption(name, value, parserOptions);
 					}
-					//else if (tokenValue.Equals("{{/TRIMALL}}", StringComparison.InvariantCultureIgnoreCase))
-					//{
-					//	tokens.Add(new TokenPair(TokenType.StopTrimEverything, tokenValue, context.CurrentLocation));
-					//}
+					else if (trimmedToken.StartsWith("&"))
+					{
+						//escaped single element
+						var token = trimmedToken.TrimStart('&').Trim();
+						tokens.Add(new TokenPair(TokenType.UnescapedSingleValue,
+							token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context), tokenOptions));
+					}
+					else if (trimmedToken.StartsWith("^"))
+					{
+						parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId, "Use the new {{^scope path}} block instead of the {{^path}} block", new Dictionary<string, object>()
+						{
+							{"Location", context.CurrentLocation},
+						});
+						//open inverted group
+						var token = trimmedToken.TrimStart('^').Trim();
+						var eval = EvaluateNameFromToken(token);
+						token = eval.Value;
+						var alias = eval.Name;
+						scopestack.Push(new ScopeStackItem(TokenType.InvertedElementOpen, alias ?? token, match.Index));
+						tokenOptions.Add(new PersistantTokenOption("Render.LegacyStyle", true));
+						tokens.Add(new TokenPair(TokenType.InvertedElementOpen,
+							token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context), tokenOptions));
+
+						if (!string.IsNullOrWhiteSpace(alias))
+						{
+							context.AdvanceLocation(1 + alias.Length);
+							tokens.Add(new TokenPair(TokenType.Alias, alias,
+								context.CurrentLocation));
+						}
+					}
 					else
 					{
 						//check for custom DocumentItem provider
@@ -919,12 +984,17 @@ namespace Morestachio.Framework.Tokenizing
 						}
 						else if (trimmedToken.StartsWith("#"))
 						{
+							parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId, "Use the new {{#scope path}} block instead of the {{#path}} block", new Dictionary<string, object>()
+							{
+								{"Location", context.CurrentLocation},
+							});
 							//open group
 							var token = trimmedToken.TrimStart('#').Trim();
 
 							var eval = EvaluateNameFromToken(token);
 							token = eval.Value;
 							var alias = eval.Name;
+							tokenOptions.Add(new PersistantTokenOption("Render.LegacyStyle", true));
 							scopestack.Push(new ScopeStackItem(TokenType.ElementOpen, alias ?? token, match.Index));
 							tokens.Add(new TokenPair(TokenType.ElementOpen,
 								token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context), tokenOptions));
@@ -953,7 +1023,12 @@ namespace Morestachio.Framework.Tokenizing
 									 item.TokenType == TokenType.InvertedElementOpen)
 									&& item.Value == token)
 								{
+									parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId, "Use the new {{/scope}} tag to close a scope instead of the {{/path}} tag", new Dictionary<string, object>()
+									{
+										{"Location", context.CurrentLocation},
+									});
 									scopestack.Pop();
+									tokenOptions.Add(new PersistantTokenOption("Render.LegacyStyle", true));
 									tokens.Add(new TokenPair(TokenType.ElementClose, token,
 										context.CurrentLocation, tokenOptions));
 								}

@@ -39,6 +39,9 @@ namespace Morestachio.Document.Items.Base
 		{
 			var documentItemBases = info.GetValue(nameof(Children), typeof(IDocumentItem[])) as IDocumentItem[];
 			Children = new List<IDocumentItem>(documentItemBases ?? throw new InvalidOperationException());
+			
+			BlockClosingOptions =
+				info.GetValue(nameof(BlockClosingOptions), typeof(ITokenOption[])) as IEnumerable<ITokenOption>;
 		}
 
 		/// <inheritdoc />
@@ -83,6 +86,7 @@ namespace Morestachio.Document.Items.Base
 		{
 			base.SerializeBinaryCore(info, context);
 			info.AddValue(nameof(Children), Children.ToArray(), typeof(IDocumentItem[]));
+			info.AddValue(nameof(BlockClosingOptions), BlockClosingOptions?.ToArray(), typeof(ITokenOption[]));
 		}
 
 		/// <inheritdoc />

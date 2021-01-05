@@ -30,7 +30,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task TestEveryKeywordOnObject()
 		{
-			var template = "{{#each ?}}{{Key}}:\"{{Value}}\"{{^$last}},{{/$last}}{{/each}}";
+			var template = "{{#each ?}}{{Key}}:\"{{Value}}\"{{^IF $last}},{{/IF}}{{/each}}";
 			var data = new EveryObjectTest()
 			{
 				TestA = "Du",
@@ -47,7 +47,7 @@ namespace Morestachio.Tests
 		public async Task TestEveryKeywordOnDictionary()
 		{
 			
-			var template = "{{#each ?}}{{Key}}:\"{{Value}}\"{{^$last}},{{/$last}}{{/each}}";
+			var template = "{{#each ?}}{{Key}}:\"{{Value}}\"{{^IF $last}},{{/IF}}{{/each}}";
 			var data = new Dictionary<string, object>()
 			{
 				{nameof(EveryObjectTest.TestA), "Du"},
@@ -64,7 +64,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task TestEveryKeywordOnComplexPathDictionary()
 		{
-			var template = "{{#each Data.?}}{{Key}}:\"{{Value}}\"{{^$last}},{{/$last}}{{/each}}";
+			var template = "{{#each Data.?}}{{Key}}:\"{{Value}}\"{{^IF $last}},{{/IF}}{{/each}}";
 			var data = new Dictionary<string, object>()
 			{
 				{

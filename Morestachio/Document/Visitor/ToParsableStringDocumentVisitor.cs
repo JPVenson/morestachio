@@ -156,14 +156,14 @@ namespace Morestachio.Document.Visitor
 				CheckForInlineBlockLineBreakAtStart(documentItem);
 				StringBuilder.Append("/");
 
-				if (!(aliasDocumentItem is null))
-				{
-					StringBuilder.Append(aliasDocumentItem.Value);
-				}
-				else
-				{
-					StringBuilder.Append(tag.Trim());
-				}
+				//if (!(aliasDocumentItem is null))
+				//{
+				//	StringBuilder.Append(aliasDocumentItem.Value);
+				//}
+				//else
+				//{
+				//}
+				StringBuilder.Append(tag.Trim());
 				CheckForInlineBlockLineBreakAtEnd(documentItem);
 				StringBuilder.Append("}}");
 			}
@@ -232,7 +232,14 @@ namespace Morestachio.Document.Visitor
 		/// <inheritdoc />
 		public void Visit(ExpressionScopeDocumentItem documentItem)
 		{
-			VisitExpressionScope(documentItem, '#');
+			if (documentItem.TagCreationOptions?.Any(f => f.Name == "Render.LegacyStyle") == true)
+			{
+				VisitExpressionScope(documentItem, '#');
+			}
+			else
+			{
+				Visit(documentItem, "SCOPE ");	
+			}
 		}
 
 		private void VisitExpressionScope(ExpressionDocumentItemBase documentItem, char prefix)
@@ -286,7 +293,14 @@ namespace Morestachio.Document.Visitor
 		/// <inheritdoc />
 		public void Visit(InvertedExpressionScopeDocumentItem documentItem)
 		{
-			VisitExpressionScope(documentItem, '^');
+			if (documentItem.TagCreationOptions?.Any(f => f.Name == "Render.LegacyStyle") == true)
+			{
+				VisitExpressionScope(documentItem, '^');
+			}
+			else
+			{
+				Visit(documentItem, "SCOPE ", "^");	
+			}
 		}
 		
 		/// <inheritdoc />
