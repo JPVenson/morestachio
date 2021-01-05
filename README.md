@@ -51,7 +51,7 @@ var content = document.CreateAndStringify(model); // Dear John, this is definite
 
 
 ##### Key Features
-Morestachio is build upon Mustachio and extends the mustachio syntax in a few ways.
+Morestachio is build upon Mustachio and extends the mustachio syntax in a a lot of points.
 
 1. each object can be formatted by adding formatter the the morestachio
 2. Templates will be parsed as streams and will create a new stream for its output. This is better when creating larger templates and best for web as you can also limit the length of the "to be" created template to a certain size and write the result ether directly to an output stream or the Disc.
@@ -59,20 +59,21 @@ Morestachio is build upon Mustachio and extends the mustachio syntax in a few wa
 4. Morestachio accepts any object as source
 5. Cancellation of Template generation is supported
 6. Async calls are supported (For Formatters)
-7. Minimal Reference count (For .Net only Mirosoft.CSharp.dll & System.dll. Reference to JetBrains.Annotations.dll is optional)
+7. No External Depedencies.
 8. Support for several .Net framworks:
    - NetFramework (net46;net461;net462;net47;net471;net472)
    - NetCore (netcoreapp2.1;netcoreapp2.2;netcoreapp3.0;netcoreapp3.1) 
    - NetStandard (netstandard2.0) 
    - Net5.0
-9. Using of JetBrains Annotations for R# user ( if you are not a R# user just ignore this point )
+9. Build in Localization support and Logging support
 10. Supports user Encoding of the result template
 11. Supports Template Partials `{{#import 'secondary_template' }}`
 12. Complex paths are supported `{{ this.is.a.valid.path }}` and `{{ ../this.goes.up.one.level }}` and `{{ ~.this.goes.up.to.Root }}`
 13. Loops with `#each` & `#do` & `#while` & `#repeat`
 14. Object Enumeration with `#each data.?`
 15. Formatters can be declared in C# and be called from the template to provide you with a maximum of freedom
-16. The Parser produces a Serilizable Document Tree that can be send to clients to provide a rich user edit experience 
+16. Extensive Build-In list of Formatters for most usecases
+17. The Parser produces a Serilizable Document Tree that can be send to clients to provide a rich user edit experience 
  
 **Template partials** ARE a great feature for large scale template development.
 
