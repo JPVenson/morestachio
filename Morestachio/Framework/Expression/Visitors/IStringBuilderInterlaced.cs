@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using JetBrains.Annotations;
 
 namespace Morestachio.Framework.Expression.Visitors
 {
@@ -14,7 +13,6 @@ namespace Morestachio.Framework.Expression.Visitors
 		/// <summary>
 		///		Appends the string to the buffer
 		/// </summary>
-		[StringFormatMethod("value")]
 		IStringBuilderInterlaced<TColor> Append(string value, params object[] values);
 		/// <summary>
 		///		Appends the string to the buffer and assosiates a color with it

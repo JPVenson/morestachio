@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using JetBrains.Annotations;
 
 namespace Morestachio.Formatter.Framework
 {
@@ -121,8 +120,8 @@ namespace Morestachio.Formatter.Framework
 		/// <summary>
 		///     Gets the Meta data for the Arguments
 		/// </summary>
-		[NotNull]
-		[ItemNotNull]
+		
+		
 		public MultiFormatterInfoCollection MetaData { get; }
 	}
 }

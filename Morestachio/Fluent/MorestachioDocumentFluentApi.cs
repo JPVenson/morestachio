@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Visitor;
 using Morestachio.Fluent.Expression;
@@ -309,7 +308,7 @@ namespace Morestachio.Fluent
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <returns></returns>
-		public MorestachioDocumentFluentApi FindNext<T>([NotNull] Func<T, bool> condition) where T : IDocumentItem
+		public MorestachioDocumentFluentApi FindNext<T>( Func<T, bool> condition) where T : IDocumentItem
 		{
 			return SearchForward(f => f is T e && condition(e));
 		}
@@ -319,7 +318,7 @@ namespace Morestachio.Fluent
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <returns></returns>
-		public MorestachioDocumentFluentApi FindPrevious<T>([NotNull] Func<T, bool> condition) where T : IDocumentItem
+		public MorestachioDocumentFluentApi FindPrevious<T>( Func<T, bool> condition) where T : IDocumentItem
 		{
 			return SearchBackward(f => f is T e && condition(e));
 		}

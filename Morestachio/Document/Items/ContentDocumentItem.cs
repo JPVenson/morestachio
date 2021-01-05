@@ -9,8 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.TextOperations;
@@ -47,7 +45,7 @@ namespace Morestachio.Document.Items
 		}
 		
 		/// <inheritdoc />
-		[UsedImplicitly]
+		
 		protected ContentDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}

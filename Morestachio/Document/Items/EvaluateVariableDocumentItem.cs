@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml;
-using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
@@ -64,7 +63,7 @@ namespace Morestachio.Document.Items
 		}
 
 		/// <inheritdoc />
-		[UsedImplicitly]
+		
 		protected EvaluateVariableDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 			Value = info.GetString(nameof(Value));

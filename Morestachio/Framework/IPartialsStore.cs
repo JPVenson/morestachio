@@ -1,5 +1,4 @@
-﻿using JetBrains.Annotations;
-using Morestachio.Util.Sealing;
+﻿using Morestachio.Util.Sealing;
 
 #if ValueTask
 using DocumentInfoPromise = System.Threading.Tasks.ValueTask<Morestachio.MorestachioDocumentInfo>;
@@ -19,24 +18,24 @@ namespace Morestachio.Framework
 		/// <summary>
 		///		Adds the Parsed Partial to the store
 		/// </summary>
-		void AddParsedPartial([NotNull]MorestachioDocumentInfo document, [NotNull]string name);
+		void AddParsedPartial(MorestachioDocumentInfo document, string name);
 
 		/// <summary>
 		///		Removes the Partial from the List of Known Partials
 		/// </summary>
 		/// <param name="name"></param>
-		void RemovePartial([NotNull]string name);
+		void RemovePartial(string name);
 
 		/// <summary>
 		///		Obtains the Partial if known
 		/// </summary>
 		/// <param name="name"></param>
-		[CanBeNull] MorestachioDocumentInfo GetPartial([NotNull]string name);
+		 MorestachioDocumentInfo GetPartial(string name);
 
 		/// <summary>
 		///		Gets the list of all known partials
 		/// </summary>
-		[NotNull, ItemNotNull] string[] GetNames();
+		string[] GetNames();
 	}
 	/// <summary>
 	///		Allows to store Partials for multiple Runs
@@ -47,11 +46,11 @@ namespace Morestachio.Framework
 		///		Obtains the Partial if known
 		/// </summary>
 		/// <param name="name"></param>
-		[NotNull] DocumentInfoPromise GetPartialAsync([NotNull]string name);
+		 DocumentInfoPromise GetPartialAsync(string name);
 
 		/// <summary>
 		///		Gets the list of all known partials
 		/// </summary>
-		[NotNull, ItemNotNull] StringArrayPromise GetNamesAsync();
+		StringArrayPromise GetNamesAsync();
 	}
 }

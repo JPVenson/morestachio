@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Xml.Schema;
-using System.Xml.Serialization;
-using JetBrains.Annotations;
 using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Expression;
 
@@ -128,7 +125,7 @@ namespace Morestachio.Framework.Tokenizing
 		/// <summary>
 		///		What is the Value of this token
 		/// </summary>
-		[CanBeNull]
+		
 		public string Value { get; }
 
 		/// <summary>
@@ -173,7 +170,7 @@ namespace Morestachio.Framework.Tokenizing
 			return (TokenOptions.FirstOrDefault(e => e.Name.Equals(name))?.Value as IEnumerable<T>)?.ToArray();
 		}
 
-		[PublicAPI]
+		
 		private class TokenPairDebuggerProxy
 		{
 			private readonly TokenPair _pair;

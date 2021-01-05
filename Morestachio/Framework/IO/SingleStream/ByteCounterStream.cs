@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using JetBrains.Annotations;
 using Morestachio.Framework.IO.SubStream;
 
 namespace Morestachio.Framework.IO.SingleStream
@@ -12,7 +11,7 @@ namespace Morestachio.Framework.IO.SingleStream
 	public class ByteCounterStream : IByteCounterStream
 	{
 		/// <inheritdoc />
-		[NotNull] 
+		 
 		public Stream Stream { get; }
 
 		/// <summary>
@@ -23,7 +22,7 @@ namespace Morestachio.Framework.IO.SingleStream
 		/// <summary>
 		/// 
 		/// </summary>
-		public ByteCounterStream([NotNull] Stream stream,
+		public ByteCounterStream( Stream stream,
 			int bufferSize,
 			bool leaveOpen,
 			ParserOptions options)

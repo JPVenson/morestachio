@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using JetBrains.Annotations;
 using Morestachio.Document;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
@@ -12,7 +11,7 @@ namespace Morestachio.Framework.Context
 	public class PartialContextObject : ContextObject
 	{
 		/// <inheritdoc />
-		public PartialContextObject([NotNull] ParserOptions options, [NotNull] string key, [CanBeNull] ContextObject parent, object value) : base(options, key, parent, value)
+		public PartialContextObject( ParserOptions options,  string key,  ContextObject parent, object value) : base(options, key, parent, value)
 		{
 		}
 

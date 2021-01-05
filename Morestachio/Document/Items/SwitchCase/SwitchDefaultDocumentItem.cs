@@ -6,7 +6,6 @@ using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Gene
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
@@ -43,7 +42,7 @@ namespace Morestachio.Document.Items.SwitchCase
 		}
 		
 		/// <inheritdoc />
-		[UsedImplicitly]
+		
 		protected SwitchDefaultDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}

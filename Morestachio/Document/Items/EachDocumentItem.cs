@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
-using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
@@ -47,7 +46,7 @@ namespace Morestachio.Document.Items
 		}
 
 		/// <inheritdoc />
-		[UsedImplicitly]
+		
 		protected EachDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}

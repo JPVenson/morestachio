@@ -1,5 +1,4 @@
 ﻿using System;
-using JetBrains.Annotations;
 
 namespace Morestachio.Formatter.Framework
 {
@@ -30,7 +29,7 @@ namespace Morestachio.Formatter.Framework
 		/// <summary>
 		///		If set, the function to convert the value obtained from <see cref="ObtainValue"/>
 		/// </summary>
-		[CanBeNull]
+		
 		public Func<object, object> ConverterFunc { get; set; }
 
 		/// <summary>

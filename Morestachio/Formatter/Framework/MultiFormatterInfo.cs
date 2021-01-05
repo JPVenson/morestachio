@@ -1,5 +1,4 @@
 ﻿using System;
-using JetBrains.Annotations;
 using Morestachio.Formatter.Framework.Attributes;
 
 namespace Morestachio.Formatter.Framework
@@ -12,8 +11,8 @@ namespace Morestachio.Formatter.Framework
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MultiFormatterInfo"/> class.
 		/// </summary>
-		public MultiFormatterInfo([NotNull]Type type, 
-			[CanBeNull]string name, 
+		public MultiFormatterInfo(Type type, 
+			string name, 
 			bool isOptional, 
 			int index, 
 			bool isRestObject)

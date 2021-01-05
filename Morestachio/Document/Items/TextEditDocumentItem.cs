@@ -10,7 +10,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Xml;
-using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.TextOperations;
@@ -49,7 +48,7 @@ namespace Morestachio.Document.Items
 		/// 
 		/// </summary>
 		public TextEditDocumentItem(CharacterLocation location,
-			[NotNull] ITextOperation operation,
+			 ITextOperation operation,
 			EmbeddedInstructionOrigin embeddedInstructionOrigin,
 			IEnumerable<ITokenOption> tagCreationOptions)
 			: base(location, (IEnumerable<ITokenOption>) tagCreationOptions)
@@ -59,7 +58,7 @@ namespace Morestachio.Document.Items
 		}
 
 		/// <inheritdoc />
-		[UsedImplicitly]
+		
 		protected TextEditDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 			EmbeddedInstructionOrigin = (EmbeddedInstructionOrigin)info.GetValue(nameof(EmbeddedInstructionOrigin), typeof(EmbeddedInstructionOrigin));

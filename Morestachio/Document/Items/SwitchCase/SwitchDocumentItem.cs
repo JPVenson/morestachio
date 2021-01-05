@@ -9,7 +9,6 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Xml;
-using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
@@ -46,7 +45,7 @@ namespace Morestachio.Document.Items.SwitchCase
 		}
 
 		/// <inheritdoc />
-		[UsedImplicitly]
+		
 		protected SwitchDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 			ScopeToValue = info.GetBoolean(nameof(ScopeToValue));

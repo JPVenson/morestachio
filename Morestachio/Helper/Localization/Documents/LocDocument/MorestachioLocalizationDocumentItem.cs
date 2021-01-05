@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
 using System.Xml;
-using JetBrains.Annotations;
 using Morestachio.Document;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
@@ -44,7 +42,7 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 		/// <inheritdoc />
 		public MorestachioLocalizationDocumentItem(CharacterLocation location,
 			IMorestachioExpression value,
-			[CanBeNull] IMorestachioExpression explicitCulture,
+			 IMorestachioExpression explicitCulture,
 			IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
 		{
 			ExplicitCulture = explicitCulture;
@@ -60,7 +58,7 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 		/// <summary>
 		///		If set gets the explicitly declared culture for this translation
 		/// </summary>
-		[CanBeNull]
+		
 		public IMorestachioExpression ExplicitCulture { get; private set; }
 
 		/// <summary>

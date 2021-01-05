@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Morestachio.Helper;
 
 namespace Morestachio.Formatter.Framework.Converter

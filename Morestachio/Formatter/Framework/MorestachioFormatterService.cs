@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using JetBrains.Annotations;
 using Morestachio.Document;
 using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Formatter.Framework.Converter;
@@ -77,7 +76,7 @@ namespace Morestachio.Formatter.Framework
 		/// <summary>
 		///     If set writes the Formatters log.
 		/// </summary>
-		[CanBeNull]
+		
 		public TextWriter FormatterLog { get; set; }
 
 		/// <summary>
@@ -173,7 +172,7 @@ namespace Morestachio.Formatter.Framework
 		/// <summary>
 		///		The cache for Formatter calls
 		/// </summary>
-		[CanBeNull]
+		
 		public IDictionary<FormatterCacheCompareKey, FormatterCache?> Cache { get; set; }
 
 		/// <summary>
@@ -187,9 +186,9 @@ namespace Morestachio.Formatter.Framework
 		}
 
 		//public async ObjectPromise Execute(
-		//	[NotNull] FormatterArgumentType[] args,
+		//	 FormatterArgumentType[] args,
 		//	object sourceValue,
-		//	[CanBeNull] string name,
+		//	 string name,
 		//	ParserOptions options,
 		//	ScopeData scope)
 		//{
@@ -308,9 +307,9 @@ namespace Morestachio.Formatter.Framework
 		/// <param name="name"></param>
 		/// <returns></returns>
 		public virtual IEnumerable<MorestachioFormatterModel> PrepareGetMatchingFormatterOn(
-			[NotNull] Type typeToFormat,
-			[NotNull] FormatterArgumentType[] arguments,
-			[CanBeNull] string name)
+			 Type typeToFormat,
+			 FormatterArgumentType[] arguments,
+			 string name)
 		{
 			var filteredSourceList = new List<KeyValuePair<MorestachioFormatterModel, ulong>>();
 			if (!Formatters.TryGetValue(name ?? "{NULL}", out var formatters))
@@ -431,7 +430,7 @@ namespace Morestachio.Formatter.Framework
 		/// <param name="givenType"></param>
 		/// <param name="genericType"></param>
 		/// <returns></returns>
-		public static bool IsAssignableToGenericType([NotNull] Type givenType, [NotNull] Type genericType)
+		public static bool IsAssignableToGenericType( Type givenType,  Type genericType)
 		{
 			var interfaceTypes = givenType.GetInterfaces();
 
@@ -464,8 +463,8 @@ namespace Morestachio.Formatter.Framework
 		/// <param name="namedParameter"></param>
 		/// <returns></returns>
 		public static MethodInfo PrepareMakeGenericMethodInfoByValues(
-			[NotNull] MethodInfo methodInfo,
-			[NotNull] object[] namedParameter)
+			 MethodInfo methodInfo,
+			 object[] namedParameter)
 		{
 			var generics = new List<Type>();
 			foreach (var genericArgument in methodInfo.GetGenericArguments())
@@ -586,11 +585,11 @@ namespace Morestachio.Formatter.Framework
 		///     Composes the values into a Dictionary for each formatter. If returns null, the formatter will not be called.
 		/// </summary>
 		public virtual PrepareFormatterComposingResult PrepareComposeValues(
-			[NotNull] MorestachioFormatterModel formatter,
-			[CanBeNull] Type sourceType,
-			[NotNull] MethodInfo method,
-			[NotNull] ServiceCollection services,
-			[NotNull] FormatterArgumentType[] templateArguments)
+			 MorestachioFormatterModel formatter,
+			 Type sourceType,
+			 MethodInfo method,
+			 ServiceCollection services,
+			 FormatterArgumentType[] templateArguments)
 		{
 			Log(() =>
 				$"Compose values for object '{sourceType}' with formatter '{formatter.InputType}' targets '{formatter.Function.Name}'");

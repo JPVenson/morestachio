@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
-using Morestachio.Document;
-using Morestachio.Framework.Expression;
-using Morestachio.Framework.Expression.Framework;
 
 namespace Morestachio.Framework.Context
 {
@@ -21,9 +17,9 @@ namespace Morestachio.Framework.Context
 		/// <param name="key"></param>
 		public ContextCollection(long index, 
 			bool last, 
-			[NotNull] ParserOptions options, 
+			 ParserOptions options, 
 			string key, 
-			[CanBeNull]ContextObject parent,
+			ContextObject parent,
 			object value) 
 			: base(options, key, parent, value)
 		{

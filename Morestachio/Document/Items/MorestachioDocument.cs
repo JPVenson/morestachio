@@ -6,13 +6,10 @@ using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Gene
 using Promise = System.Threading.Tasks.Task;
 #endif
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Xml;
-using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
@@ -58,7 +55,7 @@ namespace Morestachio.Document.Items
 		}
 
 		/// <inheritdoc />
-		[UsedImplicitly]
+		
 		public MorestachioDocument(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 			MorestachioVersion = info.GetValue(nameof(MorestachioVersion), typeof(Version)) as Version;

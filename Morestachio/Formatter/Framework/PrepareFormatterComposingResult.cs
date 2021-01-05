@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using JetBrains.Annotations;
 
 namespace Morestachio.Formatter.Framework
 {
@@ -13,8 +12,8 @@ namespace Morestachio.Formatter.Framework
 		/// 
 		/// </summary>
 		public PrepareFormatterComposingResult(
-			[NotNull] Func<object[], MethodInfo> methodInfo, 
-			[NotNull] IDictionary<MultiFormatterInfo, FormatterArgumentMap> arguments)
+			 Func<object[], MethodInfo> methodInfo, 
+			 IDictionary<MultiFormatterInfo, FormatterArgumentMap> arguments)
 		{
 			MethodInfo = methodInfo;
 			Arguments = arguments;
@@ -23,7 +22,7 @@ namespace Morestachio.Formatter.Framework
 		/// <summary>
 		///     The Result Method of the Composing operation. It can be different from the original.
 		/// </summary>
-		[NotNull]
+		
 		public Func<object[], MethodInfo> MethodInfo { get; }
 
 		private MethodInfo _methodInfo;
@@ -41,7 +40,7 @@ namespace Morestachio.Formatter.Framework
 		/// <summary>
 		///     The list of arguments for the <see cref="MethodInfo" />
 		/// </summary>
-		[NotNull]
+		
 		public IDictionary<MultiFormatterInfo, FormatterArgumentMap> Arguments { get; }
 	}
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using JetBrains.Annotations;
 
 namespace Morestachio.Framework.IO.MultiPart
 {
@@ -23,7 +22,7 @@ namespace Morestachio.Framework.IO.MultiPart
 		/// <summary>
 		/// 
 		/// </summary>
-		public PartialByteCounterStreamPart([NotNull] Stream stream,
+		public PartialByteCounterStreamPart( Stream stream,
 			int bufferSize,
 			ParserOptions options,
 			PartialByteCounterStream partialByteCounterStream)

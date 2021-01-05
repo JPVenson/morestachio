@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Runtime.Serialization;
 using System.Xml;
-using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
@@ -35,7 +34,7 @@ namespace Morestachio.Document.Items
 		}
 
 		/// <inheritdoc />
-		public PathDocumentItem(CharacterLocation location, [NotNull] IMorestachioExpression value, bool escapeValue,
+		public PathDocumentItem(CharacterLocation location,  IMorestachioExpression value, bool escapeValue,
 			IEnumerable<ITokenOption> tagCreationOptions) 
 			: base(location, value,tagCreationOptions)
 		{
@@ -43,7 +42,7 @@ namespace Morestachio.Document.Items
 		}
 
 		/// <inheritdoc />
-		[UsedImplicitly]
+		
 		protected PathDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 			EscapeValue = info.GetBoolean(nameof(EscapeValue));

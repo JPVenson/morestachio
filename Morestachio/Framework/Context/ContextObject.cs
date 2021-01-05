@@ -5,7 +5,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using JetBrains.Annotations;
 using Morestachio.Document;
 using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Predefined;
@@ -46,7 +45,7 @@ namespace Morestachio.Framework.Context
 		public static readonly Func<object, bool> DefaultDefinitionOfFalse;
 
 		private static Func<object, bool> _definitionOfFalse;
-		[CanBeNull] private object _value;
+		 private object _value;
 		private bool _abortGeneration;
 
 		static ContextObject()
@@ -84,7 +83,7 @@ namespace Morestachio.Framework.Context
 		/// <summary>
 		///     Initializes a new instance of the <see cref="ContextObject" /> class.
 		/// </summary>
-		public ContextObject([NotNull] ParserOptions options, [NotNull] string key, [CanBeNull] ContextObject parent,
+		public ContextObject( ParserOptions options,  string key,  ContextObject parent,
 			object value)
 		{
 			Options = options ?? throw new ArgumentNullException(nameof(options));
@@ -107,7 +106,7 @@ namespace Morestachio.Framework.Context
 		///     Must no be null
 		/// </value>
 		/// <exception cref="InvalidOperationException">If the value is null</exception>
-		[NotNull]
+		
 		public static Func<object, bool> DefinitionOfFalse
 		{
 			get { return _definitionOfFalse; }
@@ -125,19 +124,19 @@ namespace Morestachio.Framework.Context
 		///     should not be printed, or their printing should be specialized.
 		///     Add an typeof(object) entry as Type to define a Default Output
 		/// </summary>
-		[NotNull]
+		
 		public static IMorestachioFormatterService DefaultFormatter { get; }
 
 		/// <summary>
 		///     The parent of the current context or null if its the root context
 		/// </summary>
-		[CanBeNull]
+		
 		public ContextObject Parent { get; }
 
 		/// <summary>
 		///     The evaluated value of the expression
 		/// </summary>
-		[CanBeNull]
+		
 		public object Value
 		{
 			get { return _value; }
@@ -181,13 +180,13 @@ namespace Morestachio.Framework.Context
 		/// <summary>
 		///     The name of the property or key inside the value or indexer expression for lists
 		/// </summary>
-		[NotNull]
+		
 		public string Key { get; }
 
 		/// <summary>
 		///     With what options are the template currently is running
 		/// </summary>
-		[NotNull]
+		
 		public ParserOptions Options { get; }
 
 		/// <summary>
@@ -503,8 +502,8 @@ namespace Morestachio.Framework.Context
 		/// <param name="scope"></param>
 		/// <returns></returns>
 		public virtual FormatterCache? PrepareFormatterCall(Type type,
-			[CanBeNull] string name,
-			[NotNull] FormatterArgumentType[] arguments,
+			 string name,
+			 FormatterArgumentType[] arguments,
 			ScopeData scope)
 		{
 			if (string.IsNullOrWhiteSpace(name))

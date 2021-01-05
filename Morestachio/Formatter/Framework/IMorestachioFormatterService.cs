@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using JetBrains.Annotations;
 using Morestachio.Document;
 using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Formatter.Framework.Converter;
@@ -71,9 +70,9 @@ namespace Morestachio.Formatter.Framework
 		/// 		Searches for the formatter that matches the type and the given values and returns an struct that can be used to call an optimized formatter multiple times
 		///  </summary>
 		FormatterCache? PrepareCallMostMatchingFormatter(
-			[NotNull]Type type,
-			[NotNull]FormatterArgumentType[] arguments,
-			[CanBeNull]string name,
+			Type type,
+			FormatterArgumentType[] arguments,
+			string name,
 			ParserOptions options,
 			ScopeData scope);
 
@@ -85,7 +84,7 @@ namespace Morestachio.Formatter.Framework
 		/// <param name="args"></param>
 		/// <returns></returns>
 		ObjectPromise Execute(
-			[NotNull] FormatterCache formatter,
+			 FormatterCache formatter,
 			object sourceType,
 			FormatterArgumentType[] args);
 
@@ -99,9 +98,9 @@ namespace Morestachio.Formatter.Framework
 		///// <param name="scope"></param>
 		///// <returns></returns>
 		//ObjectPromise Execute(
-		//	[NotNull] FormatterArgumentType[] args,
+		//	 FormatterArgumentType[] args,
 		//	object sourceValue,
-		//	[CanBeNull] string name,
+		//	 string name,
 		//	ParserOptions options,
 		//	ScopeData scope);
 

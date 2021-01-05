@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items;
 using Morestachio.Document.Items.SwitchCase;
 using Morestachio.Document.TextOperations;
-using Morestachio.Framework;
 using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
@@ -48,9 +46,7 @@ namespace Morestachio
 		/// </summary>
 		/// <param name="parsingOptions">a set of options</param>
 		/// <returns></returns>
-		[NotNull]
-		[MustUseReturnValue("Use return value to create templates. Reuse return value if possible.")]
-		public static async MorestachioDocumentInfoPromise ParseWithOptionsAsync([NotNull] ParserOptions parsingOptions)
+		public static async MorestachioDocumentInfoPromise ParseWithOptionsAsync( ParserOptions parsingOptions)
 		{
 			if (parsingOptions == null)
 			{
@@ -80,9 +76,7 @@ namespace Morestachio
 		/// </summary>
 		/// <param name="parsingOptions">a set of options</param>
 		/// <returns></returns>
-		[NotNull]
-		[MustUseReturnValue("Use return value to create templates. Reuse return value if possible.")]
-		public static MorestachioDocumentInfo ParseWithOptions([NotNull] ParserOptions parsingOptions)
+		public static MorestachioDocumentInfo ParseWithOptions( ParserOptions parsingOptions)
 		{
 			return ParseWithOptionsAsync(parsingOptions).Result;
 		}

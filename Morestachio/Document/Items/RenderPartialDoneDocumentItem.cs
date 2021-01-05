@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
-using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
@@ -36,13 +35,13 @@ namespace Morestachio.Document.Items
 		}
 
 		/// <inheritdoc />
-		public RenderPartialDoneDocumentItem(CharacterLocation location, [NotNull] string partialName,
+		public RenderPartialDoneDocumentItem(CharacterLocation location,  string partialName,
 			IEnumerable<ITokenOption> tagCreationOptions) : base(location, partialName,tagCreationOptions)
 		{
 		}
 		
 		/// <inheritdoc />
-		[UsedImplicitly]
+		
 		protected RenderPartialDoneDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}

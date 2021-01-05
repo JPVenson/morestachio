@@ -7,9 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
 using System.Xml;
-using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
@@ -40,7 +38,7 @@ namespace Morestachio.Document.Items
 		/// </summary>
 		/// <param name="aliasName"></param>
 		/// <param name="scopeVariableScopeNumber"></param>
-		public RemoveAliasDocumentItem(CharacterLocation location, [NotNull] string aliasName, int scopeVariableScopeNumber,
+		public RemoveAliasDocumentItem(CharacterLocation location,  string aliasName, int scopeVariableScopeNumber,
 			IEnumerable<ITokenOption> tagCreationOptions) 
 			: base(location, aliasName,tagCreationOptions)
 		{
@@ -48,7 +46,7 @@ namespace Morestachio.Document.Items
 		}
 		
 		/// <inheritdoc />
-		[UsedImplicitly]
+		
 		protected RemoveAliasDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 			IdVariableScope = info.GetInt32(nameof(IdVariableScope));

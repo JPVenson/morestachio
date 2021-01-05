@@ -1,5 +1,4 @@
 ﻿using System;
-using JetBrains.Annotations;
 
 namespace Morestachio.Formatter.Framework
 {
@@ -48,7 +47,7 @@ namespace Morestachio.Formatter.Framework
 		/// <summary>
 		///		if present, the known value
 		/// </summary>
-		[CanBeNull]
+		
 		public object Value { get; }
 
 		/// <inheritdoc />

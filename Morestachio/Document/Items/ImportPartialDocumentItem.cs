@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
 using System.Xml;
-using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
@@ -44,8 +42,8 @@ namespace Morestachio.Document.Items
 
 		/// <inheritdoc />
 		public ImportPartialDocumentItem(CharacterLocation location,
-			[NotNull] IMorestachioExpression value,
-			[CanBeNull] IMorestachioExpression context,
+			 IMorestachioExpression value,
+			 IMorestachioExpression context,
 			IEnumerable<ITokenOption> tagCreationOptions)
 			: base(location, value,tagCreationOptions)
 		{
@@ -53,7 +51,7 @@ namespace Morestachio.Document.Items
 		}
 
 		/// <inheritdoc />
-		[UsedImplicitly]
+		
 		protected ImportPartialDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 			Context = info.GetValue(nameof(Context), typeof(IMorestachioExpression)) as IMorestachioExpression;

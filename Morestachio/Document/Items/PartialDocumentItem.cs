@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml;
-using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
@@ -39,7 +38,7 @@ namespace Morestachio.Document.Items
 		/// </summary>
 		/// <param name="partialName">The partial name.</param>
 		/// <param name="partial">The partial.</param>
-		public PartialDocumentItem(CharacterLocation location, [NotNull] string partialName, [NotNull] IDocumentItem partial,
+		public PartialDocumentItem(CharacterLocation location,  string partialName,  IDocumentItem partial,
 			IEnumerable<ITokenOption> tagCreationOptions) 
 			: base(location, partialName, tagCreationOptions)
 		{
@@ -47,7 +46,7 @@ namespace Morestachio.Document.Items
 		}
 
 		/// <inheritdoc />
-		[UsedImplicitly]
+		
 		protected PartialDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 			Partial = info.GetValue(nameof(Partial), typeof(IDocumentItem)) as IDocumentItem;
