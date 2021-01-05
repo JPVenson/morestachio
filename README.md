@@ -77,9 +77,11 @@ Morestachio is build upon Mustachio and extends the mustachio syntax in a a lot 
  
 **Template partials** ARE a great feature for large scale template development.
 
-You can create a Partial with the `{{#declare NAME}}Partial{{/declare}}` syntax. You can navigate up inside this partials. Partials can also be nested but are currently restricted to a maximum recursion of 255 depth. The programmer has the choice to define a behavior that ether throws an Exception or does nothing and ignores any deeper recusions. 
+You can create a Partial with the `{{#declare NAME}}Partial{{/declare}}` syntax. You can navigate up inside this partials. Partials can also be nested but are currently restricted to a maximum recursion of 255 depth. The programmer has the choice to define a behavior that ether throws an Exception or does nothing and ignores any deeper recusions.    
 
-A Partial must be declared before its usage with `{{#import 'NAME'}}` but you can use a partial to create hirarical templates. 
+A Partial must be declared before its usage with `{{#import 'NAME'}}` but you can use a partial to create hirarical templates.    
+
+You can even inject your predefined Partials into all of your Templates by utilizing the `ParserOptions.PartialsStore`.
 
 ###### Infos about new features
  
