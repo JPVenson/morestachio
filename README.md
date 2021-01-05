@@ -60,7 +60,11 @@ Morestachio is build upon Mustachio and extends the mustachio syntax in a few wa
 5. Cancellation of Template generation is supported
 6. Async calls are supported (For Formatters)
 7. Minimal Reference count (For .Net only Mirosoft.CSharp.dll & System.dll. Reference to JetBrains.Annotations.dll is optional)
-8. NetFramework (net46;net461;net462;net47;net471;net472), NetCore(netcoreapp2.1;netcoreapp2.2;netcoreapp3.0;netcoreapp3.1) & NetStandard(netstandard2.0) & Net5.0 are supported
+8. Support for several .Net framworks:
+   - NetFramework (net46;net461;net462;net47;net471;net472)
+   - NetCore (netcoreapp2.1;netcoreapp2.2;netcoreapp3.0;netcoreapp3.1) 
+   - NetStandard (netstandard2.0) 
+   - Net5.0
 9. Using of JetBrains Annotations for R# user ( if you are not a R# user just ignore this point )
 10. Supports user Encoding of the result template
 11. Supports Template Partials `{{#import 'secondary_template' }}`
