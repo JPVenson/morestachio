@@ -2,7 +2,6 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Morestachio.Helper;
 
@@ -12,9 +11,9 @@ namespace Morestachio.AspNetCore
 	{
 		public FileInfo File { get; }
 		public string Path { get; }
-		[CanBeNull] public Func<HttpContext, ValueTask<object>> DataFac { get; }
+		public Func<HttpContext, ValueTask<object>> DataFac { get; }
 
-		public FileMorestachioTemplate(FileInfo file, string path, [CanBeNull] Func<HttpContext, ValueTask<object>> dataFac = null)
+		public FileMorestachioTemplate(FileInfo file, string path, Func<HttpContext, ValueTask<object>> dataFac = null)
 		{
 			File = file;
 			Path = path;

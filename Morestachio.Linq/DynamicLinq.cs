@@ -2,16 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using JetBrains.Annotations;
 using Morestachio.Formatter.Framework.Attributes;
-using Morestachio.Helper;
 
 namespace Morestachio.Linq
 {
 	/// <summary>
 	///     This class wraps the System.Linq.Dynamic.Core package for Morstachio
 	/// </summary>
-	[PublicAPI]
 	public static class DynamicLinq
 	{
 		[MorestachioFormatter("Where",

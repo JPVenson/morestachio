@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using JetBrains.Annotations;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Custom;
 using Morestachio.Framework.Tokenizing;
@@ -8,7 +7,6 @@ using Morestachio.Framework.Tokenizing;
 namespace Morestachio.LessCompiler
 {
 	/// <inheritdoc />
-	[PublicAPI]
 	public class LessCompilerDocumentItemProvider : BlockDocumentItemProviderBase
 	{
 		public LessCompilerDocumentItemProvider() : base("#Less", "/Less")

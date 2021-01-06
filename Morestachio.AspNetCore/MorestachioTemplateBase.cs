@@ -2,7 +2,6 @@
 using System.Globalization;
 using System.Text;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Morestachio.Formatter.Framework;
 using Morestachio.Framework.Context.Options;
@@ -19,9 +18,9 @@ namespace Morestachio.AspNetCore
 		}
 
 		public IMorestachioFormatterService MorestachioFormatterService { get; set; }
-		[CanBeNull] public CultureInfo Culture { get; set; }
-		[CanBeNull] public Encoding Encoding { get; set; }
-		[CanBeNull] public IValueResolver ValueResolver { get; set; }
+		public CultureInfo Culture { get; set; }
+		public Encoding Encoding { get; set; }
+		public IValueResolver ValueResolver { get; set; }
 		public uint PartialStackSize { get; set; } = 255;
 		public PartialStackOverflowBehavior StackOverflowBehavior { get; set; }
 		public UnmatchedFormatterBehavior UnmatchedFormatterBehavior { get; set; }
