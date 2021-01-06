@@ -243,8 +243,6 @@ namespace Morestachio
 		/// </summary>
 		/// <param name="source"></param>
 		/// <returns></returns>
-		
-		
 		public async StringPromise CreateAndStringifyAsync( object source)
 		{
 			return await CreateAndStringifyAsync(source, CancellationToken.None);
@@ -292,8 +290,6 @@ namespace Morestachio
 		/// </summary>
 		/// <param name="source"></param>
 		/// <returns></returns>
-		
-		
 		public string CreateAndStringify( object source)
 		{
 			return CreateAndStringify(source, CancellationToken.None);
@@ -305,8 +301,6 @@ namespace Morestachio
 		/// <param name="source"></param>
 		/// <param name="token"></param>
 		/// <returns></returns>
-		
-		
 		public string CreateAndStringify( object source, CancellationToken token)
 		{
 			using (var stream = Create(source, token).Stream)

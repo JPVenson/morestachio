@@ -91,10 +91,19 @@ namespace Morestachio.Framework.Expression.Framework
 		///		Gets or sets the option for trimming all leading whitespaces and newlines
 		/// </summary>
 		public bool TrimLeading { get; set; }
+
+		/// <summary>
+		///		Gets or sets the option for trimming all leading whitespaces and newlines
+		/// </summary>
+		public bool TrimAllLeading { get; set; }
 		/// <summary>
 		///		Gets or sets the option for trimming all tailing whitespaces and newlines
 		/// </summary>
 		public bool TrimTailing { get; set; }
+		/// <summary>
+		///		Gets or sets the option for trimming all tailing whitespaces and newlines
+		/// </summary>
+		public bool TrimAllTailing { get; set; }
 
 		/// <summary>
 		///		Advances the current location by the number of chars
@@ -176,6 +185,38 @@ namespace Morestachio.Framework.Expression.Framework
 					return;
 				}
 				TrimLeading = valBool;
+			}
+			if (name.Equals("TrimAllTailing", StringComparison.InvariantCultureIgnoreCase))
+			{
+				if (val == null)
+				{
+					Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+						"SET OPTION", "VALUE", $"The expression returned null for option '{name}' that does not accept a null value"));
+					return;
+				}
+				if (!(val is bool valBool))
+				{
+					Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+						"SET OPTION", "VALUE", $"The expression returned '{val.GetType()}' for option '{name}' but expected and value of type '{typeof(bool)}'"));
+					return;
+				}
+				TrimAllTailing = valBool;
+			}
+			if (name.Equals("TrimAllLeading", StringComparison.InvariantCultureIgnoreCase))
+			{
+				if (val == null)
+				{
+					Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+						"SET OPTION", "VALUE", $"The expression returned null for option '{name}' that does not accept a null value"));
+					return;
+				}
+				if (!(val is bool valBool))
+				{
+					Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+						"SET OPTION", "VALUE", $"The expression returned '{val.GetType()}' for option '{name}' but expected and value of type '{typeof(bool)}'"));
+					return;
+				}
+				TrimAllLeading = valBool;
 			}
 		}
 	}

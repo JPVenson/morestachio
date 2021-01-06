@@ -320,7 +320,7 @@ namespace Morestachio.Framework.Tokenizing
 						}
 						tokenOptions.Add(new PersistantTokenOption("Embedded.TrimLeading", true));
 					}
-					if (trimmedToken.StartsWith("--|") || context.TrimLeading)
+					if (trimmedToken.StartsWith("--|") || context.TrimAllLeading)
 					{
 						if (!context.TrimLeading)
 						{
@@ -337,7 +337,7 @@ namespace Morestachio.Framework.Tokenizing
 						}
 						tokenOptions.Add(new PersistantTokenOption("Embedded.TrimTailing", true));
 					}
-					if (trimmedToken.EndsWith("|--") || context.TrimTailing)
+					if (trimmedToken.EndsWith("|--") || context.TrimAllTailing)
 					{
 						if (!context.TrimTailing)
 						{
