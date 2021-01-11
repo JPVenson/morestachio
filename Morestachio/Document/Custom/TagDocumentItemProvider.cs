@@ -26,9 +26,9 @@ namespace Morestachio.Document.Custom
 		/// <summary>
 		///		
 		/// </summary>
-		/// <param name="tag">Should contain full tag like <code>#Anything</code> excluding the brackets and any parameter</param>
+		/// <param name="tagKeyword">Should contain full tag like <code>#Anything</code> excluding the brackets and any parameter</param>
 		/// <param name="action"></param>
-		public TagDocumentItemProvider(string tag, TagDocumentProviderFunction action) : base(tag)
+		public TagDocumentItemProvider(string tagKeyword, TagDocumentProviderFunction action) : base(tagKeyword)
 		{
 			_action = action;
 		}
@@ -36,44 +36,66 @@ namespace Morestachio.Document.Custom
 		/// <summary>
 		/// 
 		/// </summary>
-		public class TagDocumentItem : ValueDocumentItemBase
+		public class TagDocumentItem : ValueDocumentItemBase, ToParsableStringDocumentVisitor.IStringVisitor
 		{
 			private readonly TagDocumentProviderFunction _action;
-			
+
 			/// <inheritdoc />
 			public TagDocumentItem()
 			{
 
 			}
-			
+
 			/// <inheritdoc />
 			public TagDocumentItem(CharacterLocation location,
-				TagDocumentProviderFunction action, 
+				TagDocumentProviderFunction action,
+				string tagKeyword,
 				string value,
 				IEnumerable<ITokenOption> tagCreationOptions) : base(location, value, tagCreationOptions)
 			{
 				_action = action;
+				TagKeyword = tagKeyword;
 			}
+
+			/// <summary>
+			///		The keyword this DocumentItem was used to create
+			/// </summary>
+			public string TagKeyword { get; private set; }
 
 			/// <inheritdoc />
 			public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 			{
-				await _action(outputStream, context, scopeData, Value);
+				await _action(outputStream, context, scopeData, Value, TagKeyword);
 				return Array.Empty<DocumentItemExecution>();
 			}
-			
+
 			/// <inheritdoc />
 			public override void Accept(IDocumentItemVisitor visitor)
 			{
 				visitor.Visit(this);
 			}
+
+			/// <inheritdoc />
+			public void Render(ToParsableStringDocumentVisitor visitor)
+			{
+				visitor.StringBuilder.Append("{{");
+				visitor.CheckForInlineTagLineBreakAtStart(this);
+				visitor.StringBuilder.Append(TagKeyword);
+				if (Value != null)
+				{
+					visitor.StringBuilder.Append(" ");
+					visitor.StringBuilder.Append(Value);
+				}
+				visitor.CheckForInlineTagLineBreakAtEnd(this);
+				visitor.StringBuilder.Append("}}");
+			}
 		}
 
 		/// <inheritdoc />
-		public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token,
+		public override IDocumentItem CreateDocumentItem(string tagKeyword, string value, TokenPair token,
 			ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions)
 		{
-			return new TagDocumentItem(token.TokenLocation, _action, value, tagCreationOptions);
+			return new TagDocumentItem(token.TokenLocation, _action, tagKeyword, value, tagCreationOptions);
 		}
 	}
 }

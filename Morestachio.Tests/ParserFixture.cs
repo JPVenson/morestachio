@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Morestachio.Document.Custom;
@@ -1546,7 +1547,8 @@ namespace Morestachio.Tests
 				(outputStream,
 					context,
 					scopeData,
-					value) =>
+					value,
+					tag) =>
 				{
 					outputStream.Write((Math.PI * int.Parse(value)).ToString());
 					await Task.CompletedTask;
@@ -1852,6 +1854,49 @@ Static
 				options.Formatters.AddFromType(typeof(EqualityFormatter));
 			});
 			Assert.That(result, Is.EqualTo(@"WorldStaticWorld"));
+		}
+		
+		[Test]
+		public async Task TestParserNotRenderingUnknownTagInstruction()
+		{
+			var template = @"PreText {{#UnknownTag}} Subtext";
+			var data = new
+			{
+				data = "World"
+			};
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.CustomDocumentItemProviders.Add(new TagRegexDocumentItemProvider(new Regex("#(.*)"),
+					async (stream, context, scopeData, value, keyword) =>
+					{
+						stream.Write($"[Unknown Tag '{keyword}{value}']");
+						await Task.CompletedTask;
+					}));
+			});
+			Assert.That(result, Is.EqualTo(@"PreText [Unknown Tag '#UnknownTag'] Subtext"));
+		}
+
+		[Test]
+		public async Task TestParserNotRenderingUnknownTagWithValueInstruction()
+		{
+			var template = @"PreText {{#UnknownTag #AnyValue BLA}} Subtext";
+			var data = new
+			{
+				data = "WorldA"
+			};
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				TagDocumentProviderFunction tagDocumentProviderFunction = async (stream, context, scopeData, value, keyword) =>
+				{
+					stream.Write($"[Unknown Tag '{keyword} {value}']");
+					await Task.CompletedTask;
+				};
+				options.CustomDocumentItemProviders.Add(new TagRegexDocumentItemProvider(new Regex("#([^\\s]*)"),
+					tagDocumentProviderFunction));
+			});
+			Assert.That(result, Is.EqualTo(@"PreText [Unknown Tag '#UnknownTag #AnyValue BLA'] Subtext"));
 		}
 
 		private class CollectionContextInfo

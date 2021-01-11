@@ -74,7 +74,7 @@ namespace Morestachio.Document.Visitor
 			}
 		}
 
-		private void CheckForInlineTagLineBreakAtStart(IDocumentItem documentItem)
+		public void CheckForInlineTagLineBreakAtStart(IDocumentItem documentItem)
 		{
 			if (documentItem.TagCreationOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimLeading")?.Value is bool valSingle && valSingle)
 			{
@@ -86,7 +86,7 @@ namespace Morestachio.Document.Visitor
 			}
 		}
 
-		private void CheckForInlineTagLineBreakAtEnd(IDocumentItem documentItem)
+		public  void CheckForInlineTagLineBreakAtEnd(IDocumentItem documentItem)
 		{
 			if (documentItem.TagCreationOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimTailing")?.Value is bool valSingle && valSingle)
 			{
@@ -98,7 +98,7 @@ namespace Morestachio.Document.Visitor
 			}
 		}
 
-		private void CheckForInlineBlockLineBreakAtStart(IBlockDocumentItem documentItem)
+		public  void CheckForInlineBlockLineBreakAtStart(IBlockDocumentItem documentItem)
 		{
 			if (documentItem.BlockClosingOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimLeading")?.Value is bool valSingle && valSingle)
 			{
@@ -110,7 +110,7 @@ namespace Morestachio.Document.Visitor
 			}
 		}
 
-		private void CheckForInlineBlockLineBreakAtEnd(IBlockDocumentItem documentItem)
+		public  void CheckForInlineBlockLineBreakAtEnd(IBlockDocumentItem documentItem)
 		{
 			if (documentItem.BlockClosingOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimTailing")?.Value is bool valSingle && valSingle)
 			{

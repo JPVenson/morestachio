@@ -26,7 +26,7 @@ namespace Morestachio.Helper.Localization.Documents.LocPDocument
 		}
 		
 		/// <inheritdoc />
-		public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token,
+		public override IDocumentItem CreateDocumentItem(string tagKeyword, string value, TokenPair token,
 			ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions)
 		{
 			return new MorestachioLocalizationParameterDocumentItem(token.TokenLocation, token.MorestachioExpression, tagCreationOptions);

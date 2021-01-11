@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Morestachio.Document.Contracts;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Parsing;
@@ -9,17 +10,17 @@ namespace Morestachio.Document.Custom
 	/// <summary>
 	///		Can be used to create a single statement Tag
 	/// </summary>
-	public abstract class TagDocumentItemProviderBase : CustomDocumentItemProvider
+	public abstract class TagRegexDocumentItemProviderBase : CustomDocumentItemProvider
 	{
-		private readonly string _tagKeyword;
+		private readonly Regex _tagRegex;
 
 		/// <summary>
 		///		
 		/// </summary>
-		/// <param name="tagKeyword">Should contain full tag like <code>#Anything</code> excluding the brackets and any parameter</param>
-		protected TagDocumentItemProviderBase(string tagKeyword)
+		/// <param name="tag">Should contain full tag like <code>#Anything</code> excluding the brackets and any parameter</param>
+		protected TagRegexDocumentItemProviderBase(Regex tagRegex)
 		{
-			_tagKeyword = tagKeyword;
+			_tagRegex = tagRegex;
 		}
 
 		/// <summary>
@@ -31,26 +32,29 @@ namespace Morestachio.Document.Custom
 		/// <inheritdoc />
 		public override IEnumerable<TokenPair> Tokenize(TokenInfo token, ParserOptions options)
 		{
-			yield return new TokenPair(_tagKeyword, token.Token, token.TokenizerContext.CurrentLocation);
+			var tag = _tagRegex.Match(token.Token).Value;
+			yield return new TokenPair(tag, token.Token, token.TokenizerContext.CurrentLocation);
 		}
 		
 		/// <inheritdoc />
 		public override bool ShouldParse(TokenPair token, ParserOptions options, IEnumerable<ITokenOption> tokenOptions)
 		{
-			return token.Type.Equals(_tagKeyword.Trim());
+			return _tagRegex.IsMatch(token.Value);
 		}
 		
 		/// <inheritdoc />
 		public override IDocumentItem Parse(TokenPair token, ParserOptions options, Stack<DocumentScope> buildStack,
 			Func<int> getScope, IEnumerable<ITokenOption> tokenOptions)
 		{
-			return CreateDocumentItem(_tagKeyword, token.Value?.Trim('{', '}').Remove(0, _tagKeyword.Length).Trim(), token, options, tokenOptions);
+			var tagKeyword = _tagRegex.Match(token.Value).Value;
+			var value = token.Value?.Trim('{', '}').Remove(0, tagKeyword.Length).Trim();
+			return CreateDocumentItem(tagKeyword, value, token, options, tokenOptions);
 		}
 		
 		/// <inheritdoc />
 		public override bool ShouldTokenize(string token)
 		{
-			return token.StartsWith(_tagKeyword, StringComparison.InvariantCultureIgnoreCase);
+			return _tagRegex.IsMatch(token);
 		}
 	}
 }

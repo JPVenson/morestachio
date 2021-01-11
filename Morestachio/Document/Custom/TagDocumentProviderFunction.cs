@@ -21,5 +21,6 @@ namespace Morestachio.Document.Custom
 		IByteCounterStream outputStream,
 		ContextObject context,
 		ScopeData scopeData,
-		string value);
+		string value,
+		string tag);
 }
