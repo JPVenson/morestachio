@@ -12,11 +12,12 @@ namespace Morestachio.Helper.Logging
 		/// <summary>
 		///		Gets the list of all event ids that are invoked by the framework itself
 		/// </summary>
-		public static string[] FrameworkEventIds { get; } = new[] { FormatterObsoleteEventId, ParserEventId, TokenizerEventId };
+		public static string[] FrameworkEventIds { get; } = new[] { FormatterObsoleteEventId, ParserEventId, TokenizerEventId, FormatterServiceId };
 
 		public static readonly string FormatterObsoleteEventId = "Formatter-Obsolete";
 		public static readonly string ParserEventId = "Parser";
 		public static readonly string TokenizerEventId = "Tokenizer";
+		public static readonly string FormatterServiceId = "FormatterService";
 
 		/// <summary>
 		///		Enables the logger

@@ -211,7 +211,7 @@ namespace Morestachio.Framework.Expression
 			{
 				return contextObject.Options.CreateContextObject(".",
 					contextObject.CancellationToken,
-					await contextObject.Options.Formatters.Execute(Cache.Value, leftValue.Value, arguments),
+					await contextObject.Options.Formatters.Execute(Cache.Value, leftValue.Value, contextObject.Options, arguments),
 					contextObject.Parent);
 			}
 
@@ -249,7 +249,7 @@ namespace Morestachio.Framework.Expression
 				{
 					return contextObject.Options.CreateContextObject(".",
 						contextObject.CancellationToken,
-						await contextObject.Options.Formatters.Execute(Cache.Value, leftValue.Value, arguments),
+						await contextObject.Options.Formatters.Execute(Cache.Value, leftValue.Value, contextObject.Options, arguments),
 						contextObject.Parent);
 				}
 

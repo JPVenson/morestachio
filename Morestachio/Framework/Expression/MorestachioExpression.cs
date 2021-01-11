@@ -336,7 +336,7 @@ namespace Morestachio.Framework.Expression
 
 				if (cache != null && !Equals(cache.Value, default(FormatterCache)))
 				{
-					ctx.Value = await contextObject.Options.Formatters.Execute(cache.Value, ctx.Value, arguments);
+					ctx.Value = await contextObject.Options.Formatters.Execute(cache.Value, ctx.Value, contextObject.Options, arguments);
 					ctx.MakeSyntetic();
 				}
 
@@ -379,7 +379,7 @@ namespace Morestachio.Framework.Expression
 
 			if (Cache != null && !Equals(Cache.Value, default(FormatterCache)))
 			{
-				contextForPath.Value = await contextObject.Options.Formatters.Execute(Cache.Value, contextForPath.Value, arguments);
+				contextForPath.Value = await contextObject.Options.Formatters.Execute(Cache.Value, contextForPath.Value, contextObject.Options, arguments);
 				contextForPath.MakeSyntetic();
 			}
 			return contextForPath;

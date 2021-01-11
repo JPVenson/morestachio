@@ -11,6 +11,7 @@ using Morestachio.Document;
 using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Formatter.Framework.Converter;
 using Morestachio.Helper;
+using Morestachio.Helper.Logging;
 using Morestachio.Util.Sealing;
 #if ValueTask
 using ObjectPromise = System.Threading.Tasks.ValueTask<object>;
@@ -72,12 +73,6 @@ namespace Morestachio.Formatter.Framework
 		///     The fallback Converter that should convert all known mscore lib types
 		/// </summary>
 		public IFormatterValueConverter DefaultConverter { get; set; }
-
-		/// <summary>
-		///     If set writes the Formatters log.
-		/// </summary>
-		
-		public TextWriter FormatterLog { get; set; }
 
 		/// <summary>
 		///     List of all Value Converters that can be used to convert formatter arguments
@@ -172,17 +167,24 @@ namespace Morestachio.Formatter.Framework
 		/// <summary>
 		///		The cache for Formatter calls
 		/// </summary>
-		
+
 		public IDictionary<FormatterCacheCompareKey, FormatterCache?> Cache { get; set; }
 
 		/// <summary>
 		///     Writes the specified log.
 		/// </summary>
-		/// <param name="log">The log.</param>
 		[Conditional("LOG")]
-		public void Log(Func<string> log)
+		public void Log(ParserOptions parserOptions, Func<string> log)
 		{
-			FormatterLog?.WriteLine(log());
+			parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId, log());
+		}
+		/// <summary>
+		///     Writes the specified log.
+		/// </summary>
+		[Conditional("LOG")]
+		public void Log(ParserOptions parserOptions, Func<string> log, Func<IDictionary<string, object>> getValues)
+		{
+			parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId, log(), getValues());
 		}
 
 		//public async ObjectPromise Execute(
@@ -214,7 +216,7 @@ namespace Morestachio.Formatter.Framework
 			{
 				return cacheItem;
 			}
-			var hasFormatter = PrepareGetMatchingFormatterOn(type, arguments, name)
+			var hasFormatter = PrepareGetMatchingFormatterOn(type, arguments, parserOptions, name)
 				.Where(e => e != null)
 				.ToArray();
 
@@ -230,8 +232,7 @@ namespace Morestachio.Formatter.Framework
 					type,
 					morestachioFormatterModel.Function,
 					services,
-					arguments
-				);
+					arguments, parserOptions);
 				if (tryCompose != null)
 				{
 					var cache = new FormatterCache(morestachioFormatterModel, tryCompose);
@@ -258,9 +259,11 @@ namespace Morestachio.Formatter.Framework
 		public virtual async ObjectPromise Execute(
 			FormatterCache formatter,
 			object sourceType,
+			ParserOptions parserOptions,
 			FormatterArgumentType[] args)
 		{
-			Log(() => "Execute");
+			Log(parserOptions, () => $"Execute the formatter {formatter.Model.Name} with arguments", 
+				() => args.ToDictionary(e => e.Name, e => (object)e));
 
 			var mapedValues = new object[formatter.TestedTypes.Arguments.Count];
 			var i = 0;
@@ -309,25 +312,30 @@ namespace Morestachio.Formatter.Framework
 		public virtual IEnumerable<MorestachioFormatterModel> PrepareGetMatchingFormatterOn(
 			 Type typeToFormat,
 			 FormatterArgumentType[] arguments,
+			 ParserOptions parserOptions,
 			 string name)
 		{
+			Log(parserOptions, () => $"Lookup formatter for type {typeToFormat} with name {name}", 
+				() => arguments.ToDictionary(e => e.Name, e => (object)e));
+
 			var filteredSourceList = new List<KeyValuePair<MorestachioFormatterModel, ulong>>();
 			if (!Formatters.TryGetValue(name ?? "{NULL}", out var formatters))
 			{
+				Log(parserOptions, () => $"There are no formatters for the name {name}");
 				return Enumerable.Empty<MorestachioFormatterModel>();
 			}
 
 			foreach (var formatTemplateElement in formatters)
 			{
-				Log(() => $"Test filter: '{formatTemplateElement.InputType} : {formatTemplateElement.Function.Name}'");
+				Log(parserOptions, () => $"Test formatter input type: '{formatTemplateElement.InputType}' on formatter named '{formatTemplateElement.Function.Name}'");
 
 				if (formatTemplateElement.InputType != typeToFormat
 					&& !formatTemplateElement.InputType.GetTypeInfo().IsAssignableFrom(typeToFormat))
 				{
 					if (ValueConverter.All(e => !e.CanConvert(typeToFormat, formatTemplateElement.InputType)))
 					{
-						if (formatTemplateElement.MetaData.SourceObject != null && 
-						    formatTemplateElement.MetaData.SourceObject.FormatterValueConverterAttribute
+						if (formatTemplateElement.MetaData.SourceObject != null &&
+							formatTemplateElement.MetaData.SourceObject.FormatterValueConverterAttribute
 							.Select(e => e.CreateInstance())
 							.All(e => !e.CanConvert(typeToFormat, formatTemplateElement.InputType)))
 						{
@@ -344,7 +352,7 @@ namespace Morestachio.Formatter.Framework
 
 								if (!foundInterface)
 								{
-									Log(() =>
+									Log(parserOptions, () =>
 										$"Exclude because formatter accepts '{formatTemplateElement.InputType}' is not assignable from '{typeToFormat}'");
 									continue;
 								}
@@ -359,7 +367,7 @@ namespace Morestachio.Formatter.Framework
 				if (formatTemplateElement.MetaData.MandetoryArguments.Count > arguments.Length)
 				//if there are less arguments excluding rest then parameters
 				{
-					Log(() =>
+					Log(parserOptions, () =>
 						"Exclude because formatter has " +
 						$"'{formatTemplateElement.MetaData.MandetoryArguments.Count}' " +
 						"parameter and " +
@@ -377,7 +385,7 @@ namespace Morestachio.Formatter.Framework
 				}
 
 				score += (ulong)(arguments.Length - formatTemplateElement.MetaData.MandetoryArguments.Count);
-				Log(() =>
+				Log(parserOptions, () =>
 					$"Take filter: '{formatTemplateElement.InputType} : {formatTemplateElement.Function}' Score {score}");
 				filteredSourceList.Add(
 					new KeyValuePair<MorestachioFormatterModel, ulong>(formatTemplateElement, score));
@@ -393,7 +401,7 @@ namespace Morestachio.Formatter.Framework
 
 				return formatter;
 			}
-
+			Log(parserOptions, () => "No formatter matches");
 			return Enumerable.Empty<MorestachioFormatterModel>();
 		}
 
@@ -416,7 +424,7 @@ namespace Morestachio.Formatter.Framework
 			var formatterGenerics = formatTemplateElement.InputType.GetTypeInfo().GetGenericArguments();
 
 			if (typeToFormatGenerics.Length <= 0 || formatterGenerics.Length <= 0 ||
-			    typeToFormatGenerics.Length != formatterGenerics.Length)
+				typeToFormatGenerics.Length != formatterGenerics.Length)
 			{
 				return false;
 			}
@@ -430,7 +438,7 @@ namespace Morestachio.Formatter.Framework
 		/// <param name="givenType"></param>
 		/// <param name="genericType"></param>
 		/// <returns></returns>
-		public static bool IsAssignableToGenericType( Type givenType,  Type genericType)
+		public static bool IsAssignableToGenericType(Type givenType, Type genericType)
 		{
 			var interfaceTypes = givenType.GetInterfaces();
 
@@ -584,14 +592,14 @@ namespace Morestachio.Formatter.Framework
 		/// <summary>
 		///     Composes the values into a Dictionary for each formatter. If returns null, the formatter will not be called.
 		/// </summary>
-		public virtual PrepareFormatterComposingResult PrepareComposeValues(
-			 MorestachioFormatterModel formatter,
-			 Type sourceType,
-			 MethodInfo method,
-			 ServiceCollection services,
-			 FormatterArgumentType[] templateArguments)
+		public virtual PrepareFormatterComposingResult PrepareComposeValues(MorestachioFormatterModel formatter,
+			Type sourceType,
+			MethodInfo method,
+			ServiceCollection services,
+			FormatterArgumentType[] templateArguments,
+			ParserOptions parserOptions)
 		{
-			Log(() =>
+			Log(parserOptions, () =>
 				$"Compose values for object '{sourceType}' with formatter '{formatter.InputType}' targets '{formatter.Function.Name}'");
 
 			var matched = new Dictionary<MultiFormatterInfo, FormatterArgumentMap>();
@@ -599,14 +607,14 @@ namespace Morestachio.Formatter.Framework
 			for (var i = 0; i < formatter.MetaData.NonParamsArguments.Count; i++)
 			{
 				var parameter = formatter.MetaData.NonParamsArguments[i];
-				Log(() => $"Match parameter '{parameter.ParameterType}' [{parameter.Name}]");
+				Log(parserOptions, () => $"Match parameter '{parameter.ParameterType}' [{parameter.Name}]");
 
 				//set ether the source object or the value from the given arguments
 
 				FormatterArgumentType match;
 				if (parameter.IsSourceObject)
 				{
-					Log(() => "Is Source object");
+					Log(parserOptions, () => "Is Source object");
 
 					matched[parameter] = new FormatterArgumentMap(i, null)
 					{
@@ -619,12 +627,12 @@ namespace Morestachio.Formatter.Framework
 					if (parameter.IsInjected)
 					{
 						//match by index or name
-						Log(() => "Get the injected service");
+						Log(parserOptions, () => "Get the injected service");
 						if (services.TryGetService(parameter.ParameterType, out var service))
 						{
 							if (!parameter.ParameterType.IsInstanceOfType(service))
 							{
-								Log(() => $"Expected service of type '{parameter.ParameterType}' but got '{service}'");
+								Log(parserOptions, () => $"Expected service of type '{parameter.ParameterType}' but got '{service}'");
 								return default;
 							}
 							matched[parameter] = new FormatterArgumentMap(i, null)
@@ -635,14 +643,14 @@ namespace Morestachio.Formatter.Framework
 						}
 						else
 						{
-							Log(() => $"Requested service of type {parameter.ParameterType} is not present");
+							Log(parserOptions, () => $"Requested service of type {parameter.ParameterType} is not present");
 							return default;
 						}
 					}
 					else
 					{
 						//match by index or name
-						Log(() => "Try Match by Name");
+						Log(parserOptions, () => "Try Match by Name");
 						//match by name
 						var index = 0;
 						match = templateArguments.FirstOrDefault(e =>
@@ -659,7 +667,7 @@ namespace Morestachio.Formatter.Framework
 						}
 						else
 						{
-							Log(() => "Try Match by Index");
+							Log(parserOptions, () => "Try Match by Index");
 							//match by index
 							index = 0;
 							match = templateArguments.FirstOrDefault(g => index++ == parameter.Index);
@@ -681,8 +689,8 @@ namespace Morestachio.Formatter.Framework
 								}
 								else
 								{
-									Log(() =>
-										$"Skip: Could not match the parameter at index '{parameter.Index}' nether by name nor by index");
+									Log(parserOptions, () =>
+										 $"Skip: Could not match the parameter at index '{parameter.Index}' nether by name nor by index");
 									return default;
 								}
 							}
@@ -694,7 +702,7 @@ namespace Morestachio.Formatter.Framework
 				if (!parameter.IsOptional && !Equals(match, default(FormatterArgumentType)))
 				{
 					var converterFunction =
-						PrepareComposeArgumentValue(parameter, i, services, match.Type, out var success);
+						PrepareComposeArgumentValue(parameter, i, services, match.Type, out var success, parserOptions);
 					if (!success)
 					{
 						return default;
@@ -729,7 +737,7 @@ namespace Morestachio.Formatter.Framework
 			}
 
 
-			Log(() => $"Match Rest argument '{hasRest.ParameterType}'");
+			Log(parserOptions, () => $"Match Rest argument '{hasRest.ParameterType}'");
 			//return default;
 
 			//{{"test", Buffer.X, "1"}}
@@ -794,7 +802,7 @@ namespace Morestachio.Formatter.Framework
 			}
 			else
 			{
-				Log(() => $"Skip: Match is Invalid because  '{hasRest.ParameterType}' is no supported rest parameter");
+				Log(parserOptions, () => $"Skip: Match is Invalid because '{hasRest.ParameterType}' is no supported rest parameter. Only params object[] is supported as an rest parameter");
 				//unknown type in params argument cannot call
 				return default;
 			}
@@ -810,7 +818,8 @@ namespace Morestachio.Formatter.Framework
 			int argumentIndex,
 			ServiceCollection services,
 			Type givenType,
-			out bool success)
+			out bool success,
+			ParserOptions parserOptions)
 		{
 			var parameterParameterType = parameter.ParameterType;
 			if (parameterParameterType.IsConstructedGenericType)
@@ -896,8 +905,8 @@ namespace Morestachio.Formatter.Framework
 				}
 				else
 				{
-					Log(() =>
-						$"Skip: Match is Invalid because type at {argumentIndex} of '{parameterParameterType.Name}' was not expected. Abort.");
+					Log(parserOptions, () =>
+						 $"Skip: Match is Invalid because type at {argumentIndex} of '{parameterParameterType.Name}' was not expected. Abort.");
 					//The type in the template and the type defined in the formatter do not match. Abort	
 
 					success = false;
