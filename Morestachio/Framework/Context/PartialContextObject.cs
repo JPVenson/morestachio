@@ -25,7 +25,7 @@ namespace Morestachio.Framework.Context
 				return null;
 			}
 			object value = null;
-			if (currentElement.Key.Equals("$first"))
+			if (currentElement.Key.Equals("$recursion"))
 			{
 				value = scopeData.PartialDepth.Count;
 			}

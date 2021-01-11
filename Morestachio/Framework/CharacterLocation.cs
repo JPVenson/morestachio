@@ -7,7 +7,7 @@ namespace Morestachio.Framework
 	/// <summary>
 	///		Describes an Position within the Template
 	/// </summary>
-	public struct CharacterLocation : IEquatable<CharacterLocation>, IComparable<CharacterLocation>
+	public readonly struct CharacterLocation : IEquatable<CharacterLocation>, IComparable<CharacterLocation>
 	{
 		/// <summary>
 		/// 
