@@ -9,10 +9,13 @@
       net471;
       net472;
     </TargetFrameworks>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageTags>Formatter, C#, Engine, NetStandard</PackageTags>
     <Description>A powerfull c# infused templating engine.</Description>
     <PackageReleaseNotes>Several Bugfixes and Formatter refactoring</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" >
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
