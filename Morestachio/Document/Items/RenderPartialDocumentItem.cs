@@ -145,11 +145,11 @@ namespace Morestachio.Document.Items
 				MorestachioDocumentInfo partialFromStore;
 				if (context.Options.PartialsStore is IAsyncPartialsStore asyncPs)
 				{
-					partialFromStore = await asyncPs.GetPartialAsync(partialName);
+					partialFromStore = await asyncPs.GetPartialAsync(partialName, context.Options);
 				}
 				else
 				{
-					partialFromStore = context.Options.PartialsStore.GetPartial(partialName);
+					partialFromStore = context.Options.PartialsStore.GetPartial(partialName, context.Options);
 				}
 
 				if (partialFromStore != null)

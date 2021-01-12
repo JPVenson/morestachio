@@ -208,7 +208,7 @@ namespace Morestachio.Framework.Tokenizing
 			var templateString = parserOptions.Template;
 
 			var scopestack = new Stack<ScopeStackItem>();
-			var partialsNames = new List<string>(parserOptions.PartialsStore?.GetNames() ?? new string[0]);
+			var partialsNames = new List<string>(parserOptions.PartialsStore?.GetNames(parserOptions) ?? new string[0]);
 			context.SetLocation(0);
 			var tokens = new List<TokenPair>();
 			var tokenOptions = new List<ITokenOption>();

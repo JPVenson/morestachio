@@ -42,7 +42,6 @@ namespace Morestachio.Document.Items.SwitchCase
 		}
 		
 		/// <inheritdoc />
-		
 		protected SwitchDefaultDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}

@@ -1,4 +1,7 @@
-﻿using Morestachio.Util.Sealing;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using Morestachio.Util.Sealing;
 
 #if ValueTask
 using DocumentInfoPromise = System.Threading.Tasks.ValueTask<Morestachio.MorestachioDocumentInfo>;
@@ -16,27 +19,60 @@ namespace Morestachio.Framework
 	public interface IPartialsStore : ISealed
 	{
 		/// <summary>
-		///		Adds the Parsed Partial to the store
-		/// </summary>
-		void AddParsedPartial(MorestachioDocumentInfo document, string name);
-
-		/// <summary>
-		///		Removes the Partial from the List of Known Partials
-		/// </summary>
-		/// <param name="name"></param>
-		void RemovePartial(string name);
-
-		/// <summary>
 		///		Obtains the Partial if known
 		/// </summary>
-		/// <param name="name"></param>
-		 MorestachioDocumentInfo GetPartial(string name);
+		MorestachioDocumentInfo GetPartial(string name, ParserOptions parserOptions);
 
 		/// <summary>
 		///		Gets the list of all known partials
 		/// </summary>
-		string[] GetNames();
+		string[] GetNames(ParserOptions parserOptions);
 	}
+	
+	/// <inheritdoc />
+	public class ListPartialsStore : IPartialsStore
+	{
+		/// <summary>
+		///		Creates a new Instance that can hold multiple partials
+		/// </summary>
+		public ListPartialsStore()
+		{
+			Partials = new Dictionary<string, MorestachioDocumentInfo>();
+		}
+
+		/// <summary>
+		///		The Partials that are accessible from this Store
+		/// </summary>
+		public IDictionary<string, MorestachioDocumentInfo> Partials { get; private set; }
+
+		/// <inheritdoc />
+		public bool IsSealed { get; private set; }
+		
+		/// <inheritdoc />
+		public void Seal()
+		{
+			IsSealed = true;
+			Partials = new ReadOnlyDictionary<string, MorestachioDocumentInfo>(Partials);
+		}
+		
+		/// <inheritdoc />
+		public MorestachioDocumentInfo GetPartial(string name, ParserOptions parserOptions)
+		{
+			if (Partials.TryGetValue(name, out var documentInfo))
+			{
+				return documentInfo;
+			}
+
+			return null;
+		}
+		
+		/// <inheritdoc />
+		public string[] GetNames(ParserOptions parserOptions)
+		{
+			return Partials.Keys.ToArray();
+		}
+	}
+
 	/// <summary>
 	///		Allows to store Partials for multiple Runs
 	/// </summary>
@@ -46,11 +82,11 @@ namespace Morestachio.Framework
 		///		Obtains the Partial if known
 		/// </summary>
 		/// <param name="name"></param>
-		 DocumentInfoPromise GetPartialAsync(string name);
+		DocumentInfoPromise GetPartialAsync(string name, ParserOptions parserOptions);
 
 		/// <summary>
 		///		Gets the list of all known partials
 		/// </summary>
-		StringArrayPromise GetNamesAsync();
+		StringArrayPromise GetNamesAsync(ParserOptions parserOptions);
 	}
 }
