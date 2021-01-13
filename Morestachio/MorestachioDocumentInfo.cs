@@ -6,8 +6,6 @@ using Morestachio.Document;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items;
 using Morestachio.Fluent;
-using Morestachio.Framework.Context;
-using Morestachio.Framework.IO;
 using Morestachio.Helper;
 using Morestachio.Parsing.ParserErrors;
 using Morestachio.Profiler;
@@ -18,42 +16,11 @@ using Promise = System.Threading.Tasks.ValueTask;
 #else
 using MorestachioDocumentResultPromise = System.Threading.Tasks.Task<Morestachio.MorestachioDocumentResult>;
 using StringPromise = System.Threading.Tasks.Task<string>;
-using Promise = System.Threading.Tasks.Task;
+
 #endif
 
 namespace Morestachio
 {
-	/// <summary>
-	///		Delegate for the result of an Compile() call
-	/// </summary>
-	/// <param name="data"></param>
-	/// <param name="cancellationToken"></param>
-	/// <returns></returns>
-	public delegate MorestachioDocumentResultPromise CompilationResult(object data, CancellationToken cancellationToken);
-
-	/// <summary>
-	///		Delegate for the result of an Compile() call of an <see cref="IDocumentItem"/> that implements <see cref="ISupportCustomCompilation"/>
-	/// </summary>
-	/// <param name="outputStream"></param>
-	/// <param name="context"></param>
-	/// <param name="scopeData"></param>
-	/// <returns></returns>
-	public delegate Promise Compilation(IByteCounterStream outputStream,
-		ContextObject context,
-		ScopeData scopeData);
-
-	/// <summary>
-	///		Declares an IDocumentItem to support Delegate generation
-	/// </summary>
-	public interface ISupportCustomCompilation
-	{
-		/// <summary>
-		///		Should return a delegate for performing the main rendering task
-		/// </summary>
-		/// <returns></returns>
-		Compilation Compile();
-	}
-
 	/// <summary>
 	///     Provided when parsing a template and getting information about the embedded variables.
 	/// </summary>

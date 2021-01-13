@@ -15,7 +15,6 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
-using Morestachio.Helper;
 
 namespace Morestachio.Document.Items
 {
@@ -88,31 +87,6 @@ namespace Morestachio.Document.Items
 		public override void Accept(IDocumentItemVisitor visitor)
 		{
 			visitor.Visit(this);
-		}
-	}
-
-	/// <summary>
-	///		Virtual document item for setting the <see cref="ScopeData.ExecuteElse"/> flag to false
-	/// </summary>
-	public class IfExpressionScopeEndDocumentItem : DocumentItemBase
-	{
-		/// <inheritdoc />
-		public IfExpressionScopeEndDocumentItem()
-		{
-			
-		}
-		
-		/// <inheritdoc />
-		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
-		{
-			scopeData.ExecuteElse = false;
-			return Enumerable.Empty<DocumentItemExecution>().ToPromise();
-		}
-		
-		/// <inheritdoc />
-		public override void Accept(IDocumentItemVisitor visitor)
-		{
-			throw new NotImplementedException();
 		}
 	}
 }

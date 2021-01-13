@@ -42,12 +42,4 @@ namespace Morestachio.Framework.Expression
 		/// <param name="visitor"></param>
 		void Accept(IMorestachioExpressionVisitor visitor);
 	}
-
-	/// <summary>
-	///		Defines a Delegate that contains the logic for an expression
-	/// </summary>
-	/// <param name="contextObject"></param>
-	/// <param name="scopeData"></param>
-	/// <returns></returns>
-	public delegate ContextObjectPromise CompiledExpression(ContextObject contextObject, ScopeData scopeData);
 }

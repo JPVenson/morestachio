@@ -6,24 +6,18 @@ using System.Xml.Schema;
 namespace Morestachio.Document.TextOperations
 {
 	/// <summary>
-	///		Adds one LineBreak
+	///		Trims all Whitespaces from a content
 	/// </summary>
-	[Serializable]
-	public class AppendLineBreakTextOperation : ITextOperation
+	public class TrimAllWhitespacesTextOperation : ITextOperation
 	{
 		/// <summary>
 		/// 
 		/// </summary>
-		public AppendLineBreakTextOperation()
+		public TrimAllWhitespacesTextOperation()
 		{
-			TransientEdit = true;
-			IsModificator = false;
-			TextOperationType = TextOperationTypes.LineBreak;
-		}
-
-		/// <inheritdoc />
-		protected AppendLineBreakTextOperation(SerializationInfo info, StreamingContext c) : this()
-		{
+			TextOperationType = TextOperationTypes.ContinuesTrimming;
+			TransientEdit = false;
+			IsModificator = true;
 		}
 		
 		/// <inheritdoc />
@@ -43,23 +37,28 @@ namespace Morestachio.Document.TextOperations
 		}
 		
 		/// <inheritdoc />
-		public TextOperationTypes TextOperationType { get; }
-		
-		/// <inheritdoc />
-		public bool TransientEdit { get; }
-		
-		/// <inheritdoc />
-		public bool IsModificator { get; }
-		
-		/// <inheritdoc />
-		public string Apply(string value)
+		public void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
-			return value + Environment.NewLine;
 		}
 		
 		/// <inheritdoc />
-		public void GetObjectData(SerializationInfo info, StreamingContext context)
+		public TextOperationTypes TextOperationType { get; }
+		/// <inheritdoc />
+		public bool TransientEdit { get; }
+		/// <inheritdoc />
+		public bool IsModificator { get; }
+		/// <inheritdoc />
+		public string Apply(string value)
 		{
+			var lines = value.Split('\n');
+			var nLines = new string[lines.Length];
+			for (var index = 0; index < lines.Length; index++)
+			{
+				var line = lines[index];
+				nLines[index] = line.TrimStart('\t');
+			}
+
+			return string.Join("", nLines);
 		}
 	}
 }

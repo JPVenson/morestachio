@@ -164,42 +164,4 @@ namespace Morestachio.Document.TextOperations
 			return string.Empty;
 		}
 	}
-
-	/// <summary>
-	///		Indicates the position of where the linebreaks should be removed with the <see cref="TrimLineBreakTextOperation"/>
-	/// </summary>
-	[Flags]
-	public enum LineBreakTrimDirection
-	{
-		/// <summary>
-		///		Default none
-		/// </summary>
-		None = 0,
-		/// <summary>
-		///		Should trim all linebreaks at the start of the next content
-		/// </summary>
-		Begin = 1 << 0,
-
-		/// <summary>
-		///		Should tirm all linebreaks at the end of the next content
-		/// </summary>
-		End = 1 << 1
-	}
-
-	/// <summary>
-	/// 
-	/// </summary>
-	public static class LineBreakTrimDirectionExtensions
-	{
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="value"></param>
-		/// <param name="flag"></param>
-		/// <returns></returns>
-		public static bool HasFlagFast(this LineBreakTrimDirection value, LineBreakTrimDirection flag)
-		{
-			return (value & flag) != 0;
-		}
-	}
 }
