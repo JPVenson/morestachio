@@ -1899,6 +1899,39 @@ Static
 			Assert.That(result, Is.EqualTo(@"PreText [Unknown Tag '#UnknownTag #AnyValue BLA'] Subtext"));
 		}
 
+		[Test]
+		public async Task TestInstanceMethods()
+		{
+			var template = @"V: {{data.Value}}{{data.Increment()}}|{{data.Value}}{{data.Decrement()}}|{{data.Value}}";
+			var data = new
+			{
+				data = new DirectLinkedFormatter()
+			};
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.Formatters.AddFromType<DirectLinkedFormatter>();
+			});
+			Assert.That(result, Is.EqualTo(@"V: 0|1|0"));
+		}
+		
+		private class DirectLinkedFormatter
+		{
+			public int Value { get; set; }
+			
+			[MorestachioFormatter("Increment", "XXX")]
+			public void Increment()
+			{
+				Value++;
+			}
+			
+			[MorestachioFormatter("Decrement", "XXX")]
+			public void Decrement()
+			{
+				Value--;
+			}
+		}
+
 		private class CollectionContextInfo
 		{
 			public int IndexProp { private get; set; }

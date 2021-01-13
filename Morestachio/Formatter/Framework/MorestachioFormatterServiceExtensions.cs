@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Morestachio.Formatter.Framework.Attributes;
 
@@ -25,6 +27,21 @@ namespace Morestachio.Formatter.Framework
 						continue;
 					}
 
+					service.Add(method, morestachioFormatterAttribute);
+				}
+			}
+			foreach (var method in type.GetMethods(BindingFlags.Instance | BindingFlags.Public))
+			{
+				var hasFormatterAttr = method.GetCustomAttributes<MorestachioFormatterAttribute>();
+				foreach (var morestachioFormatterAttribute in hasFormatterAttr)
+				{
+					if (morestachioFormatterAttribute == null)
+					{
+						continue;
+					}
+
+					morestachioFormatterAttribute.LinkFunctionTarget = true;
+					morestachioFormatterAttribute.IsSourceObjectAware = false;
 					service.Add(method, morestachioFormatterAttribute);
 				}
 			}

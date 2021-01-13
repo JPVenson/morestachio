@@ -81,7 +81,7 @@ namespace Morestachio.Document.Custom
 				visitor.StringBuilder.Append("{{");
 				visitor.CheckForInlineTagLineBreakAtStart(this);
 				visitor.StringBuilder.Append(TagKeyword);
-				if (Value != null)
+				if (!string.IsNullOrWhiteSpace(Value))
 				{
 					visitor.StringBuilder.Append(" ");
 					visitor.StringBuilder.Append(Value);

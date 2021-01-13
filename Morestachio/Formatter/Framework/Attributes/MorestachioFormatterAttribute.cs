@@ -22,7 +22,7 @@ namespace Morestachio.Formatter.Framework.Attributes
 			Description = description;
 			IsSourceObjectAware = true;
 		}
-
+		
 		/// <summary>
 		///		Gets or Sets whoever an Formatter should apply the <see cref="SourceObjectAttribute"/> to its first argument if not anywhere else present
 		/// <para>If its set to true and no argument has an <see cref="SourceObjectAttribute"/>, the first argument will be used to determinate the source value</para>
@@ -56,6 +56,11 @@ namespace Morestachio.Formatter.Framework.Attributes
 		/// The type of the output.
 		/// </value>
 		public Type OutputType { get; set; }
+
+		/// <summary>
+		///		When enabled the Method info is invoked on the given object
+		/// </summary>
+		public bool LinkFunctionTarget { get; set; }
 
 		/// <summary>
 		///		Validates the name of the formatter

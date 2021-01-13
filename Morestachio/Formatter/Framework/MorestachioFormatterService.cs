@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -151,7 +152,8 @@ namespace Morestachio.Formatter.Framework
 				morestachioFormatterAttribute.ReturnHint,
 				method,
 				new MultiFormatterInfoCollection(arguments),
-				!morestachioFormatterAttribute.IsSourceObjectAware);
+				!morestachioFormatterAttribute.IsSourceObjectAware,
+				morestachioFormatterAttribute.LinkFunctionTarget);
 			var name = morestachioFormatterAttribute.Name ?? "{NULL}";
 
 			if (!Formatters.TryGetValue(name, out var formatters))
@@ -258,7 +260,7 @@ namespace Morestachio.Formatter.Framework
 		/// </summary>
 		public virtual async ObjectPromise Execute(
 			FormatterCache formatter,
-			object sourceType,
+			object sourceValue,
 			ParserOptions parserOptions,
 			FormatterArgumentType[] args)
 		{
@@ -269,7 +271,7 @@ namespace Morestachio.Formatter.Framework
 			var i = 0;
 			foreach (var formatterArgumentMap in formatter.TestedTypes.Arguments)
 			{
-				var valueObtainValue = formatterArgumentMap.Value.ObtainValue(sourceType, args);
+				var valueObtainValue = formatterArgumentMap.Value.ObtainValue(sourceValue, args);
 				if (formatterArgumentMap.Value.ConverterFunc != null)
 				{
 					var convValue = formatterArgumentMap.Value.ConverterFunc(valueObtainValue);
@@ -280,10 +282,16 @@ namespace Morestachio.Formatter.Framework
 
 			try
 			{
-				var taskAlike = formatter.TestedTypes.PrepareInvoke(mapedValues)
-					.Invoke(
-						formatter.Model.FunctionTarget,
-						mapedValues);
+				var functionTarget = formatter.Model.FunctionTarget;
+				var method = formatter.TestedTypes.PrepareInvoke(mapedValues);
+
+				if (formatter.Model.LinkFunctionTarget && !method.IsStatic &&
+				    method.DeclaringType == sourceValue.GetType())
+				{
+					functionTarget = sourceValue;
+				}
+
+				var taskAlike = method.Invoke(functionTarget, mapedValues);
 				return await taskAlike.UnpackFormatterTask();
 			}
 			catch (Exception e)
@@ -303,12 +311,8 @@ namespace Morestachio.Formatter.Framework
 		}
 
 		/// <summary>
-		///		
+		///		Gets all formatter that are invokable with on the given type and with the arguments.
 		/// </summary>
-		/// <param name="typeToFormat"></param>
-		/// <param name="arguments"></param>
-		/// <param name="name"></param>
-		/// <returns></returns>
 		public virtual IEnumerable<MorestachioFormatterModel> PrepareGetMatchingFormatterOn(
 			 Type typeToFormat,
 			 FormatterArgumentType[] arguments,
@@ -318,13 +322,14 @@ namespace Morestachio.Formatter.Framework
 			Log(parserOptions, () => $"Lookup formatter for type {typeToFormat} with name {name}", 
 				() => arguments.ToDictionary(e => e.Name, e => (object)e));
 
-			var filteredSourceList = new List<KeyValuePair<MorestachioFormatterModel, ulong>>();
-			if (!Formatters.TryGetValue(name ?? "{NULL}", out var formatters))
+			IList<MorestachioFormatterModel> formatters = null;
+			if (!Formatters.TryGetValue(name ?? "{NULL}", out formatters))
 			{
 				Log(parserOptions, () => $"There are no formatters for the name {name}");
 				return Enumerable.Empty<MorestachioFormatterModel>();
 			}
-
+			
+			var filteredSourceList = new List<KeyValuePair<MorestachioFormatterModel, ulong>>();
 			foreach (var formatTemplateElement in formatters)
 			{
 				Log(parserOptions, () => $"Test formatter input type: '{formatTemplateElement.InputType}' on formatter named '{formatTemplateElement.Function.Name}'");

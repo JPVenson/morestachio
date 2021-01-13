@@ -83,7 +83,7 @@ namespace Morestachio.Formatter.Framework
 		/// </summary>
 		ObjectPromise Execute(
 			FormatterCache formatter,
-			object sourceType,
+			object sourceValue,
 			ParserOptions parserOptions,
 			FormatterArgumentType[] args);
 
