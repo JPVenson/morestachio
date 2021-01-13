@@ -1,7 +1,11 @@
 ﻿using System.Threading.Tasks;
 using Morestachio.Document;
 using Morestachio.Framework.Context;
-
+#if ValueTask
+using ContextObjectPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.Context.ContextObject>;
+#else
+using ContextObjectPromise = System.Threading.Tasks.Task<Morestachio.Framework.Context.ContextObject>;
+#endif
 namespace Morestachio.Framework.Expression
 {
 	/// <summary>
@@ -10,5 +14,5 @@ namespace Morestachio.Framework.Expression
 	/// <param name="contextObject"></param>
 	/// <param name="scopeData"></param>
 	/// <returns></returns>
-	public delegate Task<ContextObject> CompiledExpression(ContextObject contextObject, ScopeData scopeData);
+	public delegate ContextObjectPromise CompiledExpression(ContextObject contextObject, ScopeData scopeData);
 }

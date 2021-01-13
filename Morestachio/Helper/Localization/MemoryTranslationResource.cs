@@ -2,6 +2,11 @@
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+#if ValueTask
+using BoolPromise = System.Threading.Tasks.ValueTask<bool>;
+#else
+using BoolPromise = System.Threading.Tasks.Task<bool>;
+#endif
 
 namespace Morestachio.Helper.Localization
 {
@@ -56,7 +61,7 @@ namespace Morestachio.Helper.Localization
 		}
 		
 		/// <inheritdoc />
-		public Task<bool> GetTranslation(string key, CultureInfo culture, out object translation)
+		public BoolPromise GetTranslation(string key, CultureInfo culture, out object translation)
 		{
 			var firstOrDefault = Translations.FirstOrDefault(e => e.Key == key && Equals(e.Culture, culture));
 			translation = firstOrDefault

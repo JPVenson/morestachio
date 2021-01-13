@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Framework.Attributes;
 
 namespace Morestachio.Formatter.Predefined
@@ -47,5 +49,15 @@ namespace Morestachio.Formatter.Predefined
 			sourceCollection.RemoveAt(index);
 			return sourceCollection;
 		}
+
+		[MorestachioGlobalFormatter("ToList", "Gets any number of elements and returns a new list containing those elements")]
+		public static IList<T> RemoveAt<T>(params object[] items)
+		{
+			var itemsList = new List<T>();
+			itemsList.AddRange(items.OfType<T>());
+			return itemsList;
+		}
+
+
 	}
 }

@@ -4,13 +4,15 @@ using System.Linq;
 
 namespace Morestachio.Framework
 {
-	/// <inheritdoc />
-	public class ListPartialsStore : IPartialsStore
+	/// <summary>
+	///		A partial store that holds any number of precompiled partials in its <see cref="Partials"/> dictionary
+	/// </summary>
+	public class DefaultPartialsStore : IPartialsStore
 	{
 		/// <summary>
 		///		Creates a new Instance that can hold multiple partials
 		/// </summary>
-		public ListPartialsStore()
+		public DefaultPartialsStore()
 		{
 			Partials = new Dictionary<string, MorestachioDocumentInfo>();
 		}

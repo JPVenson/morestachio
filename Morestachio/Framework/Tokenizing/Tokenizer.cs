@@ -208,7 +208,21 @@ namespace Morestachio.Framework.Tokenizing
 			var templateString = parserOptions.Template;
 
 			var scopestack = new Stack<ScopeStackItem>();
-			var partialsNames = new List<string>(parserOptions.PartialsStore?.GetNames(parserOptions) ?? new string[0]);
+			List<string> partialsNames;
+
+			if (parserOptions.PartialsStore is IAsyncPartialsStore asyncPartialStore)
+			{
+				partialsNames = new List<string>(await asyncPartialStore.GetNamesAsync(parserOptions));
+			}
+			else if (parserOptions.PartialsStore != null)
+			{
+				partialsNames = new List<string>(parserOptions.PartialsStore.GetNames(parserOptions));
+			}
+			else
+			{
+				partialsNames = new List<string>(Enumerable.Empty<string>());
+			}
+
 			context.SetLocation(0);
 			var tokens = new List<TokenPair>();
 			var tokenOptions = new List<ITokenOption>();

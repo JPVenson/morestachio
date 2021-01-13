@@ -27,9 +27,7 @@ namespace Morestachio
 
 	public class ParserOptions : SealedBase
 	{
-
 		private IMorestachioFormatterService _formatters;
-
 		private SealableList<CustomDocumentItemProvider> _customDocumentItemProviders;
 		private IPartialsStore _partialsStore;
 		private bool _profileExecution;
@@ -473,6 +471,36 @@ namespace Morestachio
 		}
 
 		/// <summary>
+		///		Copies all values from one parser options to a new instance
+		/// </summary>
+		/// <returns></returns>
+		public ParserOptions Copy()
+		{
+			return new ParserOptions()
+			{
+				Logger = Logger,
+				Formatters = Formatters,
+				_customDocumentItemProviders = _customDocumentItemProviders,
+				CultureInfo = CultureInfo,
+				DisableContentEscaping = DisableContentEscaping,
+				Encoding = Encoding,
+				HandleDictionaryAsObject = HandleDictionaryAsObject,
+				MaxSize = MaxSize,
+				Null = Null,
+				PartialStackSize = PartialStackSize,
+				PartialsStore = PartialsStore,
+				ProfileExecution = ProfileExecution,
+				ScopingBehavior = ScopingBehavior,
+				StackOverflowBehavior = StackOverflowBehavior,
+				StreamFactory = StreamFactory,
+				Template = Template,
+				Timeout = Timeout,
+				UnmatchedFormatterBehavior = UnmatchedFormatterBehavior,
+				ValueResolver = ValueResolver
+			};
+		}
+
+		/// <summary>
 		///		Allows the creation of an custom Context object
 		/// </summary>
 		/// <param name="key"></param>
@@ -480,7 +508,6 @@ namespace Morestachio
 		/// <param name="value"></param>
 		/// <param name="parent"></param>
 		/// <returns></returns>
-
 		public virtual ContextObject CreateContextObject(string key,
 			CancellationToken token,
 			object value,

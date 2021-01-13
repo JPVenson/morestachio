@@ -8,6 +8,11 @@ using Morestachio.Document.Visitor;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Helper;
+#if ValueTask
+using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+#else
+using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
+#endif
 
 namespace Morestachio.Document.Items
 {
@@ -23,7 +28,7 @@ namespace Morestachio.Document.Items
 		}
 		
 		/// <inheritdoc />
-		public override Task<IEnumerable<DocumentItemExecution>> Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
 			scopeData.ExecuteElse = false;
 			return Enumerable.Empty<DocumentItemExecution>().ToPromise();
