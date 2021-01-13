@@ -3,12 +3,19 @@ using System.Collections.Generic;
 
 namespace Morestachio.Framework.Tokenizing
 {
+	/// <summary>
+	///		Ring buffer with fixed array
+	/// </summary>
 	public class MorestachioDefaultRollingArray : RollingArray<char>
 	{
+		/// <summary>
+		/// 
+		/// </summary>
 		public MorestachioDefaultRollingArray() : base(3)
 		{
 		}
 
+		/// <inheritdoc />
 		public override bool EndsWith(char[] elements, IEqualityComparer<char> comparer = null)
 		{
 			if (elements.Length > Buffer.Length)

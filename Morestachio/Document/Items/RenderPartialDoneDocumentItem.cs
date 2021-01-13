@@ -69,12 +69,14 @@ namespace Morestachio.Document.Items
 		{
 			visitor.Visit(this);
 		}
-
+		
+		/// <inheritdoc />
 		public Compilation Compile()
 		{
 			return async (stream, context, scopeData) =>
 			{
 				CoreAction(scopeData);
+				await AsyncHelper.FakePromise();
 			};
 		}
 	}

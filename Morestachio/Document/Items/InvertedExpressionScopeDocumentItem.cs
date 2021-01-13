@@ -40,11 +40,11 @@ namespace Morestachio.Document.Items
 		}
 		
 		/// <inheritdoc />
-		
 		protected InvertedExpressionScopeDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}
-
+		
+		/// <inheritdoc />
 		public Compilation Compile()
 		{
 			var children = MorestachioDocument.CompileItemsAndChildren(Children);

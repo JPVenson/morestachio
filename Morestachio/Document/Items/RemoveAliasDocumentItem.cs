@@ -78,12 +78,14 @@ namespace Morestachio.Document.Items
 			IdVariableScope = intVarScope;
 			base.DeSerializeXml(reader);
 		}
-
+		
+		/// <inheritdoc />
 		public Compilation Compile()
 		{
 			return async (stream, context, scopeData) =>
 			{
 				scopeData.RemoveVariable(Value, IdVariableScope);
+				await AsyncHelper.FakePromise();
 			};
 		}
 

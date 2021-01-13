@@ -79,6 +79,7 @@ namespace Morestachio.Document.Items
 			base.DeSerializeXml(reader);
 		}
 
+		/// <inheritdoc />
 		public Compilation Compile()
 		{
 			var children = MorestachioDocument.CompileItemsAndChildren(Children);

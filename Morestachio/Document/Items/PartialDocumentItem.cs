@@ -99,6 +99,7 @@ namespace Morestachio.Document.Items
 			return async (stream, context, scopeData) =>
 			{
 				scopeData.CompiledPartials[Value] = children;
+				await AsyncHelper.FakePromise();
 			};
 		}
 

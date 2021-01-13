@@ -49,7 +49,8 @@ namespace Morestachio.Document.Items
 		{
 
 		}
-
+		
+		/// <inheritdoc />
 		public Compilation Compile()
 		{
 			var children = MorestachioDocument.CompileItemsAndChildren(Children);

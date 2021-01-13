@@ -14,9 +14,24 @@ namespace Morestachio.Helper.Logging
 		/// </summary>
 		public static string[] FrameworkEventIds { get; } = new[] { FormatterObsoleteEventId, ParserEventId, TokenizerEventId, FormatterServiceId };
 
+		/// <summary>
+		///		The event ID for an obsolete formatter 
+		/// </summary>
 		public static readonly string FormatterObsoleteEventId = "Formatter-Obsolete";
+
+		/// <summary>
+		///		The event ID for an parser event
+		/// </summary>
 		public static readonly string ParserEventId = "Parser";
+		
+		/// <summary>
+		///		The event ID for an tokenizer event
+		/// </summary>
 		public static readonly string TokenizerEventId = "Tokenizer";
+
+		/// <summary>
+		///		The event ID for an <see cref="MorestachioFormatterService"/> event
+		/// </summary>
 		public static readonly string FormatterServiceId = "FormatterService";
 
 		/// <summary>

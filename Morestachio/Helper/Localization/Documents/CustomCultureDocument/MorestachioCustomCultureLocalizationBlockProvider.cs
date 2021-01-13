@@ -18,7 +18,15 @@ namespace Morestachio.Helper.Localization.Documents.CustomCultureDocument
 		{
 		}
 		
+		/// <summary>
+		///		The opening tag of <see cref="MorestachioCustomCultureLocalizationDocumentItem"/>
+		/// </summary>
 		public const string OpenTag = "#LocCulture ";
+
+		
+		/// <summary>
+		///		The closing tag of <see cref="MorestachioCustomCultureLocalizationDocumentItem"/>
+		/// </summary>
 		public const string CloseTag = "/LocCulture";
 
 		/// <inheritdoc />

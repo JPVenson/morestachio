@@ -46,7 +46,8 @@ namespace Morestachio.Document.Items
 		protected IfExpressionScopeDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}
-
+		
+		/// <inheritdoc />
 		public Compilation Compile()
 		{
 			var children = MorestachioDocument.CompileItemsAndChildren(Children);
@@ -95,17 +96,20 @@ namespace Morestachio.Document.Items
 	/// </summary>
 	public class IfExpressionScopeEndDocumentItem : DocumentItemBase
 	{
+		/// <inheritdoc />
 		public IfExpressionScopeEndDocumentItem()
 		{
 			
 		}
-
+		
+		/// <inheritdoc />
 		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
 			scopeData.ExecuteElse = false;
 			return Enumerable.Empty<DocumentItemExecution>().ToPromise();
 		}
-
+		
+		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)
 		{
 			throw new NotImplementedException();

@@ -25,7 +25,7 @@ namespace Morestachio.Document.Items
 	/// <summary>
 	///		Repeats the template a number of times
 	/// </summary>
-	[System.Serializable]
+	[Serializable]
 	public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomCompilation
 	{
 		internal RepeatDocumentItem()
@@ -48,7 +48,8 @@ namespace Morestachio.Document.Items
 		{
 
 		}
-
+		
+		/// <inheritdoc />
 		public Compilation Compile()
 		{
 			var children = MorestachioDocument.CompileItemsAndChildren(Children);
@@ -76,7 +77,7 @@ namespace Morestachio.Document.Items
 						string.Format(
 							"{1}'{0}' is expected to return a integral number but did not." +
 							" Complete Expression until Error:{2}",
-							MorestachioExpression.ToString(), base.ExpressionStart,
+							MorestachioExpression, base.ExpressionStart,
 							(path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 				}
 
@@ -112,7 +113,7 @@ namespace Morestachio.Document.Items
 
 				throw new IndexedParseException(CharacterLocationExtended.Empty, 
 					string.Format("{1}'{0}' is expected to return a integral number but did not." + " Complete Expression until Error:{2}",
-						MorestachioExpression.ToString(), base.ExpressionStart, (path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
+						MorestachioExpression, ExpressionStart, (path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 			}
 
 			var nr = new Number(c.Value as IConvertible);

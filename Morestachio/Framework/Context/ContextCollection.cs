@@ -37,6 +37,10 @@ namespace Morestachio.Framework.Context
 		/// </summary>
 		public bool Last { get; internal set; }
 
+		/// <summary>
+		///		Gets all variables and delegates for the context collection
+		/// </summary>
+		/// <returns></returns>
 		public static IEnumerable<KeyValuePair<string, Func<ContextCollection, object>>> GetVariables()
 		{
 			yield return new KeyValuePair<string, Func<ContextCollection, object>>("$first", context => context.Index == 0);

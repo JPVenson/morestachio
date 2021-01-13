@@ -49,12 +49,14 @@ namespace Morestachio.Document.Items
 		protected ContentDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}
-
+		
+		/// <inheritdoc />
 		public Compilation Compile()
 		{
 			return async (stream, context, scopeData) =>
 			{
 				CoreAction(stream, scopeData);
+				await AsyncHelper.FakePromise();
 			};
 		}
 		

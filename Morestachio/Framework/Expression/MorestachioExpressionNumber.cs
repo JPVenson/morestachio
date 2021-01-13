@@ -143,7 +143,8 @@ namespace Morestachio.Framework.Expression
 			return contextObject.Options.CreateContextObject(".", contextObject.CancellationToken, Number,
 				contextObject).ToPromise();
 		}
-
+		
+		/// <inheritdoc />
 		public CompiledExpression Compile()
 		{
 			return (contextObject, data) => contextObject.Options.CreateContextObject(".",

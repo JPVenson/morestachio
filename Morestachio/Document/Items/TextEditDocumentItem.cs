@@ -51,7 +51,7 @@ namespace Morestachio.Document.Items
 			 ITextOperation operation,
 			EmbeddedInstructionOrigin embeddedInstructionOrigin,
 			IEnumerable<ITokenOption> tagCreationOptions)
-			: base(location, (IEnumerable<ITokenOption>) tagCreationOptions)
+			: base(location, tagCreationOptions)
 		{
 			Operation = operation ?? throw new ArgumentNullException(nameof(operation));
 			EmbeddedInstructionOrigin = embeddedInstructionOrigin;
@@ -64,12 +64,14 @@ namespace Morestachio.Document.Items
 			EmbeddedInstructionOrigin = (EmbeddedInstructionOrigin)info.GetValue(nameof(EmbeddedInstructionOrigin), typeof(EmbeddedInstructionOrigin));
 			Operation = info.GetValue(nameof(Operation), typeof(ITextOperation)) as ITextOperation;
 		}
-
+		
+		/// <inheritdoc />
 		public Compilation Compile()
 		{
 			return async (outputStream, context, scopeData) =>
 			{
 				CoreAction(outputStream, scopeData);
+				await AsyncHelper.FakePromise();
 			};
 		}
 

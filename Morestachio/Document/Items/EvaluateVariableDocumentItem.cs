@@ -99,7 +99,8 @@ namespace Morestachio.Document.Items
 			IdVariableScope = intVarScope;
 			base.DeSerializeXml(reader);
 		}
-
+		
+		/// <inheritdoc />
 		public Compilation Compile()
 		{
 			var expression = MorestachioExpression.Compile();

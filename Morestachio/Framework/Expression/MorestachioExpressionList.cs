@@ -75,6 +75,7 @@ namespace Morestachio.Framework.Expression
 			return contextObject;
 		}
 
+		/// <inheritdoc />
 		public CompiledExpression Compile()
 		{
 			var exps = Expressions.Select(f => f.Compile()).ToArray();

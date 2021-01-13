@@ -98,6 +98,11 @@ namespace Morestachio.Document.Items.Base
 			SerializeBinaryCore(info, context);
 		}
 
+		/// <summary>
+		///		Gets the desired name for xml serialization
+		/// </summary>
+		/// <param name="type"></param>
+		/// <returns></returns>
 		protected static string GetSerializedMarkerName(Type type)
 		{
 			return type.Name;
