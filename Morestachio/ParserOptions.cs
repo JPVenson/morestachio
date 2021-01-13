@@ -24,14 +24,14 @@ namespace Morestachio
 	/// <summary>
 	///     Options for Parsing run
 	/// </summary>
-	
+
 	public class ParserOptions : SealedBase
 	{
-		
+
 		private IMorestachioFormatterService _formatters;
 
 		private SealableList<CustomDocumentItemProvider> _customDocumentItemProviders;
-		 private IPartialsStore _partialsStore;
+		private IPartialsStore _partialsStore;
 		private bool _profileExecution;
 		private IValueResolver _valueResolver;
 		private CultureInfo _cultureInfo;
@@ -40,12 +40,12 @@ namespace Morestachio
 		private PartialStackOverflowBehavior _stackOverflowBehavior;
 		private UnmatchedFormatterBehavior _unmatchedFormatterBehavior;
 		private TimeSpan _timeout;
-		 private ITemplateContainer _template;
+		private ITemplateContainer _template;
 		private bool _disableContentEscaping;
 		private long _maxSize;
-		 private ByteCounterFactory _streamFactory;
-		 private Encoding _encoding;
-		 private string _null;
+		private ByteCounterFactory _streamFactory;
+		private Encoding _encoding;
+		private string _null;
 		private bool _handleDictionaryAsObject;
 		private ILogger _logger;
 
@@ -61,7 +61,7 @@ namespace Morestachio
 		///     ctor
 		/// </summary>
 		/// <param name="template"></param>
-		public ParserOptions( ITemplateContainer template)
+		public ParserOptions(ITemplateContainer template)
 			: this(template, null)
 		{
 		}
@@ -71,7 +71,7 @@ namespace Morestachio
 		/// </summary>
 		/// <param name="template"></param>
 		/// <param name="sourceStream">The factory that is used for each template generation</param>
-		public ParserOptions( ITemplateContainer template,
+		public ParserOptions(ITemplateContainer template,
 			 Func<Stream> sourceStream)
 			: this(template, sourceStream, null)
 		{
@@ -108,7 +108,7 @@ namespace Morestachio
 		/// <param name="encoding">The encoding.</param>
 		/// <param name="maxSize">The maximum size.</param>
 		/// <param name="disableContentEscaping">if set to <c>true</c> [disable content escaping].</param>
-		public ParserOptions( ITemplateContainer template,
+		public ParserOptions(ITemplateContainer template,
 			 Func<Stream> sourceStream,
 			 Encoding encoding,
 			long maxSize,
@@ -126,7 +126,7 @@ namespace Morestachio
 		/// <param name="sourceStream">The source stream.</param>
 		/// <param name="encoding">The encoding.</param>
 		/// <param name="disableContentEscaping">if set to <c>true</c> [disable content escaping].</param>
-		public ParserOptions( ITemplateContainer template,
+		public ParserOptions(ITemplateContainer template,
 			 Func<Stream> sourceStream,
 			 Encoding encoding,
 			bool disableContentEscaping = false)
@@ -138,7 +138,7 @@ namespace Morestachio
 		///     ctor
 		/// </summary>
 		/// <param name="template"></param>
-		public ParserOptions( string template)
+		public ParserOptions(string template)
 			: this(template, null)
 		{
 		}
@@ -148,7 +148,7 @@ namespace Morestachio
 		/// </summary>
 		/// <param name="template"></param>
 		/// <param name="sourceStream">The factory that is used for each template generation</param>
-		public ParserOptions( string template,
+		public ParserOptions(string template,
 			 Func<Stream> sourceStream)
 			: this(template, sourceStream, null)
 		{
@@ -160,7 +160,7 @@ namespace Morestachio
 		/// <param name="template">The template.</param>
 		/// <param name="sourceStream">The source stream.</param>
 		/// <param name="encoding">The encoding.</param>
-		public ParserOptions( string template,
+		public ParserOptions(string template,
 			 Func<Stream> sourceStream,
 			 Encoding encoding)
 		: this(new StringTemplateContainer(template), sourceStream, encoding)
@@ -175,7 +175,7 @@ namespace Morestachio
 		/// <param name="encoding">The encoding.</param>
 		/// <param name="maxSize">The maximum size.</param>
 		/// <param name="disableContentEscaping">if set to <c>true</c> [disable content escaping].</param>
-		public ParserOptions( string template,
+		public ParserOptions(string template,
 			 Func<Stream> sourceStream,
 			 Encoding encoding,
 			long maxSize,
@@ -193,7 +193,7 @@ namespace Morestachio
 		/// <param name="sourceStream">The source stream.</param>
 		/// <param name="encoding">The encoding.</param>
 		/// <param name="disableContentEscaping">if set to <c>true</c> [disable content escaping].</param>
-		public ParserOptions( string template,
+		public ParserOptions(string template,
 			 Func<Stream> sourceStream,
 			 Encoding encoding,
 			bool disableContentEscaping = false)
@@ -211,7 +211,7 @@ namespace Morestachio
 		/// <summary>
 		///		The store for PreParsed Partials
 		/// </summary>
-		
+
 		public IPartialsStore PartialsStore
 		{
 			get { return _partialsStore; }
@@ -277,7 +277,7 @@ namespace Morestachio
 		/// <summary>
 		///     Adds an Formatter overwrite or new Formatter for an Type
 		/// </summary>
-		
+
 		public IMorestachioFormatterService Formatters
 		{
 			get { return _formatters; }
@@ -362,7 +362,7 @@ namespace Morestachio
 		/// <summary>
 		///     The template content to parse.
 		/// </summary>
-		
+
 		public ITemplateContainer Template
 		{
 			get { return _template; }
@@ -405,7 +405,7 @@ namespace Morestachio
 		///     SourceFactory can be used to create a new stream for each template. Default is
 		///     <code>() => new MemoryStream()</code>
 		/// </summary>
-		
+
 		public ByteCounterFactory StreamFactory
 		{
 			get { return _streamFactory; }
@@ -420,7 +420,7 @@ namespace Morestachio
 		///     In what encoding should the text be written
 		///     Default is <code>Encoding.Utf8</code>
 		/// </summary>
-		
+
 		public Encoding Encoding
 		{
 			get { return _encoding; }
@@ -447,7 +447,7 @@ namespace Morestachio
 		/// <summary>
 		///     Defines how NULL values are exposed to the Template default is <code>String.Empty</code>
 		/// </summary>
-		
+
 		public string Null
 		{
 			get { return _null; }
@@ -480,7 +480,7 @@ namespace Morestachio
 		/// <param name="value"></param>
 		/// <param name="parent"></param>
 		/// <returns></returns>
-		
+
 		public virtual ContextObject CreateContextObject(string key,
 			CancellationToken token,
 			object value,
