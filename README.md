@@ -96,6 +96,7 @@ Use the `ContextObject.DefaultFormatter` collection to create own formatter for 
 ```csharp
 {{Just.One.Formattable.FormatterToCall().Thing}}
 ```
+This links a function named "FormatterToCall" that is ether present as a anonymous delegate added via `ParserOptions.Formatters.AddSingle(...)` or a `public static ` method attributed with the `MorestachioFormatterAttribute` added via the `ParserOptions.Formatters.AddFromType` or to an instance method attributed with the `MorestachioFormatterAttribute`
 
 The formatter CAN return a new object on wich you can call new Propertys or it can return a string.
 There are formatter prepaired for all Primitve types. That means per default you can call on an object hat contains a DateTime:
