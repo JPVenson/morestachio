@@ -18,6 +18,24 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		[TestCase(1, 1, "1,0 b")]
+		[TestCase(1, 0, "1 b")]
+		[TestCase(0, 0, "0 b")]
+		[TestCase(-1, 1, "-1,0 b")]
+		[TestCase(-1, 0, "-1 b")]
+		[TestCase(-0, 0, "0 b")]
+
+		[TestCase(1024L * 1024L * 1024L * 1024L, 1, "1,0 TB")]
+		[TestCase(1024L * 1024L * 1024L * 1024L, 0, "1 TB")]
+		[TestCase(1024L * 1024L * 1024L * 1024L * -1, 1, "-1,0 TB")]
+		[TestCase(1024L * 1024L * 1024L * 1024L * -1, 0, "-1 TB")]
+		public void TestByteHumanization(long value, int precision, string expected)
+		{
+			var nr = new Number(value);
+			Assert.That(Number.ToBytes(nr, precision), Is.EqualTo(expected));
+		}
+
+		[Test]
 		//default cs number test: int
 		[TestCase("-1", -1)]
 		[TestCase("1", 1)]
@@ -211,7 +229,7 @@ namespace Morestachio.Tests
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
 			Assert.That(result, Is.EqualTo(expected.ToString()));
 		}
-		
+
 		[Test]
 		public void TestNumberOperators()
 		{

@@ -471,6 +471,48 @@ namespace Morestachio.Helper
 			return left.IsNaN();
 		}
 
+		private static readonly string[] SizeSuffixes =
+			{"b", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
+
+		[MorestachioFormatter("ToBytes", "Format a number to it's equivalent in bytes. If a string is passed, it's length will be formatted and returned.")]
+		public static string ToBytes(Number value, Number? decimalPlaces = null) 
+		{
+			if (value == NaN || value.Equals(0L))
+			{
+				return "0 b";
+			}
+
+			if (value < 0)
+			{
+				return "-" + ToBytes(value.Negate(), decimalPlaces);
+			}
+
+			var precisionValue = (decimalPlaces ?? 0).ToInt32(null);
+			var valueLong = value.ToInt64(null);
+
+			// mag is 0 for bytes, 1 for KB, 2, for MB, etc.
+			var mag = (int)Math.Log(valueLong, 1024);
+				//(int)Math.Log(value, 1024);
+
+			// 1L << (mag * 10) == 2 ^ (10 * mag) 
+			// [i.e. the number of bytes in the unit corresponding to mag]
+			
+			var adjustedSize = (decimal)valueLong / (1L << (mag * 10));
+
+			// make adjustment when the value is large enough that
+			// it would round up to 1000 or more
+			if (Math.Round(adjustedSize, precisionValue) >= 1000)
+			{
+				mag += 1;
+				adjustedSize /= 1024;
+			}
+
+			return string.Format("{0:n" + precisionValue + "} {1}", 
+				adjustedSize, 
+				SizeSuffixes[mag]);
+
+		}
+
 		[MorestachioGlobalFormatter("ParseNumber", "Parses a string into a number. Returns -1")]
 		public static Number Parse(string text)
 		{

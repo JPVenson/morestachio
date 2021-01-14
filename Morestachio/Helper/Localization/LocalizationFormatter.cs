@@ -1,4 +1,5 @@
-﻿using Morestachio.Formatter.Framework;
+﻿using System;
+using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Framework.Attributes;
 
 namespace Morestachio.Helper.Localization
@@ -24,6 +25,18 @@ namespace Morestachio.Helper.Localization
 			[RestParameter] params object[] arguments)
 		{
 			return localizationService.GetTranslationOrNull(key, parserOptions.CultureInfo, arguments);
+		}
+		
+		[MorestachioGlobalFormatter("Inflect", "Returns either the singular or plural inflection of a word based on the given count")]
+		public static string Inflect(Number count, string singular, string plural, bool includeCount)
+		{
+			var word = (count > 1 || count == 0) ? plural : singular;
+			if (includeCount)
+			{
+				return count + " " + word;
+			}
+
+			return word;
 		}
 	}
 }
