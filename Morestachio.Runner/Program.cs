@@ -11,6 +11,8 @@ using Morestachio.Formatter.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Context.Resolver;
 using Morestachio.Framework.Expression;
+using Morestachio.Helper.Localization;
+using Morestachio.Helper.Logging;
 using Morestachio.Linq;
 using Morestachio.Newtonsoft.Json;
 using Newtonsoft.Json;
@@ -71,6 +73,7 @@ namespace Morestachio.Runner
 			values["Data"] = formatterTypes;
 
 			var formatterService = ContextObject.DefaultFormatter as MorestachioFormatterService;
+			formatterService.AddFromType(typeof(LocalizationFormatter));
 			foreach (var formatterServiceFormatter in formatterService
 				.Formatters
 				.SelectMany(f => f.Value)
