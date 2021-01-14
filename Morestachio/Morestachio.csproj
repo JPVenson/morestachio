@@ -7,7 +7,7 @@
     <Description>A powerfull c# infused templating engine.</Description>
     <PackageReleaseNotes>Several Bugfixes and Formatter refactoring</PackageReleaseNotes>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'" >
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
