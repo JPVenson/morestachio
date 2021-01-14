@@ -65,7 +65,8 @@ namespace Morestachio.Document.Items
 			ScopeData scopeData)
 		{
 			CoreAction(outputStream, scopeData);
-			return Children.WithScope(context).ToPromise();
+			return Enumerable.Empty<DocumentItemExecution>().ToPromise();
+			//return Children.WithScope(context).ToPromise();
 		}
 		
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

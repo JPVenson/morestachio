@@ -11,8 +11,8 @@ See https://github.com/JPVenson/morestachio/wiki/Formatter#formatter-framework f
 # Overview
 {{#EACH Data AS formatter |-}}
 - [`{{formatter.DeclaringType.Name.Remove("Formatter")}}` functions](#class-{{formatter.DeclaringType.Name}})
-{{#EACH formatter.Methods.OrderBy("MethodName").GroupBy('MethodName') AS methods |-}}
-{{#VAR method = methods.FlatGroup().First() |-}}
+{{#EACH formatter.Methods.OrderBy("MethodName").GroupBy('MethodName') AS methods}}
+{{-| #VAR method = methods.FlatGroup().First() |-}}
 	- [`{{method.MethodName}}` function{{#IF methods.FlatGroup().Count().GreaterThen(1)}}s{{/IF}}](#{{formatter.DeclaringType.Name}}{{method.MethodName}})
 {{/EACH |-}}
 {{/EACH |-}}
