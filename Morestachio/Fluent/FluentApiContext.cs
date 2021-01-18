@@ -37,5 +37,10 @@
 		///		Gets or Sets the state of the last executed operation
 		/// </summary>
 		public bool OperationStatus { get; set; }
+
+		public FluentApiContext Copy()
+		{
+			return new FluentApiContext(RootNode, CurrentNode, Options);
+		}
 	}
 }

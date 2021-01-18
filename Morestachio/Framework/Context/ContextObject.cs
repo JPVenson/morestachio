@@ -45,7 +45,7 @@ namespace Morestachio.Framework.Context
 		public static readonly Func<object, bool> DefaultDefinitionOfFalse;
 
 		private static Func<object, bool> _definitionOfFalse;
-		 private object _value;
+		private object _value;
 		private bool _abortGeneration;
 
 		static ContextObject()
@@ -83,7 +83,7 @@ namespace Morestachio.Framework.Context
 		/// <summary>
 		///     Initializes a new instance of the <see cref="ContextObject" /> class.
 		/// </summary>
-		public ContextObject( ParserOptions options,  string key,  ContextObject parent,
+		public ContextObject(ParserOptions options, string key, ContextObject parent,
 			object value)
 		{
 			Options = options ?? throw new ArgumentNullException(nameof(options));
@@ -106,7 +106,7 @@ namespace Morestachio.Framework.Context
 		///     Must no be null
 		/// </value>
 		/// <exception cref="InvalidOperationException">If the value is null</exception>
-		
+
 		public static Func<object, bool> DefinitionOfFalse
 		{
 			get { return _definitionOfFalse; }
@@ -124,19 +124,19 @@ namespace Morestachio.Framework.Context
 		///     should not be printed, or their printing should be specialized.
 		///     Add an typeof(object) entry as Type to define a Default Output
 		/// </summary>
-		
+
 		public static IMorestachioFormatterService DefaultFormatter { get; }
 
 		/// <summary>
 		///     The parent of the current context or null if its the root context
 		/// </summary>
-		
+
 		public ContextObject Parent { get; }
 
 		/// <summary>
 		///     The evaluated value of the expression
 		/// </summary>
-		
+
 		public object Value
 		{
 			get { return _value; }
@@ -180,13 +180,13 @@ namespace Morestachio.Framework.Context
 		/// <summary>
 		///     The name of the property or key inside the value or indexer expression for lists
 		/// </summary>
-		
+
 		public string Key { get; }
 
 		/// <summary>
 		///     With what options are the template currently is running
 		/// </summary>
-		
+
 		public ParserOptions Options { get; }
 
 		/// <summary>
@@ -267,8 +267,8 @@ namespace Morestachio.Framework.Context
 
 				return this;
 			}
-			else if (elements.Current.Value == PathType.ObjectSelector) 
-				//enumerate ether an IDictionary, an cs object or an IEnumerable to a KeyValuePair array
+			else if (elements.Current.Value == PathType.ObjectSelector)
+			//enumerate ether an IDictionary, an cs object or an IEnumerable to a KeyValuePair array
 			{
 				//await EnsureValue();
 				if (Value is null)
@@ -416,7 +416,7 @@ namespace Morestachio.Framework.Context
 
 			return lastParent;
 		}
-		
+
 		/// <summary>
 		///		Returns a variable that is only present in this context but not below it
 		/// </summary>

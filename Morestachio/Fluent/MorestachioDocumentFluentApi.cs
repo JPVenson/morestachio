@@ -35,7 +35,7 @@ namespace Morestachio.Fluent
 			var stack = new Stack<Tuple<IDocumentItem, IDocumentItem>>();
 			stack.Push(new Tuple<IDocumentItem, IDocumentItem>(parent?.Item, document));
 			var rootNode = new MorestachioNode(parent, document);
-			//nodes.Add(rootNode);
+
 			while (stack.Any())
 			{
 				var item = stack.Pop();

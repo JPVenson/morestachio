@@ -46,7 +46,7 @@ namespace Morestachio
 		/// </summary>
 		/// <param name="parsingOptions">a set of options</param>
 		/// <returns></returns>
-		public static async MorestachioDocumentInfoPromise ParseWithOptionsAsync( ParserOptions parsingOptions)
+		public static async MorestachioDocumentInfoPromise ParseWithOptionsAsync(ParserOptions parsingOptions)
 		{
 			if (parsingOptions == null)
 			{

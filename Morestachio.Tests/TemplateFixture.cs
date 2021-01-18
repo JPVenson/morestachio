@@ -155,6 +155,15 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		public async Task TestEscapingBlocksAreExcluded()
+		{
+			var data = new Dictionary<string, object>();
+			var template = @"{{!?}} Dies ist ein Escaped block with {{Some}} {{Invalid {{/!?}}";
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest);
+			Assert.That(result, Is.EqualTo(" Dies ist ein Escaped block with {{Some}} {{Invalid "));
+		}
+
+		[Test]
 		public async Task HtmlIsEscapedByDefault()
 		{
 			var data = new Dictionary<string, object>()
