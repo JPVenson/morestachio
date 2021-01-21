@@ -40,7 +40,7 @@ namespace Morestachio
 			await Tokenizer.Tokenize(options, tokenzierContext);
 			return tokenzierContext.Errors;
 		}
-
+		
 		/// <summary>
 		///     Parses the Template with the given options
 		/// </summary>

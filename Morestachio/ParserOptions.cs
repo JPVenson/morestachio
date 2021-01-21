@@ -341,7 +341,7 @@ namespace Morestachio
 		}
 
 		/// <summary>
-		///		Gets or sets the timeout. After the timeout is reached and the Template has not finished Processing and Exception is thrown.
+		///		Gets or sets the timeout. After the timeout is reached and the Template has not finished Processing an Exception is thrown.
 		///		For no timeout use <code>TimeSpan.Zero</code>
 		/// </summary>
 		/// <value>

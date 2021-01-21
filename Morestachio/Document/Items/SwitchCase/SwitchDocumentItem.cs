@@ -120,22 +120,22 @@ namespace Morestachio.Document.Items.SwitchCase
 			};
 		}
 
-		private class SwitchExecutionContainer
+		internal class SwitchExecutionContainer
 		{
 			public CompiledExpression Expression { get; set; }
 		}
 
-		private class SwitchExecutionContainerCompiledAction : SwitchExecutionContainer
+		internal class SwitchExecutionContainerCompiledAction : SwitchExecutionContainer
 		{
 			public Compilation Callback { get; set; }
 		}
 
-		private class SwitchExecutionContainerDocumentItem : SwitchExecutionContainer
+		internal class SwitchExecutionContainerDocumentItem : SwitchExecutionContainer
 		{
 			public IDocumentItem Document { get; set; }
 		}
 
-		private async Task<T> CoreAction<T>(
+		internal static async Task<T> CoreAction<T>(
 			IByteCounterStream outputStream,
 			ContextObject context,
 			ScopeData scopeData,
