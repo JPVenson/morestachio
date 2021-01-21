@@ -678,9 +678,6 @@ namespace Morestachio.Framework.Expression
 							}
 							else if (text[index] == ')')
 							{
-								////close the current scope. This scope is an parameter expression
-								//TerminateCurrentScope();
-
 								var parentExpression = currentScope.Parent?.Value as MorestachioExpression;
 								//currentScope.Parent.BracketsCounter--;
 								if (currentScope.Value is MorestachioExpression currentScopeValue)
@@ -690,15 +687,7 @@ namespace Morestachio.Framework.Expression
 										indexedUntil = 0;
 										return null;
 									}
-									//currentScope.Evaluated = true;
-									//currentScopeValue.PathParts = new Traversable(currentScopeValue._pathTokenizer.CompileListWithCurrent(context, index, out var errProducer));
-									//if (errProducer != null)
-									//{
-									//	context.Errors.Add(errProducer());
 
-									//	indexedUntil = 0;
-									//	return null;
-									//}
 									if (currentScopeValue != null &&
 										!currentScopeValue.PathParts.Any() && parentExpression?.Formats.Any() == true)
 									{
@@ -724,15 +713,7 @@ namespace Morestachio.Framework.Expression
 										indexedUntil = 0;
 										return null;
 									}
-									//currentScope.Evaluated = true;
-									//currentScopeValue.PathParts = new Traversable(currentScopeValue._pathTokenizer.CompileListWithCurrent(context, index, out var errProducer));
-									//if (errProducer != null)
-									//{
-									//	context.Errors.Add(errProducer());
 
-									//	indexedUntil = 0;
-									//	return null;
-									//}
 									if (currentScopeValue != null &&
 										!currentScopeValue.PathParts.Any())
 									{
@@ -770,8 +751,7 @@ namespace Morestachio.Framework.Expression
 											indexedUntil = 0;
 											return null;
 										}
-
-										//TerminateCurrentScope();
+										
 										break;
 									}
 									else if (parseOp == false)
@@ -804,14 +784,6 @@ namespace Morestachio.Framework.Expression
 										indexedUntil = 0;
 										return null;
 									}
-									//currentScope.Evaluated = true;
-									//var expr = (currentScope.Value as MorestachioExpression);
-									//expr.PathParts =
-									//	new Traversable(expr._pathTokenizer.CompileListWithCurrent(context, index, out var errProducer));
-									//if (errProducer != null)
-									//{
-									//	context.Errors.Add(errProducer());
-									//}
 									TerminateCurrentScope(tokenScopes);
 								}
 							}
@@ -972,15 +944,6 @@ namespace Morestachio.Framework.Expression
 		{
 			if ((tryTerminate && tokenScopes.Any()) || !tryTerminate)
 			{
-				//var headerTokenMatch = tokenScopes.Peek();
-				//if (headerTokenMatch.BracketsCounter != 0)
-				//{
-				//	context.Errors.Add(new InvalidPathSyntaxError(
-				//		headerTokenMatch.TokenLocation
-				//			.AddWindow(new CharacterSnippedLocation(1, headerTokenMatch.TokenLocation.Character, text)),
-				//		headerTokenMatch.Value.ToString()));
-				//}
-
 				tokenScopes.Pop();
 			}
 		}
