@@ -615,7 +615,7 @@ namespace Morestachio.Tests
 		public async Task TemplateRendersWithComplexUpScopePathWithFormatting()
 		{
 			var template =
-				@"{{#SCOPE d.d.n}}{{../../../r.('c')}}{{/SCOPE}}";
+				@"{{#SCOPE d.d.n}}{{../../../r.ToString('c')}}{{/SCOPE}}";
 
 			var data = new Dictionary<string, object>()
 			{

@@ -14,6 +14,8 @@ namespace Morestachio.Framework
 		///		An empty Traversable
 		/// </summary>
 		public static Traversable Empty { get; } = new Traversable(Enumerable.Empty<KeyValuePair<string, PathType>>());
+		public static Traversable Self { get; } = new Traversable(
+			new[] { new KeyValuePair<string, PathType>(".", PathType.SelfAssignment) });
 
 		/// <summary>
 		/// 

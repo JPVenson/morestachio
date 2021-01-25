@@ -20,6 +20,9 @@ namespace Morestachio.Framework.Expression.Visitors
 				case ExpressionArgument expressionArgument:
 					visitor.Visit(expressionArgument);
 					break;
+				case MorestachioBracketExpression operatorExpression:
+					visitor.Visit(operatorExpression);
+					break;
 				case MorestachioArgumentExpressionList expressionList:
 					visitor.Visit(expressionList);
 					break;

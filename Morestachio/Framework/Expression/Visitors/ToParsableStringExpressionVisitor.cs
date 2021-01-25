@@ -67,11 +67,10 @@ namespace Morestachio.Framework.Expression.Visitors
 			}
 			if (expression.FormatterName != null)
 			{
-				if (!isSelfAssignment)
+				if (!isSelfAssignment && expressionPathParts.Length != 0)
 				{
 					StringBuilder.Append(".");
 				}
-
 				StringBuilder.Append(expression.FormatterName);
 				StringBuilder.Append("(");
 
@@ -105,6 +104,14 @@ namespace Morestachio.Framework.Expression.Visitors
 				this.Visit(expressionExpression);
 			}
 		}
+		
+		/// <inheritdoc />
+		public void Visit(MorestachioBracketExpression expression)
+		{
+			StringBuilder.Append("(");
+			Visit(expression as MorestachioMultiPartExpressionList);
+			StringBuilder.Append(")");
+		}
 
 		/// <inheritdoc />
 		public void Visit(MorestachioMultiPartExpressionList expression)
@@ -112,15 +119,30 @@ namespace Morestachio.Framework.Expression.Visitors
 			for (var index = 0; index < expression.Expressions.Count; index++)
 			{
 				var expressionExpression = expression.Expressions[index];
-
-				if (index != 0
-					&& !(expressionExpression is MorestachioExpression exp
-						 && (exp.PathParts.Current.Value == PathType.SelfAssignment 
-						     || 
-						     (exp.PathParts.Current.Value == PathType.DataPath && exp.PathParts.Current.Key is null))))
+				if (index > 0)
 				{
-					StringBuilder.Append(".");
+					if (expressionExpression is MorestachioExpression exp)
+					{
+						var c = exp.PathParts.Current.Value;
+						if (c != PathType.SelfAssignment)
+						{
+							StringBuilder.Append(".");
+						}
+					}
+					else
+					{
+						StringBuilder.Append(".");
+					}
 				}
+
+				//if (index != 0
+				//	&& (expressionExpression is MorestachioExpression exp
+				//		 && (exp.PathParts.Current.Value != PathType.SelfAssignment 
+				//		     || 
+				//		     (exp.PathParts.Current.Value == PathType.DataPath && exp.PathParts.Current.Key is null))))
+				//{
+				//	StringBuilder.Append(".");
+				//}
 				this.Visit(expressionExpression);
 			}
 
@@ -164,14 +186,6 @@ namespace Morestachio.Framework.Expression.Visitors
 		/// <inheritdoc />
 		public void Visit(MorestachioOperatorExpression expression)
 		{
-			//if (!(expression.LeftExpression is MorestachioOperatorExpression)
-			//&& !(expression.LeftExpression is MorestachioExpressionListBase expList 
-			//    && expList.Expressions.Count == 1 
-			//    && (expList.Expressions.FirstOrDefault() is MorestachioOperatorExpression)))
-			//{
-			//	this.Visit(expression.LeftExpression);
-			//}
-
 			this.Visit(expression.LeftExpression);
 			StringBuilder.Append(" ");
 			StringBuilder.Append(expression.Operator.OperatorText);

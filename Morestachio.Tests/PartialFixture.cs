@@ -282,7 +282,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task ParserCanLoadFileStore()
 		{
-			var tempPath = Path.Combine(Path.GetTempPath(), "MorestachioTesting", Environment.Version.ToString());
+			var tempPath = Path.Combine(Path.GetTempPath(), "MorestachioTesting", Environment.Version.ToString(), _options.GetHashCode().ToString());
 			Directory.CreateDirectory(tempPath);
 
 			var data = new Dictionary<string, object>()

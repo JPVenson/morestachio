@@ -294,7 +294,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task FormatterCanFormatObjectTwice()
 		{
-			var template = "{{.Plus(B, B)}}";
+			var template = "{{Plus(B, B)}}";
 
 			var data = new Dictionary<string, object>()
 			{
@@ -327,7 +327,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task TestCanFormatSourceObjectLessFormatter()
 		{
-			var template = "{{.DateTimeNow().ToString('D')}}";
+			var template = "{{DateTimeNow().ToString('D')}}";
 
 			var data = new Dictionary<string, object>();
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts);
@@ -338,7 +338,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task TestCanFormatSourceObjectLessFormatterAsArgumentAsync()
 		{
-			var template = "{{.TimeSpanFromDays(.DateTimeNow().Day).ToString('g')}}";
+			var template = "{{TimeSpanFromDays(DateTimeNow().Day).ToString('g')}}";
 
 			var data = new Dictionary<string, object>();
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts);
@@ -463,7 +463,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task ParserCanChainFormatSubExpressionFromEach()
 		{
-			var template = "{{#each d.r}}{{d.('t').('t', f)}}{{/each}}";
+			var template = "{{#each d.r}}{{d.Format('t').Format('t', f)}}{{/each}}";
 			var expectedValue = "formatter data value";
 			var data = new Dictionary<string, object>
 			{
@@ -485,10 +485,10 @@ namespace Morestachio.Tests
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
 				options.Formatters.AddSingle(
-					new Func<object, object, object, object>((source, tempValue, reference) => reference));
+					new Func<object, object, object, object>((source, tempValue, reference) => reference), "Format");
 
 				options.Formatters.AddSingle(
-					new Func<object, object, object>((source, tempValue) => source));
+					new Func<object, object, object>((source, tempValue) => source), "Format");
 			});
 			Assert.That(expectedValue, Is.EqualTo(result));
 		}
@@ -661,7 +661,7 @@ namespace Morestachio.Tests
 		{
 			var format = "yyyy.mm";
 			var dataValue = DateTime.UtcNow;
-			var template = "{{data.(testFormat)}}";
+			var template = "{{data.ToString(testFormat)}}";
 			var data = new Dictionary<string, object>
 			{
 				{"data", dataValue},
@@ -679,7 +679,7 @@ namespace Morestachio.Tests
 			{
 				{"inner", "yyyy.mm"}
 			};
-			var template = "{{data.(testFormat.inner)}}";
+			var template = "{{data.ToString(testFormat.inner)}}";
 			var data = new Dictionary<string, object>
 			{
 				{"data", dataValue},
@@ -697,7 +697,7 @@ namespace Morestachio.Tests
 
 			var dataValue = DateTime.Now;
 			var format = "yyyy.mm";
-			var template = "{{d.(t.('d'), 'tt')}}";
+			var template = "{{d.Format(t.Format('d'), 'tt')}}";
 			var data = new Dictionary<string, object>
 			{
 				{"d", dataValue},
@@ -711,7 +711,7 @@ namespace Morestachio.Tests
 						Assert.That(testString, Is.EqualTo("d"));
 						formatterCalled = true;
 						return format;
-					});
+					}, "Format");
 					options.Formatters.AddSingle(new Func<DateTime, string, string, string>(
 						(sourceValue, testString2, shouldBed) =>
 						{
@@ -719,7 +719,7 @@ namespace Morestachio.Tests
 							Assert.That(testString2, Is.EqualTo(format));
 							formatter2Called = true;
 							return sourceValue.ToString(testString2);
-						}));
+						}), "Format");
 				});
 
 			Assert.That(formatterCalled, Is.True, "The  formatter was not called");
@@ -736,7 +736,7 @@ namespace Morestachio.Tests
 
 			var format = "yyyy.mm";
 			var dataValue = DateTime.UtcNow;
-			var template = "{{d.(f.('d'), \"t\").('pl', by.(by, 'f'))}}";
+			var template = "{{d.(f.Format('d'), \"t\").('pl', by.(by, 'f'))}}";
 			var data = new Dictionary<string, object>
 			{
 				{"d", dataValue},
@@ -751,7 +751,7 @@ namespace Morestachio.Tests
 						Assert.That(testString, Is.EqualTo("d"));
 						formatterCalled = true;
 						return format;
-					});
+					}, "Format");
 					options.Formatters.AddSingle(new Func<long, long, string, int>(
 						(sourceValue, testString, f) =>
 						{
@@ -941,7 +941,7 @@ namespace Morestachio.Tests
 		public async Task FormatterCanHandleNumberOperator()
 		{
 			var template =
-				@"{{.ToString(1 + 3)}}";
+				@"{{ToString(1 + 3)}}";
 
 			var data = new Dictionary<string, object>()
 			{
@@ -960,7 +960,7 @@ namespace Morestachio.Tests
 		public async Task FormatterCanHandleNumberOperatorMultipleArgument()
 		{
 			var template =
-				@"{{.ToString(1 + 3, 'X8')}}";
+				@"{{ToString(1 + 3, 'X8')}}";
 
 			var data = new Dictionary<string, object>()
 			{
@@ -980,7 +980,7 @@ namespace Morestachio.Tests
 		public async Task FormatterCanHandleNumberOperatorAsArgument()
 		{
 			var template =
-				@"{{.ToString(3 + .AsInt(1), 'X8')}}{{.ToString(.AsInt(1) + 3, 'X4')}}";
+				@"{{ToString(3 + AsInt(1), 'X8')}}{{ToString(AsInt(1) + 3, 'X4')}}";
 
 			var data = new Dictionary<string, object>()
 			{
@@ -1000,7 +1000,7 @@ namespace Morestachio.Tests
 		public async Task FormatterCanHandleStringOperator()
 		{
 			var template =
-				@"{{.ToString('*' + 'test')}}";
+				@"{{ToString('*' + 'test')}}";
 
 			var data = new Dictionary<string, object>()
 			{
@@ -1036,7 +1036,7 @@ namespace Morestachio.Tests
 		public async Task FormatterCanHandleStringOperatorMultipleArgument()
 		{
 			var template =
-				@"{{.Pad('te' + 'st', 'X8')}}";
+				@"{{Pad('te' + 'st', 'X8')}}";
 			var data = new Dictionary<string, object>()
 			{
 				{"dataA", 1 },
@@ -1055,7 +1055,7 @@ namespace Morestachio.Tests
 		public async Task FormatterCanHandleStringOperatorAsArgument()
 		{
 			var template =
-				@"{{.ToString('Te' + .AsString('1'), 'X8')}} {{.ToString(.AsString('8') + 'st', 'X4')}}";
+				@"{{ToString('Te' + AsString('1'), 'X8')}} {{ToString(AsString('8') + 'st', 'X4')}}";
 
 			var data = new Dictionary<string, object>()
 			{
@@ -1075,7 +1075,7 @@ namespace Morestachio.Tests
 		public async Task FormatterCanHandleStringOperatorCarryOver()
 		{
 			var template =
-				@"{{.ToString('*' + 'test' + '*')}}";
+				@"{{ToString('*' + 'test' + '*')}}";
 			var data = new Dictionary<string, object>()
 			{
 				{"dataA", 1 },
@@ -1092,7 +1092,7 @@ namespace Morestachio.Tests
 		public async Task FormatterCanHandleDataOperatorCarryOver()
 		{
 			var template =
-				@"{{.ToString(dataA + dataB + dataC)}}";
+				@"{{ToString(dataA + dataB + dataC)}}";
 			var data = new Dictionary<string, object>()
 			{
 				{"dataA", "*" },
@@ -1111,7 +1111,7 @@ namespace Morestachio.Tests
 		public async Task FormatterCanHandleDataDevideOperatorCarryOver()
 		{
 			var template =
-				@"{{.ToString(dataA / dataB + dataC)}}";
+				@"{{ToString(dataA / dataB + dataC)}}";
 			var data = new Dictionary<string, object>()
 			{
 				{"dataA", 50 },
@@ -1130,7 +1130,7 @@ namespace Morestachio.Tests
 		public async Task FormatterCanHandleDataDevideOperatorCarryOverFromOtherMethod()
 		{
 			var template =
-				@"{{.ToString(dataA.Add(2) / dataB + dataC)}}";
+				@"{{ToString(dataA.Add(2) / dataB + dataC)}}";
 			var data = new Dictionary<string, object>()
 			{
 				{"dataA", 50 },
@@ -1149,7 +1149,7 @@ namespace Morestachio.Tests
 		public async Task FormatterCanHandleDataDevideOperatorCarryOverFromOtherRightHandOperatorMethod()
 		{
 			var template =
-				@"{{.ToString(dataB / dataA.Add(2) + dataC)}}";
+				@"{{ToString(dataB / dataA.Add(2) + dataC)}}";
 			var data = new Dictionary<string, object>()
 			{
 				{"dataA", 50 },

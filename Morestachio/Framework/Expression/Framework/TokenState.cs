@@ -5,6 +5,7 @@
 		Expression,
 		DecideArgumentType,
 		ArgumentStart,
-		Operator
+		Operator,
+		Bracket
 	}
 }

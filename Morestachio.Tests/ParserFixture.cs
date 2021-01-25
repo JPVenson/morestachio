@@ -207,14 +207,14 @@ namespace Morestachio.Tests
 		[Test]
 		[TestCase("d.f", 1)]
 		[TestCase("d.f;Test", 2)]
-		[TestCase("d.f;.Test()", 2)]
-		[TestCase("d.f;.Test(); Other", 3)]
-		[TestCase("d.f; .Test() ; Other", 3)]
-		[TestCase("d.f; .Test() ; Other; 'TEST'", 4)]
-		[TestCase("d.f; .Test() ; 'test'", 3)]
-		[TestCase("d.f; .Test() ; 'test'; acd", 4)]
-		[TestCase("'d'; .Test() ; 'test'; acd", 4)]
-		[TestCase("''; .Test() ; 'test'; acd", 4)]
+		[TestCase("d.f;Test()", 2)]
+		[TestCase("d.f;Test(); Other", 3)]
+		[TestCase("d.f; Test() ; Other", 3)]
+		[TestCase("d.f; Test() ; Other; 'TEST'", 4)]
+		[TestCase("d.f; Test() ; 'test'", 3)]
+		[TestCase("d.f; Test() ; 'test'; acd", 4)]
+		[TestCase("'d'; Test() ; 'test'; acd", 4)]
+		[TestCase("''; Test() ; 'test'; acd", 4)]
 		public void ExpressionParserCanParseMany(string expression, int expected)
 		{
 			var context = TokenzierContext.FromText(expression);
@@ -244,46 +244,47 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
-		[TestCase(".(.('').())")]
-		[TestCase(".a(.b(.c().d()))")]
-		[TestCase(".f(.fe().P).Fg()")]
-		[TestCase(".f(.fe().P).Fg().DE()")]
-		[TestCase(".f(.fe().P.Add(' ')).Fg().DE()")]
-		[TestCase(".f(.fe().P.Add(' ')).Fg().DE()")]
+		[TestCase("(('').())")]
+		[TestCase("(('').A())")]
+		[TestCase("a(b(c().d()))")]
+		[TestCase("f(fe().P).Fg()")]
+		[TestCase("f(fe().P).Fg().DE()")]
+		[TestCase("f(fe().P.Add(' ')).Fg().DE()")]
+		[TestCase("f(fe().P.Add(' ')).Fg().DE()")]
 		[TestCase("d.f")]
 		[TestCase("d.f()")]
 		[TestCase("d.f().Test")]
 		[TestCase("d.f(fA)")]
 		[TestCase("d.f(fA).Test")]
-		[TestCase("d.f(fA, .fb()).Test")]
-		[TestCase("d.f(fA, fb.()).Test")]
-		[TestCase("d.f(fA.())")]
-		[TestCase("d.f(fA.(''))")]
-		[TestCase("d.f(fA.('').Test)")]
-		[TestCase("d.f(fA.('').().())")]
-		[TestCase("d.f(fA.('').fB.())")]
-		[TestCase("d.f(fA.('').fB.()).Test")]
-		[TestCase("d.f(fA.('').fB.()).Test.Data")]
-		[TestCase("d.f(fA.('').fB.()).Test.fC()")]
-		[TestCase("d.f(fA.('', e))")]
-		[TestCase("d.f(fA.('', e.()))")]
-		[TestCase("d.f(fA.('', e.('')))")]
-		[TestCase("d.f(fA.('d'))")]
-		[TestCase("d.f(fA.('d').Test)")]
-		[TestCase("d.f(fA.('d').())")]
-		[TestCase("d.f(fA.('d').fB.())")]
-		[TestCase("d.f(fA.('d').fB.()).Test")]
-		[TestCase("d.f(fA.('d').fB.()).Test.Data")]
-		[TestCase("d.f(fA.('d').fB.()).Test.fC()")]
-		[TestCase("d.f(fA.('d').fB.('')).Test.fC()")]
-		[TestCase("d.f(fA.('d').fB.('')).Test.fC('')")]
-		[TestCase("d.f(fA.('d').fB.('d')).Test.fC('')")]
-		[TestCase("d.f(fA.('d').fB.('d')).Test.fC('d')")]
-		[TestCase("d.f(fA.('d', f).fB.('d')).Test.fC('d')")]
-		[TestCase("d.f(fA.('d', f).fB.('d', f)).Test.fC('d')")]
-		[TestCase("d.f(fA.('d', f).fB.('d', f)).Test.fC('d', f)")]
-		[TestCase("d.f(fA.('d', f.()).fB.('d', f)).Test.fC('d', f)")]
-		[TestCase("d.f(fA.('d', f.()).fB.('d', f.())).Test.fC('d', f.())")]
+		[TestCase("d.f(fA, fb()).Test")]
+		[TestCase("d.f(fA, fb.TS()).Test")]
+		[TestCase("d.f(fA.TS())")]
+		[TestCase("d.f(fA(''))")]
+		[TestCase("d.f(fA('').Test)")]
+		[TestCase("d.f(fA('').().())")]
+		[TestCase("d.f(fA('').fB.())")]
+		[TestCase("d.f(fA('').fB.()).Test")]
+		[TestCase("d.f(fA('').fB.()).Test.Data")]
+		[TestCase("d.f(fA('').fB.()).Test.fC()")]
+		[TestCase("d.f(fA.TS('', e))")]
+		[TestCase("d.f(fA.TS('', e()))")]
+		[TestCase("d.f(fA.TS('', e('')))")]
+		[TestCase("d.f(fA.TS('d'))")]
+		[TestCase("d.f(fA.TS('d').Test)")]
+		[TestCase("d.f(fA.TS('d').())")]
+		[TestCase("d.f(fA.TS('d').fB())")]
+		[TestCase("d.f(fA.TS('d').fB()).Test")]
+		[TestCase("d.f(fA.TS('d').fB()).Test.Data")]
+		[TestCase("d.f(fA.TS('d').fB()).Test.fC()")]
+		[TestCase("d.f(fA.TS('d').fB('')).Test.fC()")]
+		[TestCase("d.f(fA.TS('d').fB('')).Test.fC('')")]
+		[TestCase("d.f(fA.TS('d').fB('d')).Test.fC('')")]
+		[TestCase("d.f(fA.TS('d').fB('d')).Test.fC('d')")]
+		[TestCase("d.f(fA.TS('d', f).fB('d')).Test.fC('d')")]
+		[TestCase("d.f(fA.TS('d', f).fB('d', f)).Test.fC('d')")]
+		[TestCase("d.f(fA.TS('d', f).fB('d', f)).Test.fC('d', f)")]
+		[TestCase("d.f(fA.TS('d', f.TS()).fB('d', f)).Test.fC('d', f)")]
+		[TestCase("d.f(fA.TS('d', f.TS()).fB('d', f.TS())).Test.fC('d', f.TS())")]
 		public void TestExpressionParser(string query)
 		{
 			var context = TokenzierContext.FromText(query);
@@ -314,6 +315,8 @@ namespace Morestachio.Tests
 
 		[Test]
 		[TestCase("A + B", 5 + 10, 5, 10)]
+		[TestCase("(A + B)", 5 + 10, 5, 10)]
+		[TestCase("((A + B))", 5 + 10, 5, 10)]
 		[TestCase("A - B", 5 - 10, 5, 10)]
 		[TestCase("A / B", 5 / 10, 5, 10)]
 		[TestCase("A * B", 5 * 10, 5, 10)]
@@ -327,19 +330,20 @@ namespace Morestachio.Tests
 		[TestCase("A == B", 5 == 10, 5, 10)]
 		[TestCase("A != B", 5 != 10, 5, 10)]
 
-		[TestCase(".Self(A) + .Self(B)", 5 + 10, 5, 10)]
-		[TestCase(".Self(A) - .Self(B)", 5 - 10, 5, 10)]
-		[TestCase(".Self(A) / .Self(B)", 5 / 10, 5, 10)]
-		[TestCase(".Self(A) * .Self(B)", 5 * 10, 5, 10)]
-		[TestCase(".Self(A) % .Self(B)", 5 % 10, 5, 10)]
-		[TestCase(".Self(A) << .Self(B)", 5 << 10, 5, 10)]
-		[TestCase(".Self(A) >> .Self(B)", 5 >> 10, 5, 10)]
-		[TestCase(".Self(A) < .Self(B)", 5 < 10, 5, 10)]
-		[TestCase(".Self(A) > .Self(B)", 5 > 10, 5, 10)]
-		[TestCase(".Self(A) <= .Self(B)", 5 <= 10, 5, 10)]
-		[TestCase(".Self(A) >= .Self(B)", 5 >= 10, 5, 10)]
-		[TestCase(".Self(A) == .Self(B)", 5 == 10, 5, 10)]
-		[TestCase(".Self(A) != .Self(B)", 5 != 10, 5, 10)]
+		[TestCase("(A) + (B)", 5 + 10, 5, 10)]
+		[TestCase("((A) + (B))", 5 + 10, 5, 10)]
+		[TestCase("(A) - (B)", 5 - 10, 5, 10)]
+		[TestCase("(A) / (B)", 5 / 10, 5, 10)]
+		[TestCase("(A) * (B)", 5 * 10, 5, 10)]
+		[TestCase("(A) % (B)", 5 % 10, 5, 10)]
+		[TestCase("(A) << (B)", 5 << 10, 5, 10)]
+		[TestCase("(A) >> (B)", 5 >> 10, 5, 10)]
+		[TestCase("(A) < (B)", 5 < 10, 5, 10)]
+		[TestCase("(A) > (B)", 5 > 10, 5, 10)]
+		[TestCase("(A) <= (B)", 5 <= 10, 5, 10)]
+		[TestCase("(A) >= (B)", 5 >= 10, 5, 10)]
+		[TestCase("(A) == (B)", 5 == 10, 5, 10)]
+		[TestCase("(A) != (B)", 5 != 10, 5, 10)]
 
 		[TestCase("A + B + C", 5 + 10 + 15, 5, 10, 15)]
 		[TestCase("A - B - C", 5 - 10 - 15, 5, 10, 15)]
@@ -349,35 +353,38 @@ namespace Morestachio.Tests
 		[TestCase("A << B << C", 5 << 10 << 15, 5, 10, 15)]
 		[TestCase("A >> B >> C", 5 >> 10 >> 15, 5, 10, 15)]
 
-		[TestCase(".Self(A + B) + C", (5 + 10) + 15, 5, 10, 15)]
-		[TestCase(".Self(A - B) - C", (5 - 10) - 15, 5, 10, 15)]
-		[TestCase(".Self(A / B) / C", (5 / 10) / 15, 5, 10, 15)]
-		[TestCase(".Self(A * B) * C", (5 * 10) * 15, 5, 10, 15)]
-		[TestCase(".Self(A % B) % C", (5 % 10) % 15, 5, 10, 15)]
-		[TestCase(".Self(A << B) << C", (5 << 10) << 15, 5, 10, 15)]
-		[TestCase(".Self(A >> B) >> C", (5 >> 10) >> 15, 5, 10, 15)]
+		[TestCase("(A + B) + C", (5 + 10) + 15, 5, 10, 15)]
+		[TestCase("(A - B) - C", (5 - 10) - 15, 5, 10, 15)]
+		[TestCase("(A / B) / C", (5 / 10) / 15, 5, 10, 15)]
+		[TestCase("(A * B) * C", (5 * 10) * 15, 5, 10, 15)]
+		[TestCase("(A % B) % C", (5 % 10) % 15, 5, 10, 15)]
+		[TestCase("(A << B) << C", (5 << 10) << 15, 5, 10, 15)]
+		[TestCase("(A >> B) >> C", (5 >> 10) >> 15, 5, 10, 15)]
 
-		[TestCase("A + .Self(B + C)", 5 + (10 + 15), 5, 10, 15)]
-		[TestCase("A - .Self(B - C)", 5 - (10 - 15), 5, 10, 15)]
-		[TestCase("A / .Self(B / C)", 5 / (22 / 15), 5, 22, 15)]
-		[TestCase("A * .Self(B * C)", 5 * (10 * 15), 5, 10, 15)]
-		[TestCase("A % .Self(B % C)", 5 % (10 % 15), 5, 10, 15)]
-		[TestCase("A << .Self(B << C)", 5 << (10 << 15), 5, 10, 15)]
-		[TestCase("A >> .Self(B >> C)", 5 >> (10 >> 15), 5, 10, 15)]
+		[TestCase("A + (B + C)", 5 + (10 + 15), 5, 10, 15)]
+		[TestCase("(A + (B + C))", 5 + (10 + 15), 5, 10, 15)]
+		[TestCase("(A + (B) + C)", 5 + (10 + 15), 5, 10, 15)]
+		[TestCase("A - (B - C)", 5 - (10 - 15), 5, 10, 15)]
+		[TestCase("A / (B / C)", 5 / (22 / 15), 5, 22, 15)]
+		[TestCase("A * (B * C)", 5 * (10 * 15), 5, 10, 15)]
+		[TestCase("A % (B % C)", 5 % (10 % 15), 5, 10, 15)]
+		[TestCase("A << (B << C)", 5 << (10 << 15), 5, 10, 15)]
+		[TestCase("A >> (B >> C)", 5 >> (10 >> 15), 5, 10, 15)]
 
-		[TestCase(".Self(A + .Self(B + C))", 5 + (10 + 15), 5, 10, 15)]
-		[TestCase(".Self(A - .Self(B - C))", 5 - (10 - 15), 5, 10, 15)]
-		[TestCase(".Self(A / .Self(B / C))", 5 / (22 / 15), 5, 22, 15)]
-		[TestCase(".Self(A * .Self(B * C))", 5 * (10 * 15), 5, 10, 15)]
-		[TestCase(".Self(A % .Self(B % C))", 5 % (10 % 15), 5, 10, 15)]
-		[TestCase(".Self(A << .Self(B << C))", 5 << (10 << 15), 5, 10, 15)]
-		[TestCase(".Self(A >> .Self(B >> C))", 5 >> (10 >> 15), 5, 10, 15)]
+		[TestCase("(A + (B + C))", 5 + (10 + 15), 5, 10, 15)]
+		[TestCase("(A - (B - C))", 5 - (10 - 15), 5, 10, 15)]
+		[TestCase("(A / (B / C))", 5 / (22 / 15), 5, 22, 15)]
+		[TestCase("(A * (B * C))", 5 * (10 * 15), 5, 10, 15)]
+		[TestCase("(A % (B % C))", 5 % (10 % 15), 5, 10, 15)]
+		[TestCase("(A << (B << C))", 5 << (10 << 15), 5, 10, 15)]
+		[TestCase("(A >> (B >> C))", 5 >> (10 >> 15), 5, 10, 15)]
+		[TestCase("(((A) >> ((B) >> C)))", 5 >> (10 >> 15), 5, 10, 15)]
 
 		public async Task TestExpressionCanParseOperators(string query, object valExp, params object[] args)
 		{
 			var context = TokenzierContext.FromText(query);
 			var expressions = ExpressionParser.ParseExpression(query, context);
-			Assert.That(expressions, Is.Not.Null);
+			Assert.That(expressions, Is.Not.Null, () => context.Errors.GetErrorText());
 
 			var visitor = new ToParsableStringExpressionVisitor();
 			expressions.Accept(visitor);
@@ -395,10 +402,10 @@ namespace Morestachio.Tests
 			}
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
 			{
-				options.Formatters.AddSingleGlobal<object, object>(f =>
-				{
-					return f;
-				}, "Self");
+				//options.Formatters.AddSingleGlobal<object, object>(f =>
+				//{
+				//	return f;
+				//}, "Self");
 			});
 			Assert.That(result, Is.EqualTo((valExp).ToString()));
 		}
@@ -411,7 +418,7 @@ namespace Morestachio.Tests
 		[TestCase("dd,,MM,,YYY")]
 		public async Task ParserCanFormat(string dtFormat)
 		{
-			var template = "{{data.(\"" + dtFormat + "\")}},{{data}}";
+			var template = "{{data.ToString(\"" + dtFormat + "\")}},{{data}}";
 			var dataValue = DateTime.UtcNow;
 			var data = new Dictionary<string, object> { { "data", dataValue } };
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
@@ -434,7 +441,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task ParserCanVariableExpression()
 		{
-			var template = "{{#var f = data.('G')}}|{{f}}";
+			var template = "{{#var f = data.ToString('G')}}|{{f}}";
 			var dataValue = DateTime.Now;
 			var data = new Dictionary<string, object>
 			{
@@ -447,7 +454,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task ParserCanVariableExpressionWithFormats()
 		{
-			var template = "{{#VAR f = data.('G').PadLeft(123)}}|{{f}}";
+			var template = "{{#VAR f = data.ToString('G').PadLeft(123)}}|{{f}}";
 			var dataValue = DateTime.Now;
 			var data = new Dictionary<string, object>
 			{
@@ -467,7 +474,7 @@ namespace Morestachio.Tests
 		public async Task ParserCanVariableSetToOtherVariable()
 		{
 			var template = "{{#var f = data}}" +
-						   "{{#var e = f.('G')}}" +
+						   "{{#var e = f.ToString('G')}}" +
 						   "{{e.PadLeft(123)}}";
 			var dataValue = DateTime.Now;
 			var data = new Dictionary<string, object>
@@ -651,14 +658,14 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task ParserCanParseNumberAsFormatterArg()
 		{
-			var template = "{{f.(123)}}";
+			var template = "{{f.Format(123)}}";
 			var data = new Dictionary<string, object>
 			{
 				{"f", "F5" }
 			};
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
 			{
-				options.Formatters.AddSingle(new Func<string, int, string>((e, f) => f.ToString(e)));
+				options.Formatters.AddSingle(new Func<string, int, string>((e, f) => f.ToString(e)), "Format");
 			});
 			Assert.That(result, Is.EqualTo(123.ToString("F5")));
 		}
@@ -762,7 +769,7 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
-		[TestCase("{{data.(d))}}", 1, Ignore = "Currently its not possible to evaluate this info")]//
+		[TestCase("{{data.(d))}}", 1/*, Ignore = "Currently its not possible to evaluate this info"*/)]
 		[TestCase("{{data.((d)}}", 1)]
 		[TestCase("{{data)}}", 1)]
 		[TestCase("{{data.(}}", 1)]

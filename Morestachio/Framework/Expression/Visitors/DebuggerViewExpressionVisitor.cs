@@ -135,7 +135,7 @@ namespace Morestachio.Framework.Expression.Visitors
 			StringBuilder
 				.AppendLine("Exp[")
 				.Up()
-				.AppendInterlaced();;
+				.AppendInterlaced();
 			for (var index = 0; index < expression.Expressions.Count; index++)
 			{
 				var expressionExpression = expression.Expressions[index];
@@ -149,6 +149,19 @@ namespace Morestachio.Framework.Expression.Visitors
 			StringBuilder.Down()
 				.AppendLine()
 				.AppendInterlaced("]");
+		}
+
+		public void Visit(MorestachioBracketExpression expression)
+		{
+			StringBuilder
+				.AppendLine("ExpBracket(")
+				.Up()
+				.AppendInterlaced();
+			Visit(expression as MorestachioMultiPartExpressionList);
+
+			StringBuilder.Down()
+				.AppendLine()
+				.AppendInterlaced(")");
 		}
 
 		/// <inheritdoc />

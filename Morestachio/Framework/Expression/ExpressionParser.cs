@@ -46,6 +46,9 @@ namespace Morestachio.Framework.Expression
 				case "ExpressionOperator":
 					exp = new MorestachioOperatorExpression();
 					break;
+				case "ExpressionBracket":
+					exp = new MorestachioBracketExpression();
+					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(ExpressionKindNodeName));
 			}
@@ -59,6 +62,9 @@ namespace Morestachio.Framework.Expression
 			{
 				case MorestachioExpression _:
 					writer.WriteStartElement("Expression");
+					break;
+				case MorestachioBracketExpression _:
+					writer.WriteStartElement("ExpressionBracket");
 					break;
 				case MorestachioArgumentExpressionList _:
 					writer.WriteStartElement("ExpressionArgList");

@@ -14,6 +14,10 @@
 		///		Visits an Expression List
 		/// </summary>
 		void Visit(MorestachioArgumentExpressionList expression);
+		/// <summary>
+		///		Visits an Bracket enclosing one expression
+		/// </summary>
+		void Visit(MorestachioBracketExpression expression);
 		
 		/// <summary>
 		///		Visits an Expression List
