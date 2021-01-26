@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Dynamic;
 using System.IO;
 using System.Xml.Serialization;
+using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Framework.Context.Resolver;
 using Morestachio.Helper.Logging;
@@ -54,6 +55,7 @@ namespace Morestachio.Formatter.Predefined
 		}
 
 		[MorestachioFormatter("AsObject", "Wraps an IDictionary as an object")]
+		[MorestachioGlobalFormatter("AsObject", "Wraps an IDictionary as an object")]
 		public static object AsObject(IDictionary<string, object> value)
 		{
 			return new DicFassade(value);
