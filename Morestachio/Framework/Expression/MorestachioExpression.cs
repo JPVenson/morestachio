@@ -420,6 +420,27 @@ namespace Morestachio.Framework.Expression
 			text = text.TrimEnd(Tokenizer.GetWhitespaceDelimiters());
 			var orIndx = index;
 
+			int Index(int toIndex)
+			{
+				if (toIndex >= text.Length)
+				{
+					Console.WriteLine();
+				}
+
+				index = toIndex;
+				return index;
+			}
+
+			int Incr()
+			{
+				return Index(index + 1);
+			}
+
+			int Decr()
+			{
+				return Index(index - 1);
+			}
+
 			if (!text.Contains("(") && !text.Any(Tokenizer.IsOperationChar))
 			//this is the fast parsing branch. In case there are no operators or formatters used we can take the whole text as an single expression
 			{
@@ -434,18 +455,18 @@ namespace Morestachio.Framework.Expression
 				{
 					var expression = new MorestachioExpression(context.CurrentLocation);
 					Func<IMorestachioError> errFunc;
-					for (; index < text.Length; index++)
+					for (; index < text.Length; Incr())
 					{
 						var c = text[index];
 						if (c == ';')
 						{
 							expression.EndsWithDelimiter = true;
-							index++;
+							Incr();
 							break;
 						}
 						if (c == '#')
 						{
-							index--;
+							Decr();
 							break;
 						}
 						if (!expression._pathTokenizer.Add(c, context, index, out errFunc))
@@ -479,7 +500,7 @@ namespace Morestachio.Framework.Expression
 
 			//var currentPathPart = new StringBuilder();
 			while (index < text.Length)
-			//for (; index < text.Length; index++)
+			//for (; index < text.Length; Incr())
 			{
 				reprocess = false;
 				currentScope = tokenScopes.Peek();
@@ -488,23 +509,22 @@ namespace Morestachio.Framework.Expression
 					case TokenState.ArgumentStart:
 						{
 							//we are at the start of an argument
-							index = SkipWhitespaces(text, index);
+							Index(SkipWhitespaces(text, index));
 
 							if (text[index] == '[')
 							{
-								index++;
+								Incr();
 								currentScope.ArgumentName = new string(Take(text, f => f != ']', ref index));
 								index += 1;
 							}
 							reprocess = true;
-							//index--; //reprocess the char
 							currentScope.State = TokenState.DecideArgumentType;
 						}
 						break;
 					case TokenState.DecideArgumentType:
 						{
 							//we are at the start of an argument
-							index = SkipWhitespaces(text, index);
+							Index(SkipWhitespaces(text, index));
 
 							var idx = index;
 							if (Tokenizer.IsStringDelimiter(text[index]))
@@ -583,7 +603,7 @@ namespace Morestachio.Framework.Expression
 								{
 									currentScope.State = TokenState.Expression;
 
-									//index--;
+									//Decr();
 									currentScope.Value = new MorestachioExpression(context.CurrentLocation.Offset(index));
 								}
 							}
@@ -608,21 +628,20 @@ namespace Morestachio.Framework.Expression
 							AddCurrentScopeToParent(idx, context, currentScope, currentScope.Value, currentScope.Parent.Value);
 							if (!reprocess && IsNextCharOperator(text, index, out var nIndex))
 							{
-								index = nIndex;
+								Index(nIndex);
 								ParseOperationCall(text, index, out index, context, tokenScopes, currentScope);
 							}
 						}
 						break;
 					case TokenState.Bracket:
 						{
-							index = SkipWhitespaces(text, index);
+							Index(SkipWhitespaces(text, index));
 							if (currentScope.BracketsCounter > 0)
 							{
 								//TerminateCurrentScope(tokenScopes);
 								reprocess = true;
 								//fall into the expression state to allow tailing . or operators to be invoked on that bracket
 								currentScope.State = TokenState.Expression;
-
 							}
 							else
 							{
@@ -639,7 +658,7 @@ namespace Morestachio.Framework.Expression
 						}
 					case TokenState.Expression:
 						{
-							index = SkipWhitespaces(text, index);
+							Index(SkipWhitespaces(text, index));
 							if (text[index] == '(')
 							{
 								//in this case the current path has ended and we must prepare for arguments
@@ -677,13 +696,13 @@ namespace Morestachio.Framework.Expression
 								var temIndex = Seek(text, index, f => !Tokenizer.IsWhiteSpaceDelimiter(f), false);
 								if (temIndex != -1)
 								{
-									index = temIndex;
+									Index(temIndex);
 								}
 								if (text[index] == ')')
 								{
 									//the only next char is the closing bracket so no arguments
 									//currentScope.BracketsCounter--;
-									index = EndParameterBracket(text, index, tokenScopes, currentScope, context, morestachioExpressions);
+									Index(EndParameterBracket(text, index, tokenScopes, currentScope, context, morestachioExpressions));
 								}
 								else if (text[index] == '(')
 								{
@@ -691,11 +710,12 @@ namespace Morestachio.Framework.Expression
 									{
 										break;
 									}
+									//enqueue the creation of a new bracket.
+									//dont just set the value here as it needs to be added via AddCurrentScopeToParent
 									tokenScopes.Push(new HeaderTokenMatch()
 									{
-										State = TokenState.Bracket,
+										State = TokenState.DecideArgumentType,
 										Parent = currentScope,
-										ArgumentName = "",
 									});
 									reprocess = true;
 								}
@@ -713,7 +733,7 @@ namespace Morestachio.Framework.Expression
 									}
 									//indicates the start of an argument
 									reprocess = true;
-									//index--;
+									//Decr();
 									tokenScopes.Push(new HeaderTokenMatch
 									{
 										State = TokenState.ArgumentStart,
@@ -723,7 +743,6 @@ namespace Morestachio.Framework.Expression
 							}
 							else if (text[index] == ')')
 							{
-								var parentExpression = currentScope.Parent?.Value as MorestachioExpression;
 								//currentScope.Parent.BracketsCounter--;
 								if (currentScope.Value is MorestachioExpression currentScopeValue)
 								{
@@ -732,9 +751,10 @@ namespace Morestachio.Framework.Expression
 										indexedUntil = 0;
 										return null;
 									}
+									var parentExpression = currentScope.Parent?.Value as MorestachioExpression;
 
 									if (currentScopeValue != null &&
-										!currentScopeValue.PathParts.Any() && parentExpression?.Formats.Any() == true)
+									    !currentScopeValue.PathParts.Any() && parentExpression?.Formats.Any() == true)
 									{
 										context.Errors.Add(new InvalidPathSyntaxError(
 											context.CurrentLocation.Offset(index)
@@ -747,7 +767,7 @@ namespace Morestachio.Framework.Expression
 								}
 
 								TerminateCurrentScope(tokenScopes);
-								index = EndParameterBracket(text, index, tokenScopes, tokenScopes.Peek(), context, morestachioExpressions);
+								Index(EndParameterBracket(text, index, tokenScopes, tokenScopes.Peek(), context, morestachioExpressions));
 							}
 							else if (text[index] == ',')
 							{
@@ -783,7 +803,7 @@ namespace Morestachio.Framework.Expression
 							else
 							{
 								if (text[index] != ';'
-								    && text[index] != '#')
+									&& text[index] != '#')
 								{
 									var exp = currentScope.Value as MorestachioExpression;
 									var bracket = currentScope.Value as MorestachioBracketExpression;
@@ -793,7 +813,7 @@ namespace Morestachio.Framework.Expression
 										  && exp._pathTokenizer.Add(text[index], context, index, out errFunc) == false)
 										|| bracket != null)
 									{
-										var parseOp = 
+										var parseOp =
 											ParseOperationCall(text, index, out index, context, tokenScopes, currentScope);
 										if (parseOp == true)
 										{
@@ -849,20 +869,19 @@ namespace Morestachio.Framework.Expression
 					if (text[index] == ';') //expression delimiter char, advance the index and "process" it that way and stop this expression
 					{
 						morestachioExpressions.EndsWithDelimiter = true;
-						index++;
+						Incr();
 						break;
 					}
 					if (text[index] == '#') //expression delimiter char, as the # indicates the start of another inline expression do not process it and reset the index
 					{
-						index--;
+						Decr();
 						break;
 					}
-
 				}
 
 				if (!reprocess)
 				{
-					index++;
+					Incr();
 				}
 			}
 
@@ -931,12 +950,24 @@ namespace Morestachio.Framework.Expression
 				}
 
 				idx++;
+#if DEBUG
+				if (idx >= text.Length)
+				{
+					Debugger.Break();
+				}
+#endif
 			}
 
 			for (; idx < text.Length; idx++)
 			{
 				if (condition(text[idx]))
 				{
+#if DEBUG
+					if (idx >= text.Length)
+					{
+						Debugger.Break();
+					}
+#endif
 					return idx;
 				}
 			}
@@ -971,7 +1002,12 @@ namespace Morestachio.Framework.Expression
 
 				return Tokenizer.IsOperationChar(text[index]);
 			}
-
+#if DEBUG
+			if (index >= text.Length)
+			{
+				Debugger.Break();
+			}
+#endif
 			nIndex = index;
 			return index != -1;
 		}
@@ -1026,7 +1062,8 @@ namespace Morestachio.Framework.Expression
 						scope = tokenScopes.Peek();
 					}
 
-					if (scope?.Value is MorestachioExpressionListBase)//if the parent expression is a list close that list too
+					if (scope?.Value is MorestachioExpressionListBase)
+						//if the parent expression is a list close that list too
 					{
 						tokenScopes.Peek().BracketsCounter--;
 						TerminateCurrentScope(tokenScopes);
@@ -1051,7 +1088,8 @@ namespace Morestachio.Framework.Expression
 								scope = scope.Parent;
 								TerminateCurrentScope(tokenScopes);
 							}
-							else if (!(scope.Value is MorestachioExpressionListBase))//the parent is not an list expression so replace the parent with a list expression
+							else if (!(scope.Value is MorestachioExpressionListBase))
+							//the parent is not an list expression so replace the parent with a list expression
 							{
 								var oldValue = scope.Value;
 								scope.Value = new MorestachioMultiPartExpressionList(new List<IMorestachioExpression>
@@ -1110,7 +1148,8 @@ namespace Morestachio.Framework.Expression
 						}
 						else
 						{
-							index++;
+							
+								//index++;
 							index = SkipWhitespaces(text, index);
 							if (!Tokenizer.IsStartOfExpressionPathChar(text[index]) && text[index] != ')')
 							{
@@ -1118,7 +1157,7 @@ namespace Morestachio.Framework.Expression
 									context.CurrentLocation.Offset(index)
 										.AddWindow(new CharacterSnippedLocation(1, index, text)),
 									currentScope.Value.ToString()));
-								return text.Length;
+								return text.Length - 1;
 							}
 
 							if (morestachioExpressions != null)
@@ -1129,11 +1168,11 @@ namespace Morestachio.Framework.Expression
 										context.CurrentLocation.Offset(index)
 											.AddWindow(new CharacterSnippedLocation(1, index, text)),
 										currentScope.Value.ToString()));
-									return text.Length;
+									return text.Length - 1;
 								}
 							}
 
-							index--;
+							//index--;
 							//currentScope.State = TokenState.DecideArgumentType;
 
 							//if there is no parent set this indicates a followup expression
@@ -1141,8 +1180,6 @@ namespace Morestachio.Framework.Expression
 							{
 								State = TokenState.DecideArgumentType,
 								Parent = parent,
-								Value = new MorestachioExpression(context.CurrentLocation.Offset(index)),
-								TokenLocation = context.CurrentLocation.Offset(index + 1)
 							};
 						}
 

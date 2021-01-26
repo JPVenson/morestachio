@@ -247,6 +247,11 @@ namespace Morestachio.Tests
 		[TestCase("(('').())")]
 		[TestCase("(('').A())")]
 		[TestCase("a(b(c().d()))")]
+		[TestCase("f((A + B), C)")]
+		[TestCase("f((), C)")]
+		[TestCase("f((''), C)")]
+		[TestCase("(f('')).Test")]
+		[TestCase("((A.F()).T)", Ignore = "Unsupported")]
 		[TestCase("f(fe().P).Fg()")]
 		[TestCase("f(fe().P).Fg().DE()")]
 		[TestCase("f(fe().P.Add(' ')).Fg().DE()")]
@@ -267,6 +272,15 @@ namespace Morestachio.Tests
 		[TestCase("d.f(fA('').fB.()).Test.Data")]
 		[TestCase("d.f(fA('').fB.()).Test.fC()")]
 		[TestCase("d.f(fA.TS('', e))")]
+		[TestCase("d.f(fA.TS('', e), (A + B))")]
+		[TestCase("d.f(fA.TS('', e), (A))")]
+		[TestCase("d.f(fA.TS('', e), ())")]
+		[TestCase("d.f(fA.TS('', e), (A + (D)))")]
+		[TestCase("d.f(fA.TS('', e), (A + (D) + d))")]
+		[TestCase("d.f(fA.TS('', e), (A + (D + 4) + d))")]
+		[TestCase("d.f(fA.TS('', e), (A + Delta(D) + d))")]
+		[TestCase("d.f(fA.TS('', e), (A + Delta(D + 4) + d))")]
+		[TestCase("d.f(fA.TS('', e), (A + Delta((D + 4), A) + d))")]
 		[TestCase("d.f(fA.TS('', e()))")]
 		[TestCase("d.f(fA.TS('', e('')))")]
 		[TestCase("d.f(fA.TS('d'))")]
@@ -285,6 +299,8 @@ namespace Morestachio.Tests
 		[TestCase("d.f(fA.TS('d', f).fB('d', f)).Test.fC('d', f)")]
 		[TestCase("d.f(fA.TS('d', f.TS()).fB('d', f)).Test.fC('d', f)")]
 		[TestCase("d.f(fA.TS('d', f.TS()).fB('d', f.TS())).Test.fC('d', f.TS())")]
+		[TestCase("(d.f(fA.TS('d', f.TS()).fB('d', f.TS())).Test.fC('d', f.TS()))")]
+		[TestCase("(d.f((fA.TS('d', f.TS())).fB('d', f.TS())).Test.fC('d', f.TS()))", Ignore = "Unsupported")]
 		public void TestExpressionParser(string query)
 		{
 			var context = TokenzierContext.FromText(query);
@@ -299,7 +315,7 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
-		[TestCase("a.Add(2).Buffer == 'test'")]
+		[TestCase("((A.F()).T)", Ignore = "Test")]
 		public void TestExpressionParserDbg(string query)
 		{
 			var context = TokenzierContext.FromText(query);
@@ -769,8 +785,8 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
-		[TestCase("{{data.(d))}}", 1/*, Ignore = "Currently its not possible to evaluate this info"*/)]
-		[TestCase("{{data.((d)}}", 1)]
+		[TestCase("{{data.(d))}}", 1, Ignore = "Auto Fixed"/*, Ignore = "Currently its not possible to evaluate this info"*/)]
+		[TestCase("{{data.((d)}}", 1, Ignore = "Auto Fixed")]
 		[TestCase("{{data)}}", 1)]
 		[TestCase("{{data.(}}", 1)]
 		[TestCase("{{data.(arg}}", 1)]
