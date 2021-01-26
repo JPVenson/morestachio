@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Dynamic;
 using System.IO;
 using System.Xml.Serialization;
 using Morestachio.Formatter.Framework.Attributes;
@@ -13,7 +14,7 @@ namespace Morestachio.Formatter.Predefined
 	/// <summary>
 	///		Contains the basic Formatting operations
 	/// </summary>
-	public static class ObjectStringFormatter
+	public static class ObjectFormatter
 	{
 		[MorestachioFormatter("ToString", "Formats a value according to the structure set by the argument")]
 		public static string Formattable(IFormattable source, string argument, [ExternalData]ParserOptions options)
@@ -49,6 +50,33 @@ namespace Morestachio.Formatter.Predefined
 			{
 				xmlSerializer.Serialize(xmlStream, source);
 				return options.Encoding.GetString(xmlStream.ToArray());
+			}
+		}
+
+		[MorestachioFormatter("AsObject", "Wraps an IDictionary as an object")]
+		public static object AsObject(IDictionary<string, object> value)
+		{
+			return new DicFassade(value);
+		}
+
+		private class DicFassade : DynamicObject
+		{
+			private readonly IDictionary<string, object> _values;
+
+			public DicFassade(IDictionary<string, object> values)
+			{
+				_values = values;
+			}
+
+			public override bool TrySetMember(SetMemberBinder binder, object value)
+			{
+				_values[binder.Name] = value;
+				return true;
+			}
+
+			public override bool TryGetMember(GetMemberBinder binder, out object result)
+			{
+				return _values.TryGetValue(binder.Name, out result);
 			}
 		}
 		

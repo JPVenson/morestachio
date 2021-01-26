@@ -51,7 +51,7 @@ namespace Morestachio.Framework.Context
 		static ContextObject()
 		{
 			DefaultFormatter = new MorestachioFormatterService();
-			DefaultFormatter.AddFromType(typeof(ObjectStringFormatter));
+			DefaultFormatter.AddFromType(typeof(ObjectFormatter));
 			DefaultFormatter.AddFromType(typeof(Number));
 			DefaultFormatter.AddFromType(typeof(BooleanFormatter));
 			DefaultFormatter.AddFromType(typeof(DateFormatter));
