@@ -1607,6 +1607,23 @@ Static
 		}
 
 		[Test]
+		public async Task TestCanRemoveLineBreaksWhereNothingIsToRemove()
+		{
+			var template = @"{{#SCOPE other}} Other exists{{/SCOPE |-}} 
+{{^SCOPE other}} Other does not exists{{/SCOPE |-}},";
+			var data = new
+			{
+				other = "World"
+			};
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.Formatters.AddFromType(typeof(EqualityFormatter));
+			});
+			Assert.That(result, Is.EqualTo(@" Other exists,"));
+		}
+
+		[Test]
 		public async Task TestCanRemoveLineBreaksWithOption()
 		{
 			var template = @"{{#SET OPTION TrimTailing = true}}{{#SET OPTION TrimLeading = true}}
