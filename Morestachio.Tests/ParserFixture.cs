@@ -559,6 +559,23 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		public async Task ParserCanSetVariableNull()
+		{
+			var template = "{{dataA}}" +
+						   "{{#var $null = 'DD'}}" +
+						   "{{aataA}}";
+			var data = new Dictionary<string, object>
+			{
+				{ "data", "dataValue" },
+			};
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.Null = "{NULL}";
+			});
+			Assert.That(result, Is.EqualTo("{NULL}DD"));
+		}
+
+		[Test]
 		public async Task ParserCanVariableSetToString()
 		{
 			var template = "{{#var f = data}}" +

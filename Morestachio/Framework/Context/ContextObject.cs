@@ -487,10 +487,11 @@ namespace Morestachio.Framework.Context
 		/// <summary>
 		///     Renders the Current value to a string or if null to the Null placeholder in the Options
 		/// </summary>
+		/// <param name="scopeData"></param>
 		/// <returns></returns>
-		public virtual StringPromise RenderToString()
+		public virtual StringPromise RenderToString(ScopeData scopeData)
 		{
-			return (Value?.ToString() ?? Options.Null).ToPromise();
+			return (Value?.ToString() ?? scopeData.GetVariable(this, "$null")?.Value?.ToString() ?? Options.Null).ToPromise();
 		}
 
 		/// <summary>

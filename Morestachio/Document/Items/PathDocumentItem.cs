@@ -96,11 +96,11 @@ namespace Morestachio.Document.Items
 					//await contextObject.EnsureValue();
 					if (EscapeValue && !context.Options.DisableContentEscaping)
 					{
-						outputStream.Write(HtmlEncodeString(await contextObject.RenderToString()));
+						outputStream.Write(HtmlEncodeString(await contextObject.RenderToString(scopeData)));
 					}
 					else
 					{
-						outputStream.Write(await contextObject.RenderToString());
+						outputStream.Write(await contextObject.RenderToString(scopeData));
 					}
 				}
 
@@ -118,11 +118,11 @@ namespace Morestachio.Document.Items
 				//await contextObject.EnsureValue();
 				if (EscapeValue && !context.Options.DisableContentEscaping)
 				{
-					outputStream.Write(HtmlEncodeString(await contextObject.RenderToString()));
+					outputStream.Write(HtmlEncodeString(await contextObject.RenderToString(scopeData)));
 				}
 				else
 				{
-					outputStream.Write(await contextObject.RenderToString());
+					outputStream.Write(await contextObject.RenderToString(scopeData));
 				}
 			}
 			

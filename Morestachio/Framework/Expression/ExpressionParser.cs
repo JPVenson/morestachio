@@ -141,6 +141,17 @@ namespace Morestachio.Framework.Expression
 			tokenValue = tokenValue.Substring(strVarType.Length);
 			context.AdvanceLocation(strVarType.Length);
 			string variableName = null;
+			if (strVarType.Length < 3)
+			{
+				context.Errors.Add(new MorestachioSyntaxError(
+					context
+						.CurrentLocation
+						.Offset(0)
+						.AddWindow(new CharacterSnippedLocation(0, 0, tokenValue)),
+					strVarType, "", strVarType + "name", "Invalid character detected. Expected only spaces or letters."));
+				return default;
+			}
+
 			int i = 0;
 			var lengthToExpression = 0;
 			for (; i < tokenValue.Length; i++)
@@ -156,6 +167,11 @@ namespace Morestachio.Framework.Expression
 
 				if (!char.IsLetter(c) && c != ' ')
 				{
+					if (i == 0 && c == '$')
+					{
+						continue;
+					}
+
 					context.Errors.Add(new MorestachioSyntaxError(
 						context
 							.CurrentLocation

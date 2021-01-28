@@ -130,7 +130,7 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 				arguments[index] = (await parameters());
 			}
 
-			return service.GetTranslationOrNull(await valueContext.RenderToString(), culture, arguments);
+			return service.GetTranslationOrNull(await valueContext.RenderToString(scopeData), culture, arguments);
 		}
 
 		/// <inheritdoc />

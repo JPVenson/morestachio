@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Morestachio.Document;
 
 namespace Morestachio.Framework.IO.MultiPart
 {
@@ -18,10 +19,11 @@ namespace Morestachio.Framework.IO.MultiPart
 		/// </summary>
 		ByteCounterStreamPartType State { get; }
 
-		/// <summary>
-		///		Writes the Content into the underlying Stream when the limit is not exceeded
-		/// </summary>
-		/// <param name="content"></param>
+		///  <summary>
+		/// 		Writes the Content into the underlying Stream when the limit is not exceeded
+		///  </summary>
+		///  <param name="content"></param>
+		///  <param name="scopeData"></param>
 		void Write(string content);
 
 		/// <summary>
