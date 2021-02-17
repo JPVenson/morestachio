@@ -74,6 +74,12 @@ namespace Morestachio.Framework.Tokenizing
 			return formatChar == '\'' || formatChar == '\"';
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		internal static bool IsEndOfExpression(char formatChar)
+		{
+			return formatChar == ';' || formatChar == '#';
+		}
+
 		private static char[] _whitespaceDelimiters = new[] { '\r', '\n', '\t', ' ' };
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static char[] GetWhitespaceDelimiters()
@@ -99,6 +105,7 @@ namespace Morestachio.Framework.Tokenizing
 		internal static bool IsStartOfExpressionPathChar(char formatChar)
 		{
 			return formatChar == '$'
+				   || formatChar == '?'
 				   || IsSingleExpressionPathChar(formatChar);
 		}
 
@@ -153,7 +160,32 @@ namespace Morestachio.Framework.Tokenizing
 				formatChar == '!' ||
 				formatChar == '&' ||
 				formatChar == '|';
-			//return MorestachioOperator.Yield().Any(f => f.OperatorText[0] == formatChar);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		internal static bool IsOperationString(string operatorText)
+		{
+			return
+				operatorText == "+" ||
+				operatorText == "-" ||
+				operatorText == "*" ||
+				operatorText == "/" ||
+				operatorText == "^" ||
+				operatorText == "%" ||
+				operatorText == "<<" ||
+				operatorText == ">>" ||
+				operatorText == "==" ||
+				operatorText == "!=" ||
+				operatorText == "<" ||
+				operatorText == "<=" ||
+				operatorText == ">" ||
+				operatorText == ">=" ||
+				operatorText == "&&" ||
+				operatorText == "||" ||
+				operatorText == "<?" ||
+				operatorText == ">?" ||
+				operatorText == "??";
+
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

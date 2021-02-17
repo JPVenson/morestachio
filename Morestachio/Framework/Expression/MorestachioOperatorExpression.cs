@@ -221,6 +221,7 @@ namespace Morestachio.Framework.Expression
 				contextObject.Parent);
 		}
 
+		/// <inheritdoc />
 		public CompiledExpression Compile()
 		{
 			var left = LeftExpression.Compile();

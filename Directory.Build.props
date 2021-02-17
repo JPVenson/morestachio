@@ -9,4 +9,8 @@
     <RepositoryUrl>https://github.com/JPVenson/morestachio</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
+
+  <!--<PropertyGroup Condition="'$(Configuration)' == 'Release' and '$(BuildPackage)' == 'true'">
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>-->
 </Project>

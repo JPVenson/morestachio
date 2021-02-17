@@ -23,7 +23,7 @@ namespace Morestachio.Fluent.Expression
 		/// <returns></returns>
 		public MorestachioExpressionBuilder Parse(string expression)
 		{
-			ExpressionParts.Add(MorestachioExpression.ParseFrom(expression, TokenzierContext.FromText(expression), out _));
+			ExpressionParts.Add(ExpressionParser.ParseExpression(expression, TokenzierContext.FromText(expression), out _));
 			return this;
 		}
 

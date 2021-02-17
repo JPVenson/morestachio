@@ -7,7 +7,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Morestachio.Framework.Context.Resolver;
+using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
+using Morestachio.Framework.Expression.Visitors;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
 using Morestachio.Profiler;
@@ -30,6 +32,66 @@ namespace Morestachio.Tests
 		{
 
 		}
+		
+		[Test]
+		[TestCase("d.f(fA.TS('', e), (A + Delta((D + 4), A) + d))")]
+		public void TestExpressionCanParseOperators(string query)
+		{
+			var sw = new Stopwatches();
+			IMorestachioExpression expressions = null;
+			TokenzierContext context = null;
+			for (int i = 0; i < 50000; i++)
+			{
+				sw.Start();
+				context = TokenzierContext.FromText(query);
+				expressions = ExpressionParser.ParseExpression(query, context);
+				sw.Stop();
+			}
+
+			Assert.Warn("Result: " + sw.Elapsed + " average: " + sw.ElapsedAverage);
+			//TestContext.Out.WriteLine();
+			
+			//Assert.That(expressions, Is.Not.Null, () => context.Errors.GetErrorText());
+			//Assert.That(context.Errors, Is.Empty, () => context.Errors.GetErrorText());
+
+			//var visitor = new ToParsableStringExpressionVisitor();
+			//expressions.Accept(visitor);
+
+			//var actual = visitor.StringBuilder.ToString();
+			//Assert.That(actual, Is.EqualTo(query));
+
+
+			//var template = "{{" + query + "}}";
+			//var data = new Dictionary<string, object>();
+			//for (var index = 0; index < args.Length; index++)
+			//{
+			//	var arg = args[index];
+			//	data.Add(((char)('A' + index)).ToString(), arg);
+			//}
+			//var result = await ParserFixture.CreateAndParseWithOptions(template, data, ParserOptionTypes.UseOnDemandCompile, options =>
+			//{
+			//	//options.Formatters.AddSingleGlobal<object, object>(f =>
+			//	//{
+			//	//	return f;
+			//	//}, "Self");
+			//});
+			//Assert.That(result, Is.EqualTo((valExp).ToString()));
+		}
+
+		[Test]
+		[TestCase("d.f(fA.TS('', e), (A + Delta((D + 4), A) + d))")]
+		public void TestNewExpressionTokenizer(string testExpression)
+		{
+			//var testExpression = "test.data.value(data)";
+			var tokenzierContext = TokenzierContext.FromText(testExpression);
+			var parsedExpression = ExpressionParser.ParseExpression(testExpression, tokenzierContext);
+
+			var builder = new ToParsableStringExpressionVisitor();
+			parsedExpression.Accept(builder);
+			var str = builder.StringBuilder.ToString();
+			Assert.That(str, Is.EqualTo(testExpression));
+		}
+
 
 		public void Generic<T>(IEnumerable<T> value)
 		{

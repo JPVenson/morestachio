@@ -105,6 +105,11 @@ namespace Morestachio.Framework.Expression.Framework
 		/// </summary>
 		public bool TrimAllTailing { get; set; }
 
+		internal CharacterLocation Location(int chars)
+		{
+			return Tokenizer.HumanizeCharacterLocation(chars, Lines);
+		}
+
 		/// <summary>
 		///		Advances the current location by the number of chars
 		/// </summary>

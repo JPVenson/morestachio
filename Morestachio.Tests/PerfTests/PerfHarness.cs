@@ -70,7 +70,7 @@ namespace Morestachio.Tests.PerfTests
 		public async Task TestExpressionRuns(string variation, int width, int depth, int noArguments, int runs)
 		{
 			var expression = ConstructExpression("", width, depth, noArguments);
-			MorestachioExpression.ParseFrom("data", TokenzierContext.FromText("data"), out _);
+			ExpressionParser.ParseExpression("data", TokenzierContext.FromText("data"));
 
 			var data = new Dictionary<string, object>();
 			for (int i = 0; i < width; i++)
@@ -84,7 +84,8 @@ namespace Morestachio.Tests.PerfTests
 			IMorestachioExpression morestachioExpression = null;
 			for (var i = 0; i < runs; i++)
 			{
-				morestachioExpression = MorestachioExpression.ParseFrom(expression.Item1, TokenzierContext.FromText(expression.Item1), out _);
+				morestachioExpression = ExpressionParser.ParseExpression(expression.Item1,
+					TokenzierContext.FromText(expression.Item1));
 			}
 
 			parseTime.Stop();

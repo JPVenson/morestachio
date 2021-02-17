@@ -591,12 +591,12 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task ParserCanFormatMultipleNamed()
 		{
-			var template = "{{#SCOPE data}}{{.([refSelf] ., 'arg',[Fob]'test', [twoArgs]'arg, arg', [anySpaceArg]' spaced ')}}{{/SCOPE}}";
+			var template = "{{#SCOPE data}}{{Formatter([refSelf] ., 'arg',[Fob]'test', [twoArgs]'arg, arg', [anySpaceArg]' spaced ')}}{{/SCOPE}}";
 			var data = new Dictionary<string, object>() { { "data", 123123123 } };
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts | ParserOptionTypes.NoRerenderingTest, options =>
 			{
 				options.Formatters.AddSingle(
-					new Func<int, string, string, string, string, int, string>(NamedFormatter));
+					new Func<int, string, string, string, string, int, string>(NamedFormatter), "Formatter");
 			});
 			Assert.That(result, Is.EqualTo("123123123|test|arg|arg, arg| spaced |123123123"));
 		}

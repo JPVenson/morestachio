@@ -206,22 +206,22 @@ namespace Morestachio.Tests
 
 		[Test]
 		[TestCase("d.f", 1)]
-		[TestCase("d.f;Test", 2)]
-		[TestCase("d.f;Test()", 2)]
-		[TestCase("d.f;Test(); Other", 3)]
-		[TestCase("d.f; Test() ; Other", 3)]
-		[TestCase("d.f; Test() ; Other; 'TEST'", 4)]
-		[TestCase("d.f; Test() ; 'test'", 3)]
-		[TestCase("d.f; Test() ; 'test'; acd", 4)]
-		[TestCase("'d'; Test() ; 'test'; acd", 4)]
-		[TestCase("''; Test() ; 'test'; acd", 4)]
+		[TestCase("d.f;T", 2)]
+		[TestCase("d.f;T()", 2)]
+		[TestCase("d.f;T(); O", 3)]
+		[TestCase("d.f; T() ; O", 3)]
+		[TestCase("d.f; T() ; O; 'TT'", 4)]
+		[TestCase("d.f; T() ; 't'", 3)]
+		[TestCase("d.f; T() ; 't'; a", 4)]
+		[TestCase("'d'; T() ; 't'; a", 4)]
+		[TestCase("''; T() ; 't'; a", 4)]
 		public void ExpressionParserCanParseMany(string expression, int expected)
 		{
 			var context = TokenzierContext.FromText(expression);
 			var expr = new List<IMorestachioExpression>();
 			int parsedBy = 0;
 			var location = 0;
-			while ((location = context.CurrentLocation.ToPosition(context)) < expression.Length)
+			while ((location = context.CurrentLocation.ToPosition(context)) < expression.Length + 1)
 			{
 				expr.Add(ExpressionParser.ParseExpression(expression, context, out parsedBy, parsedBy));
 			}
@@ -315,7 +315,7 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
-		[TestCase("((A.F()).T)", Ignore = "Test")]
+		[TestCase("H(D())")]
 		public void TestExpressionParserDbg(string query)
 		{
 			var context = TokenzierContext.FromText(query);
@@ -401,12 +401,13 @@ namespace Morestachio.Tests
 			var context = TokenzierContext.FromText(query);
 			var expressions = ExpressionParser.ParseExpression(query, context);
 			Assert.That(expressions, Is.Not.Null, () => context.Errors.GetErrorText());
+			Assert.That(context.Errors, Is.Empty, () => context.Errors.GetErrorText());
 
 			var visitor = new ToParsableStringExpressionVisitor();
 			expressions.Accept(visitor);
 
-			Assert.That(visitor.StringBuilder.ToString(), Is.EqualTo(query));
-			Assert.That(context.Errors, Is.Empty, () => context.Errors.GetErrorText());
+			var actual = visitor.StringBuilder.ToString();
+			Assert.That(actual, Is.EqualTo(query));
 
 
 			var template = "{{" + query + "}}";
@@ -706,7 +707,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task ParserCanParseFloatingNumber()
 		{
-			var template = "{{1.123.('F5')}}";
+			var template = "{{1.123.ToString('F5')}}";
 			var data = new Dictionary<string, object>
 			{
 			};
@@ -802,14 +803,14 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
-		[TestCase("{{data.(d))}}", 1, Ignore = "Auto Fixed"/*, Ignore = "Currently its not possible to evaluate this info"*/)]
-		[TestCase("{{data.((d)}}", 1, Ignore = "Auto Fixed")]
+		[TestCase("{{data.F(d))}}", 1)]
+		[TestCase("{{data.F((d)}}", 1)]
 		[TestCase("{{data)}}", 1)]
-		[TestCase("{{data.(}}", 1)]
-		[TestCase("{{data.(arg}}", 1)]
-		[TestCase("{{data.(arg, 'test'}}", 1)]
-		//[TestCase("{{data.(arg, 'test)}}", 1)]
-		[TestCase("{{data.(arg, )}}", 1)]
+		[TestCase("{{data.F(}}", 1)]
+		[TestCase("{{data.F(arg}}", 1)]
+		[TestCase("{{data.F(arg, 'test'}}", 1)]
+		[TestCase("{{data.F(arg, 'test)}}", 1)]
+		[TestCase("{{data.F(arg, )}}", 1, Ignore = "This is currently auto corrected as the missing argument is interpreted as not existing")]
 		public void ParserThrowsAnExceptionWhenFormatIsMismatched(string invalidTemplate, int expectedNoOfExceptions)
 		{
 			IEnumerable<IMorestachioError> errors;

@@ -15,19 +15,21 @@ namespace Morestachio.Framework.Expression
 		static MorestachioOperator()
 		{
 			var operators = new OperatorList();
-			operators.Add(BinaryOperator("+", OperatorTypes.Add));
-			operators.Add(BinaryOperator("-", OperatorTypes.Substract));
-			operators.Add(BinaryOperator("*", OperatorTypes.Multiply));
-			operators.Add(BinaryOperator("/", OperatorTypes.Divide));
-			operators.Add(BinaryOperator("^", OperatorTypes.Pow));
-			operators.Add(BinaryOperator("%", OperatorTypes.Remainder));
+			//If you add any new operator or remove one you MUST!
+			//update the Tokenizer.IsOperationString and Tokenizer.IsOperationChar method!
+			operators.Add(BinaryOperator("+" , OperatorTypes.Add));
+			operators.Add(BinaryOperator("-" , OperatorTypes.Substract));
+			operators.Add(BinaryOperator("*" , OperatorTypes.Multiply));
+			operators.Add(BinaryOperator("/" , OperatorTypes.Divide));
+			operators.Add(BinaryOperator("^" , OperatorTypes.Pow));
+			operators.Add(BinaryOperator("%" , OperatorTypes.Remainder));
 			operators.Add(BinaryOperator("<<", OperatorTypes.ShiftLeft));
 			operators.Add(BinaryOperator(">>", OperatorTypes.ShiftRight));
 			operators.Add(BinaryOperator("==", OperatorTypes.Equals));
 			operators.Add(BinaryOperator("!=", OperatorTypes.UnEquals));
-			operators.Add(BinaryOperator("<", OperatorTypes.LessThen));
+			operators.Add(BinaryOperator("<" , OperatorTypes.LessThen));
 			operators.Add(BinaryOperator("<=", OperatorTypes.LessOrEquals));
-			operators.Add(BinaryOperator(">", OperatorTypes.GreaterThen));
+			operators.Add(BinaryOperator(">" , OperatorTypes.GreaterThen));
 			operators.Add(BinaryOperator(">=", OperatorTypes.GreaterOrEquals));
 			operators.Add(BinaryOperator("&&", OperatorTypes.And));
 			operators.Add(BinaryOperator("||", OperatorTypes.Or));
@@ -42,24 +44,29 @@ namespace Morestachio.Framework.Expression
 		/// </summary>
 		private MorestachioOperator(string operatorText,
 			OperatorTypes operatorType,
-			bool acceptsTwoExpressions,
-			bool isPrefixOperator)
+			bool isBinaryOperator,
+			OperatorPlacement placement)
 		{
 			OperatorText = operatorText;
 			OperatorType = operatorType;
-			AcceptsTwoExpressions = acceptsTwoExpressions;
-			IsPrefixOperator = isPrefixOperator;
+			IsBinaryOperator = isBinaryOperator;
+			Placement = placement;
 		}
 
-		private static MorestachioOperator BinaryOperator(string operatorText, OperatorTypes type)
+		private static MorestachioOperator BinaryOperator(string operatorText, OperatorTypes type, OperatorPlacement placement = OperatorPlacement.Right)
 		{
-			return new MorestachioOperator(operatorText, type, true, false);
+			return new MorestachioOperator(operatorText, type, true, placement);
 		}
 
-		private static MorestachioOperator UnaryOperator(string operatorText, OperatorTypes type, bool leftHandOperator)
+		private static MorestachioOperator UnaryOperator(string operatorText, OperatorTypes type, OperatorPlacement placement = OperatorPlacement.Right)
 		{
-			return new MorestachioOperator(operatorText, type, false, leftHandOperator);
+			return new MorestachioOperator(operatorText, type, false, placement);
 		}
+
+		/// <summary>
+		///		Defines where the operator is placed
+		/// </summary>
+		public OperatorPlacement Placement { get; }
 
 		/// <summary>
 		///		The Enum operator type
@@ -74,12 +81,7 @@ namespace Morestachio.Framework.Expression
 		/// <summary>
 		///     [Experimental. false is not supported]
 		/// </summary>
-		public bool AcceptsTwoExpressions { get; }
-
-		/// <summary>
-		/// 
-		/// </summary>
-		public bool IsPrefixOperator { get; set; }
+		public bool IsBinaryOperator { get; }
 
 		/// <summary>
 		///     The default supported operators
@@ -94,5 +96,20 @@ namespace Morestachio.Framework.Expression
 		{
 			return Operators.Values;
 		}
+	}
+
+	/// <summary>
+	///		Defines where an operator is placed in relation to ether the single or first operand
+	/// </summary>
+	public enum OperatorPlacement
+	{
+		/// <summary>
+		///		The operand is placed left to the expression
+		/// </summary>
+		Left,
+		/// <summary>
+		///		The operand is placed right to the expression
+		/// </summary>
+		Right
 	}
 }

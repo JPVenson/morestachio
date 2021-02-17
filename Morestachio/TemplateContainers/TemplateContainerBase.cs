@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.TemplateContainers
 {
@@ -23,10 +24,22 @@ namespace Morestachio.TemplateContainers
 		/// </summary>
 		public TemplateResource Template { get; }
 
+		private readonly struct InStringInfo
+		{
+			public InStringInfo(int index, char delimiter)
+			{
+				Index = index;
+				Delimiter = delimiter;
+			}
+
+			public int Index { get; }
+			public char Delimiter { get; }
+		}
+
 		/// <inheritdoc />
 		public virtual IEnumerable<TokenMatch> Matches(TokenzierContext context)
 		{
-			char? isInString = null;
+			InStringInfo isInString = new InStringInfo(-1, ' ');
 			var stringEscape = false;
 
 			var templateString = Template;
@@ -67,19 +80,19 @@ namespace Morestachio.TemplateContainers
 						context.Lines.Add(index);
 					}
 
-					if (isInString.HasValue && context.CommentIntend == 0)
+					if (isInString.Index != -1 && context.CommentIntend == 0)
 					{
 						if (c == '\\')
 						{
 							stringEscape = true;
 						}
-						else if (stringEscape && c == isInString.Value)
+						else if (stringEscape && c == isInString.Delimiter)
 						{
 							stringEscape = false;
 						}
-						else if (!stringEscape && c == isInString.Value)
+						else if (!stringEscape && c == isInString.Delimiter)
 						{
-							isInString = null;
+							isInString = new InStringInfo(-1, ' ');
 						}
 					}
 					else
@@ -165,11 +178,23 @@ namespace Morestachio.TemplateContainers
 						}
 						else if (Tokenizer.IsStringDelimiter(c) && context.CommentIntend == 0)
 						{
-							isInString = c;
+							isInString = new InStringInfo(index, c);
 						}
 					}
 
 					index++;
+				}
+
+				if (isInString.Index != -1)
+				{
+					context.Errors.Add(new MorestachioSyntaxError(
+						context
+							.Location(isInString.Index)
+							.AddWindow(new CharacterSnippedLocation(0, 5, templateString.Substring(isInString.Index - 5, 10))), 
+						"string",
+						isInString.Delimiter.ToString(), 
+						isInString.Delimiter.ToString(), 
+						"Expected an closing string delimiter"));
 				}
 
 				preLastIndex = index + 1;
@@ -178,9 +203,18 @@ namespace Morestachio.TemplateContainers
 			if (preLastIndex < templateString.Length())
 			{
 				var substring = templateString.Substring(preLastIndex);
-				if (isInString.HasValue)
+				if (isInString.Index != -1)
 				{
-					//var token = template.Substring(elementIndex, template.Length - elementIndex);
+					context.Errors.Add(new MorestachioSyntaxError(
+						context
+							.Location(isInString.Index)
+							.AddWindow(new CharacterSnippedLocation(0, 5, templateString.Substring(isInString.Index - 5, 10))), 
+						"string",
+						isInString.Delimiter.ToString(), 
+						isInString.Delimiter.ToString(), 
+						"Expected an closing string delimiter"));
+
+
 					yield return new TokenMatch(preLastIndex, substring, null, substring.Length, false);
 				}
 				else

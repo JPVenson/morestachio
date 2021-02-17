@@ -13,4 +13,16 @@ namespace Morestachio
 			
 		}
 	}
+
+	/// <summary>
+	///		An Exception that occured on Parsing
+	/// </summary>
+	public class MorestachioParserException : Exception
+	{
+		/// <inheritdoc />
+		public MorestachioParserException(string message) : base("Morestachio Parser error:" + message)
+		{
+			
+		}
+	}
 }

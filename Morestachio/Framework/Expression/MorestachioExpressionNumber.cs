@@ -157,68 +157,7 @@ namespace Morestachio.Framework.Expression
 		{
 			visitor.Visit(this);
 		}
-
-		/// <summary>
-		///		Parses the text and returns an Expression number
-		/// </summary>
-		public static MorestachioExpressionNumber ParseFrom(string text,
-			int offset,
-			TokenzierContext context,
-			out int index)
-		{
-			var isFloatingNumber = false;
-			var nrText = new StringBuilder();
-			for (index = offset; index < text.Length; index++)
-			{
-				var c = text[index];
-				if (c == CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator[0])
-				{
-					if (isFloatingNumber)
-					{
-						index--;
-						break;
-					}
-
-					if (index + 1 > text.Length)
-					{
-						context.Errors.Add(new MorestachioSyntaxError(
-							context
-								.CurrentLocation
-								.AddWindow(new CharacterSnippedLocation(0, index, text)),
-							"", text, "Could not parse the given number"));
-					}
-
-					if (!char.IsDigit(text[index + 1]))
-					{
-						break;
-					}
-
-					isFloatingNumber = true;
-				}
-				else if (Tokenizer.IsEndOfFormatterArgument(c) || Tokenizer.IsWhiteSpaceDelimiter(c))
-				{
-					index--;
-					break;
-				}
-
-				nrText.Append(c);
-			}
-
-			text = nrText.ToString();
-			if (Number.TryParse(text, CultureInfo.InvariantCulture, out var nr))
-			{
-				return new MorestachioExpressionNumber(nr, context.CurrentLocation.Offset(offset));
-			}
-
-			context.Errors.Add(new MorestachioSyntaxError(
-				context
-					.CurrentLocation
-					.AddWindow(new CharacterSnippedLocation(0, index, text)),
-				"", text, "Could not parse the given number"));
-
-			return null;
-		}
-
+		
 		/// <inheritdoc />
 		public override string ToString()
 		{
