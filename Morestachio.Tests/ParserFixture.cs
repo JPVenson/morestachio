@@ -251,7 +251,7 @@ namespace Morestachio.Tests
 		[TestCase("f((), C)")]
 		[TestCase("f((''), C)")]
 		[TestCase("(f('')).Test")]
-		[TestCase("((A.F()).T)", Ignore = "Unsupported")]
+		[TestCase("((A.F()).T)")]
 		[TestCase("f(fe().P).Fg()")]
 		[TestCase("f(fe().P).Fg().DE()")]
 		[TestCase("f(fe().P.Add(' ')).Fg().DE()")]
@@ -300,7 +300,7 @@ namespace Morestachio.Tests
 		[TestCase("d.f(fA.TS('d', f.TS()).fB('d', f)).Test.fC('d', f)")]
 		[TestCase("d.f(fA.TS('d', f.TS()).fB('d', f.TS())).Test.fC('d', f.TS())")]
 		[TestCase("(d.f(fA.TS('d', f.TS()).fB('d', f.TS())).Test.fC('d', f.TS()))")]
-		[TestCase("(d.f((fA.TS('d', f.TS())).fB('d', f.TS())).Test.fC('d', f.TS()))", Ignore = "Unsupported")]
+		[TestCase("(d.f((fA.TS('d', f.TS())).fB('d', f.TS())).Test.fC('d', f.TS()))")]
 		public void TestExpressionParser(string query)
 		{
 			var context = TokenzierContext.FromText(query);
@@ -315,7 +315,7 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
-		[TestCase("H(D())")]
+		[TestCase("'te' + 'st'")]
 		public void TestExpressionParserDbg(string query)
 		{
 			var context = TokenzierContext.FromText(query);
@@ -331,6 +331,7 @@ namespace Morestachio.Tests
 
 		[Test]
 		[TestCase("A + B", 5 + 10, 5, 10)]
+		[TestCase("'te' + 'st'", "test")]
 		[TestCase("(A + B)", 5 + 10, 5, 10)]
 		[TestCase("((A + B))", 5 + 10, 5, 10)]
 		[TestCase("A - B", 5 - 10, 5, 10)]
