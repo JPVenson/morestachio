@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <Deterministic>true</Deterministic>
-    <Version>4.3.3.419</Version>
+    <Version>5.0.0.485-alpha1</Version>
     <Authors>Jean-Pierre Bachmann</Authors>
     <Company>Jean-Pierre Bachmann</Company>
     <PackageProjectUrl>https://github.com/JPVenson/morestachio</PackageProjectUrl>
@@ -10,7 +10,7 @@
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
-  <!--<PropertyGroup Condition="'$(Configuration)' == 'Release' and '$(BuildPackage)' == 'true'">
+  <PropertyGroup Condition="'$(Configuration)' == 'Release' and '$(BuildPackage)' == 'true'">
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-  </PropertyGroup>-->
+  </PropertyGroup>
 </Project>
