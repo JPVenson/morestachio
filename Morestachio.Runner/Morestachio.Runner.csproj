@@ -5,10 +5,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <PackageTags>Formatter, C#, Engine, NetStandard, Morestachio</PackageTags>
     <PackageIconUrl>https://github.com/JPVenson/morestachio/raw/master/Morestachio/Morestachio%20248x248.png?raw=true</PackageIconUrl>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'" >
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <BuildPackage>true</BuildPackage>
   </PropertyGroup>
 
   <ItemGroup>
