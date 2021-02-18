@@ -5,6 +5,7 @@ using System.Xml;
 using System.Xml.Schema;
 using Morestachio.Document;
 using Morestachio.Framework.Context;
+using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.Expression.Visitors;
 #if ValueTask
 using ContextObjectPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.Context.ContextObject>;

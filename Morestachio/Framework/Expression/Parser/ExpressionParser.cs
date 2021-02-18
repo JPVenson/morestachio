@@ -1,4 +1,10 @@
-﻿using System;
+﻿#if ValueTask
+using ObjectPromise = System.Threading.Tasks.ValueTask<object>;
+#else
+using ObjectPromise = System.Threading.Tasks.Task<object>;
+#endif
+
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -11,13 +17,8 @@ using Morestachio.Framework.Expression.StringParts;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
 using Morestachio.Parsing.ParserErrors;
-#if ValueTask
-using ObjectPromise = System.Threading.Tasks.ValueTask<object>;
-#else
-using ObjectPromise = System.Threading.Tasks.Task<object>;
-#endif
 
-namespace Morestachio.Framework.Expression
+namespace Morestachio.Framework.Expression.Parser
 {
 	/// <summary>
 	///		This class provides methods for parsing ether a String or an Expression
@@ -241,12 +242,14 @@ namespace Morestachio.Framework.Expression
 			return ParseExpression(expression, context, out _);
 		}
 
-		/// <summary>
-		///		Parses the given text to ether an expression or an string
-		/// </summary>
-		/// <param name="text"></param>
-		/// <param name="context"></param>
-		/// <returns></returns>
+		///  <summary>
+		/// 		Parses the given text to ether an expression or an string
+		///  </summary>
+		///  <param name="text">the text expression that should be parsed until ether EOEX or ; or #</param>
+		///  <param name="context">the context describing the whole document</param>
+		///  <param name="parsedUntil">outputs the number of chars consumed by the parser</param>
+		///  <param name="index">the index within <see cref="text"/> from where to start the parsing</param>
+		///  <returns></returns>
 		public static IMorestachioExpression ParseExpression(
 			string text,
 			TokenzierContext context,
@@ -269,12 +272,12 @@ namespace Morestachio.Framework.Expression
 			{
 				return null;
 			}
-			var morestachioExpression = ParseExpression(tokenize, context);
+
+			tokenize.Reset();
+			var morestachioExpression = ParseExpressionRoot(tokenize, context);
 			parsedUntil = index + (context.CurrentLocation.ToPosition(context) - oldStartIndex);
 			return morestachioExpression;
 		}
-
-
 
 		///  <summary>
 		/// 		Parses the given text to ether an expression or an string
@@ -293,13 +296,14 @@ namespace Morestachio.Framework.Expression
 				context);
 		}
 
-		private static IMorestachioExpression ParseExpression(ExpressionTokens tokens,
+		private static IMorestachioExpression ParseExpressionRoot(ExpressionTokens tokens,
 			TokenzierContext context)
 		{
 			return ParseAnyExpression(tokens, context, token =>
 			{
 				switch (token.TokenType)
 				{
+					//only paths,brackets,numbers,string and operators are expected to lead an expression
 					case ExpressionTokenType.Path:
 					case ExpressionTokenType.Bracket:
 					case ExpressionTokenType.Number:
@@ -314,12 +318,13 @@ namespace Morestachio.Framework.Expression
 				}
 			});
 		}
-
 		private static IMorestachioExpression ParseAnyExpression(ExpressionTokens tokens,
 			TokenzierContext context,
 			Func<IExpressionToken, bool> condition)
 		{
-			var topParent = new MorestachioMultiPartExpressionList(tokens.First().Location);
+			var expressionToken = tokens.TryPeek();
+			var topParent = new MorestachioMultiPartExpressionList(expressionToken.Location);
+
 			tokens.PeekLoop(condition, token =>
 			{
 				ParseExpression(topParent, tokens, context, condition);
@@ -373,10 +378,12 @@ namespace Morestachio.Framework.Expression
 					return !(subToken.TokenType == ExpressionTokenType.Bracket &&
 							 ((ExpressionValueToken)subToken).Value == ")");
 				};
+
 				tokens.PeekLoop(subCondition, subToken =>
 				{
 					exp.Add(ParseAnyExpression(tokens, context, subCondition));
 				});
+
 				tokens.TryDequeue(() =>
 				{
 					tokens.SyntaxError(context,
@@ -530,12 +537,14 @@ namespace Morestachio.Framework.Expression
 						token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
 							tokens.SourceExpression)), "Expected a (");
 				});
-				Func<IExpressionToken, bool> condition = subToken =>
+
+				bool Condition(IExpressionToken innerToken)
 				{
-					return !(subToken.TokenType == ExpressionTokenType.Bracket &&
-							 ((ExpressionValueToken)subToken).Value == ")");
-				};
-				tokens.PeekLoop(condition, subToken =>
+					return !(innerToken.TokenType == ExpressionTokenType.Bracket
+							 && ((ExpressionValueToken)innerToken).Value == ")");
+				}
+
+				tokens.PeekLoop(Condition, subToken =>
 				{
 					string argumentName = null;
 					if (subToken.TokenType == ExpressionTokenType.Argument)
@@ -546,7 +555,7 @@ namespace Morestachio.Framework.Expression
 
 					var anyElse = ParseAnyExpression(tokens, context, (innerToken) =>
 					{
-						return condition(innerToken)
+						return Condition(innerToken)
 							   && innerToken.TokenType != ExpressionTokenType.ArgumentSeperator;
 					});
 					expression.Formats.Add(new ExpressionArgument(anyElse.Location, anyElse, argumentName));
@@ -895,253 +904,8 @@ namespace Morestachio.Framework.Expression
 					break;
 				}
 			}
-
-			queue.ParsedUntilIndex = tokenIndex - oldIndex;
-			context.AdvanceLocation(queue.ParsedUntilIndex);
+			context.AdvanceLocation(tokenIndex - oldIndex);
 			return queue;
-		}
-	}
-
-	/// <summary>
-	///		Represents a Expression token
-	/// </summary>
-	public interface IExpressionToken
-	{
-		/// <summary>
-		///		Defines the type of token
-		/// </summary>
-		ExpressionTokenType TokenType { get; }
-
-		/// <summary>
-		///		Defines the location within the template of this token
-		/// </summary>
-		CharacterLocation Location { get; }
-	}
-
-	internal readonly struct NumberToken : IExpressionToken
-	{
-		public NumberToken(Number number, CharacterLocation location)
-		{
-			TokenType = ExpressionTokenType.Number;
-			Number = number;
-			Location = location;
-		}
-
-		public ExpressionTokenType TokenType { get; }
-		public Number Number { get; }
-		public CharacterLocation Location { get; }
-	}
-
-	internal readonly struct StringToken : IExpressionToken
-	{
-		public StringToken(string value, char delimiter, CharacterLocation location)
-		{
-			TokenType = ExpressionTokenType.String;
-			Value = value;
-			Delimiter = delimiter;
-			Location = location;
-		}
-
-		public ExpressionTokenType TokenType { get; }
-		public string Value { get; }
-		public CharacterLocation Location { get; }
-		public char Delimiter { get; }
-	}
-
-	internal readonly struct ExpressionValueToken : IExpressionToken
-	{
-		public ExpressionValueToken(ExpressionTokenType tokenType, string value, CharacterLocation location)
-		{
-			TokenType = tokenType;
-			Value = value;
-			Location = location;
-		}
-
-		public ExpressionTokenType TokenType { get; }
-		public string Value { get; }
-		public CharacterLocation Location { get; }
-	}
-
-	internal readonly struct ExpressionToken : IExpressionToken
-	{
-		public ExpressionToken(PathTokenizer value, CharacterLocation location)
-		{
-			TokenType = ExpressionTokenType.Path;
-			Value = value;
-			Location = location;
-		}
-
-		public ExpressionTokenType TokenType { get; }
-		public PathTokenizer Value { get; }
-		public CharacterLocation Location { get; }
-	}
-
-	internal readonly struct OperatorToken : IExpressionToken
-	{
-		public OperatorToken(OperatorTypes value, CharacterLocation location)
-		{
-			TokenType = ExpressionTokenType.Operator;
-			Value = value;
-			Location = location;
-		}
-
-		public ExpressionTokenType TokenType { get; }
-		public OperatorTypes Value { get; }
-		public CharacterLocation Location { get; }
-	}
-
-	/// <summary>
-	///		Defines all possible tokens that can be tokenized by the <see cref="ExpressionParser"/>
-	/// </summary>
-	public enum ExpressionTokenType
-	{
-		/// <summary>
-		///		An path pointing to a property or formatter. 	
-		/// </summary>
-		Path,
-
-		/// <summary>
-		///		Defines a seperator for two formatter arguments
-		/// </summary>
-		ArgumentSeperator,
-
-		/// <summary>
-		///		Defines the start of an named formatter argument
-		/// </summary>
-		Argument,
-
-		/// <summary>
-		///		Defines a bracket used ether for seperation or a formatter call 
-		/// </summary>
-		Bracket,
-
-		/// <summary>
-		///		Defines a number
-		/// </summary>
-		Number,
-
-		/// <summary>
-		///		Defines a string
-		/// </summary>
-		String,
-
-		/// <summary>
-		///		Defines the use of an operator
-		/// </summary>
-		Operator,
-	}
-
-	/// <summary>
-	///		Contains a queue where all tokens of a expression is loaded
-	/// </summary>
-	public class ExpressionTokens : Queue<IExpressionToken>
-	{
-		/// <summary>
-		///		Creates a new Token queue
-		/// </summary>
-		/// <param name="sourceExpression"></param>
-		public ExpressionTokens(string sourceExpression)
-		{
-			SourceExpression = sourceExpression;
-		}
-
-		/// <summary>
-		///		Contains the original expression in its string form
-		/// </summary>
-		public string SourceExpression { get; }
-
-		public int ParsedUntilIndex { get; set; }
-
-		internal IExpressionToken TryPeek()
-		{
-			if (Count > 0)
-			{
-				return Peek();
-			}
-
-			return null;
-		}
-
-		internal void Loop(
-			Func<IExpressionToken, bool> condition,
-			Action<IExpressionToken> action)
-		{
-			while (Count > 0 && condition(Peek()))
-			{
-				action(Dequeue());
-			}
-		}
-
-		internal void PeekLoop(
-			Func<IExpressionToken, bool> condition,
-			Action<IExpressionToken> action)
-		{
-			IExpressionToken peek;
-			IExpressionToken oldPeek = default;
-			while (Count > 0
-				   && condition(peek = Peek()))
-			{
-				if (Equals(oldPeek, peek))
-				{
-					throw new Exception();
-				}
-				action(peek);
-				oldPeek = peek;
-			}
-		}
-
-		internal void Loop(
-			Func<IExpressionToken, bool> condition,
-			Func<IExpressionToken, bool> action)
-		{
-			while (Count > 0 && condition(Peek()))
-			{
-				if (!action(Dequeue()))
-				{
-					break;
-				}
-			}
-		}
-
-		internal void PeekLoop(
-			Func<IExpressionToken, bool> condition,
-			Func<IExpressionToken, bool> action)
-		{
-			IExpressionToken peek;
-			IExpressionToken oldPeek = default;
-			while (Count > 0
-				   && condition(peek = Peek()))
-			{
-				if (Equals(oldPeek, peek))
-				{
-					throw new Exception();
-				}
-
-				if (!action(peek))
-				{
-					break;
-				}
-				oldPeek = peek;
-			}
-		}
-
-		internal IExpressionToken TryDequeue(Action onError)
-		{
-			if (Count == 0)
-			{
-				onError();
-				return null;
-			}
-
-			return Dequeue();
-		}
-
-		internal void SyntaxError(
-			TokenzierContext context,
-			CharacterLocationExtended location,
-			string helpText)
-		{
-			context.Errors.Add(new InvalidPathSyntaxError(location, SourceExpression, helpText));
 		}
 	}
 }

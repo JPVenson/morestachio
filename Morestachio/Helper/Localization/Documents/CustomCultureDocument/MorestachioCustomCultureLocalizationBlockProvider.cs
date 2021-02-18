@@ -4,6 +4,7 @@ using System.Globalization;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Custom;
 using Morestachio.Framework.Expression;
+using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.Tokenizing;
 
 namespace Morestachio.Helper.Localization.Documents.CustomCultureDocument

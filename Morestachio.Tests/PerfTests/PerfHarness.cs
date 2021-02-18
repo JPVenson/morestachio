@@ -9,6 +9,7 @@ using Morestachio.Document;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
+using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
 using NUnit.Framework;

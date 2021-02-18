@@ -4,6 +4,7 @@ using System.Runtime.Serialization;
 using System.Xml;
 using Morestachio.Framework;
 using Morestachio.Framework.Expression;
+using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.Tokenizing;
 
 namespace Morestachio.Document.Items.Base

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Morestachio.Document;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
+using Morestachio.Framework.Expression.Parser;
 using NUnit.Framework;
 
 namespace Morestachio.Tests
