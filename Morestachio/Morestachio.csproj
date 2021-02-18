@@ -8,29 +8,7 @@
     <BuildPackage>true</BuildPackage>
   </PropertyGroup>
 
-
-  <!--As Core20 does not support value tasks without Generic arguments we cannot use it here-->
-  <!--<PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'" >
-    <DefineConstants>ValueTask</DefineConstants>
-  </PropertyGroup>-->
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
-    <DefineConstants>ValueTask</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.2'">
-    <DefineConstants>ValueTask</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
-    <DefineConstants>ValueTask; ValueTaskFromResult</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' or $(TargetFramework) == 'net5.0'">
-    <DefineConstants>ValueTask; ValueTaskFromResult; Span</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <DocumentationFile>bin\Release\Morestachio.xml</DocumentationFile>
   </PropertyGroup>
 
@@ -39,8 +17,5 @@
     <NoWarn>1701;1702;1573</NoWarn>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-  </ItemGroup>
-
+  <Import Project="../AfterDirectory.Build.props"></Import>
 </Project>

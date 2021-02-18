@@ -14,5 +14,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Morestachio\Morestachio.csproj" />
   </ItemGroup>
+  <Import Project="../AfterDirectory.Build.props"></Import>
 
 </Project>

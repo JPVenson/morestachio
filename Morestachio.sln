@@ -35,6 +35,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{5B530A98-F019-4649-B82F-BE04727948F9}"
 	ProjectSection(SolutionItems) = preProject
 		_config.yml = _config.yml
+		AfterDirectory.Build.props = AfterDirectory.Build.props
 		Directory.Build.props = Directory.Build.props
 		LICENSE = LICENSE
 		mustachio@2x.png = mustachio@2x.png

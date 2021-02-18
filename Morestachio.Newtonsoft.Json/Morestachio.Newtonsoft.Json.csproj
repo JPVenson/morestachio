@@ -21,5 +21,6 @@
       <PackagePath></PackagePath>
     </None>
   </ItemGroup>
+  <Import Project="../AfterDirectory.Build.props"></Import>
 
 </Project>
