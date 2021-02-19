@@ -48,12 +48,14 @@ namespace Morestachio.Document.Items
 			Inverted = info.GetBoolean(nameof(Inverted));
 		}
 
+		/// <inheritdoc />
 		protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
 		{
 			base.SerializeBinaryCore(info, context);
 			info.AddValue(nameof(Inverted), Inverted);
 		}
-
+		
+		/// <inheritdoc />
 		protected override void SerializeXml(XmlWriter writer)
 		{
 			if (Inverted)
@@ -62,7 +64,8 @@ namespace Morestachio.Document.Items
 			}
 			base.SerializeXml(writer);
 		}
-
+		
+		/// <inheritdoc />
 		protected override void DeSerializeXml(XmlReader reader)
 		{
 			if (reader.GetAttribute(nameof(Inverted)) == bool.TrueString)
@@ -71,7 +74,11 @@ namespace Morestachio.Document.Items
 			}
 			base.DeSerializeXml(reader);
 		}
-
+		
+		/// <summary>
+		///		Filters <see cref="BlockDocumentItemBase.Children"/> to only return anything before the first else block
+		/// </summary>
+		/// <returns></returns>
 		protected virtual IEnumerable<IDocumentItem> GetIfContents()
 		{
 			return Children.TakeWhile(e => !(e is ElseIfExpressionScopeDocumentItem)
@@ -79,11 +86,19 @@ namespace Morestachio.Document.Items
 										   !(e is ElseExpressionScopeDocumentItem));
 		}
 
+		/// <summary>
+		///		Filters <see cref="BlockDocumentItemBase.Children"/> to return all elseif blocks
+		/// </summary>
+		/// <returns></returns>
 		protected virtual IEnumerable<ElseIfExpressionScopeDocumentItem> GetNestedElseConditions()
 		{
 			return Children.OfType<ElseIfExpressionScopeDocumentItem>();
 		}
 
+		/// <summary>
+		///		Filters <see cref="BlockDocumentItemBase.Children"/> to return the only occurrence of an else block or null
+		/// </summary>
+		/// <returns></returns>
 		protected virtual ElseExpressionScopeDocumentItem GetNestedElse()
 		{
 			return Children.OfType<ElseExpressionScopeDocumentItem>().FirstOrDefault();
