@@ -270,11 +270,11 @@ namespace Morestachio.Tests
 			//declare TestPartial -> Print Recursion -> If Recursion is smaller then 10 -> Print TestPartial
 			//Print TestPartial
 			var template =
-				@"{{#declare TestPartial}}{{$recursion}}{{#SCOPE $recursion.() as rec}}{{#IMPORT 'TestPartial'}}{{/SCOPE}}{{/declare}}{{#IMPORT 'TestPartial'}}";
+				@"{{#declare TestPartial}}{{$recursion}}{{#SCOPE $recursion.Self() as rec}}{{#IMPORT 'TestPartial'}}{{/SCOPE}}{{/declare}}{{#IMPORT 'TestPartial'}}";
 
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
 			{
-				options.Formatters.AddSingle<int, bool>(e => { return e < 9; });
+				options.Formatters.AddSingle<int, bool>(e => { return e < 9; }, "Self");
 			});
 			Assert.That(result, Is.EqualTo("123456789"));
 		}

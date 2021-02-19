@@ -37,19 +37,19 @@ namespace Morestachio.Tests
 		[Test]
 		[TestCase("", false)]
 		[TestCase(null, false)]
-		[TestCase("Test", false)]
-		[TestCase("Data", false)]
-		[TestCase("69Nice", true)]
-		[TestCase("Nice69", false)]
-		[TestCase("d d", true)]
+		[TestCase("Test", true)]
+		[TestCase("Data", true)]
+		[TestCase("69Nice", false)]
+		[TestCase("Nice69", true)]
+		[TestCase("d d", false)]
 		[TestCase("Data_Das", true)]
-		[TestCase("Test", false)]
-		[TestCase("?", true)]
-		[TestCase("Any thing else", true)]
+		[TestCase("Test", true)]
+		[TestCase("?", false)]
+		[TestCase("Any thing else", false)]
 		public void TestFormatterNames(string name, bool expectTobeValid)
 		{
 			Assert.That(() => new MorestachioFormatterAttribute(name, "").ValidateFormatterName(),
-				Is.EqualTo(!expectTobeValid));
+				Is.EqualTo(expectTobeValid));
 		}
 
 		[Test]
@@ -163,14 +163,14 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task TestCanFormatObject()
 		{
-			var template = "{{.(data)}}";
+			var template = "{{Self(data)}}";
 			var data = new Dictionary<string, object>()
 			{
 				{"data", 123}
 			};
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
-				options.Formatters.AddSingle(new Func<object, object, int>((e, f) => (int)f));
+				options.Formatters.AddSingle(new Func<object, object, int>((e, f) => (int)f), "Self");
 			});
 
 			Assert.That(result, Is.EqualTo("123"));
@@ -513,11 +513,11 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task ParserCanTransferChains()
 		{
-			var template = @"{{#SCOPE data}}{{.('(d(a))')}}{{/SCOPE}}";
+			var template = @"{{#SCOPE data}}{{Self('(d(a))')}}{{/SCOPE}}";
 			var data = new Dictionary<string, object>() { { "data", "d" } };
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
-				options.Formatters.AddSingle(new Func<string, string, string>((s, s1) => s1));
+				options.Formatters.AddSingle(new Func<string, string, string>((s, s1) => s1), "Self");
 			});
 
 			Assert.That(result, Is.EqualTo("(d(a))"));
@@ -527,13 +527,13 @@ namespace Morestachio.Tests
 		public async Task ParserCanFormatMultipleUnnamedWithoutResult()
 		{
 			var formatterResult = "";
-			var template = "{{#SCOPE data}}{{.('test', 'arg', 'arg, arg', ' spaced ', ' spaced with quote \\' ' , . )}}{{/SCOPE}}";
+			var template = "{{#SCOPE data}}{{Self('test', 'arg', 'arg, arg', ' spaced ', ' spaced with quote \\' ' , . )}}{{/SCOPE}}";
 			var data = new Dictionary<string, object>() { { "data", 123123123 } };
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts| ParserOptionTypes.NoRerenderingTest, options =>
 			{
 				options.DisableContentEscaping = true;
 				options.Formatters.AddSingle(new Action<int, string[]>(
-					(self, test) => { Assert.Fail("Should not be invoked"); }));
+					(self, test) => { Assert.Fail("Should not be invoked"); }), "Self");
 
 				options.Formatters.AddSingle(new Action<int, string, string, string, string, string, int>(
 					(self, test, arg, argarg, spacedArg, spacedWithQuote, refSelf) =>
@@ -541,7 +541,7 @@ namespace Morestachio.Tests
 						formatterResult = string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}", self, test, arg, argarg, spacedArg,
 							spacedWithQuote,
 							refSelf);
-					}));
+					}), "Self");
 
 			});
 
@@ -553,7 +553,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task ParserCanFormatMultipleUnnamed()
 		{
-			var template = "{{#SCOPE data}}{{.('test', 'arg', 'arg, arg', ' spaced ', ' spaced with quote \\' ' , .)}}{{/SCOPE}}";
+			var template = "{{#SCOPE data}}{{Self('test', 'arg', 'arg, arg', ' spaced ', ' spaced with quote \\' ' , .)}}{{/SCOPE}}";
 			var data = new Dictionary<string, object>() { { "data", 123123123 } };
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts | ParserOptionTypes.NoRerenderingTest, options =>
 			{
@@ -565,7 +565,7 @@ namespace Morestachio.Tests
 							return string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}", self, test, arg, argarg, spacedArg,
 								spacedWithQuote,
 								refSelf);
-						}));
+						}), "Self");
 			});
 			Assert.That(result, Is.EqualTo("123123123|test|arg|arg, arg| spaced | spaced with quote ' |123123123"));
 		}
@@ -573,13 +573,13 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task ParserCanFormatMultipleUnnamedParams()
 		{
-			var template = "{{#SCOPE data}}{{.( 'arg', 'arg, arg', ' spaced ', [testArgument]'test', ' spaced with quote \\' ' , .)}}{{/SCOPE}}";
+			var template = "{{#SCOPE data}}{{Self( 'arg', 'arg, arg', ' spaced ', [testArgument]'test', ' spaced with quote \\' ' , .)}}{{/SCOPE}}";
 			var data = new Dictionary<string, object>() { { "data", 123123123 } };
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts| ParserOptionTypes.NoRerenderingTest, options =>
 			{
 				options.DisableContentEscaping = true;
 				options.Formatters.AddSingle(
-					new Func<int, string, object[], string>(UnnamedParamsFormatter));
+					new Func<int, string, object[], string>(UnnamedParamsFormatter), "Self");
 			});
 			Assert.That(result, Is.EqualTo("123123123|test|arg|arg, arg| spaced | spaced with quote ' |123123123"));
 		}
@@ -611,18 +611,18 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task ParserCanCheckCanFormat()
 		{
-			var template = "{{#SCOPE data}}{{.('(d(a))')}}{{/SCOPE}}";
+			var template = "{{#SCOPE data}}{{Self('(d(a))')}}{{/SCOPE}}";
 			var data = new Dictionary<string, object>() { { "data", "d" } };
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
 				options.Formatters.AddSingle(
-					new Func<string, string, string, string>((s, inv, inva) => throw new Exception("A")));
+					new Func<string, string, string, string>((s, inv, inva) => throw new Exception("A")), "Self");
 
 				options.Formatters.AddSingle(new Func<string, string>(s =>
-					throw new Exception("Wrong Ordering")));
+					throw new Exception("Wrong Ordering")), "Self");
 				options.Formatters.AddSingle(new Action<string>(s =>
-					throw new Exception("Wrong Return Ordering")));
-				options.Formatters.AddSingle(new Func<string, string, string>((s, inv) => inv));
+					throw new Exception("Wrong Return Ordering")), "Self");
+				options.Formatters.AddSingle(new Func<string, string, string>((s, inv) => inv), "Self");
 			});
 
 			Assert.That(result, Is.EqualTo("(d(a))"));
@@ -632,13 +632,13 @@ namespace Morestachio.Tests
 		public async Task ParserCanChainWithAndWithoutFormat()
 		{
 			var dataValue = DateTime.UtcNow;
-			var template = "{{data.().TimeOfDay.Ticks.().()}}";
+			var template = "{{data.Self().TimeOfDay.Ticks.Self().Self()}}";
 			var data = new Dictionary<string, object>() { { "data", dataValue } };
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
-				options.Formatters.AddSingle<string, string>(s => s);
-				options.Formatters.AddSingle<DateTime, DateTime>(s => s);
-				options.Formatters.AddSingle<long, TimeSpan>(s => new TimeSpan(s));
+				options.Formatters.AddSingle<string, string>(s => s, "Self");
+				options.Formatters.AddSingle<DateTime, DateTime>(s => s, "Self");
+				options.Formatters.AddSingle<long, TimeSpan>(s => new TimeSpan(s), "Self");
 			});
 			Assert.That(result, Is.EqualTo(new TimeSpan(dataValue.TimeOfDay.Ticks).ToString()));
 		}
@@ -737,7 +737,7 @@ namespace Morestachio.Tests
 
 			var format = "yyyy.mm";
 			var dataValue = DateTime.UtcNow;
-			var template = "{{d.(f.Format('d'), \"t\").('pl', by.(by, 'f'))}}";
+			var template = "{{d.Self(f.Format('d'), \"t\").Self('pl', by.Self(by, 'f'))}}";
 			var data = new Dictionary<string, object>
 			{
 				{"d", dataValue},
@@ -760,7 +760,7 @@ namespace Morestachio.Tests
 							Assert.That(f, Is.EqualTo("f"));
 							formatterCalled = true;
 							return (int)sourceValue;
-						}));
+						}), "Self");
 					options.Formatters.AddSingle(new Func<DateTime, string, string, string>(
 						(sourceValue, testString2, shouldBed) =>
 						{
@@ -768,7 +768,7 @@ namespace Morestachio.Tests
 							Assert.That(testString2, Is.EqualTo(format));
 							formatter2Called = true;
 							return sourceValue.ToString(testString2);
-						}));
+						}), "Self");
 					options.Formatters.AddSingle(new Func<string, string, int, string>(
 						(sourceValue, name, number) =>
 						{
@@ -778,7 +778,7 @@ namespace Morestachio.Tests
 
 							formatter3Called = true;
 							return sourceValue.PadLeft(number);
-						}));
+						}), "Self");
 				});
 
 			Assert.That(formatterCalled, Is.True, "The formatter was not called");
@@ -791,7 +791,7 @@ namespace Morestachio.Tests
 		public async Task TemplateIfDoesNotScopeWithFormatter()
 		{
 			var template =
-				@"{{#IF data.()}}{{.}}{{/IF}}";
+				@"{{#IF data.Self()}}{{.}}{{/IF}}";
 			var data = new Dictionary<string, object>()
 			{
 				{"data", "test" },
@@ -799,7 +799,7 @@ namespace Morestachio.Tests
 			};
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
-				options.Formatters.AddSingle(new Func<string, bool>(f => f == "test"));
+				options.Formatters.AddSingle(new Func<string, bool>(f => f == "test"), "Self");
 			});
 			Assert.That(data.ToString(), Is.EqualTo(result));
 		}
@@ -809,7 +809,7 @@ namespace Morestachio.Tests
 		public async Task TemplateIfDoesNotScopeToRootWithFormatter()
 		{
 			var template =
-				@"{{#SCOPE data}}{{#IF data2.()}}{{data3.dataSet}}{{/IF}}{{/SCOPE}}";
+				@"{{#SCOPE data}}{{#IF data2.Self()}}{{data3.dataSet}}{{/IF}}{{/SCOPE}}";
 			var data = new Dictionary<string, object>()
 			{
 				{
@@ -833,7 +833,7 @@ namespace Morestachio.Tests
 			};
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
-				options.Formatters.AddSingle(new Func<string, bool>(f => f == "test"));
+				options.Formatters.AddSingle(new Func<string, bool>(f => f == "test"), "Self");
 			});
 
 			Assert.AreEqual("TEST", result);
@@ -843,7 +843,7 @@ namespace Morestachio.Tests
 		public async Task TemplateIfDoesNotScopeToRootWithFormatterCustomized()
 		{
 			var template =
-				@"{{#SCOPE data}}{{#EACH data3.dataList.()}}{{#IF .()}}{{.}}{{/IF}}{{/EACH}}{{/SCOPE}}";
+				@"{{#SCOPE data}}{{#EACH data3.dataList.Self()}}{{#IF Self()}}{{.}}{{/IF}}{{/EACH}}{{/SCOPE}}";
 			var data = new Dictionary<string, object>()
 			{
 				{
@@ -866,8 +866,8 @@ namespace Morestachio.Tests
 			};
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
-				options.Formatters.AddSingle(new Func<IEnumerable<string>, IEnumerable<string>>(f => f));
-				options.Formatters.AddSingle(new Func<string, bool>(f => f == "TE"));
+				options.Formatters.AddSingle(new Func<IEnumerable<string>, IEnumerable<string>>(f => f), "Self");
+				options.Formatters.AddSingle(new Func<string, bool>(f => f == "TE"), "Self");
 			});
 
 			Assert.AreEqual("TE", result);
@@ -877,7 +877,7 @@ namespace Morestachio.Tests
 		public async Task TemplateInvertedIfDoesNotScopeWithFormatter()
 		{
 			var template =
-				@"{{^IF data.()}}{{.}}{{/IF}}";
+				@"{{^IF data.Self()}}{{.}}{{/IF}}";
 			var data = new Dictionary<string, object>()
 			{
 				{"data", "test" },
@@ -885,7 +885,7 @@ namespace Morestachio.Tests
 			};
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
-				options.Formatters.AddSingle(new Func<string, bool>(f => f != "test"));
+				options.Formatters.AddSingle(new Func<string, bool>(f => f != "test"), "Self");
 			});
 
 

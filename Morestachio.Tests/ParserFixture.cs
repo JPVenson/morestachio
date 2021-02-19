@@ -718,10 +718,7 @@ namespace Morestachio.Tests
 			var data = new Dictionary<string, object>
 			{
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest, options =>
-			{
-				options.Formatters.AddSingle(new Func<string, int, string>((e, f) => f.ToString(e)));
-			});
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest);
 			Assert.That(result, Is.EqualTo(1.123.ToString("F5")));
 		}
 
@@ -1312,7 +1309,7 @@ namespace Morestachio.Tests
 		{
 			var dateTime = DateTime.UtcNow;
 			//this should not work as the Default settings for DateTime are ToString(Arg) so it should return a string and not an object
-			var template = "{{d.().a}},{{d}}";
+			var template = "{{d.Self().a}},{{d}}";
 			var data = new Dictionary<string, object>
 			{
 				{
@@ -1325,7 +1322,7 @@ namespace Morestachio.Tests
 				{
 					Dt = dt,
 					a = 2
-				});
+				}, "Self");
 			});
 			Assert.That(result, Is.EqualTo("2," + dateTime));
 		}

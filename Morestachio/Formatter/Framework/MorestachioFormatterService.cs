@@ -37,7 +37,7 @@ namespace Morestachio.Formatter.Framework
 	public class MorestachioFormatterService : SealedBase, IMorestachioFormatterService
 	{
 		internal static readonly Regex ValidateFormatterNameRegEx =
-			new Regex("^[a-zA-Z]{1}[a-zA-Z0-9]*$", RegexOptions.Compiled);
+			new Regex("^[a-zA-Z]{1}[a-zA-Z0-9_]*$", RegexOptions.Compiled);
 
 		/// <summary>
 		///     Initializes a new instance of the <see cref="MorestachioFormatterService" /> class.
