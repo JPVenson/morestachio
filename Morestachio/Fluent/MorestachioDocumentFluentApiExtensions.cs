@@ -102,9 +102,14 @@ namespace Morestachio.Fluent
 			string name,
 			Func<MorestachioDocumentFluentApi, MorestachioDocumentFluentApi> factory)
 		{
-			return api.AddChild(builder => new PartialDocumentItem(CharacterLocation.Unknown, name,
-				factory(new MorestachioDocumentFluentApi(new MorestachioDocumentInfo(api.Context.Options,
-					new MorestachioDocument()))).Context.RootNode.Item, Enumerable.Empty<ITokenOption>()));
+			return api.AddChild(builder => new PartialDocumentItem(CharacterLocation.Unknown, name, Enumerable.Empty<ITokenOption>())
+			{
+				Children =
+				{
+					factory(new MorestachioDocumentFluentApi(new MorestachioDocumentInfo(api.Context.Options,
+						new MorestachioDocument()))).Context.RootNode.Item
+				}
+			});
 		}
 
 		/// <summary>

@@ -318,15 +318,18 @@ namespace Morestachio
 					// currently same named partials will override each other
 					// to allow recursive calls of partials we first have to declare the partial and then load it as we would parse
 					// -the partial as a whole and then add it to the list would lead to unknown calls of partials inside the partial
-					var nestedDocument = new MorestachioDocument();
-					buildStack.Push(new DocumentScope(nestedDocument, getScope));
-					TryAdd(currentDocumentItem.Document, new PartialDocumentItem(currentToken.TokenLocation,
+					var partialDocumentItem = new PartialDocumentItem(currentToken.TokenLocation,
 						currentToken.Value,
-						nestedDocument, GetPublicOptions(currentToken)));
+						GetPublicOptions(currentToken));
+
+					buildStack.Push(new DocumentScope(partialDocumentItem, getScope));
+					
+					TryAdd(currentDocumentItem.Document, partialDocumentItem);
 				}
 				else if (currentToken.Type.Equals(TokenType.PartialDeclarationClose))
 				{
-					buildStack.Pop();
+					CloseScope(buildStack, currentToken, currentDocumentItem);
+					//buildStack.Pop();
 				}
 				else if (currentToken.Type.Equals(TokenType.RenderPartial))
 				{

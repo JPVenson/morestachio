@@ -122,7 +122,7 @@ namespace Morestachio.Document.Visitor
 			}
 		}
 
-		private void RenderTagHead(ExpressionDocumentItemBase documentItem, string tag, string cmdChar = "#")
+		private void RenderExpressionTagHead(ExpressionDocumentItemBase documentItem, string tag, string cmdChar = "#")
 		{
 			StringBuilder.Append("{{");
 			CheckForInlineTagLineBreakAtStart(documentItem);
@@ -140,7 +140,7 @@ namespace Morestachio.Document.Visitor
 			StringBuilder.Append("}}");
 		}
 
-		private void RenderBlockFooter(ExpressionDocumentItemBase documentItem, string tag)
+		private void RenderBlockFooter(IBlockDocumentItem documentItem, string tag)
 		{
 			StringBuilder.Append("{{");
 			CheckForInlineBlockLineBreakAtStart(documentItem);
@@ -158,7 +158,7 @@ namespace Morestachio.Document.Visitor
 		/// <param name="cmdChar"></param>
 		public void Visit(ExpressionDocumentItemBase documentItem, string tag, string cmdChar = "#")
 		{
-			RenderTagHead(documentItem, tag, cmdChar);
+			RenderExpressionTagHead(documentItem, tag, cmdChar);
 			if (documentItem.Children.Any())
 			{
 				VisitChildren(documentItem);
@@ -392,13 +392,8 @@ namespace Morestachio.Document.Visitor
 			CheckForInlineTagLineBreakAtEnd(documentItem);
 			StringBuilder.Append("}}");
 
-			Visit(documentItem.Partial as MorestachioDocument);
-
-			StringBuilder.Append("{{");
-			CheckForInlineBlockLineBreakAtStart(documentItem);
-			StringBuilder.Append("/DECLARE");
-			CheckForInlineBlockLineBreakAtEnd(documentItem);
-			StringBuilder.Append("}}");
+			VisitChildren(documentItem);
+			RenderBlockFooter(documentItem, "DECLARE");
 		}
 
 		/// <inheritdoc />

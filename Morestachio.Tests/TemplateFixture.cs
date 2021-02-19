@@ -408,6 +408,34 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		public async Task TemplatePartialCanTrim()
+		{
+			var template =
+				@"
+{{--| #DECLARE PartialA |--}}
+	{{#IF otherother |--}}
+		{{otherother}}
+		{{--| #ELSE |--}}
+			Invalid Context
+		{{--| /ELSE |--}}
+	{{--| /IF |--}}
+{{--| /DECLARE |--}}
+This is an partial included: ({{#IMPORT 'PartialA'}}) within the current context.<br/>
+This is an partial included: ({{#IMPORT 'PartialA' #WITH other}}) with an set context.";
+			var subData = new Dictionary<string, object>();
+			subData["otherother"] = "Test";
+
+			var data = new Dictionary<string, object>();
+			data["other"] = subData;
+			data["navigateUp"] = "Test 2";
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
+
+			Assert.That(result, Is.Not.Null);
+			Assert.Warn(result);
+		}
+
+		[Test]
 		public async Task TemplateCanExecuteNestedIfs()
 		{
 			var template =

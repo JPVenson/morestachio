@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Dynamic;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
+using Morestachio.Document;
 using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Framework.Context.Resolver;
@@ -66,6 +69,25 @@ namespace Morestachio.Formatter.Predefined
 			{
 				return _values.TryGetValue(binder.Name, out result);
 			}
+		}
+		
+		[MorestachioFormatter("Call", "Calls a formatter by dynamically providing name and arguments")]
+		public static async Task<object> Call(object source, string formatterName, 
+			[ExternalData] ParserOptions options,
+			[ExternalData] ScopeData scopeData,
+			[RestParameter] params object[] arguments)
+		{
+			var argumentTypes = arguments.Select((item, index) => new FormatterArgumentType(index, null, item)).ToArray();
+			var formatterMatch = options.Formatters.PrepareCallMostMatchingFormatter(source.GetType(),
+				argumentTypes,
+				formatterName, options, scopeData);
+			if (!formatterMatch.HasValue)
+			{
+				return null;
+			}
+
+			return await options.Formatters.Execute(formatterMatch.Value, source, options,
+				argumentTypes);
 		}
 		
 		[MorestachioFormatter("Get", "Gets a specific property from an object or IDictionary")]

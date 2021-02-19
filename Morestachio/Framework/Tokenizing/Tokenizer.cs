@@ -1087,64 +1087,64 @@ namespace Morestachio.Framework.Tokenizing
 									parserOptions);
 							tokens.AddRange(tokenPairs);
 						}
-						else if (trimmedToken.StartsWith("#"))
-						{
-							parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId, "Use the new {{#scope path}} block instead of the {{#path}} block", new Dictionary<string, object>()
-							{
-								{"Location", context.CurrentLocation},
-							});
-							//open group
-							var token = trimmedToken.TrimStart('#').Trim();
+						//else if (trimmedToken.StartsWith("#"))
+						//{
+						//	parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId, "Use the new {{#scope path}} block instead of the {{#path}} block", new Dictionary<string, object>()
+						//	{
+						//		{"Location", context.CurrentLocation},
+						//	});
+						//	//open group
+						//	var token = trimmedToken.TrimStart('#').Trim();
 
-							var eval = EvaluateNameFromToken(token);
-							token = eval.Value;
-							var alias = eval.Name;
-							tokenOptions.Add(new PersistantTokenOption("Render.LegacyStyle", true));
-							scopestack.Push(new ScopeStackItem(TokenType.ElementOpen, alias ?? token, match.Index));
-							tokens.Add(new TokenPair(TokenType.ElementOpen,
-								token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context), tokenOptions));
+						//	var eval = EvaluateNameFromToken(token);
+						//	token = eval.Value;
+						//	var alias = eval.Name;
+						//	tokenOptions.Add(new PersistantTokenOption("Render.LegacyStyle", true));
+						//	scopestack.Push(new ScopeStackItem(TokenType.ElementOpen, alias ?? token, match.Index));
+						//	tokens.Add(new TokenPair(TokenType.ElementOpen,
+						//		token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context), tokenOptions));
 
-							if (!string.IsNullOrWhiteSpace(alias))
-							{
-								context.AdvanceLocation(3 + alias.Length);
-								tokens.Add(new TokenPair(TokenType.Alias, alias,
-									context.CurrentLocation));
-							}
-						}
-						else if (trimmedToken.StartsWith("/"))
-						{
-							var token = trimmedToken.TrimStart('/').Trim();
-							//close group
-							if (!scopestack.Any())
-							{
-								context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
-										.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "/", "{{#path}}",
-									" There are more closing elements then open."));
-							}
-							else
-							{
-								var item = scopestack.Peek();
-								if ((item.TokenType == TokenType.ElementOpen ||
-									 item.TokenType == TokenType.InvertedElementOpen)
-									&& item.Value == token)
-								{
-									parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId, "Use the new {{/scope}} tag to close a scope instead of the {{/path}} tag", new Dictionary<string, object>()
-									{
-										{"Location", context.CurrentLocation},
-									});
-									scopestack.Pop();
-									tokenOptions.Add(new PersistantTokenOption("Render.LegacyStyle", true));
-									tokens.Add(new TokenPair(TokenType.ElementClose, token,
-										context.CurrentLocation, tokenOptions));
-								}
-								else
-								{
-									context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
-											.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "/", "{{#path}}",
-										" There are more closing elements then open."));
-								}
-							}
-						}
+						//	if (!string.IsNullOrWhiteSpace(alias))
+						//	{
+						//		context.AdvanceLocation(3 + alias.Length);
+						//		tokens.Add(new TokenPair(TokenType.Alias, alias,
+						//			context.CurrentLocation));
+						//	}
+						//}
+						//else if (trimmedToken.StartsWith("/"))
+						//{
+						//	var token = trimmedToken.TrimStart('/').Trim();
+						//	//close group
+						//	if (!scopestack.Any())
+						//	{
+						//		context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
+						//				.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "/", "{{#path}}",
+						//			" There are more closing elements then open."));
+						//	}
+						//	else
+						//	{
+						//		var item = scopestack.Peek();
+						//		if ((item.TokenType == TokenType.ElementOpen ||
+						//			 item.TokenType == TokenType.InvertedElementOpen)
+						//			&& item.Value == token)
+						//		{
+						//			parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId, "Use the new {{/scope}} tag to close a scope instead of the {{/path}} tag", new Dictionary<string, object>()
+						//			{
+						//				{"Location", context.CurrentLocation},
+						//			});
+						//			scopestack.Pop();
+						//			tokenOptions.Add(new PersistantTokenOption("Render.LegacyStyle", true));
+						//			tokens.Add(new TokenPair(TokenType.ElementClose, token,
+						//				context.CurrentLocation, tokenOptions));
+						//		}
+						//		else
+						//		{
+						//			context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
+						//					.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "/", "{{#path}}",
+						//				" There are more closing elements then open."));
+						//		}
+						//	}
+						//}
 						else
 						{
 							//unsingle value.
