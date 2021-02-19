@@ -18,7 +18,6 @@ namespace Morestachio.Document.Visitor
 		void Visit(EvaluateVariableDocumentItem documentItem);
 		void Visit(ExpressionScopeDocumentItem documentItem);
 		void Visit(IfExpressionScopeDocumentItem documentItem);
-		void Visit(IfNotExpressionScopeDocumentItem documentItem);
 		void Visit(InvertedExpressionScopeDocumentItem documentItem);
 		void Visit(SwitchDocumentItem documentItem);
 		void Visit(SwitchCaseDocumentItem documentItem);

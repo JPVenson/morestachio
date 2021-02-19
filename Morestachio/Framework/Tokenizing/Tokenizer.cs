@@ -260,29 +260,7 @@ namespace Morestachio.Framework.Tokenizing
 			var tokens = new List<TokenPair>();
 			var tokenOptions = new List<ITokenOption>();
 
-			void BeginElse(TokenMatch match)
-			{
-				var firstNonContentToken = tokens
-					.AsReadOnly()
-					.Reverse()
-					.FirstOrDefault(e => !e.Type.Equals(TokenType.Content));
-				if (!firstNonContentToken.Type.Equals(TokenType.IfClose))
-				{
-					context.Errors
-						.Add(new MorestachioSyntaxError(
-							context.CurrentLocation
-								.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)), "find if block for else",
-							firstNonContentToken.Value, "{{/if}}", "Could not find an /if block for this else"));
-				}
-				else
-				{
-					scopestack.Push(new ScopeStackItem(TokenType.Else, firstNonContentToken.Value, match.Index));
-					tokens.Add(new TokenPair(TokenType.Else, firstNonContentToken.Value,
-						context.CurrentLocation, tokenOptions));
-				}
-			}
-
-			void EndIf(TokenMatch match, string expected)
+			void EndIf(TokenMatch match)
 			{
 				if (!scopestack.Any())
 				{
@@ -472,19 +450,27 @@ namespace Morestachio.Framework.Tokenizing
 						var token = trimmedToken.TrimStart('#').Substring("import".Length).Trim(Tokenizer.GetWhitespaceDelimiters());
 						var pre = context.Character;
 						var tokenNameExpression = ExpressionParser.ParseExpression(token, context);
-						IMorestachioExpression contextExpression = null;
+
 						if (pre + token.Length != context.Character)
 						{
-							token = token.Substring(context.Character - pre).Trim(Tokenizer.GetWhitespaceDelimiters());
-							if (token.StartsWith("#WITH ", true, CultureInfo.InvariantCulture))
+							bool CheckForScopeAlias()
 							{
-								token = token.Substring("#WITH ".Length);
-								contextExpression = ExpressionParser.ParseExpression(token, context);
+								token = token.Substring(context.Character - pre).Trim(Tokenizer.GetWhitespaceDelimiters());
+								if (token.StartsWith("#WITH ", true, CultureInfo.InvariantCulture))
+								{
+									token = token.Remove(0, "#WITH ".Length);
+									var contextExpression = ExpressionParser.ParseExpression(token, context);
+									tokenOptions.Add(new TokenOption("Context", contextExpression));
+									return true;
+								}
+
+								return false;
 							}
+
+							CheckForScopeAlias();
 						}
 
 						//late bound expression, cannot check at parse time for existance
-						tokenOptions.Add(new TokenOption("Context", contextExpression));
 						tokens.Add(new TokenPair(TokenType.ImportPartial,
 							context.CurrentLocation, tokenNameExpression, tokenOptions));
 					}
@@ -808,16 +794,46 @@ namespace Morestachio.Framework.Tokenizing
 					}
 					else if (trimmedToken.Equals("/if", StringComparison.InvariantCultureIgnoreCase))
 					{
-						EndIf(match, "/If");
+						EndIf(match);
 					}
 					else if (trimmedToken.Equals("#ifelse", StringComparison.InvariantCultureIgnoreCase))
 					{
-						EndIf(match, "#ifelse");
-						BeginElse(match);
+						parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId,
+							"IFELSE is considered obsolete and should no longer be used. Just use the #ELSE keyword instead",
+							new Dictionary<string, object>()
+						{
+							{"Location", context.CurrentLocation},
+						});
 					}
 					else if (trimmedToken.Equals("#else", StringComparison.InvariantCultureIgnoreCase))
 					{
-						BeginElse(match);
+						/*
+						IF
+							SCOPE
+							SCOPECLOSE
+							EACH
+							EACHCLOSE
+						ELSE
+						ELSECLOSE
+						 */
+						ScopeStackItem currentScope;
+						if (
+							scopestack.Count > 0 &&
+							(!(currentScope = scopestack.Peek()).Equals(default)) &&
+							(currentScope.TokenType == TokenType.If
+							 || currentScope.TokenType == TokenType.IfNot))
+						{
+							scopestack.Push(new ScopeStackItem(TokenType.Else, trimmedToken, match.Index));
+							tokens.Add(new TokenPair(TokenType.Else, trimmedToken,
+								context.CurrentLocation, tokenOptions));
+						}
+						else
+						{
+							context.Errors.Add(new MorestachioSyntaxError(
+								context.CurrentLocation
+									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)),
+								"else", "{{#ELSE}}", "Expected the else keyword to be a direct descended of an #if"));
+						}
 					}
 					else if (trimmedToken.Equals("/else", StringComparison.InvariantCultureIgnoreCase))
 					{
@@ -826,6 +842,7 @@ namespace Morestachio.Framework.Tokenizing
 							var token = scopestack.Pop().Value;
 							tokens.Add(new TokenPair(TokenType.ElseClose, token,
 								context.CurrentLocation, tokenOptions));
+							EndIf(match);
 						}
 						else
 						{

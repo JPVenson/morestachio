@@ -223,9 +223,9 @@ namespace Morestachio.Tests.SerilalizerTests
 		{
 			var template = "I am <Text> {{#IF data}}" +
 						   "{{#LET test = 'test'}}" +
-						   " {{/IF}} {{#ELSE}}" +
+						   "{{#ELSE}}" +
 						   "{{#LET test = 'test'}}" +
-						   " {{/ELSE}}";
+						   "{{/ELSE}}";
 			TestSerializableDocument(template);
 		}
 

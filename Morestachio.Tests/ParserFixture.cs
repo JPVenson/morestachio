@@ -96,6 +96,12 @@ namespace Morestachio.Tests
 			documentCallback?.Invoke(document);
 			if (document.Document == null)
 			{
+				foreach (var morestachioError in document.Errors)
+				{
+					var sb = new StringBuilder();
+					morestachioError.Format(sb);
+					TestContext.Error.WriteLine(sb.ToString());
+				}
 				return null;
 			}
 			MorestachioDocumentResult docInfo = null;

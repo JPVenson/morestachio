@@ -56,7 +56,7 @@ namespace Morestachio.Document.Visitor
 			expression.Accept(visitor);
 			return visitor.StringBuilder.ToString();
 		}
-		
+
 		/// <summary>
 		///		Loops through all the document items children
 		/// </summary>
@@ -86,7 +86,7 @@ namespace Morestachio.Document.Visitor
 			}
 		}
 
-		public  void CheckForInlineTagLineBreakAtEnd(IDocumentItem documentItem)
+		public void CheckForInlineTagLineBreakAtEnd(IDocumentItem documentItem)
 		{
 			if (documentItem.TagCreationOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimTailing")?.Value is bool valSingle && valSingle)
 			{
@@ -98,7 +98,7 @@ namespace Morestachio.Document.Visitor
 			}
 		}
 
-		public  void CheckForInlineBlockLineBreakAtStart(IBlockDocumentItem documentItem)
+		public void CheckForInlineBlockLineBreakAtStart(IBlockDocumentItem documentItem)
 		{
 			if (documentItem.BlockClosingOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimLeading")?.Value is bool valSingle && valSingle)
 			{
@@ -110,7 +110,7 @@ namespace Morestachio.Document.Visitor
 			}
 		}
 
-		public  void CheckForInlineBlockLineBreakAtEnd(IBlockDocumentItem documentItem)
+		public void CheckForInlineBlockLineBreakAtEnd(IBlockDocumentItem documentItem)
 		{
 			if (documentItem.BlockClosingOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimTailing")?.Value is bool valSingle && valSingle)
 			{
@@ -122,6 +122,34 @@ namespace Morestachio.Document.Visitor
 			}
 		}
 
+		private void RenderTagHead(ExpressionDocumentItemBase documentItem, string tag, string cmdChar = "#")
+		{
+			StringBuilder.Append("{{");
+			CheckForInlineTagLineBreakAtStart(documentItem);
+			StringBuilder.Append(cmdChar);
+			StringBuilder.Append(tag);
+			StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
+			var aliasDocumentItem = documentItem.Children.FirstOrDefault() as AliasDocumentItem;
+			if (!(aliasDocumentItem is null))
+			{
+				StringBuilder.Append(" AS ");
+				StringBuilder.Append(aliasDocumentItem.Value);
+			}
+
+			CheckForInlineTagLineBreakAtEnd(documentItem);
+			StringBuilder.Append("}}");
+		}
+
+		private void RenderBlockFooter(ExpressionDocumentItemBase documentItem, string tag)
+		{
+			StringBuilder.Append("{{");
+			CheckForInlineBlockLineBreakAtStart(documentItem);
+			StringBuilder.Append("/");
+			StringBuilder.Append(tag.Trim());
+			CheckForInlineBlockLineBreakAtEnd(documentItem);
+			StringBuilder.Append("}}");
+		}
+
 		/// <summary>
 		///		Writes the tag with the leading char as well as all of the documentItems children
 		/// </summary>
@@ -130,40 +158,11 @@ namespace Morestachio.Document.Visitor
 		/// <param name="cmdChar"></param>
 		public void Visit(ExpressionDocumentItemBase documentItem, string tag, string cmdChar = "#")
 		{
-			StringBuilder.Append("{{");
-			CheckForInlineTagLineBreakAtStart(documentItem);
-			StringBuilder.Append(cmdChar);
-			StringBuilder.Append(tag);
-			StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
-			var children = documentItem.Children.ToList();
-			var aliasDocumentItem = children.FirstOrDefault() as AliasDocumentItem;
-			if (!(aliasDocumentItem is null))
-			{
-				StringBuilder.Append(" AS ");
-				StringBuilder.Append(aliasDocumentItem.Value);
-			}
-			
-			CheckForInlineTagLineBreakAtEnd(documentItem);
-			StringBuilder.Append("}}");
-
-			if (children.Any())
+			RenderTagHead(documentItem, tag, cmdChar);
+			if (documentItem.Children.Any())
 			{
 				VisitChildren(documentItem);
-
-				StringBuilder.Append("{{");
-				CheckForInlineBlockLineBreakAtStart(documentItem);
-				StringBuilder.Append("/");
-
-				//if (!(aliasDocumentItem is null))
-				//{
-				//	StringBuilder.Append(aliasDocumentItem.Value);
-				//}
-				//else
-				//{
-				//}
-				StringBuilder.Append(tag.Trim());
-				CheckForInlineBlockLineBreakAtEnd(documentItem);
-				StringBuilder.Append("}}");
+				RenderBlockFooter(documentItem, tag);
 			}
 		}
 
@@ -236,7 +235,7 @@ namespace Morestachio.Document.Visitor
 			}
 			else
 			{
-				Visit(documentItem, "SCOPE ");	
+				Visit(documentItem, "SCOPE ");
 			}
 		}
 
@@ -253,7 +252,7 @@ namespace Morestachio.Document.Visitor
 				StringBuilder.Append(" AS ");
 				StringBuilder.Append(aliasDocumentItem.Value);
 			}
-			
+
 			CheckForInlineTagLineBreakAtEnd(documentItem);
 			StringBuilder.Append("}}");
 
@@ -279,13 +278,29 @@ namespace Morestachio.Document.Visitor
 		/// <inheritdoc />
 		public void Visit(IfExpressionScopeDocumentItem documentItem)
 		{
-			Visit(documentItem, "IF ");
-		}
 
-		/// <inheritdoc />
-		public void Visit(IfNotExpressionScopeDocumentItem documentItem)
-		{
-			Visit(documentItem, "IF ", "^");
+			if (documentItem.Inverted)
+			{
+				RenderTagHead(documentItem, "IF ", "^");
+			}
+			else
+			{
+				RenderTagHead(documentItem, "IF ");
+			}
+			
+			if (documentItem.Children.Any())
+			{
+				VisitChildren(documentItem);
+			}
+
+			if (documentItem.Else != null)
+			{
+				Visit(documentItem.Else as ElseExpressionScopeDocumentItem);
+			}
+			else
+			{
+				RenderBlockFooter(documentItem, "IF");	
+			}
 		}
 
 		/// <inheritdoc />
@@ -297,10 +312,10 @@ namespace Morestachio.Document.Visitor
 			}
 			else
 			{
-				Visit(documentItem, "SCOPE ", "^");	
+				Visit(documentItem, "SCOPE ", "^");
 			}
 		}
-		
+
 		/// <inheritdoc />
 		public void Visit(SwitchDocumentItem documentItem)
 		{
@@ -324,13 +339,13 @@ namespace Morestachio.Document.Visitor
 			CheckForInlineBlockLineBreakAtEnd(documentItem);
 			StringBuilder.Append("}}");
 		}
-		
+
 		/// <inheritdoc />
 		public void Visit(SwitchCaseDocumentItem documentItem)
 		{
 			Visit(documentItem, "CASE ");
 		}
-		
+
 		/// <inheritdoc />
 		public void Visit(SwitchDefaultDocumentItem documentItem)
 		{
@@ -388,7 +403,7 @@ namespace Morestachio.Document.Visitor
 			CheckForInlineTagLineBreakAtEnd(documentItem);
 			StringBuilder.Append("}}");
 		}
-		
+
 		/// <inheritdoc />
 		public void Visit(ImportPartialDocumentItem documentItem)
 		{
@@ -415,7 +430,7 @@ namespace Morestachio.Document.Visitor
 		{
 			Visit(documentItem, "WHILE ");
 		}
-		
+
 		/// <inheritdoc />
 		public void Visit(RepeatDocumentItem documentItem)
 		{

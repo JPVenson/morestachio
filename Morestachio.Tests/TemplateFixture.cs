@@ -332,7 +332,7 @@ namespace Morestachio.Tests
 		public async Task TemplateIfElse()
 		{
 			var template =
-				@"{{#IF data}}{{data}}{{/IF}}{{#else}}{{root}}{{/else}}";
+				@"{{#IF data}}{{data}}{{#ELSE}}{{root}}{{/ELSE}}";
 			var data = new Dictionary<string, object>()
 			{
 				{"data", "false" },
@@ -348,7 +348,7 @@ namespace Morestachio.Tests
 		public async Task TemplateCanExecuteNestedIfs()
 		{
 			var template =
-				@"{{#IF data}}SHOULD PRINT{{#IF alum}}!{{/IF}}{{/IF}}{{#ELSE}}SHOULD NOT PRINT{{/ELSE}}";
+				@"{{#IF data}}SHOULD PRINT{{#IF alum}}!{{/IF}}{{#ELSE}}SHOULD NOT PRINT{{/ELSE}}";
 
 			var data = new Dictionary<string, object>()
 			{
@@ -365,7 +365,7 @@ namespace Morestachio.Tests
 		public async Task TemplateInvertedIfElse()
 		{
 			var template =
-				@"{{^IF data}}{{data}}{{/IF}}{{#else}}{{root}}{{/else}}";
+				@"{{^IF data}}{{data}}{{#else}}{{root}}{{/else}}";
 
 			var data = new Dictionary<string, object>()
 			{
@@ -384,7 +384,7 @@ namespace Morestachio.Tests
 		public async Task TemplateIfElseCombined()
 		{
 			var template =
-				@"{{#IF data}}{{data}}{{#ifelse}}{{root}}{{/else}}";
+				@"{{#IF data}}{{data}}{{#else}}{{root}}{{/else}}";
 
 			var data = new Dictionary<string, object>()
 			{
@@ -401,7 +401,7 @@ namespace Morestachio.Tests
 		public async Task TemplateInvertedIfElseCombined()
 		{
 			var template =
-				@"{{^IF data}}{{data}}{{#ifelse}}{{root}}{{/else}}";
+				@"{{^IF data}}{{data}}{{#else}}{{root}}{{/else}}";
 
 			var data = new Dictionary<string, object>()
 			{

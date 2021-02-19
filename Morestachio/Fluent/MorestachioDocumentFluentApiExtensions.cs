@@ -74,7 +74,7 @@ namespace Morestachio.Fluent
 		public static MorestachioDocumentFluentApi AddIfAndEnter(this MorestachioDocumentFluentApi api,
 			Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> condition)
 		{
-			return api.AddChildAndEnter(builder => new IfExpressionScopeDocumentItem(CharacterLocation.Unknown, condition(builder).Compile(), Enumerable.Empty<ITokenOption>()));
+			return api.AddChildAndEnter(builder => new IfExpressionScopeDocumentItem(CharacterLocation.Unknown, condition(builder).Compile(), Enumerable.Empty<ITokenOption>(), false));
 		}
 
 		/// <summary>
@@ -83,7 +83,7 @@ namespace Morestachio.Fluent
 		public static MorestachioDocumentFluentApi AddInvertedIfAndEnter(this MorestachioDocumentFluentApi api,
 			Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> condition)
 		{
-			return api.AddChildAndEnter(builder => new IfNotExpressionScopeDocumentItem(CharacterLocation.Unknown, condition(builder).Compile(), Enumerable.Empty<ITokenOption>()));
+			return api.AddChildAndEnter(builder => new IfExpressionScopeDocumentItem(CharacterLocation.Unknown, condition(builder).Compile(), Enumerable.Empty<ITokenOption>(), true));
 		}
 
 		/// <summary>

@@ -51,10 +51,10 @@ namespace Morestachio.Document.Items
 		/// <inheritdoc />
 		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
+			return Children.WithScope(context).ToPromise();
 			if (scopeData.ExecuteElse)
 			{
 				scopeData.ExecuteElse = false;
-				return Children.WithScope(context).ToPromise();
 			}
 
 			scopeData.ExecuteElse = false;
@@ -74,11 +74,7 @@ namespace Morestachio.Document.Items
 
 			return async (stream, context, scopeData) =>
 			{
-				if (scopeData.ExecuteElse)
-				{
-					scopeData.ExecuteElse = false;
-					await children(stream, context, scopeData);
-				}
+				await children(stream, context, scopeData);
 			};
 		}
 	}

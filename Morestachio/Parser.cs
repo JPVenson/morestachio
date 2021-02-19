@@ -168,14 +168,14 @@ namespace Morestachio
 				else if (currentToken.Type.Equals(TokenType.If))
 				{
 					var nestedDocument = new IfExpressionScopeDocumentItem(currentToken.TokenLocation,
-						currentToken.MorestachioExpression, GetPublicOptions(currentToken));
+						currentToken.MorestachioExpression, GetPublicOptions(currentToken), false);
 					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					TryAdd(currentDocumentItem.Document, nestedDocument);
 				}
 				else if (currentToken.Type.Equals(TokenType.IfNot))
 				{
-					var nestedDocument = new IfNotExpressionScopeDocumentItem(currentToken.TokenLocation,
-						currentToken.MorestachioExpression, GetPublicOptions(currentToken));
+					var nestedDocument = new IfExpressionScopeDocumentItem(currentToken.TokenLocation,
+						currentToken.MorestachioExpression, GetPublicOptions(currentToken), true);
 					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					TryAdd(currentDocumentItem.Document, nestedDocument);
 				}
@@ -183,7 +183,10 @@ namespace Morestachio
 				{
 					var nestedDocument = new ElseExpressionScopeDocumentItem(currentToken.TokenLocation, GetPublicOptions(currentToken));
 					buildStack.Push(new DocumentScope(nestedDocument, getScope));
-					TryAdd(currentDocumentItem.Document, nestedDocument);
+					if (currentDocumentItem.Document is IfExpressionScopeDocumentItem ifDocument)
+					{
+						ifDocument.Else = nestedDocument;
+					}
 				}
 				else if (currentToken.Type.Equals(TokenType.CollectionOpen))
 				{
@@ -307,7 +310,8 @@ namespace Morestachio
 				{
 					TryAdd(currentDocumentItem.Document, new ImportPartialDocumentItem(currentToken.TokenLocation,
 						currentToken.MorestachioExpression,
-						currentToken.FindOption<IMorestachioExpression>("Context"), GetPublicOptions(currentToken)));
+						currentToken.FindOption<IMorestachioExpression>("Context"),
+						GetPublicOptions(currentToken)));
 				}
 				else if (currentToken.Type.Equals(TokenType.Alias))
 				{
