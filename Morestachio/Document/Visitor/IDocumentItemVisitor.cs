@@ -14,10 +14,11 @@ namespace Morestachio.Document.Visitor
 		void Visit(ContentDocumentItem documentItem);
 		void Visit(DoLoopDocumentItem documentItem);
 		void Visit(EachDocumentItem documentItem);
-		void Visit(ElseExpressionScopeDocumentItem documentItem);
 		void Visit(EvaluateVariableDocumentItem documentItem);
 		void Visit(ExpressionScopeDocumentItem documentItem);
 		void Visit(IfExpressionScopeDocumentItem documentItem);
+		void Visit(ElseExpressionScopeDocumentItem documentItem);
+		void Visit(ElseIfExpressionScopeDocumentItem documentItem);
 		void Visit(InvertedExpressionScopeDocumentItem documentItem);
 		void Visit(SwitchDocumentItem documentItem);
 		void Visit(SwitchCaseDocumentItem documentItem);

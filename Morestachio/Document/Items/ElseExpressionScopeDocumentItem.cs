@@ -24,49 +24,42 @@ namespace Morestachio.Document.Items
 	/// </summary>
 	[Serializable]
 	public class ElseExpressionScopeDocumentItem : BlockDocumentItemBase, ISupportCustomCompilation
-	{       
+	{
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
 		internal ElseExpressionScopeDocumentItem()
 		{
-			
+
 		}
-		
+
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
 		internal ElseExpressionScopeDocumentItem(CharacterLocation location,
-			IEnumerable<ITokenOption> tagCreationOptions): base(location,tagCreationOptions)
+			IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
 		{
-			
+
 		}
-		
+
 		/// <inheritdoc />
-		
+
 		protected ElseExpressionScopeDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}
-		
+
 		/// <inheritdoc />
 		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
 			return Children.WithScope(context).ToPromise();
-			if (scopeData.ExecuteElse)
-			{
-				scopeData.ExecuteElse = false;
-			}
-
-			scopeData.ExecuteElse = false;
-			return Enumerable.Empty<DocumentItemExecution>().ToPromise();
 		}
-		
+
 		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)
 		{
 			visitor.Visit(this);
 		}
-		
+
 		/// <inheritdoc />
 		public Compilation Compile()
 		{

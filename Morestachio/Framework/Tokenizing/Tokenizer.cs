@@ -807,21 +807,14 @@ namespace Morestachio.Framework.Tokenizing
 					}
 					else if (trimmedToken.Equals("#else", StringComparison.InvariantCultureIgnoreCase))
 					{
-						/*
-						IF
-							SCOPE
-							SCOPECLOSE
-							EACH
-							EACHCLOSE
-						ELSE
-						ELSECLOSE
-						 */
 						ScopeStackItem currentScope;
+						//the new else block must be located inside an #IF or ^IF block 
 						if (
 							scopestack.Count > 0 &&
 							(!(currentScope = scopestack.Peek()).Equals(default)) &&
 							(currentScope.TokenType == TokenType.If
-							 || currentScope.TokenType == TokenType.IfNot))
+							 || currentScope.TokenType == TokenType.IfNot
+							 || currentScope.TokenType == TokenType.ElseIf))
 						{
 							scopestack.Push(new ScopeStackItem(TokenType.Else, trimmedToken, match.Index));
 							tokens.Add(new TokenPair(TokenType.Else, trimmedToken,
@@ -832,7 +825,56 @@ namespace Morestachio.Framework.Tokenizing
 							context.Errors.Add(new MorestachioSyntaxError(
 								context.CurrentLocation
 									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)),
-								"else", "{{#ELSE}}", "Expected the else keyword to be a direct descended of an #if"));
+								"else", "{{#ELSE}}", "Expected the else keyword to be a direct descended of an #if or #elseif"));
+						}
+					}
+					else if (trimmedToken.StartsWith("#elseif ", true, CultureInfo.InvariantCulture))
+					{
+						ScopeStackItem currentScope;
+						//the new else block must be located inside an #IF or ^IF block 
+						if (
+							scopestack.Count > 0 &&
+							(!(currentScope = scopestack.Peek()).Equals(default)) &&
+							(currentScope.TokenType == TokenType.If
+							 || currentScope.TokenType == TokenType.IfNot
+							 || currentScope.TokenType == TokenType.ElseIf))
+						{
+							var token = TrimToken(trimmedToken, "elseif");
+							var eval = EvaluateNameFromToken(token);
+							token = eval.Value;
+							if (eval.Name != null)
+							{
+								context.Errors.Add(new MorestachioSyntaxError(
+									context.CurrentLocation
+										.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "^elseif", "AS", "No Alias"));
+							}
+
+							scopestack.Push(new ScopeStackItem(TokenType.ElseIf, token, match.Index));
+							tokens.Add(new TokenPair(TokenType.ElseIf, context.CurrentLocation, ExpressionParser.ParseExpression(token, context), tokenOptions));
+						}
+						else
+						{
+							context.Errors.Add(new MorestachioSyntaxError(
+								context.CurrentLocation
+									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)),
+								"else", "{{#ELSEIF}}", "Expected the elseif keyword to be a direct descended of an #if"));
+						}
+					}
+					else if (trimmedToken.Equals("/elseif", StringComparison.InvariantCultureIgnoreCase))
+					{
+						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.ElseIf)
+						{
+							var token = scopestack.Pop().Value;
+							tokens.Add(new TokenPair(TokenType.ElseIfClose, token,
+								context.CurrentLocation, tokenOptions));
+							//EndIf(match);//as the parent is still an if block close that one of
+						}
+						else
+						{
+							context.Errors.Add(new MorestachioUnopendScopeError(
+								context.CurrentLocation
+									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "elseif",
+								"{{#ELSEIF expression}}"));
 						}
 					}
 					else if (trimmedToken.Equals("/else", StringComparison.InvariantCultureIgnoreCase))
@@ -842,7 +884,7 @@ namespace Morestachio.Framework.Tokenizing
 							var token = scopestack.Pop().Value;
 							tokens.Add(new TokenPair(TokenType.ElseClose, token,
 								context.CurrentLocation, tokenOptions));
-							EndIf(match);
+							//EndIf(match);//as the parent is still an if block close that one of
 						}
 						else
 						{

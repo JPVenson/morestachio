@@ -89,6 +89,7 @@ namespace Morestachio
 		/// <returns></returns>
 		public static IDocumentItem Parse(TokenizerResult tokenizerResult, ParserOptions options)
 		{
+
 			var buildStack = new Stack<DocumentScope>();
 			//this is the scope id that determines a scope that is using let or alias variables
 			int variableScope = 1;
@@ -115,6 +116,40 @@ namespace Morestachio
 				}
 
 				return false;
+			}
+
+			void CloseScope(Stack<DocumentScope> documentScopes, TokenPair currentToken, DocumentScope currentDocumentItem)
+			{
+				DocumentScope scope = documentScopes.Peek();
+				if (!(scope.Document is IBlockDocumentItem blockDocument))
+				{
+					throw new InvalidOperationException(
+						$"Closing an token '{currentToken.Type}' at '{currentToken.TokenLocation}'" +
+						$" that is not of type '{typeof(IBlockDocumentItem)}' is not possible.");
+				}
+
+				blockDocument.BlockClosingOptions = GetPublicOptions(currentToken);
+
+				if (scope.HasAlias) //are we in a alias then remove it
+				{
+					foreach (var scopeLocalVariable in scope.LocalVariables)
+					{
+						TryAdd(currentDocumentItem.Document, new RemoveAliasDocumentItem(currentToken.TokenLocation,
+							scopeLocalVariable,
+							scope.VariableScopeNumber, null));
+					}
+				}
+
+				// remove the last document from the stack and go back to the parents
+				documentScopes.Pop();
+			}
+
+			void AddIfDocument(TokenPair tokenPair, DocumentScope documentScope)
+			{
+				var nestedDocument = new IfExpressionScopeDocumentItem(tokenPair.TokenLocation,
+					tokenPair.MorestachioExpression, GetPublicOptions(tokenPair), false);
+				buildStack.Push(new DocumentScope(nestedDocument, getScope));
+				TryAdd(documentScope.Document, nestedDocument);
 			}
 
 			foreach (var currentToken in tokenizerResult)
@@ -167,10 +202,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.If))
 				{
-					var nestedDocument = new IfExpressionScopeDocumentItem(currentToken.TokenLocation,
-						currentToken.MorestachioExpression, GetPublicOptions(currentToken), false);
-					buildStack.Push(new DocumentScope(nestedDocument, getScope));
-					TryAdd(currentDocumentItem.Document, nestedDocument);
+					AddIfDocument(currentToken, currentDocumentItem);
 				}
 				else if (currentToken.Type.Equals(TokenType.IfNot))
 				{
@@ -185,8 +217,22 @@ namespace Morestachio
 					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					if (currentDocumentItem.Document is IfExpressionScopeDocumentItem ifDocument)
 					{
-						ifDocument.Else = nestedDocument;
+						ifDocument.Add(nestedDocument);
 					}
+				}
+				else if (currentToken.Type.Equals(TokenType.ElseIf))
+				{
+					var nestedDocument = new ElseIfExpressionScopeDocumentItem(currentToken.TokenLocation,
+						currentToken.MorestachioExpression,
+						GetPublicOptions(currentToken));
+
+					var documentScope = new DocumentScope(nestedDocument, getScope);
+					buildStack.Push(documentScope);
+					if (currentDocumentItem.Document is IfExpressionScopeDocumentItem ifDocument)
+					{
+						ifDocument.Add(nestedDocument);
+					}
+					//AddIfDocument(currentToken, documentScope);
 				}
 				else if (currentToken.Type.Equals(TokenType.CollectionOpen))
 				{
@@ -249,6 +295,7 @@ namespace Morestachio
 						|| currentToken.Type.Equals(TokenType.ElementClose)
 						|| currentToken.Type.Equals(TokenType.IfClose)
 						|| currentToken.Type.Equals(TokenType.ElseClose)
+						|| currentToken.Type.Equals(TokenType.ElseIfClose)
 						|| currentToken.Type.Equals(TokenType.WhileLoopClose)
 						|| currentToken.Type.Equals(TokenType.DoLoopClose)
 						|| currentToken.Type.Equals(TokenType.RepeatLoopClose)
@@ -256,26 +303,7 @@ namespace Morestachio
 						|| currentToken.Type.Equals(TokenType.SwitchDefaultClose)
 						|| currentToken.Type.Equals(TokenType.SwitchClose))
 				{
-					DocumentScope scope = buildStack.Peek();
-					if (!(scope.Document is IBlockDocumentItem blockDocument))
-					{
-						throw new InvalidOperationException($"Closing an token '{currentToken.Type}' at '{currentToken.TokenLocation}'" +
-						                                    $" that is not of type '{typeof(IBlockDocumentItem)}' is not possible.");
-					}
-
-					blockDocument.BlockClosingOptions = GetPublicOptions(currentToken);
-
-					if (scope.HasAlias) //are we in a alias then remove it
-					{
-						foreach (var scopeLocalVariable in scope.LocalVariables)
-						{
-							TryAdd(currentDocumentItem.Document, new RemoveAliasDocumentItem(currentToken.TokenLocation,
-								scopeLocalVariable,
-								scope.VariableScopeNumber, null));
-						}
-					}
-					// remove the last document from the stack and go back to the parents
-					buildStack.Pop();
+					CloseScope(buildStack, currentToken, currentDocumentItem);
 				}
 				else if (currentToken.Type.Equals(TokenType.EscapedSingleValue) ||
 						currentToken.Type.Equals(TokenType.UnescapedSingleValue))

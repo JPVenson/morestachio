@@ -221,11 +221,13 @@ namespace Morestachio.Tests.SerilalizerTests
 		[Test]
 		public void TestIsIfElseIsSerializable()
 		{
-			var template = "I am <Text> {{#IF data}}" +
+			var template = "I am <Text> " +
+			               "{{#IF data}}" +
 						   "{{#LET test = 'test'}}" +
 						   "{{#ELSE}}" +
 						   "{{#LET test = 'test'}}" +
-						   "{{/ELSE}}";
+						   "{{/ELSE}}" +
+			               "{{/IF}}";
 			TestSerializableDocument(template);
 		}
 

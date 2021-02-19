@@ -31,7 +31,6 @@ namespace Morestachio.Document.Items
 		/// </summary>
 		internal IfExpressionScopeDocumentItem()
 		{
-
 		}
 
 		/// <inheritdoc />
@@ -46,14 +45,12 @@ namespace Morestachio.Document.Items
 		/// <inheritdoc />
 		protected IfExpressionScopeDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
-			Else = info.GetValue(nameof(Else), typeof(IDocumentItem)) as IDocumentItem;
 			Inverted = info.GetBoolean(nameof(Inverted));
 		}
 
 		protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
 		{
 			base.SerializeBinaryCore(info, context);
-			info.AddValue(nameof(Else), Else);
 			info.AddValue(nameof(Inverted), Inverted);
 		}
 
@@ -64,12 +61,6 @@ namespace Morestachio.Document.Items
 				writer.WriteAttributeString(nameof(Inverted), bool.TrueString);
 			}
 			base.SerializeXml(writer);
-			if (Else != null)
-			{
-				writer.WriteStartElement(nameof(Else));
-				Else.SerializeXmlCore(writer);
-				writer.WriteEndElement();//else
-			}
 		}
 
 		protected override void DeSerializeXml(XmlReader reader)
@@ -79,51 +70,35 @@ namespace Morestachio.Document.Items
 				Inverted = true;
 			}
 			base.DeSerializeXml(reader);
-			if (reader.Name == nameof(Else))
-			{
-				reader.ReadStartElement();
-				var elseDocument = DocumentExtensions.CreateDocumentItemInstance(reader.Name);
-				
-				var childTree = reader.ReadSubtree();
-				childTree.Read();
-				elseDocument.DeSerializeXmlCore(childTree);
-				reader.Skip();
-				Else = elseDocument;
-				reader.ReadEndElement();//Else
-			}
 		}
 
-		/// <summary>
-		///		If present, the document items to be printed if the condition does not match
-		/// </summary>
-		public IDocumentItem Else { get; internal set; }
+		protected virtual IEnumerable<IDocumentItem> GetIfContents()
+		{
+			return Children.TakeWhile(e => !(e is ElseIfExpressionScopeDocumentItem)
+										   &&
+										   !(e is ElseExpressionScopeDocumentItem));
+		}
+
+		protected virtual IEnumerable<ElseIfExpressionScopeDocumentItem> GetNestedElseConditions()
+		{
+			return Children.OfType<ElseIfExpressionScopeDocumentItem>();
+		}
+
+		protected virtual ElseExpressionScopeDocumentItem GetNestedElse()
+		{
+			return Children.OfType<ElseExpressionScopeDocumentItem>().FirstOrDefault();
+		}
 
 		/// <summary>
 		///		If set to true the expression must evaluate to false instead of true
 		/// </summary>
 		public bool Inverted { get; set; }
 
-		/// <inheritdoc />
-		public virtual Compilation Compile()
-		{
-			var elseCompiled = Else != null ? MorestachioDocument.CompileItemsAndChildren(new[] { Else }) : null;
 
-			var children = MorestachioDocument.CompileItemsAndChildren(Children);
-			var expression = MorestachioExpression.Compile();
-			return async (stream, context, scopeData) =>
-			{
-				var c = await expression(context, scopeData);
-				if (c.Exists() != Inverted)
-				{
-					await children(stream, context.IsNaturalContext || context.Parent == null ? context : context.Parent,
-						scopeData);
-				}
-				else if (elseCompiled != null)
-				{
-					await elseCompiled(stream, context.IsNaturalContext || context.Parent == null ? context : context.Parent,
-						scopeData);
-				}
-			};
+		internal class IfExecutionContainer
+		{
+			public CompiledExpression Expression { get; set; }
+			public Compilation Callback { get; set; }
 		}
 
 		/// <inheritdoc />
@@ -132,19 +107,91 @@ namespace Morestachio.Document.Items
 			ScopeData scopeData)
 		{
 			var c = await MorestachioExpression.GetValue(context, scopeData);
+			context = context.IsNaturalContext || context.Parent == null ? context : context.Parent;
 
 			if (c.Exists() != Inverted)
 			{
-				return Children
+				return GetIfContents()
 					.WithScope(context.IsNaturalContext || context.Parent == null ? context : context.Parent);
 			}
-			else if (Else != null)
+
+			var elseBlocks = GetNestedElseConditions().ToArray();
+			if (elseBlocks.Length > 0)
 			{
-				return new[] { Else }
+				foreach (var documentItem in elseBlocks)
+				{
+					var elseContext = await documentItem.MorestachioExpression.GetValue(context, scopeData);
+					if (elseContext.Exists() != Inverted)
+					{
+						return documentItem.Children
+							.WithScope(context.IsNaturalContext || context.Parent == null ? context : context.Parent);
+					}
+				}
+			}
+
+			var elseBlock = GetNestedElse();
+
+			if (elseBlock != null)
+			{
+				return new[] { elseBlock }
 					.WithScope(context.IsNaturalContext || context.Parent == null ? context : context.Parent);
 			}
+
 			return Enumerable.Empty<DocumentItemExecution>();
 		}
+
+		/// <inheritdoc />
+		public virtual Compilation Compile()
+		{
+			var elseChildren = GetNestedElseConditions()
+				.Select(e => new IfExecutionContainer()
+				{
+					Callback = MorestachioDocument.CompileItemsAndChildren(e.Children),
+					Expression = e.MorestachioExpression.Compile()
+				}).ToArray();
+
+			var elseDocument = GetNestedElse();
+			Compilation elseBlock = null;
+			if (elseDocument != null)
+			{
+				elseBlock = MorestachioDocument.CompileItemsAndChildren(new[] { elseDocument });
+			}
+
+			var children = MorestachioDocument.CompileItemsAndChildren(GetIfContents());
+
+			var expression = MorestachioExpression.Compile();
+			return async (stream, context, scopeData) =>
+			{
+				var c = await expression(context, scopeData);
+
+				context = context.IsNaturalContext || context.Parent == null ? context : context.Parent;
+				if (c.Exists() != Inverted)
+				{
+					await children(stream, context, scopeData);
+					return;
+				}
+				else if (elseChildren.Length > 0)
+				{
+					foreach (var ifExecutionContainer in elseChildren)
+					{
+						if ((await ifExecutionContainer.Expression(context, scopeData)).Exists() == Inverted)
+						{
+							continue;
+						}
+
+						await ifExecutionContainer.Callback(stream, context, scopeData);
+						return;
+					}
+				}
+
+				if (elseBlock != null)
+				{
+					await elseBlock(stream, context, scopeData);
+					return;
+				}
+			};
+		}
+
 		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)
 		{

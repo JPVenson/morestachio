@@ -140,13 +140,21 @@
 		/// </summary>
 		IfNot,
 		/// <summary>
-		///		Defines an Else. An else can only be used when an if is it predecessor and will only execute when the if will not
+		///		Defines an Else. An else can only be used when its an direct descendent of an if
 		/// </summary>
 		Else,
 		/// <summary>
 		///		Defines the end of an else-scope
 		/// </summary>
 		ElseClose,
+		/// <summary>
+		///		Defines an if within the Else of an if. An elseif can only be used when its an direct descendent of an if
+		/// </summary>
+		ElseIf,
+		/// <summary>
+		///		Defines the end of an else-scope
+		/// </summary>
+		ElseIfClose,
 		/// <summary>
 		///		Defines the current Context as the be accessed by an alias
 		/// </summary>

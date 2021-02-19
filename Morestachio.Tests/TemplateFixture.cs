@@ -332,7 +332,7 @@ namespace Morestachio.Tests
 		public async Task TemplateIfElse()
 		{
 			var template =
-				@"{{#IF data}}{{data}}{{#ELSE}}{{root}}{{/ELSE}}";
+				@"{{#IF data}}{{data}}{{#ELSE}}{{root}}{{/ELSE}}{{/IF}}";
 			var data = new Dictionary<string, object>()
 			{
 				{"data", "false" },
@@ -345,10 +345,73 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		public async Task TemplateIfElseIFelse()
+		{
+			var template =
+				@"{{#IF data == 'ABC'}}{{data}}{{#ELSEIF data == 'false'}}{{root}}{{/ELSEIF}}{{/IF}}";
+			var data = new Dictionary<string, object>()
+			{
+				{"data", "false" },
+				{"root", "true" }
+			};
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
+
+			Assert.That(result, Is.EqualTo(data["root"]));
+		}
+
+		[Test]
+		public async Task TemplateIfElseIfElseMultiple()
+		{
+			var template =
+				@"{{#IF data == 'ABC'}}{{data}}{{#ELSEIF data == 'a'}}{{data}}{{/ELSEIF}}{{#ELSEIF data == 'c'}}{{data}}{{/ELSEIF}}{{#ELSEIF data == 'false'}}{{root}}{{/ELSEIF}}{{/IF}}";
+			var data = new Dictionary<string, object>()
+			{
+				{"data", "false" },
+				{"root", "true" }
+			};
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
+
+			Assert.That(result, Is.EqualTo(data["root"]));
+		}
+
+		[Test]
+		public async Task TemplateIfElseIfElseMultipleTailingElse()
+		{
+			var template =
+				@"
+{{--| #IF data == 'ABC'}}
+	{{data}}
+	{{#ELSEIF data == 'a'}}
+		{{data}}
+	{{/ELSEIF}}
+	{{#ELSEIF data == 'c'}}
+		{{data}}
+	{{/ELSEIF}}
+	{{#ELSEIF data == 'true'}}
+		{{data}}
+	{{/ELSEIF}}
+	{{#ELSE}}
+		{{--| root |--}}
+	{{/ELSE}}
+{{/IF}}";
+			var data = new Dictionary<string, object>()
+			{
+				{"data", "false" },
+				{"root", "true" }
+			};
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
+
+			Assert.That(result, Is.EqualTo(data["root"]));
+		}
+
+		[Test]
 		public async Task TemplateCanExecuteNestedIfs()
 		{
 			var template =
-				@"{{#IF data}}SHOULD PRINT{{#IF alum}}!{{/IF}}{{#ELSE}}SHOULD NOT PRINT{{/ELSE}}";
+				@"{{#IF data}}SHOULD PRINT{{#IF alum}}!{{/IF}}{{#ELSE}}SHOULD NOT PRINT{{/ELSE}}{{/IF}}";
 
 			var data = new Dictionary<string, object>()
 			{
@@ -365,7 +428,7 @@ namespace Morestachio.Tests
 		public async Task TemplateInvertedIfElse()
 		{
 			var template =
-				@"{{^IF data}}{{data}}{{#else}}{{root}}{{/else}}";
+				@"{{^IF data}}{{data}}{{#else}}{{root}}{{/else}}{{/IF}}";
 
 			var data = new Dictionary<string, object>()
 			{
@@ -384,7 +447,7 @@ namespace Morestachio.Tests
 		public async Task TemplateIfElseCombined()
 		{
 			var template =
-				@"{{#IF data}}{{data}}{{#else}}{{root}}{{/else}}";
+				@"{{#IF data}}{{data}}{{#else}}{{root}}{{/else}}{{/IF}}";
 
 			var data = new Dictionary<string, object>()
 			{
@@ -401,7 +464,7 @@ namespace Morestachio.Tests
 		public async Task TemplateInvertedIfElseCombined()
 		{
 			var template =
-				@"{{^IF data}}{{data}}{{#else}}{{root}}{{/else}}";
+				@"{{^IF data}}{{data}}{{#else}}{{root}}{{/else}}{{/IF}}";
 
 			var data = new Dictionary<string, object>()
 			{

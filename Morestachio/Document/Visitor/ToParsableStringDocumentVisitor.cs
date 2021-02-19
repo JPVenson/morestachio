@@ -213,6 +213,12 @@ namespace Morestachio.Document.Visitor
 		}
 
 		/// <inheritdoc />
+		public void Visit(ElseIfExpressionScopeDocumentItem documentItem)
+		{
+			Visit(documentItem, "ELSEIF ");
+		}
+
+		/// <inheritdoc />
 		public void Visit(EvaluateVariableDocumentItem documentItem)
 		{
 			StringBuilder.Append("{{");
@@ -278,29 +284,47 @@ namespace Morestachio.Document.Visitor
 		/// <inheritdoc />
 		public void Visit(IfExpressionScopeDocumentItem documentItem)
 		{
-
 			if (documentItem.Inverted)
 			{
-				RenderTagHead(documentItem, "IF ", "^");
+				Visit(documentItem, "IF ", "^");
 			}
 			else
 			{
-				RenderTagHead(documentItem, "IF ");
-			}
-			
-			if (documentItem.Children.Any())
-			{
-				VisitChildren(documentItem);
+				Visit(documentItem, "IF ");
 			}
 
-			if (documentItem.Else != null)
-			{
-				Visit(documentItem.Else as ElseExpressionScopeDocumentItem);
-			}
-			else
-			{
-				RenderBlockFooter(documentItem, "IF");	
-			}
+			//if (documentItem.Inverted)
+			//{
+			//	RenderTagHead(documentItem, "IF ", "^");
+			//}
+			//else
+			//{
+			//	RenderTagHead(documentItem, "IF ");
+			//}
+
+			//if (documentItem.Children.Any())
+			//{
+			//	foreach (var documentItemChild in documentItem.Children)
+			//	{
+			//		documentItemChild.Accept(this);
+			//	}
+
+			//	VisitChildren(documentItem);
+			//}
+
+			//if (documentItem.Else != null)
+			//{
+			//	foreach (var elseIfExpressionScopeDocumentItem in documentItem.Else.OfType<ElseIfExpressionScopeDocumentItem>())
+			//	{
+			//		Visit(elseIfExpressionScopeDocumentItem);
+			//	}
+
+			//	if (documentItem.Else.FirstOrDefault(e => e is ElseExpressionScopeDocumentItem) is ElseExpressionScopeDocumentItem hasElseBlock)
+			//	{
+			//		Visit(hasElseBlock);
+			//	}
+			//}
+			//RenderBlockFooter(documentItem, "IF");
 		}
 
 		/// <inheritdoc />

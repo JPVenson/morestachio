@@ -7,7 +7,7 @@ namespace Morestachio.Parsing
 	/// <summary>
 	///		Defines the scope of an DocumentItem that can has children
 	/// </summary>
-	public struct DocumentScope
+	public class DocumentScope
 	{
 		private readonly Lazy<int> _variableScopeNumber;
 
