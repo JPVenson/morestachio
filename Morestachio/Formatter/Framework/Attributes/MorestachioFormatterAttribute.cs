@@ -70,7 +70,7 @@ namespace Morestachio.Formatter.Framework.Attributes
 		{
 			if (string.IsNullOrWhiteSpace(Name))
 			{
-				return true;
+				return false;
 			}
 
 			return MorestachioFormatterService.ValidateFormatterNameRegEx.IsMatch(Name);

@@ -22,24 +22,10 @@ namespace Morestachio.Formatter.Predefined
 		{
 			return source.ToString(argument, options.CultureInfo);
 		}
-
-		[MorestachioFormatter(null, null)]
-		public static string FormattableObsolete(IFormattable source, string argument, [ExternalData]ParserOptions options)
-		{
-			options.Logger.LogWarn(LoggingFormatter.FormatterObsoleteEventId, "The null ToString formatter is obsolete. Please use the named 'ToString()' formatter");
-			return source.ToString(argument, options.CultureInfo);
-		}
-
+		
 		[MorestachioFormatter("ToString", "Formats the value according to the build in rules for that object")]
 		public static string Formattable(object source)
 		{
-			return source.ToString();
-		}
-
-		[MorestachioFormatter(null, null)]
-		public static string FormattableObsolete(object source, [ExternalData]ILogger logger)
-		{
-			logger?.LogWarn(LoggingFormatter.FormatterObsoleteEventId, "The null ToString formatter is obsolete. Please use the named 'ToString()' formatter");
 			return source.ToString();
 		}
 		

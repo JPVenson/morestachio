@@ -424,7 +424,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task ParserCanChainFormat()
 		{
-			var template = "{{#SCOPE data}}{{.('d').fnc()}}{{/SCOPE}}";
+			var template = "{{#SCOPE data}}{{ToString('d').fnc()}}{{/SCOPE}}";
 			var data = new Dictionary<string, object>() { { "data", DateTime.UtcNow } };
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
@@ -436,7 +436,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task ParserCanChainFormatSubExpression()
 		{
-			var template = "{{#SCOPE data}}{{.('V').('V', r.d)}}{{/SCOPE}}";
+			var template = "{{#SCOPE data}}{{Self('V').Self('V', r.d)}}{{/SCOPE}}";
 			var referenceDataValue = "reference data value";
 			var data = new Dictionary<string, object>
 			{
@@ -452,10 +452,10 @@ namespace Morestachio.Tests
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
 				options.Formatters.AddSingle(
-					new Func<object, object, object, object>((source, tempValue, reference) => reference));
+					new Func<object, object, object, object>((source, tempValue, reference) => reference), "Self");
 
 				options.Formatters.AddSingle(
-					new Func<object, object, object>((source, tempValue) => source));
+					new Func<object, object, object>((source, tempValue) => source), "Self");
 			});
 			Assert.That(result, Is.EqualTo(referenceDataValue));
 		}
@@ -497,13 +497,14 @@ namespace Morestachio.Tests
 		public async Task ParserCanChainFormatWithLineBreak()
 		{
 			var template = @"{{#SCOPE data}}{{
-	.  (   'd'  )
-																.()
+	. ToString (   'd'  )
+																. Self
+()
 }}{{/SCOPE}}";
 			var data = new Dictionary<string, object>() { { "data", DateTime.UtcNow } };
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts | ParserOptionTypes.NoRerenderingTest, options =>
 			{
-				options.Formatters.AddSingle(new Func<string, string>(s => "TEST"));
+				options.Formatters.AddSingle(new Func<string, string>(s => "TEST"), "Self");
 			});
 
 			Assert.That(result, Is.EqualTo("TEST"));

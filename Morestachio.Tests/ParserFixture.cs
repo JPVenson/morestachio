@@ -799,7 +799,7 @@ namespace Morestachio.Tests
 		[TestCase("dd,,MM,,YYY")]
 		public async Task ParserCanSelfFormat(string dtFormat)
 		{
-			var template = "{{#SCOPE data}}{{.(\"" + dtFormat + "\")}}{{/SCOPE}},{{data}}";
+			var template = "{{#SCOPE data}}{{ToString(\"" + dtFormat + "\")}}{{/SCOPE}},{{data}}";
 			var dataValue = DateTime.UtcNow;
 			var data = new Dictionary<string, object> { { "data", dataValue } };
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
