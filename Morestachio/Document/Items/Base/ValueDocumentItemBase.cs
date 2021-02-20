@@ -86,9 +86,17 @@ namespace Morestachio.Document.Items.Base
 				return true;
 			}
 
-			return base.Equals(other) &&
-				   ((string.IsNullOrEmpty(Value) && string.IsNullOrEmpty(other.Value))
-					   || Value == other.Value);
+			if (!base.Equals(other))
+			{
+				return false;
+			}
+
+			if(string.IsNullOrEmpty(Value) && string.IsNullOrEmpty(other.Value))
+			{
+				return true;
+			}
+
+			return Value == other.Value;
 		}
 		
 		/// <inheritdoc />

@@ -46,6 +46,7 @@ namespace Morestachio
 		private string _null;
 		private bool _handleDictionaryAsObject;
 		private ILogger _logger;
+		private UnmatchedTagBehavior _unmatchedTagBehavior;
 
 		/// <summary>
 		///		Creates a new object without any template
@@ -96,6 +97,7 @@ namespace Morestachio
 			PartialStackSize = 255;
 			_customDocumentItemProviders = new SealableList<CustomDocumentItemProvider>();
 			CultureInfo = CultureInfo.CurrentCulture;
+			UnmatchedTagBehavior = UnmatchedTagBehavior.ThrowError | UnmatchedTagBehavior.LogWarning;
 		}
 
 		/// <summary>
@@ -341,6 +343,19 @@ namespace Morestachio
 		}
 
 		/// <summary>
+		///		Defines the behavior how the tokenizer should react to tags it does not recognizance
+		/// </summary>
+		public UnmatchedTagBehavior UnmatchedTagBehavior
+		{
+			get { return _unmatchedTagBehavior; }
+			set
+			{
+				CheckSealed();
+				_unmatchedTagBehavior = value;
+			}
+		}
+
+		/// <summary>
 		///		Gets or sets the timeout. After the timeout is reached and the Template has not finished Processing an Exception is thrown.
 		///		For no timeout use <code>TimeSpan.Zero</code>
 		/// </summary>
@@ -496,6 +511,7 @@ namespace Morestachio
 				Template = Template,
 				Timeout = Timeout,
 				UnmatchedFormatterBehavior = UnmatchedFormatterBehavior,
+				UnmatchedTagBehavior = UnmatchedTagBehavior,
 				ValueResolver = ValueResolver
 			};
 		}

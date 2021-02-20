@@ -23,7 +23,7 @@ namespace Morestachio.Document.Items
 	///		Contains the Declaration of a Partial item
 	/// </summary>
 	[Serializable]
-	public class PartialDocumentItem : ValueDocumentItemBase, IEquatable<PartialDocumentItem>, ISupportCustomCompilation
+	public class PartialDocumentItem : BlockDocumentItemBase, IEquatable<PartialDocumentItem>, ISupportCustomCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -40,8 +40,41 @@ namespace Morestachio.Document.Items
 		public PartialDocumentItem(CharacterLocation location,  
 			string partialName,  
 			IEnumerable<ITokenOption> tagCreationOptions) 
-			: base(location, partialName, tagCreationOptions)
+			: base(location, tagCreationOptions)
 		{
+			PartialName = partialName;
+		}
+
+		/// <summary>
+		///		The name of this partial
+		/// </summary>
+		public string PartialName { get; private set; }
+		
+		/// <inheritdoc />
+		protected PartialDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
+		{
+			PartialName = info.GetString(nameof(PartialName));
+		}
+
+		/// <inheritdoc />
+		protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
+		{
+			info.AddValue(nameof(PartialName), PartialName);
+			base.SerializeBinaryCore(info, context);
+		}
+		
+		/// <inheritdoc />
+		protected override void SerializeXml(XmlWriter writer)
+		{
+			writer.WriteAttributeString(nameof(PartialName), PartialName);
+			base.SerializeXml(writer);
+		}
+		
+		/// <inheritdoc />
+		protected override void DeSerializeXml(XmlReader reader)
+		{
+			PartialName = reader.GetAttribute(nameof(PartialName));
+			base.DeSerializeXml(reader);
 		}
 
 		/// <inheritdoc />
@@ -50,7 +83,7 @@ namespace Morestachio.Document.Items
 			var children = MorestachioDocument.CompileItemsAndChildren(Children);
 			return async (stream, context, scopeData) =>
 			{
-				scopeData.CompiledPartials[Value] = children;
+				scopeData.CompiledPartials[PartialName] = children;
 				await AsyncHelper.FakePromise();
 			};
 		}
@@ -59,11 +92,16 @@ namespace Morestachio.Document.Items
 		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
 			ScopeData scopeData)
 		{
-			scopeData.Partials[Value] = new MorestachioDocument(ExpressionStart, Enumerable.Empty<ITokenOption>())
+			scopeData.Partials[PartialName] = new MorestachioDocument(ExpressionStart, Enumerable.Empty<ITokenOption>())
 			{
 				Children = Children
 			};
 			return Enumerable.Empty<DocumentItemExecution>().ToPromise();
+		}
+
+		public override bool Equals(object obj)
+		{
+			return base.Equals(obj);
 		}
 
 		/// <inheritdoc />

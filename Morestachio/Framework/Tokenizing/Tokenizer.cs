@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Morestachio.Document.Custom;
+using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Error;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
@@ -1077,6 +1078,35 @@ namespace Morestachio.Framework.Tokenizing
 					{
 						//check for custom DocumentItem provider
 
+						void UnmatchedTagBehavior()
+						{
+							if (parserOptions.UnmatchedTagBehavior.HasFlagFast(Context.Options.UnmatchedTagBehavior
+								.LogWarning))
+							{
+								parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId,
+									$"Unknown Tag '{trimmedToken}'.", 
+									new Dictionary<string, object>()
+								{
+									{"Location", context.CurrentLocation},
+								});
+							}
+
+							if (parserOptions.UnmatchedTagBehavior.HasFlagFast(Context.Options.UnmatchedTagBehavior
+								.Output))
+							{
+								tokens.Add(new TokenPair(TokenType.Content, "{{" + trimmedToken + "}}", context.CurrentLocation));
+							}
+
+							if (parserOptions.UnmatchedTagBehavior.HasFlagFast(Context.Options.UnmatchedTagBehavior
+								.ThrowError))
+							{
+								context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
+										.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)),
+									"{{" + trimmedToken + "}}", trimmedToken,
+									$"Unexpected token " + trimmedToken));
+							}
+						}
+
 						var customDocumentProvider =
 							parserOptions.CustomDocumentItemProviders.FirstOrDefault(e => e.ShouldTokenize(trimmedToken));
 
@@ -1087,64 +1117,18 @@ namespace Morestachio.Framework.Tokenizing
 									parserOptions);
 							tokens.AddRange(tokenPairs);
 						}
-						//else if (trimmedToken.StartsWith("#"))
-						//{
-						//	parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId, "Use the new {{#scope path}} block instead of the {{#path}} block", new Dictionary<string, object>()
-						//	{
-						//		{"Location", context.CurrentLocation},
-						//	});
-						//	//open group
-						//	var token = trimmedToken.TrimStart('#').Trim();
-
-						//	var eval = EvaluateNameFromToken(token);
-						//	token = eval.Value;
-						//	var alias = eval.Name;
-						//	tokenOptions.Add(new PersistantTokenOption("Render.LegacyStyle", true));
-						//	scopestack.Push(new ScopeStackItem(TokenType.ElementOpen, alias ?? token, match.Index));
-						//	tokens.Add(new TokenPair(TokenType.ElementOpen,
-						//		token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context), tokenOptions));
-
-						//	if (!string.IsNullOrWhiteSpace(alias))
-						//	{
-						//		context.AdvanceLocation(3 + alias.Length);
-						//		tokens.Add(new TokenPair(TokenType.Alias, alias,
-						//			context.CurrentLocation));
-						//	}
-						//}
-						//else if (trimmedToken.StartsWith("/"))
-						//{
-						//	var token = trimmedToken.TrimStart('/').Trim();
-						//	//close group
-						//	if (!scopestack.Any())
-						//	{
-						//		context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
-						//				.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "/", "{{#path}}",
-						//			" There are more closing elements then open."));
-						//	}
-						//	else
-						//	{
-						//		var item = scopestack.Peek();
-						//		if ((item.TokenType == TokenType.ElementOpen ||
-						//			 item.TokenType == TokenType.InvertedElementOpen)
-						//			&& item.Value == token)
-						//		{
-						//			parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId, "Use the new {{/scope}} tag to close a scope instead of the {{/path}} tag", new Dictionary<string, object>()
-						//			{
-						//				{"Location", context.CurrentLocation},
-						//			});
-						//			scopestack.Pop();
-						//			tokenOptions.Add(new PersistantTokenOption("Render.LegacyStyle", true));
-						//			tokens.Add(new TokenPair(TokenType.ElementClose, token,
-						//				context.CurrentLocation, tokenOptions));
-						//		}
-						//		else
-						//		{
-						//			context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
-						//					.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "/", "{{#path}}",
-						//				" There are more closing elements then open."));
-						//		}
-						//	}
-						//}
+						else if (trimmedToken.StartsWith("#"))
+						{
+							UnmatchedTagBehavior();
+						}
+						else if (trimmedToken.StartsWith("^"))
+						{
+							UnmatchedTagBehavior();
+						}
+						else if (trimmedToken.StartsWith("/"))
+						{
+							UnmatchedTagBehavior();
+						}
 						else
 						{
 							//unsingle value.

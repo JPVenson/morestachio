@@ -85,14 +85,14 @@ namespace Morestachio.Tests.SerilalizerTests
 		[Test]
 		public void TestIsScopeIsSerializable()
 		{
-			var template = "I am <Text> {{#Data.data.test().next(arg).(last) AS arg}} test {{/arg}}";
+			var template = "I am <Text> {{#SCOPE Data.data.test().next(arg).(last) AS arg}} test {{/SCOPE}}";
 			TestSerializableDocument(template);
 		}
 
 		[Test]
 		public void TestIsInvertScopeIsSerializable()
 		{
-			var template = "I am <Text> {{^Data.data.test().next(arg).(last) AS arg}} test {{/arg}}";
+			var template = "I am <Text> {{^SCOPE Data.data.test().next(arg).(last) AS arg}} test {{/SCOPE}}";
 			TestSerializableDocument(template);
 		}
 

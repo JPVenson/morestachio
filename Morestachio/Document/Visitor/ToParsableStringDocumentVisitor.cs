@@ -388,7 +388,7 @@ namespace Morestachio.Document.Visitor
 			StringBuilder.Append("{{");
 			CheckForInlineTagLineBreakAtStart(documentItem);
 			StringBuilder.Append("#DECLARE ");
-			StringBuilder.Append(documentItem.Value);
+			StringBuilder.Append(documentItem.PartialName);
 			CheckForInlineTagLineBreakAtEnd(documentItem);
 			StringBuilder.Append("}}");
 

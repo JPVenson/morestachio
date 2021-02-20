@@ -63,12 +63,22 @@ namespace Morestachio.Document.Items.Base
 				return true;
 			}
 
-			return base.Equals(other) &&
-				   Children.SequenceEqual(other.Children)
-				   && (BlockClosingOptions == other.BlockClosingOptions
-					   || (BlockClosingOptions?.SequenceEqual(other.BlockClosingOptions) ?? false)
-					   )
-				   ;
+			if (!base.Equals(other))
+			{
+				return false;
+			}
+
+			if (!Children.SequenceEqual(other.Children))
+			{
+				return false;
+			}
+
+			if (Equals(BlockClosingOptions, other.BlockClosingOptions))
+			{
+				return true;
+			}
+
+			return (BlockClosingOptions?.SequenceEqual(other.BlockClosingOptions) ?? false);
 		}
 
 		/// <inheritdoc />

@@ -73,9 +73,16 @@ namespace Morestachio.Document.Items.Base
 				return true;
 			}
 
-			return (ExpressionStart.Equals(other.ExpressionStart))
-			       && (TagCreationOptions == other.TagCreationOptions
-			           || (TagCreationOptions?.SequenceEqual(other.TagCreationOptions) ?? false));
+			if (!ExpressionStart.Equals(other.ExpressionStart))
+			{
+				return false;
+			}
+			if (Equals(TagCreationOptions, other.TagCreationOptions))
+			{
+				return true;
+			}
+
+			return (TagCreationOptions?.SequenceEqual(other.TagCreationOptions) ?? false);
 		}
 
 		/// <inheritdoc />
