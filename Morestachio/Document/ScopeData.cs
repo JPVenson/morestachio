@@ -26,6 +26,21 @@ namespace Morestachio.Document
 			CustomData = new Dictionary<string, object>();
 
 			AddCollectionContextSpecialVariables();
+			AddServicesVariable();
+		}
+
+		private void AddServicesVariable()
+		{
+			AddVariable("$services", (data, context) =>
+			{
+				var services = new Dictionary<string, object>();
+				foreach (var service in context.Options.Formatters.ServiceCollection)
+				{
+					services[service.Key.Name] = service.Value;
+				}
+
+				return context.Options.CreateContextObject(".", context.CancellationToken, services);
+			});
 		}
 
 		private void AddCollectionContextSpecialVariables()
