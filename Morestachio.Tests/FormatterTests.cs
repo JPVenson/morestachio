@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Helper;
+using Morestachio.Helper.FileSystem;
 using Morestachio.Linq;
 using NUnit.Framework;
 
@@ -529,21 +531,21 @@ namespace Morestachio.Tests
 			var formatterResult = "";
 			var template = "{{#SCOPE data}}{{Self('test', 'arg', 'arg, arg', ' spaced ', ' spaced with quote \\' ' , . )}}{{/SCOPE}}";
 			var data = new Dictionary<string, object>() { { "data", 123123123 } };
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts| ParserOptionTypes.NoRerenderingTest, options =>
-			{
-				options.DisableContentEscaping = true;
-				options.Formatters.AddSingle(new Action<int, string[]>(
-					(self, test) => { Assert.Fail("Should not be invoked"); }), "Self");
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts | ParserOptionTypes.NoRerenderingTest, options =>
+			 {
+				 options.DisableContentEscaping = true;
+				 options.Formatters.AddSingle(new Action<int, string[]>(
+					 (self, test) => { Assert.Fail("Should not be invoked"); }), "Self");
 
-				options.Formatters.AddSingle(new Action<int, string, string, string, string, string, int>(
-					(self, test, arg, argarg, spacedArg, spacedWithQuote, refSelf) =>
-					{
-						formatterResult = string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}", self, test, arg, argarg, spacedArg,
-							spacedWithQuote,
-							refSelf);
-					}), "Self");
+				 options.Formatters.AddSingle(new Action<int, string, string, string, string, string, int>(
+					 (self, test, arg, argarg, spacedArg, spacedWithQuote, refSelf) =>
+					 {
+						 formatterResult = string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}", self, test, arg, argarg, spacedArg,
+							 spacedWithQuote,
+							 refSelf);
+					 }), "Self");
 
-			});
+			 });
 
 			Assert.That(result, Is.Empty);
 			Assert.That(formatterResult,
@@ -575,12 +577,12 @@ namespace Morestachio.Tests
 		{
 			var template = "{{#SCOPE data}}{{Self( 'arg', 'arg, arg', ' spaced ', [testArgument]'test', ' spaced with quote \\' ' , .)}}{{/SCOPE}}";
 			var data = new Dictionary<string, object>() { { "data", 123123123 } };
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts| ParserOptionTypes.NoRerenderingTest, options =>
-			{
-				options.DisableContentEscaping = true;
-				options.Formatters.AddSingle(
-					new Func<int, string, object[], string>(UnnamedParamsFormatter), "Self");
-			});
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts | ParserOptionTypes.NoRerenderingTest, options =>
+			 {
+				 options.DisableContentEscaping = true;
+				 options.Formatters.AddSingle(
+					 new Func<int, string, object[], string>(UnnamedParamsFormatter), "Self");
+			 });
 			Assert.That(result, Is.EqualTo("123123123|test|arg|arg, arg| spaced | spaced with quote ' |123123123"));
 		}
 
@@ -1162,6 +1164,38 @@ namespace Morestachio.Tests
 				options.Formatters.AddSingleGlobal(new Func<string, string>(i => i), "ToString");
 			});
 			Assert.That(result, Is.EqualTo((60 / (50 + 2) + 10).ToString()));
+		}
+
+		[Test]
+		public async Task FormatterCanCallFileService()
+		{
+			var template = @"{{$services.FileSystemService.File.Create(FileName)}}";
+			var tempDirectory = Path.GetTempPath();
+			var randFileName = Guid.NewGuid().ToString("N") + ".data";
+			var combine = Path.Combine(tempDirectory, randFileName);
+
+			try
+			{
+				var data = new Dictionary<string, object>()
+				{
+					{"FileName", randFileName},
+				};
+
+				var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
+				{
+					options.RegisterFileSystem(() => new FileSystemService(tempDirectory));
+				});
+
+				
+				FileAssert.Exists(combine);
+			}
+			finally
+			{
+				if (File.Exists(combine))
+				{
+					File.Delete(combine);
+				}
+			}
 		}
 	}
 }

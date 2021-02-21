@@ -33,6 +33,11 @@ namespace Morestachio.Document
 		{
 			AddVariable("$services", (data, context) =>
 			{
+				if (context == null)
+				{
+					return null;
+				}
+
 				var services = new Dictionary<string, object>();
 				foreach (var service in context.Options.Formatters.ServiceCollection)
 				{

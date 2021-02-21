@@ -1,105 +1,155 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
+using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Framework.Attributes;
+using Morestachio.Formatter.Framework.Converter;
+using Path = System.IO.Path;
 
 namespace Morestachio.Helper.FileSystem
 {
-	/// <summary>
-	///		Allows access to the IFileSystem from within a template
-	/// </summary>
-	public static class FileSystemFormatter
+	public class FileSystemFileService
 	{
+		private readonly FileSystemService _fsService;
+
+		public FileSystemFileService(FileSystemService fsService)
+		{
+			_fsService = fsService;
+		}
+		
+		[MorestachioFormatter(nameof(AppendAllText), "Opens a file, appends the specified string to the file, and then closes the file. If the file does not exist, this method creates a file, writes the specified string to the file, then closes the file.")]
+		public void AppendAllText(string path, 
+			string contents, 
+			[FormatterValueConverter(typeof(EncodingConverter))]Encoding encoding = null)
+		{
+			File.AppendAllText(_fsService.GetAbsolutePath(path), contents, encoding ?? Encoding.Default);
+		}
+
+		[MorestachioFormatter(nameof(Copy), "Copies an existing file to a new file. Overwriting a file of the same name is not allowed.")]
+		public void Copy(string sourceFileName, string destinationFileName, bool overwrite = false)
+		{
+			File.Copy(_fsService.GetAbsolutePath(sourceFileName), _fsService.GetAbsolutePath(destinationFileName), overwrite);
+		}
+		
+		[MorestachioFormatter(nameof(Create), "Creates or overwrites a file in the specified path.")]
+		public void Create(string fileName)
+		{
+			File.Create(_fsService.GetAbsolutePath(fileName)).Close();
+		}
+
+		[MorestachioFormatter(nameof(Delete), "Deletes the specified file.")]
+		public void Delete(string fileName)
+		{
+			File.Delete(_fsService.GetAbsolutePath(fileName));
+		}
+		
+		[MorestachioFormatter(nameof(Exists), "Determines whether the specified file exists.")]
+		public bool Exists(string fileName)
+		{
+			return File.Exists(_fsService.GetAbsolutePath(fileName));
+		}
+		
+		[MorestachioFormatter(nameof(GetCreationTime), "Returns the creation date and time of the specified file or directory.")]
+		public DateTime GetCreationTime(string fileName)
+		{
+			return File.GetCreationTime(_fsService.GetAbsolutePath(fileName));
+		}
+
+		[MorestachioFormatter(nameof(GetCreationTimeUtc), "Returns the creation date and time, in coordinated universal time (UTC), of the specified file or directory.")]
+		public DateTime GetCreationTimeUtc(string fileName)
+		{
+			return File.GetCreationTimeUtc(_fsService.GetAbsolutePath(fileName));
+		}
+
+		[MorestachioFormatter(nameof(GetLastAccessTime), "Returns the date and time the specified file or directory was last accessed.")]
+		public DateTime GetLastAccessTime(string fileName)
+		{
+			return File.GetLastAccessTime(_fsService.GetAbsolutePath(fileName));
+		}
+
+		[MorestachioFormatter(nameof(GetLastAccessTimeUtc), "Returns the date and time, in coordinated universal time (UTC), that the specified file or directory was last accessed.")]
+		public DateTime GetLastAccessTimeUtc(string fileName)
+		{
+			return File.GetLastAccessTime(_fsService.GetAbsolutePath(fileName));
+		}
+
+		[MorestachioFormatter(nameof(GetLastWriteTime), "Returns the date and time the specified file or directory was last written to.")]
+		public DateTime GetLastWriteTime(string fileName)
+		{
+			return File.GetLastAccessTime(_fsService.GetAbsolutePath(fileName));
+		}
+		
+		[MorestachioFormatter(nameof(GetLastWriteTimeUtc), "Returns the date and time, in coordinated universal time (UTC), that the specified file or directory was last written to.")]
+		public DateTime GetLastWriteTimeUtc(string fileName)
+		{
+			return File.GetLastAccessTime(_fsService.GetAbsolutePath(fileName));
+		}
+		
+		[MorestachioFormatter(nameof(Move), "Moves a specified file to a new location, providing the options to specify a new file name and to overwrite the destination file if it already exists.")]
+		public void Move(string sourceFileName, string destinationFileName)
+		{
+			File.Move(_fsService.GetAbsolutePath(sourceFileName), _fsService.GetAbsolutePath(destinationFileName));
+		}
+
+		[MorestachioFormatter(nameof(ReadAllBytes), "Opens a binary file, reads the contents of the file into a byte array, and then closes the file.")]
+		public byte[] ReadAllBytes(string fileName)
+		{
+			return File.ReadAllBytes(_fsService.GetAbsolutePath(fileName));
+		}
+
+		[MorestachioFormatter(nameof(ReadAllText), "Opens a text file, reads all the text in the file, and then closes the file.")]
+		public string ReadAllText(string fileName, [FormatterValueConverter(typeof(EncodingConverter))] Encoding encoding = null)
+		{
+			return File.ReadAllText(_fsService.GetAbsolutePath(fileName), encoding ?? Encoding.Default);
+		}
+
+		[MorestachioFormatter(nameof(ReadAllTextLines), "Opens a file, reads all lines of the file with the specified encoding, and then closes the file.")]
+		public string[] ReadAllTextLines(string fileName, [FormatterValueConverter(typeof(EncodingConverter))] Encoding encoding = null)
+		{
+			return File.ReadAllLines(_fsService.GetAbsolutePath(fileName), encoding ?? Encoding.Default);
+		}
 	}
+
 	/// <summary>
-	///		Allows access to the IFileSystem from within a template
+	///		Service for accessing the local File System
 	/// </summary>
-	public static class PathFormatter
+	public class FileSystemService
 	{
-		/// <summary>Changes the extension of a path string.</summary>
-		[MorestachioFormatter("ChangeExtension", "Changes the extension of a path string.")]
-		public static string ChangeExtension(string path, string extension)
+		private readonly string _workingDirectory;
+
+		public FileSystemService() : this(Directory.GetCurrentDirectory())
 		{
-			return Path.ChangeExtension(path, extension);
 		}
 
-		/// <summary>Combines two strings into a path.</summary>
-		[MorestachioFormatter("Combine", "Combines two strings into a path.")]
-		public static string Combine(string path1, string path2)
+		public FileSystemService(string workingDirectory)
 		{
-			return Path.Combine(path1, path2);
+			_workingDirectory = workingDirectory;
+			File = new FileSystemFileService(this);
 		}
 
-		/// <summary>Combines an array of strings into a path</summary>
-		[MorestachioFormatter("Combine", "Combines an array of strings into a path")]
-		public static string Combine(params object[] paths)
+		internal string GetAbsolutePath(string path)
 		{
-			return Path.Combine(paths.OfType<string>().ToArray());
+			if (Path.IsPathRooted(path))
+			{
+				return path;
+			}
+
+			return Path.Combine(_workingDirectory, path);
 		}
 
-		/// <summary>Returns the directory information for the specified path string</summary>
-		[MorestachioFormatter("GetDirectoryName", "Returns the directory information for the specified path string")]
-		public static string GetDirectoryName(string path)
-		{
-			return Path.GetDirectoryName(path);
-		}
+		public FileSystemFileService File { get; private set; }
+	
+	}
 
-		/// <summary>Returns the extension of the specified path string</summary>
-		[MorestachioFormatter("GetExtension", "Returns the extension of the specified path string")]
-		public static string GetExtension(string path)
+	public static class FileSystemExtensions
+	{
+		public static void RegisterFileSystem(this ParserOptions options, Func<FileSystemService> action)
 		{
-			return Path.GetExtension(path);
-		}
-
-		/// <summary>Returns the file name and extension of the specified path string</summary>
-		[MorestachioFormatter("GetFileName", "Returns the file name and extension of the specified path string")]
-		public static string GetFileName(string path)
-		{
-			return Path.GetFileName(path);
-		}
-
-		/// <summary>Returns the file name of the specified path string without the extension.</summary>
-		[MorestachioFormatter("GetFileNameWithoutExtension", "Returns the file name of the specified path string without the extension.")]
-		public static string GetFileNameWithoutExtension(string path)
-		{
-			return Path.GetFileNameWithoutExtension(path);
-		}
-
-		/// <summary>Gets an array containing the characters that are not allowed in file names.</summary>
-		[MorestachioFormatter("GetInvalidFileNameChars", "Gets an array containing the characters that are not allowed in file names.")]
-		public static char[] GetInvalidFileNameChars()
-		{
-			return Path.GetInvalidFileNameChars();
-		}
-
-		/// <summary>Gets an array containing the characters that are not allowed in path names</summary>
-		[MorestachioFormatter("GetInvalidPathChars", "Gets an array containing the characters that are not allowed in path names")]
-		public static char[] GetInvalidPathChars()
-		{
-			return Path.GetInvalidPathChars();
-		}
-
-		/// <summary>Gets the root directory information of the specified path</summary>
-		[MorestachioFormatter("GetPathRoot", "Gets the root directory information of the specified path")]
-		public static string GetPathRoot(string path)
-		{
-			return Path.GetPathRoot(path);
-		}
-
-		/// <summary>Determines whether a path includes a file name extension</summary>
-		[MorestachioFormatter("HasExtension", "Determines whether a path includes a file name extension")]
-		public static bool HasExtension(string path)
-		{
-			return Path.HasExtension(path);
-		}
-
-		/// <summary>Gets a value indicating whether the specified path string contains a root</summary>
-		[MorestachioFormatter("IsPathRooted", "Gets a value indicating whether the specified path string contains a root")]
-		public static bool IsPathRooted(string path)
-		{
-			return Path.IsPathRooted(path);
+			var fs = action();
+			options.Formatters.AddService<FileSystemService>(fs);
+			options.Formatters.AddFromType<FileSystemService>();
+			options.Formatters.AddFromType<FileSystemFileService>();
 		}
 	}
 }
