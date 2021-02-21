@@ -138,6 +138,9 @@ namespace Morestachio.Helper.FileSystem
 			return Path.Combine(_workingDirectory, path);
 		}
 
+		/// <summary>
+		///		File specific methods for use with the $services collection
+		/// </summary>
 		public FileSystemFileService File { get; private set; }
 	
 	}
