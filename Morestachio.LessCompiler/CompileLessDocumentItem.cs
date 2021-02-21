@@ -29,55 +29,63 @@ namespace Morestachio.LessCompiler
 	[Serializable]
 	public class CompileLessDocumentItem : BlockDocumentItemBase, ToParsableStringDocumentVisitor.IStringVisitor
 	{
-		internal CompileLessDocumentItem() : base(CharacterLocation.Unknown, null)
+	/// <summary>
+	///		Binary serialization ctor
+	/// </summary>
+	internal CompileLessDocumentItem() : base(CharacterLocation.Unknown, null)
+	{
+
+	}
+	
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="location"></param>
+	/// <param name="tagTokenOptions"></param>
+	public CompileLessDocumentItem(CharacterLocation location, IEnumerable<ITokenOption> tagTokenOptions) 
+		: base(location, tagTokenOptions)
+	{
+
+	}
+
+	/// <summary>
+	///		Serialization Constructor
+	/// </summary>
+	/// <param name="info"></param>
+	/// <param name="c"></param>
+	protected CompileLessDocumentItem(SerializationInfo info, StreamingContext c)
+		: base(info, c)
+	{
+
+	}
+
+	/// <inheritdoc />
+	public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+	{
+		using (var tempStream = outputStream.GetSubStream())
 		{
-
-		}
-		
-		public CompileLessDocumentItem(CharacterLocation location, IEnumerable<ITokenOption> tagTokenOptions) 
-			: base(location, tagTokenOptions)
-		{
-
-		}
-
-		/// <summary>
-		///		Serialization Constructor
-		/// </summary>
-		/// <param name="info"></param>
-		/// <param name="c"></param>
-		protected CompileLessDocumentItem(SerializationInfo info, StreamingContext c)
-			: base(info, c)
-		{
-
-		}
-
-		/// <inheritdoc />
-		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
-		{
-			using (var tempStream = outputStream.GetSubStream())
+			await MorestachioDocument.ProcessItemsAndChildren(Children, tempStream, context, scopeData);
+			var lessCode = tempStream.Read();
+			outputStream.Write(Less.Parse(lessCode, new DotlessConfiguration()
 			{
-				await MorestachioDocument.ProcessItemsAndChildren(Children, tempStream, context, scopeData);
-				var lessCode = tempStream.Read();
-				outputStream.Write(Less.Parse(lessCode, new DotlessConfiguration()
-				{
-					CacheEnabled = false,
-				}));
-			}
-			return Enumerable.Empty<DocumentItemExecution>();
+				CacheEnabled = false,
+			}));
 		}
+		return Enumerable.Empty<DocumentItemExecution>();
+	}
 
-		/// <inheritdoc />
-		public override void Accept(IDocumentItemVisitor visitor)
-		{
-			visitor.Visit(this);
-		}
+	/// <inheritdoc />
+	public override void Accept(IDocumentItemVisitor visitor)
+	{
+		visitor.Visit(this);
+	}
 
-		/// <inheritdoc />
-		public void Render(ToParsableStringDocumentVisitor visitor)
-		{
-			visitor.StringBuilder.Append("{{#LESS}}");
-			visitor.VisitChildren(this);
-			visitor.StringBuilder.Append("{{/LESS}}");
-		}
+	/// <inheritdoc />
+	public void Render(ToParsableStringDocumentVisitor visitor)
+	{
+		visitor.StringBuilder.Append("{{#LESS}}");
+		visitor.VisitChildren(this);
+		visitor.StringBuilder.Append("{{/LESS}}");
+	}
 	}
 }
