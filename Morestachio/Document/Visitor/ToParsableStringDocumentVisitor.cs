@@ -74,6 +74,10 @@ namespace Morestachio.Document.Visitor
 			}
 		}
 
+		/// <summary>
+		///		Checks for embedded LineBreak operations
+		/// </summary>
+		/// <param name="documentItem"></param>
 		public void CheckForInlineTagLineBreakAtStart(IDocumentItem documentItem)
 		{
 			if (documentItem.TagCreationOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimLeading")?.Value is bool valSingle && valSingle)
@@ -85,7 +89,11 @@ namespace Morestachio.Document.Visitor
 				StringBuilder.Append("--| ");
 			}
 		}
-
+		
+		/// <summary>
+		///		Checks for embedded LineBreak operations
+		/// </summary>
+		/// <param name="documentItem"></param>
 		public void CheckForInlineTagLineBreakAtEnd(IDocumentItem documentItem)
 		{
 			if (documentItem.TagCreationOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimTailing")?.Value is bool valSingle && valSingle)
@@ -97,7 +105,11 @@ namespace Morestachio.Document.Visitor
 				StringBuilder.Append(" |--");
 			}
 		}
-
+		
+		/// <summary>
+		///		Checks for embedded LineBreak operations
+		/// </summary>
+		/// <param name="documentItem"></param>
 		public void CheckForInlineBlockLineBreakAtStart(IBlockDocumentItem documentItem)
 		{
 			if (documentItem.BlockClosingOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimLeading")?.Value is bool valSingle && valSingle)
@@ -109,7 +121,11 @@ namespace Morestachio.Document.Visitor
 				StringBuilder.Append("--| ");
 			}
 		}
-
+		
+		/// <summary>
+		///		Checks for embedded LineBreak operations
+		/// </summary>
+		/// <param name="documentItem"></param>
 		public void CheckForInlineBlockLineBreakAtEnd(IBlockDocumentItem documentItem)
 		{
 			if (documentItem.BlockClosingOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimTailing")?.Value is bool valSingle && valSingle)

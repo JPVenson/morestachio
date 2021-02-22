@@ -5,7 +5,7 @@ using Morestachio.Formatter.Framework.Attributes;
 namespace Morestachio.Helper.FileSystem
 {
 	/// <summary>
-	///		Allows access to the IFileSystem from within a template
+	///		
 	/// </summary>
 	public static class PathFormatter
 	{

@@ -10,6 +10,10 @@
 		{
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="template"></param>
 		public static implicit operator StringTemplateContainer(string template)
 		{
 			return new StringTemplateContainer(template);

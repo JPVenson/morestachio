@@ -9,6 +9,7 @@ using Path = System.IO.Path;
 
 namespace Morestachio.Helper.FileSystem
 {
+#pragma warning disable 1591
 	public class FileSystemFileService
 	{
 		private readonly FileSystemService _fsService;
@@ -110,6 +111,7 @@ namespace Morestachio.Helper.FileSystem
 			return File.ReadAllLines(_fsService.GetAbsolutePath(fileName), encoding ?? Encoding.Default);
 		}
 	}
+#pragma warning restore
 
 	/// <summary>
 	///		Service for accessing the local File System
@@ -118,10 +120,17 @@ namespace Morestachio.Helper.FileSystem
 	{
 		private readonly string _workingDirectory;
 
+		/// <summary>
+		///		Creates a new FileSystemService that is rooted on <code>Directory.GetCurrentDirectory()</code>
+		/// </summary>
 		public FileSystemService() : this(Directory.GetCurrentDirectory())
 		{
 		}
 
+		/// <summary>
+		///		Creates a new FileSystemService that is rooted on the workingDirectory
+		/// </summary>
+		/// <param name="workingDirectory"></param>
 		public FileSystemService(string workingDirectory)
 		{
 			_workingDirectory = workingDirectory;
@@ -145,8 +154,16 @@ namespace Morestachio.Helper.FileSystem
 	
 	}
 
+	/// <summary>
+	///		
+	/// </summary>
 	public static class FileSystemExtensions
 	{
+		/// <summary>
+		///		Registers all nessenary components to use the <code>$services.FileSystemService</code>
+		/// </summary>
+		/// <param name="options"></param>
+		/// <param name="action"></param>
 		public static void RegisterFileSystem(this ParserOptions options, Func<FileSystemService> action)
 		{
 			var fs = action();
