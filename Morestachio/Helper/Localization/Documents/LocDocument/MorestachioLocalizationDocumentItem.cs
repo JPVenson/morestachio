@@ -171,7 +171,8 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 			visitor.StringBuilder.Append(MorestachioLocalizationBlockProvider.CloseTag);
 			visitor.StringBuilder.Append("}}");
 		}
-
+		
+		/// <inheritdoc />
 		protected override void DeSerializeXml(XmlReader reader)
 		{
 			reader.ReadStartElement();//Path
@@ -191,7 +192,8 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 			}
 			base.DeSerializeXml(reader);
 		}
-
+		
+		/// <inheritdoc />
 		protected override void SerializeXml(XmlWriter writer)
 		{
 			writer.WriteStartElement("Path");
@@ -208,13 +210,15 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 			writer.WriteEndElement();
 			base.SerializeXml(writer);
 		}
-
+		
+		/// <inheritdoc />
 		protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
 		{
 			info.AddValue(nameof(ExplicitCulture), ExplicitCulture);
 			base.SerializeBinaryCore(info, context);
 		}
-
+		
+		/// <inheritdoc />
 		public bool Equals(MorestachioLocalizationDocumentItem other)
 		{
 			if (ReferenceEquals(null, other))
@@ -229,7 +233,8 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 
 			return base.Equals(other) && Equals(ExplicitCulture, other.ExplicitCulture);
 		}
-
+		
+		/// <inheritdoc />
 		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj))
@@ -249,7 +254,8 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 
 			return Equals((MorestachioLocalizationDocumentItem) obj);
 		}
-
+		
+		/// <inheritdoc />
 		public override int GetHashCode()
 		{
 			unchecked

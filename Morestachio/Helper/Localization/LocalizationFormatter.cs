@@ -27,6 +27,14 @@ namespace Morestachio.Helper.Localization
 			return localizationService.GetTranslationOrNull(key, parserOptions.CultureInfo, arguments);
 		}
 		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="count"></param>
+		/// <param name="singular"></param>
+		/// <param name="plural"></param>
+		/// <param name="includeCount"></param>
+		/// <returns></returns>
 		[MorestachioGlobalFormatter("Inflect", "Returns either the singular or plural inflection of a word based on the given count")]
 		public static string Inflect(Number count, string singular, string plural, bool includeCount)
 		{

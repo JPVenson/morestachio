@@ -17,7 +17,6 @@ namespace Morestachio.Document.Custom
 		/// <summary>
 		///		
 		/// </summary>
-		/// <param name="tag">Should contain full tag like <code>#Anything</code> excluding the brackets and any parameter</param>
 		protected TagRegexDocumentItemProviderBase(Regex tagRegex)
 		{
 			_tagRegex = tagRegex;

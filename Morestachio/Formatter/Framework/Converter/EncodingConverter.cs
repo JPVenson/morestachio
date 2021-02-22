@@ -9,12 +9,14 @@ namespace Morestachio.Formatter.Framework.Converter
 	/// </summary>
 	public class EncodingConverter : IFormatterValueConverter
 	{
+		/// <inheritdoc />
 		public bool CanConvert(Type sourceType, Type requestedType)
 		{
 			return (sourceType == typeof(string) || sourceType == typeof(Encoding))
 			       && requestedType == typeof(Encoding);
 		}
-
+		
+		/// <inheritdoc />
 		public object Convert(object value, Type requestedType)
 		{
 			if (value is Encoding)

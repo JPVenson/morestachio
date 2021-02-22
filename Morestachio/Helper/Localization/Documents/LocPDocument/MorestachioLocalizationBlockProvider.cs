@@ -20,7 +20,14 @@ namespace Morestachio.Helper.Localization.Documents.LocPDocument
 		{
 		}
 
+		/// <summary>
+		///		Defines the opening tag for the Localization provider
+		/// </summary>
 		public const string OpenTag = "#LOCP ";
+
+		/// <summary>
+		///		Defines the closing tag for the Localization provider
+		/// </summary>
 		public const string CloseTag = "/LOCP";
 
 		/// <inheritdoc />

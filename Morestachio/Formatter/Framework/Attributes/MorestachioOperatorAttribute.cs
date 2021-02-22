@@ -26,7 +26,8 @@ namespace Morestachio.Formatter.Framework.Attributes
 		{
 			return MorestachioOperator.Operators.ContainsKey(OperatorType);
 		}
-
+		
+		/// <inheritdoc />
 		public override void ValidateFormatter(MethodInfo method)
 		{
 			base.ValidateFormatter(method);

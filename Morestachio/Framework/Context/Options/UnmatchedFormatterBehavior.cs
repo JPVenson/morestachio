@@ -46,8 +46,17 @@ namespace Morestachio.Framework.Context.Options
 		Output = 1 << 3
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
 	public static class UnmatchedTagBehaviorExtensions
 	{
+		/// <summary>
+		///		Checks for the presence of an flag within the enumeration
+		/// </summary>
+		/// <param name="value"></param>
+		/// <param name="flag"></param>
+		/// <returns></returns>
 		public static bool HasFlagFast(this UnmatchedTagBehavior value, UnmatchedTagBehavior flag)
 		{
 			return (value & flag) != 0;

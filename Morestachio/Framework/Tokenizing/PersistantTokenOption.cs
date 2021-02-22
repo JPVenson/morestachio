@@ -56,17 +56,20 @@ namespace Morestachio.Framework.Tokenizing
 			info.AddValue("ValueType", Value?.GetType());
 			info.AddValue(nameof(Value), Value);
 		}
-
+		
+		/// <inheritdoc />
 		public bool Equals(ITokenOption other)
 		{
 			return Name == other.Name && Equals(Value, other.Value) && Persistent == other.Persistent;
 		}
-
+		
+		/// <inheritdoc />
 		public override bool Equals(object obj)
 		{
 			return obj is PersistantTokenOption other && Equals(other);
 		}
-
+		
+		/// <inheritdoc />
 		public override int GetHashCode()
 		{
 			unchecked

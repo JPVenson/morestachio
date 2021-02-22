@@ -42,6 +42,10 @@ namespace Morestachio.Helper.Localization
 		///		The result of the Load method call
 		/// </summary>
 		public Dictionary<string, TextResourceEntity[]> TextCache { get; }
+
+		/// <summary>
+		///		Allows to define text outputs for cultures when a key is not found
+		/// </summary>
 		public IDictionary<CultureInfo, TextResourceEntity> NotFound { get; set; }
 
 		static readonly Regex RefRegex = new Regex(@"([{][^\d}]+[}]+)");

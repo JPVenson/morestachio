@@ -43,7 +43,6 @@ namespace Morestachio.Helper
 		/// <summary>
 		///		Wraps the object to ether an TaskT or an ValueTaskT
 		/// </summary>
-		/// <param name="data"></param>
 		/// <returns></returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static async Promise FakePromise()
@@ -124,7 +123,6 @@ namespace Morestachio.Helper
 		/// <summary>
 		///		Wraps the object to ether an TaskT or an ValueTaskT
 		/// </summary>
-		/// <param name="data"></param>
 		/// <returns></returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 #if ValueTask

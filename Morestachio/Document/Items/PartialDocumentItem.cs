@@ -99,11 +99,6 @@ namespace Morestachio.Document.Items
 			return Enumerable.Empty<DocumentItemExecution>().ToPromise();
 		}
 
-		public override bool Equals(object obj)
-		{
-			return base.Equals(obj);
-		}
-
 		/// <inheritdoc />
 		public bool Equals(PartialDocumentItem other)
 		{

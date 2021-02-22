@@ -18,6 +18,9 @@ namespace Morestachio.Framework.Expression.Visitors
 			StringBuilder = new StringBuilder();
 		}
 
+		/// <summary>
+		///		If set to true any found End-Of-Expression delimiters will be truncated from the output
+		/// </summary>
 		public bool TrimEoexDelimiters { get; set; }
 
 		/// <summary>

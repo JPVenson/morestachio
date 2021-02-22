@@ -32,19 +32,22 @@ namespace Morestachio.Framework.Expression
 		{
 			EndsWithDelimiter = info.GetBoolean(nameof(EndsWithDelimiter));
 		}
-
+		
+		/// <inheritdoc />
 		public override void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			base.GetObjectData(info, context);
 			info.AddValue(nameof(EndsWithDelimiter), EndsWithDelimiter);
 		}
-
+		
+		/// <inheritdoc />
 		public override void ReadXml(XmlReader reader)
 		{
 			EndsWithDelimiter = reader.GetAttribute(nameof(EndsWithDelimiter)) == bool.TrueString;
 			base.ReadXml(reader);
 		}
-
+		
+		/// <inheritdoc />
 		public override void WriteXml(XmlWriter writer)
 		{
 			writer.WriteAttributeString(nameof(EndsWithDelimiter), EndsWithDelimiter.ToString());

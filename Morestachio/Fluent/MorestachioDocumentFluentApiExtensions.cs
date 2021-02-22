@@ -78,7 +78,7 @@ namespace Morestachio.Fluent
 		}
 
 		/// <summary>
-		///		Adds a new <see cref="IfNotExpressionScopeDocumentItem"/> and enters it.
+		///		Adds a new <see cref="IfExpressionScopeDocumentItem"/> and enters it.
 		/// </summary>
 		public static MorestachioDocumentFluentApi AddInvertedIfAndEnter(this MorestachioDocumentFluentApi api,
 			Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> condition)

@@ -22,8 +22,6 @@ namespace Morestachio.Framework.IO.MultiPart
 		///  <summary>
 		/// 		Writes the Content into the underlying Stream when the limit is not exceeded
 		///  </summary>
-		///  <param name="content"></param>
-		///  <param name="scopeData"></param>
 		void Write(string content);
 
 		/// <summary>

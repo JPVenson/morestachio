@@ -151,6 +151,7 @@ namespace Morestachio.Framework.Expression.Visitors
 				.AppendInterlaced("]");
 		}
 
+		/// <inheritdoc />
 		public void Visit(MorestachioBracketExpression expression)
 		{
 			StringBuilder

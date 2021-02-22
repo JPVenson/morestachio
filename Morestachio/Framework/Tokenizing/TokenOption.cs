@@ -31,17 +31,20 @@
 		///		Marks this Option as Persistent. It will be included in the DocumentItems list of TokenOptions.
 		/// </summary>
 		public bool Persistent { get; }
-
+		
+		/// <inheritdoc />
 		public bool Equals(ITokenOption other)
 		{
 			return Name == other.Name && Equals(Value, other.Value) && Persistent == other.Persistent;
 		}
-
+		
+		/// <inheritdoc />
 		public override bool Equals(object obj)
 		{
 			return obj is TokenOption other && Equals(other);
 		}
-
+		
+		/// <inheritdoc />
 		public override int GetHashCode()
 		{
 			unchecked

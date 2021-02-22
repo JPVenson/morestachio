@@ -300,6 +300,7 @@ namespace Morestachio.Framework.Context
 				return ExecuteDataPath(elements.Current.Key, morestachioExpression, type);
 			}
 
+			await AsyncHelper.FakePromise();
 			return retval;
 		}
 

@@ -21,6 +21,10 @@ namespace Morestachio.Framework.Tokenizing
 		}
 
 		private int _writerIndex;
+
+		/// <summary>
+		///		The internal used buffer
+		/// </summary>
 		protected readonly T[] Buffer;
 
 		/// <summary>
@@ -185,7 +189,8 @@ namespace Morestachio.Framework.Tokenizing
 				_startIndex = _array._writerIndex;
 				_index = 0;
 			}
-
+			
+			/// <inheritdoc />
 			public bool MoveNext()
 			{
 				if (_startIndex != _array._writerIndex)
@@ -202,29 +207,35 @@ namespace Morestachio.Framework.Tokenizing
 				Current = _array[_index];
 				return true;
 			}
-
+			
+			/// <inheritdoc />
 			public void Reset()
 			{
 				_index = 0;
 			}
-
+			
+			/// <inheritdoc />
 			public T Current { get; private set; }
-
+			
+			/// <inheritdoc />
 			object IEnumerator.Current
 			{
 				get { return Current; }
 			}
-
+			
+			/// <inheritdoc />
 			public void Dispose()
 			{
 			}
 		}
-
+		
+		/// <inheritdoc />
 		public IEnumerator<T> GetEnumerator()
 		{
 			return new RollingArrayEnumerator(this);
 		}
-
+		
+		/// <inheritdoc />
 		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return GetEnumerator();

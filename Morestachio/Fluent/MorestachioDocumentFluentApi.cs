@@ -194,7 +194,7 @@ namespace Morestachio.Fluent
 		}
 
 		/// <summary>
-		///		Removes the current Node from the tree and from the <see cref="IDocumentItem.Children"/> of the current <see cref="IDocumentItem"/>
+		///		Removes the current Node from the tree and from the <see cref="IBlockDocumentItem.Children"/> of the current <see cref="IDocumentItem"/>
 		/// </summary>
 		/// <returns></returns>
 		public MorestachioDocumentFluentApi Remove()
