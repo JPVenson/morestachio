@@ -432,7 +432,6 @@ This is an partial included: ({{#IMPORT 'PartialA' #WITH other}}) with an set co
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
 
 			Assert.That(result, Is.Not.Null);
-			Assert.Warn(result);
 		}
 
 		[Test]

@@ -20,7 +20,7 @@ namespace Morestachio.TemplateContainers
 		}
 
 		/// <summary>
-		///		The string template
+		///		The template
 		/// </summary>
 		public TemplateResource Template { get; }
 
@@ -39,7 +39,7 @@ namespace Morestachio.TemplateContainers
 		/// <inheritdoc />
 		public virtual IEnumerable<TokenMatch> Matches(TokenzierContext context)
 		{
-			InStringInfo isInString = new InStringInfo(-1, ' ');
+			var isInString = new InStringInfo(-1, ' ');
 			var stringEscape = false;
 
 			var templateString = Template;
