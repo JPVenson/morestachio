@@ -8,11 +8,11 @@ on:
 
 jobs:
   build:
-
+#'4.6', '4.6.1', '4.6.2', '4.7', '4.7.1', '4.7.2'
     runs-on: windows-latest
     strategy:
       matrix:
-        dotnet: [ '2.2.x', '2.0', '3.0', '3.1.x', '5.0.x', '4.6', '4.6.1', '4.6.2', '4.7', '4.7.1', '4.7.2' ]
+        dotnet: [ '2.2.x', '2.0', '3.0', '3.1.x', '5.0.x'  ]
 
     steps:
     - uses: actions/checkout@v2
