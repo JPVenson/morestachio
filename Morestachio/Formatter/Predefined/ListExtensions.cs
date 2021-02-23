@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Framework.Attributes;
@@ -11,6 +13,30 @@ namespace Morestachio.Formatter.Predefined
 	/// </summary>
 	public static class ListExtensions
 	{
+		[MorestachioGlobalFormatter("With", "Creates a new List object with the given values")]
+		public static IList With([RestParameter] params object[] toBeAdded)
+		{
+			if (toBeAdded.Length == 0)
+			{
+				return new List<object>();
+			}
+
+			var fodType = toBeAdded.First().GetType();
+			if (toBeAdded.All(e => e.GetType() == fodType))
+			{
+				var instance = Activator.CreateInstance(typeof(List<>).MakeGenericType(fodType)) as IList;
+				foreach (var o in toBeAdded)
+				{
+					instance.Add(o);
+				}
+
+				return instance;
+			}
+
+			return new List<object>(toBeAdded);
+		}
+
+
 		[MorestachioFormatter("Add", "Adds the values to the SourceCollection")]
 		public static IList<T> Add<T>(IList<T> sourceCollection, [RestParameter] params object[] toBeAdded)
 		{
