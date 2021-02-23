@@ -61,6 +61,9 @@ namespace Morestachio.Framework.Expression.Visitors
 						StringBuilder.Append(".");
 						isSelfAssignment = true;
 						break;
+					case PathType.ThisPath:
+						StringBuilder.Append("this");
+						break;
 					case PathType.ObjectSelector:
 						StringBuilder.Append("?");
 						break;

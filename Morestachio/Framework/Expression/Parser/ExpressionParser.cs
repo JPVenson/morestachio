@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
 using Morestachio.Document;
@@ -406,7 +407,7 @@ namespace Morestachio.Framework.Expression.Parser
 				var expressionNumber = new MorestachioExpressionNumber(token.Number, token.Location);
 				AddToParent(expressionNumber);
 			}
-
+			
 			void ParseAndAddOperator(OperatorToken token)
 			{
 				var op = MorestachioOperator.Operators[token.Value];

@@ -70,7 +70,7 @@ namespace Morestachio.Tests.SerilalizerTests
 		[Test]
 		public void TestIsContentWithPathAndFormatterSerializable()
 		{
-			var template = "I am <Text> {{Data.data.test().next(arg).(last)}}";
+			var template = "I am <Text> {{Data.data.test().next(arg).F(last)}}";
 			TestSerializableDocument(template);
 		}
 
@@ -85,14 +85,14 @@ namespace Morestachio.Tests.SerilalizerTests
 		[Test]
 		public void TestIsScopeIsSerializable()
 		{
-			var template = "I am <Text> {{#SCOPE Data.data.test().next(arg).(last) AS arg}} test {{/SCOPE}}";
+			var template = "I am <Text> {{#SCOPE Data.data.test().next(arg).AA(last) AS arg}} test {{/SCOPE}}";
 			TestSerializableDocument(template);
 		}
 
 		[Test]
 		public void TestIsInvertScopeIsSerializable()
 		{
-			var template = "I am <Text> {{^SCOPE Data.data.test().next(arg).(last) AS arg}} test {{/SCOPE}}";
+			var template = "I am <Text> {{^SCOPE Data.data.test().next(arg).DD(last) AS arg}} test {{/SCOPE}}";
 			TestSerializableDocument(template);
 		}
 
@@ -113,14 +113,14 @@ namespace Morestachio.Tests.SerilalizerTests
 		[Test]
 		public void TestIsContentWithPathAndEachAndFormatterSerializable()
 		{
-			var template = "I am <Text> {{#EACH data.('', dd)}} {{Data.data.test()}} {{/EACH}}";
+			var template = "I am <Text> {{#EACH data.F('', dd)}} {{Data.data.test()}} {{/EACH}}";
 			TestSerializableDocument(template);
 		}
 
 		[Test]
 		public void TestIsContentWithPathAndEveryAndFormatterSerializable()
 		{
-			var template = "I am <Text> {{#EACH data.('', dd).?}} {{Data.data.test()}} {{/EACH}}";
+			var template = "I am <Text> {{#EACH data.A('', dd).?}} {{Data.data.test()}} {{/EACH}}";
 			TestSerializableDocument(template);
 		}
 

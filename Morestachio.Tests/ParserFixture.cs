@@ -250,7 +250,6 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
-		[TestCase("(('').())")]
 		[TestCase("(('').A())")]
 		[TestCase("a(b(c().d()))")]
 		[TestCase("f((A + B), C)")]
@@ -272,11 +271,11 @@ namespace Morestachio.Tests
 		[TestCase("d.f(fA.TS())")]
 		[TestCase("d.f(fA(''))")]
 		[TestCase("d.f(fA('').Test)")]
-		[TestCase("d.f(fA('').().())")]
-		[TestCase("d.f(fA('').fB.())")]
-		[TestCase("d.f(fA('').fB.()).Test")]
-		[TestCase("d.f(fA('').fB.()).Test.Data")]
-		[TestCase("d.f(fA('').fB.()).Test.fC()")]
+		[TestCase("d.f(fA('').A().D())")]
+		[TestCase("d.f(fA('').fB.A())")]
+		[TestCase("d.f(fA('').fB.A()).Test")]
+		[TestCase("d.f(fA('').fB.A()).Test.Data")]
+		[TestCase("d.f(fA('').fB.A()).Test.fC()")]
 		[TestCase("d.f(fA.TS('', e))")]
 		[TestCase("d.f(fA.TS('', e), (A + B))")]
 		[TestCase("d.f(fA.TS('', e), (A))")]
@@ -291,7 +290,6 @@ namespace Morestachio.Tests
 		[TestCase("d.f(fA.TS('', e('')))")]
 		[TestCase("d.f(fA.TS('d'))")]
 		[TestCase("d.f(fA.TS('d').Test)")]
-		[TestCase("d.f(fA.TS('d').())")]
 		[TestCase("d.f(fA.TS('d').fB())")]
 		[TestCase("d.f(fA.TS('d').fB()).Test")]
 		[TestCase("d.f(fA.TS('d').fB()).Test.Data")]
@@ -1407,7 +1405,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task TestScopeOfIfInScoping()
 		{
-			var template = "{{#SCOPE Data}}{{#SCOPE Failed}}{{#IF ~Value}}{{.}}{{/IF}}{{/SCOPE}}{{/SCOPE}}";
+			var template = "{{#SCOPE Data}}{{#SCOPE Failed}}{{#IF ~Value}}{{this}}{{/IF}}{{/SCOPE}}{{/SCOPE}}";
 			var data = new
 			{
 				Data = new

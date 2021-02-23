@@ -276,6 +276,7 @@ namespace Morestachio.Framework.Expression
 						});
 						break;
 					case PathType.SelfAssignment:
+					case PathType.ThisPath:
 						pathQueue.Add((contextObject, scopeDate, expression) => contextObject.ToPromise());
 						break;
 					default:

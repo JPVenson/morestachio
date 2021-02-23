@@ -107,7 +107,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task TestCollectionFormatting()
 		{
-			var template = "{{#each data.OrderBy()}}{{.}},{{/each}}";
+			var template = "{{#each data.OrderBy()}}{{this}},{{/each}}";
 			var collection = new[] { 0, 1, 2, 3, 5, 4, 6, 7 };
 			var data = new Dictionary<string, object>
 			{
@@ -130,7 +130,7 @@ namespace Morestachio.Tests
 		{
 
 
-			var template = "{{#each data.OrderBy()}}{{.}},{{/each}}|{{#each data}}{{.}},{{/each}}";
+			var template = "{{#each data.OrderBy()}}{{this}},{{/each}}|{{#each data}}{{this}},{{/each}}";
 			var collection = new[] { 0, 1, 2, 3, 5, 4, 6, 7 };
 			var data = new Dictionary<string, object>
 			{

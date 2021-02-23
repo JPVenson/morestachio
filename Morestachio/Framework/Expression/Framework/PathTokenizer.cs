@@ -221,6 +221,22 @@ namespace Morestachio.Framework.Expression.Framework
 				return true;
 			}
 
+			if (CurrentPart == "this")
+			{
+				if (PathParts.Any)
+				{
+					errProducer = () => (
+						new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
+								.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
+							CurrentPart,
+							"An 'this' must be at the start of an expression"));
+
+					return false;
+				}
+				PathParts.Add(null, PathType.ThisPath);
+				return true;
+			}
+
 			if (CurrentPart == "true" || CurrentPart == "false")
 			{
 				if (PathParts.Any)
@@ -337,7 +353,7 @@ namespace Morestachio.Framework.Expression.Framework
 				return PathParts.GetList();
 			}
 
-			if (!(PathParts.Many && last.Value.Value == PathType.SelfAssignment))
+			if (!(PathParts.Many && (last.Value.Value == PathType.SelfAssignment && last.Value.Value == PathType.ThisPath)))
 			{
 				PathParts.Add(last.Value.Key, last.Value.Value);
 			}
@@ -350,7 +366,7 @@ namespace Morestachio.Framework.Expression.Framework
 			{
 				PathParts.Add(null, PathType.SelfAssignment);
 			}
-			else if (CurrentPart == "../")
+			if (CurrentPart == "../")
 			{
 				PathParts.Add(null, PathType.ParentSelector);
 			}

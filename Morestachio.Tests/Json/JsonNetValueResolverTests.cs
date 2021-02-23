@@ -34,7 +34,7 @@ namespace Morestachio.Tests.Json
 	PropB: ""st""
 }
 ";
-			var template = "{{#each Data.PropA}}{{.}}{{/each}}{{PropB}}";
+			var template = "{{#each Data.PropA}}{{this}}{{/each}}{{PropB}}";
 			var options = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
 			options.ValueResolver = new JsonNetValueResolver();
 			var document = Parser.ParseWithOptions(options);
@@ -51,7 +51,7 @@ namespace Morestachio.Tests.Json
 	PropB: ""st""
 }
 ";
-			var template = "{{#each Data.PropA.Skip(1)}}{{.}}{{/each}}{{PropB}}";
+			var template = "{{#each Data.PropA.Skip(1)}}{{this}}{{/each}}{{PropB}}";
 			var options = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
 			options.ValueResolver = new JsonNetValueResolver();
 			var document = Parser.ParseWithOptions(options);

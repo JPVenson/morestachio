@@ -28,6 +28,11 @@ namespace Morestachio.Framework.Expression.Framework
 		SelfAssignment,
 
 		/// <summary>
+		///		Do nothing and get yourself
+		/// </summary>
+		ThisPath,
+
+		/// <summary>
 		///		Enumerate the current objects structure and output a list
 		/// </summary>
 		ObjectSelector,

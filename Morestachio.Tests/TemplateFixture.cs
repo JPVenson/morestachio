@@ -32,7 +32,7 @@ namespace Morestachio.Tests
 				dataValue.Add(" ");
 			}
 
-			var template = "{{#each Data}}{{.}}{{/each}}";
+			var template = "{{#each Data}}{{this}}{{/each}}";
 			var data = new Dictionary<string, object>
 			{
 				{"Data", dataValue}
@@ -60,7 +60,7 @@ namespace Morestachio.Tests
 				dataValue.Add(" ");
 			}
 
-			var template = "{{#each Data}}{{.}}{{/each}}";
+			var template = "{{#each Data}}{{this}}{{/each}}";
 			var data = new Dictionary<string, object>
 			{
 				{"Data", dataValue}
@@ -299,7 +299,7 @@ namespace Morestachio.Tests
 		public async Task TemplateIfDoesNotScope()
 		{
 			var template =
-				@"{{#IF data}}{{.}}{{/IF}}";
+				@"{{#IF data}}{{this}}{{/IF}}";
 
 			var data = new Dictionary<string, object>()
 			{
@@ -567,10 +567,10 @@ This is an partial included: ({{#IMPORT 'PartialA' #WITH other}}) with an set co
 		{
 			var template =
 				"{{#SWITCH data #SCOPE}}" +
-				"{{#CASE 'tset'}}FAIL-{{.}}{{/CASE}}" +
-				"{{#CASE 123}}FAIL-{{.}}{{/CASE}}" +
-				"{{#CASE root}}FAIL-{{.}}{{/CASE}}" +
-				"{{#CASE 'test'}}SUCCESS-{{.}}{{/CASE}}" +
+				"{{#CASE 'tset'}}FAIL-{{this}}{{/CASE}}" +
+				"{{#CASE 123}}FAIL-{{this}}{{/CASE}}" +
+				"{{#CASE root}}FAIL-{{this}}{{/CASE}}" +
+				"{{#CASE 'test'}}SUCCESS-{{this}}{{/CASE}}" +
 				"{{/SWITCH}}";
 
 			var data = new Dictionary<string, object>()
