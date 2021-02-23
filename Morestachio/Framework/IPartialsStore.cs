@@ -1,12 +1,5 @@
 ﻿using Morestachio.Util.Sealing;
 
-#if ValueTask
-using DocumentInfoPromise = System.Threading.Tasks.ValueTask<Morestachio.MorestachioDocumentInfo>;
-using StringArrayPromise = System.Threading.Tasks.ValueTask<string[]>;
-#else
-
-#endif
-
 namespace Morestachio.Framework
 {
 	/// <summary>

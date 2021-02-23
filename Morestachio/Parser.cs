@@ -97,7 +97,7 @@ namespace Morestachio
 			//instead of recursive calling the parse function we stack the current document 
 			buildStack.Push(new DocumentScope(new MorestachioDocument(), () => 0));
 
-			DocumentScope GetVariabeScope()
+			DocumentScope GetVariableScope()
 			{
 				return buildStack.FirstOrDefault(e => e.VariableScopeNumber != -1);
 			}
@@ -346,7 +346,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.Alias))
 				{
-					var scope = GetVariabeScope();
+					var scope = GetVariableScope();
 					var nestedDocument = new AliasDocumentItem(currentToken.TokenLocation,
 						currentToken.Value,
 						scope.VariableScopeNumber, GetPublicOptions(currentToken));
@@ -404,7 +404,7 @@ namespace Morestachio
 					var scope = 0;
 					if (buildStack.Count > 1)
 					{
-						scope = GetVariabeScope()
+						scope = GetVariableScope()
 							.VariableScopeNumber;
 					}
 					var nestedDocument = new EvaluateVariableDocumentItem(currentToken.TokenLocation, currentToken.Value,
