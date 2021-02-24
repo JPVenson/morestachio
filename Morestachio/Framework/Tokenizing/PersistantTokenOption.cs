@@ -10,14 +10,23 @@ namespace Morestachio.Framework.Tokenizing
 	[Serializable]
 	public readonly struct PersistantTokenOption : ITokenOption, ISerializable
 	{
-		/// <inheritdoc />
+		/// <summary>
+		///		
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="value"></param>
 		public PersistantTokenOption(string name, bool value)
 		{
 			Name = name;
 			Value = value;
 			Persistent = true;
 		}
-		/// <inheritdoc />
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="value"></param>
 		public PersistantTokenOption(string name, string value)
 		{
 			Name = name;
@@ -25,7 +34,7 @@ namespace Morestachio.Framework.Tokenizing
 			Persistent = true;
 		}
 		
-		/// <inheritdoc />
+
 		[SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
 		private PersistantTokenOption(SerializationInfo info, StreamingContext c)
 		{
