@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <Deterministic>true</Deterministic>
-    <Version>5.0.0.485-alpha1</Version>
+    <Version>5.0.0</Version>
     <Authors>Jean-Pierre Bachmann</Authors>
     <Company>Jean-Pierre Bachmann</Company>
     <PackageProjectUrl>https://github.com/JPVenson/morestachio</PackageProjectUrl>
