@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.Design;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
@@ -97,17 +98,53 @@ namespace Morestachio.Formatter.Framework
 		{
 			get { return new ReadOnlyDictionary<Type, object>(ServiceCollectionAccess); }
 		}
+		
+		/// <inheritdoc />
+		public void AddService(Type serviceType, ServiceCreatorCallback callback)
+		{
+			AddService(serviceType, callback, false);
+		}
+		
+		/// <inheritdoc />
+		public void AddService(Type serviceType, ServiceCreatorCallback callback, bool promote)
+		{
+			ServiceCollectionAccess[serviceType] = new Func<object>(() => callback(this, serviceType));
+		}
+		
+		/// <inheritdoc />
+		public void AddService(Type serviceType, object serviceInstance)
+		{
+			AddService(serviceType, serviceInstance, false);
+		}
+		
+		/// <inheritdoc />
+		public void AddService(Type serviceType, object serviceInstance, bool promote)
+		{
+			ServiceCollectionAccess[serviceType] = serviceInstance;
+		}
+		
+		/// <inheritdoc />
+		public void RemoveService(Type serviceType)
+		{
+			RemoveService(serviceType, false);
+		}
+		
+		/// <inheritdoc />
+		public void RemoveService(Type serviceType, bool promote)
+		{
+			ServiceCollectionAccess.Remove(serviceType);
+		}
 
 		/// <inheritdoc />
 		public void AddService<T, TE>(TE service) where TE : T
 		{
-			ServiceCollectionAccess[typeof(TE)] = service;
+			AddService(typeof(TE), service);
 		}
 
 		/// <inheritdoc />
 		public void AddService<T>(T service)
 		{
-			ServiceCollectionAccess[typeof(T)] = service;
+			AddService(typeof(T), service);
 		}
 
 		/// <inheritdoc />

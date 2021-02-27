@@ -5,6 +5,7 @@ using ObjectPromise = System.Threading.Tasks.Task<object>;
 #endif
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Reflection;
 using Morestachio.Document;
 using Morestachio.Formatter.Framework.Attributes;
@@ -16,7 +17,7 @@ namespace Morestachio.Formatter.Framework
 	/// <summary>
 	///     Interface for Resolving formatters
 	/// </summary>
-	public interface IMorestachioFormatterService : IServiceProvider, ISealed
+	public interface IMorestachioFormatterService : ISealed, IServiceContainer
 	{
 		/// <summary>
 		///     Contains a set of objects that can be injected into a formatter
