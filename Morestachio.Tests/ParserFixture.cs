@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -46,6 +47,7 @@ namespace Morestachio.Tests
 		}
 
 		public static Encoding DefaultEncoding { get; set; } = new UnicodeEncoding(true, false, false);
+		public static CultureInfo DefaultCulture { get; set; } = CultureInfo.InvariantCulture;
 
 		public static async Task<string> CreateAndParseWithOptions(string template,
 			object data,
@@ -81,7 +83,8 @@ namespace Morestachio.Tests
 		{
 			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding)
 			{
-				Logger = !opt.HasFlag(ParserOptionTypes.NoLoggingTest) ? new TestLogger() : null
+				Logger = !opt.HasFlag(ParserOptionTypes.NoLoggingTest) ? new TestLogger() : null,
+				CultureInfo = DefaultCulture
 			};
 			option?.Invoke(parsingOptions);
 			var document = await Parser.ParseWithOptionsAsync(parsingOptions);
@@ -445,7 +448,7 @@ namespace Morestachio.Tests
 			var data = new Dictionary<string, object> { { "data", dataValue } };
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
 
-			Assert.That(result, Is.EqualTo(dataValue.ToString(dtFormat) + "," + dataValue));
+			Assert.That(result, Is.EqualTo(dataValue.ToString(dtFormat, ParserFixture.DefaultCulture) + "," + dataValue));
 		}
 
 		[Test]
@@ -470,7 +473,7 @@ namespace Morestachio.Tests
 				{ "data", dataValue },
 			};
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
-			Assert.That(result, Is.EqualTo("|" + dataValue.ToString("G")));
+			Assert.That(result, Is.EqualTo("|" + dataValue.ToString("G", ParserFixture.DefaultCulture)));
 		}
 
 		[Test]
@@ -489,7 +492,7 @@ namespace Morestachio.Tests
 					return value.PadLeft(nr);
 				}, "PadLeft");
 			});
-			Assert.That(result, Is.EqualTo("|" + dataValue.ToString("G").PadLeft(123)));
+			Assert.That(result, Is.EqualTo("|" + dataValue.ToString("G", ParserFixture.DefaultCulture).PadLeft(123)));
 		}
 
 		[Test]
@@ -510,7 +513,7 @@ namespace Morestachio.Tests
 					return value.PadLeft(nr);
 				}, "PadLeft"); ;
 			});
-			Assert.That(result, Is.EqualTo(dataValue.ToString("G").PadLeft(123)));
+			Assert.That(result, Is.EqualTo(dataValue.ToString("G", ParserFixture.DefaultCulture).PadLeft(123)));
 		}
 
 		[Test]
@@ -717,7 +720,7 @@ namespace Morestachio.Tests
 			{
 			};
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest);
-			Assert.That(result, Is.EqualTo(1.123.ToString("F5")));
+			Assert.That(result, Is.EqualTo(1.123.ToString("F5", ParserFixture.DefaultCulture)));
 		}
 
 		[Test]
@@ -801,7 +804,7 @@ namespace Morestachio.Tests
 			{
 				options.Formatters.AddFromType(typeof(NumberFormatter));
 			});
-			Assert.That(result, Is.EqualTo(dataValue.ToString(dtFormat) + "," + dataValue));
+			Assert.That(result, Is.EqualTo(dataValue.ToString(dtFormat, ParserFixture.DefaultCulture) + "," + dataValue));
 		}
 
 		[Test]

@@ -333,7 +333,7 @@ namespace Morestachio.Tests
 
 			var data = new Dictionary<string, object>();
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts);
-			Assert.That(result, Is.EqualTo(DateTime.Now.ToString("D")));
+			Assert.That(result, Is.EqualTo(DateTime.Now.ToString("D", ParserFixture.DefaultCulture)));
 		}
 
 
