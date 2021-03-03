@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Morestachio.Document;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
+using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.Parser;
 using NUnit.Framework;
 
@@ -35,6 +36,14 @@ namespace Morestachio.Tests
 			Assert.That(expressionString.Location.ToFormatString(), Is.EqualTo("1:1"));
 			Assert.That(expressionString.StringParts.Count, Is.EqualTo(1));
 			Assert.That((await expressionString.GetValue(StringTestContext(), new ScopeData())).Value, Is.EqualTo("test"));
+		}
+
+		[Test]
+		public async Task CanNotParseUnclosedString()
+		{
+			var text = "\"";
+			var result = await ExpressionParser.EvaluateExpression(text, new ParserOptions(), null, TokenzierContext.FromText(text));
+			Assert.That(result, Is.Null);
 		}
 
 		[Test]

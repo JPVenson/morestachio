@@ -225,6 +225,10 @@ namespace Morestachio.Framework.Expression.Parser
 		{
 			tokenzierContext = tokenzierContext ?? TokenzierContext.FromText(expressionText);
 			var expression = ParseExpression(expressionText, tokenzierContext);
+			if (expression == null)
+			{
+				return null;
+			}
 			var contextObject = new ContextObject(options, "", null, context);
 			var value = await expression.GetValue(contextObject, new ScopeData());
 			return value.Value;
@@ -806,7 +810,6 @@ namespace Morestachio.Framework.Expression.Parser
 
 				if (!endDelimiterFound)
 				{
-					consumed--;
 					context.Errors.Add(new MorestachioSyntaxError(
 						context
 							.CurrentLocation
