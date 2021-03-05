@@ -35,7 +35,7 @@ namespace Morestachio.Fluent.Expression
 		/// <returns></returns>
 		public MorestachioExpressionBuilder Number(Number number)
 		{
-			ExpressionParts.Add(new MorestachioExpressionNumber(number, new CharacterLocation(0, Column)));
+			ExpressionParts.Add(new MorestachioExpressionNumber(number, new CharacterLocation(0, Column, Column)));
 			Column += number.AsParsableString().Length;
 			return this;
 		}

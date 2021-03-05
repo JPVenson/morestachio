@@ -14,11 +14,17 @@ namespace Morestachio.Framework
 		/// </summary>
 		/// <param name="line"></param>
 		/// <param name="character"></param>
-		public CharacterLocation(int line, int character)
+		public CharacterLocation(int line, int character, int index)
 		{
 			Line = line;
 			Character = character;
+			Index = index;
 		}
+
+		/// <summary>
+		///		The line of the Template
+		/// </summary>
+		public int Index { get; }
 
 		/// <summary>
 		///		The line of the Template
@@ -33,7 +39,7 @@ namespace Morestachio.Framework
 		/// <summary>
 		///		Returns the Unknown Location
 		/// </summary>
-		public static CharacterLocation Unknown { get; } = new CharacterLocation(-1, -1);
+		public static CharacterLocation Unknown { get; } = new CharacterLocation(-1, -1, -1);
 
 		internal CharacterLocationExtended AddWindow(CharacterSnippedLocation window)
 		{
@@ -46,7 +52,7 @@ namespace Morestachio.Framework
 		/// <returns></returns>
 		public string ToFormatString()
 		{
-			return $"{Line}:{Character}";
+			return $"{Line}:{Character},{Index}";
 		}
 
 		/// <summary>
@@ -62,14 +68,18 @@ namespace Morestachio.Framework
 			}
 
 			var parts = formatString.Split(':');
-			var charLoc = new CharacterLocation(int.Parse(parts[0]), int.Parse(parts[1]));
+			var line = parts[0];
+			var charIndex = parts[1].Split(',');
+			var character = charIndex[0];
+			var index = charIndex[1];
+			var charLoc = new CharacterLocation(int.Parse(line), int.Parse(character), int.Parse(index));
 			return charLoc;
 		}
 
 		/// <inheritdoc />
 		public override string ToString()
 		{
-			return $"Line: {Line}, Column: {Character}";
+			return $"Line: {Line}, Column: {Character}, Index: {Index}";
 		}
 
 		/// <summary>
@@ -79,7 +89,8 @@ namespace Morestachio.Framework
 		/// <returns></returns>
 		public CharacterLocation Offset(int length)
 		{
-			return new CharacterLocation(Line, Character + length);
+			//bug this does not take care of linebreaks!
+			return new CharacterLocation(Line, Character + length, Index + length);
 		}
 
 		/// <inheritdoc />
@@ -101,6 +112,7 @@ namespace Morestachio.Framework
 		/// <returns></returns>
 		public int ToPosition(TokenzierContext context)
 		{
+			return Index;
 			var line = Line - 1;
 			if (line >= 0 && context.Lines.Count > line)
 			{
@@ -113,7 +125,7 @@ namespace Morestachio.Framework
 		/// <inheritdoc />
 		public bool Equals(CharacterLocation other)
 		{
-			return Line == other.Line && Character == other.Character;
+			return Line == other.Line && Character == other.Character && Index == other.Index;
 		}
 		
 		/// <inheritdoc />
@@ -127,7 +139,7 @@ namespace Morestachio.Framework
 		{
 			unchecked
 			{
-				return (Line * 397) ^ Character;
+				return (Line * 397) ^ Character ^ Index;
 			}
 		}
 	}

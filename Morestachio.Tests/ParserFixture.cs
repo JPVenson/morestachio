@@ -135,7 +135,7 @@ namespace Morestachio.Tests
 			var api = documentInfo
 				.Fluent()
 				.SearchForward(f => !(f is MorestachioDocument), false);
-			var lastLocation = new CharacterLocation(0, -1);
+			var lastLocation = new CharacterLocation(0, -1, -1);
 			var visitor = new ToParsableStringDocumentVisitor(documentInfo.ParserOptions);
 
 			while (api.Context.OperationStatus)

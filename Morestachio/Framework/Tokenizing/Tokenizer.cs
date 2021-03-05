@@ -47,7 +47,7 @@ namespace Morestachio.Framework.Tokenizing
 			}
 
 			//Humans count from 1, so let's do that, too (hence the "+1" on these).
-			var textLocation = new CharacterLocation(line + 1, charIdx + 1);
+			var textLocation = new CharacterLocation(line + 1, charIdx + 1, characterIndex + 1);
 			return textLocation;
 		}
 
