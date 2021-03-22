@@ -15,7 +15,9 @@ using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Framework.Context;
+using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
+using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
@@ -36,9 +38,11 @@ namespace Morestachio.Document.Items
 		
 		/// <inheritdoc />
 		public IsolationScopeDocumentItem(CharacterLocation location, IsolationOptions isolationOptions,
+			IMorestachioExpression morestachioExpression,
 			IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
 		{
 			Isolation = isolationOptions;
+			ScopeIsolationExpression = morestachioExpression;
 		}
 
 		/// <summary>
@@ -50,12 +54,14 @@ namespace Morestachio.Document.Items
 		protected IsolationScopeDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 			Isolation = (IsolationOptions) info.GetValue(nameof(Isolation), typeof(IsolationOptions));
+			ScopeIsolationExpression = (IMorestachioExpression) info.GetValue(nameof(ScopeIsolationExpression), typeof(IMorestachioExpression));
 		}
 		
 		/// <inheritdoc />
 		protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
 		{
 			info.AddValue(nameof(Isolation), Isolation);
+			info.AddValue(nameof(ScopeIsolationExpression), ScopeIsolationExpression);
 			base.SerializeBinaryCore(info, context);
 		}
 		
@@ -67,6 +73,13 @@ namespace Morestachio.Document.Items
 				writer.WriteAttributeString(flag.ToString(), "true");
 			}
 			base.SerializeXml(writer);
+
+			if (ScopeIsolationExpression != null)
+			{
+				writer.WriteStartElement(nameof(ScopeIsolationExpression));
+				writer.WriteExpressionToXml(ScopeIsolationExpression);
+				writer.WriteEndElement();
+			}
 		}
 		
 		/// <inheritdoc />
@@ -80,17 +93,38 @@ namespace Morestachio.Document.Items
 				}
 			}
 			base.DeSerializeXml(reader);
+
+			if (reader.Name == nameof(ScopeIsolationExpression))
+			{
+				reader.ReadStartElement();
+				var subtree = reader.ReadSubtree();
+				subtree.Read();
+				ScopeIsolationExpression = subtree.ParseExpressionFromKind();
+				reader.Skip();
+				reader.ReadEndElement();
+			}
 		}
 
 		/// <summary>
 		///		The type of isolation enforced
 		/// </summary>
 		public IsolationOptions Isolation { get; private set; }
-		
+
+		/// <summary>
+		///		Is set, defines the path that should be isolated to
+		/// </summary>
+		public IMorestachioExpression ScopeIsolationExpression { get; private set; }
+
 		/// <inheritdoc />
-		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
-			return Children.WithScope(context).ToPromise();
+			if (ScopeIsolationExpression != null)
+			{
+				context = await ScopeIsolationExpression.GetValue(context, scopeData);
+				context = new ContextObject(context.Options, context.Key, null, context.Value);
+			}
+
+			return Children.WithScope(context);
 		}
 		
 		/// <inheritdoc />
@@ -102,7 +136,20 @@ namespace Morestachio.Document.Items
 		/// <inheritdoc />
 		public Compilation Compile()
 		{
-			return MorestachioDocument.CompileItemsAndChildren(Children);
+			var children = MorestachioDocument.CompileItemsAndChildren(Children);
+			if (ScopeIsolationExpression != null)
+			{
+				var compiledExpression = ScopeIsolationExpression.Compile();
+				return async (stream, context, data) =>
+				{
+					context = await compiledExpression(context, data);
+					context = new ContextObject(context.Options, context.Key, null, context.Value);
+					await children(stream, context, data);
+				};
+			}
+
+			
+			return children;
 		}
 	}
 }

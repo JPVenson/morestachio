@@ -549,8 +549,8 @@ namespace Morestachio.Tests
 		{
 			var template =
 @"{{#VAR global = data |--}}
-{{global |--}}
 {{#ISOLATE #VARIABLES |--}}
+{{global |--}}
 {{#VAR global = 'Bu-erns ' |--}}
 {{global |--}}
 {{/ISOLATE |--}}
@@ -1351,19 +1351,19 @@ namespace Morestachio.Tests
 		{
 			var template = "{{#PI 3}}";
 			var data = new Dictionary<string, object>();
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options| ParserOptionTypes.NoRerenderingTest, options =>
-			{
-				options.CustomDocumentItemProviders.Add(new TagDocumentItemProvider("#PI", async
-				(outputStream,
-					context,
-					scopeData,
-					value,
-					tag) =>
-				{
-					outputStream.Write((Math.PI * int.Parse(value)).ToString());
-					await Task.CompletedTask;
-				}));
-			});
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest, options =>
+			 {
+				 options.CustomDocumentItemProviders.Add(new TagDocumentItemProvider("#PI", async
+				 (outputStream,
+					 context,
+					 scopeData,
+					 value,
+					 tag) =>
+				 {
+					 outputStream.Write((Math.PI * int.Parse(value)).ToString());
+					 await Task.CompletedTask;
+				 }));
+			 });
 			Assert.That(result, Is.EqualTo((Math.PI * 3).ToString()));
 		}
 
@@ -1436,21 +1436,35 @@ namespace Morestachio.Tests
 				Value = "FAILED",
 			};
 
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
+			Assert.That(result, Is.EqualTo("Success"));
+		}
+
+		[Test]
+		public async Task TestScopeIsolation()
+		{
+			var template = "{{Data.Success}} - " +
+						   "{{#ISOLATE #SCOPE Data}}" +
+						   "{{this.Value}} == " +
+						   "{{~RootValue}} && " +
+						   "{{../RootValue}} != " +
+						   "{{Success}}" +
+						   "{{/ISOLATE}}";
+			var data = new
+			{
+				Data = new
+				{
+					Success = "Success",
+					Value = "SUCCESS",
+				},
+				RootValue = "FAILED"
+			};
+
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
 			{
-				options.CustomDocumentItemProviders.Add(new BlockDocumentItemProvider("#PI", "/PI",
-					(outputStream,
-						context,
-						scopeData,
-						value,
-						children) =>
-					{
-						var firstOrDefault = children.OfType<ContentDocumentItem>().FirstOrDefault();
-						outputStream.Write((Math.PI * int.Parse(firstOrDefault.Value)).ToString());
-						return Enumerable.Empty<DocumentItemExecution>().ToPromise();
-					}));
+				options.Null = "NULL";
 			});
-			Assert.That(result, Is.EqualTo("Success"));
+			Assert.That(result, Is.EqualTo("Success - SUCCESS == NULL && NULL != Success"));
 		}
 
 		[Test]
@@ -1682,7 +1696,7 @@ Static
 			});
 			Assert.That(result, Is.EqualTo(@"WorldStaticWorld"));
 		}
-		
+
 		[Test]
 		public async Task TestParserNotRenderingUnknownTagInstruction()
 		{
@@ -1741,17 +1755,17 @@ Static
 			});
 			Assert.That(result, Is.EqualTo(@"V: 0|1|0"));
 		}
-		
+
 		private class DirectLinkedFormatter
 		{
 			public int Value { get; set; }
-			
+
 			[MorestachioFormatter("Increment", "XXX")]
 			public void Increment()
 			{
 				Value++;
 			}
-			
+
 			[MorestachioFormatter("Decrement", "XXX")]
 			public void Decrement()
 			{

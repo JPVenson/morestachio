@@ -16,5 +16,10 @@ namespace Morestachio.Framework.Expression.Framework
 		///		Variables cannot be overwritten
 		/// </summary>
 		VariableIsolation = 1 << 1,
+
+		/// <summary>
+		///		Creates an area where the scope is set as an root expression and everything else is unavailable for probing
+		/// </summary>
+		ScopeIsolation = 1 << 2
 	}
 }

@@ -343,6 +343,7 @@ namespace Morestachio
 					var nestedDocument =
 						new IsolationScopeDocumentItem(currentToken.TokenLocation, 
 							currentToken.FindOption<IsolationOptions>("IsolationType"),
+							currentToken.FindOption<IMorestachioExpression>("IsolationScopeArg"),
 							GetPublicOptions(currentToken));
 					TryAdd(currentDocumentItem.Document, nestedDocument);
 					buildStack.Push(new DocumentScope(nestedDocument, getScope));

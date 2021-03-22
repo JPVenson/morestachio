@@ -302,6 +302,41 @@ namespace Morestachio.Framework.Tokenizing
 				return token;
 			}
 
+			IMorestachioExpression ExtractExpression(ref string token)
+			{
+				var pre = context.Character;
+				var expression = ExpressionParser.ParseExpression(token, context);
+				token = token.Remove(0, context.Character - pre);
+				return expression;
+			}
+
+			bool TryParseFlagOption(ref string token, string flagName)
+			{
+				var indexOf = token.IndexOf(flagName, StringComparison.InvariantCultureIgnoreCase);
+				if (indexOf != -1)
+				{
+					token = token.Remove(indexOf, flagName.Length);
+					return true;
+				}
+
+				return false;
+			}
+
+			bool TryParseExpressionOption(ref string token, string optionName, out IMorestachioExpression expression)
+			{
+				var optionIndex = token.IndexOf(optionName, StringComparison.InvariantCultureIgnoreCase);
+				if (optionIndex != -1)
+				{
+					token = token.Remove(optionIndex, optionName.Length);
+					expression = ExpressionParser.ParseExpression(token,
+						TokenzierContext.FromText(token), out _, optionIndex);
+					return true;
+				}
+
+				expression = null;
+				return false;
+			}
+
 			foreach (var match in templateString.Matches(context))
 			{
 				if (match.ContentToken)
@@ -450,26 +485,11 @@ namespace Morestachio.Framework.Tokenizing
 					else if (trimmedToken.StartsWith("#import ", true, CultureInfo.InvariantCulture))
 					{
 						var token = trimmedToken.TrimStart('#').Substring("import".Length).Trim(Tokenizer.GetWhitespaceDelimiters());
-						var pre = context.Character;
-						var tokenNameExpression = ExpressionParser.ParseExpression(token, context);
-
-						if (pre + token.Length != context.Character)
+						var tokenNameExpression = ExtractExpression(ref token);
+						
+						if (TryParseExpressionOption(ref token, "#WITH", out var withExpression))
 						{
-							bool CheckForScopeAlias()
-							{
-								token = token.Substring(context.Character - pre).Trim(Tokenizer.GetWhitespaceDelimiters());
-								if (token.StartsWith("#WITH ", true, CultureInfo.InvariantCulture))
-								{
-									token = token.Remove(0, "#WITH ".Length);
-									var contextExpression = ExpressionParser.ParseExpression(token, context);
-									tokenOptions.Add(new TokenOption("Context", contextExpression));
-									return true;
-								}
-
-								return false;
-							}
-
-							CheckForScopeAlias();
+							tokenOptions.Add(new TokenOption("Context", withExpression));
 						}
 
 						//late bound expression, cannot check at parse time for existance
@@ -615,15 +635,8 @@ namespace Morestachio.Framework.Tokenizing
 					else if (trimmedToken.StartsWith("#switch ", true, CultureInfo.InvariantCulture))
 					{
 						var token = TrimToken(trimmedToken, "switch");
-						var shouldScope = false;
-
-						if (token.EndsWith("#scope", true, CultureInfo.InvariantCulture))
-						{
-							shouldScope = true;
-							token = token.Remove(token.Length - "#ScopeTo".Length + 1);
-						}
-
 						var eval = EvaluateNameFromToken(token);
+						var shouldScope = TryParseFlagOption(ref token, "#SCOPE");
 						token = eval.Value;
 						if (eval.Name != null)
 						{
@@ -999,15 +1012,20 @@ namespace Morestachio.Framework.Tokenizing
 					{
 						var token = TrimToken(trimmedToken, "ISOLATE ");
 						IsolationOptions scope = 0;
-						if (token.IndexOf("#VARIABLES", StringComparison.InvariantCultureIgnoreCase) != -1)
+						if (TryParseFlagOption(ref token, "#VARIABLES"))
 						{
-							token = token.Replace("#VARIABLES", "");
 							scope |= IsolationOptions.VariableIsolation;
 						}
 
+						if (TryParseExpressionOption(ref token, "#SCOPE ", out var scopeExpression))
+						{
+							tokenOptions.Add(new TokenOption("IsolationScopeArg", scopeExpression));
+							scope |= IsolationOptions.ScopeIsolation;
+						}
+
 						tokenOptions.Add(new TokenOption("IsolationType", scope));
-						tokens.Add(new TokenPair(TokenType.IsolationScopeOpen, null, context.CurrentLocation, tokenOptions));
-						scopestack.Push(new ScopeStackItem(TokenType.IsolationScopeOpen, null, match.Index));
+						tokens.Add(new TokenPair(TokenType.IsolationScopeOpen, token, context.CurrentLocation, tokenOptions));
+						scopestack.Push(new ScopeStackItem(TokenType.IsolationScopeOpen, token, match.Index));
 					}
 					else if (trimmedToken.Equals("/ISOLATE", StringComparison.InvariantCultureIgnoreCase))
 					{

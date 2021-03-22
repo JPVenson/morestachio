@@ -456,6 +456,11 @@ namespace Morestachio.Document.Visitor
 			{
 				StringBuilder.Append(" #VARIABLES");
 			}
+			if (documentItem.Isolation.HasFlag(IsolationOptions.ScopeIsolation))
+			{
+				StringBuilder.Append(" #SCOPE ");
+				StringBuilder.Append(ReparseExpression(documentItem.ScopeIsolationExpression));
+			}
 
 			CheckForInlineTagLineBreakAtEnd(documentItem);
 			StringBuilder.Append("}}");
