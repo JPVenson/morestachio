@@ -117,7 +117,6 @@ namespace Morestachio.Framework.Expression.Framework
 				return false;
 			}
 
-			LastCharWasDelimiter = c == '.';
 
 			if (c == '/')
 			{
@@ -160,8 +159,13 @@ namespace Morestachio.Framework.Expression.Framework
 				return true;
 			}
 
+			//otherwise an ?? null cor operator would be tokenized as two times a object selector
 			if (c == '?')
 			{
+				if (!LastCharWasDelimiter)
+				{
+					return false;
+				}
 				PathParts.Add(null, PathType.ObjectSelector);
 				CurrentPart = string.Empty;
 				return true;
@@ -173,6 +177,7 @@ namespace Morestachio.Framework.Expression.Framework
 				//so ignore the dot
 				CurrentPart = string.Empty;
 			}
+			LastCharWasDelimiter = c == '.';
 
 			if (CurrentPart != string.Empty && CurrentPart != "." && c == '.')
 			{

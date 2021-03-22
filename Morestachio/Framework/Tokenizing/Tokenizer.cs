@@ -161,6 +161,7 @@ namespace Morestachio.Framework.Tokenizing
 				formatChar == '=' ||
 				formatChar == '!' ||
 				formatChar == '&' ||
+				formatChar == '?' ||
 				formatChar == '|';
 		}
 

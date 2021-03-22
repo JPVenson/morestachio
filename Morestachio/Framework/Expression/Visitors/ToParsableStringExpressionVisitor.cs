@@ -63,6 +63,10 @@ namespace Morestachio.Framework.Expression.Visitors
 						break;
 					case PathType.ThisPath:
 						StringBuilder.Append("this");
+						if (index != expressionPathParts.Length - 1)
+						{
+							StringBuilder.Append(".");
+						}
 						break;
 					case PathType.ObjectSelector:
 						StringBuilder.Append("?");
