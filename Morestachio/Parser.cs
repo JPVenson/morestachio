@@ -451,7 +451,7 @@ namespace Morestachio
 				{
 					var tokenOptions = GetPublicOptions(currentToken);
 					var customDocumentItemProvider =
-						options.CustomDocumentItemProviders.FirstOrDefault(e => e.ShouldParse(currentToken, options, tokenOptions));
+						options.CustomDocumentItemProviders.FindTokenProvider(currentToken, options, tokenOptions);
 					var nestedDocument = customDocumentItemProvider?.Parse(currentToken, options, buildStack, getScope, tokenOptions);
 					if (nestedDocument != null)
 					{

@@ -1176,7 +1176,7 @@ namespace Morestachio.Framework.Tokenizing
 						}
 
 						var customDocumentProvider =
-							parserOptions.CustomDocumentItemProviders.FirstOrDefault(e => e.ShouldTokenize(trimmedToken));
+							parserOptions.CustomDocumentItemProviders.FindTokenProvider(trimmedToken);
 
 						if (customDocumentProvider != null)
 						{

@@ -15,6 +15,7 @@ using Morestachio.Framework.Context.Resolver;
 using Morestachio.Framework.IO;
 using Morestachio.Helper.Logging;
 using Morestachio.TemplateContainers;
+using Morestachio.Util;
 using Morestachio.Util.Sealing;
 
 #endregion
@@ -28,7 +29,7 @@ namespace Morestachio
 	public class ParserOptions : SealedBase
 	{
 		private IMorestachioFormatterService _formatters;
-		private SealableList<CustomDocumentItemProvider> _customDocumentItemProviders;
+		private ICustomDocumentList _customDocumentItemProviders;
 		private IPartialsStore _partialsStore;
 		private bool _profileExecution;
 		private IValueResolver _valueResolver;
@@ -95,7 +96,7 @@ namespace Morestachio
 			DisableContentEscaping = false;
 			Timeout = TimeSpan.Zero;
 			PartialStackSize = 255;
-			_customDocumentItemProviders = new SealableList<CustomDocumentItemProvider>();
+			_customDocumentItemProviders = new CustomDocumentList();
 			CultureInfo = CultureInfo.CurrentCulture;
 			UnmatchedTagBehavior = UnmatchedTagBehavior.ThrowError | UnmatchedTagBehavior.LogWarning;
 		}
@@ -225,7 +226,7 @@ namespace Morestachio
 		/// <summary>
 		///		The list of provider that emits custom document items
 		/// </summary>
-		public IList<CustomDocumentItemProvider> CustomDocumentItemProviders
+		public ICustomDocumentList CustomDocumentItemProviders
 		{
 			get { return _customDocumentItemProviders; }
 		}
