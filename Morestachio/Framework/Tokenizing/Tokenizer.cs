@@ -77,6 +77,12 @@ namespace Morestachio.Framework.Tokenizing
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		internal static string GetAsKeyword()
+		{
+			return GetAsKeyword();
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static bool IsEndOfExpression(char formatChar)
 		{
 			return formatChar == ';' || formatChar == '#';
@@ -337,6 +343,32 @@ namespace Morestachio.Framework.Tokenizing
 				return false;
 			}
 
+			bool TryParseStringOption(ref string token, string optionName, out string expression)
+			{
+				var optionIndex = token.IndexOf(optionName, StringComparison.InvariantCultureIgnoreCase);
+				if (optionIndex != -1)
+				{
+					token = token.Remove(optionIndex, optionName.Length);
+					var endOfNameIndex = token.IndexOfAny(GetWhitespaceDelimiters(), optionIndex);
+					if (endOfNameIndex == -1)
+					{
+						endOfNameIndex = token.IndexOf('#', optionIndex);
+					}
+					if (endOfNameIndex == -1)
+					{
+						endOfNameIndex = token.Length;
+					}
+
+					expression = token.Substring(optionIndex, endOfNameIndex - optionIndex);
+					token = token.Remove(optionIndex, endOfNameIndex - optionIndex);
+					
+					return true;
+				}
+
+				expression = null;
+				return false;
+			}
+
 			foreach (var match in templateString.Matches(context))
 			{
 				if (match.ContentToken)
@@ -499,9 +531,7 @@ namespace Morestachio.Framework.Tokenizing
 					else if (trimmedToken.StartsWith("#each ", true, CultureInfo.InvariantCulture))
 					{
 						var token = TrimToken(trimmedToken, "each");
-						var eval = EvaluateNameFromToken(token);
-						token = eval.Value;
-						var alias = eval.Name;
+						TryParseStringOption(ref token, GetAsKeyword(), out var alias);
 
 						scopestack.Push(new ScopeStackItem(TokenType.CollectionOpen, alias ?? token, match.Index));
 
@@ -635,10 +665,9 @@ namespace Morestachio.Framework.Tokenizing
 					else if (trimmedToken.StartsWith("#switch ", true, CultureInfo.InvariantCulture))
 					{
 						var token = TrimToken(trimmedToken, "switch");
-						var eval = EvaluateNameFromToken(token);
+						TryParseStringOption(ref token, GetAsKeyword(), out var alias);
 						var shouldScope = TryParseFlagOption(ref token, "#SCOPE");
-						token = eval.Value;
-						if (eval.Name != null)
+						if (alias != null)
 						{
 							context.Errors.Add(new MorestachioSyntaxError(
 								context.CurrentLocation
@@ -677,9 +706,8 @@ namespace Morestachio.Framework.Tokenizing
 					else if (trimmedToken.StartsWith("#case ", true, CultureInfo.InvariantCulture))
 					{
 						var token = TrimToken(trimmedToken, "case");
-						var eval = EvaluateNameFromToken(token);
-						token = eval.Value;
-						if (eval.Name != null)
+						TryParseStringOption(ref token, GetAsKeyword(), out var alias);
+						if (alias != null)
 						{
 							context.Errors.Add(new MorestachioSyntaxError(
 								context.CurrentLocation
@@ -717,9 +745,8 @@ namespace Morestachio.Framework.Tokenizing
 					else if (trimmedToken.Equals("#default", StringComparison.InvariantCultureIgnoreCase))
 					{
 						var token = TrimToken(trimmedToken, "default");
-						var eval = EvaluateNameFromToken(token);
-						token = eval.Value;
-						if (eval.Name != null)
+						TryParseStringOption(ref token, GetAsKeyword(), out var alias);
+						if (alias != null)
 						{
 							context.Errors.Add(new MorestachioSyntaxError(
 								context.CurrentLocation
@@ -758,9 +785,8 @@ namespace Morestachio.Framework.Tokenizing
 					else if (trimmedToken.StartsWith("#if ", true, CultureInfo.InvariantCulture))
 					{
 						var token = TrimToken(trimmedToken, "if");
-						var eval = EvaluateNameFromToken(token);
-						token = eval.Value;
-						if (eval.Name != null)
+						TryParseStringOption(ref token, GetAsKeyword(), out var alias);
+						if (alias != null)
 						{
 							context.Errors.Add(new MorestachioSyntaxError(
 								context.CurrentLocation
@@ -784,9 +810,8 @@ namespace Morestachio.Framework.Tokenizing
 					else if (trimmedToken.StartsWith("^if ", true, CultureInfo.InvariantCulture))
 					{
 						var token = TrimToken(trimmedToken, "if", '^');
-						var eval = EvaluateNameFromToken(token);
-						token = eval.Value;
-						if (eval.Name != null)
+						TryParseStringOption(ref token, GetAsKeyword(), out var alias);
+						if (alias != null)
 						{
 							context.Errors.Add(new MorestachioSyntaxError(
 								context.CurrentLocation
@@ -855,9 +880,8 @@ namespace Morestachio.Framework.Tokenizing
 							 || currentScope.TokenType == TokenType.ElseIf))
 						{
 							var token = TrimToken(trimmedToken, "elseif");
-							var eval = EvaluateNameFromToken(token);
-							token = eval.Value;
-							if (eval.Name != null)
+							TryParseStringOption(ref token, GetAsKeyword(), out var alias);
+							if (alias != null)
 							{
 								context.Errors.Add(new MorestachioSyntaxError(
 									context.CurrentLocation
@@ -931,9 +955,7 @@ namespace Morestachio.Framework.Tokenizing
 					{
 						//open inverted group
 						var token = TrimToken(trimmedToken, "scope ", '^');
-						var eval = EvaluateNameFromToken(token);
-						token = eval.Value;
-						var alias = eval.Name;
+						TryParseStringOption(ref token, GetAsKeyword(), out var alias);
 						scopestack.Push(new ScopeStackItem(TokenType.InvertedElementOpen, alias ?? token, match.Index));
 						tokens.Add(new TokenPair(TokenType.InvertedElementOpen,
 							token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context), tokenOptions));
@@ -948,9 +970,7 @@ namespace Morestachio.Framework.Tokenizing
 					else if (trimmedToken.StartsWith("#scope ", true, CultureInfo.InvariantCulture))
 					{
 						var token = TrimToken(trimmedToken, "scope ");
-						var eval = EvaluateNameFromToken(token);
-						token = eval.Value;
-						var alias = eval.Name;
+						TryParseStringOption(ref token, GetAsKeyword(), out var alias);
 
 						scopestack.Push(new ScopeStackItem(TokenType.ElementOpen, alias ?? token, match.Index));
 
@@ -1109,9 +1129,7 @@ namespace Morestachio.Framework.Tokenizing
 						});
 						//open inverted group
 						var token = trimmedToken.TrimStart('^').Trim();
-						var eval = EvaluateNameFromToken(token);
-						token = eval.Value;
-						var alias = eval.Name;
+						TryParseStringOption(ref token, GetAsKeyword(), out var alias);
 						scopestack.Push(new ScopeStackItem(TokenType.InvertedElementOpen, alias ?? token, match.Index));
 						tokenOptions.Add(new PersistantTokenOption("Render.LegacyStyle", true));
 						tokens.Add(new TokenPair(TokenType.InvertedElementOpen,
@@ -1221,20 +1239,22 @@ namespace Morestachio.Framework.Tokenizing
 			return new TokenizerResult(tokens);
 		}
 
-		private static readonly Regex ExpressionAliasFinder
-			= new Regex("(?:\\s+(?:AS|as|As|aS)\\s+)([A-Za-z]+)$", RegexOptions.Compiled);
+		//private static readonly Regex ExpressionAliasFinder
+		//	= new Regex("(?:\\s+(?:AS|as|As|aS)\\s+)([A-Za-z]+)$", RegexOptions.Compiled);
 
-		internal static NameValueToken EvaluateNameFromToken(string token)
-		{
-			var match = ExpressionAliasFinder.Match(token);
-			var name = match.Groups[1].Value;
-			if (!string.IsNullOrWhiteSpace(name))
-			{
-				return new NameValueToken(token.Substring(0, token.Length - (" AS" + name).Length), name.Trim());
-			}
+		//internal static NameValueToken EvaluateNameFromToken(string token)
+		//{
+		//	var asIndex = token.IndexOf("AS",  StringComparison.InvariantCultureIgnoreCase)
 
-			return new NameValueToken(token, null);
-		}
+		//	var match = ExpressionAliasFinder.Match(token);
+		//	var name = match.Groups[1].Value;
+		//	if (!string.IsNullOrWhiteSpace(name))
+		//	{
+		//		return new NameValueToken(token.Substring(0, token.Length - (" AS" + name).Length), name.Trim());
+		//	}
+
+		//	return new NameValueToken(token, null);
+		//}
 
 		internal readonly struct NameValueToken
 		{
