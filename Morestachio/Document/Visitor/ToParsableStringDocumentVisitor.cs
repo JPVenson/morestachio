@@ -7,6 +7,7 @@ using Morestachio.Document.Items.Base;
 using Morestachio.Document.Items.SwitchCase;
 using Morestachio.Document.TextOperations;
 using Morestachio.Framework.Expression;
+using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.Visitors;
 
 namespace Morestachio.Document.Visitor
@@ -237,15 +238,27 @@ namespace Morestachio.Document.Visitor
 		/// <inheritdoc />
 		public void Visit(EvaluateVariableDocumentItem documentItem)
 		{
+			Visit(documentItem, "VAR");
+		}
+		
+		private void Visit(EvaluateVariableDocumentItem documentItem, string tokenName)
+		{
 			StringBuilder.Append("{{");
 			CheckForInlineTagLineBreakAtStart(documentItem);
 			StringBuilder.Append("#");
-			StringBuilder.Append(documentItem.IdVariableScope == 0 ? "VAR " : "LET ");
+			StringBuilder.Append(tokenName);
+			StringBuilder.Append(" ");
 			StringBuilder.Append(documentItem.Value);
 			StringBuilder.Append(" = ");
 			StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
 			CheckForInlineTagLineBreakAtEnd(documentItem);
 			StringBuilder.Append("}}");
+		}
+
+		/// <inheritdoc />
+		public void Visit(EvaluateLetVariableDocumentItem documentItem)
+		{
+			Visit(documentItem, "LET");
 		}
 
 		/// <inheritdoc />
@@ -308,39 +321,6 @@ namespace Morestachio.Document.Visitor
 			{
 				Visit(documentItem, "IF ");
 			}
-
-			//if (documentItem.Inverted)
-			//{
-			//	RenderTagHead(documentItem, "IF ", "^");
-			//}
-			//else
-			//{
-			//	RenderTagHead(documentItem, "IF ");
-			//}
-
-			//if (documentItem.Children.Any())
-			//{
-			//	foreach (var documentItemChild in documentItem.Children)
-			//	{
-			//		documentItemChild.Accept(this);
-			//	}
-
-			//	VisitChildren(documentItem);
-			//}
-
-			//if (documentItem.Else != null)
-			//{
-			//	foreach (var elseIfExpressionScopeDocumentItem in documentItem.Else.OfType<ElseIfExpressionScopeDocumentItem>())
-			//	{
-			//		Visit(elseIfExpressionScopeDocumentItem);
-			//	}
-
-			//	if (documentItem.Else.FirstOrDefault(e => e is ElseExpressionScopeDocumentItem) is ElseExpressionScopeDocumentItem hasElseBlock)
-			//	{
-			//		Visit(hasElseBlock);
-			//	}
-			//}
-			//RenderBlockFooter(documentItem, "IF");
 		}
 
 		/// <inheritdoc />
@@ -464,6 +444,25 @@ namespace Morestachio.Document.Visitor
 		public void Visit(WhileLoopDocumentItem documentItem)
 		{
 			Visit(documentItem, "WHILE ");
+		}
+		
+		/// <inheritdoc />
+		public void Visit(IsolationScopeDocumentItem documentItem)
+		{
+			StringBuilder.Append("{{");
+			CheckForInlineTagLineBreakAtStart(documentItem);
+			StringBuilder.Append("#ISOLATE");
+			if (documentItem.Isolation.HasFlag(IsolationOptions.VariableIsolation))
+			{
+				StringBuilder.Append(" #VARIABLES");
+			}
+
+			CheckForInlineTagLineBreakAtEnd(documentItem);
+			StringBuilder.Append("}}");
+
+			VisitChildren(documentItem);
+
+			RenderBlockFooter(documentItem, "ISOLATE");
 		}
 
 		/// <inheritdoc />

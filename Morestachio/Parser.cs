@@ -143,14 +143,6 @@ namespace Morestachio
 				documentScopes.Pop();
 			}
 
-			void AddIfDocument(TokenPair tokenPair, DocumentScope documentScope)
-			{
-				var nestedDocument = new IfExpressionScopeDocumentItem(tokenPair.TokenLocation,
-					tokenPair.MorestachioExpression, GetPublicOptions(tokenPair), false);
-				buildStack.Push(new DocumentScope(nestedDocument, getScope));
-				TryAdd(documentScope.Document, nestedDocument);
-			}
-
 			foreach (var currentToken in tokenizerResult)
 			{
 				var currentDocumentItem = buildStack.Peek(); //get the latest document
@@ -201,7 +193,10 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.If))
 				{
-					AddIfDocument(currentToken, currentDocumentItem);
+					var nestedDocument = new IfExpressionScopeDocumentItem(currentToken.TokenLocation,
+						currentToken.MorestachioExpression, GetPublicOptions(currentToken), false);
+					buildStack.Push(new DocumentScope(nestedDocument, getScope));
+					TryAdd(currentDocumentItem.Document, nestedDocument);
 				}
 				else if (currentToken.Type.Equals(TokenType.IfNot))
 				{
@@ -343,21 +338,70 @@ namespace Morestachio
 						currentToken.FindOption<IMorestachioExpression>("Context"),
 						GetPublicOptions(currentToken)));
 				}
+				else if (currentToken.Type.Equals(TokenType.IsolationScopeOpen))
+				{
+					var nestedDocument =
+						new IsolationScopeDocumentItem(currentToken.TokenLocation, 
+							currentToken.FindOption<IsolationOptions>("IsolationType"),
+							GetPublicOptions(currentToken));
+					TryAdd(currentDocumentItem.Document, nestedDocument);
+					buildStack.Push(new DocumentScope(nestedDocument, getScope));
+				}
+				else if (currentToken.Type.Equals(TokenType.IsolationScopeClose))
+				{
+					CloseScope(buildStack, currentToken, currentDocumentItem);
+				}
 				else if (currentToken.Type.Equals(TokenType.Alias))
 				{
 					var scope = GetVariableScope();
 					var nestedDocument = new AliasDocumentItem(currentToken.TokenLocation,
 						currentToken.Value,
-						scope.VariableScopeNumber, GetPublicOptions(currentToken));
+						scope.VariableScopeNumber,
+						GetPublicOptions(currentToken));
 					TryAdd(currentDocumentItem.Document, nestedDocument);
 					currentDocumentItem.LocalVariables.Add(currentToken.Value);
 				}
 				else if (currentToken.Type.Equals(TokenType.VariableVar))
 				{
-					var nestedDocument = new EvaluateVariableDocumentItem(currentToken.TokenLocation,
-						currentToken.Value,
-						currentToken.MorestachioExpression, GetPublicOptions(currentToken));
+					EvaluateVariableDocumentItem nestedDocument;
+
+					var isolationParent = buildStack.FirstOrDefault(e => e.Document is IsolationScopeDocumentItem doc &&
+					                                                     doc.Isolation.HasFlag(IsolationOptions.VariableIsolation));
+					if (isolationParent != null)
+					{
+						nestedDocument = new EvaluateVariableDocumentItem(currentToken.TokenLocation,
+							currentToken.Value,
+							currentToken.MorestachioExpression, 
+							isolationParent.VariableScopeNumber,
+							GetPublicOptions(currentToken));
+						isolationParent.LocalVariables.Add(currentToken.Value);
+					}
+					else
+					{
+						nestedDocument = new EvaluateVariableDocumentItem(currentToken.TokenLocation,
+							currentToken.Value,
+							currentToken.MorestachioExpression, GetPublicOptions(currentToken));	
+					}
+					
 					TryAdd(currentDocumentItem.Document, nestedDocument);
+				}
+				else if (currentToken.Type.Equals(TokenType.VariableLet))
+				{
+					var scope = 0;
+					if (buildStack.Count > 1)
+					{
+						scope = GetVariableScope()
+							.VariableScopeNumber;
+					}
+					var nestedDocument = new EvaluateLetVariableDocumentItem(currentToken.TokenLocation,
+						currentToken.Value,
+						currentToken.MorestachioExpression, scope, GetPublicOptions(currentToken));
+
+					TryAdd(currentDocumentItem.Document, nestedDocument);
+					if (buildStack.Count > 1)
+					{
+						currentDocumentItem.LocalVariables.Add(currentToken.Value);
+					}
 				}
 				else if (currentToken.Type.Equals(TokenType.WriteLineBreak))
 				{
@@ -397,23 +441,6 @@ namespace Morestachio
 					TryAdd(currentDocumentItem.Document, new TextEditDocumentItem(currentToken.TokenLocation,
 						new TrimAllWhitespacesTextOperation(),
 						currentToken.IsEmbeddedToken, GetPublicOptions(currentToken)));
-				}
-				else if (currentToken.Type.Equals(TokenType.VariableLet))
-				{
-					var scope = 0;
-					if (buildStack.Count > 1)
-					{
-						scope = GetVariableScope()
-							.VariableScopeNumber;
-					}
-					var nestedDocument = new EvaluateVariableDocumentItem(currentToken.TokenLocation, currentToken.Value,
-						currentToken.MorestachioExpression, scope, GetPublicOptions(currentToken));
-
-					TryAdd(currentDocumentItem.Document, nestedDocument);
-					if (buildStack.Count > 1)
-					{
-						currentDocumentItem.LocalVariables.Add(currentToken.Value);
-					}
 				}
 				else if (currentToken.Type.Equals(TokenType.Comment) || currentToken.Type.Equals(TokenType.BlockComment))
 				{

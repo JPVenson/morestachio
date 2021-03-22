@@ -224,5 +224,15 @@
 		///		The end of a while loop
 		/// </summary>
 		RepeatLoopClose,
+
+		/// <summary>
+		///		The start of an Isolation scope
+		/// </summary>
+		IsolationScopeOpen,
+
+		/// <summary>
+		///		The end of an Isolation Scope
+		/// </summary>
+		IsolationScopeClose,
 	}
 }

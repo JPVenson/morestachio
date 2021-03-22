@@ -29,7 +29,7 @@ namespace Morestachio.Document.Items
 
 		internal EvaluateVariableDocumentItem()
 		{
-			
+
 		}
 
 		/// <summary>
@@ -42,8 +42,8 @@ namespace Morestachio.Document.Items
 			string value,
 			IMorestachioExpression morestachioExpression,
 			int idVariableScope,
-			IEnumerable<ITokenOption> tagCreationOptions) 
-			: base(location, morestachioExpression,tagCreationOptions)
+			IEnumerable<ITokenOption> tagCreationOptions)
+			: base(location, morestachioExpression, tagCreationOptions)
 		{
 			Value = value;
 			IdVariableScope = idVariableScope;
@@ -54,7 +54,7 @@ namespace Morestachio.Document.Items
 		/// </summary>
 		/// <param name="value"></param>
 		/// <param name="morestachioExpression"></param>
-		public EvaluateVariableDocumentItem(CharacterLocation location,string value, IMorestachioExpression morestachioExpression,
+		public EvaluateVariableDocumentItem(CharacterLocation location, string value, IMorestachioExpression morestachioExpression,
 			IEnumerable<ITokenOption> tagCreationOptions)
 			: base(location, morestachioExpression, tagCreationOptions)
 		{
@@ -63,13 +63,13 @@ namespace Morestachio.Document.Items
 		}
 
 		/// <inheritdoc />
-		
+
 		protected EvaluateVariableDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 			Value = info.GetString(nameof(Value));
 			IdVariableScope = info.GetInt32(nameof(IdVariableScope));
 		}
-		
+
 		/// <inheritdoc />
 		protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
 		{
@@ -77,7 +77,7 @@ namespace Morestachio.Document.Items
 			info.AddValue(nameof(Value), Value);
 			info.AddValue(nameof(IdVariableScope), IdVariableScope);
 		}
-		
+
 		/// <inheritdoc />
 		protected override void SerializeXml(XmlWriter writer)
 		{
@@ -85,7 +85,7 @@ namespace Morestachio.Document.Items
 			writer.WriteAttributeString(nameof(IdVariableScope), IdVariableScope.ToString());
 			base.SerializeXml(writer);
 		}
-		
+
 		/// <inheritdoc />
 		protected override void DeSerializeXml(XmlReader reader)
 		{
@@ -94,12 +94,12 @@ namespace Morestachio.Document.Items
 			if (!int.TryParse(varScope, out var intVarScope))
 			{
 				throw new XmlException($"Error while serializing '{nameof(EvaluateVariableDocumentItem)}'." +
-				                       $" The value for '{nameof(IdVariableScope)}' is expected to be an integer.");
+									   $" The value for '{nameof(IdVariableScope)}' is expected to be an integer.");
 			}
 			IdVariableScope = intVarScope;
 			base.DeSerializeXml(reader);
 		}
-		
+
 		/// <inheritdoc />
 		public Compilation Compile()
 		{
@@ -110,7 +110,7 @@ namespace Morestachio.Document.Items
 				scopeData.AddVariable(Value, context, IdVariableScope);
 			};
 		}
-		
+
 		/// <inheritdoc />
 		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
@@ -123,11 +123,50 @@ namespace Morestachio.Document.Items
 		///		The name of the Variable
 		/// </summary>
 		public string Value { get; private set; }
-		
+
 		/// <summary>
 		///		Gets or Sets the Scope of the variable
 		/// </summary>
 		public int IdVariableScope { get; private set; }
+
+		/// <inheritdoc />
+		public override void Accept(IDocumentItemVisitor visitor)
+		{
+			visitor.Visit(this);
+		}
+	}
+
+	/// <summary>
+	///		Evaluates a variable expression and then stores it into the set alias
+	/// </summary>
+	[Serializable]
+	public class EvaluateLetVariableDocumentItem : EvaluateVariableDocumentItem
+	{
+		internal EvaluateLetVariableDocumentItem()
+		{
+
+		}
+
+		/// <summary>
+		///		Creates an new Variable that expires when its enclosing scope (<see cref="IdVariableScope"/>) is closed
+		/// </summary>
+		/// <param name="value"></param>
+		/// <param name="morestachioExpression"></param>
+		/// <param name="idVariableScope"></param>
+		public EvaluateLetVariableDocumentItem(CharacterLocation location,
+			string value,
+			IMorestachioExpression morestachioExpression,
+			int idVariableScope,
+			IEnumerable<ITokenOption> tagCreationOptions)
+			: base(location, value, morestachioExpression, idVariableScope, tagCreationOptions)
+		{
+		}
+		
+		/// <inheritdoc />
+		protected EvaluateLetVariableDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
+		{
+
+		}
 
 		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)

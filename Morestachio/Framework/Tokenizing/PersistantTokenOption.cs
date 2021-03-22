@@ -33,6 +33,18 @@ namespace Morestachio.Framework.Tokenizing
 			Value = value;
 			Persistent = true;
 		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="value"></param>
+		public PersistantTokenOption(string name, int value)
+		{
+			Name = name;
+			Value = value;
+			Persistent = true;
+		}
 		
 
 		[SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]

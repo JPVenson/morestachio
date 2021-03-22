@@ -15,6 +15,7 @@ namespace Morestachio.Document.Visitor
 		void Visit(DoLoopDocumentItem documentItem);
 		void Visit(EachDocumentItem documentItem);
 		void Visit(EvaluateVariableDocumentItem documentItem);
+		void Visit(EvaluateLetVariableDocumentItem documentItem);
 		void Visit(ExpressionScopeDocumentItem documentItem);
 		void Visit(IfExpressionScopeDocumentItem documentItem);
 		void Visit(ElseExpressionScopeDocumentItem documentItem);
@@ -33,6 +34,7 @@ namespace Morestachio.Document.Visitor
 		void Visit(WhileLoopDocumentItem documentItem);
 		void Visit(RepeatDocumentItem documentItem);
 		void Visit(TextEditDocumentItem documentItem);
+		void Visit(IsolationScopeDocumentItem documentItem);
 		void Visit(IDocumentItem documentItem);
 #pragma warning restore
 	}

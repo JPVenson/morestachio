@@ -71,6 +71,11 @@ namespace Morestachio.Framework.Expression.Framework
 		public MorestachioErrorCollection Errors { get; private set; }
 
 		/// <summary>
+		///		Gets the level of Isolation currently enforced
+		/// </summary>
+		public IsolationOptions Isolation { get; private set; }
+
+		/// <summary>
 		///		Gets or sets the starting of an Token
 		/// </summary>
 		public char[] PrefixToken
@@ -128,13 +133,13 @@ namespace Morestachio.Framework.Expression.Framework
 			CurrentLocation = Tokenizer.HumanizeCharacterLocation(Character, Lines);
 		}
 
-		/// <summary>
-		///		Sets an Option that was requested from template
-		/// </summary>
-		/// <param name="name"></param>
-		/// <param name="value"></param>
-		/// <param name="parserOptions"></param>
-		/// <returns></returns>
+		///  <summary>
+		/// 		Sets an Option that was requested from template
+		///  </summary>
+		///  <param name="name"></param>
+		///  <param name="value"></param>
+		///  <param name="parserOptions"></param>
+		///  <returns></returns>
 		public async Promise SetOption(string name, IMorestachioExpression value, ParserOptions parserOptions)
 		{
 			var val = (await value.GetValue(new ContextObject(parserOptions, ".", null, new object()), new ScopeData()))

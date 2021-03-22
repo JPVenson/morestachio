@@ -540,9 +540,27 @@ namespace Morestachio.Tests
 			{
 				{ "data", "Mr " },
 			};
-			//TODO this should still fail as the |- can currently not always be rendered
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest | ParserOptionTypes.NoLoggingTest);
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoLoggingTest);
 			Assert.That(result, Is.EqualTo("Mr Burns Likes Miss Money Alot"));
+		}
+
+		[Test]
+		public async Task ParserCanVariableScopeIsolation()
+		{
+			var template =
+@"{{#VAR global = data |--}}
+{{global |--}}
+{{#ISOLATE #VARIABLES |--}}
+{{#VAR global = 'Bu-erns ' |--}}
+{{global |--}}
+{{/ISOLATE |--}}
+{{global.Trim()}}";
+			var data = new Dictionary<string, object>
+			{
+				{ "data", "Mr " },
+			};
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoLoggingTest);
+			Assert.That(result, Is.EqualTo("Mr Bu-erns Mr"));
 		}
 
 		[Test]

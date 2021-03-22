@@ -104,6 +104,16 @@ namespace Morestachio.Tests.SerilalizerTests
 		}
 
 		[Test]
+		public void TestIsVariableInScopeSerializable()
+		{
+			var template = "I am <Text> " +
+			               "{{#ISOLATE #VARIABLES}}" +
+			               "{{#VAR f = data.test.Format().As.Test('', exp)}}" +
+			               "{{/ISOLATE}}";
+			TestSerializableDocument(template);
+		}
+
+		[Test]
 		public void TestIsContentSerializable()
 		{
 			var template = "I am <Text>";

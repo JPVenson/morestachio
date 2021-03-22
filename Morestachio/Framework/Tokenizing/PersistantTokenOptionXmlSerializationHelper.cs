@@ -54,6 +54,8 @@ namespace Morestachio.Framework.Tokenizing
 					return new PersistantTokenOption(name, value);
 				case "x:boolean":
 					return new PersistantTokenOption(name, value == bool.TrueString);
+				case "x:int32":
+					return new PersistantTokenOption(name, int.Parse(value));
 				default:
 					throw new InvalidOperationException($"Cannot deserialize the token option with the name '{name}' and value(string) '{value}' to the type '{type}' as there is no conversion known");
 			}
@@ -75,14 +77,11 @@ namespace Morestachio.Framework.Tokenizing
 					writer.WriteAttributeString("Type", "x:boolean");
 					writer.WriteAttributeString("Value", token.Value.ToString());
 				}
-				//else if(tokenOption.Value is IXmlSerializable xmlSerializable)
-				//{
-				//	xmlSerializable.WriteXml(writer);
-				//}
-				//else if(tokenOption.Value is IMorestachioExpression morestachioExpression)
-				//{
-				//	writer.WriteExpressionToXml(morestachioExpression);
-				//}
+				if (token.Value is Enum)
+				{
+					writer.WriteAttributeString("Type", "x:int32");
+					writer.WriteAttributeString("Value", ((int)token.Value).ToString());
+				}
 				else
 				{
 					throw new InvalidOperationException($"Cannot serialize the object of value: {token.Value} for the TokenOption: {token.Name}");	

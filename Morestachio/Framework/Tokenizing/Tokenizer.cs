@@ -995,6 +995,37 @@ namespace Morestachio.Framework.Tokenizing
 					{
 						tokens.Add(new TokenPair(TokenType.TrimEverything, trimmedToken, context.CurrentLocation, tokenOptions));
 					}
+					else if (trimmedToken.StartsWith("#ISOLATE ", StringComparison.InvariantCultureIgnoreCase))
+					{
+						var token = TrimToken(trimmedToken, "ISOLATE ");
+						IsolationOptions scope = 0;
+						if (token.IndexOf("#VARIABLES", StringComparison.InvariantCultureIgnoreCase) != -1)
+						{
+							token = token.Replace("#VARIABLES", "");
+							scope |= IsolationOptions.VariableIsolation;
+						}
+
+						tokenOptions.Add(new TokenOption("IsolationType", scope));
+						tokens.Add(new TokenPair(TokenType.IsolationScopeOpen, null, context.CurrentLocation, tokenOptions));
+						scopestack.Push(new ScopeStackItem(TokenType.IsolationScopeOpen, null, match.Index));
+					}
+					else if (trimmedToken.Equals("/ISOLATE", StringComparison.InvariantCultureIgnoreCase))
+					{
+						if (scopestack.Any() &&
+						    (scopestack.Peek().TokenType == TokenType.IsolationScopeOpen))
+						{
+							var token = scopestack.Pop().Value;
+
+							tokens.Add(new TokenPair(TokenType.IsolationScopeClose, token,
+								context.CurrentLocation, tokenOptions));
+						}
+						else
+						{
+							context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
+									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "/", "{{#ISOLATION ...}}",
+								" There are more closing elements then open."));
+						}
+					}
 					else if (trimmedToken.StartsWith("#SET OPTION ", StringComparison.InvariantCultureIgnoreCase))
 					{
 						var token = TrimToken(trimmedToken, "SET OPTION ");
