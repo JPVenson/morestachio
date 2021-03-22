@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Framework.Expression;
 
@@ -43,6 +44,15 @@ namespace Morestachio.Formatter.Predefined
 		public static bool Or([SourceObject]bool value, [RestParameter]params object[] values)
 		{
 			return value || values.OfType<bool>().Any(f => f);
+		}
+
+		[MorestachioFormatter("ParseBool", "Parses a boolean from string by checking for the equality of ether '1', 'yes', 'true', 'valid'")]
+		public static bool ParseBool([SourceObject]string value)
+		{
+			return value.Equals("true", StringComparison.OrdinalIgnoreCase)
+			       || value.Equals("yes", StringComparison.OrdinalIgnoreCase)
+			       || value.Equals("valid", StringComparison.OrdinalIgnoreCase)
+			       || value.Equals("1", StringComparison.OrdinalIgnoreCase);
 		}
 	}
 }

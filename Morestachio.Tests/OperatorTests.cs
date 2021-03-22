@@ -35,5 +35,23 @@ namespace Morestachio.Tests
 			};
 			Assert.That(await ParserFixture.CreateAndParseWithOptions(template, data, _opts), Is.EqualTo(data["B"]));
 		}
+
+		[Test]
+		public async Task TestNullCoalescingOperatorFromParaValues()
+		{
+			var template = "{{((A) ?? (B))}}";
+			var data = new Dictionary<string, object>()
+			{
+				{"A", "VALA"},
+				{"B", "VALB"},
+			};
+			Assert.That(await ParserFixture.CreateAndParseWithOptions(template, data, _opts), Is.EqualTo(data["A"]));
+			data = new Dictionary<string, object>()
+			{
+				{"A", null},
+				{"B", "VALB"},
+			};
+			Assert.That(await ParserFixture.CreateAndParseWithOptions(template, data, _opts), Is.EqualTo(data["B"]));
+		}
 	}
 }
