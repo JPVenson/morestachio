@@ -15,7 +15,7 @@ namespace Morestachio.Rendering
 	/// </summary>
 	public class CompiledRenderer : Renderer
 	{
-		private readonly DocumentCompiler _compiler;
+		private readonly IDocumentCompiler _compiler;
 
 		/// <summary>
 		/// 
@@ -24,7 +24,7 @@ namespace Morestachio.Rendering
 		/// <param name="parserOptions"></param>
 		/// <param name="captureVariables"></param>
 		/// <param name="compiler"></param>
-		public CompiledRenderer(IDocumentItem document, ParserOptions parserOptions, bool captureVariables, DocumentCompiler compiler) 
+		public CompiledRenderer(IDocumentItem document, ParserOptions parserOptions, bool captureVariables, IDocumentCompiler compiler) 
 			: base(document, parserOptions, captureVariables)
 		{
 			_compiler = compiler;
