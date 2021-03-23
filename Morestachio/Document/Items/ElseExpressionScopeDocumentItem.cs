@@ -60,10 +60,11 @@ namespace Morestachio.Document.Items
 			visitor.Visit(this);
 		}
 
+		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile()
+		public Compilation Compile(IDocumentCompiler compiler)
 		{
-			var children = MorestachioDocument.CompileItemsAndChildren(Children);
+			var children = compiler.Compile(Children);
 
 			return async (stream, context, scopeData) =>
 			{

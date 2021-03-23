@@ -69,9 +69,10 @@ namespace Morestachio.Document.Items
 		{
 			visitor.Visit(this);
 		}
-		
+
+		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile()
+		public Compilation Compile(IDocumentCompiler compiler)
 		{
 			return async (stream, context, scopeData) =>
 			{

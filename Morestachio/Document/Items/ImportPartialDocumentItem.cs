@@ -171,10 +171,11 @@ namespace Morestachio.Document.Items
 			throw new MorestachioRuntimeException($"Could not obtain a partial named '{partialName}' from the template nor the Partial store");
 		}
 
+		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile()
+		public Compilation Compile(IDocumentCompiler compiler)
 		{
-			var doneAction = new RenderPartialDoneDocumentItem().Compile();
+			var doneAction = new RenderPartialDoneDocumentItem().Compile(compiler);
 			var expression = MorestachioExpression.Compile();
 			return async (stream, context, scopeData) =>
 			{
@@ -198,7 +199,7 @@ namespace Morestachio.Document.Items
 				 }, partialName);
 				if (toExecute != null)
 				{
-					await MorestachioDocument.CompileItemsAndChildren(new IDocumentItem[]
+					await compiler.Compile(new IDocumentItem[]
 					{
 						toExecute.Item1
 					})(stream, toExecute.Item2, scopeData);

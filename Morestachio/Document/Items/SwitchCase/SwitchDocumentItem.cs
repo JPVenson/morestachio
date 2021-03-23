@@ -91,14 +91,15 @@ namespace Morestachio.Document.Items.SwitchCase
 			return Enumerable.Empty<DocumentItemExecution>();
 		}
 
+		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile()
+		public Compilation Compile(IDocumentCompiler compiler)
 		{
 			var children = Children.Where(e => e is SwitchCaseDocumentItem || e is SwitchDefaultDocumentItem)
 				.Cast<BlockDocumentItemBase>()
 				.Select(e => new SwitchExecutionContainerCompiledAction()
 			{
-				Callback = MorestachioDocument.CompileItemsAndChildren(e.Children),
+				Callback = compiler.Compile(e.Children),
 				Expression = (e as SwitchCaseDocumentItem)?.MorestachioExpression.Compile()
 			}).ToArray();
 			var expression = MorestachioExpression.Compile();

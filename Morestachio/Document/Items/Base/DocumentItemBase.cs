@@ -179,7 +179,7 @@ namespace Morestachio.Document.Items.Base
 		/// <summary>
 		///     Can be called to check if any stop is requested. If return true no stop is requested
 		/// </summary>
-		protected static bool ContinueBuilding(IByteCounterStream builder, ContextObject context)
+		public static bool ContinueBuilding(IByteCounterStream builder, ContextObject context)
 		{
 			return !context.AbortGeneration && !context.CancellationToken.IsCancellationRequested &&
 				   !builder.ReachedLimit;

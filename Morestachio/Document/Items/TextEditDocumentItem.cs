@@ -64,9 +64,10 @@ namespace Morestachio.Document.Items
 			EmbeddedInstructionOrigin = (EmbeddedInstructionOrigin)info.GetValue(nameof(EmbeddedInstructionOrigin), typeof(EmbeddedInstructionOrigin));
 			Operation = info.GetValue(nameof(Operation), typeof(ITextOperation)) as ITextOperation;
 		}
-		
+
+		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile()
+		public Compilation Compile(IDocumentCompiler compiler)
 		{
 			return async (outputStream, context, scopeData) =>
 			{

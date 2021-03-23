@@ -78,9 +78,10 @@ namespace Morestachio.Document.Items
 			IdVariableScope = intVarScope;
 			base.DeSerializeXml(reader);
 		}
-		
+
+		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile()
+		public Compilation Compile(IDocumentCompiler compiler)
 		{
 			return async (stream, context, scopeData) =>
 			{

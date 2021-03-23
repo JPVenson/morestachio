@@ -100,8 +100,9 @@ namespace Morestachio.Document.Items
 			base.DeSerializeXml(reader);
 		}
 
+		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile()
+		public Compilation Compile(IDocumentCompiler compiler)
 		{
 			var expression = MorestachioExpression.Compile();
 			return async (stream, context, scopeData) =>

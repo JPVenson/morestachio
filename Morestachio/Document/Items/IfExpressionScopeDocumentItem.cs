@@ -155,13 +155,14 @@ namespace Morestachio.Document.Items
 			return Enumerable.Empty<DocumentItemExecution>();
 		}
 
+		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public virtual Compilation Compile()
+		public virtual Compilation Compile(IDocumentCompiler compiler)
 		{
 			var elseChildren = GetNestedElseConditions()
 				.Select(e => new IfExecutionContainer()
 				{
-					Callback = MorestachioDocument.CompileItemsAndChildren(e.Children),
+					Callback = compiler.Compile(e.Children),
 					Expression = e.MorestachioExpression.Compile()
 				}).ToArray();
 
@@ -169,10 +170,10 @@ namespace Morestachio.Document.Items
 			Compilation elseBlock = null;
 			if (elseDocument != null)
 			{
-				elseBlock = MorestachioDocument.CompileItemsAndChildren(new[] { elseDocument });
+				elseBlock = compiler.Compile(new[] { elseDocument });
 			}
 
-			var children = MorestachioDocument.CompileItemsAndChildren(GetIfContents());
+			var children = compiler.Compile(GetIfContents());
 
 			var expression = MorestachioExpression.Compile();
 			return async (stream, context, scopeData) =>

@@ -49,11 +49,12 @@ namespace Morestachio.Document.Items
 		{
 
 		}
-		
+
+		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile()
+		public Compilation Compile(IDocumentCompiler compiler)
 		{
-			var children = MorestachioDocument.CompileItemsAndChildren(Children);
+			var children = compiler.Compile(Children);
 			return async (stream, context, scopeData) =>
 			{
 				await CoreAction(stream, context, scopeData, async (streamInner, o, data) =>

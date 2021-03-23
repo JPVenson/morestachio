@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using NUnit.Framework;
 
@@ -155,6 +156,11 @@ namespace Morestachio.Tests.PerfTests
 		public void PrintPerfCounter()
 		{
 			var output = new StringBuilder();
+			output.AppendLine("## Test Net" + Environment.Version + "   ");
+			output.AppendLine("> Run at " + DateTime.Today.ToString("g") + "   ");
+#if DEBUG
+			output.AppendLine("WARNING - RUN IN DEBUG - WARNING   ");
+#endif
 			//Console.WriteLine(
 			//	"Variation: '{8}', Time/Run: {7}ms, Runs: {0}x, Model Depth: {1}, SubstitutionCount: {2}," +
 			//	" Template Size: {3}, ParseTime: {4}, RenderTime: {5}, Total Time: {6}",

@@ -51,10 +51,11 @@ namespace Morestachio.Document.Items
 		{
 		}
 
+		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile()
+		public Compilation Compile(IDocumentCompiler compiler)
 		{
-			var children = MorestachioDocument.CompileItemsAndChildren(Children);
+			var children = compiler.Compile(Children);
 			var expression = MorestachioExpression.Compile();
 			return async (outputStream, context, scopeData) =>
 			{

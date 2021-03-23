@@ -79,7 +79,7 @@ namespace Morestachio.Framework.Tokenizing
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static string GetAsKeyword()
 		{
-			return GetAsKeyword();
+			return " AS ";
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

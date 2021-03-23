@@ -52,10 +52,11 @@ namespace Morestachio.Helper.Localization.Documents.CustomCultureDocument
 		public const string LocalizationCultureKey = "LocalizationService.CustomCulture";
 
 
+		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile()
+		public Compilation Compile(IDocumentCompiler compiler)
 		{
-			var children = MorestachioDocument.CompileItemsAndChildren(Children);
+			var children = compiler.Compile(Children);
 			var expression = MorestachioExpression.Compile();
 
 			return async (outputStream, context, scopeData) =>

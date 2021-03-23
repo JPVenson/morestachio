@@ -49,9 +49,10 @@ namespace Morestachio.Document.Items
 		protected ContentDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}
-		
+
+		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile()
+		public Compilation Compile(IDocumentCompiler compiler)
 		{
 			return async (stream, context, scopeData) =>
 			{
