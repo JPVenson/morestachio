@@ -5,7 +5,7 @@ namespace Morestachio.Formatter.Framework
 	/// <summary>
 	///		Contains the meta data for an argument
 	/// </summary>
-	public readonly struct FormatterArgumentType : IEquatable<FormatterArgumentType>
+	public class FormatterArgumentType : IEquatable<FormatterArgumentType>
 	{
 		/// <summary>
 		///		

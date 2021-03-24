@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading;
 using System.Xml;
 using System.Xml.Schema;
 using Morestachio.Document;
@@ -16,8 +17,12 @@ using Morestachio.Helper;
 using Morestachio.Parsing.ParserErrors;
 #if ValueTask
 using ContextObjectPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.Context.ContextObject>;
+using FormatterCachePromise = System.Threading.Tasks.ValueTask<Morestachio.Formatter.Framework.FormatterCache>;
+using Promise = System.Threading.Tasks.ValueTask;
 #else
 using ContextObjectPromise = System.Threading.Tasks.Task<Morestachio.Framework.Context.ContextObject>;
+using FormatterCachePromise = System.Threading.Tasks.Task<Morestachio.Formatter.Framework.FormatterCache>;
+using Promise = System.Threading.Tasks.Task;
 #endif
 
 namespace Morestachio.Framework.Expression
@@ -182,7 +187,7 @@ namespace Morestachio.Framework.Expression
 		/// <summary>
 		///		The prepared call for an formatter
 		/// </summary>
-		public FormatterCache? Cache { get; private set; }
+		public FormatterCache Cache { get; private set; }
 
 		/// <summary>
 		///		Gets whenever this expression was explicitly closed
@@ -208,84 +213,85 @@ namespace Morestachio.Framework.Expression
 					.CreateContextObject("x:null", contextObject.CancellationToken, null).ToPromise();
 			}
 
-			var pathQueue = new List<Func<ContextObject, ScopeData, IMorestachioExpression, ContextObject>>();
 			var pathParts = PathParts.ToArray();
 
-			if (pathParts.Length > 0 && pathParts.First().Value == PathType.DataPath)
-			{
-				var firstItem = pathParts.First();
+			Func<ContextObject, ScopeData, IMorestachioExpression, ContextObject> getContext = null;
 
-				pathQueue.Add((context, scopeData, expression) =>
+			if (pathParts.Length != 0)
+			{
+				var pathQueue = new Func<ContextObject, ScopeData, IMorestachioExpression, ContextObject>[pathParts.Length];
+				var idx = 0;
+				if (pathParts.Length > 0 && pathParts.First().Value == PathType.DataPath)
 				{
-					var variable = scopeData.GetVariable(context, firstItem.Key);
-					if (variable != null)
+					var firstItem = pathParts.First();
+
+					pathQueue[idx++] = ((context, scopeData, expression) =>
 					{
-						return variable;
-					}
+						var variable = scopeData.GetVariable(context, firstItem.Key);
+						if (variable != null)
+						{
+							return variable;
+						}
 
-					return context.ExecuteDataPath(firstItem.Key, expression, context.Value?.GetType());
-				});
-				pathParts = pathParts.Skip(1).ToArray();
-			}
-
-			foreach (var pathPart in pathParts)
-			{
-				switch (pathPart.Value)
-				{
-					case PathType.DataPath:
-						pathQueue.Add((contextObject, scopeData, expression) =>
-						{
-							return contextObject.ExecuteDataPath(pathPart.Key, expression, contextObject.Value?.GetType());
-						});
-						break;
-					case PathType.RootSelector:
-						pathQueue.Add((contextObject, scopeData, expression) =>
-						{
-							return contextObject.ExecuteRootSelector();
-						});
-						break;
-					case PathType.ParentSelector:
-						pathQueue.Add((contextObject, scopeData, expression) =>
-						{
-							var natContext = contextObject.FindNextNaturalContextObject();
-							return (natContext?.Parent ?? contextObject);
-						});
-						break;
-					case PathType.ObjectSelector:
-						pathQueue.Add((contextObject, scopeData, expression) =>
-						{
-							return contextObject.ExecuteObjectSelector(pathPart.Key, contextObject.Value?.GetType());
-						});
-						break;
-					case PathType.Null:
-						pathQueue.Add((contextObject, scopeData, expression) =>
-						{
-							return contextObject.Options.CreateContextObject("x:null", contextObject.CancellationToken, null);
-						});
-						break;
-					case PathType.Boolean:
-						pathQueue.Add((contextObject, scopeData, expression) =>
-						{
-							var booleanContext =
-								contextObject.Options.CreateContextObject(".", contextObject.CancellationToken,
-									pathPart.Key == "true", contextObject);
-							booleanContext.IsNaturalContext = contextObject.IsNaturalContext;
-							return booleanContext;
-						});
-						break;
-					case PathType.SelfAssignment:
-					case PathType.ThisPath:
-						pathQueue.Add((contextObject, scopeDate, expression) => contextObject);
-						break;
-					default:
-						throw new ArgumentOutOfRangeException();
+						return context.ExecuteDataPath(firstItem.Key, expression, context.Value?.GetType());
+					});
 				}
-			}
 
-			Func<ContextObject, ScopeData, IMorestachioExpression, ContextObject> getContext;
+				for (; idx < pathQueue.Length;)
+				{
+					var pathPart = pathParts[idx];
+					switch (pathPart.Value)
+					{
+						case PathType.DataPath:
+							pathQueue[idx++] = ((contextObject, scopeData, expression) =>
+							{
+								return contextObject.ExecuteDataPath(pathPart.Key, expression, contextObject.Value?.GetType());
+							});
+							break;
+						case PathType.RootSelector:
+							pathQueue[idx++] = ((contextObject, scopeData, expression) =>
+							{
+								return contextObject.ExecuteRootSelector();
+							});
+							break;
+						case PathType.ParentSelector:
+							pathQueue[idx++] = ((contextObject, scopeData, expression) =>
+							{
+								var natContext = contextObject.FindNextNaturalContextObject();
+								return (natContext?.Parent ?? contextObject);
+							});
+							break;
+						case PathType.ObjectSelector:
+							pathQueue[idx++] = ((contextObject, scopeData, expression) =>
+							{
+								return contextObject.ExecuteObjectSelector(pathPart.Key, contextObject.Value?.GetType());
+							});
+							break;
+						case PathType.Null:
+							pathQueue[idx++] = ((contextObject, scopeData, expression) =>
+							{
+								return contextObject.Options.CreateContextObject("x:null", contextObject.CancellationToken, null);
+							});
+							break;
+						case PathType.Boolean:
+							pathQueue[idx++] = ((contextObject, scopeData, expression) =>
+							{
+								var booleanContext =
+									contextObject.Options.CreateContextObject(".", contextObject.CancellationToken,
+										pathPart.Key == "true");
+								booleanContext.IsNaturalContext = true;
+								return booleanContext;
+							});
+							break;
+						case PathType.SelfAssignment:
+						case PathType.ThisPath:
+							pathQueue[idx++] = ((contextObject, scopeDate, expression) => contextObject);
+							break;
+						default:
+							throw new ArgumentOutOfRangeException();
+					}
+				}
 
-			if (pathQueue.Count != 0)
-			{
 				getContext =
 					(contextObject, data, expression) =>
 					{
@@ -297,55 +303,72 @@ namespace Morestachio.Framework.Expression
 						return contextObject;
 					};
 			}
-			else
-			{
-				getContext = (context, scopeData, expression) => context;
-			}
-
 
 			if (!Formats.Any() && FormatterName == null)
 			{
-				return (contextObject, data) => getContext(contextObject, data, this).ToPromise();
+				if (getContext == null)
+				{
+					return (contextObject, data) => contextObject.ToPromise();
+				}
+
+				return (contextObject, data) =>
+				{
+					return getContext(contextObject, data, this).ToPromise();
+				};
 			}
 
 			var formatsCompiled = Formats.ToDictionary(f => f, f => f.Compile()).ToArray();
 
-			FormatterCache? cache = null;
-			return async (contextObject, scopeData) =>
+			FormatterCache cache = null;
+			var arguments = new FormatterArgumentType[formatsCompiled.Length];
+
+			async Promise CallFormatter(
+				ContextObject naturalContext, 
+				ContextObject outputContext, 
+				ScopeData scopeData)
 			{
-				var ctx = getContext(contextObject, scopeData, this);
-
-				if (ctx == contextObject)
-				{
-					ctx = contextObject.CloneForEdit();
-				}
-
-				var arguments = new FormatterArgumentType[formatsCompiled.Length];
-				var naturalValue = contextObject.FindNextNaturalContextObject();
 				for (var index = 0; index < formatsCompiled.Length; index++)
 				{
 					var formatterArgument = formatsCompiled[index];
-					var value = await formatterArgument.Value(naturalValue, scopeData);
+					var value = await formatterArgument.Value(naturalContext, scopeData);
 					arguments[index] = new FormatterArgumentType(index, formatterArgument.Key.Name, value?.Value);
 				}
 
 				if (cache == null)
 				{
-					cache = ctx.PrepareFormatterCall(
-						ctx.Value?.GetType() ?? typeof(object),
+					cache = outputContext.PrepareFormatterCall(
+						outputContext.Value?.GetType() ?? typeof(object),
 						FormatterName,
 						arguments,
 						scopeData);
 				}
 
-				if (cache != null && !Equals(cache.Value, default(FormatterCache)))
+				if (cache != null/* && !Equals(cache.Value, default(FormatterCache))*/)
 				{
-					ctx.Value = await contextObject.Options.Formatters.Execute(cache.Value, ctx.Value, contextObject.Options, arguments);
-					ctx.MakeSyntetic();
+					outputContext.Value = await outputContext.Options.Formatters.Execute(cache, outputContext.Value, outputContext.Options, arguments);
+					outputContext.MakeSyntetic();
 				}
+			}
 
+			if (getContext == null)
+			{
+				return async (contextObject, scopeData) =>
+				{
+					var ctx = contextObject.Options.CreateContextObject("", contextObject.CancellationToken, contextObject.Value,
+						contextObject);
+					contextObject = contextObject.FindNextNaturalContextObject();
+					await CallFormatter(contextObject, ctx, scopeData);
+					return ctx;
+				};
+			}
+			
+			return async (contextObject, scopeData) =>
+			{
+				var ctx = getContext(contextObject, scopeData, this);
+				await CallFormatter(contextObject, ctx, scopeData);
 				return ctx;
 			};
+			
 		}
 
 		/// <inheritdoc />
@@ -387,9 +410,9 @@ namespace Morestachio.Framework.Expression
 					scopeData);
 			}
 
-			if (Cache != null && !Equals(Cache.Value, default(FormatterCache)))
+			if (Cache != null /* && !Equals(Cache.Value, default(FormatterCache))*/)
 			{
-				contextForPath.Value = await contextObject.Options.Formatters.Execute(Cache.Value, contextForPath.Value, contextObject.Options, arguments);
+				contextForPath.Value = await contextObject.Options.Formatters.Execute(Cache, contextForPath.Value, contextObject.Options, arguments);
 				contextForPath.MakeSyntetic();
 			}
 			return contextForPath;
@@ -400,7 +423,7 @@ namespace Morestachio.Framework.Expression
 		{
 			visitor.Visit(this);
 		}
-		
+
 		/// <inheritdoc />
 		protected bool Equals(MorestachioExpression other)
 		{

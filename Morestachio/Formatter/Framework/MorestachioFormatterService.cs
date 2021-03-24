@@ -57,7 +57,7 @@ namespace Morestachio.Formatter.Framework
 			};
 			if (useCache)
 			{
-				Cache = new ConcurrentDictionary<FormatterCacheCompareKey, FormatterCache?>();
+				Cache = new ConcurrentDictionary<FormatterCacheCompareKey, FormatterCache>();
 			}
 		}
 
@@ -98,37 +98,37 @@ namespace Morestachio.Formatter.Framework
 		{
 			get { return new ReadOnlyDictionary<Type, object>(ServiceCollectionAccess); }
 		}
-		
+
 		/// <inheritdoc />
 		public void AddService(Type serviceType, ServiceCreatorCallback callback)
 		{
 			AddService(serviceType, callback, false);
 		}
-		
+
 		/// <inheritdoc />
 		public void AddService(Type serviceType, ServiceCreatorCallback callback, bool promote)
 		{
 			ServiceCollectionAccess[serviceType] = new Func<object>(() => callback(this, serviceType));
 		}
-		
+
 		/// <inheritdoc />
 		public void AddService(Type serviceType, object serviceInstance)
 		{
 			AddService(serviceType, serviceInstance, false);
 		}
-		
+
 		/// <inheritdoc />
 		public void AddService(Type serviceType, object serviceInstance, bool promote)
 		{
 			ServiceCollectionAccess[serviceType] = serviceInstance;
 		}
-		
+
 		/// <inheritdoc />
 		public void RemoveService(Type serviceType)
 		{
 			RemoveService(serviceType, false);
 		}
-		
+
 		/// <inheritdoc />
 		public void RemoveService(Type serviceType, bool promote)
 		{
@@ -207,7 +207,7 @@ namespace Morestachio.Formatter.Framework
 		///		The cache for Formatter calls
 		/// </summary>
 
-		public IDictionary<FormatterCacheCompareKey, FormatterCache?> Cache { get; set; }
+		public IDictionary<FormatterCacheCompareKey, FormatterCache> Cache { get; set; }
 
 		/// <summary>
 		///     Writes the specified log.
@@ -243,7 +243,7 @@ namespace Morestachio.Formatter.Framework
 		//}
 
 		/// <inheritdoc />
-		public FormatterCache? PrepareCallMostMatchingFormatter(
+		public FormatterCache PrepareCallMostMatchingFormatter(
 			Type type,
 			FormatterArgumentType[] arguments,
 			string name,
@@ -301,12 +301,11 @@ namespace Morestachio.Formatter.Framework
 			ParserOptions parserOptions,
 			FormatterArgumentType[] args)
 		{
-			Log(parserOptions, () => $"Execute the formatter {formatter.Model.Name} with arguments", 
+			Log(parserOptions, () => $"Execute the formatter {formatter.Model.Name} with arguments",
 				() => args.ToDictionary(e => e.Name, e => (object)e));
 
-			var mapedValues =
-				new object[formatter.TestedTypes.Arguments.Count];
-				
+			var mappedValues = formatter.ValueBuffer;
+
 			var i = 0;
 			foreach (var formatterArgumentMap in formatter.TestedTypes.Arguments)
 			{
@@ -316,21 +315,21 @@ namespace Morestachio.Formatter.Framework
 					var convValue = formatterArgumentMap.Value.ConverterFunc(valueObtainValue);
 					valueObtainValue = convValue ?? valueObtainValue;
 				}
-				mapedValues[i++] = valueObtainValue;
+				mappedValues[i++] = valueObtainValue;
 			}
 
 			try
 			{
 				var functionTarget = formatter.Model.FunctionTarget;
-				var method = formatter.TestedTypes.PrepareInvoke(mapedValues);
+				var method = formatter.TestedTypes.PrepareInvoke(mappedValues);
 
 				if (formatter.Model.LinkFunctionTarget && !method.IsStatic &&
-				    method.DeclaringType == sourceValue.GetType())
+					method.DeclaringType == sourceValue.GetType())
 				{
 					functionTarget = sourceValue;
 				}
 
-				var taskAlike = method.Invoke(functionTarget, mapedValues);
+				var taskAlike = method.Invoke(functionTarget, mappedValues);
 				return await taskAlike.UnpackFormatterTask();
 			}
 			catch (Exception e)
@@ -358,7 +357,7 @@ namespace Morestachio.Formatter.Framework
 			 ParserOptions parserOptions,
 			 string name)
 		{
-			Log(parserOptions, () => $"Lookup formatter for type {typeToFormat} with name {name}", 
+			Log(parserOptions, () => $"Lookup formatter for type {typeToFormat} with name {name}",
 				() => arguments.ToDictionary(e => e.Name, e => (object)e));
 
 			IList<MorestachioFormatterModel> formatters = null;
@@ -367,7 +366,7 @@ namespace Morestachio.Formatter.Framework
 				Log(parserOptions, () => $"There are no formatters for the name {name}");
 				return Enumerable.Empty<MorestachioFormatterModel>();
 			}
-			
+
 			var filteredSourceList = new List<KeyValuePair<MorestachioFormatterModel, ulong>>();
 			foreach (var formatTemplateElement in formatters)
 			{

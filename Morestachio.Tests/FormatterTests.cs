@@ -492,7 +492,7 @@ namespace Morestachio.Tests
 				options.Formatters.AddSingle(
 					new Func<object, object, object>((source, tempValue) => source), "Format");
 			});
-			Assert.That(expectedValue, Is.EqualTo(result));
+			Assert.That(result, Is.EqualTo(expectedValue));
 		}
 
 		[Test]

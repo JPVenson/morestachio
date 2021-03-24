@@ -517,6 +517,10 @@ namespace Morestachio
 			};
 		}
 
+		private ContextObject _nullContext;
+		private ContextObject _trueContext;
+		private ContextObject _falseContext;
+
 		/// <summary>
 		///		Allows the creation of an custom Context object
 		/// </summary>
@@ -530,6 +534,22 @@ namespace Morestachio
 			object value,
 			ContextObject parent = null)
 		{
+			if (key == "x:null")
+			{
+				return _nullContext ?? (_nullContext = new ContextObject(this, "x:null", null, null) { CancellationToken = token });
+			}
+			if (value is bool val)
+			{
+				if (val)
+				{
+					return _trueContext ?? (_trueContext = new ContextObject(this, "x:true", null, true) { CancellationToken = token });
+				}
+				else
+				{
+					return _falseContext ?? (_falseContext = new ContextObject(this, "x:false", null, false) { CancellationToken = token });
+				}
+			}
+
 			return new ContextObject(this, key, parent, value)
 			{
 				CancellationToken = token,

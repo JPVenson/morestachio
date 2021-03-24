@@ -3,7 +3,7 @@
 	/// <summary>
 	///		The Cached result to call a formatter
 	/// </summary>
-	public readonly struct FormatterCache
+	public class FormatterCache
 	{
 		/// <summary>
 		/// 
@@ -12,7 +12,10 @@
 		{
 			Model = model;
 			TestedTypes = testedTypes;
+			ValueBuffer = new object[TestedTypes.Arguments.Count];
 		}
+
+		internal readonly object[] ValueBuffer;
 
 		/// <summary>
 		///		The Formatter model this cache is for

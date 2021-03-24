@@ -72,7 +72,7 @@ namespace Morestachio.Formatter.Framework
 		///     Searches for the formatter that matches the type and the given values and returns an struct that can be used to
 		///     call an optimized formatter multiple times
 		/// </summary>
-		FormatterCache? PrepareCallMostMatchingFormatter(
+		FormatterCache PrepareCallMostMatchingFormatter(
 			Type type,
 			FormatterArgumentType[] arguments,
 			string name,

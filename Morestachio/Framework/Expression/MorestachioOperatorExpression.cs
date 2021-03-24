@@ -177,7 +177,7 @@ namespace Morestachio.Framework.Expression
 		/// <summary>
 		///		If the operator was called once this contains the exact formatter match that was executed and can be reused for execution
 		/// </summary>
-		protected FormatterCache? Cache { get; private set; }
+		protected FormatterCache Cache { get; private set; }
 
 		/// <inheritdoc />
 		public async ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
@@ -208,11 +208,11 @@ namespace Morestachio.Framework.Expression
 					scopeData);
 			}
 
-			if (Cache != null && !Equals(Cache.Value, default(FormatterCache)))
+			if (Cache != null/* && !Equals(Cache.Value, default(FormatterCache))*/)
 			{
 				return contextObject.Options.CreateContextObject(".",
 					contextObject.CancellationToken,
-					await contextObject.Options.Formatters.Execute(Cache.Value, leftValue.Value, contextObject.Options, arguments),
+					await contextObject.Options.Formatters.Execute(Cache, leftValue.Value, contextObject.Options, arguments),
 					contextObject.Parent);
 			}
 
@@ -247,11 +247,11 @@ namespace Morestachio.Framework.Expression
 						data);
 				}
 
-				if (Cache != null && !Equals(Cache.Value, default(FormatterCache)))
+				if (Cache != null /*&& !Equals(Cache.Value, default(FormatterCache))*/)
 				{
 					return contextObject.Options.CreateContextObject(".",
 						contextObject.CancellationToken,
-						await contextObject.Options.Formatters.Execute(Cache.Value, leftValue.Value, contextObject.Options, arguments),
+						await contextObject.Options.Formatters.Execute(Cache, leftValue.Value, contextObject.Options, arguments),
 						contextObject.Parent);
 				}
 

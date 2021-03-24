@@ -81,12 +81,12 @@ namespace Morestachio.Formatter.Predefined
 			var formatterMatch = options.Formatters.PrepareCallMostMatchingFormatter(source.GetType(),
 				argumentTypes,
 				formatterName, options, scopeData);
-			if (!formatterMatch.HasValue)
+			if (formatterMatch == null)
 			{
 				return null;
 			}
 
-			return await options.Formatters.Execute(formatterMatch.Value, source, options,
+			return await options.Formatters.Execute(formatterMatch, source, options,
 				argumentTypes);
 		}
 		

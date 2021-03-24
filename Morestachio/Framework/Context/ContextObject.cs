@@ -501,7 +501,7 @@ namespace Morestachio.Framework.Context
 		/// <param name="arguments"></param>
 		/// <param name="scope"></param>
 		/// <returns></returns>
-		public virtual FormatterCache? PrepareFormatterCall(Type type,
+		public virtual FormatterCache PrepareFormatterCall(Type type,
 			 string name,
 			 FormatterArgumentType[] arguments,
 			ScopeData scope)
