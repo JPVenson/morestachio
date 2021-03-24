@@ -304,7 +304,9 @@ namespace Morestachio.Formatter.Framework
 			Log(parserOptions, () => $"Execute the formatter {formatter.Model.Name} with arguments", 
 				() => args.ToDictionary(e => e.Name, e => (object)e));
 
-			var mapedValues = new object[formatter.TestedTypes.Arguments.Count];
+			var mapedValues =
+				new object[formatter.TestedTypes.Arguments.Count];
+				
 			var i = 0;
 			foreach (var formatterArgumentMap in formatter.TestedTypes.Arguments)
 			{

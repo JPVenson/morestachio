@@ -11,18 +11,22 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
-    <DefineConstants>ValueTask</DefineConstants>
+    <DefineConstants>ValueTask; ArrayPool</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.2'">
-    <DefineConstants>ValueTask</DefineConstants>
+    <DefineConstants>ValueTask; ArrayPool</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
+    <DefineConstants>ArrayPool</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
-    <DefineConstants>ValueTask; ValueTaskFromResult</DefineConstants>
+    <DefineConstants>ValueTask; ValueTaskFromResult; ArrayPool</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' or $(TargetFramework) == 'net5.0'">
-    <DefineConstants>ValueTask; ValueTaskFromResult; Span</DefineConstants>
+    <DefineConstants>ValueTask; ValueTaskFromResult; Span; ArrayPool</DefineConstants>
   </PropertyGroup>
 </Project>

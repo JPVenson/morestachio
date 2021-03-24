@@ -90,6 +90,15 @@ namespace Morestachio
 		}
 
 		/// <summary>
+		///		Creates a new Build-In renderer
+		/// </summary>
+		/// <returns></returns>
+		public virtual IRenderer CreateCompiledRenderer(IDocumentCompiler compiler = null)
+		{
+			return new CompiledRenderer(Document, ParserOptions, CaptureVariables, compiler ?? new DocumentCompiler());
+		}
+
+		/// <summary>
 		///		Returns an delegate that can be executed to perform the rendering tasks
 		/// </summary>
 		/// <returns></returns>

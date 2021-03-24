@@ -236,7 +236,7 @@ namespace Morestachio.Framework.Context
 			return null;
 		}
 
-		private async ContextObjectPromise GetContextForPathInternal(
+		private ContextObject GetContextForPathInternal(
 			Traversable elements,
 			ScopeData scopeData,
 			IMorestachioExpression morestachioExpression)
@@ -299,8 +299,6 @@ namespace Morestachio.Framework.Context
 			{
 				return ExecuteDataPath(elements.Current.Key, morestachioExpression, type);
 			}
-
-			await AsyncHelper.FakePromise();
 			return retval;
 		}
 
@@ -432,7 +430,7 @@ namespace Morestachio.Framework.Context
 		///     Will walk the path by using the path seperator "." and evaluate the object at the end
 		/// </summary>
 		/// <returns></returns>
-		internal async ContextObjectPromise GetContextForPath(Traversable elements,
+		internal ContextObject GetContextForPath(Traversable elements,
 			ScopeData scopeData,
 			IMorestachioExpression morestachioExpression)
 		{
@@ -458,18 +456,18 @@ namespace Morestachio.Framework.Context
 				}
 			}
 
-			return await targetContext.LoopContextTraversable(elements, scopeData, morestachioExpression);
+			return targetContext.LoopContextTraversable(elements, scopeData, morestachioExpression);
 			//return await targetContext.GetContextForPathInternal(elements, scopeData, morestachioExpression);
 		}
 
-		internal async ContextObjectPromise LoopContextTraversable(Traversable elements,
+		internal ContextObject LoopContextTraversable(Traversable elements,
 			ScopeData scopeData,
 			IMorestachioExpression morestachioExpression)
 		{
 			ContextObject context = this;
 			while (elements != null && elements.HasValue)
 			{
-				context = await context.GetContextForPathInternal(elements, scopeData, morestachioExpression);
+				context = context.GetContextForPathInternal(elements, scopeData, morestachioExpression);
 				elements = elements.Next();
 			}
 
