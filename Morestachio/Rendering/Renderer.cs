@@ -65,7 +65,7 @@ namespace Morestachio.Rendering
 		}
 
 		/// <inheritdoc />
-		public virtual async MorestachioDocumentResultPromise Render(object data, CancellationToken cancellationToken)
+		public virtual async MorestachioDocumentResultPromise RenderAsync(object data, CancellationToken cancellationToken)
 		{
 			return await Render(data, cancellationToken, async (stream, context, scopeData) =>
 			{

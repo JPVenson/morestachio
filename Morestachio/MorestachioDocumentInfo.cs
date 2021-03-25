@@ -13,7 +13,6 @@ using Morestachio.Rendering;
 #if ValueTask
 using MorestachioDocumentResultPromise = System.Threading.Tasks.ValueTask<Morestachio.MorestachioDocumentResult>;
 using StringPromise = System.Threading.Tasks.ValueTask<string>;
-using Promise = System.Threading.Tasks.ValueTask;
 #else
 using MorestachioDocumentResultPromise = System.Threading.Tasks.Task<Morestachio.MorestachioDocumentResult>;
 using StringPromise = System.Threading.Tasks.Task<string>;
@@ -86,6 +85,10 @@ namespace Morestachio
 		/// <returns></returns>
 		public virtual IRenderer CreateRenderer()
 		{
+			if (Errors.Any())
+			{
+				throw new AggregateException("You cannot Render this Template as there are one or more Errors. See Inner Exception for more infos.", Errors.Select(e => e.GetException())).Flatten();
+			}
 			return new Renderer(Document, ParserOptions, CaptureVariables);
 		}
 
@@ -95,6 +98,10 @@ namespace Morestachio
 		/// <returns></returns>
 		public virtual IRenderer CreateCompiledRenderer(IDocumentCompiler compiler = null)
 		{
+			if (Errors.Any())
+			{
+				throw new AggregateException("You cannot Render this Template as there are one or more Errors. See Inner Exception for more infos.", Errors.Select(e => e.GetException())).Flatten();
+			}
 			return new CompiledRenderer(Document, ParserOptions, CaptureVariables, compiler ?? new DocumentCompiler());
 		}
 
@@ -102,6 +109,7 @@ namespace Morestachio
 		///		Returns an delegate that can be executed to perform the rendering tasks
 		/// </summary>
 		/// <returns></returns>
+		[Obsolete("Please use the CreateCompiledRenderer method")]
 		public CompilationResult Compile()
 		{
 			if (Errors.Any())
@@ -120,7 +128,7 @@ namespace Morestachio
 			
 			var compiledRenderer = new CompiledRenderer(Document, ParserOptions, CaptureVariables, new DocumentCompiler());
 			compiledRenderer.PreCompile();
-			return async (data, token) => await compiledRenderer.Render(data, token);
+			return async (data, token) => await compiledRenderer.RenderAsync(data, token);
 		}
 
 		/// <summary>
@@ -132,6 +140,7 @@ namespace Morestachio
 		/// <exception cref="InvalidOperationException">Will be thrown when the Version of the document mismatches</exception>
 		/// <exception cref="AggregateException">Will be thrown when there where any errors</exception>
 		/// <exception cref="TimeoutException">Will be thrown when the given timeout expires</exception>
+		[Obsolete("Please use the CreateRenderer().RenderAsync method")]
 		public async MorestachioDocumentResultPromise CreateAsync(object data, CancellationToken token)
 		{
 			if (Errors.Any())
@@ -148,7 +157,7 @@ namespace Morestachio
 													$"'{MorestachioDocument.GetMorestachioVersion()}'");
 			}
 
-			return await CreateRenderer().Render(data, token);
+			return await CreateRenderer().RenderAsync(data, token);
 		}
 
 		/// <summary>
@@ -156,6 +165,7 @@ namespace Morestachio
 		/// </summary>
 		/// <param name="data"></param>
 		/// <returns></returns>
+		[Obsolete("Please use the CreateRenderer().RenderAsync method")]
 		public async MorestachioDocumentResultPromise CreateAsync(object data)
 		{
 			return await CreateAsync(data, CancellationToken.None);
@@ -166,6 +176,7 @@ namespace Morestachio
 		/// </summary>
 		/// <param name="source"></param>
 		/// <returns></returns>
+		[Obsolete("Please use the CreateRenderer().RenderAndStringifyAsync method")]
 		public async StringPromise CreateAndStringifyAsync(object source)
 		{
 			return await CreateAndStringifyAsync(source, CancellationToken.None);
@@ -177,6 +188,7 @@ namespace Morestachio
 		/// <param name="source"></param>
 		/// <param name="token"></param>
 		/// <returns></returns>
+		[Obsolete("Please use the CreateRenderer().RenderAndStringifyAsync method")]
 		public async StringPromise CreateAndStringifyAsync(object source, CancellationToken token)
 		{
 			using (var stream = (await CreateAsync(source, token)).Stream)
@@ -191,6 +203,7 @@ namespace Morestachio
 		/// <param name="source"></param>
 		/// <param name="token"></param>
 		/// <returns></returns>
+		[Obsolete("Please use the CreateRenderer().Render method")]
 		public MorestachioDocumentResult Create(object source, CancellationToken token)
 		{
 			return CreateAsync(source, token).ConfigureAwait(false).GetAwaiter().GetResult();
@@ -201,6 +214,7 @@ namespace Morestachio
 		/// </summary>
 		/// <param name="source"></param>
 		/// <returns></returns>
+		[Obsolete("Please use the CreateRenderer().Render method")]
 		public MorestachioDocumentResult Create(object source)
 		{
 			return Create(source, CancellationToken.None);
@@ -211,6 +225,7 @@ namespace Morestachio
 		/// </summary>
 		/// <param name="source"></param>
 		/// <returns></returns>
+		[Obsolete("Please use the CreateRenderer().RenderAndStringify method")]
 		public string CreateAndStringify(object source)
 		{
 			return CreateAndStringify(source, CancellationToken.None);
@@ -222,6 +237,7 @@ namespace Morestachio
 		/// <param name="source"></param>
 		/// <param name="token"></param>
 		/// <returns></returns>
+		[Obsolete("Please use the CreateRenderer().RenderAndStringify method")]
 		public string CreateAndStringify(object source, CancellationToken token)
 		{
 			using (var stream = Create(source, token).Stream)
