@@ -550,10 +550,7 @@ namespace Morestachio
 				}
 			}
 
-			return new ContextObject(this, key, parent, value)
-			{
-				CancellationToken = token,
-			};
+			return new ContextObject(this, key, parent, value);
 		}
 
 		internal void OnUnresolvedPath(InvalidPathEventArgs args)

@@ -99,16 +99,24 @@ namespace Morestachio.Helper
 		//#endif
 		//		}
 
-
+#if ValueTask
 		/// <summary>
-		///		Wraps the object to ether an TaskT or an ValueTaskT
+		///		Wraps the object to an
+		/// <see cref="ValueTask{T}"/>
 		/// </summary>
 		/// <param name="data"></param>
 		/// <returns></returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-#if ValueTask
+
 		public static ValueTask<T> ToPromise<T>(this T data)
 #else
+		/// <summary>
+		///		Wraps the object to an
+		///<see cref="Task{T}"/>
+		/// </summary>
+		/// <param name="data"></param>
+		/// <returns></returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Task<T> ToPromise<T>(this T data)
 #endif
 		{

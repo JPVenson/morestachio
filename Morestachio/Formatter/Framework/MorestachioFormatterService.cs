@@ -328,7 +328,7 @@ namespace Morestachio.Formatter.Framework
 				{
 					functionTarget = sourceValue;
 				}
-
+				
 				var taskAlike = method.Invoke(functionTarget, mappedValues);
 				return await taskAlike.UnpackFormatterTask();
 			}

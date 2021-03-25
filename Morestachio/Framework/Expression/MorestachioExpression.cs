@@ -223,29 +223,29 @@ namespace Morestachio.Framework.Expression
 				var idx = 0;
 				if (pathParts.Length > 0 && pathParts.First().Value == PathType.DataPath)
 				{
-					var firstItem = pathParts.First();
-
+					var key = pathParts[0].Key;
 					pathQueue[idx++] = ((context, scopeData, expression) =>
 					{
-						var variable = scopeData.GetVariable(context, firstItem.Key);
+						var variable = scopeData.GetVariable(context, key);
 						if (variable != null)
 						{
 							return variable;
 						}
 
-						return context.ExecuteDataPath(firstItem.Key, expression, context.Value?.GetType());
+						return context.ExecuteDataPath(key, expression, context.Value?.GetType());
 					});
 				}
 
 				for (; idx < pathQueue.Length;)
 				{
 					var pathPart = pathParts[idx];
+					var key = pathPart.Key;
 					switch (pathPart.Value)
 					{
 						case PathType.DataPath:
 							pathQueue[idx++] = ((contextObject, scopeData, expression) =>
 							{
-								return contextObject.ExecuteDataPath(pathPart.Key, expression, contextObject.Value?.GetType());
+								return contextObject.ExecuteDataPath(key, expression, contextObject.Value?.GetType());
 							});
 							break;
 						case PathType.RootSelector:
@@ -264,7 +264,7 @@ namespace Morestachio.Framework.Expression
 						case PathType.ObjectSelector:
 							pathQueue[idx++] = ((contextObject, scopeData, expression) =>
 							{
-								return contextObject.ExecuteObjectSelector(pathPart.Key, contextObject.Value?.GetType());
+								return contextObject.ExecuteObjectSelector(key, contextObject.Value?.GetType());
 							});
 							break;
 						case PathType.Null:
@@ -274,11 +274,12 @@ namespace Morestachio.Framework.Expression
 							});
 							break;
 						case PathType.Boolean:
+							var booleanValue = key == "true";
 							pathQueue[idx++] = ((contextObject, scopeData, expression) =>
 							{
 								var booleanContext =
 									contextObject.Options.CreateContextObject(".", contextObject.CancellationToken,
-										pathPart.Key == "true");
+										booleanValue);
 								booleanContext.IsNaturalContext = true;
 								return booleanContext;
 							});
@@ -292,16 +293,23 @@ namespace Morestachio.Framework.Expression
 					}
 				}
 
-				getContext =
-					(contextObject, data, expression) =>
-					{
-						foreach (var func in pathQueue)
+				if (pathQueue.Length == 1)
+				{
+					getContext = pathQueue[0];
+				}
+				else
+				{
+					getContext =
+						(contextObject, data, expression) =>
 						{
-							contextObject = func(contextObject, data, expression);
-						}
+							foreach (var func in pathQueue)
+							{
+								contextObject = func(contextObject, data, expression);
+							}
 
-						return contextObject;
-					};
+							return contextObject;
+						};	
+				}
 			}
 
 			if (!Formats.Any() && FormatterName == null)
@@ -316,7 +324,7 @@ namespace Morestachio.Framework.Expression
 					return getContext(contextObject, data, this).ToPromise();
 				};
 			}
-
+			
 			var formatsCompiled = Formats.ToDictionary(f => f, f => f.Compile()).ToArray();
 
 			FormatterCache cache = null;
