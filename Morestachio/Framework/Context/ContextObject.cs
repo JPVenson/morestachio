@@ -46,7 +46,6 @@ namespace Morestachio.Framework.Context
 
 		private static Func<object, bool> _definitionOfFalse;
 		private object _value;
-		private bool _abortGeneration;
 		private readonly ContextObject _parent;
 		private bool _isNaturalContext;
 		private CancellationToken _cancellationToken;
@@ -169,28 +168,6 @@ namespace Morestachio.Framework.Context
 		//}
 
 		/// <summary>
-		///     is an abort currently requested
-		/// </summary>
-		public bool AbortGeneration
-		{
-			get
-			{
-				return Parent?.AbortGeneration ?? _abortGeneration;
-			}
-			set
-			{
-				if (Parent == null)
-				{
-					_abortGeneration = value;
-				}
-				else
-				{
-					Parent.AbortGeneration = true;
-				}
-			}
-		}
-
-		/// <summary>
 		///     The name of the property or key inside the value or indexer expression for lists
 		/// </summary>
 		// ReSharper disable once ConvertToAutoProperty
@@ -206,14 +183,6 @@ namespace Morestachio.Framework.Context
 		public ParserOptions Options
 		{
 			get { return _options; }
-		}
-
-		/// <summary>
-		/// </summary>
-		public CancellationToken CancellationToken
-		{
-			get { return _cancellationToken; }
-			set { _cancellationToken = value; }
 		}
 
 		internal ContextObject FindNextNaturalContextObject()
@@ -296,7 +265,7 @@ namespace Morestachio.Framework.Context
 				//await EnsureValue();
 				if (_value is null)
 				{
-					return Options.CreateContextObject("x:null", CancellationToken, null);
+					return Options.CreateContextObject("x:null", null);
 				}
 
 				//ALWAYS return the context, even if the value is null.
@@ -307,7 +276,7 @@ namespace Morestachio.Framework.Context
 				if (elements.Current.Key == "true" || elements.Current.Key == "false")
 				{
 					var booleanContext =
-						Options.CreateContextObject(".", CancellationToken, elements.Current.Key == "true", this);
+						Options.CreateContextObject(".", elements.Current.Key == "true", this);
 					booleanContext.IsNaturalContext = IsNaturalContext;
 					return booleanContext;
 				}
@@ -316,7 +285,7 @@ namespace Morestachio.Framework.Context
 			}
 			else if (elements.Current.Value == PathType.Null)
 			{
-				return Options.CreateContextObject("x:null", CancellationToken, null);
+				return Options.CreateContextObject("x:null", null);
 			}
 			else if (elements.Current.Value == PathType.DataPath)
 			{
@@ -330,15 +299,13 @@ namespace Morestachio.Framework.Context
 			ContextObject innerContext = null;
 			if (!_options.HandleDictionaryAsObject && _value is IDictionary<string, object> dictList)
 			{
-				innerContext = Options.CreateContextObject(key, CancellationToken,
-					dictList.Select(e => e), this);
+				innerContext = Options.CreateContextObject(key, dictList.Select(e => e), this);
 			}
 			else
 			{
 				if (_value != null)
 				{
-					innerContext = Options.CreateContextObject(key, CancellationToken,
-						type
+					innerContext = Options.CreateContextObject(key, type
 							.GetTypeInfo()
 							.GetProperties(BindingFlags.Instance | BindingFlags.Public)
 							.Where(e => !e.IsSpecialName && !e.GetIndexParameters().Any())
@@ -355,12 +322,12 @@ namespace Morestachio.Framework.Context
 			//await EnsureValue();
 			if (_value is null)
 			{
-				return Options.CreateContextObject("x:null", CancellationToken, null);
+				return Options.CreateContextObject("x:null", null);
 			}
 			//TODO: handle array accessors and maybe "special" keys.
 			//ALWAYS return the context, even if the value is null.
 
-			var innerContext = Options.CreateContextObject(key, CancellationToken, null, this);
+			var innerContext = Options.CreateContextObject(key, null, this);
 			if (Options.ValueResolver?.CanResolve(type, _value, key, innerContext) == true)
 			{
 				innerContext._value = Options.ValueResolver.Resolve(type, _value, key, innerContext);
@@ -465,7 +432,7 @@ namespace Morestachio.Framework.Context
 			//var peekPathPart = elements.Peek();
 			if (elements.Count == 1 && elements.Current.Value == PathType.Null)
 			{
-				return Options.CreateContextObject("x:null", CancellationToken, null);
+				return Options.CreateContextObject("x:null", null);
 			}
 
 			var targetContext = this;

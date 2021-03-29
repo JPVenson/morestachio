@@ -140,7 +140,7 @@ namespace Morestachio.Framework.Expression
 		/// <inheritdoc />
 		public ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
 		{
-			return contextObject.Options.CreateContextObject(".", contextObject.CancellationToken, Number,
+			return contextObject.Options.CreateContextObject(".", Number,
 				contextObject).ToPromise();
 		}
 		
@@ -148,7 +148,7 @@ namespace Morestachio.Framework.Expression
 		public CompiledExpression Compile()
 		{
 			return (contextObject, data) => contextObject.Options.CreateContextObject(".",
-				contextObject.CancellationToken, Number,
+				Number,
 				contextObject).ToPromise();
 		}
 

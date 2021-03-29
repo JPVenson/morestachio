@@ -49,7 +49,8 @@ namespace Morestachio.TemplateContainers
 			var lastChars = new MorestachioDefaultRollingArray();
 
 			//use the index of method for fast lookup of the next token
-			while ((index = templateString.IndexOf(new string(context._prefixToken), index)) != -1)
+			var prefixToken = new string(context._prefixToken);
+			while ((index = templateString.IndexOf(prefixToken, index)) != -1)
 			{
 				index += context._prefixToken.Length;
 				while (templateString[index] == context._prefixToken[0])//skip all excess {
@@ -138,7 +139,14 @@ namespace Morestachio.TemplateContainers
 										else
 										{
 											context.CommentIntend--;
-											index = nextCommentCloseIndex + "{{/!}}".Length - 1;
+											var commentCloseIndex = nextCommentCloseIndex;
+											if (context.TokenizeComments && context.CommentIntend == 0)
+											{
+												var comment = templateString.Substring(index, commentCloseIndex - index);
+												yield return new TokenMatch(index, comment, null, comment.Length,
+													false);
+											}
+											index = commentCloseIndex + "{{/!}}".Length - 1;
 										}
 									}
 								}
@@ -159,10 +167,15 @@ namespace Morestachio.TemplateContainers
 								}
 								else if (tokenContent.StartsWith("!="))
 								{
-									preText = new string(context._prefixToken)
+									preText = prefixToken
 										 + tokenContent.Substring("!=".Length)
 										+ new string(context.SuffixToken);
 									yield return new TokenMatch(preLastIndex, preText, null, preText.Length, true);
+								}
+								else if (context.TokenizeComments)
+								{
+									yield return new TokenMatch(index, tokenContent, null, tokenContent.Length,
+										false);
 								}
 								//intentionally do nothing to drop all tags with leading ! as they are considered comments
 							}

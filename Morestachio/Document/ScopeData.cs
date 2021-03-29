@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Morestachio.Document.Contracts;
 using Morestachio.Framework.Context;
 using Morestachio.Profiler;
@@ -16,7 +17,8 @@ namespace Morestachio.Document
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ScopeData"/> class.
 		/// </summary>
-		public ScopeData()
+		/// <param name="cancellationToken"></param>
+		public ScopeData(CancellationToken? cancellationToken = null)
 		{
 			Partials = new Dictionary<string, IDocumentItem>();
 			CompiledPartials = new Dictionary<string, Compilation>();
@@ -24,7 +26,7 @@ namespace Morestachio.Document
 			Alias = new Dictionary<string, IDictionary<int, object>>();
 			Variables = new Dictionary<string, object>();
 			CustomData = new Dictionary<string, object>();
-
+			CancellationToken = cancellationToken ?? CancellationToken.None;
 			AddCollectionContextSpecialVariables();
 			AddServicesVariable();
 		}
@@ -44,7 +46,7 @@ namespace Morestachio.Document
 					services[service.Key.Name] = service.Value;
 				}
 
-				return context.Options.CreateContextObject(".", context.CancellationToken, services);
+				return context.Options.CreateContextObject(".", services);
 			});
 		}
 
@@ -56,14 +58,15 @@ namespace Morestachio.Document
 				{
 					if (context is ContextCollection coll)
 					{
-						return context.Options.CreateContextObject(keyValuePair.Key, context.CancellationToken,
-							keyValuePair.Value(coll), context);
+						return context.Options.CreateContextObject(keyValuePair.Key, keyValuePair.Value(coll), context);
 					}
 
 					return null;
 				});
 			}
 		}
+
+		public CancellationToken CancellationToken { get; private set; }
 
 		/// <summary>
 		///		List of all Partials

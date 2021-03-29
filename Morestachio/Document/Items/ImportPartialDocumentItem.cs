@@ -125,8 +125,7 @@ namespace Morestachio.Document.Items
 			}
 
 			scopeData.AddVariable("$name",
-				(scope) => context.Options.CreateContextObject("$name", context.CancellationToken,
-					scope.PartialDepth.Peek().Item1, context), 0);
+				(scope) => context.Options.CreateContextObject("$name", scope.PartialDepth.Peek().Item1, context), 0);
 
 			var cnxt = context;
 			if (Context != null)
@@ -137,8 +136,7 @@ namespace Morestachio.Document.Items
 			cnxt = cnxt.Copy().MakeNatural();
 
 			scopeData.AddVariable("$recursion",
-				(scope) => cnxt.Options.CreateContextObject("$recursion", context.CancellationToken,
-					scope.PartialDepth.Count, cnxt), 0);
+				(scope) => cnxt.Options.CreateContextObject("$recursion", scope.PartialDepth.Count, cnxt), 0);
 
 			if (await obtainPartialFromStore(partialName, cnxt))
 			{

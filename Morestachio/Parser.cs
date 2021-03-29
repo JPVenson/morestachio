@@ -446,6 +446,12 @@ namespace Morestachio
 				else if (currentToken.Type.Equals(TokenType.Comment) || currentToken.Type.Equals(TokenType.BlockComment))
 				{
 					//just ignore this part and print nothing
+					if (options.TokenizeComments)
+					{
+						TryAdd(currentDocumentItem.Document,
+							new CommentDocumentItem(currentToken.TokenLocation, currentToken.Value,
+								GetPublicOptions(currentToken), currentToken.Type.Equals(TokenType.BlockComment)));
+					}
 				}
 				else
 				{

@@ -6,6 +6,7 @@ using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Gene
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 using System.Xml;
@@ -179,9 +180,10 @@ namespace Morestachio.Document.Items.Base
 		/// <summary>
 		///     Can be called to check if any stop is requested. If return true no stop is requested
 		/// </summary>
-		public static bool ContinueBuilding(IByteCounterStream builder, ContextObject context)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool ContinueBuilding(IByteCounterStream builder, ScopeData scopeData)
 		{
-			return !context.AbortGeneration && !context.CancellationToken.IsCancellationRequested &&
+			return !scopeData.CancellationToken.IsCancellationRequested &&
 				   !builder.ReachedLimit;
 		}
 

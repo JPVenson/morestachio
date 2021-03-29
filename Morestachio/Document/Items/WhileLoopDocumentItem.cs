@@ -55,7 +55,7 @@ namespace Morestachio.Document.Items
 			var collectionContext = new ContextCollection(index, false, context.Options, context.Key, context.Parent,
 				context.Value);
 
-			while (ContinueBuilding(outputStream, context) && (await MorestachioExpression.GetValue(collectionContext, scopeData)).Exists())
+			while (ContinueBuilding(outputStream, scopeData) && (await MorestachioExpression.GetValue(collectionContext, scopeData)).Exists())
 			{
 				//TODO get a way how to execute this on the caller
 				await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, collectionContext, scopeData);
@@ -85,7 +85,7 @@ namespace Morestachio.Document.Items
 					context.Parent,
 					context.Value);
 
-				while (ContinueBuilding(outputStream, context) &&
+				while (ContinueBuilding(outputStream, scopeData) &&
 					   (await expression(collectionContext, scopeData)).Exists())
 				{
 					await children(outputStream, collectionContext, scopeData);

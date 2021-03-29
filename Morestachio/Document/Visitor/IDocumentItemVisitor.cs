@@ -35,6 +35,7 @@ namespace Morestachio.Document.Visitor
 		void Visit(RepeatDocumentItem documentItem);
 		void Visit(TextEditDocumentItem documentItem);
 		void Visit(IsolationScopeDocumentItem documentItem);
+		void Visit(CommentDocumentItem documentItem);
 		void Visit(IDocumentItem documentItem);
 #pragma warning restore
 	}

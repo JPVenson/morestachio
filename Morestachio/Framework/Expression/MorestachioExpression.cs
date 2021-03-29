@@ -210,7 +210,7 @@ namespace Morestachio.Framework.Expression
 			if (PathParts.Count == 1 && PathParts.Current.Value == PathType.Null)
 			{
 				return (contextObject, data) => contextObject.Options
-					.CreateContextObject("x:null", contextObject.CancellationToken, null).ToPromise();
+					.CreateContextObject("x:null", null).ToPromise();
 			}
 
 			var pathParts = PathParts.ToArray();
@@ -270,7 +270,7 @@ namespace Morestachio.Framework.Expression
 						case PathType.Null:
 							pathQueue[idx++] = ((contextObject, scopeData, expression) =>
 							{
-								return contextObject.Options.CreateContextObject("x:null", contextObject.CancellationToken, null);
+								return contextObject.Options.CreateContextObject("x:null", null);
 							});
 							break;
 						case PathType.Boolean:
@@ -278,7 +278,7 @@ namespace Morestachio.Framework.Expression
 							pathQueue[idx++] = ((contextObject, scopeData, expression) =>
 							{
 								var booleanContext =
-									contextObject.Options.CreateContextObject(".", contextObject.CancellationToken,
+									contextObject.Options.CreateContextObject(".",
 										booleanValue);
 								booleanContext.IsNaturalContext = true;
 								return booleanContext;
@@ -308,7 +308,7 @@ namespace Morestachio.Framework.Expression
 							}
 
 							return contextObject;
-						};	
+						};
 				}
 			}
 
@@ -324,15 +324,15 @@ namespace Morestachio.Framework.Expression
 					return getContext(contextObject, data, this).ToPromise();
 				};
 			}
-			
+
 			var formatsCompiled = Formats.ToDictionary(f => f, f => f.Compile()).ToArray();
 
 			FormatterCache cache = null;
 			var arguments = new FormatterArgumentType[formatsCompiled.Length];
 
 			async Promise CallFormatter(
-				ContextObject naturalContext, 
-				ContextObject outputContext, 
+				ContextObject naturalContext,
+				ContextObject outputContext,
 				ScopeData scopeData)
 			{
 				for (var index = 0; index < formatsCompiled.Length; index++)
@@ -362,21 +362,21 @@ namespace Morestachio.Framework.Expression
 			{
 				return async (contextObject, scopeData) =>
 				{
-					var ctx = contextObject.Options.CreateContextObject("", contextObject.CancellationToken, contextObject.Value,
+					var ctx = contextObject.Options.CreateContextObject("", contextObject.Value,
 						contextObject);
 					contextObject = contextObject.FindNextNaturalContextObject();
 					await CallFormatter(contextObject, ctx, scopeData);
 					return ctx;
 				};
 			}
-			
+
 			return async (contextObject, scopeData) =>
 			{
 				var ctx = getContext(contextObject, scopeData, this);
 				await CallFormatter(contextObject, ctx, scopeData);
 				return ctx;
 			};
-			
+
 		}
 
 		/// <inheritdoc />

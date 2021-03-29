@@ -211,13 +211,11 @@ namespace Morestachio.Framework.Expression
 			if (Cache != null/* && !Equals(Cache.Value, default(FormatterCache))*/)
 			{
 				return contextObject.Options.CreateContextObject(".",
-					contextObject.CancellationToken,
 					await contextObject.Options.Formatters.Execute(Cache, leftValue.Value, contextObject.Options, arguments),
 					contextObject.Parent);
 			}
 
 			return contextObject.Options.CreateContextObject(".",
-				contextObject.CancellationToken,
 				null,
 				contextObject.Parent);
 		}
@@ -250,13 +248,11 @@ namespace Morestachio.Framework.Expression
 				if (Cache != null /*&& !Equals(Cache.Value, default(FormatterCache))*/)
 				{
 					return contextObject.Options.CreateContextObject(".",
-						contextObject.CancellationToken,
 						await contextObject.Options.Formatters.Execute(Cache, leftValue.Value, contextObject.Options, arguments),
 						contextObject.Parent);
 				}
 
 				return contextObject.Options.CreateContextObject(".",
-					contextObject.CancellationToken,
 					null,
 					contextObject.Parent);
 			};

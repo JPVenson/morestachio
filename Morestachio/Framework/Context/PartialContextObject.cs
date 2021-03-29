@@ -11,7 +11,7 @@ namespace Morestachio.Framework.Context
 	public class PartialContextObject : ContextObject
 	{
 		/// <inheritdoc />
-		public PartialContextObject( ParserOptions options,  string key,  ContextObject parent, object value) : base(options, key, parent, value)
+		public PartialContextObject(ParserOptions options,  string key,  ContextObject parent, object value) : base(options, key, parent, value)
 		{
 		}
 
@@ -29,7 +29,7 @@ namespace Morestachio.Framework.Context
 			{
 				value = scopeData.PartialDepth.Count;
 			}
-			return value == null ? null : Options.CreateContextObject(currentElement.Key, CancellationToken, value, this);
+			return value == null ? null : Options.CreateContextObject(currentElement.Key, value, this);
 		}
 	}
 }

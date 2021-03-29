@@ -103,8 +103,8 @@ namespace Morestachio.Rendering
 					throw new NullReferenceException("The created stream is null.");
 				}
 
-				var context = ParserOptions.CreateContextObject("", token, data);
-				var scopeData = new ScopeData();
+				var context = ParserOptions.CreateContextObject("", data);
+				var scopeData = new ScopeData(token);
 				try
 				{
 					if (ParserOptions.ProfileExecution)

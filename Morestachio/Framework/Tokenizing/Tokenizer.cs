@@ -264,6 +264,7 @@ namespace Morestachio.Framework.Tokenizing
 				partialsNames = new List<string>(Enumerable.Empty<string>());
 			}
 
+			context.TokenizeComments = parserOptions.TokenizeComments;
 			context.SetLocation(0);
 			var tokens = new List<TokenPair>();
 			var tokenOptions = new List<ITokenOption>();
@@ -441,7 +442,7 @@ namespace Morestachio.Framework.Tokenizing
 					}
 
 					//yield front content.
-					if (match.Index > context.Character)
+					if (match.Index > context.Character && match.PreText != null)
 					{
 						tokens.Add(new TokenPair(TokenType.Content, match.PreText, context.CurrentLocation));
 					}
@@ -1014,6 +1015,14 @@ namespace Morestachio.Framework.Tokenizing
 					else if (trimmedToken.Equals("#NL", StringComparison.InvariantCultureIgnoreCase))
 					{
 						tokens.Add(new TokenPair(TokenType.WriteLineBreak, trimmedToken, context.CurrentLocation, tokenOptions));
+					}
+					else if (trimmedToken.Equals("!"))
+					{
+						tokens.Add(new TokenPair(TokenType.BlockComment, trimmedToken, context.CurrentLocation, tokenOptions));
+					}
+					else if (trimmedToken.StartsWith("!"))
+					{
+						tokens.Add(new TokenPair(TokenType.Comment, trimmedToken, context.CurrentLocation, tokenOptions));
 					}
 					else if (trimmedToken.Equals("#TNL", StringComparison.InvariantCultureIgnoreCase))
 					{

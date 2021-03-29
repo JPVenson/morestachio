@@ -123,7 +123,7 @@ namespace Morestachio.Framework.Expression
 		public async ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
 		{
 			await Task.CompletedTask;
-			return contextObject.Options.CreateContextObject(".", contextObject.CancellationToken,
+			return contextObject.Options.CreateContextObject(".",
 				string.Join("", StringParts.Select(f => f.PartText)),
 				contextObject);
 		}
@@ -133,7 +133,6 @@ namespace Morestachio.Framework.Expression
 		{
 			var str = string.Join("", StringParts.Select(f => f.PartText));
 			return (contextObject, data) => contextObject.Options.CreateContextObject(".",
-				contextObject.CancellationToken,
 				str,
 				contextObject).ToPromise();
 		}

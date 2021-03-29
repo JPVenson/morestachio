@@ -97,61 +97,61 @@ namespace Morestachio.Document
 		{
 			async Promise ExecuteTenItems(IByteCounterStream stream, ContextObject context, ScopeData data)
 			{
-				if (!DocumentItemBase.ContinueBuilding(stream, context))
+				if (!DocumentItemBase.ContinueBuilding(stream, data))
 				{
 					return;
 				}
 
 				await actions[0](stream, context, data);
-				if (!DocumentItemBase.ContinueBuilding(stream, context))
+				if (!DocumentItemBase.ContinueBuilding(stream, data))
 				{
 					return;
 				}
 
 				await actions[1](stream, context, data);
-				if (!DocumentItemBase.ContinueBuilding(stream, context))
+				if (!DocumentItemBase.ContinueBuilding(stream, data))
 				{
 					return;
 				}
 
 				await actions[2](stream, context, data);
-				if (!DocumentItemBase.ContinueBuilding(stream, context))
+				if (!DocumentItemBase.ContinueBuilding(stream, data))
 				{
 					return;
 				}
 
 				await actions[3](stream, context, data);
-				if (!DocumentItemBase.ContinueBuilding(stream, context))
+				if (!DocumentItemBase.ContinueBuilding(stream, data))
 				{
 					return;
 				}
 
 				await actions[4](stream, context, data);
-				if (!DocumentItemBase.ContinueBuilding(stream, context))
+				if (!DocumentItemBase.ContinueBuilding(stream, data))
 				{
 					return;
 				}
 
 				await actions[5](stream, context, data);
-				if (!DocumentItemBase.ContinueBuilding(stream, context))
+				if (!DocumentItemBase.ContinueBuilding(stream, data))
 				{
 					return;
 				}
 
 				await actions[6](stream, context, data);
-				if (!DocumentItemBase.ContinueBuilding(stream, context))
+				if (!DocumentItemBase.ContinueBuilding(stream, data))
 				{
 					return;
 				}
 
 				await actions[7](stream, context, data);
-				if (!DocumentItemBase.ContinueBuilding(stream, context))
+				if (!DocumentItemBase.ContinueBuilding(stream, data))
 				{
 					return;
 				}
 
 				await actions[8](stream, context, data);
-				if (!DocumentItemBase.ContinueBuilding(stream, context))
+				if (!DocumentItemBase.ContinueBuilding(stream, data))
 				{
 					return;
 				}
@@ -167,7 +167,7 @@ namespace Morestachio.Document
 			{
 				return async (stream, context, data) =>
 				{
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
@@ -178,12 +178,12 @@ namespace Morestachio.Document
 			{
 				return async (stream, context, data) =>
 				{
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[0](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
@@ -194,17 +194,17 @@ namespace Morestachio.Document
 			{
 				return async (stream, context, data) =>
 				{
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[0](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[1](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
@@ -215,22 +215,22 @@ namespace Morestachio.Document
 			{
 				return async (stream, context, data) =>
 				{
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[0](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[1](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[2](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
@@ -241,27 +241,27 @@ namespace Morestachio.Document
 			{
 				return async (stream, context, data) =>
 				{
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[0](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[1](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[2](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[3](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
@@ -272,32 +272,32 @@ namespace Morestachio.Document
 			{
 				return async (stream, context, data) =>
 				{
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[0](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[1](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[2](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[3](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[4](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
@@ -308,37 +308,37 @@ namespace Morestachio.Document
 			{
 				return async (stream, context, data) =>
 				{
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[0](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[1](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[2](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[3](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[4](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[5](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
@@ -349,42 +349,42 @@ namespace Morestachio.Document
 			{
 				return async (stream, context, data) =>
 				{
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[0](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[1](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[2](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[3](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[4](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[5](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[6](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
@@ -395,47 +395,47 @@ namespace Morestachio.Document
 			{
 				return async (stream, context, data) =>
 				{
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[0](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[1](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[2](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[3](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[4](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[5](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[6](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
 					await actions[7](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}
@@ -455,7 +455,7 @@ namespace Morestachio.Document
 				await ExecuteTenItems(stream, context, data);
 				for (int i = 10; i < actions.Length; i++)
 				{
-					if (!DocumentItemBase.ContinueBuilding(stream, context))
+					if (!DocumentItemBase.ContinueBuilding(stream, data))
 					{
 						return;
 					}

@@ -210,9 +210,21 @@ namespace Morestachio
 		}
 
 		/// <summary>
+		///		If set to true, the tokenizer will add an token for each comment found. Default is <code>false</code>
+		/// </summary>
+		public bool TokenizeComments
+		{
+			get { return _tokenizeComments; }
+			set
+			{
+				CheckSealed();
+				_tokenizeComments = value;
+			}
+		}
+
+		/// <summary>
 		///		The store for PreParsed Partials
 		/// </summary>
-
 		public IPartialsStore PartialsStore
 		{
 			get { return _partialsStore; }
@@ -520,6 +532,7 @@ namespace Morestachio
 		private ContextObject _nullContext;
 		private ContextObject _trueContext;
 		private ContextObject _falseContext;
+		private bool _tokenizeComments;
 
 		/// <summary>
 		///		Allows the creation of an custom Context object
@@ -530,23 +543,22 @@ namespace Morestachio
 		/// <param name="parent"></param>
 		/// <returns></returns>
 		public virtual ContextObject CreateContextObject(string key,
-			CancellationToken token,
 			object value,
 			ContextObject parent = null)
 		{
 			if (key == "x:null")
 			{
-				return _nullContext ?? (_nullContext = new ContextObject(this, "x:null", null, null) { CancellationToken = token });
+				return _nullContext ?? (_nullContext = new ContextObject(this, "x:null", null, null));
 			}
 			if (value is bool val)
 			{
 				if (val)
 				{
-					return _trueContext ?? (_trueContext = new ContextObject(this, "x:true", null, true) { CancellationToken = token });
+					return _trueContext ?? (_trueContext = new ContextObject(this, "x:true", null, true));
 				}
 				else
 				{
-					return _falseContext ?? (_falseContext = new ContextObject(this, "x:false", null, false) { CancellationToken = token });
+					return _falseContext ?? (_falseContext = new ContextObject(this, "x:false", null, false));
 				}
 			}
 

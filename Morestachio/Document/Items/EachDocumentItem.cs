@@ -130,7 +130,7 @@ namespace Morestachio.Document.Items
 				await onItem(innerContext);
 				index++;
 				current = next;
-			} while (current != null && ContinueBuilding(outputStream, c));
+			} while (current != null && ContinueBuilding(outputStream, scopeData));
 		}
 
 		/// <inheritdoc />

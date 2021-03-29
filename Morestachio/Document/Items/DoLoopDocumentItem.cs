@@ -78,7 +78,7 @@ namespace Morestachio.Document.Items
 		private async Task CoreAction(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData, Compilation action)
 		{
 			var index = 0;
-			while (ContinueBuilding(outputStream, context))
+			while (ContinueBuilding(outputStream, scopeData))
 			{
 				var collectionContext = new ContextCollection(index++, false, context.Options, context.Key,
 					context.Parent, context.Value);

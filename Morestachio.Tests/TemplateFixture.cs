@@ -137,6 +137,19 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		public async Task CommentsAreOptionalTokenized()
+		{
+			var data = new Dictionary<string, object>();
+			var template = @"as{{!stu
+			ff}}df";
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, e =>
+			{
+				e.TokenizeComments = true;
+			});
+			Assert.That(result, Is.EqualTo("asdf"));
+		}
+
+		[Test]
 		public async Task TestMultiLineCommentsAreExcludedFromOutput()
 		{
 			var data = new Dictionary<string, object>();

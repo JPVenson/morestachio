@@ -470,6 +470,22 @@ namespace Morestachio.Document.Visitor
 			RenderBlockFooter(documentItem, "ISOLATE");
 		}
 
+		public void Visit(CommentDocumentItem documentItem)
+		{
+			if (documentItem.IsBlockComment)
+			{
+				StringBuilder.Append("{{!}}");
+				StringBuilder.Append(documentItem.Value);
+				StringBuilder.Append("{{/!}}");
+			}
+			else
+			{
+				StringBuilder.Append("{{");
+				StringBuilder.Append(documentItem.Value);
+				StringBuilder.Append("}}");
+			}
+		}
+
 		/// <inheritdoc />
 		public void Visit(RepeatDocumentItem documentItem)
 		{

@@ -17,6 +17,7 @@ namespace Morestachio.Document.Contracts
 			DocumentItem = documentItem;
 			ContextObject = contextObject;
 		}
+
 		/// <summary>
 		/// Gets the document item.
 		/// </summary>
