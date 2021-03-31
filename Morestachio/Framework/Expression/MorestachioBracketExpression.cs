@@ -40,14 +40,6 @@ namespace Morestachio.Framework.Expression
 		{
 		}
 
-		/// <inheritdoc />
-		public override string ToString()
-		{
-			var visitor = new DebuggerViewExpressionVisitor();
-			Accept(visitor);
-			return visitor.StringBuilder.ToString();
-		}
-
 		private class ExpressionDebuggerDisplay
 		{
 			private readonly MorestachioBracketExpression _exp;
@@ -65,6 +57,14 @@ namespace Morestachio.Framework.Expression
 			public CharacterLocation Location
 			{
 				get { return _exp.Location; }
+			}
+
+			/// <inheritdoc />
+			public override string ToString()
+			{
+				var visitor = new DebuggerViewExpressionVisitor();
+				_exp.Accept(visitor);
+				return visitor.StringBuilder.ToString();
 			}
 		}
 	}

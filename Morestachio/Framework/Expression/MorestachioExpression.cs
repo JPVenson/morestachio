@@ -524,14 +524,6 @@ namespace Morestachio.Framework.Expression
 			}
 		}
 
-		/// <inheritdoc />
-		public override string ToString()
-		{
-			var visitor = new DebuggerViewExpressionVisitor();
-			Accept(visitor);
-			return visitor.StringBuilder.ToString();
-		}
-
 		private class ExpressionDebuggerDisplay
 		{
 			private readonly MorestachioExpression _exp;
@@ -554,6 +546,14 @@ namespace Morestachio.Framework.Expression
 			public string Expression
 			{
 				get { return _exp.ToString(); }
+			}
+
+			/// <inheritdoc />
+			public override string ToString()
+			{
+				var visitor = new DebuggerViewExpressionVisitor();
+				_exp.Accept(visitor);
+				return visitor.StringBuilder.ToString();
 			}
 		}
 	}

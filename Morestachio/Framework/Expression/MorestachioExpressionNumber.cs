@@ -157,14 +157,6 @@ namespace Morestachio.Framework.Expression
 		{
 			visitor.Visit(this);
 		}
-		
-		/// <inheritdoc />
-		public override string ToString()
-		{
-			var visitor = new DebuggerViewExpressionVisitor();
-			Accept(visitor);
-			return visitor.StringBuilder.ToString();
-		}
 
 		private class ExpressionDebuggerDisplay
 		{
@@ -183,6 +175,14 @@ namespace Morestachio.Framework.Expression
 			public Number Number
 			{
 				get { return _exp.Number; }
+			}
+
+			/// <inheritdoc />
+			public override string ToString()
+			{
+				var visitor = new DebuggerViewExpressionVisitor();
+				_exp.Accept(visitor);
+				return visitor.StringBuilder.ToString();
 			}
 		}
 	}

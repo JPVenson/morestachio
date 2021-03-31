@@ -206,14 +206,6 @@ namespace Morestachio.Framework.Expression
 			}
 		}
 
-		/// <inheritdoc />
-		public override string ToString()
-		{
-			var visitor = new DebuggerViewExpressionVisitor();
-			Accept(visitor);
-			return visitor.StringBuilder.ToString();
-		}
-
 		private class ExpressionDebuggerDisplay
 		{
 			private readonly MorestachioExpressionString _exp;
@@ -231,6 +223,14 @@ namespace Morestachio.Framework.Expression
 			public char Delimiter
 			{
 				get { return _exp.Delimiter; }
+			}
+
+			/// <inheritdoc />
+			public override string ToString()
+			{
+				var visitor = new DebuggerViewExpressionVisitor();
+				_exp.Accept(visitor);
+				return visitor.StringBuilder.ToString();
 			}
 		}
 	}

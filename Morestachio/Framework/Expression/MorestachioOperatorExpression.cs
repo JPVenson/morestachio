@@ -264,14 +264,6 @@ namespace Morestachio.Framework.Expression
 			visitor.Visit(this);
 		}
 
-		/// <inheritdoc />
-		public override string ToString()
-		{
-			var visitor = new DebuggerViewExpressionVisitor();
-			Accept(visitor);
-			return visitor.StringBuilder.ToString();
-		}
-
 		private class ExpressionDebuggerDisplay
 		{
 			private readonly MorestachioOperatorExpression _exp;
@@ -299,6 +291,14 @@ namespace Morestachio.Framework.Expression
 			public IMorestachioExpression RightExpression
 			{
 				get { return _exp.RightExpression; }
+			}
+
+			/// <inheritdoc />
+			public override string ToString()
+			{
+				var visitor = new DebuggerViewExpressionVisitor();
+				_exp.Accept(visitor);
+				return visitor.StringBuilder.ToString();
 			}
 		}
 	}
