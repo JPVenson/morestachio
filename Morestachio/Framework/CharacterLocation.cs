@@ -9,32 +9,43 @@ namespace Morestachio.Framework
 	/// </summary>
 	public readonly struct CharacterLocation : IEquatable<CharacterLocation>, IComparable<CharacterLocation>
 	{
+		private readonly int _index;
+		private readonly int _line;
+		private readonly int _character;
+
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="line"></param>
-		/// <param name="character"></param>
 		public CharacterLocation(int line, int character, int index)
 		{
-			Line = line;
-			Character = character;
-			Index = index;
+			_line = line;
+			_character = character;
+			_index = index;
 		}
 
 		/// <summary>
 		///		The line of the Template
 		/// </summary>
-		public int Index { get; }
+		public int Index
+		{
+			get { return _index; }
+		}
 
 		/// <summary>
 		///		The line of the Template
 		/// </summary>
-		public int Line { get; }
+		public int Line
+		{
+			get { return _line; }
+		}
 
 		/// <summary>
 		///		The Character at the <see cref="Line"/>
 		/// </summary>
-		public int Character { get; }
+		public int Character
+		{
+			get { return _character; }
+		}
 
 		/// <summary>
 		///		Returns the Unknown Location
@@ -52,7 +63,7 @@ namespace Morestachio.Framework
 		/// <returns></returns>
 		public string ToFormatString()
 		{
-			return $"{Line}:{Character},{Index}";
+			return $"{_line}:{_character},{_index}";
 		}
 
 		/// <summary>
@@ -79,7 +90,7 @@ namespace Morestachio.Framework
 		/// <inheritdoc />
 		public override string ToString()
 		{
-			return $"Line: {Line}, Column: {Character}, Index: {Index}";
+			return $"Line: {_line}, Column: {_character}, Index: {_index}";
 		}
 
 		/// <summary>
@@ -90,7 +101,7 @@ namespace Morestachio.Framework
 		public CharacterLocation Offset(int length)
 		{
 			//bug this does not take care of linebreaks!
-			return new CharacterLocation(Line, Character + length, Index + length);
+			return new CharacterLocation(_line, _character + length, _index + length);
 		}
 
 		/// <inheritdoc />
@@ -112,7 +123,7 @@ namespace Morestachio.Framework
 		/// <returns></returns>
 		public int ToPosition(TokenzierContext context)
 		{
-			return Index;
+			return _index;
 			var line = Line - 1;
 			if (line >= 0 && context.Lines.Count > line)
 			{

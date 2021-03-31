@@ -264,8 +264,6 @@ namespace Morestachio.Framework.Tokenizing
 				partialsNames = new List<string>(Enumerable.Empty<string>());
 			}
 
-			context.TokenizeComments = parserOptions.TokenizeComments;
-			context.SetLocation(0);
 			var tokens = new List<TokenPair>();
 			var tokenOptions = new List<ITokenOption>();
 
@@ -362,7 +360,7 @@ namespace Morestachio.Framework.Tokenizing
 
 					expression = token.Substring(optionIndex, endOfNameIndex - optionIndex);
 					token = token.Remove(optionIndex, endOfNameIndex - optionIndex);
-					
+
 					return true;
 				}
 
@@ -370,6 +368,14 @@ namespace Morestachio.Framework.Tokenizing
 				return false;
 			}
 
+			//[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			bool StartsWith(string token, string keyword)
+			{
+				return token.StartsWith(keyword, StringComparison.OrdinalIgnoreCase);
+			}
+
+			context.TokenizeComments = parserOptions.TokenizeComments;
+			context.SetLocation(0);
 			foreach (var match in templateString.Matches(context))
 			{
 				if (match.ContentToken)
@@ -448,7 +454,7 @@ namespace Morestachio.Framework.Tokenizing
 					}
 
 					context.SetLocation(match.Index + context._prefixToken.Length);
-					if (trimmedToken.StartsWith("#declare ", true, CultureInfo.InvariantCulture))
+					if (StartsWith(trimmedToken, "#declare "))
 					{
 						var token = TrimToken(trimmedToken, "declare ");
 						scopestack.Push(new ScopeStackItem(TokenType.PartialDeclarationOpen, token, match.Index));
@@ -480,7 +486,7 @@ namespace Morestachio.Framework.Tokenizing
 								"{{#declare name}}"));
 						}
 					}
-					else if (trimmedToken.StartsWith("#include ", true, CultureInfo.InvariantCulture))
+					else if (StartsWith(trimmedToken, "#include "))
 					{
 						parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId, "Use the new #Import tag instead of the #include tag", new Dictionary<string, object>()
 						{
@@ -515,11 +521,11 @@ namespace Morestachio.Framework.Tokenizing
 							tokens.Add(new TokenPair(TokenType.RenderPartial, partialName, context.CurrentLocation, exp, tokenOptions));
 						}
 					}
-					else if (trimmedToken.StartsWith("#import ", true, CultureInfo.InvariantCulture))
+					else if (StartsWith(trimmedToken, "#import "))
 					{
 						var token = trimmedToken.TrimStart('#').Substring("import".Length).Trim(Tokenizer.GetWhitespaceDelimiters());
 						var tokenNameExpression = ExtractExpression(ref token);
-						
+
 						if (TryParseExpressionOption(ref token, "#WITH", out var withExpression))
 						{
 							tokenOptions.Add(new TokenOption("Context", withExpression));
@@ -529,7 +535,7 @@ namespace Morestachio.Framework.Tokenizing
 						tokens.Add(new TokenPair(TokenType.ImportPartial,
 							context.CurrentLocation, tokenNameExpression, tokenOptions));
 					}
-					else if (trimmedToken.StartsWith("#each ", true, CultureInfo.InvariantCulture))
+					else if (StartsWith(trimmedToken, "#each "))
 					{
 						var token = TrimToken(trimmedToken, "each");
 						TryParseStringOption(ref token, GetAsKeyword(), out var alias);
@@ -569,7 +575,7 @@ namespace Morestachio.Framework.Tokenizing
 								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "each", "{{#each name}}"));
 						}
 					}
-					else if (trimmedToken.StartsWith("#while ", true, CultureInfo.InvariantCulture))
+					else if (StartsWith(trimmedToken, "#while "))
 					{
 						var token = TrimToken(trimmedToken, "while");
 
@@ -601,7 +607,7 @@ namespace Morestachio.Framework.Tokenizing
 								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "while", "{{#while Expression}}"));
 						}
 					}
-					else if (trimmedToken.StartsWith("#do ", true, CultureInfo.InvariantCulture))
+					else if (StartsWith(trimmedToken, "#do "))
 					{
 						var token = TrimToken(trimmedToken, "do");
 						scopestack.Push(new ScopeStackItem(TokenType.DoLoopOpen, token, match.Index));
@@ -632,7 +638,7 @@ namespace Morestachio.Framework.Tokenizing
 								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "do", "{{#do Expression}}"));
 						}
 					}
-					else if (trimmedToken.StartsWith("#repeat ", true, CultureInfo.InvariantCulture))
+					else if (StartsWith(trimmedToken, "#repeat "))
 					{
 						var token = TrimToken(trimmedToken, "repeat");
 						scopestack.Push(new ScopeStackItem(TokenType.RepeatLoopOpen, token, match.Index));
@@ -663,7 +669,7 @@ namespace Morestachio.Framework.Tokenizing
 								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "repeat", "{{#repeat Expression}}"));
 						}
 					}
-					else if (trimmedToken.StartsWith("#switch ", true, CultureInfo.InvariantCulture))
+					else if (StartsWith(trimmedToken, "#switch "))
 					{
 						var token = TrimToken(trimmedToken, "switch");
 						TryParseStringOption(ref token, GetAsKeyword(), out var alias);
@@ -704,7 +710,7 @@ namespace Morestachio.Framework.Tokenizing
 								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "switch", "{{#switch Expression}}"));
 						}
 					}
-					else if (trimmedToken.StartsWith("#case ", true, CultureInfo.InvariantCulture))
+					else if (StartsWith(trimmedToken, "#case "))
 					{
 						var token = TrimToken(trimmedToken, "case");
 						TryParseStringOption(ref token, GetAsKeyword(), out var alias);
@@ -783,7 +789,7 @@ namespace Morestachio.Framework.Tokenizing
 								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "default", "{{#default}}"));
 						}
 					}
-					else if (trimmedToken.StartsWith("#if ", true, CultureInfo.InvariantCulture))
+					else if (StartsWith(trimmedToken, "#if "))
 					{
 						var token = TrimToken(trimmedToken, "if");
 						TryParseStringOption(ref token, GetAsKeyword(), out var alias);
@@ -808,7 +814,7 @@ namespace Morestachio.Framework.Tokenizing
 								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), ""));
 						}
 					}
-					else if (trimmedToken.StartsWith("^if ", true, CultureInfo.InvariantCulture))
+					else if (StartsWith(trimmedToken, "^if "))
 					{
 						var token = TrimToken(trimmedToken, "if", '^');
 						TryParseStringOption(ref token, GetAsKeyword(), out var alias);
@@ -869,7 +875,7 @@ namespace Morestachio.Framework.Tokenizing
 								"else", "{{#ELSE}}", "Expected the else keyword to be a direct descended of an #if or #elseif"));
 						}
 					}
-					else if (trimmedToken.StartsWith("#elseif ", true, CultureInfo.InvariantCulture))
+					else if (StartsWith(trimmedToken, "#elseif "))
 					{
 						ScopeStackItem currentScope;
 						//the new else block must be located inside an #IF or ^IF block 
@@ -934,12 +940,12 @@ namespace Morestachio.Framework.Tokenizing
 								"{{#else name}}"));
 						}
 					}
-					else if (trimmedToken.StartsWith("#var ", true, CultureInfo.InvariantCulture))
+					else if (StartsWith(trimmedToken, "#var "))
 					{
 						tokens.Add(ExpressionParser.TokenizeVariableAssignment(trimmedToken,
 							context, TokenType.VariableVar, tokenOptions));
 					}
-					else if (trimmedToken.StartsWith("#let ", true, CultureInfo.InvariantCulture))
+					else if (StartsWith(trimmedToken, "#let "))
 					{
 						if (scopestack.Count == 0)
 						{
@@ -952,7 +958,7 @@ namespace Morestachio.Framework.Tokenizing
 						tokens.Add(ExpressionParser.TokenizeVariableAssignment(trimmedToken,
 							context, TokenType.VariableLet, tokenOptions));
 					}
-					else if (trimmedToken.StartsWith("^scope ", true, CultureInfo.InvariantCulture))
+					else if (StartsWith(trimmedToken, "^scope "))
 					{
 						//open inverted group
 						var token = TrimToken(trimmedToken, "scope ", '^');
@@ -968,7 +974,7 @@ namespace Morestachio.Framework.Tokenizing
 								context.CurrentLocation));
 						}
 					}
-					else if (trimmedToken.StartsWith("#scope ", true, CultureInfo.InvariantCulture))
+					else if (StartsWith(trimmedToken, "#scope "))
 					{
 						var token = TrimToken(trimmedToken, "scope ");
 						TryParseStringOption(ref token, GetAsKeyword(), out var alias);
@@ -1020,7 +1026,7 @@ namespace Morestachio.Framework.Tokenizing
 					{
 						tokens.Add(new TokenPair(TokenType.BlockComment, trimmedToken, context.CurrentLocation, tokenOptions));
 					}
-					else if (trimmedToken.StartsWith("!"))
+					else if (StartsWith(trimmedToken, "!"))
 					{
 						tokens.Add(new TokenPair(TokenType.Comment, trimmedToken, context.CurrentLocation, tokenOptions));
 					}
@@ -1037,7 +1043,7 @@ namespace Morestachio.Framework.Tokenizing
 					{
 						tokens.Add(new TokenPair(TokenType.TrimEverything, trimmedToken, context.CurrentLocation, tokenOptions));
 					}
-					else if (trimmedToken.StartsWith("#ISOLATE ", StringComparison.InvariantCultureIgnoreCase))
+					else if (StartsWith(trimmedToken, "#ISOLATE "))
 					{
 						var token = TrimToken(trimmedToken, "ISOLATE ");
 						IsolationOptions scope = 0;
@@ -1059,7 +1065,7 @@ namespace Morestachio.Framework.Tokenizing
 					else if (trimmedToken.Equals("/ISOLATE", StringComparison.InvariantCultureIgnoreCase))
 					{
 						if (scopestack.Any() &&
-						    (scopestack.Peek().TokenType == TokenType.IsolationScopeOpen))
+							(scopestack.Peek().TokenType == TokenType.IsolationScopeOpen))
 						{
 							var token = scopestack.Pop().Value;
 
@@ -1073,7 +1079,7 @@ namespace Morestachio.Framework.Tokenizing
 								" There are more closing elements then open."));
 						}
 					}
-					else if (trimmedToken.StartsWith("#SET OPTION ", StringComparison.InvariantCultureIgnoreCase))
+					else if (StartsWith(trimmedToken, "#SET OPTION "))
 					{
 						var token = TrimToken(trimmedToken, "SET OPTION ");
 						var expectEquals = false;
@@ -1123,14 +1129,14 @@ namespace Morestachio.Framework.Tokenizing
 
 						await context.SetOption(name, value, parserOptions);
 					}
-					else if (trimmedToken.StartsWith("&"))
+					else if (StartsWith(trimmedToken, "&"))
 					{
 						//escaped single element
 						var token = trimmedToken.TrimStart('&').Trim();
 						tokens.Add(new TokenPair(TokenType.UnescapedSingleValue,
 							token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context), tokenOptions));
 					}
-					else if (trimmedToken.StartsWith("^"))
+					else if (StartsWith(trimmedToken, "^"))
 					{
 						parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId, "Use the new {{^scope path}} block instead of the {{^path}} block", new Dictionary<string, object>()
 						{
@@ -1161,7 +1167,7 @@ namespace Morestachio.Framework.Tokenizing
 								.LogWarning))
 							{
 								parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId,
-									$"Unknown Tag '{trimmedToken}'.", 
+									$"Unknown Tag '{trimmedToken}'.",
 									new Dictionary<string, object>()
 								{
 									{"Location", context.CurrentLocation},
@@ -1194,15 +1200,15 @@ namespace Morestachio.Framework.Tokenizing
 									parserOptions);
 							tokens.AddRange(tokenPairs);
 						}
-						else if (trimmedToken.StartsWith("#"))
+						else if (StartsWith(trimmedToken, "#"))
 						{
 							UnmatchedTagBehavior();
 						}
-						else if (trimmedToken.StartsWith("^"))
+						else if (StartsWith(trimmedToken, "^"))
 						{
 							UnmatchedTagBehavior();
 						}
-						else if (trimmedToken.StartsWith("/"))
+						else if (StartsWith(trimmedToken, "/"))
 						{
 							UnmatchedTagBehavior();
 						}
@@ -1246,35 +1252,6 @@ namespace Morestachio.Framework.Tokenizing
 			}
 
 			return new TokenizerResult(tokens);
-		}
-
-		//private static readonly Regex ExpressionAliasFinder
-		//	= new Regex("(?:\\s+(?:AS|as|As|aS)\\s+)([A-Za-z]+)$", RegexOptions.Compiled);
-
-		//internal static NameValueToken EvaluateNameFromToken(string token)
-		//{
-		//	var asIndex = token.IndexOf("AS",  StringComparison.InvariantCultureIgnoreCase)
-
-		//	var match = ExpressionAliasFinder.Match(token);
-		//	var name = match.Groups[1].Value;
-		//	if (!string.IsNullOrWhiteSpace(name))
-		//	{
-		//		return new NameValueToken(token.Substring(0, token.Length - (" AS" + name).Length), name.Trim());
-		//	}
-
-		//	return new NameValueToken(token, null);
-		//}
-
-		internal readonly struct NameValueToken
-		{
-			public NameValueToken(string value, string name)
-			{
-				Name = name;
-				Value = value;
-			}
-
-			public string Name { get; }
-			public string Value { get; }
 		}
 	}
 }

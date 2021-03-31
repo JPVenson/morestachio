@@ -143,7 +143,24 @@ namespace Morestachio.Tests.PerfTests
 			exp += ")";
 			return new Tuple<string, Dictionary<string, object>>(exp, data);
 		}
+		
+		[Test()]
+		[TestCase("Model Depth", 100, 30000, 10, 5000)]
+		public async Task TestTokenizerTime(string variation, int modelDepth, int sizeOfTemplate, int inserts, int runs)
+		{
+			var model = ConstructModelAndPath(modelDepth);
+			var baseTemplate = Enumerable.Range(1, 5)
+				.Aggregate("", (seed, current) => seed += " {{" + model.Item2 + "}}\r\n");
+			while (baseTemplate.Length <= sizeOfTemplate)
+			{
+				baseTemplate += model.Item2;
+			}
+			
+			var options = new ParserOptions(baseTemplate, () => Stream.Null);
+			var tokenzierContext = new TokenzierContext(new List<int>(), options.CultureInfo);
+			var tokenizerResult = await Tokenizer.Tokenize(options, tokenzierContext);
 
+		}
 
 		[Test()]
 		[Explicit]
