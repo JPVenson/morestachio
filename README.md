@@ -113,7 +113,7 @@ Can be used to reference another property/key in the template and then use it in
 This will call a formatter that is resposible for the type that `Value` has and will give it whats in `Key`. Example:
 ```csharp
 //create the template
-var template = "{{Value.ToString(Key)}}";
+var template = "{{Value.ToStringX(Key)}}";
 //create the model
 var model = new Dictionary<string, object>();
 model["Value"] = DateTime.Now; 
@@ -125,7 +125,7 @@ var parserOptions = new ParserOptions(template);
 parserOptions.Formatters.AddSingle(new Func<DateTime, string  , string>((value, argument) => {
   //value will be the DateTime object and argument will be the value from Key
   return value.ToString(argument);
-}));
+}, "ToStringX"));
 
 Parser.ParseWithOptions(parserOptions).CreateAndStringify(); // Friday, September 21, 2018 ish
 
