@@ -41,7 +41,7 @@ namespace Morestachio.Tests
 			{
 				options.MaxSize = maxSize;
 			});
-			Assert.AreEqual(result.Length, maxSize);
+			Assert.AreEqual(result.BytesWritten, maxSize);
 		}
 
 		[Test]
@@ -69,7 +69,7 @@ namespace Morestachio.Tests
 			{
 				options.MaxSize = maxSize;
 			});
-			Assert.That(result.Length, Is.EqualTo(maxSize).Or.EqualTo(maxSize - 1));
+			Assert.That(result.BytesWritten, Is.EqualTo(maxSize).Or.EqualTo(maxSize - 1));
 		}
 
 		[TestCase(new int[] { })]

@@ -86,7 +86,7 @@ namespace Morestachio.Document.Items
 		private async Promise CoreAction(IByteCounterStream outputStream,
 			ContextObject c,
 			ScopeData scopeData,
-			Func<ContextCollection, Promise> onItem)
+			Func<ContextObject, Promise> onItem)
 		{
 			if (!c.Exists())
 			{
@@ -126,7 +126,7 @@ namespace Morestachio.Document.Items
 
 				var innerContext =
 					new ContextCollection(index, next == null, c.Options, $"[{index}]", c, current)
-						.MakeNatural() as ContextCollection;
+						.MakeNatural();
 				await onItem(innerContext);
 				index++;
 				current = next;

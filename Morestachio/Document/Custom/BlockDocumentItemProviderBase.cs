@@ -81,8 +81,8 @@ namespace Morestachio.Document.Custom
 		/// <inheritdoc />
 		public override bool ShouldTokenize(string token)
 		{
-			return token.StartsWith(TagOpen, StringComparison.InvariantCultureIgnoreCase)
-			       || token.StartsWith(TagClose, StringComparison.InvariantCultureIgnoreCase);
+			return token.StartsWith(TagOpen, StringComparison.OrdinalIgnoreCase)
+			       || token.StartsWith(TagClose, StringComparison.OrdinalIgnoreCase);
 		}
 	}
 }

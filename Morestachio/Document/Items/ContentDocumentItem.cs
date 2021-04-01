@@ -29,7 +29,7 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal ContentDocumentItem() 
+		internal ContentDocumentItem()
 		{
 
 		}
@@ -42,9 +42,9 @@ namespace Morestachio.Document.Items
 			IEnumerable<ITokenOption> tagCreationOptions) : base(location, content, tagCreationOptions)
 		{
 		}
-		
+
 		/// <inheritdoc />
-		
+
 		protected ContentDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}
@@ -53,39 +53,44 @@ namespace Morestachio.Document.Items
 		/// <inheritdoc />
 		public Compilation Compile(IDocumentCompiler compiler)
 		{
-			return async (stream, context, scopeData) =>
+			var value = Value;
+			foreach (var textEditDocumentItem in Children.OfType<TextEditDocumentItem>())
 			{
-				CoreAction(stream, scopeData);
-				await AsyncHelper.FakePromise();
+				value = textEditDocumentItem.Operation.Apply(value);
+			}
+
+			if (string.IsNullOrWhiteSpace(value))
+			{
+				return (stream, context, data) =>
+				{
+					return AsyncHelper.FakePromise();
+				};
+			}
+			
+#if Span
+			var memValue = new ReadOnlyMemory<char>(value.ToArray());
+			return (stream, context, scopeData) =>
+			{
+				stream.Write(memValue.Span);
+				return AsyncHelper.FakePromise();
 			};
+			
+#else
+			return (stream, context, scopeData) =>
+			{
+				stream.Write(value);
+				return AsyncHelper.FakePromise();
+			};
+
+#endif
+
 		}
-		
+
 		/// <inheritdoc />
 		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
 			ScopeData scopeData)
 		{
-			CoreAction(outputStream, scopeData);
-			return Enumerable.Empty<DocumentItemExecution>().ToPromise();
-			//return Children.WithScope(context).ToPromise();
-		}
-		
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private void CoreAction(IByteCounterStream outputStream, ScopeData scopeData)
-		{
 			var value = Value;
-			if (scopeData.CustomData.TryGetValue("TextOperationData", out var textOperations)
-			    && textOperations is IList<ITextOperation> textOps)
-			{
-				foreach (var textOperation in textOps.ToArray())
-				{
-					value = textOperation.Apply(value);
-					if (textOperation.TransientEdit)
-					{
-						textOps.Remove(textOperation);
-					}
-				}
-			}
-
 			foreach (var textEditDocumentItem in Children.OfType<TextEditDocumentItem>())
 			{
 				value = textEditDocumentItem.Operation.Apply(value);
@@ -95,6 +100,8 @@ namespace Morestachio.Document.Items
 			{
 				outputStream.Write(value);
 			}
+			return Enumerable.Empty<DocumentItemExecution>().ToPromise();
+			//return Children.WithScope(context).ToPromise();
 		}
 
 		/// <inheritdoc />

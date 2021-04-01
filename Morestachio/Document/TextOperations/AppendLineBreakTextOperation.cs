@@ -50,12 +50,21 @@ namespace Morestachio.Document.TextOperations
 		
 		/// <inheritdoc />
 		public bool IsModificator { get; }
-		
+
+#if Span
+		/// <inheritdoc />
+		public ReadOnlySpan<char> Apply(ReadOnlySpan<char> value)
+		{
+			return string.Concat(value, Environment.NewLine.AsSpan());
+		}
+#endif
 		/// <inheritdoc />
 		public string Apply(string value)
 		{
 			return value + Environment.NewLine;
 		}
+
+		
 		
 		/// <inheritdoc />
 		public void GetObjectData(SerializationInfo info, StreamingContext context)

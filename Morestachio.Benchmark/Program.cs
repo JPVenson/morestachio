@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
 using Morestachio.Document;
+using Morestachio.Framework.IO;
+using Morestachio.Framework.IO.SingleStream;
 using Morestachio.Rendering;
+using Morestachio.TemplateContainers;
 using DictObject = System.Collections.Generic.Dictionary<string, object>;
 
 namespace Morestachio.Benchmark
@@ -34,7 +38,10 @@ namespace Morestachio.Benchmark
 		[GlobalSetup]
 		public void Setup()
 		{
-			_templateCompiled = Parser.ParseWithOptions(new ParserOptions(GetTemplate(), null, Encoding.UTF8))
+			var parsingOptions = new ParserOptions(new StringTemplateContainer(GetTemplate()),
+				(options) => new ByteCounterStringBuilder(new StringBuilder(), options),
+				Encoding.UTF8);
+			_templateCompiled = Parser.ParseWithOptions(parsingOptions)
 				.CreateCompiledRenderer(new DocumentCompiler());
 			_data = GetData();
 		}

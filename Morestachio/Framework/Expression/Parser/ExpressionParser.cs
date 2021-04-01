@@ -135,7 +135,7 @@ namespace Morestachio.Framework.Expression.Parser
 
 			var strVarType = StringifyVariableAssignmentType(type) + " ";
 
-			var variableNameIndex = tokenValue.IndexOf(strVarType, StringComparison.InvariantCultureIgnoreCase);
+			var variableNameIndex = tokenValue.IndexOf(strVarType, StringComparison.OrdinalIgnoreCase);
 			if (variableNameIndex != 0)
 			{
 				context.Errors.Add(new MorestachioSyntaxError(
@@ -472,7 +472,7 @@ namespace Morestachio.Framework.Expression.Parser
 									tokens.SourceExpression)), "Expected a 2nd expression for the used binary operator");
 							return;
 						}
-
+						
 						var operatRightExpression = ParseAnyExpression(tokens, context, subToken =>
 						{
 							return condition(subToken) && subToken.TokenType != ExpressionTokenType.Operator;
@@ -484,7 +484,12 @@ namespace Morestachio.Framework.Expression.Parser
 				{
 					//the operator is placed on the left hand of the expression
 					//it can only accept one argument
-					//TODO implement unary left hand operators
+					var operatorExp = new MorestachioOperatorExpression(op, null, context.CurrentLocation);
+					AddToParent(operatorExp);
+					operatorExp.LeftExpression = ParseAnyExpression(tokens, context, subToken =>
+					{
+						return condition(subToken) && subToken.TokenType != ExpressionTokenType.Operator;
+					});
 				}
 			}
 

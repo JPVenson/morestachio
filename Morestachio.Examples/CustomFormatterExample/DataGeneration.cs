@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Morestachio.Formatter.Framework;
+using Morestachio.Formatter.Framework.Attributes;
 
 namespace Morestachio.Examples.CustomFormatterExample
 {
@@ -17,17 +18,22 @@ namespace Morestachio.Examples.CustomFormatterExample
 			var options = new ParserOptions(templateText, null, encoding, shouldEscape);
 			options.Formatters.AddFromType(typeof(DataGeneration));
 			options.Timeout = TimeSpan.FromMinutes(1);
+			options.Encoding = Encoding.UTF8;
 			return options;
 		}
 
-		[MorestachioGlobalFormatter("HttpGet", "Gets an string value from the url")]
-		public static async Task<string> GetHttpValue(string source)
-		{
-			var httpClient = new HttpClient();
-			return await httpClient.GetStringAsync(source);
+		[MorestachioFormatter("ToBase64", "")]
+		public static string ToBase64(byte[] data){
+			return Convert.ToBase64String(data);
 		}
 
-
+		[MorestachioGlobalFormatter("HttpGet", "Gets an string value from the url")]
+		public static async Task<byte[]> GetHttpValue(string source)
+		{
+			var httpClient = new HttpClient();
+			return await httpClient.GetByteArrayAsync(source);
+		}
+		
 		//there must be always a method in the Program class that will be called to obtain the data
 		public static object GetData()
 		{

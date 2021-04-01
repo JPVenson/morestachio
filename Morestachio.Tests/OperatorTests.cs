@@ -53,5 +53,17 @@ namespace Morestachio.Tests
 			};
 			Assert.That(await ParserFixture.CreateAndParseWithOptions(template, data, _opts), Is.EqualTo(data["B"]));
 		}
+		
+		[Test]
+		public async Task TestInvertOperator()
+		{
+			var template = "{{(!A && B).ToString().ToLower()}}";
+			var data = new Dictionary<string, object>()
+			{
+				{"A", false},
+				{"B", true},
+			};
+			Assert.That(await ParserFixture.CreateAndParseWithOptions(template, data, _opts), Is.EqualTo("true"));
+		}
 	}
 }

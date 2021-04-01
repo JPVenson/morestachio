@@ -196,13 +196,30 @@ namespace Morestachio.Framework.Expression.Visitors
 		/// <inheritdoc />
 		public void Visit(MorestachioOperatorExpression expression)
 		{
-			this.Visit(expression.LeftExpression);
-			StringBuilder.Append(" ");
-			StringBuilder.Append(expression.Operator.OperatorText);
-			if (expression.RightExpression != null)
+			if (expression.Operator.IsBinaryOperator)
 			{
+				this.Visit(expression.LeftExpression);
 				StringBuilder.Append(" ");
-				this.Visit(expression.RightExpression);
+				StringBuilder.Append(expression.Operator.OperatorText);
+				if (expression.RightExpression != null)
+				{
+					StringBuilder.Append(" ");
+					this.Visit(expression.RightExpression);
+				}
+			}
+			else
+			{
+				if (expression.Operator.Placement == OperatorPlacement.Left)
+				{
+					StringBuilder.Append(expression.Operator.OperatorText);
+					this.Visit(expression.LeftExpression);
+				}
+				else
+				{
+					this.Visit(expression.LeftExpression);
+					StringBuilder.Append(" ");
+					StringBuilder.Append(expression.Operator.OperatorText);
+				}
 			}
 		}
 	}

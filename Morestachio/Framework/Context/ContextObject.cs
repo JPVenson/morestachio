@@ -48,7 +48,6 @@ namespace Morestachio.Framework.Context
 		private object _value;
 		private readonly ContextObject _parent;
 		private bool _isNaturalContext;
-		private CancellationToken _cancellationToken;
 		private readonly ParserOptions _options;
 		private readonly string _key;
 
@@ -94,11 +93,6 @@ namespace Morestachio.Framework.Context
 			_key = key;
 			_parent = parent;
 			_value = value;
-			if (_parent != null)
-			{
-				_cancellationToken = _parent._cancellationToken;
-			}
-
 			_isNaturalContext = _parent?._isNaturalContext ?? true;
 		}
 

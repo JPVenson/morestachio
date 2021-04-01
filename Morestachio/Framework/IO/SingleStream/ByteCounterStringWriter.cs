@@ -5,49 +5,40 @@ using Morestachio.Framework.IO.SubStream;
 namespace Morestachio.Framework.IO.SingleStream
 {
 	/// <summary>
-	///		Internal class to ensure that the given limit of bytes to write is never extended to ensure template quotas
+	///		Uses a <see cref="TextWriter"/> to write the template
 	/// </summary>
-	/// <seealso cref="System.IDisposable" />
-	public class ByteCounterStream : IByteCounterStream
+	public class ByteCounterTextWriter : IByteCounterStream
 	{
 		/// <summary>
-		///		The target stream
+		///		The target string writer
 		/// </summary>
-		public Stream Stream { get; }
+		public TextWriter Writer { get; }
 
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <param name="stringWriter"></param>
+		/// <param name="options"></param>
+		public ByteCounterTextWriter(TextWriter stringWriter, ParserOptions options)
+		{
+			Writer = stringWriter;
+			Options = options;
+		}
+		
 		protected ParserOptions Options { get; }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		public ByteCounterStream(Stream stream,
-			int bufferSize,
-			bool leaveOpen,
-			ParserOptions options)
+		/// <inheritdoc />
+		public void Dispose()
 		{
-			if (!stream.CanWrite)
-			{
-				throw new InvalidOperationException($"The stream '{stream.GetType()}' is ReadOnly.");
-			}
-
-			Stream = stream;
-			Options = options;
-			BaseWriter = new StreamWriter(stream, options.Encoding, bufferSize, leaveOpen);
+			Writer.Dispose();
 		}
-
-		/// <summary>
-		///		The target writer
-		/// </summary>
-		protected StreamWriter BaseWriter { get; set; }
-
+		
 		/// <inheritdoc />
-		public long BytesWritten { get; protected set; }
+		public long BytesWritten { get; private set; }
+		
 		/// <inheritdoc />
-		public bool ReachedLimit { get; protected set; }
-
+		public bool ReachedLimit { get; private set; }
+		
 #if Span
 		/// <inheritdoc />
 		public void Write(ReadOnlySpan<char> content)
@@ -56,7 +47,7 @@ namespace Morestachio.Framework.IO.SingleStream
 
 			if (Options.MaxSize == 0)
 			{
-				BaseWriter.Write(content);
+				Writer.Write(content);
 				return;
 			}
 
@@ -73,7 +64,7 @@ namespace Morestachio.Framework.IO.SingleStream
 			if (overflow <= 0)
 			{
 				BytesWritten += cl;
-				BaseWriter.Write(content);
+				Writer.Write(content);
 				return;
 			}
 
@@ -81,12 +72,12 @@ namespace Morestachio.Framework.IO.SingleStream
 			{
 				BytesWritten += cl - overflow;
 				//BaseWriter.Write(content.ToCharArray(0, (int)(cl - overflow)));
-				BaseWriter.Write(content[0..((int)(cl - overflow))]);
+				Writer.Write(content[0..((int)(cl - overflow))]);
 			}
 			else
 			{
 				BytesWritten += cl;
-				BaseWriter.Write(content);
+				Writer.Write(content);
 			}
 		}
 #endif
@@ -99,7 +90,7 @@ namespace Morestachio.Framework.IO.SingleStream
 
 			if (Options.MaxSize == 0)
 			{
-				BaseWriter.Write(content);
+				Writer.Write(content);
 				return;
 			}
 
@@ -116,34 +107,25 @@ namespace Morestachio.Framework.IO.SingleStream
 			if (overflow <= 0)
 			{
 				BytesWritten += cl;
-				BaseWriter.Write(content);
+				Writer.Write(content);
 				return;
 			}
 
 			if (overflow < content.Length)
 			{
 				BytesWritten += cl - overflow;
-				BaseWriter.Write(content.ToCharArray(0, (int)(cl - overflow)));
+				Writer.Write(content.ToCharArray(0, (int)(cl - overflow)));
 			}
 			else
 			{
 				BytesWritten += cl;
-				BaseWriter.Write(content);
+				Writer.Write(content);
 			}
 		}
-	
 
-		/// <inheritdoc />
 		public ISubByteCounterStream GetSubStream()
 		{
 			return new SubByteCounterStream(this, Options);
-		}
-
-		/// <inheritdoc />
-		public void Dispose()
-		{
-			BaseWriter?.Flush();
-			BaseWriter?.Dispose();
 		}
 	}
 }

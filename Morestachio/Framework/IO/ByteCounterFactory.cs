@@ -12,53 +12,69 @@ namespace Morestachio.Framework.IO
 		/// <summary>
 		///		ctor
 		/// </summary>
-		public ByteCounterFactory(Func<Stream> output, Func<Stream> tempStream, Func<ParserOptions, IByteCounterStream> getByteCounterStream)
+		public ByteCounterFactory(Func<ParserOptions, IByteCounterStream> output,
+			Func<ParserOptions, IByteCounterStream> tempStream, 
+			Func<ParserOptions, IByteCounterStream> getByteCounterStream)
 		{
-			Output = output ?? GetDefaultTempStream;
-			TempStream = tempStream ?? GetDefaultTempStream;
-			GetByteCounterStream = getByteCounterStream ?? GetDefaultByteCounter;
+			Output = output ?? GetDefaultTempStream();
+			TempStream = tempStream ?? GetDefaultTempStream();
+			GetByteCounterStream = getByteCounterStream ?? GetDefaultByteCounter(GetDefaultStream);
 		}
 		
 		/// <summary>
 		///		ctor
 		/// </summary>
-		public ByteCounterFactory(Func<Stream> output, Func<Stream> tempStream) : this(output, tempStream, GetDefaultByteCounter)
-		{
-		}
-		
-		/// <summary>
-		///		ctor
-		/// </summary>
-		public ByteCounterFactory(Func<Stream> output) : this(output, GetDefaultTempStream, GetDefaultByteCounter)
+		public ByteCounterFactory(Func<ParserOptions, IByteCounterStream> output,
+			Func<ParserOptions, IByteCounterStream> tempStream) 
+			: this(output, tempStream, GetDefaultByteCounter(GetDefaultStream))
 		{
 		}
 		
 		/// <summary>
 		///		ctor
 		/// </summary>
-		public ByteCounterFactory() : this(GetDefaultTempStream, GetDefaultTempStream, GetDefaultByteCounter)
+		public ByteCounterFactory(Func<ParserOptions, IByteCounterStream> output) : this(GetDefaultTempStream(), GetDefaultTempStream(), output)
+		{
+		}
+		
+		/// <summary>
+		///		ctor
+		/// </summary>
+		public ByteCounterFactory(Func<Stream> output) : this(GetDefaultTempStream(), GetDefaultTempStream(), GetDefaultByteCounter(output ?? GetDefaultStream))
+		{
+		}
+		
+		/// <summary>
+		///		ctor
+		/// </summary>
+		public ByteCounterFactory() : this(GetDefaultTempStream(), GetDefaultTempStream(), GetDefaultByteCounter(GetDefaultStream))
 		{
 		}
 
-		private static Stream GetDefaultTempStream()
+		private static Stream GetDefaultStream()
 		{
 			return new MemoryStream();
 		}
 
-		private static IByteCounterStream GetDefaultByteCounter(ParserOptions options)
+		private static Func<ParserOptions, IByteCounterStream> GetDefaultTempStream()
 		{
-			return new ByteCounterStream(options.StreamFactory.Output(), MorestachioDocumentInfo.BufferSize, true, options);
+			return (ParserOptions options) => new ByteCounterTextWriter(new StringWriter(), options);
+		}
+
+		private static Func<ParserOptions, IByteCounterStream> GetDefaultByteCounter(Func<Stream> targetStream)
+		{
+			return (ParserOptions options) => new ByteCounterStream(targetStream(), MorestachioDocumentInfo.BufferSize, true, options);
 		}
 
 		/// <summary>
 		///		Should return an stream that is the target of the template
 		/// </summary>
-		public Func<Stream> Output { get; }
+		public Func<ParserOptions, IByteCounterStream> Output { get; }
 
 		/// <summary>
 		///		Should return an stream that is shot lived and is used for buffering data
 		/// </summary>
-		public Func<Stream> TempStream { get; }
+		public Func<ParserOptions, IByteCounterStream> TempStream { get; }
 
 		/// <summary>
 		///		Should return an instance of <see cref="IByteCounterStream"/> that is used to write to <see cref="Output"/>

@@ -1471,10 +1471,10 @@ namespace Morestachio.Helper
 					return false;
 				}
 
-				if (input.EndsWith("l", StringComparison.InvariantCultureIgnoreCase))
+				if (input.EndsWith("l", StringComparison.OrdinalIgnoreCase))
 				{
 					//its an long
-					if (input.EndsWith("ul", StringComparison.InvariantCultureIgnoreCase))
+					if (input.EndsWith("ul", StringComparison.OrdinalIgnoreCase))
 					{
 						input = input.TrimEnd('u', 'U', 'l', 'L');
 						//its unsigned
@@ -1499,7 +1499,7 @@ namespace Morestachio.Helper
 					return false;
 				}
 
-				if (input.EndsWith("f", StringComparison.InvariantCultureIgnoreCase))
+				if (input.EndsWith("f", StringComparison.OrdinalIgnoreCase))
 				{
 					//its an float
 					input = input.TrimEnd('f', 'F');
@@ -1513,7 +1513,7 @@ namespace Morestachio.Helper
 					return false;
 				}
 
-				if (input.EndsWith("d", StringComparison.InvariantCultureIgnoreCase))
+				if (input.EndsWith("d", StringComparison.OrdinalIgnoreCase))
 				{
 					//its an float
 					input = input.TrimEnd('d', 'D');
@@ -1528,7 +1528,7 @@ namespace Morestachio.Helper
 				}
 			}
 
-			if (input.StartsWith("0x", StringComparison.InvariantCultureIgnoreCase))
+			if (input.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
 			{
 				input = input.TrimStart('0', 'x', 'X');
 				if (int.TryParse(input, NumberStyles.HexNumber, culture, out var hexIntVal))

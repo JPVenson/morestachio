@@ -39,7 +39,7 @@ namespace Morestachio.Framework.Expression
 		/// <summary>
 		///		The left side of the operator
 		/// </summary>
-		public IMorestachioExpression LeftExpression { get; private set; }
+		public IMorestachioExpression LeftExpression { get; internal set; }
 
 		/// <summary>
 		///		The right site of the operator

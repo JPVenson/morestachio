@@ -34,11 +34,11 @@ namespace Morestachio.Helper.Localization.Documents.CustomCultureDocument
 		public override IEnumerable<TokenPair> Tokenize(TokenInfo token, ParserOptions options)
 		{
 			var trim = token.Token;
-			if (trim.StartsWith(TagOpen, true, CultureInfo.InvariantCulture))
+			if (trim.StartsWith(TagOpen, StringComparison.OrdinalIgnoreCase))
 			{
 				yield return new TokenPair(TagOpen.Trim(), token.TokenizerContext.CurrentLocation, ExpressionParser.ParseExpression(trim.Remove(0, OpenTag.Length).Trim(), token.TokenizerContext));
 			}
-			if (string.Equals(trim, TagClose, StringComparison.InvariantCultureIgnoreCase))
+			if (string.Equals(trim, TagClose, StringComparison.OrdinalIgnoreCase))
 			{
 				yield return new TokenPair(TagClose, trim, token.TokenizerContext.CurrentLocation);
 			}

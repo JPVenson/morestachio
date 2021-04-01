@@ -27,7 +27,8 @@ namespace Morestachio.Framework.Expression
 		Or = 1 << 15,
 		Bigger = 1 << 16,
 		Smaller = 1 << 17,
-		NullCoalescing = 1 << 18
+		NullCoalescing = 1 << 18,
+		Invert = 1 << 19
 	}
 #pragma warning restore 1591
 }

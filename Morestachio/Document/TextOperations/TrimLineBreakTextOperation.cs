@@ -76,6 +76,14 @@ namespace Morestachio.Document.TextOperations
 		/// <inheritdoc />
 		public bool IsModificator { get; }
 
+#if Span
+		/// <inheritdoc />
+		public ReadOnlySpan<char> Apply(ReadOnlySpan<char> value)
+		{
+			return value;
+		}
+#endif
+
 		/// <inheritdoc />
 		public string Apply(string value)
 		{

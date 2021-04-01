@@ -22,7 +22,11 @@ namespace Morestachio.Framework.IO.MultiPart
 		///  <summary>
 		/// 		Writes the Content into the underlying Stream when the limit is not exceeded
 		///  </summary>
+#if Span
+		void Write(ReadOnlySpan<char> content);
+#else
 		void Write(string content);
+#endif
 
 		/// <summary>
 		///		Direct access to the underlying stream

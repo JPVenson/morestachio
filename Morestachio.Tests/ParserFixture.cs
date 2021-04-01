@@ -25,6 +25,7 @@ using Morestachio.Framework.Error;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.Parser;
+using Morestachio.Framework.IO;
 using Morestachio.Helper.Logging;
 using Morestachio.Parsing.ParserErrors;
 using Morestachio.Tests.SerilalizerTests;
@@ -73,7 +74,7 @@ namespace Morestachio.Tests
 			}
 		}
 
-		public static async Task<Stream> CreateAndParseWithOptionsStream(string template,
+		public static async Task<IByteCounterStream> CreateAndParseWithOptionsStream(string template,
 			object data,
 			ParserOptionTypes opt,
 			Action<ParserOptions> option = null,

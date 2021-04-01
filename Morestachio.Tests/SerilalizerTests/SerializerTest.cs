@@ -40,7 +40,7 @@ namespace Morestachio.Tests.SerilalizerTests
 			StringAssert.AreEqualIgnoringCase(text, format);
 			if (!format.Equals(text))
 			{
-				if (!format.Equals(text, StringComparison.InvariantCultureIgnoreCase))
+				if (!format.Equals(text, StringComparison.OrdinalIgnoreCase))
 				{
 					Assert.That(format, Is.EqualTo(text));
 				}

@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 using System.Xml.Serialization;
 
 namespace Morestachio.Document.TextOperations
@@ -29,5 +30,6 @@ namespace Morestachio.Document.TextOperations
 		/// <param name="value"></param>
 		/// <returns></returns>
 		string Apply(string value);
+
 	}
 }

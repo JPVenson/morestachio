@@ -107,6 +107,30 @@ namespace Morestachio
 		/// <param name="template">The template.</param>
 		/// <param name="sourceStream">The source stream.</param>
 		/// <param name="encoding">The encoding.</param>
+		public ParserOptions(ITemplateContainer template,
+			 Func<ParserOptions, IByteCounterStream> sourceStream,
+			 Encoding encoding)
+		{
+			Template = template ?? new StringTemplateContainer("");
+			StreamFactory = new ByteCounterFactory(sourceStream);
+			Encoding = encoding ?? Encoding.UTF8;
+			_formatters = new MorestachioFormatterService();
+			Null = string.Empty;
+			MaxSize = 0;
+			DisableContentEscaping = false;
+			Timeout = TimeSpan.Zero;
+			PartialStackSize = 255;
+			_customDocumentItemProviders = new CustomDocumentList();
+			CultureInfo = CultureInfo.CurrentCulture;
+			UnmatchedTagBehavior = UnmatchedTagBehavior.ThrowError | UnmatchedTagBehavior.LogWarning;
+		}
+
+		/// <summary>
+		///     Initializes a new instance of the <see cref="ParserOptions" /> class.
+		/// </summary>
+		/// <param name="template">The template.</param>
+		/// <param name="sourceStream">The source stream.</param>
+		/// <param name="encoding">The encoding.</param>
 		/// <param name="maxSize">The maximum size.</param>
 		/// <param name="disableContentEscaping">if set to <c>true</c> [disable content escaping].</param>
 		public ParserOptions(ITemplateContainer template,
@@ -431,7 +455,6 @@ namespace Morestachio
 		///     SourceFactory can be used to create a new stream for each template. Default is
 		///     <code>() => new MemoryStream()</code>
 		/// </summary>
-
 		public ByteCounterFactory StreamFactory
 		{
 			get { return _streamFactory; }

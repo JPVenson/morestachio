@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Custom;
@@ -28,7 +29,7 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 			var tokenOptions = new List<ITokenOption>();
 
 			locToken = locToken.Substring(token.TokenizerContext.Character - pre).Trim(Tokenizer.GetWhitespaceDelimiters());
-			if (locToken.StartsWith("#CULTURE ", true, CultureInfo.InvariantCulture))
+			if (locToken.StartsWith("#CULTURE ", StringComparison.OrdinalIgnoreCase))
 			{
 				locToken = locToken.Substring("#CULTURE ".Length);
 				tokenOptions.Add(new TokenOption("Culture", ExpressionParser.ParseExpression(locToken, token.TokenizerContext)));

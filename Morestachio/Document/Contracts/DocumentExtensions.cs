@@ -42,7 +42,7 @@ namespace Morestachio.Document.Contracts
 		internal static IDocumentItem CreateDocumentItemInstance(string name)
 		{
 			var docItem =
-				DocumentItems.FirstOrDefault(e => e.Key.Equals(name, StringComparison.InvariantCultureIgnoreCase))
+				DocumentItems.FirstOrDefault(e => e.Key.Equals(name, StringComparison.OrdinalIgnoreCase))
 					.Value;
 			if (docItem == null)
 			{

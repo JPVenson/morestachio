@@ -1,5 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
+using Morestachio.Framework.IO;
+using Morestachio.Framework.IO.SingleStream;
 
 namespace Morestachio.Helper
 {
@@ -37,6 +40,53 @@ namespace Morestachio.Helper
 					source.Dispose();
 				}
 			}
+		}
+
+		/// <summary>
+		///     Reads all content from the Stream and returns it as a String
+		/// </summary>
+		/// <param name="source"></param>
+		/// <param name="disposeOriginal"></param>
+		/// <param name="encoding"></param>
+		/// <returns></returns>
+		public static string Stringify(this IByteCounterStream source, bool disposeOriginal, Encoding encoding)
+		{
+			if (source is ByteCounterStream bcs)
+			{
+				return bcs.Stream.Stringify(disposeOriginal, encoding);
+			}
+
+			if (source is ByteCounterTextWriter bcsw)
+			{
+				try
+				{
+					return bcsw.Writer.ToString();
+				}
+				finally
+				{
+					if (disposeOriginal)
+					{
+						source.Dispose();
+					}
+				}
+			}
+
+			if (source is ByteCounterStringBuilder bcsb)
+			{
+				try
+				{
+					return bcsb.StringBuilder.ToString();
+				}
+				finally
+				{
+					if (disposeOriginal)
+					{
+						source.Dispose();
+					}
+				}
+			}
+
+			throw new NotImplementedException();
 		}
 	}
 }

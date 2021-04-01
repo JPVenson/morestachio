@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using Morestachio.Framework.IO;
 using Morestachio.Profiler;
 
 namespace Morestachio
@@ -9,7 +10,7 @@ namespace Morestachio
 	/// </summary>
 	public class MorestachioDocumentResult
 	{
-		internal MorestachioDocumentResult(Stream stream, 
+		internal MorestachioDocumentResult(IByteCounterStream stream, 
 			PerformanceProfiler profiler,
 			IDictionary<string, object> variables)
 		{
@@ -18,7 +19,7 @@ namespace Morestachio
 			CapturedVariables = variables;
 		}
 
-		internal MorestachioDocumentResult(Stream stream, 
+		internal MorestachioDocumentResult(IByteCounterStream stream, 
 			PerformanceProfiler profiler)
 		{
 			Stream = stream;
@@ -28,7 +29,7 @@ namespace Morestachio
 		/// <summary>
 		///		The Result of the CreateAsync call
 		/// </summary>
-		public Stream Stream { get; }
+		public IByteCounterStream Stream { get; }
 
 		/// <summary>
 		///		[Experimental]

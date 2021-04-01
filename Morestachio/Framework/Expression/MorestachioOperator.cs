@@ -36,6 +36,7 @@ namespace Morestachio.Framework.Expression
 			operators.Add(BinaryOperator("<?", OperatorTypes.Bigger));
 			operators.Add(BinaryOperator(">?", OperatorTypes.Smaller));
 			operators.Add(BinaryOperator("??", OperatorTypes.NullCoalescing));
+			operators.Add(UnaryOperator("!", OperatorTypes.Invert, OperatorPlacement.Left));
 			Operators = operators;
 		}
 

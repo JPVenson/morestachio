@@ -223,7 +223,7 @@ namespace Morestachio.Document.Items.Base
 		/// <param name="elementName"></param>
 		protected internal static void AssertElement(XmlReader reader, string elementName)
 		{
-			if (!reader.Name.Equals(elementName, StringComparison.InvariantCultureIgnoreCase))
+			if (!reader.Name.Equals(elementName, StringComparison.OrdinalIgnoreCase))
 			{
 				throw new XmlSchemaException($"Unexpected Element '{reader.Name}' expected '{elementName}'");
 			}

@@ -15,6 +15,7 @@ namespace Morestachio.Formatter.Predefined
 		/// <returns></returns>
 		[MorestachioFormatter("Negate", "Negates a Boolean value")]
 		[MorestachioFormatter("Not", "Negates a Boolean value")]
+		[MorestachioOperator(OperatorTypes.Invert, "Inverts a boolean value")]
 		public static bool Negate([SourceObject]bool value)
 		{
 			return !value;

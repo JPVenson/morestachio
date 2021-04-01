@@ -5,6 +5,7 @@ using System.Linq;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Visitor;
 using Morestachio.Fluent.Expression;
+using Morestachio.Framework.IO;
 using Morestachio.TemplateContainers;
 
 namespace Morestachio.Fluent
@@ -157,7 +158,7 @@ namespace Morestachio.Fluent
 		/// <param name="data"></param>
 		/// <param name="template"></param>
 		/// <returns></returns>
-		public MorestachioDocumentFluentApi Render(object data, Action<Stream> template)
+		public MorestachioDocumentFluentApi Render(object data, Action<IByteCounterStream> template)
 		{
 			var documentInfo = new MorestachioDocumentInfo(Context.Options, Context.CurrentNode.Item);
 			var morestachioDocumentResult = documentInfo.Create(data);

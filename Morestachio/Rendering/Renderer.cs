@@ -98,11 +98,6 @@ namespace Morestachio.Rendering
 			PerformanceProfiler profiler = null;
 			using (var byteCounterStream = ParserOptions.StreamFactory.GetByteCounterStream(ParserOptions))
 			{
-				if (byteCounterStream?.Stream == null)
-				{
-					throw new NullReferenceException("The created stream is null.");
-				}
-
 				var context = ParserOptions.CreateContextObject("", data);
 				var scopeData = new ScopeData(token);
 				try
@@ -130,7 +125,7 @@ namespace Morestachio.Rendering
 				}
 
 				PostRender();
-				return new MorestachioDocumentResult(byteCounterStream.Stream,
+				return new MorestachioDocumentResult(byteCounterStream,
 					profiler,
 					scopeData.Variables.ToDictionary(e => e.Key, e => scopeData.GetFromVariable(null, e.Value)?.Value));
 			}

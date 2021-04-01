@@ -168,6 +168,7 @@ namespace Morestachio.Framework.Tokenizing
 				formatChar == '!' ||
 				formatChar == '&' ||
 				formatChar == '?' ||
+				formatChar == '!' ||
 				formatChar == '|';
 		}
 
@@ -193,6 +194,7 @@ namespace Morestachio.Framework.Tokenizing
 				operatorText == "||" ||
 				operatorText == "<?" ||
 				operatorText == ">?" ||
+				operatorText == "!" ||
 				operatorText == "??";
 
 		}
@@ -317,7 +319,7 @@ namespace Morestachio.Framework.Tokenizing
 
 			bool TryParseFlagOption(ref string token, string flagName)
 			{
-				var indexOf = token.IndexOf(flagName, StringComparison.InvariantCultureIgnoreCase);
+				var indexOf = token.IndexOf(flagName, StringComparison.OrdinalIgnoreCase);
 				if (indexOf != -1)
 				{
 					token = token.Remove(indexOf, flagName.Length);
@@ -329,7 +331,7 @@ namespace Morestachio.Framework.Tokenizing
 
 			bool TryParseExpressionOption(ref string token, string optionName, out IMorestachioExpression expression)
 			{
-				var optionIndex = token.IndexOf(optionName, StringComparison.InvariantCultureIgnoreCase);
+				var optionIndex = token.IndexOf(optionName, StringComparison.OrdinalIgnoreCase);
 				if (optionIndex != -1)
 				{
 					token = token.Remove(optionIndex, optionName.Length);
@@ -344,7 +346,7 @@ namespace Morestachio.Framework.Tokenizing
 
 			bool TryParseStringOption(ref string token, string optionName, out string expression)
 			{
-				var optionIndex = token.IndexOf(optionName, StringComparison.InvariantCultureIgnoreCase);
+				var optionIndex = token.IndexOf(optionName, StringComparison.OrdinalIgnoreCase);
 				if (optionIndex != -1)
 				{
 					token = token.Remove(optionIndex, optionName.Length);
@@ -471,7 +473,7 @@ namespace Morestachio.Framework.Tokenizing
 								context.CurrentLocation, tokenOptions));
 						}
 					}
-					else if (trimmedToken.Equals("/declare", StringComparison.CurrentCultureIgnoreCase))
+					else if (trimmedToken.Equals("/declare", StringComparison.OrdinalIgnoreCase))
 					{
 						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.PartialDeclarationOpen)
 						{
@@ -561,7 +563,7 @@ namespace Morestachio.Framework.Tokenizing
 								context.CurrentLocation));
 						}
 					}
-					else if (trimmedToken.Equals("/each", StringComparison.InvariantCultureIgnoreCase))
+					else if (trimmedToken.Equals("/each", StringComparison.OrdinalIgnoreCase))
 					{
 						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.CollectionOpen)
 						{
@@ -593,7 +595,7 @@ namespace Morestachio.Framework.Tokenizing
 								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), ""));
 						}
 					}
-					else if (trimmedToken.Equals("/while", StringComparison.InvariantCultureIgnoreCase))
+					else if (trimmedToken.Equals("/while", StringComparison.OrdinalIgnoreCase))
 					{
 						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.WhileLoopOpen)
 						{
@@ -624,7 +626,7 @@ namespace Morestachio.Framework.Tokenizing
 								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), ""));
 						}
 					}
-					else if (trimmedToken.Equals("/do", StringComparison.InvariantCultureIgnoreCase))
+					else if (trimmedToken.Equals("/do", StringComparison.OrdinalIgnoreCase))
 					{
 						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.DoLoopOpen)
 						{
@@ -655,7 +657,7 @@ namespace Morestachio.Framework.Tokenizing
 								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), ""));
 						}
 					}
-					else if (trimmedToken.Equals("/repeat", StringComparison.InvariantCultureIgnoreCase))
+					else if (trimmedToken.Equals("/repeat", StringComparison.OrdinalIgnoreCase))
 					{
 						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.RepeatLoopOpen)
 						{
@@ -696,7 +698,7 @@ namespace Morestachio.Framework.Tokenizing
 								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), ""));
 						}
 					}
-					else if (trimmedToken.Equals("/switch", StringComparison.InvariantCultureIgnoreCase))
+					else if (trimmedToken.Equals("/switch", StringComparison.OrdinalIgnoreCase))
 					{
 						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.SwitchOpen)
 						{
@@ -735,7 +737,7 @@ namespace Morestachio.Framework.Tokenizing
 								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), ""));
 						}
 					}
-					else if (trimmedToken.Equals("/case", StringComparison.InvariantCultureIgnoreCase))
+					else if (trimmedToken.Equals("/case", StringComparison.OrdinalIgnoreCase))
 					{
 						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.SwitchCaseOpen)
 						{
@@ -749,7 +751,7 @@ namespace Morestachio.Framework.Tokenizing
 								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "case", "{{#case Expression}}"));
 						}
 					}
-					else if (trimmedToken.Equals("#default", StringComparison.InvariantCultureIgnoreCase))
+					else if (trimmedToken.Equals("#default", StringComparison.OrdinalIgnoreCase))
 					{
 						var token = TrimToken(trimmedToken, "default");
 						TryParseStringOption(ref token, GetAsKeyword(), out var alias);
@@ -775,7 +777,7 @@ namespace Morestachio.Framework.Tokenizing
 								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), ""));
 						}
 					}
-					else if (trimmedToken.Equals("/default", StringComparison.InvariantCultureIgnoreCase))
+					else if (trimmedToken.Equals("/default", StringComparison.OrdinalIgnoreCase))
 					{
 						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.SwitchDefaultOpen)
 						{
@@ -839,11 +841,11 @@ namespace Morestachio.Framework.Tokenizing
 								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), ""));
 						}
 					}
-					else if (trimmedToken.Equals("/if", StringComparison.InvariantCultureIgnoreCase))
+					else if (trimmedToken.Equals("/if", StringComparison.OrdinalIgnoreCase))
 					{
 						EndIf(match);
 					}
-					else if (trimmedToken.Equals("#ifelse", StringComparison.InvariantCultureIgnoreCase))
+					else if (trimmedToken.Equals("#ifelse", StringComparison.OrdinalIgnoreCase))
 					{
 						parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId,
 							"IFELSE is considered obsolete and should no longer be used. Just use the #ELSE keyword instead",
@@ -852,7 +854,7 @@ namespace Morestachio.Framework.Tokenizing
 							{"Location", context.CurrentLocation},
 						});
 					}
-					else if (trimmedToken.Equals("#else", StringComparison.InvariantCultureIgnoreCase))
+					else if (trimmedToken.Equals("#else", StringComparison.OrdinalIgnoreCase))
 					{
 						ScopeStackItem currentScope;
 						//the new else block must be located inside an #IF or ^IF block 
@@ -906,7 +908,7 @@ namespace Morestachio.Framework.Tokenizing
 								"else", "{{#ELSEIF}}", "Expected the elseif keyword to be a direct descended of an #if"));
 						}
 					}
-					else if (trimmedToken.Equals("/elseif", StringComparison.InvariantCultureIgnoreCase))
+					else if (trimmedToken.Equals("/elseif", StringComparison.OrdinalIgnoreCase))
 					{
 						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.ElseIf)
 						{
@@ -923,7 +925,7 @@ namespace Morestachio.Framework.Tokenizing
 								"{{#ELSEIF expression}}"));
 						}
 					}
-					else if (trimmedToken.Equals("/else", StringComparison.InvariantCultureIgnoreCase))
+					else if (trimmedToken.Equals("/else", StringComparison.OrdinalIgnoreCase))
 					{
 						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.Else)
 						{
@@ -1000,7 +1002,7 @@ namespace Morestachio.Framework.Tokenizing
 								context.CurrentLocation));
 						}
 					}
-					else if (trimmedToken.Equals("/scope", StringComparison.InvariantCultureIgnoreCase))
+					else if (trimmedToken.Equals("/scope", StringComparison.OrdinalIgnoreCase))
 					{
 						if (scopestack.Any() &&
 							(scopestack.Peek().TokenType == TokenType.ElementOpen ||
@@ -1018,7 +1020,7 @@ namespace Morestachio.Framework.Tokenizing
 								" There are more closing elements then open."));
 						}
 					}
-					else if (trimmedToken.Equals("#NL", StringComparison.InvariantCultureIgnoreCase))
+					else if (trimmedToken.Equals("#NL", StringComparison.OrdinalIgnoreCase))
 					{
 						tokens.Add(new TokenPair(TokenType.WriteLineBreak, trimmedToken, context.CurrentLocation, tokenOptions));
 					}
@@ -1030,16 +1032,16 @@ namespace Morestachio.Framework.Tokenizing
 					{
 						tokens.Add(new TokenPair(TokenType.Comment, trimmedToken, context.CurrentLocation, tokenOptions));
 					}
-					else if (trimmedToken.Equals("#TNL", StringComparison.InvariantCultureIgnoreCase))
+					else if (trimmedToken.Equals("#TNL", StringComparison.OrdinalIgnoreCase))
 					{
 						tokens.Add(new TokenPair(TokenType.TrimLineBreak, trimmedToken, context.CurrentLocation, tokenOptions));
 					}
-					else if (trimmedToken.Equals("#TNLS", StringComparison.InvariantCultureIgnoreCase))
+					else if (trimmedToken.Equals("#TNLS", StringComparison.OrdinalIgnoreCase))
 					{
 						tokenOptions.Add(new TokenOption("All", true));
 						tokens.Add(new TokenPair(TokenType.TrimLineBreaks, trimmedToken, context.CurrentLocation, tokenOptions));
 					}
-					else if (trimmedToken.Equals("#TRIMALL", StringComparison.InvariantCultureIgnoreCase))
+					else if (trimmedToken.Equals("#TRIMALL", StringComparison.OrdinalIgnoreCase))
 					{
 						tokens.Add(new TokenPair(TokenType.TrimEverything, trimmedToken, context.CurrentLocation, tokenOptions));
 					}
@@ -1062,7 +1064,7 @@ namespace Morestachio.Framework.Tokenizing
 						tokens.Add(new TokenPair(TokenType.IsolationScopeOpen, token, context.CurrentLocation, tokenOptions));
 						scopestack.Push(new ScopeStackItem(TokenType.IsolationScopeOpen, token, match.Index));
 					}
-					else if (trimmedToken.Equals("/ISOLATE", StringComparison.InvariantCultureIgnoreCase))
+					else if (trimmedToken.Equals("/ISOLATE", StringComparison.OrdinalIgnoreCase))
 					{
 						if (scopestack.Any() &&
 							(scopestack.Peek().TokenType == TokenType.IsolationScopeOpen))

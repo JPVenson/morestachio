@@ -147,7 +147,7 @@ namespace Morestachio.Framework.Expression.Framework
 			var val = (await value.GetValue(new ContextObject(parserOptions, ".", null, new object()), new ScopeData()))
 				.Value;
 
-			if (name.Equals("TrimTailing", StringComparison.InvariantCultureIgnoreCase))
+			if (name.Equals("TrimTailing", StringComparison.OrdinalIgnoreCase))
 			{
 				if (val == null)
 				{
@@ -163,7 +163,7 @@ namespace Morestachio.Framework.Expression.Framework
 				}
 				TrimTailing = valBool;
 			}
-			if (name.Equals("TrimLeading", StringComparison.InvariantCultureIgnoreCase))
+			if (name.Equals("TrimLeading", StringComparison.OrdinalIgnoreCase))
 			{
 				if (val == null)
 				{
@@ -179,7 +179,7 @@ namespace Morestachio.Framework.Expression.Framework
 				}
 				TrimLeading = valBool;
 			}
-			if (name.Equals("TrimAllTailing", StringComparison.InvariantCultureIgnoreCase))
+			if (name.Equals("TrimAllTailing", StringComparison.OrdinalIgnoreCase))
 			{
 				if (val == null)
 				{
@@ -195,7 +195,7 @@ namespace Morestachio.Framework.Expression.Framework
 				}
 				TrimAllTailing = valBool;
 			}
-			if (name.Equals("TrimAllLeading", StringComparison.InvariantCultureIgnoreCase))
+			if (name.Equals("TrimAllLeading", StringComparison.OrdinalIgnoreCase))
 			{
 				if (val == null)
 				{
