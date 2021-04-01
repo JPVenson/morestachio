@@ -143,11 +143,8 @@ namespace Morestachio.Tests
 			{
 				if (api.Context.CurrentNode.Item is TextEditDocumentItem txtEdit)
 				{
-					if (txtEdit.EmbeddedInstructionOrigin != EmbeddedInstructionOrigin.Self)
-					{
-						api.SearchForward(f => true, false);
-						continue;
-					}
+					api.SearchForward(f => true, false);
+					continue;
 				}
 
 				if (api.Context.CurrentNode.Item is RemoveAliasDocumentItem)

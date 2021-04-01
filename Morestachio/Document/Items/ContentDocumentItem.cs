@@ -59,7 +59,7 @@ namespace Morestachio.Document.Items
 				value = textEditDocumentItem.Operation.Apply(value);
 			}
 
-			if (string.IsNullOrWhiteSpace(value))
+			if (value == null)
 			{
 				return (stream, context, data) =>
 				{

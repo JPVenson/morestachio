@@ -40,7 +40,7 @@ namespace Morestachio
 			await Tokenizer.Tokenize(options, tokenzierContext);
 			return tokenzierContext.Errors;
 		}
-		
+
 		/// <summary>
 		///     Parses the Template with the given options
 		/// </summary>
@@ -75,7 +75,7 @@ namespace Morestachio
 		/// </summary>
 		/// <param name="parsingOptions">a set of options</param>
 		/// <returns></returns>
-		public static MorestachioDocumentInfo ParseWithOptions( ParserOptions parsingOptions)
+		public static MorestachioDocumentInfo ParseWithOptions(ParserOptions parsingOptions)
 		{
 			return ParseWithOptionsAsync(parsingOptions).Result;
 		}
@@ -95,6 +95,7 @@ namespace Morestachio
 			var getScope = new Func<int>(() => variableScope++);
 			//instead of recursive calling the parse function we stack the current document 
 			buildStack.Push(new DocumentScope(new MorestachioDocument(), () => 0));
+			var textEdits = new List<TextEditDocumentItem>();
 
 			DocumentScope GetVariableScope()
 			{
@@ -190,6 +191,12 @@ namespace Morestachio
 							}, EmbeddedInstructionOrigin.Next, GetPublicOptions(currentToken)));
 						}
 					}
+
+					foreach (var textEditDocumentItem in textEdits)
+					{
+						TryAdd(contentDocumentItem, textEditDocumentItem);
+					}
+					textEdits.Clear();
 				}
 				else if (currentToken.Type.Equals(TokenType.If))
 				{
@@ -317,7 +324,7 @@ namespace Morestachio
 						GetPublicOptions(currentToken));
 
 					buildStack.Push(new DocumentScope(partialDocumentItem, getScope));
-					
+
 					TryAdd(currentDocumentItem.Document, partialDocumentItem);
 				}
 				else if (currentToken.Type.Equals(TokenType.PartialDeclarationClose))
@@ -341,7 +348,7 @@ namespace Morestachio
 				else if (currentToken.Type.Equals(TokenType.IsolationScopeOpen))
 				{
 					var nestedDocument =
-						new IsolationScopeDocumentItem(currentToken.TokenLocation, 
+						new IsolationScopeDocumentItem(currentToken.TokenLocation,
 							currentToken.FindOption<IsolationOptions>("IsolationType"),
 							currentToken.FindOption<IMorestachioExpression>("IsolationScopeArg"),
 							GetPublicOptions(currentToken));
@@ -367,12 +374,12 @@ namespace Morestachio
 					EvaluateVariableDocumentItem nestedDocument;
 
 					var isolationParent = buildStack.FirstOrDefault(e => e.Document is IsolationScopeDocumentItem doc &&
-					                                                     doc.Isolation.HasFlag(IsolationOptions.VariableIsolation));
+																		 doc.Isolation.HasFlag(IsolationOptions.VariableIsolation));
 					if (isolationParent != null)
 					{
 						nestedDocument = new EvaluateVariableDocumentItem(currentToken.TokenLocation,
 							currentToken.Value,
-							currentToken.MorestachioExpression, 
+							currentToken.MorestachioExpression,
 							isolationParent.VariableScopeNumber,
 							GetPublicOptions(currentToken));
 						isolationParent.LocalVariables.Add(currentToken.Value);
@@ -381,9 +388,9 @@ namespace Morestachio
 					{
 						nestedDocument = new EvaluateVariableDocumentItem(currentToken.TokenLocation,
 							currentToken.Value,
-							currentToken.MorestachioExpression, GetPublicOptions(currentToken));	
+							currentToken.MorestachioExpression, GetPublicOptions(currentToken));
 					}
-					
+
 					TryAdd(currentDocumentItem.Document, nestedDocument);
 				}
 				else if (currentToken.Type.Equals(TokenType.VariableLet))
@@ -412,7 +419,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.TrimLineBreak))
 				{
-					TryAdd(currentDocumentItem.Document, new TextEditDocumentItem(currentToken.TokenLocation,
+					textEdits.Add(new TextEditDocumentItem(currentToken.TokenLocation,
 						new TrimLineBreakTextOperation()
 						{
 							LineBreaks = 1,
@@ -421,7 +428,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.TrimLineBreaks))
 				{
-					TryAdd(currentDocumentItem.Document, new TextEditDocumentItem(currentToken.TokenLocation,
+					textEdits.Add(new TextEditDocumentItem(currentToken.TokenLocation,
 						new TrimLineBreakTextOperation()
 						{
 							LineBreaks = currentToken.FindOption<bool>("All") ? -1 : 0,
@@ -430,7 +437,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.TrimPrependedLineBreaks))
 				{
-					TryAdd(currentDocumentItem.Document, new TextEditDocumentItem(currentToken.TokenLocation,
+					textEdits.Add(new TextEditDocumentItem(currentToken.TokenLocation,
 						new TrimLineBreakTextOperation()
 						{
 							LineBreaks = currentToken.FindOption<bool>("All") ? -1 : 0,
@@ -439,7 +446,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.TrimEverything))
 				{
-					TryAdd(currentDocumentItem.Document, new TextEditDocumentItem(currentToken.TokenLocation,
+					textEdits.Add(new TextEditDocumentItem(currentToken.TokenLocation,
 						new TrimAllWhitespacesTextOperation(),
 						currentToken.IsEmbeddedToken, GetPublicOptions(currentToken)));
 				}

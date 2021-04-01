@@ -6,6 +6,7 @@ using Morestachio.Document.Items;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Items.SwitchCase;
 using Morestachio.Document.TextOperations;
+using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.Visitors;
@@ -43,7 +44,22 @@ namespace Morestachio.Document.Visitor
 		/// <inheritdoc />
 		public void Visit(ContentDocumentItem documentItem)
 		{
+			foreach (var textEditDocumentItem in documentItem.Children.OfType<TextEditDocumentItem>()
+				.Where(e => e.EmbeddedInstructionOrigin == EmbeddedInstructionOrigin.Self)
+				.Where(e => e.Operation is TrimLineBreakTextOperation trimOp && trimOp.LineBreakTrimDirection == LineBreakTrimDirection.Begin )
+				)
+			{
+				Visit(textEditDocumentItem);
+			}
 			StringBuilder.Append(documentItem.Value);
+			
+			foreach (var textEditDocumentItem in documentItem.Children.OfType<TextEditDocumentItem>()
+				.Where(e => e.EmbeddedInstructionOrigin == EmbeddedInstructionOrigin.Self)
+				.Where(e => e.Operation is TrimLineBreakTextOperation trimOp && trimOp.LineBreakTrimDirection == LineBreakTrimDirection.End)
+			)
+			{
+				Visit(textEditDocumentItem);
+			}
 		}
 
 		/// <summary>
