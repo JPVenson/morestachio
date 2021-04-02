@@ -138,7 +138,7 @@ namespace Morestachio.Document.Items
 					return;
 				}
 				innerContext.Index = index;
-				innerContext.Last = index == value.Count;
+				innerContext.Last = index + 1 == value.Count;
 				innerContext.Value = item;
 				await onItem(innerContext);
 				index++;

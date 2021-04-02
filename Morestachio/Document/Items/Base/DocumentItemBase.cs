@@ -183,7 +183,7 @@ namespace Morestachio.Document.Items.Base
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool ContinueBuilding(IByteCounterStream builder, ScopeData scopeData)
 		{
-			return !builder.ReachedLimit || (scopeData.IsOutputLimited && scopeData.CancellationToken.IsCancellationRequested);
+			return !builder.ReachedLimit && !scopeData.CancellationToken.IsCancellationRequested;
 
 			//return (scopeData.HasCancellationToken && !scopeData.CancellationToken.IsCancellationRequested) &&
 			//	   !builder.ReachedLimit;

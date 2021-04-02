@@ -116,7 +116,7 @@ namespace Morestachio.Document
 				{
 					for (int i = 0; i < docs.Length; i++)
 					{
-						if (DocumentItemBase.ContinueBuilding(stream, data))
+						if (!DocumentItemBase.ContinueBuilding(stream, data))
 						{
 							return;
 						}
