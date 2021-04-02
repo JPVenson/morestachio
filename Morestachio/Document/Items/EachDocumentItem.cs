@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
@@ -111,7 +112,42 @@ namespace Morestachio.Document.Items
 						MorestachioExpression, ExpressionStart,
 						(path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 			}
+			
+			if (value is ICollection col)
+			{
+				await LoopCollection(outputStream, c, scopeData, onItem, col);
+			}
+			else
+			{
+				await LoopEnumerable(outputStream, c, scopeData, onItem, value);
+			}
 
+		}
+
+		private static async Promise LoopCollection(IByteCounterStream outputStream, ContextObject c, ScopeData scopeData,
+			Func<ContextObject, Promise> onItem, ICollection value)
+		{
+			var index = 0;
+			var innerContext =
+				new ContextCollection(index, false, $"[{index}]", c, null)
+					.MakeNatural() as ContextCollection;
+			foreach (var item in value)
+			{
+				if (!ContinueBuilding(outputStream, scopeData))
+				{
+					return;
+				}
+				innerContext.Index = index;
+				innerContext.Last = index == value.Count;
+				innerContext.Value = item;
+				await onItem(innerContext);
+				index++;
+			}
+		}
+
+		private static async Promise LoopEnumerable(IByteCounterStream outputStream, ContextObject c, ScopeData scopeData,
+			Func<ContextObject, Promise> onItem, IEnumerable value)
+		{
 			//Use this "lookahead" enumeration to allow the $last keyword
 			var index = 0;
 			var enumerator = value.GetEnumerator();
@@ -121,7 +157,7 @@ namespace Morestachio.Document.Items
 			}
 
 			var current = enumerator.Current;
-			
+
 			var innerContext =
 				new ContextCollection(index, false, $"[{index}]", c, current)
 					.MakeNatural() as ContextCollection;
