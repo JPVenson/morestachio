@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Morestachio.Rendering;
 
 namespace Morestachio.AspNetCore
 {
@@ -12,12 +13,12 @@ namespace Morestachio.AspNetCore
 		}
 
 		public bool CacheTemplate { get; set; }
-		private MorestachioDocumentInfo _templateCache;
+		private IRenderer _templateCache;
 
 		public bool CacheData { get; set; }
 		private IMorestachioDataCache<object, MorestachioDataCache.DataCacheKey> _dataCache;
 		
-		public override async ValueTask<MorestachioDocumentInfo> GetTemplate(HttpContext context)
+		public override async ValueTask<IRenderer> GetTemplate(HttpContext context)
 		{
 			if (CacheTemplate)
 			{

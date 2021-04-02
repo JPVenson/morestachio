@@ -9,6 +9,7 @@ using System.Threading;
 using Morestachio.Document;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items;
+using Morestachio.Framework.IO;
 using Morestachio.Profiler;
 
 namespace Morestachio.Rendering
@@ -63,15 +64,17 @@ namespace Morestachio.Rendering
 		{
 
 		}
-
+		
 		/// <inheritdoc />
-		public virtual async MorestachioDocumentResultPromise RenderAsync(object data, CancellationToken cancellationToken)
+		public virtual async MorestachioDocumentResultPromise RenderAsync(object data,
+			CancellationToken cancellationToken,
+			IByteCounterStream targetStream = null)
 		{
 			return await Render(data, cancellationToken, async (stream, context, scopeData) =>
 			{
 				await MorestachioDocument.ProcessItemsAndChildren(new[] {Document}, stream,
 					context, scopeData);
-			});
+			}, targetStream);
 		}
 
 		/// <summary>
@@ -83,7 +86,8 @@ namespace Morestachio.Rendering
 		/// <returns></returns>
 		protected virtual async MorestachioDocumentResultPromise Render(object data,
 			CancellationToken token,
-			CompilationAsync executer)
+			CompilationAsync executer,
+			IByteCounterStream targetStream)
 		{
 			PreRender();
 			var timeoutCancellation = new CancellationTokenSource();
@@ -96,7 +100,7 @@ namespace Morestachio.Rendering
 			}
 
 			PerformanceProfiler profiler = null;
-			using (var byteCounterStream = ParserOptions.StreamFactory.GetByteCounterStream(ParserOptions))
+			using (var byteCounterStream = targetStream ?? ParserOptions.StreamFactory.GetByteCounterStream(ParserOptions))
 			{
 				var context = ParserOptions.CreateContextObject("", data);
 				var scopeData = new ScopeData(ParserOptions, token);

@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Morestachio.Rendering;
 
 namespace Morestachio.AspNetCore
 {
@@ -7,7 +8,7 @@ namespace Morestachio.AspNetCore
 	{
 		bool Matches(HttpContext context);
 
-		ValueTask<MorestachioDocumentInfo> GetTemplate(HttpContext context);
+		ValueTask<IRenderer> GetTemplate(HttpContext context);
 		ValueTask<object> GetData(HttpContext context);
 	}
 }

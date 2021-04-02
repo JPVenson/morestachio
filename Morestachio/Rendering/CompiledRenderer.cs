@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Morestachio.Document;
 using Morestachio.Document.Contracts;
+using Morestachio.Framework.IO;
 #if ValueTask
 using MorestachioDocumentResultPromise = System.Threading.Tasks.ValueTask<Morestachio.MorestachioDocumentResult>;
 #else
@@ -50,12 +51,14 @@ namespace Morestachio.Rendering
 		}
 		
 		/// <inheritdoc />
-		public override async MorestachioDocumentResultPromise RenderAsync(object data, CancellationToken cancellationToken)
+		public override async MorestachioDocumentResultPromise RenderAsync(object data,
+			CancellationToken cancellationToken,
+			IByteCounterStream targetStream = null)
 		{
 			return await Render(data, cancellationToken, async (stream, context, scopeData) =>
 			{
 				await CompiledDocument(stream, context, scopeData);
-			});
+			}, targetStream);
 		}
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Morestachio.Document.Contracts;
+using Morestachio.Framework.IO;
 using Morestachio.Helper;
 #if ValueTask
 using MorestachioDocumentResultPromise = System.Threading.Tasks.ValueTask<Morestachio.MorestachioDocumentResult>;
@@ -36,14 +37,11 @@ namespace Morestachio.Rendering
 		///		Will be invoked after the rendering
 		/// </summary>
 		void PostRender();
-
+		
 		/// <summary>
 		///		Renders a document with the given object
 		/// </summary>
-		/// <param name="data"></param>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
-		MorestachioDocumentResultPromise RenderAsync(object data, CancellationToken cancellationToken);
+		MorestachioDocumentResultPromise RenderAsync(object data, CancellationToken cancellationToken, IByteCounterStream targetStream = null);
 	}
 
 	/// <summary>
@@ -56,7 +54,14 @@ namespace Morestachio.Rendering
 		/// </summary>
 		public static MorestachioDocumentResult Render(this IRenderer renderer, object data, CancellationToken token)
 		{
-			return renderer.RenderAsync(data, token).GetAwaiter().GetResult();
+			return renderer.Render(data, token, null);
+		}
+		/// <summary>
+		///		Renders the <see cref="IRenderer.Document"/> and awaits synchronously 
+		/// </summary>
+		public static MorestachioDocumentResult Render(this IRenderer renderer, object data, CancellationToken token, IByteCounterStream targetStream)
+		{
+			return renderer.RenderAsync(data, token, targetStream).GetAwaiter().GetResult();
 		}
 		
 		/// <summary>
@@ -66,13 +71,28 @@ namespace Morestachio.Rendering
 		{
 			return renderer.Render(data, CancellationToken.None);
 		}
-
+		
+		/// <summary>
+		///		Renders the <see cref="IRenderer.Document"/> and awaits synchronously 
+		/// </summary>
+		public static MorestachioDocumentResult Render(this IRenderer renderer, object data, IByteCounterStream targetStream)
+		{
+			return renderer.Render(data, CancellationToken.None, targetStream);
+		}
+		
 		/// <summary>
 		///		Renders the <see cref="IRenderer.Document"/>
 		/// </summary>
 		public static MorestachioDocumentResultPromise RenderAsync(this IRenderer renderer, object data)
 		{
 			return renderer.RenderAsync(data, CancellationToken.None);
+		}
+		/// <summary>
+		///		Renders the <see cref="IRenderer.Document"/>
+		/// </summary>
+		public static MorestachioDocumentResultPromise RenderAsync(this IRenderer renderer, object data, IByteCounterStream targetStream)
+		{
+			return renderer.RenderAsync(data, CancellationToken.None, targetStream);
 		}
 		
 		/// <summary>

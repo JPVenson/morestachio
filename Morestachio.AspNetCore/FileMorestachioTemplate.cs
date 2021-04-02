@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Morestachio.Helper;
+using Morestachio.Rendering;
 
 namespace Morestachio.AspNetCore
 {
@@ -25,11 +26,11 @@ namespace Morestachio.AspNetCore
 			return context.Request.Path.Equals(Path, StringComparison.CurrentCultureIgnoreCase);
 		}
 
-		public override ValueTask<MorestachioDocumentInfo> GetTemplateCore(HttpContext context)
+		public override async ValueTask<IRenderer> GetTemplateCore(HttpContext context)
 		{
-			return new ValueTask<MorestachioDocumentInfo>(Parser.ParseWithOptions(CreateOptions(
-				File.OpenRead().Stringify(true, Encoding.UTF8),
-				Encoding.UTF8)));
+			var options = CreateOptions(File.OpenRead().Stringify(true, Encoding.UTF8), Encoding.UTF8);
+			var parsedTemplate = await Parser.ParseWithOptionsAsync(options);
+			return parsedTemplate.CreateCompiledRenderer();
 		}
 
 		public override async ValueTask<object> GetDataCore(HttpContext context)

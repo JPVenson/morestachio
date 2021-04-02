@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Morestachio.Formatter.Framework;
 using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Context.Resolver;
+using Morestachio.Rendering;
 
 namespace Morestachio.AspNetCore
 {
@@ -32,7 +33,7 @@ namespace Morestachio.AspNetCore
 
 		public bool AddHttpContext { get; set; }
 
-		public abstract ValueTask<MorestachioDocumentInfo> GetTemplateCore(HttpContext context);
+		public abstract ValueTask<IRenderer> GetTemplateCore(HttpContext context);
 		public abstract ValueTask<object> GetDataCore(HttpContext context);
 
 		public virtual ParserOptions CreateOptions(string template, Encoding encodingFromRequest)
@@ -52,7 +53,7 @@ namespace Morestachio.AspNetCore
 
 		public abstract bool Matches(HttpContext context);
 
-		public virtual async ValueTask<MorestachioDocumentInfo> GetTemplate(HttpContext context)
+		public virtual async ValueTask<IRenderer> GetTemplate(HttpContext context)
 		{
 			return await GetTemplateCore(context);
 		}
