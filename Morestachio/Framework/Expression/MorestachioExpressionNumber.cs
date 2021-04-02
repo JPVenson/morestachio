@@ -147,12 +147,14 @@ namespace Morestachio.Framework.Expression
 		/// <inheritdoc />
 		public CompiledExpression Compile()
 		{
+			var nrContext = new ContextObject(".", null, Number);
 			return (contextObject, scopeData) =>
 			{
-				var nrContext = scopeData.ParserOptions.CreateContextObject(".",
-					Number,
-					contextObject);
 				return nrContext.ToPromise();
+				//var nrContext = scopeData.ParserOptions.CreateContextObject(".",
+				//	Number,
+				//	contextObject);
+				//return nrContext.ToPromise();
 			};
 		}
 

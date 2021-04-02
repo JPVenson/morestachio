@@ -132,9 +132,8 @@ namespace Morestachio.Framework.Expression
 		public CompiledExpression Compile()
 		{
 			var str = string.Join("", StringParts.Select(f => f.PartText));
-			return (contextObject, scopeData) => scopeData.ParserOptions.CreateContextObject(".",
-				str,
-				contextObject).ToPromise();
+			var value = new ContextObject(".", null, str);
+			return (contextObject, scopeData) => value.ToPromise();
 		}
 
 		/// <inheritdoc />
