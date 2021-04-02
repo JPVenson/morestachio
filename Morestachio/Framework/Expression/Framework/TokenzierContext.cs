@@ -144,7 +144,7 @@ namespace Morestachio.Framework.Expression.Framework
 		///  <returns></returns>
 		public async Promise SetOption(string name, IMorestachioExpression value, ParserOptions parserOptions)
 		{
-			var val = (await value.GetValue(new ContextObject(parserOptions, ".", null, new object()), new ScopeData()))
+			var val = (await value.GetValue(new ContextObject(".", null, new object()), new ScopeData(parserOptions)))
 				.Value;
 
 			if (name.Equals("TrimTailing", StringComparison.OrdinalIgnoreCase))

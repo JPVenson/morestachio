@@ -121,7 +121,7 @@ namespace Morestachio.Document.Items
 			if (ScopeIsolationExpression != null)
 			{
 				context = await ScopeIsolationExpression.GetValue(context, scopeData);
-				context = new ContextObject(context.Options, context.Key, null, context.Value);
+				context = new ContextObject(context.Key, null, context.Value);
 			}
 
 			return Children.WithScope(context);
@@ -144,7 +144,7 @@ namespace Morestachio.Document.Items
 				return async (stream, context, data) =>
 				{
 					context = await compiledExpression(context, data);
-					context = new ContextObject(context.Options, context.Key, null, context.Value);
+					context = new ContextObject(context.Key, null, context.Value);
 					await children(stream, context, data);
 				};
 			}

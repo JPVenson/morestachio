@@ -123,7 +123,7 @@ namespace Morestachio.Framework.Expression
 		public async ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
 		{
 			await Task.CompletedTask;
-			return contextObject.Options.CreateContextObject(".",
+			return scopeData.ParserOptions.CreateContextObject(".",
 				string.Join("", StringParts.Select(f => f.PartText)),
 				contextObject);
 		}
@@ -132,7 +132,7 @@ namespace Morestachio.Framework.Expression
 		public CompiledExpression Compile()
 		{
 			var str = string.Join("", StringParts.Select(f => f.PartText));
-			return (contextObject, data) => contextObject.Options.CreateContextObject(".",
+			return (contextObject, scopeData) => scopeData.ParserOptions.CreateContextObject(".",
 				str,
 				contextObject).ToPromise();
 		}

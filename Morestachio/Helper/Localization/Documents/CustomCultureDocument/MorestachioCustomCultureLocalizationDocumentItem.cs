@@ -61,7 +61,7 @@ namespace Morestachio.Helper.Localization.Documents.CustomCultureDocument
 
 			return async (outputStream, context, scopeData) =>
 			{
-				var oldCulture = context.Options.CultureInfo;
+				var oldCulture = scopeData.ParserOptions.CultureInfo;
 				if (scopeData.CustomData.TryGetValue(LocalizationCultureKey, out var customCulture) &&
 				    customCulture is CultureInfo culInfo)
 				{
@@ -88,7 +88,7 @@ namespace Morestachio.Helper.Localization.Documents.CustomCultureDocument
 		/// <inheritdoc />
 		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
-			var oldCulture = context.Options.CultureInfo;
+			var oldCulture = scopeData.ParserOptions.CultureInfo;
 			if (scopeData.CustomData.TryGetValue(LocalizationCultureKey, out var customCulture) && customCulture is CultureInfo culInfo)
 			{
 				oldCulture = culInfo;

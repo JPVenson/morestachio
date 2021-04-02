@@ -13,6 +13,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Context.Resolver;
 using Morestachio.Framework.IO;
+using Morestachio.Framework.IO.SingleStream;
 using Morestachio.Helper.Logging;
 using Morestachio.TemplateContainers;
 using Morestachio.Util;
@@ -62,7 +63,7 @@ namespace Morestachio
 		/// </summary>
 		/// <param name="template"></param>
 		public ParserOptions(ITemplateContainer template)
-			: this(template, null)
+			: this(template, (Func<Stream>)null)
 		{
 		}
 
@@ -85,20 +86,8 @@ namespace Morestachio
 		/// <param name="encoding">The encoding.</param>
 		public ParserOptions(ITemplateContainer template,
 			 Func<Stream> sourceStream,
-			 Encoding encoding)
+			 Encoding encoding) : this(template, ByteCounterFactory.GetDefaultByteCounter(sourceStream), encoding)
 		{
-			Template = template ?? new StringTemplateContainer("");
-			StreamFactory = new ByteCounterFactory(sourceStream);
-			Encoding = encoding ?? Encoding.UTF8;
-			_formatters = new MorestachioFormatterService();
-			Null = string.Empty;
-			MaxSize = 0;
-			DisableContentEscaping = false;
-			Timeout = TimeSpan.Zero;
-			PartialStackSize = 255;
-			_customDocumentItemProviders = new CustomDocumentList();
-			CultureInfo = CultureInfo.CurrentCulture;
-			UnmatchedTagBehavior = UnmatchedTagBehavior.ThrowError | UnmatchedTagBehavior.LogWarning;
 		}
 
 		/// <summary>
@@ -123,6 +112,18 @@ namespace Morestachio
 			_customDocumentItemProviders = new CustomDocumentList();
 			CultureInfo = CultureInfo.CurrentCulture;
 			UnmatchedTagBehavior = UnmatchedTagBehavior.ThrowError | UnmatchedTagBehavior.LogWarning;
+		}
+
+		/// <summary>
+		///     Initializes a new instance of the <see cref="ParserOptions" /> class.
+		/// </summary>
+		/// <param name="template">The template.</param>
+		/// <param name="sourceStream">The source stream.</param>
+		/// <param name="encoding">The encoding.</param>
+		public ParserOptions(ITemplateContainer template,
+			 Func<ParserOptions, IByteCounterStream> sourceStream) 
+			: this(template, sourceStream, null)
+		{
 		}
 
 		/// <summary>
@@ -571,21 +572,21 @@ namespace Morestachio
 		{
 			if (key == "x:null")
 			{
-				return _nullContext ?? (_nullContext = new ContextObject(this, "x:null", null, null));
+				return _nullContext ?? (_nullContext = new ContextObject("x:null", null, null));
 			}
 			if (value is bool val)
 			{
 				if (val)
 				{
-					return _trueContext ?? (_trueContext = new ContextObject(this, "x:true", null, true));
+					return _trueContext ?? (_trueContext = new ContextObject("x:true", null, true));
 				}
 				else
 				{
-					return _falseContext ?? (_falseContext = new ContextObject(this, "x:false", null, false));
+					return _falseContext ?? (_falseContext = new ContextObject("x:false", null, false));
 				}
 			}
 
-			return new ContextObject(this, key, parent, value);
+			return new ContextObject(key, parent, value);
 		}
 
 		internal void OnUnresolvedPath(InvalidPathEventArgs args)

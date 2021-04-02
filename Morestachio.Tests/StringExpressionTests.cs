@@ -21,7 +21,7 @@ namespace Morestachio.Tests
 
 		public static ContextObject StringTestContext()
 		{
-			return new ContextObject(new ParserOptions(""), ".", null, null);
+			return new ContextObject(".", null, null);
 		}
 
 		[Test]
@@ -35,7 +35,7 @@ namespace Morestachio.Tests
 			var expressionString = (result as MorestachioExpressionString);
 			Assert.That(expressionString.Location.ToFormatString(), Is.EqualTo("1:1,1"));
 			Assert.That(expressionString.StringParts.Count, Is.EqualTo(1));
-			Assert.That((await expressionString.GetValue(StringTestContext(), new ScopeData())).Value, Is.EqualTo("test"));
+			Assert.That((await expressionString.GetValue(StringTestContext(), new ScopeData(new ParserOptions("")))).Value, Is.EqualTo("test"));
 		}
 
 		[Test]
@@ -58,7 +58,7 @@ namespace Morestachio.Tests
 			var expressionString = (result as MorestachioExpressionString);
 			Assert.That(expressionString.Location.ToFormatString(), Is.EqualTo("1:1,1"));
 			Assert.That(expressionString.StringParts.Count, Is.EqualTo(1));
-			Assert.That((await expressionString.GetValue(StringTestContext(), new ScopeData())).Value, Is.EqualTo("a string, with a comma, and other {[]}{§$%& stuff. also a escaped \" and \\\" and so on"));
+			Assert.That((await expressionString.GetValue(StringTestContext(), new ScopeData(new ParserOptions("")))).Value, Is.EqualTo("a string, with a comma, and other {[]}{§$%& stuff. also a escaped \" and \\\" and so on"));
 		}
 
 		[Test]

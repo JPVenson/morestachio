@@ -229,8 +229,8 @@ namespace Morestachio.Framework.Expression.Parser
 			{
 				return null;
 			}
-			var contextObject = new ContextObject(options, "", null, context);
-			var value = await expression.GetValue(contextObject, new ScopeData());
+			var contextObject = new ContextObject("", null, context);
+			var value = await expression.GetValue(contextObject, new ScopeData(options));
 			return value.Value;
 		}
 

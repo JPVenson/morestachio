@@ -51,17 +51,17 @@ namespace Morestachio.Framework.IO
 		{
 		}
 
-		private static Stream GetDefaultStream()
+		internal static Stream GetDefaultStream()
 		{
 			return new MemoryStream();
 		}
 
-		private static Func<ParserOptions, IByteCounterStream> GetDefaultTempStream()
+		internal static Func<ParserOptions, IByteCounterStream> GetDefaultTempStream()
 		{
 			return (ParserOptions options) => new ByteCounterTextWriter(new StringWriter(), options);
 		}
 
-		private static Func<ParserOptions, IByteCounterStream> GetDefaultByteCounter(Func<Stream> targetStream)
+		internal static Func<ParserOptions, IByteCounterStream> GetDefaultByteCounter(Func<Stream> targetStream)
 		{
 			return (ParserOptions options) => new ByteCounterStream(targetStream(), MorestachioDocumentInfo.BufferSize, true, options);
 		}

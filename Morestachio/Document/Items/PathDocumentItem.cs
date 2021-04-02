@@ -95,7 +95,7 @@ namespace Morestachio.Document.Items
 				if (contextObject != null)
 				{
 					//await contextObject.EnsureValue();
-					if (EscapeValue && !context.Options.DisableContentEscaping)
+					if (EscapeValue && !scopeData.ParserOptions.DisableContentEscaping)
 					{
 						outputStream.Write(HtmlEncodeString(await contextObject.RenderToString(scopeData)));
 					}
@@ -117,7 +117,7 @@ namespace Morestachio.Document.Items
 			if (contextObject != null)
 			{
 				//await contextObject.EnsureValue();
-				if (EscapeValue && !context.Options.DisableContentEscaping)
+				if (EscapeValue && !scopeData.ParserOptions.DisableContentEscaping)
 				{
 					outputStream.Write(HtmlEncodeString(await contextObject.RenderToString(scopeData)));
 				}

@@ -48,7 +48,6 @@ namespace Morestachio.Framework.Context
 		private object _value;
 		private readonly ContextObject _parent;
 		private bool _isNaturalContext;
-		private readonly ParserOptions _options;
 		private readonly string _key;
 
 		static ContextObject()
@@ -86,10 +85,9 @@ namespace Morestachio.Framework.Context
 		/// <summary>
 		///     Initializes a new instance of the <see cref="ContextObject" /> class.
 		/// </summary>
-		public ContextObject(ParserOptions options, string key, ContextObject parent,
+		public ContextObject(string key, ContextObject parent,
 			object value)
 		{
-			_options = options ?? throw new ArgumentNullException(nameof(options));
 			_key = key;
 			_parent = parent;
 			_value = value;
@@ -168,15 +166,6 @@ namespace Morestachio.Framework.Context
 		public string Key
 		{
 			get { return _key; }
-		}
-
-		/// <summary>
-		///     With what options are the template currently is running
-		/// </summary>
-		// ReSharper disable once ConvertToAutoProperty
-		public ParserOptions Options
-		{
-			get { return _options; }
 		}
 
 		internal ContextObject FindNextNaturalContextObject()
@@ -259,18 +248,18 @@ namespace Morestachio.Framework.Context
 				//await EnsureValue();
 				if (_value is null)
 				{
-					return Options.CreateContextObject("x:null", null);
+					return scopeData.ParserOptions.CreateContextObject("x:null", null);
 				}
 
 				//ALWAYS return the context, even if the value is null.
-				return ExecuteObjectSelector(elements.Current.Key, type);
+				return ExecuteObjectSelector(elements.Current.Key, type, scopeData);
 			}
 			else if (elements.Current.Value == PathType.Boolean)
 			{
 				if (elements.Current.Key == "true" || elements.Current.Key == "false")
 				{
 					var booleanContext =
-						Options.CreateContextObject(".", elements.Current.Key == "true", this);
+						scopeData.ParserOptions.CreateContextObject(".", elements.Current.Key == "true", this);
 					booleanContext.IsNaturalContext = IsNaturalContext;
 					return booleanContext;
 				}
@@ -279,27 +268,27 @@ namespace Morestachio.Framework.Context
 			}
 			else if (elements.Current.Value == PathType.Null)
 			{
-				return Options.CreateContextObject("x:null", null);
+				return scopeData.ParserOptions.CreateContextObject("x:null", null);
 			}
 			else if (elements.Current.Value == PathType.DataPath)
 			{
-				return ExecuteDataPath(elements.Current.Key, morestachioExpression, type);
+				return ExecuteDataPath(elements.Current.Key, morestachioExpression, type, scopeData);
 			}
 			return retval;
 		}
 
-		internal ContextObject ExecuteObjectSelector(string key, Type type)
+		internal ContextObject ExecuteObjectSelector(string key, Type type, ScopeData scopeData)
 		{
 			ContextObject innerContext = null;
-			if (!_options.HandleDictionaryAsObject && _value is IDictionary<string, object> dictList)
+			if (!scopeData.ParserOptions.HandleDictionaryAsObject && _value is IDictionary<string, object> dictList)
 			{
-				innerContext = Options.CreateContextObject(key, dictList.Select(e => e), this);
+				innerContext = scopeData.ParserOptions.CreateContextObject(key, dictList.Select(e => e), this);
 			}
 			else
 			{
 				if (_value != null)
 				{
-					innerContext = Options.CreateContextObject(key, type
+					innerContext = scopeData.ParserOptions.CreateContextObject(key, type
 							.GetTypeInfo()
 							.GetProperties(BindingFlags.Instance | BindingFlags.Public)
 							.Where(e => !e.IsSpecialName && !e.GetIndexParameters().Any())
@@ -311,26 +300,26 @@ namespace Morestachio.Framework.Context
 			return innerContext ?? this;
 		}
 
-		internal ContextObject ExecuteDataPath(string key, IMorestachioExpression morestachioExpression, Type type)
+		internal ContextObject ExecuteDataPath(string key, IMorestachioExpression morestachioExpression, Type type, ScopeData scopeData)
 		{
 			//await EnsureValue();
 			if (_value is null)
 			{
-				return Options.CreateContextObject("x:null", null);
+				return scopeData.ParserOptions.CreateContextObject("x:null", null);
 			}
 			//TODO: handle array accessors and maybe "special" keys.
 			//ALWAYS return the context, even if the value is null.
 
-			var innerContext = Options.CreateContextObject(key, null, this);
-			if (Options.ValueResolver?.CanResolve(type, _value, key, innerContext) == true)
+			var innerContext = scopeData.ParserOptions.CreateContextObject(key, null, this);
+			if (scopeData.ParserOptions.ValueResolver?.CanResolve(type, _value, key, innerContext) == true)
 			{
-				innerContext._value = Options.ValueResolver.Resolve(type, _value, key, innerContext);
+				innerContext._value = scopeData.ParserOptions.ValueResolver.Resolve(type, _value, key, innerContext);
 			}
-			else if (!Options.HandleDictionaryAsObject && _value is IDictionary<string, object> ctx)
+			else if (!scopeData.ParserOptions.HandleDictionaryAsObject && _value is IDictionary<string, object> ctx)
 			{
 				if (!ctx.TryGetValue(key, out var o))
 				{
-					Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+					scopeData.ParserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
 						key, _value?.GetType()));
 				}
 
@@ -340,7 +329,7 @@ namespace Morestachio.Framework.Context
 			{
 				if (!cResolver.TryGetValue(key, out var o))
 				{
-					Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+					scopeData.ParserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
 						key, _value?.GetType()));
 				}
 
@@ -357,7 +346,7 @@ namespace Morestachio.Framework.Context
 					}
 					else
 					{
-						Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+						scopeData.ParserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
 							key, _value?.GetType()));
 					}
 				}
@@ -370,14 +359,14 @@ namespace Morestachio.Framework.Context
 					}
 					else
 					{
-						Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+						scopeData.ParserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
 							key, _value?.GetType()));
 					}
 				}
 			}
 			else
 			{
-				Options.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+				scopeData.ParserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
 					key, _value?.GetType()));
 			}
 
@@ -426,7 +415,7 @@ namespace Morestachio.Framework.Context
 			//var peekPathPart = elements.Peek();
 			if (elements.Count == 1 && elements.Current.Value == PathType.Null)
 			{
-				return Options.CreateContextObject("x:null", null);
+				return scopeData.ParserOptions.CreateContextObject("x:null", null);
 			}
 
 			var targetContext = this;
@@ -474,7 +463,7 @@ namespace Morestachio.Framework.Context
 		/// <returns></returns>
 		public virtual StringPromise RenderToString(ScopeData scopeData)
 		{
-			return (_value?.ToString() ?? scopeData.GetVariable(this, "$null")?._value?.ToString() ?? Options.Null).ToPromise();
+			return (_value?.ToString() ?? scopeData.GetVariable(this, "$null")?._value?.ToString() ?? scopeData.ParserOptions.Null).ToPromise();
 		}
 
 		/// <summary>
@@ -488,7 +477,7 @@ namespace Morestachio.Framework.Context
 		public virtual FormatterCache PrepareFormatterCall(Type type,
 			 string name,
 			 FormatterArgumentType[] arguments,
-			ScopeData scope)
+			ScopeData scopeData)
 		{
 			if (string.IsNullOrWhiteSpace(name))
 			{
@@ -496,7 +485,7 @@ namespace Morestachio.Framework.Context
 			}
 
 			//call formatters that are given by the Options for this run
-			var cache = _options.Formatters.PrepareCallMostMatchingFormatter(type, arguments, name, _options, scope);
+			var cache = scopeData.ParserOptions.Formatters.PrepareCallMostMatchingFormatter(type, arguments, name, scopeData.ParserOptions, scopeData);
 			if (cache != null)
 			{
 				//one formatter has returned a valid value so use this one.
@@ -504,7 +493,7 @@ namespace Morestachio.Framework.Context
 			}
 
 			//all formatters in the options object have rejected the value so try use the global ones
-			return DefaultFormatter.PrepareCallMostMatchingFormatter(type, arguments, name, _options, scope);
+			return DefaultFormatter.PrepareCallMostMatchingFormatter(type, arguments, name, scopeData.ParserOptions, scopeData);
 		}
 
 		/// <summary>
@@ -513,7 +502,7 @@ namespace Morestachio.Framework.Context
 		/// <returns></returns>
 		public virtual ContextObject CloneForEdit()
 		{
-			var contextClone = new ContextObject(_options, _key, this, _value) //note: Parent must be the original context so we can traverse up to an unmodified context
+			var contextClone = new ContextObject(_key, this, _value) //note: Parent must be the original context so we can traverse up to an unmodified context
 			{
 				_isNaturalContext = false,
 			};
@@ -527,7 +516,7 @@ namespace Morestachio.Framework.Context
 		/// <returns></returns>
 		public virtual ContextObject CloneForEdit(object newValue)
 		{
-			var contextClone = new ContextObject(_options, _key, this, newValue) //note: Parent must be the original context so we can traverse up to an unmodified context
+			var contextClone = new ContextObject(_key, this, newValue) //note: Parent must be the original context so we can traverse up to an unmodified context
 			{
 				_isNaturalContext = false,
 			};
@@ -541,7 +530,7 @@ namespace Morestachio.Framework.Context
 		/// <returns></returns>
 		public virtual ContextObject Copy()
 		{
-			var contextClone = new ContextObject(_options, _key, _parent, _value) //note: Parent must be the original context so we can traverse up to an unmodified context
+			var contextClone = new ContextObject(_key, _parent, _value) //note: Parent must be the original context so we can traverse up to an unmodified context
 			{
 				_isNaturalContext = true,
 			};

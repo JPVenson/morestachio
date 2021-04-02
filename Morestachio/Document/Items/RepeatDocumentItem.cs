@@ -85,7 +85,7 @@ namespace Morestachio.Document.Items
 				var nr = new Number(c.Value as IConvertible);
 				for (int i = 0; i < nr; i++)
 				{
-					var contextCollection = new ContextCollection(i, i + 1 == nr, context.Options, $"[{i}]", context,
+					var contextCollection = new ContextCollection(i, i + 1 == nr, $"[{i}]", context,
 						context.Value);
 					await children(stream, contextCollection, scopeData);
 				}
@@ -121,7 +121,7 @@ namespace Morestachio.Document.Items
 			var scopes = new List<DocumentItemExecution>();
 			for (int i = 0; i < nr; i++)
 			{
-				var contextCollection = new ContextCollection(i, i + 1 == nr, context.Options, $"[{i}]", context, context.Value);
+				var contextCollection = new ContextCollection(i, i + 1 == nr, $"[{i}]", context, context.Value);
 				scopes.AddRange(Children.WithScope(contextCollection));
 			}
 

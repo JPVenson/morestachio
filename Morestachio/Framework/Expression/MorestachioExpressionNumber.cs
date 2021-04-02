@@ -140,16 +140,20 @@ namespace Morestachio.Framework.Expression
 		/// <inheritdoc />
 		public ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
 		{
-			return contextObject.Options.CreateContextObject(".", Number,
+			return scopeData.ParserOptions.CreateContextObject(".", Number,
 				contextObject).ToPromise();
 		}
 		
 		/// <inheritdoc />
 		public CompiledExpression Compile()
 		{
-			return (contextObject, data) => contextObject.Options.CreateContextObject(".",
-				Number,
-				contextObject).ToPromise();
+			return (contextObject, scopeData) =>
+			{
+				var nrContext = scopeData.ParserOptions.CreateContextObject(".",
+					Number,
+					contextObject);
+				return nrContext.ToPromise();
+			};
 		}
 
 		/// <inheritdoc />

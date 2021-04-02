@@ -125,7 +125,7 @@ namespace Morestachio.Document.Items
 				var next = enumerator.MoveNext() ? enumerator.Current : null;
 
 				var innerContext =
-					new ContextCollection(index, next == null, c.Options, $"[{index}]", c, current)
+					new ContextCollection(index, next == null, $"[{index}]", c, current)
 						.MakeNatural();
 				await onItem(innerContext);
 				index++;

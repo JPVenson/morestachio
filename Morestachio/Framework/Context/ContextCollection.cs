@@ -17,11 +17,10 @@ namespace Morestachio.Framework.Context
 		/// <param name="key"></param>
 		public ContextCollection(long index, 
 			bool last, 
-			 ParserOptions options, 
 			string key, 
 			ContextObject parent,
 			object value) 
-			: base(options, key, parent, value)
+			: base(key, parent, value)
 		{
 			Index = index;
 			Last = last;

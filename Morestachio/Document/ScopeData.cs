@@ -18,8 +18,9 @@ namespace Morestachio.Document
 		/// Initializes a new instance of the <see cref="ScopeData"/> class.
 		/// </summary>
 		/// <param name="cancellationToken"></param>
-		public ScopeData(CancellationToken? cancellationToken = null)
+		public ScopeData(ParserOptions parserOptions, CancellationToken? cancellationToken = null)
 		{
+			ParserOptions = parserOptions;
 			Partials = new Dictionary<string, IDocumentItem>();
 			CompiledPartials = new Dictionary<string, Compilation>();
 			PartialDepth = new Stack<Tuple<string, int>>();
@@ -33,7 +34,7 @@ namespace Morestachio.Document
 
 		private void AddServicesVariable()
 		{
-			AddVariable("$services", (data, context) =>
+			AddVariable("$services", (scopeData, context) =>
 			{
 				if (context == null)
 				{
@@ -41,12 +42,12 @@ namespace Morestachio.Document
 				}
 
 				var services = new Dictionary<string, object>();
-				foreach (var service in context.Options.Formatters.ServiceCollection)
+				foreach (var service in scopeData.ParserOptions.Formatters.ServiceCollection)
 				{
 					services[service.Key.Name] = service.Value;
 				}
 
-				return context.Options.CreateContextObject(".", services);
+				return scopeData.ParserOptions.CreateContextObject(".", services);
 			});
 		}
 
@@ -54,11 +55,11 @@ namespace Morestachio.Document
 		{
 			foreach (var keyValuePair in ContextCollection.GetVariables())
 			{
-				AddVariable(keyValuePair.Key, (data, context) =>
+				AddVariable(keyValuePair.Key, (scopeData, context) =>
 				{
 					if (context is ContextCollection coll)
 					{
-						return context.Options.CreateContextObject(keyValuePair.Key, keyValuePair.Value(coll), context);
+						return scopeData.ParserOptions.CreateContextObject(keyValuePair.Key, keyValuePair.Value(coll), context);
 					}
 
 					return null;
@@ -66,6 +67,14 @@ namespace Morestachio.Document
 			}
 		}
 
+		/// <summary>
+		///		The ParserOptions used to parse this template
+		/// </summary>
+		public ParserOptions ParserOptions { get; private set; }
+
+		/// <summary>
+		///		The Run specific stop token
+		/// </summary>
 		public CancellationToken CancellationToken { get; private set; }
 
 		/// <summary>

@@ -99,7 +99,7 @@ namespace Morestachio.Rendering
 			using (var byteCounterStream = ParserOptions.StreamFactory.GetByteCounterStream(ParserOptions))
 			{
 				var context = ParserOptions.CreateContextObject("", data);
-				var scopeData = new ScopeData(token);
+				var scopeData = new ScopeData(ParserOptions, token);
 				try
 				{
 					if (ParserOptions.ProfileExecution)

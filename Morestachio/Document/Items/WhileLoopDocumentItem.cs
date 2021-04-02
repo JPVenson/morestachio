@@ -52,14 +52,14 @@ namespace Morestachio.Document.Items
 		{
 			var index = 0;
 
-			var collectionContext = new ContextCollection(index, false, context.Options, context.Key, context.Parent,
+			var collectionContext = new ContextCollection(index, false, context.Key, context.Parent,
 				context.Value);
 
 			while (ContinueBuilding(outputStream, scopeData) && (await MorestachioExpression.GetValue(collectionContext, scopeData)).Exists())
 			{
 				//TODO get a way how to execute this on the caller
 				await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, collectionContext, scopeData);
-				collectionContext = new ContextCollection(++index, false, context.Options, context.Key, context.Parent, context.Value);
+				collectionContext = new ContextCollection(++index, false, context.Key, context.Parent, context.Value);
 			}
 			return Enumerable.Empty<DocumentItemExecution>();
 		}
@@ -81,7 +81,7 @@ namespace Morestachio.Document.Items
 			{
 				var index = 0;
 
-				var collectionContext = new ContextCollection(index, false, context.Options, context.Key,
+				var collectionContext = new ContextCollection(index, false, context.Key,
 					context.Parent,
 					context.Value);
 
@@ -89,7 +89,7 @@ namespace Morestachio.Document.Items
 					   (await expression(collectionContext, scopeData)).Exists())
 				{
 					await children(outputStream, collectionContext, scopeData);
-					collectionContext = new ContextCollection(++index, false, context.Options, context.Key,
+					collectionContext = new ContextCollection(++index, false, context.Key,
 						context.Parent, context.Value);
 				}
 			};

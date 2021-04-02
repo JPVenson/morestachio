@@ -73,7 +73,7 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 			ScopeData scopeData)
 		{
 			var service =
-				context.Options.Formatters.GetService(typeof(IMorestachioLocalizationService)) as
+				scopeData.ParserOptions.Formatters.GetService(typeof(IMorestachioLocalizationService)) as
 					IMorestachioLocalizationService;
 			if (service == null)
 			{
@@ -89,7 +89,7 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 		private async ObjectPromise GetTranslation(ContextObject context, ScopeData scopeData, IMorestachioLocalizationService service)
 		{
 			var valueContext = await MorestachioExpression.GetValue(context, scopeData);
-			var culture = context.Options.CultureInfo;
+			var culture = scopeData.ParserOptions.CultureInfo;
 
 			if (ExplicitCulture != null)
 			{

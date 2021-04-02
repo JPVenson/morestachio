@@ -97,13 +97,13 @@ namespace Morestachio.Document.Items
 		{
 			string partialName = Value;
 			scopeData.PartialDepth.Push(new Tuple<string, int>(partialName, scopeData.PartialDepth.Count));
-			if (scopeData.PartialDepth.Count >= context.Options.PartialStackSize)
+			if (scopeData.PartialDepth.Count >= scopeData.ParserOptions.PartialStackSize)
 			{
-				switch (context.Options.StackOverflowBehavior)
+				switch (scopeData.ParserOptions.StackOverflowBehavior)
 				{
 					case PartialStackOverflowBehavior.FailWithException:
 						throw new MustachioStackOverflowException(
-							$"You have exceeded the maximum stack Size for nested Partial calls of '{context.Options.PartialStackSize}'. See Data for call stack")
+							$"You have exceeded the maximum stack Size for nested Partial calls of '{scopeData.ParserOptions.PartialStackSize}'. See Data for call stack")
 						{
 							Data =
 							{
@@ -119,7 +119,7 @@ namespace Morestachio.Document.Items
 
 			var cnxt = context;
 			scopeData.AddVariable("$name",
-				(scope) => cnxt.Options.CreateContextObject("$name", partialName, cnxt), 0);
+				(scope) => scopeData.ParserOptions.CreateContextObject("$name", partialName, cnxt), 0);
 
 			if (Context != null)
 			{
@@ -127,7 +127,7 @@ namespace Morestachio.Document.Items
 			}
 
 			scopeData.AddVariable("$recursion",
-				(scope) => cnxt.Options.CreateContextObject("$recursion", scope.PartialDepth.Count, cnxt), 0);
+				(scope) => scopeData.ParserOptions.CreateContextObject("$recursion", scope.PartialDepth.Count, cnxt), 0);
 
 			if (scopeData.Partials.TryGetValue(partialName, out var partialWithContext))
 			{
@@ -139,16 +139,16 @@ namespace Morestachio.Document.Items
 			}
 
 
-			if (context.Options.PartialsStore != null)
+			if (scopeData.ParserOptions.PartialsStore != null)
 			{
 				MorestachioDocumentInfo partialFromStore;
-				if (context.Options.PartialsStore is IAsyncPartialsStore asyncPs)
+				if (scopeData.ParserOptions.PartialsStore is IAsyncPartialsStore asyncPs)
 				{
-					partialFromStore = await asyncPs.GetPartialAsync(partialName, context.Options);
+					partialFromStore = await asyncPs.GetPartialAsync(partialName, scopeData.ParserOptions);
 				}
 				else
 				{
-					partialFromStore = context.Options.PartialsStore.GetPartial(partialName, context.Options);
+					partialFromStore = scopeData.ParserOptions.PartialsStore.GetPartial(partialName, scopeData.ParserOptions);
 				}
 
 				if (partialFromStore != null)

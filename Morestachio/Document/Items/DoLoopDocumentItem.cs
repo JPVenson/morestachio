@@ -80,7 +80,7 @@ namespace Morestachio.Document.Items
 			var index = 0;
 			while (ContinueBuilding(outputStream, scopeData))
 			{
-				var collectionContext = new ContextCollection(index++, false, context.Options, context.Key,
+				var collectionContext = new ContextCollection(index++, false, context.Key,
 					context.Parent, context.Value);
 
 				//TODO get a way how to execute this on the caller

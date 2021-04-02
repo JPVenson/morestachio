@@ -210,12 +210,12 @@ namespace Morestachio.Framework.Expression
 
 			if (Cache != null/* && !Equals(Cache.Value, default(FormatterCache))*/)
 			{
-				return contextObject.Options.CreateContextObject(".",
-					await contextObject.Options.Formatters.Execute(Cache, leftValue.Value, contextObject.Options, arguments),
+				return scopeData.ParserOptions.CreateContextObject(".",
+					await scopeData.ParserOptions.Formatters.Execute(Cache, leftValue.Value, scopeData.ParserOptions, arguments),
 					contextObject.Parent);
 			}
 
-			return contextObject.Options.CreateContextObject(".",
+			return scopeData.ParserOptions.CreateContextObject(".",
 				null,
 				contextObject.Parent);
 		}
@@ -227,13 +227,13 @@ namespace Morestachio.Framework.Expression
 			var right = RightExpression?.Compile();
 
 			var operatorFormatterName = "op_" + Operator.OperatorType;
-			return async (contextObject, data) =>
+			return async (contextObject, scopeData) =>
 			{
-				var leftValue = await left(contextObject, data);
+				var leftValue = await left(contextObject, scopeData);
 				var arguments = right != null
 					? new FormatterArgumentType[]
 					{
-						new FormatterArgumentType(0, null, (await right(contextObject, data)).Value),
+						new FormatterArgumentType(0, null, (await right(contextObject, scopeData)).Value),
 					}
 					: new FormatterArgumentType[0];
 				if (Cache == null)
@@ -242,17 +242,17 @@ namespace Morestachio.Framework.Expression
 						leftValue.Value?.GetType() ?? typeof(object),
 						operatorFormatterName,
 						arguments,
-						data);
+						scopeData);
 				}
 
 				if (Cache != null /*&& !Equals(Cache.Value, default(FormatterCache))*/)
 				{
-					return contextObject.Options.CreateContextObject(".",
-						await contextObject.Options.Formatters.Execute(Cache, leftValue.Value, contextObject.Options, arguments),
+					return scopeData.ParserOptions.CreateContextObject(".",
+						await scopeData.ParserOptions.Formatters.Execute(Cache, leftValue.Value, scopeData.ParserOptions, arguments),
 						contextObject.Parent);
 				}
 
-				return contextObject.Options.CreateContextObject(".",
+				return scopeData.ParserOptions.CreateContextObject(".",
 					null,
 					contextObject.Parent);
 			};
