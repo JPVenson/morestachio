@@ -63,6 +63,11 @@ namespace Morestachio.Framework.IO
 
 		internal static Func<ParserOptions, IByteCounterStream> GetDefaultByteCounter(Func<Stream> targetStream)
 		{
+			if (targetStream == null)
+			{
+				return null;
+			}
+
 			return (ParserOptions options) => new ByteCounterStream(targetStream(), MorestachioDocumentInfo.BufferSize, true, options);
 		}
 

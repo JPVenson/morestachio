@@ -26,7 +26,7 @@ namespace Morestachio.Document.Items
 	///		Repeats the template a number of times
 	/// </summary>
 	[Serializable]
-	public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomCompilation
+	public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 	{
 		internal RepeatDocumentItem()
 		{
@@ -51,7 +51,7 @@ namespace Morestachio.Document.Items
 
 		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile(IDocumentCompiler compiler)
+		public CompilationAsync Compile(IDocumentCompiler compiler)
 		{
 			var children = compiler.Compile(Children);
 			var expression = MorestachioExpression.Compile();

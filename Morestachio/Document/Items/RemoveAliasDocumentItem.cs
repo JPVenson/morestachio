@@ -23,7 +23,7 @@ namespace Morestachio.Document.Items
 	///		Removes the alias from the scope
 	/// </summary>
 	[Serializable]
-	public class RemoveAliasDocumentItem : ValueDocumentItemBase, ISupportCustomCompilation
+	public class RemoveAliasDocumentItem : ValueDocumentItemBase, ISupportCustomAsyncCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -81,7 +81,7 @@ namespace Morestachio.Document.Items
 
 		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile(IDocumentCompiler compiler)
+		public CompilationAsync Compile(IDocumentCompiler compiler)
 		{
 			return async (stream, context, scopeData) =>
 			{

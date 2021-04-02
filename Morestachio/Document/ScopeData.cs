@@ -22,12 +22,13 @@ namespace Morestachio.Document
 		{
 			ParserOptions = parserOptions;
 			Partials = new Dictionary<string, IDocumentItem>();
-			CompiledPartials = new Dictionary<string, Compilation>();
+			CompiledPartials = new Dictionary<string, CompilationAsync>();
 			PartialDepth = new Stack<Tuple<string, int>>();
 			Alias = new Dictionary<string, IDictionary<int, object>>();
 			Variables = new Dictionary<string, object>();
 			CustomData = new Dictionary<string, object>();
 			CancellationToken = cancellationToken ?? CancellationToken.None;
+			HasCancellationToken = !cancellationToken.Equals(System.Threading.CancellationToken.None);
 			AddCollectionContextSpecialVariables();
 			AddServicesVariable();
 		}
@@ -72,6 +73,7 @@ namespace Morestachio.Document
 		/// </summary>
 		public ParserOptions ParserOptions { get; private set; }
 
+		internal readonly bool HasCancellationToken;
 		/// <summary>
 		///		The Run specific stop token
 		/// </summary>
@@ -85,7 +87,7 @@ namespace Morestachio.Document
 		/// <summary>
 		///		List of all Partials that where added by using the compile method
 		/// </summary>
-		public IDictionary<string, Compilation> CompiledPartials { get; private set; }
+		public IDictionary<string, CompilationAsync> CompiledPartials { get; private set; }
 
 		///  <summary>
 		/// 		Adds a new variable or alias. An alias is bound to its scope and will

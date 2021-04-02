@@ -26,7 +26,7 @@ namespace Morestachio.Document.Items
 	/// </summary>
 	[Serializable]
 	public sealed class MorestachioDocument : BlockDocumentItemBase,
-		IEquatable<MorestachioDocument>, ISupportCustomCompilation
+		IEquatable<MorestachioDocument>, ISupportCustomAsyncCompilation
 	{
 		/// <summary>
 		///		Gets the current version of Morestachio
@@ -97,7 +97,7 @@ namespace Morestachio.Document.Items
 
 		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile(IDocumentCompiler compiler)
+		public CompilationAsync Compile(IDocumentCompiler compiler)
 		{
 			var compilation = compiler.Compile(Children);
 			return async (stream, context, data) =>

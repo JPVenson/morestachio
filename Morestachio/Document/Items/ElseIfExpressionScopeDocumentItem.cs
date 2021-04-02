@@ -12,7 +12,7 @@ namespace Morestachio.Document.Items
 	///		Defines an else Expression. This expression MUST come ether directly or only separated by <see cref="ContentDocumentItem"/> after an <see cref="IfExpressionScopeDocumentItem"/> or an <see cref="InvertedExpressionScopeDocumentItem"/>
 	/// </summary>
 	[Serializable]
-	public class ElseIfExpressionScopeDocumentItem : IfExpressionScopeDocumentItem, ISupportCustomCompilation
+	public class ElseIfExpressionScopeDocumentItem : IfExpressionScopeDocumentItem, ISupportCustomAsyncCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization

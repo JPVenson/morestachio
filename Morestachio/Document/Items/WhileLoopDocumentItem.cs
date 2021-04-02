@@ -22,7 +22,7 @@ namespace Morestachio.Document.Items
 	///		Emits the template as long as the condition is true
 	/// </summary>
 	[Serializable]
-	public class WhileLoopDocumentItem : ExpressionDocumentItemBase, ISupportCustomCompilation
+	public class WhileLoopDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -72,7 +72,7 @@ namespace Morestachio.Document.Items
 
 		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile(IDocumentCompiler compiler)
+		public CompilationAsync Compile(IDocumentCompiler compiler)
 		{
 			var children = compiler.Compile(Children);
 			var expression = MorestachioExpression.Compile();

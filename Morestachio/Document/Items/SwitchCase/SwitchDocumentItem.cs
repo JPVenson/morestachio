@@ -24,7 +24,7 @@ namespace Morestachio.Document.Items.SwitchCase
 	///		The document item for a switch block
 	/// </summary>
 	[Serializable]
-	public class SwitchDocumentItem : ExpressionDocumentItemBase, ISupportCustomCompilation
+	public class SwitchDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -93,7 +93,7 @@ namespace Morestachio.Document.Items.SwitchCase
 
 		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile(IDocumentCompiler compiler)
+		public CompilationAsync Compile(IDocumentCompiler compiler)
 		{
 			var children = Children.Where(e => e is SwitchCaseDocumentItem || e is SwitchDefaultDocumentItem)
 				.Cast<BlockDocumentItemBase>()
@@ -128,7 +128,7 @@ namespace Morestachio.Document.Items.SwitchCase
 
 		internal class SwitchExecutionContainerCompiledAction : SwitchExecutionContainer
 		{
-			public Compilation Callback { get; set; }
+			public CompilationAsync Callback { get; set; }
 		}
 
 		internal class SwitchExecutionContainerDocumentItem : SwitchExecutionContainer

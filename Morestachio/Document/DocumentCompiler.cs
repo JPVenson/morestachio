@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,13 +27,13 @@ namespace Morestachio.Document
 		///		Compile a <see cref="IDocumentItem"/> into a delegate
 		/// </summary>
 		/// <returns></returns>
-		Compilation Compile(IDocumentItem document);
+		CompilationAsync Compile(IDocumentItem document);
 
 		/// <summary>
 		///		Compile a number of <see cref="IDocumentItem"/> into a delegate 
 		/// </summary>
 		/// <returns></returns>
-		Compilation Compile(IEnumerable<IDocumentItem> documents);
+		CompilationAsync Compile(IEnumerable<IDocumentItem> documents);
 	}
 
 	/// <summary>
@@ -41,39 +42,43 @@ namespace Morestachio.Document
 	public class DocumentCompiler : IDocumentCompiler
 	{
 		/// <inheritdoc />
-		public Compilation Compile(IDocumentItem document)
+		public CompilationAsync Compile(IDocumentItem document)
 		{
 			return CompileItemsAndChildren(new[] { document });
 		}
 
 		/// <inheritdoc />
-		public Compilation Compile(IEnumerable<IDocumentItem> documents)
+		public CompilationAsync Compile(IEnumerable<IDocumentItem> documents)
 		{
 			return CompileItemsAndChildren(documents);
 		}
 
 		/// <summary>
-		///		Compiles all <see cref="IDocumentItem"/> and their children. If the <see cref="IDocumentItem"/> supports the <see cref="ISupportCustomCompilation"/> it is used otherwise
+		///		Compiles all <see cref="IDocumentItem"/> and their children. If the <see cref="IDocumentItem"/> supports the <see cref="ISupportCustomAsyncCompilation"/> it is used otherwise
 		///		the items <see cref="IDocumentItem.Render"/> method is wrapped
 		/// </summary>
 		/// <param name="documentItems"></param>
 		/// <returns></returns>
-		public Compilation CompileItemsAndChildren(IEnumerable<IDocumentItem> documentItems)
+		public CompilationAsync CompileItemsAndChildren(IEnumerable<IDocumentItem> documentItems)
 		{
 			var docs = documentItems.ToArray();
-			var actions = new Compilation[docs.Length];
+			var actions = new Delegate[docs.Length];
 
 			for (var index = 0; index < docs.Length; index++)
 			{
 				var documentItem = docs[index];
 				var document = documentItem;
-				if (document is ISupportCustomCompilation customCompilation)
+				if (document is ISupportCustomAsyncCompilation customAsyncCompilation)
+				{
+					actions[index] = (customAsyncCompilation.Compile(this));
+				}
+				else if (document is ISupportCustomCompilation customCompilation)
 				{
 					actions[index] = (customCompilation.Compile(this));
 				}
 				else
 				{
-					actions[index] = (async (outputStream,
+					actions[index] = new CompilationAsync((async (outputStream,
 						context,
 						scopeData) =>
 					{
@@ -81,389 +86,54 @@ namespace Morestachio.Document
 
 						foreach (var documentItemExecution in children)
 						{
-							await MorestachioDocument.ProcessItemsAndChildren(new []
+							await MorestachioDocument.ProcessItemsAndChildren(new[]
 							{
 								documentItemExecution.DocumentItem
 							}, outputStream, documentItemExecution.ContextObject, scopeData);
 						}
-					});
-				}
-			}
-
-			return FastExecuteItems(actions);
-		}
-
-		private static Compilation FastExecuteItems(Compilation[] actions)
-		{
-			async Promise ExecuteTenItems(IByteCounterStream stream, ContextObject context, ScopeData data)
-			{
-				if (!DocumentItemBase.ContinueBuilding(stream, data))
-				{
-					return;
-				}
-
-				await actions[0](stream, context, data);
-				if (!DocumentItemBase.ContinueBuilding(stream, data))
-				{
-					return;
-				}
-
-				await actions[1](stream, context, data);
-				if (!DocumentItemBase.ContinueBuilding(stream, data))
-				{
-					return;
-				}
-
-				await actions[2](stream, context, data);
-				if (!DocumentItemBase.ContinueBuilding(stream, data))
-				{
-					return;
-				}
-
-				await actions[3](stream, context, data);
-				if (!DocumentItemBase.ContinueBuilding(stream, data))
-				{
-					return;
-				}
-
-				await actions[4](stream, context, data);
-				if (!DocumentItemBase.ContinueBuilding(stream, data))
-				{
-					return;
-				}
-
-				await actions[5](stream, context, data);
-				if (!DocumentItemBase.ContinueBuilding(stream, data))
-				{
-					return;
-				}
-
-				await actions[6](stream, context, data);
-				if (!DocumentItemBase.ContinueBuilding(stream, data))
-				{
-					return;
-				}
-
-				await actions[7](stream, context, data);
-				if (!DocumentItemBase.ContinueBuilding(stream, data))
-				{
-					return;
-				}
-
-				await actions[8](stream, context, data);
-				if (!DocumentItemBase.ContinueBuilding(stream, data))
-				{
-					return;
-				}
-
-				await actions[9](stream, context, data);
-			}
-
-			if (actions.Length == 0)
-			{
-				return NopAction;
-			}
-			else if (actions.Length == 1)
-			{
-				return async (stream, context, data) =>
-				{
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[0](stream, context, data);
-				};
-			}
-			else if (actions.Length == 2)
-			{
-				return async (stream, context, data) =>
-				{
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[0](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[1](stream, context, data);
-				};
-			}
-			else if (actions.Length == 3)
-			{
-				return async (stream, context, data) =>
-				{
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[0](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[1](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[2](stream, context, data);
-				};
-			}
-			else if (actions.Length == 4)
-			{
-				return async (stream, context, data) =>
-				{
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[0](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[1](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[2](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[3](stream, context, data);
-				};
-			}
-			else if (actions.Length == 5)
-			{
-				return async (stream, context, data) =>
-				{
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[0](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[1](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[2](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[3](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[4](stream, context, data);
-				};
-			}
-			else if (actions.Length == 6)
-			{
-				return async (stream, context, data) =>
-				{
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[0](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[1](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[2](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[3](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[4](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[5](stream, context, data);
-				};
-			}
-			else if (actions.Length == 7)
-			{
-				return async (stream, context, data) =>
-				{
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[0](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[1](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[2](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[3](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[4](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[5](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[6](stream, context, data);
-				};
-			}
-			else if (actions.Length == 8)
-			{
-				return async (stream, context, data) =>
-				{
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[0](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[1](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[2](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[3](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[4](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[5](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[6](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[7](stream, context, data);
-				};
-			}
-			else if (actions.Length == 9)
-			{
-				return async (stream, context, data) =>
-				{
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[0](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[1](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[2](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[3](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[4](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[5](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[6](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[7](stream, context, data);
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
-					{
-						return;
-					}
-					await actions[8](stream, context, data);
-				};
-			}
-			else
-			{
-				if (actions.Length == 10)
-				{
-					return ExecuteTenItems;
+					}));
 				}
 			}
 
 			return async (stream, context, data) =>
 			{
-				await ExecuteTenItems(stream, context, data);
-				for (int i = 10; i < actions.Length; i++)
+				if (!data.HasCancellationToken)
 				{
-					if (!DocumentItemBase.ContinueBuilding(stream, data))
+					for (int i = 0; i < docs.Length; i++)
 					{
-						return;
+						var action = actions[i];
+						if (action is CompilationAsync ca)
+						{
+							await ca(stream, context, data);
+						}
+						else if (action is Compilation c)
+						{
+							c(stream, context, data);
+						}
 					}
-					await actions[i](stream, context, data);	
+				}
+				else
+				{
+					for (int i = 0; i < docs.Length; i++)
+					{
+						if (DocumentItemBase.ContinueBuilding(stream, data))
+						{
+							return;
+						}
+						var action = actions[i];
+						if (action is CompilationAsync ca)
+						{
+							await ca(stream, context, data);
+						}
+						else if (action is Compilation c)
+						{
+							c(stream, context, data);
+						}
+					}	
 				}
 			};
 		}
-
+		
 		/// <summary>
 		///		Defines an option that does nothing
 		/// </summary>

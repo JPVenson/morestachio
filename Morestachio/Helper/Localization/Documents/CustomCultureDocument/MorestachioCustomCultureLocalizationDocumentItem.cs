@@ -26,7 +26,7 @@ namespace Morestachio.Helper.Localization.Documents.CustomCultureDocument
 	/// </summary>
 	[System.Serializable]
 	public class MorestachioCustomCultureLocalizationDocumentItem : ExpressionDocumentItemBase,
-		ToParsableStringDocumentVisitor.IStringVisitor, ISupportCustomCompilation
+		ToParsableStringDocumentVisitor.IStringVisitor, ISupportCustomAsyncCompilation
 	{
 		internal MorestachioCustomCultureLocalizationDocumentItem()
 		{
@@ -54,7 +54,7 @@ namespace Morestachio.Helper.Localization.Documents.CustomCultureDocument
 
 		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile(IDocumentCompiler compiler)
+		public CompilationAsync Compile(IDocumentCompiler compiler)
 		{
 			var children = compiler.Compile(Children);
 			var expression = MorestachioExpression.Compile();

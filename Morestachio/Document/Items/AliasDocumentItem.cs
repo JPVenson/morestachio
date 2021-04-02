@@ -22,7 +22,7 @@ namespace Morestachio.Document.Items
 	///		Creates an alias 
 	/// </summary>
 	[System.Serializable]
-	public class AliasDocumentItem : ValueDocumentItemBase, ISupportCustomCompilation
+	public class AliasDocumentItem : ValueDocumentItemBase, ISupportCustomAsyncCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -81,7 +81,7 @@ namespace Morestachio.Document.Items
 
 		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile(IDocumentCompiler compiler)
+		public CompilationAsync Compile(IDocumentCompiler compiler)
 		{
 			var children = compiler.Compile(Children);
 			return async (stream, context, scopeData) =>

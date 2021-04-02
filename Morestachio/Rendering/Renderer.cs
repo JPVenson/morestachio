@@ -83,7 +83,7 @@ namespace Morestachio.Rendering
 		/// <returns></returns>
 		protected virtual async MorestachioDocumentResultPromise Render(object data,
 			CancellationToken token,
-			Compilation executer)
+			CompilationAsync executer)
 		{
 			PreRender();
 			var timeoutCancellation = new CancellationTokenSource();

@@ -24,7 +24,7 @@ namespace Morestachio.Document.Items
 	///		Evaluates a variable expression and then stores it into the set alias
 	/// </summary>
 	[Serializable]
-	public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase, ISupportCustomCompilation
+	public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 	{
 
 		internal EvaluateVariableDocumentItem()
@@ -102,7 +102,7 @@ namespace Morestachio.Document.Items
 
 		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile(IDocumentCompiler compiler)
+		public CompilationAsync Compile(IDocumentCompiler compiler)
 		{
 			var expression = MorestachioExpression.Compile();
 			return async (stream, context, scopeData) =>

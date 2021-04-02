@@ -28,7 +28,7 @@ namespace Morestachio.Document.Items
 	///		Document item for Isolation
 	/// </summary>
 	[Serializable]
-	public class IsolationScopeDocumentItem : BlockDocumentItemBase, ISupportCustomCompilation
+	public class IsolationScopeDocumentItem : BlockDocumentItemBase, ISupportCustomAsyncCompilation
 	{
 		/// <inheritdoc />
 		public IsolationScopeDocumentItem()
@@ -135,7 +135,7 @@ namespace Morestachio.Document.Items
 
 		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile(IDocumentCompiler compiler)
+		public CompilationAsync Compile(IDocumentCompiler compiler)
 		{
 			var children = compiler.Compile(Children);
 			if (ScopeIsolationExpression != null)

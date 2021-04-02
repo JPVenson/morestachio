@@ -60,7 +60,7 @@ namespace Morestachio.Document.Items
 
 			if (value == null)
 			{
-				return DocumentCompiler.NopAction;
+				return null;
 			}
 			
 #if Span
@@ -68,14 +68,12 @@ namespace Morestachio.Document.Items
 			return (stream, context, scopeData) =>
 			{
 				stream.Write(memValue.Span);
-				return AsyncHelper.FakePromise();
 			};
 			
 #else
 			return (stream, context, scopeData) =>
 			{
 				stream.Write(value);
-				return AsyncHelper.FakePromise();
 			};
 
 #endif

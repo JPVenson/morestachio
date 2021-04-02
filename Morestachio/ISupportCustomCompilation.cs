@@ -5,6 +5,19 @@ namespace Morestachio
 	/// <summary>
 	///		Declares an IDocumentItem to support Delegate generation
 	/// </summary>
+	public interface ISupportCustomAsyncCompilation
+	{
+		///  <summary>
+		/// 		Should return a delegate for performing the main rendering task
+		///  </summary>
+		///  <param name="compiler"></param>
+		///  <returns></returns>
+		CompilationAsync Compile(IDocumentCompiler compiler);
+	}
+
+	/// <summary>
+	///		Declares an IDocumentItem to support Delegate generation
+	/// </summary>
 	public interface ISupportCustomCompilation
 	{
 		///  <summary>

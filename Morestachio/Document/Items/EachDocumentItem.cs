@@ -28,7 +28,7 @@ namespace Morestachio.Document.Items
 	///		Emits N items that are in the collection
 	/// </summary>
 	[Serializable]
-	public class EachDocumentItem : ExpressionDocumentItemBase, ISupportCustomCompilation
+	public class EachDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -53,7 +53,7 @@ namespace Morestachio.Document.Items
 
 		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile(IDocumentCompiler compiler)
+		public CompilationAsync Compile(IDocumentCompiler compiler)
 		{
 			var expression = MorestachioExpression.Compile();
 			var children = compiler.Compile(Children);

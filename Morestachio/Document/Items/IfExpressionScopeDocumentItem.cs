@@ -24,7 +24,7 @@ namespace Morestachio.Document.Items
 	///		Defines the start of a Scope
 	/// </summary>
 	[Serializable]
-	public class IfExpressionScopeDocumentItem : ExpressionDocumentItemBase, ISupportCustomCompilation
+	public class IfExpressionScopeDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -113,7 +113,7 @@ namespace Morestachio.Document.Items
 		internal class IfExecutionContainer
 		{
 			public CompiledExpression Expression { get; set; }
-			public Compilation Callback { get; set; }
+			public CompilationAsync Callback { get; set; }
 		}
 
 		/// <inheritdoc />
@@ -157,7 +157,7 @@ namespace Morestachio.Document.Items
 
 		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public virtual Compilation Compile(IDocumentCompiler compiler)
+		public virtual CompilationAsync Compile(IDocumentCompiler compiler)
 		{
 			var elseChildren = GetNestedElseConditions()
 				.Select(e => new IfExecutionContainer()
@@ -167,7 +167,7 @@ namespace Morestachio.Document.Items
 				}).ToArray();
 
 			var elseDocument = GetNestedElse();
-			Compilation elseBlock = null;
+			CompilationAsync elseBlock = null;
 			if (elseDocument != null)
 			{
 				elseBlock = compiler.Compile(new[] { elseDocument });

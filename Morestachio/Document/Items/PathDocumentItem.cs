@@ -23,7 +23,7 @@ namespace Morestachio.Document.Items
 	///		An single Value expression
 	/// </summary>
 	[Serializable]
-	public class PathDocumentItem : ExpressionDocumentItemBase, ISupportCustomCompilation
+	public class PathDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -84,7 +84,7 @@ namespace Morestachio.Document.Items
 
 		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile(IDocumentCompiler compiler)
+		public CompilationAsync Compile(IDocumentCompiler compiler)
 		{
 			var children = compiler.Compile(Children);
 			var expression = MorestachioExpression.Compile();

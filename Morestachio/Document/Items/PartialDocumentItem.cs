@@ -23,7 +23,7 @@ namespace Morestachio.Document.Items
 	///		Contains the Declaration of a Partial item
 	/// </summary>
 	[Serializable]
-	public class PartialDocumentItem : BlockDocumentItemBase, IEquatable<PartialDocumentItem>, ISupportCustomCompilation
+	public class PartialDocumentItem : BlockDocumentItemBase, IEquatable<PartialDocumentItem>, ISupportCustomAsyncCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -79,7 +79,7 @@ namespace Morestachio.Document.Items
 
 		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile(IDocumentCompiler compiler)
+		public CompilationAsync Compile(IDocumentCompiler compiler)
 		{
 			var children = compiler.Compile(Children);
 			return async (stream, context, scopeData) =>

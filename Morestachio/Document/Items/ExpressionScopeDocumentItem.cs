@@ -23,7 +23,7 @@ namespace Morestachio.Document.Items
 	///		Defines the start of a Scope
 	/// </summary>
 	[Serializable]
-	public class ExpressionScopeDocumentItem : ExpressionDocumentItemBase, ISupportCustomCompilation
+	public class ExpressionScopeDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -48,7 +48,7 @@ namespace Morestachio.Document.Items
 
 		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile(IDocumentCompiler compiler)
+		public CompilationAsync Compile(IDocumentCompiler compiler)
 		{
 			var expression = MorestachioExpression.Compile();
 			var children = compiler.Compile(Children);

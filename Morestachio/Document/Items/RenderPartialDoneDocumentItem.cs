@@ -24,7 +24,7 @@ namespace Morestachio.Document.Items
 	///		The end of a Partial declaration
 	/// </summary>
 	[Serializable]
-	public class RenderPartialDoneDocumentItem : ValueDocumentItemBase, ISupportCustomCompilation
+	public class RenderPartialDoneDocumentItem : ValueDocumentItemBase, ISupportCustomAsyncCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -72,7 +72,7 @@ namespace Morestachio.Document.Items
 
 		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile(IDocumentCompiler compiler)
+		public CompilationAsync Compile(IDocumentCompiler compiler)
 		{
 			return async (stream, context, scopeData) =>
 			{

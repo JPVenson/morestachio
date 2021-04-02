@@ -23,7 +23,7 @@ namespace Morestachio.Document.Items
 	///		Emits the template as long as the condition is true
 	/// </summary>
 	[Serializable]
-	public class DoLoopDocumentItem : ExpressionDocumentItemBase, ISupportCustomCompilation
+	public class DoLoopDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization
@@ -52,7 +52,7 @@ namespace Morestachio.Document.Items
 
 		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile(IDocumentCompiler compiler)
+		public CompilationAsync Compile(IDocumentCompiler compiler)
 		{
 			var children = compiler.Compile(Children);
 			return async (stream, context, scopeData) =>
@@ -75,7 +75,7 @@ namespace Morestachio.Document.Items
 		}
 		
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private async Task CoreAction(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData, Compilation action)
+		private async Task CoreAction(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData, CompilationAsync action)
 		{
 			var index = 0;
 			while (ContinueBuilding(outputStream, scopeData))

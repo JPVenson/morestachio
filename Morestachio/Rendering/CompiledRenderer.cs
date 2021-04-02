@@ -30,7 +30,7 @@ namespace Morestachio.Rendering
 			_compiler = compiler;
 		}
 
-		private Compilation CompiledDocument { get; set; }
+		private CompilationAsync CompiledDocument { get; set; }
 		
 		/// <inheritdoc />
 		public override void PreRender()

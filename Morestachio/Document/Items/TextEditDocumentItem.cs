@@ -27,7 +27,7 @@ namespace Morestachio.Document.Items
 	/// 
 	/// </summary>
 	[Serializable]
-	public class TextEditDocumentItem : DocumentItemBase, ISupportCustomCompilation
+	public class TextEditDocumentItem : DocumentItemBase, ISupportCustomAsyncCompilation
 	{
 		/// <summary>
 		///		The TextOperation
@@ -67,7 +67,7 @@ namespace Morestachio.Document.Items
 
 		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public Compilation Compile(IDocumentCompiler compiler)
+		public CompilationAsync Compile(IDocumentCompiler compiler)
 		{
 			return DocumentCompiler.NopAction;
 			//return async (outputStream, context, scopeData) =>
