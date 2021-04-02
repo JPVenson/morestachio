@@ -61,14 +61,11 @@ namespace Morestachio.Document.Items
 
 			if (value == null)
 			{
-				return (stream, context, data) =>
-				{
-					return AsyncHelper.FakePromise();
-				};
+				return DocumentCompiler.NopAction;
 			}
 			
 #if Span
-			var memValue = new ReadOnlyMemory<char>(value.ToArray());
+			var memValue = value.AsMemory();
 			return (stream, context, scopeData) =>
 			{
 				stream.Write(memValue.Span);

@@ -69,11 +69,12 @@ namespace Morestachio.Document.Items
 		/// <inheritdoc />
 		public Compilation Compile(IDocumentCompiler compiler)
 		{
-			return async (outputStream, context, scopeData) =>
-			{
-				CoreAction(outputStream, scopeData);
-				await AsyncHelper.FakePromise();
-			};
+			return DocumentCompiler.NopAction;
+			//return async (outputStream, context, scopeData) =>
+			//{
+			//	CoreAction(outputStream, scopeData);
+			//	await AsyncHelper.FakePromise();
+			//};
 		}
 
 		/// <inheritdoc />
@@ -82,7 +83,7 @@ namespace Morestachio.Document.Items
 			ContextObject context,
 			ScopeData scopeData)
 		{
-			CoreAction(outputStream, scopeData);
+			//CoreAction(outputStream, scopeData);
 			return Enumerable.Empty<DocumentItemExecution>().ToPromise();
 		}
 
