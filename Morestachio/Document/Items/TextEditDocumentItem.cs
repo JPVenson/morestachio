@@ -27,7 +27,7 @@ namespace Morestachio.Document.Items
 	/// 
 	/// </summary>
 	[Serializable]
-	public class TextEditDocumentItem : DocumentItemBase, ISupportCustomAsyncCompilation
+	public class TextEditDocumentItem : DocumentItemBase, ISupportCustomCompilation
 	{
 		/// <summary>
 		///		The TextOperation
@@ -67,14 +67,12 @@ namespace Morestachio.Document.Items
 
 		/// <param name="compiler"></param>
 		/// <inheritdoc />
-		public CompilationAsync Compile(IDocumentCompiler compiler)
+		public Compilation Compile(IDocumentCompiler compiler)
 		{
-			return DocumentCompiler.NopAction;
-			//return async (outputStream, context, scopeData) =>
-			//{
-			//	CoreAction(outputStream, scopeData);
-			//	await AsyncHelper.FakePromise();
-			//};
+			return (outputStream, context, scopeData) =>
+			{
+				CoreAction(outputStream, scopeData);
+			};
 		}
 
 		/// <inheritdoc />
@@ -83,7 +81,7 @@ namespace Morestachio.Document.Items
 			ContextObject context,
 			ScopeData scopeData)
 		{
-			//CoreAction(outputStream, scopeData);
+			CoreAction(outputStream, scopeData);
 			return Enumerable.Empty<DocumentItemExecution>().ToPromise();
 		}
 
@@ -92,13 +90,7 @@ namespace Morestachio.Document.Items
 		{
 			if (Operation.IsModificator)
 			{
-				if (!scopeData.CustomData.TryGetValue("TextOperationData", out var operationList))
-				{
-					operationList = new List<ITextOperation>();
-					scopeData.CustomData["TextOperationData"] = operationList;
-				}
-
-				((IList<ITextOperation>)operationList).Add(Operation);
+				throw new MorestachioRuntimeException("Cannot execute a Text-Modification on its own.");
 			}
 			else
 			{
