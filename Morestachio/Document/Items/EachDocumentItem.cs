@@ -77,7 +77,8 @@ namespace Morestachio.Document.Items
 				await MorestachioExpression.GetValue(context, scopeData)
 				, scopeData, async itemContext =>
 				{
-					contexts.AddRange(Children.WithScope(itemContext));
+					await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, itemContext, scopeData);
+					//contexts.AddRange(Children.WithScope(itemContext));
 				});
 			return contexts;
 		}
@@ -120,13 +121,16 @@ namespace Morestachio.Document.Items
 			}
 
 			var current = enumerator.Current;
+			
+			var innerContext =
+				new ContextCollection(index, false, $"[{index}]", c, current)
+					.MakeNatural() as ContextCollection;
 			do
 			{
 				var next = enumerator.MoveNext() ? enumerator.Current : null;
-
-				var innerContext =
-					new ContextCollection(index, next == null, $"[{index}]", c, current)
-						.MakeNatural();
+				innerContext.Value = current;
+				innerContext.Index = index;
+				innerContext.Last = next == null;
 				await onItem(innerContext);
 				index++;
 				current = next;
