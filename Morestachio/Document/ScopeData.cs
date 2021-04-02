@@ -28,7 +28,7 @@ namespace Morestachio.Document
 			Variables = new Dictionary<string, object>();
 			CustomData = new Dictionary<string, object>();
 			CancellationToken = cancellationToken ?? CancellationToken.None;
-			HasCancellationToken = !cancellationToken.Equals(System.Threading.CancellationToken.None);
+			IsOutputLimited = !cancellationToken.Equals(System.Threading.CancellationToken.None) || parserOptions.MaxSize != 0;
 			AddCollectionContextSpecialVariables();
 			AddServicesVariable();
 		}
@@ -73,7 +73,7 @@ namespace Morestachio.Document
 		/// </summary>
 		public ParserOptions ParserOptions { get; private set; }
 
-		internal readonly bool HasCancellationToken;
+		internal readonly bool IsOutputLimited;
 		/// <summary>
 		///		The Run specific stop token
 		/// </summary>

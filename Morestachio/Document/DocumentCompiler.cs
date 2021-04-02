@@ -97,7 +97,7 @@ namespace Morestachio.Document
 
 			return async (stream, context, data) =>
 			{
-				if (!data.HasCancellationToken)
+				if (!data.IsOutputLimited)
 				{
 					for (int i = 0; i < docs.Length; i++)
 					{
