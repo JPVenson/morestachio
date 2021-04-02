@@ -1,4 +1,11 @@
 ﻿using System.Threading.Tasks;
+#if ValueTask
+using MorestachioDocumentInfoPromise = System.Threading.Tasks.ValueTask<Morestachio.MorestachioDocumentInfo>;
+using StringArrayPromise = System.Threading.Tasks.ValueTask<string[]>;
+#else
+using MorestachioDocumentInfoPromise = System.Threading.Tasks.Task<Morestachio.MorestachioDocumentInfo>;
+using StringArrayPromise = System.Threading.Tasks.Task<string[]>;
+#endif
 
 namespace Morestachio.Framework
 {
@@ -10,12 +17,11 @@ namespace Morestachio.Framework
 		/// <summary>
 		///		Obtains the Partial if known
 		/// </summary>
-		/// <param name="name"></param>
-		Task<MorestachioDocumentInfo> GetPartialAsync(string name, ParserOptions parserOptions);
+		MorestachioDocumentInfoPromise GetPartialAsync(string name, ParserOptions parserOptions);
 
 		/// <summary>
 		///		Gets the list of all known partials
 		/// </summary>
-		Task<string[]> GetNamesAsync(ParserOptions parserOptions);
+		StringArrayPromise GetNamesAsync(ParserOptions parserOptions);
 	}
 }

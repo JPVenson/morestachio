@@ -3,6 +3,15 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
+
+#if ValueTask
+using MorestachioDocumentInfoPromise = System.Threading.Tasks.ValueTask<Morestachio.MorestachioDocumentInfo>;
+using StringArrayPromise = System.Threading.Tasks.ValueTask<string[]>;
+#else
+using MorestachioDocumentInfoPromise = System.Threading.Tasks.Task<Morestachio.MorestachioDocumentInfo>;
+using StringArrayPromise = System.Threading.Tasks.Task<string[]>;
+#endif
+
 namespace Morestachio.Framework
 {
 	/// <summary>
@@ -52,7 +61,7 @@ namespace Morestachio.Framework
 		}
 		
 		/// <inheritdoc />
-		public async Task<MorestachioDocumentInfo> GetPartialAsync(string name, ParserOptions parserOptions)
+		public async MorestachioDocumentInfoPromise GetPartialAsync(string name, ParserOptions parserOptions)
 		{
 			if (_knownPartials.TryGetValue(name, out var store))
 			{
@@ -68,7 +77,7 @@ namespace Morestachio.Framework
 		}
 		
 		/// <inheritdoc />
-		public async Task<string[]> GetNamesAsync(ParserOptions parserOptions)
+		public async StringArrayPromise GetNamesAsync(ParserOptions parserOptions)
 		{
 			if (_knownPartials != null)
 			{

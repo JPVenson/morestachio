@@ -4,6 +4,14 @@ using System.Threading.Tasks;
 using Morestachio.Helper;
 using Morestachio.TemplateContainers;
 
+#if ValueTask
+using MorestachioDocumentInfoPromise = System.Threading.Tasks.ValueTask<Morestachio.MorestachioDocumentInfo>;
+using StringArrayPromise = System.Threading.Tasks.ValueTask<string[]>;
+#else
+using MorestachioDocumentInfoPromise = System.Threading.Tasks.Task<Morestachio.MorestachioDocumentInfo>;
+using StringArrayPromise = System.Threading.Tasks.Task<string[]>;
+#endif
+
 namespace Morestachio.Framework
 {
 	/// <summary>
@@ -105,7 +113,7 @@ namespace Morestachio.Framework
 		}
 		
 		/// <inheritdoc />
-		public async Task<MorestachioDocumentInfo> GetPartialAsync(string name, ParserOptions parserOptions)
+		public async MorestachioDocumentInfoPromise GetPartialAsync(string name, ParserOptions parserOptions)
 		{
 			var fileName = GetPartial(name);
 			if (fileName == null)
@@ -120,12 +128,11 @@ namespace Morestachio.Framework
 		}
 		
 		/// <inheritdoc />
-		public async Task<string[]> GetNamesAsync(ParserOptions parserOptions)
+		public StringArrayPromise GetNamesAsync(ParserOptions parserOptions)
 		{
-			await AsyncHelper.FakePromise();
 			return Directory.EnumerateFiles(DirectoryPath, SearchPattern, SearchOption.AllDirectories)
 				.Select(GetPartialName)
-				.ToArray();
+				.ToArray().ToPromise();
 		}
 	}
 }

@@ -40,17 +40,21 @@ namespace Morestachio.Helper
 #endif
 		}
 
+#if ValueTask
+		private static readonly ValueTask _done = new ValueTask();
+#endif
+
 		/// <summary>
 		///		Wraps the object to ether an TaskT or an ValueTaskT
 		/// </summary>
 		/// <returns></returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static async Promise FakePromise()
+		public static Promise FakePromise()
 		{
 #if ValueTask
-			await new ValueTask();
+			return _done;
 #else
-			await Task.CompletedTask;
+			return Task.CompletedTask;
 #endif
 		}
 
