@@ -88,8 +88,9 @@ You can even inject your predefined Partials into all of your Templates by utili
 Its possible to use plain C# objects they will be called by reflection. 
 Also you can now set the excact size of the template to limit it (this could be come handy if you are in a hostet environment) use the `ParserOptions.MaxSize` option to define a max size. It will be enforced on exact that amount of bytes in the stream.
 
-##### Streams
-One mayor component is the usage of Streams in morestachio. You can declare a Factory for the streams generated in the `ParserOptions.SourceFactory`. This is very important if you are rendering templates that will be very huge and you want to stream them directly to the harddrive or elsewhere. This has also a very positive effect on the performance as we will not use string concatination for compiling the template. If you do not set the `ParserOptions.SourceFactory` and the `ParserOptions.Encoding`, a memory stream will be created and the `Encoding.Default` will be used.
+##### Variable Output
+One mayor component is the usage of Variable output strategies in morestachio.    
+The output handling is done by a `IByteCounterStream` that wraps your specific output. This can ether be a `Stream`, `TextWriter`, `StringBuilder` or anything else. For thoese types Morestachio has pre defined Implementations named `ByteCounterStream`, `ByteCounterTextWriter` and `ByteCounterStringBuilder`. All thoese types are enforcing the `ParserOptions.MaxSize` property if set and will write your template with the set `ParserOptions.Encoding`
  
 ###### Formatter
 Use the `ContextObject.DefaultFormatter` collection to create own formatter for all your types or add one to the `ParserOptions.Formatters` object for just one call. To invoke them in your template use the new Function syntax:
