@@ -24,7 +24,13 @@ namespace Morestachio.Framework.IO.SingleStream
 			Writer = stringWriter;
 			Options = options;
 		}
-		
+
+		/// <inheritdoc />
+		public override string ToString()
+		{
+			return Writer.ToString();
+		}
+
 		protected ParserOptions Options { get; }
 
 		/// <inheritdoc />

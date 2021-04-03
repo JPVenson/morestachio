@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Morestachio.Document.Contracts;
 using Morestachio.Framework.Context;
 using Morestachio.Profiler;
@@ -17,7 +18,6 @@ namespace Morestachio.Document
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ScopeData"/> class.
 		/// </summary>
-		/// <param name="cancellationToken"></param>
 		public ScopeData(ParserOptions parserOptions, CancellationToken? cancellationToken = null)
 		{
 			ParserOptions = parserOptions;
@@ -28,7 +28,7 @@ namespace Morestachio.Document
 			Variables = new Dictionary<string, object>();
 			CustomData = new Dictionary<string, object>();
 			CancellationToken = cancellationToken ?? CancellationToken.None;
-			IsOutputLimited = !cancellationToken.Equals(System.Threading.CancellationToken.None) || parserOptions.MaxSize != 0;
+			IsOutputLimited = !cancellationToken.Equals(CancellationToken.None) || parserOptions.MaxSize != 0;
 			AddCollectionContextSpecialVariables();
 			AddServicesVariable();
 		}
@@ -123,7 +123,7 @@ namespace Morestachio.Document
 			{
 				return fnc(this);
 			}
-
+			
 			if (variableValue is Func<ScopeData, ContextObject, ContextObject> fncC)
 			{
 				return fncC(this, contextObject);

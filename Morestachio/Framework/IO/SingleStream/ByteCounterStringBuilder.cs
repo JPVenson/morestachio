@@ -19,6 +19,9 @@ namespace Morestachio.Framework.IO.SingleStream
 			get { return _sb; }
 		}
 
+		/// <summary>
+		///		The Parser options used to the Template
+		/// </summary>
 		protected ParserOptions Options { get; }
 
 		/// <summary>
@@ -31,18 +34,24 @@ namespace Morestachio.Framework.IO.SingleStream
 			_sb = sb;
 			Options = options;
 		}
-		
+
 		/// <inheritdoc />
 		public void Dispose()
 		{
-			
+
 		}
-		
+
+		/// <inheritdoc />
+		public override string ToString()
+		{
+			return _sb.ToString();
+		}
+
 		/// <inheritdoc />
 		public long BytesWritten { get; private set; }
 		/// <inheritdoc />
 		public bool ReachedLimit { get; private set; }
-	
+
 #if Span
 		/// <inheritdoc />
 		public void Write(ReadOnlySpan<char> content)
@@ -53,7 +62,7 @@ namespace Morestachio.Framework.IO.SingleStream
 				_sb.Append(content);
 				return;
 			}
-			
+
 			var sourceCount = BytesWritten;
 			if (sourceCount >= Options.MaxSize - 1)
 			{
@@ -126,7 +135,7 @@ namespace Morestachio.Framework.IO.SingleStream
 				_sb.Append(content);
 			}
 		}
-		
+
 		/// <inheritdoc />
 		public ISubByteCounterStream GetSubStream()
 		{

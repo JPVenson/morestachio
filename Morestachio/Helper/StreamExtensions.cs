@@ -56,37 +56,17 @@ namespace Morestachio.Helper
 				return bcs.Stream.Stringify(disposeOriginal, encoding);
 			}
 
-			if (source is ByteCounterTextWriter bcsw)
+			try
 			{
-				try
+				return source.ToString();
+			}
+			finally
+			{
+				if (disposeOriginal)
 				{
-					return bcsw.Writer.ToString();
-				}
-				finally
-				{
-					if (disposeOriginal)
-					{
-						source.Dispose();
-					}
+					source.Dispose();
 				}
 			}
-
-			if (source is ByteCounterStringBuilder bcsb)
-			{
-				try
-				{
-					return bcsb.StringBuilder.ToString();
-				}
-				finally
-				{
-					if (disposeOriginal)
-					{
-						source.Dispose();
-					}
-				}
-			}
-
-			throw new NotImplementedException();
 		}
 	}
 }

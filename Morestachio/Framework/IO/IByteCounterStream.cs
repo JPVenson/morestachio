@@ -25,12 +25,11 @@ namespace Morestachio.Framework.IO
 		/// </value>
 		bool ReachedLimit { get; }
 
-
+#if Span
 		/// <summary>
 		///		Writes the Content into the underlying Stream when the limit is not exceeded
 		/// </summary>
 		/// <param name="content"></param>
-#if Span
 		void Write(ReadOnlySpan<char> content);
 #endif
 		/// <summary>

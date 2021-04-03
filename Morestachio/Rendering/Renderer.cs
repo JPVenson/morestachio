@@ -78,12 +78,8 @@ namespace Morestachio.Rendering
 		}
 
 		/// <summary>
-		///		Helper for managing cancelation, Timeout and result creation
+		///		Helper for managing cancellation, Timeout and result creation. 
 		/// </summary>
-		/// <param name="data"></param>
-		/// <param name="token"></param>
-		/// <param name="executer"></param>
-		/// <returns></returns>
 		protected virtual async MorestachioDocumentResultPromise Render(object data,
 			CancellationToken token,
 			CompilationAsync executer,

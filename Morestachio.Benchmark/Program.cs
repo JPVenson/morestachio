@@ -38,18 +38,19 @@ namespace Morestachio.Benchmark
 		[GlobalSetup]
 		public void Setup()
 		{
-			var parsingOptions = new ParserOptions(new StringTemplateContainer(GetTemplate()),
-				(options) => new ByteCounterStringBuilder(new StringBuilder(), options),
-				Encoding.UTF8);
+			var parsingOptions = new ParserOptions(GetTemplate());
 			_templateCompiled = Parser.ParseWithOptions(parsingOptions)
 				.CreateCompiledRenderer(new DocumentCompiler());
 			_data = GetData();
 		}
 
 		[Benchmark]
-		public async ValueTask Bench()
+		public async ValueTask<string> Bench()
 		{
-			await _templateCompiled.RenderAsync(_data, CancellationToken.None);
+			var output = new ByteCounterStringBuilder(new StringBuilder(), _templateCompiled.ParserOptions);
+			//var output = new ByteCounterStringBuilderV2(_templateCompiled.ParserOptions);
+			await _templateCompiled.RenderAsync(_data, CancellationToken.None, output);
+			return output.ToString();
 		}
 		private const string Lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
 
