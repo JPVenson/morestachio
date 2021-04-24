@@ -214,16 +214,11 @@ namespace Morestachio.Framework.Expression.Parser
 		/// <summary>
 		///		Parses an Expression and then executes it
 		/// </summary>
-		/// <param name="expressionText"></param>
-		/// <param name="options"></param>
-		/// <param name="context"></param>
-		/// <returns></returns>
 		public static async ObjectPromise EvaluateExpression(string expressionText,
 			ParserOptions options,
 			object context,
-			TokenzierContext tokenzierContext = null)
+			TokenzierContext tokenzierContext)
 		{
-			tokenzierContext = tokenzierContext ?? TokenzierContext.FromText(expressionText);
 			var expression = ParseExpression(expressionText, tokenzierContext);
 			if (expression == null)
 			{
@@ -232,6 +227,42 @@ namespace Morestachio.Framework.Expression.Parser
 			var contextObject = new ContextObject("", null, context);
 			var value = await expression.GetValue(contextObject, new ScopeData(options));
 			return value.Value;
+		}
+		
+		/// <summary>
+		///		Parses an Expression and then executes it
+		/// </summary>
+		public static ObjectPromise EvaluateExpression(string expressionText,
+			ParserOptions options,
+			object context)
+		{
+			return EvaluateExpression(expressionText, options, context, TokenzierContext.FromText(expressionText));
+		}
+		
+		/// <summary>
+		///		Parses an Expression and then executes it
+		/// </summary>
+		public static ObjectPromise EvaluateExpression(string expressionText,
+			object context)
+		{
+			return EvaluateExpression(expressionText, new ParserOptions(), context);
+		}
+		
+		/// <summary>
+		///		Parses an Expression and then executes it
+		/// </summary>
+		public static ObjectPromise EvaluateExpression(string expressionText,
+			ParserOptions options)
+		{
+			return EvaluateExpression(expressionText, options, new Dictionary<string, object>());
+		}
+		
+		/// <summary>
+		///		Parses an Expression and then executes it
+		/// </summary>
+		public static ObjectPromise EvaluateExpression(string expressionText)
+		{
+			return EvaluateExpression(expressionText, new ParserOptions(), new Dictionary<string, object>());
 		}
 
 		/// <summary>
