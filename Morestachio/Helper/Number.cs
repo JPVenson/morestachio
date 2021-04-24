@@ -9,7 +9,7 @@ namespace Morestachio.Helper
 	/// <summary>
 	///		Encapsulates a late bound number
 	/// </summary>
-	public readonly struct Number : 
+	public readonly struct Number :
 		IComparable,
 		IComparable<Number>,
 		IComparable<ulong>,
@@ -171,8 +171,8 @@ namespace Morestachio.Helper
 			if (number is Type nrType)
 			{
 				return nrType == typeof(decimal) ||
-				       nrType == typeof(double) ||
-				       nrType == typeof(float);
+					   nrType == typeof(double) ||
+					   nrType == typeof(float);
 			}
 			return number is decimal ||
 				   number is double ||
@@ -204,13 +204,13 @@ namespace Morestachio.Helper
 			if (number is Type nrType)
 			{
 				return nrType == typeof(ulong) ||
-				       nrType == typeof(long) ||
-				       nrType == typeof(uint) ||
-				       nrType == typeof(int) ||
-				       nrType == typeof(ushort) ||
-				       nrType == typeof(short) ||
-				       nrType == typeof(byte) ||
-				       nrType == typeof(sbyte);
+					   nrType == typeof(long) ||
+					   nrType == typeof(uint) ||
+					   nrType == typeof(int) ||
+					   nrType == typeof(ushort) ||
+					   nrType == typeof(short) ||
+					   nrType == typeof(byte) ||
+					   nrType == typeof(sbyte);
 			}
 
 			return number is ulong ||
@@ -475,7 +475,7 @@ namespace Morestachio.Helper
 			{"b", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
 
 		[MorestachioFormatter("ToBytes", "Format a number to it's equivalent in bytes. If a string is passed, it's length will be formatted and returned.")]
-		public static string ToBytes(Number value, Number? decimalPlaces = null) 
+		public static string ToBytes(Number value, Number? decimalPlaces = null)
 		{
 			if (value == NaN || value.Equals(0L))
 			{
@@ -492,11 +492,11 @@ namespace Morestachio.Helper
 
 			// mag is 0 for bytes, 1 for KB, 2, for MB, etc.
 			var mag = (int)Math.Log(valueLong, 1024);
-				//(int)Math.Log(value, 1024);
+			//(int)Math.Log(value, 1024);
 
 			// 1L << (mag * 10) == 2 ^ (10 * mag) 
 			// [i.e. the number of bytes in the unit corresponding to mag]
-			
+
 			var adjustedSize = (decimal)valueLong / (1L << (mag * 10));
 
 			// make adjustment when the value is large enough that
@@ -507,8 +507,8 @@ namespace Morestachio.Helper
 				adjustedSize /= 1024;
 			}
 
-			return string.Format("{0:n" + precisionValue + "} {1}", 
-				adjustedSize, 
+			return string.Format("{0:n" + precisionValue + "} {1}",
+				adjustedSize,
 				SizeSuffixes[mag]);
 
 		}
@@ -1398,6 +1398,33 @@ namespace Morestachio.Helper
 			throw new InvalidCastException($"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
 		}
 
+		/// <summary>
+		/// Tries to cast the <see cref="IConvertible"/> object into any number type and outputs a <see cref="Number"/>
+		/// </summary>
+		/// <param name="convertable"></param>
+		/// <param name="number"></param>
+		/// <returns></returns>
+		public static bool TryCast(IConvertible convertable, out Number? number)
+		{
+			switch (convertable)
+			{
+				case ulong noulong: number = new Number(noulong); return true;
+				case long nolong: number = new Number(nolong); return true;
+				case uint nouint: number = new Number(nouint); return true;
+				case int noint: number = new Number(noint); return true;
+				case ushort noushort: number = new Number(noushort); return true;
+				case short noshort: number = new Number(noshort); return true;
+				case byte nobyte: number = new Number(nobyte); return true;
+				case sbyte nosbyte: number = new Number(nosbyte); return true;
+				case decimal nodecimal: number = new Number(nodecimal); return true;
+				case double nodouble: number = new Number(nodouble); return true;
+				case float nofloat: number = new Number(nofloat); return true;
+			}
+
+			number = null;
+			return false;
+		}
+
 		///  <summary>
 		/// 		Tries to parse the input to any number, following roughly the rules of msbuild.
 		/// 		Like:
@@ -1644,127 +1671,127 @@ namespace Morestachio.Helper
 		}
 
 		#endregion
-		
+
 		/// <inheritdoc />
 		public int CompareTo(ulong other)
 		{
 			return CompareTo((object)other);
 		}
-		
+
 		/// <inheritdoc />
 		public int CompareTo(long other)
 		{
 			return CompareTo((object)other);
 		}
-		
+
 		/// <inheritdoc />
 		public int CompareTo(uint other)
 		{
 			return CompareTo((object)other);
 		}
-		
+
 		/// <inheritdoc />
 		public int CompareTo(int other)
 		{
 			return CompareTo((object)other);
 		}
-		
+
 		/// <inheritdoc />
 		public int CompareTo(ushort other)
 		{
 			return CompareTo((object)other);
 		}
-		
+
 		/// <inheritdoc />
 		public int CompareTo(short other)
 		{
 			return CompareTo((object)other);
 		}
-		
+
 		/// <inheritdoc />
 		public int CompareTo(byte other)
 		{
 			return CompareTo((object)other);
 		}
-		
+
 		/// <inheritdoc />
 		public int CompareTo(sbyte other)
 		{
 			return CompareTo((object)other);
 		}
-		
+
 		/// <inheritdoc />
 		public int CompareTo(decimal other)
 		{
 			return CompareTo((object)other);
 		}
-		
+
 		/// <inheritdoc />
 		public int CompareTo(double other)
 		{
 			return CompareTo((object)other);
 		}
-		
+
 		/// <inheritdoc />
 		public int CompareTo(float other)
 		{
 			return CompareTo((object)other);
 		}
-		
+
 		/// <inheritdoc />
 		public bool Equals(ulong other)
 		{
 			return Equals((object)other);
 		}
-		
+
 		/// <inheritdoc />
 		public bool Equals(long other)
 		{
 			return Equals((object)other);
 		}
-		
+
 		/// <inheritdoc />
 		public bool Equals(uint other)
 		{
 			return Equals((object)other);
 		}
-		
+
 		/// <inheritdoc />
 		public bool Equals(int other)
 		{
 			return Equals((object)other);
 		}
-		
+
 		/// <inheritdoc />
 		public bool Equals(ushort other)
 		{
 			return Equals((object)other);
 		}
-		
+
 		/// <inheritdoc />
 		public bool Equals(short other)
 		{
 			return Equals((object)other);
 		}
-		
+
 		/// <inheritdoc />
 		public bool Equals(byte other)
 		{
 			return Equals((object)other);
 		}
-		
+
 		/// <inheritdoc />
 		public bool Equals(sbyte other)
 		{
 			return Equals((object)other);
 		}
-		
+
 		/// <inheritdoc />
 		public bool Equals(decimal other)
 		{
 			return Equals((object)other);
 		}
-		
+
 		/// <inheritdoc />
 		public bool Equals(double other)
 		{
@@ -1780,9 +1807,9 @@ namespace Morestachio.Helper
 		/// <inheritdoc />
 		public override bool Equals(object obj)
 		{
-			return (obj is Number other && Equals(other)) 
-			       || ((IsIntegralNumber(obj) || IsFloatingPointNumber(obj)) &&
-				       obj is IConvertible objCom && new Number(objCom).Same(this));
+			return (obj is Number other && Equals(other))
+				   || ((IsIntegralNumber(obj) || IsFloatingPointNumber(obj)) &&
+					   obj is IConvertible objCom && new Number(objCom).Same(this));
 		}
 
 		/// <inheritdoc />
@@ -2097,6 +2124,18 @@ namespace Morestachio.Helper
 		public static implicit operator Number(short d) => new Number(d);
 		public static implicit operator Number(byte d) => new Number(d);
 		public static implicit operator Number(sbyte d) => new Number(d);
+
+		public static implicit operator decimal(Number d) => d.ToDecimal(null);
+		public static implicit operator double(Number d) => d.ToDouble(null);
+		public static implicit operator float(Number d) => d.ToSingle(null);
+		public static implicit operator ulong(Number d) => d.ToUInt64(null);
+		public static implicit operator long(Number d) => d.ToInt64(null);
+		public static implicit operator uint(Number d) => d.ToUInt32(null);
+		public static implicit operator int(Number d) => d.ToInt32(null);
+		public static implicit operator ushort(Number d) => d.ToUInt16(null);
+		public static implicit operator short(Number d) => d.ToInt16(null);
+		public static implicit operator byte(Number d) => d.ToByte(null);
+		public static implicit operator sbyte(Number d) => d.ToSByte(null);
 
 #pragma warning restore CS1591
 
