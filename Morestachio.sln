@@ -44,6 +44,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{5B530A98
 		Build\updateVersion.ps1 = Build\updateVersion.ps1
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.Configuration.Transform", "Morestachio.Configuration.Transform\Morestachio.Configuration.Transform.csproj", "{EED26AB0-04FF-4461-9266-DCB192C7637A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morestachio.Configuration.Transform.Tests", "Morestachio.Configuration.Transform.Tests\Morestachio.Configuration.Transform.Tests.csproj", "{520B2AF3-8AF4-43B8-AAE7-97104624D244}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -86,6 +90,14 @@ Global
 		{F1EBD38D-D3C2-4EE6-BD1E-661C93711B35}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F1EBD38D-D3C2-4EE6-BD1E-661C93711B35}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F1EBD38D-D3C2-4EE6-BD1E-661C93711B35}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EED26AB0-04FF-4461-9266-DCB192C7637A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EED26AB0-04FF-4461-9266-DCB192C7637A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EED26AB0-04FF-4461-9266-DCB192C7637A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EED26AB0-04FF-4461-9266-DCB192C7637A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{520B2AF3-8AF4-43B8-AAE7-97104624D244}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{520B2AF3-8AF4-43B8-AAE7-97104624D244}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{520B2AF3-8AF4-43B8-AAE7-97104624D244}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{520B2AF3-8AF4-43B8-AAE7-97104624D244}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

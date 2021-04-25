@@ -114,12 +114,6 @@ namespace Morestachio.Framework.Expression.Parser
 			IEnumerable<ITokenOption> options)
 		{
 			var startOfExpression = context.CurrentLocation;
-			//if (type != TokenType.VariableLet && type != TokenType.VariableVar)
-			//{
-			//	context.Errors.Add(new MorestachioSyntaxError(
-			//	   context.CurrentLocation.AddWindow(new CharacterSnippedLocation(0, 0, tokenValue)),
-			//	   "#var", "", "#var name", "Expected #var or #let"));
-			//}
 			switch (type)
 			{
 				case TokenType.VariableLet:
