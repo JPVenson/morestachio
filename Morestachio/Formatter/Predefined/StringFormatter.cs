@@ -195,5 +195,29 @@ namespace Morestachio.Formatter.Predefined
 		{
 			return options.Encoding.GetString(Convert.FromBase64String(source));
 		}
+
+		[MorestachioFormatter("AsUtf8", "Decodes the string source as an UTF-8 encoded byte[]")]
+		public static byte[] AsUtf8(string source)
+		{
+			return Encoding.UTF8.GetBytes(source);
+		}
+
+		[MorestachioFormatter("AsUtf32", "Decodes the string source as an UTF-32 encoded byte[]")]
+		public static byte[] AsUtf32(string source)
+		{
+			return Encoding.UTF32.GetBytes(source);
+		}
+		
+		[MorestachioFormatter("AsAscii", "Decodes the string source as an ASCII encoded byte[]")]
+		public static byte[] AsAscii(string source)
+		{
+			return Encoding.ASCII.GetBytes(source);
+		}
+
+		[MorestachioFormatter("AsUnicode", "Decodes the string source as an Unicode encoded byte[]")]
+		public static byte[] AsUnicode(string source)
+		{
+			return Encoding.Unicode.GetBytes(source);
+		}
 	}
 }

@@ -20,9 +20,10 @@ namespace Morestachio.Formatter.Framework.Attributes
 		///		The Operator
 		/// </summary>
 		public OperatorTypes OperatorType { get; set; }
-		
+
+		/// <param name="method"></param>
 		/// <inheritdoc />
-		public override bool ValidateFormatterName()
+		public override bool ValidateFormatterName(MethodInfo method)
 		{
 			return MorestachioOperator.Operators.ContainsKey(OperatorType);
 		}

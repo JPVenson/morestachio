@@ -63,17 +63,30 @@ namespace Morestachio.Formatter.Framework.Attributes
 		public bool LinkFunctionTarget { get; set; }
 
 		/// <summary>
-		///		Validates the name of the formatter
+		///		Replaces alias or variables in the formatter name
 		/// </summary>
+		/// <param name="method"></param>
 		/// <returns></returns>
-		public virtual bool ValidateFormatterName()
+		public virtual string GetFormatterName(MethodInfo method)
 		{
-			if (string.IsNullOrWhiteSpace(Name))
+			return Name
+				.Replace("[MethodName]", method.Name);
+		}
+
+		///  <summary>
+		/// 		Validates the name of the formatter
+		///  </summary>
+		///  <param name="method"></param>
+		///  <returns></returns>
+		public virtual bool ValidateFormatterName(MethodInfo method)
+		{
+			var name = GetFormatterName(method);
+			if (string.IsNullOrWhiteSpace(name))
 			{
 				return false;
 			}
 
-			return MorestachioFormatterService.ValidateFormatterNameRegEx.IsMatch(Name);
+			return MorestachioFormatterService.ValidateFormatterNameRegEx.IsMatch(name);
 		}
 
 		///  <summary>
@@ -83,7 +96,7 @@ namespace Morestachio.Formatter.Framework.Attributes
 		///  <returns></returns>
 		public virtual void ValidateFormatter(MethodInfo method)
 		{
-			if (!ValidateFormatterName())
+			if (!ValidateFormatterName(method))
 			{
 				throw new InvalidOperationException(
 					$"The name '{Name}' is invalid. An Formatter may only contain letters and cannot start with an digit");

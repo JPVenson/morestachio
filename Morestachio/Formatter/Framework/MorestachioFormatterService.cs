@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using Morestachio.Document;
 using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Formatter.Framework.Converter;
+using Morestachio.Formatter.Predefined;
 using Morestachio.Helper;
 using Morestachio.Helper.Logging;
 using Morestachio.Util.Sealing;
@@ -53,7 +54,9 @@ namespace Morestachio.Formatter.Framework
 			DefaultConverter = GenericTypeConverter.Instance;
 			ServiceCollectionAccess = new Dictionary<Type, object>
 			{
-				{typeof(IMorestachioFormatterService), this}
+				{typeof(IMorestachioFormatterService), this},
+				{typeof(CryptService), CryptService.Instance },
+				{typeof(HashService), HashService.Instance },
 			};
 			if (useCache)
 			{
@@ -180,7 +183,8 @@ namespace Morestachio.Formatter.Framework
 			morestachioFormatterAttribute.ValidateFormatter(method);
 			var arguments = morestachioFormatterAttribute.GetParameters(method);
 
-			var morestachioFormatterModel = new MorestachioFormatterModel(morestachioFormatterAttribute.Name,
+			var name = morestachioFormatterAttribute.GetFormatterName(method); ;
+			var morestachioFormatterModel = new MorestachioFormatterModel(name,
 				morestachioFormatterAttribute.Description,
 				arguments.FirstOrDefault(e => e.IsSourceObject)?.ParameterType ?? typeof(object),
 				morestachioFormatterAttribute.OutputType ?? method.ReturnType,
@@ -191,7 +195,7 @@ namespace Morestachio.Formatter.Framework
 				new MultiFormatterInfoCollection(arguments),
 				!morestachioFormatterAttribute.IsSourceObjectAware,
 				morestachioFormatterAttribute.LinkFunctionTarget);
-			var name = morestachioFormatterAttribute.Name ?? "{NULL}";
+			name = name ?? "{NULL}";
 
 			if (!Formatters.TryGetValue(name, out var formatters))
 			{
@@ -328,7 +332,7 @@ namespace Morestachio.Formatter.Framework
 				{
 					functionTarget = sourceValue;
 				}
-				
+
 				var taskAlike = method.Invoke(functionTarget, mappedValues);
 				return await taskAlike.UnpackFormatterTask();
 			}
