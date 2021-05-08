@@ -31,6 +31,11 @@ namespace Morestachio.Document
 			IsOutputLimited = !cancellationToken.Equals(CancellationToken.None) || parserOptions.MaxSize != 0;
 			AddCollectionContextSpecialVariables();
 			AddServicesVariable();
+
+			foreach (var @constValue in parserOptions.Formatters.Constants)
+			{
+				AddVariable(@constValue.Key, (scope) => scope.ParserOptions.CreateContextObject(@constValue.Key, @constValue.Value));
+			}
 		}
 
 		private void AddServicesVariable()
@@ -43,7 +48,7 @@ namespace Morestachio.Document
 				}
 
 				var services = new Dictionary<string, object>();
-				foreach (var service in scopeData.ParserOptions.Formatters.ServiceCollection)
+				foreach (var service in scopeData.ParserOptions.Formatters.Services.Enumerate())
 				{
 					services[service.Key.Name] = service.Value;
 				}
@@ -123,7 +128,7 @@ namespace Morestachio.Document
 			{
 				return fnc(this);
 			}
-			
+
 			if (variableValue is Func<ScopeData, ContextObject, ContextObject> fncC)
 			{
 				return fncC(this, contextObject);

@@ -73,7 +73,7 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 			ScopeData scopeData)
 		{
 			var service =
-				scopeData.ParserOptions.Formatters.GetService(typeof(IMorestachioLocalizationService)) as
+				scopeData.ParserOptions.Formatters.Services.GetService(typeof(IMorestachioLocalizationService)) as
 					IMorestachioLocalizationService;
 			if (service == null)
 			{

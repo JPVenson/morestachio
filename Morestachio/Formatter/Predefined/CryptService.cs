@@ -11,7 +11,7 @@ namespace Morestachio.Formatter.Predefined
 	/// </summary>
 	public class CryptService
 	{
-		public CryptService()
+		private CryptService()
 		{
 			Aes = new AesCryptography();
 		}

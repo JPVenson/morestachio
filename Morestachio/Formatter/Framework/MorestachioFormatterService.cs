@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Morestachio.Document;
+using Morestachio.Formatter.Constants;
 using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Formatter.Framework.Converter;
 using Morestachio.Formatter.Predefined;
@@ -52,22 +53,29 @@ namespace Morestachio.Formatter.Framework
 				NumberConverter.Instance
 			};
 			DefaultConverter = GenericTypeConverter.Instance;
-			ServiceCollectionAccess = new Dictionary<Type, object>
+			Services = new ServiceCollection(); //i would love to allow custom external containers to be set as parent but the interface does not allow the necessary enumeration of services 
+			Services.AddService(typeof(IMorestachioFormatterService), this);
+			Services.AddService(typeof(CryptService), CryptService.Instance);
+			Services.AddService(typeof(HashService), HashService.Instance);
+
+			Constants = new Dictionary<string, object>()
 			{
-				{typeof(IMorestachioFormatterService), this},
-				{typeof(CryptService), CryptService.Instance },
-				{typeof(HashService), HashService.Instance },
+				{"Encoding", EncodingConstant.Instance},
+				{"DateTime", DateTimeConstant.Instance},
 			};
+			
 			if (useCache)
 			{
 				Cache = new ConcurrentDictionary<FormatterCacheCompareKey, FormatterCache>();
 			}
 		}
 
-		/// <summary>
-		///		Container for Services
-		/// </summary>
-		protected IDictionary<Type, object> ServiceCollectionAccess { get; }
+
+		/// <inheritdoc />
+		public ServiceCollection Services { get; private set; }
+
+		/// <inheritdoc />
+		public IDictionary<string, object> Constants { get; set; }
 
 		/// <summary>
 		///     Gets the gloabl formatter that are used always for any formatting run.
@@ -95,81 +103,7 @@ namespace Morestachio.Formatter.Framework
 		/// 
 		/// </summary>
 		public FormatterServiceExceptionHandling ExceptionHandling { get; set; }
-
-		/// <inheritdoc />
-		public IReadOnlyDictionary<Type, object> ServiceCollection
-		{
-			get { return new ReadOnlyDictionary<Type, object>(ServiceCollectionAccess); }
-		}
-
-		/// <inheritdoc />
-		public void AddService(Type serviceType, ServiceCreatorCallback callback)
-		{
-			AddService(serviceType, callback, false);
-		}
-
-		/// <inheritdoc />
-		public void AddService(Type serviceType, ServiceCreatorCallback callback, bool promote)
-		{
-			ServiceCollectionAccess[serviceType] = new Func<object>(() => callback(this, serviceType));
-		}
-
-		/// <inheritdoc />
-		public void AddService(Type serviceType, object serviceInstance)
-		{
-			AddService(serviceType, serviceInstance, false);
-		}
-
-		/// <inheritdoc />
-		public void AddService(Type serviceType, object serviceInstance, bool promote)
-		{
-			ServiceCollectionAccess[serviceType] = serviceInstance;
-		}
-
-		/// <inheritdoc />
-		public void RemoveService(Type serviceType)
-		{
-			RemoveService(serviceType, false);
-		}
-
-		/// <inheritdoc />
-		public void RemoveService(Type serviceType, bool promote)
-		{
-			ServiceCollectionAccess.Remove(serviceType);
-		}
-
-		/// <inheritdoc />
-		public void AddService<T, TE>(TE service) where TE : T
-		{
-			AddService(typeof(TE), service);
-		}
-
-		/// <inheritdoc />
-		public void AddService<T>(T service)
-		{
-			AddService(typeof(T), service);
-		}
-
-		/// <inheritdoc />
-		public void AddService<T, TE>(Func<TE> serviceFactory) where TE : T
-		{
-			ServiceCollectionAccess[typeof(TE)] = serviceFactory;
-		}
-
-		/// <inheritdoc />
-		public void AddService<T>(Func<T> serviceFactory)
-		{
-			ServiceCollectionAccess[typeof(T)] = serviceFactory;
-		}
-
-		/// <inheritdoc />
-		public object GetService(Type serviceType)
-		{
-			var tryInvokeService = Framework.ServiceCollection.TryInvokeService(ServiceCollectionAccess,
-				serviceType, out var service);
-			return service;
-		}
-
+		
 		/// <inheritdoc />
 		public IEnumerable<MorestachioFormatterModel> Filter(Func<MorestachioFormatterModel, bool> filter)
 		{
@@ -254,8 +188,7 @@ namespace Morestachio.Formatter.Framework
 			ParserOptions parserOptions,
 			ScopeData scope)
 		{
-			var compareKey = new FormatterCacheCompareKey(type, arguments, name);
-			if (Cache != null && Cache.TryGetValue(compareKey, out var cacheItem))
+			if (Cache != null && Cache.TryGetValue(new FormatterCacheCompareKey(type, arguments, name), out var cacheItem))
 			{
 				return cacheItem;
 			}
@@ -263,7 +196,7 @@ namespace Morestachio.Formatter.Framework
 				.Where(e => e != null)
 				.ToArray();
 
-			var services = new ServiceCollection(ServiceCollectionAccess);
+			var services = this.Services.CreateChild();
 			services.AddService(parserOptions);
 			services.AddService(scope.Profiler);
 			services.AddService(scope);
@@ -281,7 +214,7 @@ namespace Morestachio.Formatter.Framework
 					var cache = new FormatterCache(morestachioFormatterModel, tryCompose);
 					if (Cache != null)
 					{
-						Cache[compareKey] = cache;
+						Cache[new FormatterCacheCompareKey(type, arguments, name)] = cache;
 					}
 
 					return cache;
@@ -290,7 +223,7 @@ namespace Morestachio.Formatter.Framework
 
 			if (Cache != null)
 			{
-				return Cache[compareKey] = null;
+				return Cache[new FormatterCacheCompareKey(type, arguments, name)] = null;
 			}
 
 			return null;

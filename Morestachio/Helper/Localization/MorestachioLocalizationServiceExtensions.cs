@@ -21,7 +21,7 @@ namespace Morestachio.Helper.Localization
 			Func<IMorestachioLocalizationService> getService)
 		{
 			var service = getService();
-			options.Formatters.AddService(service);
+			options.Formatters.Services.AddService(service);
 			options.Formatters.AddFromType(typeof(LocalizationFormatter));
 			options.CustomDocumentItemProviders.Add(new MorestachioLocalizationTagProvider());
 			options.CustomDocumentItemProviders.Add(new MorestachioCustomCultureLocalizationBlockProvider());

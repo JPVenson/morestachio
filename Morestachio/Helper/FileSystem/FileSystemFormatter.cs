@@ -167,7 +167,7 @@ namespace Morestachio.Helper.FileSystem
 		public static void RegisterFileSystem(this ParserOptions options, Func<FileSystemService> action)
 		{
 			var fs = action();
-			options.Formatters.AddService<FileSystemService>(fs);
+			options.Formatters.Services.AddService(typeof(FileSystemService), fs);
 			options.Formatters.AddFromType<FileSystemService>();
 			options.Formatters.AddFromType<FileSystemFileService>();
 		}

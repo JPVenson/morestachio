@@ -1,26 +1,104 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 
 namespace Morestachio.Formatter.Framework
 {
 	/// <summary>
 	///		Collection of services
 	/// </summary>
-	public class ServiceCollection
+	public class ServiceCollection : IServiceContainer
 	{
 		private readonly IDictionary<Type, object> _localSource;
-		private readonly IDictionary<Type, object> _source;
+		private readonly ServiceCollection _parentProvider;
+
+		/// <summary>
+		///		Creates a new Top level Service collection
+		/// </summary>
+		public ServiceCollection() : this(null)
+		{
+			
+		}
 
 		/// <summary>
 		/// 
 		/// </summary>
-		public ServiceCollection(IDictionary<Type, object> source)
+		public ServiceCollection(ServiceCollection parentProvider)
 		{
-			_source = source;
+			_parentProvider = parentProvider;
 			_localSource = new Dictionary<Type, object>
 			{
-				{typeof(ServiceCollection), this}
+				{typeof(ServiceCollection), this},
+				{typeof(IServiceContainer), this},
 			};
+		}
+		
+
+		/// <summary>
+		///		Enumerates all services known
+		/// </summary>
+		/// <returns></returns>
+		public IDictionary<Type, object> Enumerate()
+		{
+			var services = _parentProvider?.Enumerate() ?? new Dictionary<Type, object>();
+			foreach (var item in services)
+			{
+				services[item.Key] = item.Value;
+			}
+			return services;
+		}
+
+		/// <summary>
+		///		Creates a new Service collection with this collection as its parent
+		/// </summary>
+		/// <returns></returns>
+		public ServiceCollection CreateChild()
+		{
+			return new ServiceCollection(this);
+		}
+		
+		/// <inheritdoc />
+		public object GetService(Type serviceType)
+		{
+			TryGetService(serviceType, out var service);
+			return service;
+		}
+
+		/// <inheritdoc />
+		public void AddService(Type serviceType, ServiceCreatorCallback callback)
+		{
+			this.AddService(serviceType, callback, false);
+		}
+		
+		/// <inheritdoc />
+		public void AddService(Type serviceType, ServiceCreatorCallback callback, bool promote)
+		{
+			AddService(serviceType, (object)callback, false);
+		}
+		
+		/// <inheritdoc />
+		public void AddService(Type serviceType, object serviceInstance)
+		{
+			AddService(serviceType, serviceInstance, false);
+		}
+		
+		/// <inheritdoc />
+		public void AddService(Type serviceType, object serviceInstance, bool promote)
+		{
+			_localSource[serviceType] = serviceInstance;
+		}
+		
+		/// <inheritdoc />
+		public void RemoveService(Type serviceType)
+		{
+			_localSource.Remove(serviceType);
+		}
+		
+		/// <inheritdoc />
+		public void RemoveService(Type serviceType, bool promote)
+		{
+			_localSource.Remove(serviceType);
 		}
 
 		/// <summary>
@@ -31,7 +109,7 @@ namespace Morestachio.Formatter.Framework
 		/// <param name="service"></param>
 		public void AddService<T, TE>(TE service) where TE : T
 		{
-			_localSource[typeof(T)] = service;
+			AddService(typeof(T), service);
 		}
 
 		/// <summary>
@@ -41,7 +119,7 @@ namespace Morestachio.Formatter.Framework
 		/// <param name="service"></param>
 		public void AddService<T>(T service)
 		{
-			_localSource[typeof(T)] = service;
+			AddService(typeof(T), service);
 		}
 
 		/// <summary>
@@ -52,7 +130,7 @@ namespace Morestachio.Formatter.Framework
 		/// <param name="serviceFactory"></param>
 		public void AddService<T, TE>(Func<TE> serviceFactory) where TE : T
 		{
-			_localSource[typeof(T)] = serviceFactory;
+			AddService(typeof(T), serviceFactory);
 		}
 
 		/// <summary>
@@ -62,7 +140,7 @@ namespace Morestachio.Formatter.Framework
 		/// <param name="serviceFactory"></param>
 		public void AddService<T>(Func<T> serviceFactory)
 		{
-			_localSource[typeof(T)] = serviceFactory;
+			AddService(typeof(T), serviceFactory);
 		}
 
 		/// <summary>
@@ -124,7 +202,18 @@ namespace Morestachio.Formatter.Framework
 			{
 				return true;
 			}
-			return TryInvokeService(_source, serviceType, out service);
+
+			if (_parentProvider == null)
+			{
+				return false;
+			}
+			service = _parentProvider.GetService(serviceType);
+			if (service is Delegate factory)
+			{
+				service = factory.DynamicInvoke();
+			}
+
+			return service != null;
 		}
 
 		/// <summary>

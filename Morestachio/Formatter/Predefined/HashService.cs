@@ -17,7 +17,7 @@ namespace Morestachio.Formatter.Predefined
 			get { return _instance ?? (_instance = new HashService()); }
 		}
 
-		public HashService()
+		private HashService()
 		{
 		}
 

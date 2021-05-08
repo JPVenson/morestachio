@@ -17,12 +17,17 @@ namespace Morestachio.Formatter.Framework
 	/// <summary>
 	///     Interface for Resolving formatters
 	/// </summary>
-	public interface IMorestachioFormatterService : ISealed, IServiceContainer
+	public interface IMorestachioFormatterService : ISealed
 	{
 		/// <summary>
-		///     Contains a set of objects that can be injected into a formatter
+		///		This object is available everywhere and acts like root #var objects
 		/// </summary>
-		IReadOnlyDictionary<Type, object> ServiceCollection { get; }
+		IDictionary<string, object> Constants { get; }
+
+		/// <summary>
+		///		Gets access to the injectable services
+		/// </summary>
+		ServiceCollection Services { get; }
 
 		/// <summary>
 		///     Experimental
@@ -40,26 +45,6 @@ namespace Morestachio.Formatter.Framework
 		///     Defines the list of all formatter value converters
 		/// </summary>
 		ICollection<IFormatterValueConverter> ValueConverter { get; }
-
-		/// <summary>
-		///     Adds a new Service to the Service collection
-		/// </summary>
-		void AddService<T, TE>(TE service) where TE : T;
-
-		/// <summary>
-		///     Adds a new Service to the Service collection
-		/// </summary>
-		void AddService<T>(T service);
-
-		/// <summary>
-		///     Adds a new Service factory to the Service collection
-		/// </summary>
-		void AddService<T, TE>(Func<TE> serviceFactory) where TE : T;
-
-		/// <summary>
-		///     Adds a new Service factory to the Service collection
-		/// </summary>
-		void AddService<T>(Func<T> serviceFactory);
 
 		/// <summary>
 		///     Filteres the list of Formatters
