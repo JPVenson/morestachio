@@ -42,7 +42,7 @@ namespace Morestachio.Formatter.Framework
 		public IDictionary<Type, object> Enumerate()
 		{
 			var services = _parentProvider?.Enumerate() ?? new Dictionary<Type, object>();
-			foreach (var item in services)
+			foreach (var item in _localSource)
 			{
 				services[item.Key] = item.Value;
 			}

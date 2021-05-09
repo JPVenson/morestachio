@@ -1,17 +1,27 @@
 ﻿using System.IO;
 using System.Security.Cryptography;
 using Morestachio.Formatter.Framework.Attributes;
+using Morestachio.Formatter.Predefined;
 
-namespace Morestachio.Formatter.Predefined
+namespace Morestachio.Formatter.Services
 {
+	/// <summary>
+	///		Uses the AES Cryptography
+	/// </summary>
 	public class AesCryptography : IMorestachioCryptographyService
 	{
+		/// <summary>
+		/// 
+		/// </summary>
 		public AesCryptography()
 		{
 			Name = "AES";
 		}
 
+		/// <inheritdoc />
 		public string Name { get; }
+		
+		/// <inheritdoc />
 		[MorestachioFormatter("[MethodName]", "Encrypts the byte[] using the password byte[]")]
 		public byte[] Encrypt(byte[] value, byte[] password)
 		{
@@ -34,7 +44,8 @@ namespace Morestachio.Formatter.Predefined
 			}
 
 		}
-
+		
+		/// <inheritdoc />
 		[MorestachioFormatter("[MethodName]", "Decrypts the byte[] using the password byte[]")]
 		public byte[] Decrypt(byte[] value, byte[] password)
 		{

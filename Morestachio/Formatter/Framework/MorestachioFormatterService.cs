@@ -14,6 +14,7 @@ using Morestachio.Formatter.Constants;
 using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Formatter.Framework.Converter;
 using Morestachio.Formatter.Predefined;
+using Morestachio.Formatter.Services;
 using Morestachio.Helper;
 using Morestachio.Helper.Logging;
 using Morestachio.Util.Sealing;
@@ -43,6 +44,11 @@ namespace Morestachio.Formatter.Framework
 			new Regex("^[a-zA-Z]{1}[a-zA-Z0-9_]*$", RegexOptions.Compiled);
 
 		/// <summary>
+		///		Gets the default MorestachioFormatterService
+		/// </summary>
+		public static IMorestachioFormatterService Default { get; }
+
+		/// <summary>
 		///     Initializes a new instance of the <see cref="MorestachioFormatterService" /> class.
 		/// </summary>
 		public MorestachioFormatterService(bool useCache = false)
@@ -56,18 +62,30 @@ namespace Morestachio.Formatter.Framework
 			Services = new ServiceCollection(); //i would love to allow custom external containers to be set as parent but the interface does not allow the necessary enumeration of services 
 			Services.AddService(typeof(IMorestachioFormatterService), this);
 			Services.AddService(typeof(CryptService), CryptService.Instance);
+			this.AddFromType<CryptService>();
+			this.AddFromType<IMorestachioCryptographyService>();
+			this.AddFromType<AesCryptography>();
 			Services.AddService(typeof(HashService), HashService.Instance);
+			this.AddFromType<HashService>();
 
 			Constants = new Dictionary<string, object>()
 			{
 				{"Encoding", EncodingConstant.Instance},
 				{"DateTime", DateTimeConstant.Instance},
 			};
+			this.AddFromType<EncodingConstant>();
+			this.AddFromType<DateTimeConstant>();
+			this.AddFromType<Encoding>();
 			
 			if (useCache)
 			{
 				Cache = new ConcurrentDictionary<FormatterCacheCompareKey, FormatterCache>();
 			}
+		}
+
+		static MorestachioFormatterService()
+		{
+			Default = new MorestachioFormatterService();
 		}
 
 
@@ -116,7 +134,7 @@ namespace Morestachio.Formatter.Framework
 		{
 			morestachioFormatterAttribute.ValidateFormatter(method);
 			var arguments = morestachioFormatterAttribute.GetParameters(method);
-
+			
 			var name = morestachioFormatterAttribute.GetFormatterName(method); ;
 			var morestachioFormatterModel = new MorestachioFormatterModel(name,
 				morestachioFormatterAttribute.Description,

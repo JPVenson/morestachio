@@ -50,7 +50,7 @@ namespace Morestachio.Tests
 		[TestCase("Any thing else", false)]
 		public void TestFormatterNames(string name, bool expectTobeValid)
 		{
-			Assert.That(() => new MorestachioFormatterAttribute(name, "").ValidateFormatterName(),
+			Assert.That(() => new MorestachioFormatterAttribute(name, "").ValidateFormatterName(null),
 				Is.EqualTo(expectTobeValid));
 		}
 
@@ -139,7 +139,7 @@ namespace Morestachio.Tests
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
 				options.Formatters.AddFromType(typeof(ExternalDataFormatter));
-				options.Formatters.AddService(new ExternalDataFormatter.ExternalDataService());
+				options.Formatters.Services.AddService(new ExternalDataFormatter.ExternalDataService());
 			});
 
 			Assert.That(result, Is.EqualTo("123|B6B747D4-02E4-4CBE-8CD2-013B64C1399A"));
@@ -156,7 +156,7 @@ namespace Morestachio.Tests
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
 				options.Formatters.AddFromType(typeof(ExternalDataFormatter));
-				options.Formatters.AddService(() => new ExternalDataFormatter.ExternalDataService());
+				options.Formatters.Services.AddService(() => new ExternalDataFormatter.ExternalDataService());
 			});
 
 			Assert.That(result, Is.EqualTo("123|B6B747D4-02E4-4CBE-8CD2-013B64C1399A"));

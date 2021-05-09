@@ -27,7 +27,15 @@ namespace Morestachio.TemplateContainers
 		/// <inheritdoc />
 		public override string Substring(int index, int length)
 		{
-			return _template.Substring(index, length);
+			try
+			{
+				return _template.Substring(index, length);
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e);
+				throw;
+			}
 		}
 		
 		/// <inheritdoc />

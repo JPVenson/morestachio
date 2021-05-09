@@ -450,6 +450,22 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		public async Task ParserCanParseJsonLikeText()
+		{
+			var template = @"{
+	{{data}}
+}";
+			var data = new Dictionary<string, object>
+			{
+				{ "data", "test" },
+			};
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
+			Assert.That(result, Is.EqualTo(@"{
+	test
+}"));
+		}
+
+		[Test]
 		public async Task ParserCanVariableStaticExpression()
 		{
 			var template = "{{#var f = data}}|{{f}}";

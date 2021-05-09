@@ -70,7 +70,7 @@ namespace Morestachio.Formatter.Framework.Attributes
 		public virtual string GetFormatterName(MethodInfo method)
 		{
 			return Name
-				.Replace("[MethodName]", method.Name);
+				.Replace("[MethodName]", method?.Name);
 		}
 
 		///  <summary>

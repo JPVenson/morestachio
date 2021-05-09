@@ -52,7 +52,7 @@ namespace Morestachio.Framework.Context
 
 		static ContextObject()
 		{
-			DefaultFormatter = new MorestachioFormatterService();
+			DefaultFormatter = MorestachioFormatterService.Default;
 			DefaultFormatter.AddFromType(typeof(ObjectFormatter));
 			DefaultFormatter.AddFromType(typeof(Number));
 			DefaultFormatter.AddFromType(typeof(BooleanFormatter));

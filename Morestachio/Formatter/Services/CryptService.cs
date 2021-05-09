@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Morestachio.Formatter.Predefined;
 
 #pragma warning disable 1591
 
-namespace Morestachio.Formatter.Predefined
+namespace Morestachio.Formatter.Services
 {
 	/// <summary>
 	///		This class contains formatters for encrypting and decrypting data
@@ -22,6 +20,6 @@ namespace Morestachio.Formatter.Predefined
 			get { return _instance ?? (_instance = new CryptService()); }
 		}
 
-		public AesCryptography Aes { get; set; }
+		public IMorestachioCryptographyService Aes { get; set; }
 	}
 }

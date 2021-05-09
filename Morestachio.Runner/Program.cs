@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using Morestachio.Formatter.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Context.Resolver;
@@ -15,16 +16,17 @@ using Morestachio.Helper.Localization;
 using Morestachio.Helper.Logging;
 using Morestachio.Linq;
 using Morestachio.Newtonsoft.Json;
+using Morestachio.Rendering;
 using Newtonsoft.Json;
 
 namespace Morestachio.Runner
 {
 	public class Program
 	{
-		static int Main(string[] args)
+		static async Task<int> Main(string[] args)
 		{
 			var prog = new Program();
-			var result = prog.RootHandler(args);
+			var result = await prog.RootHandler(args);
 			return result;
 		}
 
@@ -43,6 +45,7 @@ namespace Morestachio.Runner
 				public string MethodName { get; set; }
 				public Type Returns { get; set; }
 				public IList<MethodFunction> Functions { get; set; }
+				public IList<MethodParameter> Parameters { get; set; }
 
 				public class MethodFunction
 				{
@@ -50,9 +53,8 @@ namespace Morestachio.Runner
 					public Type Returns { get; set; }
 					public string Description { get; set; }
 					public bool IsOperator { get; set; }
+					public bool IsInstanceFunction { get; set; }
 				}
-
-				public IList<MethodParameter> Parameters { get; set; }
 
 				public class MethodParameter
 				{
@@ -66,18 +68,76 @@ namespace Morestachio.Runner
 			}
 		}
 
+		public class ServiceData
+		{
+			public string ServiceName { get; set; }
+			public ICollection<ServicePropertyType> Types { get; set; }
+		}
+			
+		public class ServicePropertyType : IEquatable<ServicePropertyType>
+		{
+			public ServicePropertyType()
+			{
+				Properties = new List<ServiceProperty>();
+				Formatter = new FormatterData();
+			}
+				
+			public FormatterData Formatter { get; set; }
+			public Type Type { get; set; }
+			public IList<ServiceProperty> Properties { get; set; }
+
+			public bool IsFrameworkType { get; set; }
+
+			public bool Equals(ServicePropertyType other)
+			{
+				if (ReferenceEquals(null, other))
+				{
+					return false;
+				}
+
+				if (ReferenceEquals(this, other))
+				{
+					return true;
+				}
+
+				return Equals(Type, other.Type);
+			}
+
+			public override bool Equals(object obj)
+			{
+				if (ReferenceEquals(null, obj))
+				{
+					return false;
+				}
+
+				if (ReferenceEquals(this, obj))
+				{
+					return true;
+				}
+
+				if (obj.GetType() != this.GetType())
+				{
+					return false;
+				}
+
+				return Equals((ServicePropertyType) obj);
+			}
+
+			public override int GetHashCode()
+			{
+				return (Type != null ? Type.GetHashCode() : 0);
+			}
+		}
+
+		public class ServiceProperty
+		{
+			public string Name { get; set; }
+			public ServicePropertyType PropType { get; set; }
+		}
+
 		public static IDictionary<string, object> GetMorestachioFormatterDocumentation()
 		{
-			var values = new Dictionary<string, object>();
-			var formatterTypes = new List<FormatterData>();
-			values["Data"] = formatterTypes;
-
-			var formatterService = ContextObject.DefaultFormatter as MorestachioFormatterService;
-			formatterService.AddFromType(typeof(LocalizationFormatter));
-			foreach (var formatterServiceFormatter in formatterService
-				.Formatters
-				.SelectMany(f => f.Value)
-				.GroupBy(e => e.Function.DeclaringType))
+			FormatterData EnumerateFormatters(IGrouping<Type, MorestachioFormatterModel> formatterServiceFormatter, bool includeInstanceMethods)
 			{
 				var formatter = new FormatterData();
 				formatter.DeclaringType = formatterServiceFormatter.Key;
@@ -85,6 +145,7 @@ namespace Morestachio.Runner
 				var methods = new List<FormatterData.FormatterMethod>();
 				formatter.Methods = methods;
 				foreach (var formatterMethod in formatterServiceFormatter
+					.Where(e => e.LinkFunctionTarget == includeInstanceMethods)
 					.GroupBy(e => e.Function))
 				{
 					foreach (var morestachioFormatterModel in formatterMethod.GroupBy(e => e.IsGlobalFormatter))
@@ -97,14 +158,17 @@ namespace Morestachio.Runner
 						{
 							var function = new FormatterData.FormatterMethod.MethodFunction();
 							function.FormatterName = string.IsNullOrWhiteSpace(fncGrouped.Name) ? "{Null}" : fncGrouped.Name;
-							var mOperator = MorestachioOperator.Operators.FirstOrDefault(f => ("op_" + f.Key.ToString()) == function.FormatterName).Value;
+							var mOperator = MorestachioOperator.Operators
+								.FirstOrDefault(f => ("op_" + f.Key.ToString()) == function.FormatterName).Value;
 							if (mOperator != null)
 							{
 								function.FormatterName = mOperator.OperatorText;
 								function.IsOperator = true;
 							}
+
 							function.Returns = fncGrouped.OutputType ?? fncGrouped.Function.ReturnType;
 							function.Description = fncGrouped.Description;
+							function.IsInstanceFunction = fncGrouped.LinkFunctionTarget;
 							methodFunctions.Add(function);
 						}
 
@@ -129,15 +193,98 @@ namespace Morestachio.Runner
 						methods.Add(methodMeta);
 					}
 				}
-				formatterTypes.Add(formatter);
+
+				return formatter;
+			}
+			
+			ServicePropertyType EnumerateObject(Type csType, 
+				MorestachioFormatterService formatterService,
+				ICollection<ServicePropertyType> servicePropertyTypes)
+			{
+				var type = new ServicePropertyType();
+				type.Type = csType;
+				type.IsFrameworkType = true;
+				servicePropertyTypes.Add(type);
+				foreach (var formatterServiceFormatter in formatterService
+					.Formatters
+					.SelectMany(f => f.Value)
+					.Where(e => e.LinkFunctionTarget)
+					.Where(e => e.Function.DeclaringType == csType)
+					.GroupBy(e => e.Function.DeclaringType))
+				{
+					type.Formatter = EnumerateFormatters(formatterServiceFormatter, true);
+				}
+
+				foreach (var propertyInfo in csType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+				{
+					var prop = new ServiceProperty();
+					prop.Name = propertyInfo.Name;
+					
+					if (propertyInfo.PropertyType.Namespace.StartsWith("Morestachio"))
+					{
+						prop.PropType = EnumerateObject(propertyInfo.PropertyType, formatterService, servicePropertyTypes);
+					}
+					else
+					{
+						prop.PropType = new ServicePropertyType()
+						{
+							Type = propertyInfo.PropertyType,
+							IsFrameworkType = false
+						};
+					}
+					
+					type.Properties.Add(prop);
+				}
+
+				return type;
+			}
+
+			var values = new Dictionary<string, object>();
+			var formatterTypes = new List<FormatterData>();
+			values["FormatterData"] = formatterTypes;
+
+			var formatterService = ContextObject.DefaultFormatter as MorestachioFormatterService;
+			formatterService.AddFromType(typeof(LocalizationFormatter));
+			foreach (var formatterServiceFormatter in formatterService
+				.Formatters
+				.SelectMany(f => f.Value)
+				.GroupBy(e => e.Function.DeclaringType))
+			{
+				var data = EnumerateFormatters(formatterServiceFormatter, false);
+				if (data.Methods.Any())
+				{
+					formatterTypes.Add(data);
+				}
+			}
+
+			var services = new List<ServiceData>();
+			values["ServiceData"] = services;
+			foreach (var service in formatterService.Services.Enumerate())
+			{
+				var serviceData = new ServiceData();
+				serviceData.ServiceName = service.Key.Name;
+				serviceData.Types = new HashSet<ServicePropertyType>();
+				EnumerateObject(service.Key, formatterService, serviceData.Types);
+				services.Add(serviceData);
+			}
+
+			var constants = new List<ServiceData>();
+			values["ConstData"] = constants;
+			foreach (var service in formatterService.Constants)
+			{
+				var serviceData = new ServiceData();
+				serviceData.ServiceName = service.Key;
+				serviceData.Types = new HashSet<ServicePropertyType>();
+				EnumerateObject(service.Value.GetType(), formatterService, serviceData.Types);
+				constants.Add(serviceData);
 			}
 
 			return values;
 		}
 
-		public int RootHandler(string[] args)
+		public async Task<int> RootHandler(string[] args)
 		{
-			return GetCommands().Invoke(args);
+			return await GetCommands().InvokeAsync(args);
 		}
 
 		public RootCommand GetCommands()
@@ -193,7 +340,7 @@ namespace Morestachio.Runner
 			if (BuildLog == null)
 			{
 				Console.WriteLine("Press any key to close the program...");
-				Console.ReadKey();
+				//Console.ReadKey();
 			}
 		}
 
@@ -247,7 +394,7 @@ namespace Morestachio.Runner
 			return metric;
 		}
 
-		private int Invoke(SourceTypes sourceType, string sourceData, string templateData, string targetPath, string buildLog, string sourceDataNetType, string sourceDataNetFunction)
+		private async Task<int> Invoke(SourceTypes sourceType, string sourceData, string templateData, string targetPath, string buildLog, string sourceDataNetType, string sourceDataNetFunction)
 		{
 			PerformanceMetrics = new Dictionary<string, PerformanceMetric>();
 			using (StartMetric("Whole Operation"))
@@ -359,7 +506,7 @@ namespace Morestachio.Runner
 						WriteLine("- Parse the template");
 						using (StartMetric("Parse Template"))
 						{
-							document = Parser.ParseWithOptions(new ParserOptions(template, () => sourceFs, Encoding.UTF8, true)
+							document = await Parser.ParseWithOptionsAsync(new ParserOptions(template, () => sourceFs, Encoding.UTF8, true)
 							{
 								Timeout = TimeSpan.FromMinutes(1),
 								ValueResolver = resolver,
@@ -384,7 +531,7 @@ namespace Morestachio.Runner
 						WriteLine("- Execute the parsed template");
 						using (StartMetric("Create Document"))
 						{
-							document.Create(data);	
+							await document.CreateRenderer().RenderAsync(data);	
 						}
 
 						WriteLine("- Done");
