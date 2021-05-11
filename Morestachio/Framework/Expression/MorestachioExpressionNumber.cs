@@ -164,6 +164,18 @@ namespace Morestachio.Framework.Expression
 			visitor.Visit(this);
 		}
 
+		/// <inheritdoc />
+		public bool IsCompileTimeEval()
+		{
+			return true;
+		}
+		
+		/// <inheritdoc />
+		public object GetCompileTimeValue()
+		{
+			return Number;
+		}
+
 		private class ExpressionDebuggerDisplay
 		{
 			private readonly MorestachioExpressionNumber _exp;

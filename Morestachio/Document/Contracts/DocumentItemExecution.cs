@@ -5,7 +5,7 @@ namespace Morestachio.Document.Contracts
 	/// <summary>
 	///		Combines a Document info that should be rendered with a <see cref="ContextObject"/>
 	/// </summary>
-	public readonly struct DocumentItemExecution
+	public class DocumentItemExecution
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DocumentItemExecution"/> struct.

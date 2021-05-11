@@ -142,6 +142,18 @@ namespace Morestachio.Framework.Expression
 		}
 
 		/// <inheritdoc />
+		public bool IsCompileTimeEval()
+		{
+			return false;
+		}
+		
+		/// <inheritdoc />
+		public object GetCompileTimeValue()
+		{
+			return null;
+		}
+
+		/// <inheritdoc />
 		public bool Equals(IMorestachioExpression other)
 		{
 			return Equals((object)other);

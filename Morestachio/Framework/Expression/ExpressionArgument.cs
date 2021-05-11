@@ -101,6 +101,18 @@ namespace Morestachio.Framework.Expression
 		{
 			visitor.Visit(this);
 		}
+		
+		/// <inheritdoc />
+		public bool IsCompileTimeEval()
+		{
+			return MorestachioExpression.IsCompileTimeEval();
+		}
+		
+		/// <inheritdoc />
+		public object GetCompileTimeValue()
+		{
+			return MorestachioExpression.GetCompileTimeValue();
+		}
 
 		/// <inheritdoc />
 		public XmlSchema GetSchema()

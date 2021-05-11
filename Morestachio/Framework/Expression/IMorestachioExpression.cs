@@ -41,5 +41,15 @@ namespace Morestachio.Framework.Expression
 		/// </summary>
 		/// <param name="visitor"></param>
 		void Accept(IMorestachioExpressionVisitor visitor);
+
+		/// <summary>
+		///		Should return true if the expected value is completely evaluable at compile time 
+		/// </summary>
+		bool IsCompileTimeEval();
+
+		/// <summary>
+		///		When <see cref="IsCompileTimeEval"/> returns true this is called to obtain the value
+		/// </summary>
+		object GetCompileTimeValue();
 	}
 }

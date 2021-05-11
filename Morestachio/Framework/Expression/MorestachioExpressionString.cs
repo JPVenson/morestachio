@@ -131,7 +131,7 @@ namespace Morestachio.Framework.Expression
 		/// <inheritdoc />
 		public CompiledExpression Compile()
 		{
-			var str = string.Join("", StringParts.Select(f => f.PartText));
+			var str = GetCompileTimeValue();
 			var value = new ContextObject(".", null, str);
 			return (contextObject, scopeData) => value.ToPromise();
 		}
@@ -140,6 +140,18 @@ namespace Morestachio.Framework.Expression
 		public void Accept(IMorestachioExpressionVisitor visitor)
 		{
 			visitor.Visit(this);
+		}
+		
+		/// <inheritdoc />
+		public bool IsCompileTimeEval()
+		{
+			return true;
+		}
+		
+		/// <inheritdoc />
+		public object GetCompileTimeValue()
+		{
+			return string.Join("", StringParts.Select(f => f.PartText));
 		}
 
 		/// <inheritdoc />

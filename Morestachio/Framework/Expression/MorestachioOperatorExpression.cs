@@ -264,6 +264,20 @@ namespace Morestachio.Framework.Expression
 			visitor.Visit(this);
 		}
 
+		/// <inheritdoc />
+		public bool IsCompileTimeEval()
+		{
+			// this would be possible when a ScopeData object is supplied to access the formatters which is currently not possible
+			return false;
+//			return LeftExpression.IsCompileTimeEval() && (RightExpression == null || RightExpression.IsCompileTimeEval());
+		}
+		
+		/// <inheritdoc />
+		public object GetCompileTimeValue()
+		{
+			return null;
+		}
+
 		private class ExpressionDebuggerDisplay
 		{
 			private readonly MorestachioOperatorExpression _exp;

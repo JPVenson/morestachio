@@ -319,27 +319,56 @@ namespace Morestachio.Framework.Expression
 					return (contextObject, data) => contextObject.ToPromise();
 				}
 
-				return (contextObject, data) =>
-				{
-					return getContext(contextObject, data, this).ToPromise();
-				};
+				return (contextObject, data) => getContext(contextObject, data, this).ToPromise();
 			}
 
-			var formatsCompiled = Formats.ToDictionary(f => f, f => f.Compile()).ToArray();
+			var formatsCompiled = Formats.ToDictionary(f => f, f =>
+			{
+				if (f.IsCompileTimeEval())
+				{
+					return f.GetCompileTimeValue();
+				}
+
+				return f.Compile();
+			}).ToArray();
+
+			var arguments = new FormatterArgumentType[formatsCompiled.Length];
+			var allConstants = formatsCompiled.All(e => e.Key.IsCompileTimeEval());
+
+			if (allConstants)
+			{
+				for (var index = 0; index < formatsCompiled.Length; index++)
+				{
+					var keyValuePair = formatsCompiled[index];
+					arguments[index] = new FormatterArgumentType(index, keyValuePair.Key.Name, keyValuePair.Value);
+				}
+			}
 
 			FormatterCache cache = null;
-			var arguments = new FormatterArgumentType[formatsCompiled.Length];
 
 			async Promise CallFormatter(
 				ContextObject naturalContext,
 				ContextObject outputContext,
 				ScopeData scopeData)
 			{
-				for (var index = 0; index < formatsCompiled.Length; index++)
+				if (!allConstants)
 				{
-					var formatterArgument = formatsCompiled[index];
-					var value = await formatterArgument.Value(naturalContext, scopeData);
-					arguments[index] = new FormatterArgumentType(index, formatterArgument.Key.Name, value?.Value);
+					for (var index = 0; index < formatsCompiled.Length; index++)
+					{
+						var formatterArgument = formatsCompiled[index];
+
+						object value;
+						if(formatterArgument.Value is CompiledExpression cex)
+						{
+							value = (await cex(naturalContext, scopeData))?.Value;
+						}
+						else
+						{
+							value = formatterArgument.Value;
+						}
+					
+						arguments[index] = new FormatterArgumentType(index, formatterArgument.Key.Name, value);
+					}
 				}
 
 				if (cache == null)
@@ -351,7 +380,7 @@ namespace Morestachio.Framework.Expression
 						scopeData);
 				}
 
-				if (cache != null/* && !Equals(cache.Value, default(FormatterCache))*/)
+				if (cache != null)
 				{
 					outputContext.Value = await scopeData.ParserOptions.Formatters.Execute(cache, outputContext.Value, scopeData.ParserOptions, arguments);
 					outputContext.MakeSyntetic();
@@ -376,7 +405,6 @@ namespace Morestachio.Framework.Expression
 				await CallFormatter(contextObject, ctx, scopeData);
 				return ctx;
 			};
-
 		}
 
 		/// <inheritdoc />
@@ -430,6 +458,53 @@ namespace Morestachio.Framework.Expression
 		public void Accept(IMorestachioExpressionVisitor visitor)
 		{
 			visitor.Visit(this);
+		}
+
+		/// <inheritdoc />
+		public bool IsCompileTimeEval()
+		{
+			if (!PathParts.HasValue)
+			{
+				return true;
+			}
+
+			if (PathParts.Count == 1)
+			{
+				if (PathParts.Current.Value == PathType.Boolean)
+				{
+					return true;
+				}
+
+				if (PathParts.Current.Value == PathType.Null)
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		/// <inheritdoc />
+		public object GetCompileTimeValue()
+		{
+			if (!PathParts.HasValue)
+			{
+				return null;
+			}
+			if (PathParts.Count == 1)
+			{
+				if (PathParts.Current.Value == PathType.Boolean)
+				{
+					return PathParts.Current.Key == "true";
+				}
+
+				if (PathParts.Current.Value == PathType.Null)
+				{
+					return null;
+				}
+			}
+
+			return null;
 		}
 
 		/// <inheritdoc />

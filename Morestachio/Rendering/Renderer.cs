@@ -114,6 +114,7 @@ namespace Morestachio.Rendering
 						throw new TimeoutException(
 							$"The requested timeout of '{ParserOptions.Timeout:g}' for template generation was reached.");
 					}
+					PostRender();
 				}
 				finally
 				{
@@ -124,7 +125,6 @@ namespace Morestachio.Rendering
 					}
 				}
 
-				PostRender();
 				return new MorestachioDocumentResult(byteCounterStream,
 					profiler,
 					scopeData.Variables.ToDictionary(e => e.Key, e => scopeData.GetFromVariable(null, e.Value)?.Value));

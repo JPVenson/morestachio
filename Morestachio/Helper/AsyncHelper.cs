@@ -166,6 +166,11 @@ namespace Morestachio.Helper
 		//#endif
 		//		}
 
+#if ValueTask
+
+
+#else
+#endif
 
 		/// <summary>
 		///     Unpacks the task.
@@ -175,7 +180,10 @@ namespace Morestachio.Helper
 		{
 			if (maybeTask is Task task)
 			{
-				await task;
+				if (!task.IsCompleted)
+				{
+					await task;
+				}
 
 				if (task is Task<object> task2)
 				{
@@ -197,7 +205,10 @@ namespace Morestachio.Helper
 #if ValueTask
 			if (maybeTask is ValueTask valTask)
 			{
-				await valTask;
+				if (!valTask.IsCompleted)
+				{
+					await valTask;
+				}
 				var taskType = valTask.GetType();
 				if (taskType != typeof(ValueTask))
 				{

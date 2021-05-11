@@ -250,7 +250,7 @@ namespace Morestachio.Formatter.Framework
 		/// <summary>
 		///     Executes the specified formatter.
 		/// </summary>
-		public virtual async ObjectPromise Execute(
+		public virtual ObjectPromise Execute(
 			FormatterCache formatter,
 			object sourceValue,
 			ParserOptions parserOptions,
@@ -285,18 +285,18 @@ namespace Morestachio.Formatter.Framework
 				}
 
 				var taskAlike = method.Invoke(functionTarget, mappedValues);
-				return await taskAlike.UnpackFormatterTask();
+				return taskAlike.UnpackFormatterTask();
 			}
 			catch (Exception e)
 			{
 				if (ExceptionHandling == FormatterServiceExceptionHandling.IgnoreSilently)
 				{
-					return null;
+					return AsyncHelper.EmptyPromise<object>();
 				}
 
 				if (ExceptionHandling == FormatterServiceExceptionHandling.PrintExceptions)
 				{
-					return e.ToString();
+					return (e.ToString() as object).ToPromise();
 				}
 
 				throw;
