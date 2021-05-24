@@ -35,6 +35,17 @@ namespace Morestachio.Framework.IO.SingleStream
 			Options = options;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="sb"></param>
+		/// <param name="options"></param>
+		public ByteCounterStringBuilder(ParserOptions options)
+		{
+			_sb = new StringBuilder();
+			Options = options;
+		}
+
 		/// <inheritdoc />
 		public void Dispose()
 		{
