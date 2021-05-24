@@ -177,7 +177,7 @@ namespace Morestachio.Document.Items
 			var expression = MorestachioExpression.Compile();
 			return async (stream, context, scopeData) =>
 			{
-				var partialName = (await expression(context, scopeData)).Value?.ToString();
+				var partialName = await (await expression(context, scopeData)).RenderToString(scopeData);
 
 				if (partialName == null)
 				{
@@ -214,7 +214,7 @@ namespace Morestachio.Document.Items
 			Tuple<IDocumentItem, ContextObject> action = null;
 			Tuple<IDocumentItem, ContextObject> actiona = null;
 
-			var partialName = (await MorestachioExpression.GetValue(context, scopeData)).Value?.ToString();
+			var partialName = await (await MorestachioExpression.GetValue(context, scopeData)).RenderToString(scopeData);
 
 			if (partialName == null)
 			{

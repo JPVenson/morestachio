@@ -211,7 +211,7 @@ namespace Morestachio.Document
 		public IDictionary<string, IDictionary<int, object>> Alias { get; private set; }
 
 		/// <summary>
-		///		Lists all Alias objects
+		///		Lists all variables
 		/// </summary>
 		public IDictionary<string, object> Variables { get; private set; }
 
@@ -220,12 +220,7 @@ namespace Morestachio.Document
 		///		If it contains an IDisposable it will be disposed after the execution is finished.
 		/// </summary>
 		public IDictionary<string, object> CustomData { get; set; }
-
-		/// <summary>
-		///		Will be set by any preceding If statement if the expression was not rendered to true
-		/// </summary>
-		public bool ExecuteElse { get; set; }
-
+		
 		internal PerformanceProfiler Profiler { get; set; }
 
 		/// <inheritdoc />

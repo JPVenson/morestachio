@@ -68,16 +68,16 @@ namespace Morestachio.Helper.Localization.Documents.CustomCultureDocument
 					oldCulture = culInfo;
 				}
 
-				var expValue = (await expression(context, scopeData)).Value;
+				var expValue = (await expression(context, scopeData));
 
 				CultureInfo requestedCulture;
-				if (expValue is CultureInfo culture)
+				if (expValue.Value is CultureInfo culture)
 				{
 					requestedCulture = culture;
 				}
 				else
 				{
-					requestedCulture = CultureInfo.GetCultureInfo(expValue.ToString());
+					requestedCulture = CultureInfo.GetCultureInfo(await expValue.RenderToString(scopeData));
 				}
 
 				scopeData.CustomData[LocalizationCultureKey] = requestedCulture;
@@ -94,16 +94,16 @@ namespace Morestachio.Helper.Localization.Documents.CustomCultureDocument
 				oldCulture = culInfo;
 			}
 
-			var expValue = (await MorestachioExpression.GetValue(context, scopeData)).Value;
+			var expValue = (await MorestachioExpression.GetValue(context, scopeData));
 
 			CultureInfo requestedCulture;
-			if (expValue is CultureInfo culture)
+			if (expValue.Value is CultureInfo culture)
 			{
 				requestedCulture = culture;
 			}
 			else
 			{
-				requestedCulture = CultureInfo.GetCultureInfo(expValue.ToString());
+				requestedCulture = CultureInfo.GetCultureInfo(await expValue.RenderToString(scopeData));
 			}
 
 			scopeData.CustomData[LocalizationCultureKey] = requestedCulture;
