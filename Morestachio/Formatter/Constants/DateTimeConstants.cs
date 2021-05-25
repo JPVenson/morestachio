@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
+using Morestachio.Framework.Context.Resolver;
 
 namespace Morestachio.Formatter.Constants
 {
 	/// <summary>
 	///		Gets access to DateTime
 	/// </summary>
-	public class DateTimeConstant
+	public sealed class DateTimeConstant
 	{
 		private DateTimeConstant()
 		{
-			
 		}
 
 		private static DateTimeConstant _instance;
