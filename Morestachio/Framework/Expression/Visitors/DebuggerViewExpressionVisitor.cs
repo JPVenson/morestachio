@@ -14,7 +14,7 @@ namespace Morestachio.Framework.Expression.Visitors
 		/// </summary>
 		public DebuggerViewExpressionVisitor()
 		{
-			StringBuilder = new StringBuilderInterlaced<NoColor>();
+			StringBuilder = new StringBuilderInterlaced<NoColor>("\t");
 		}
 
 		/// <summary>

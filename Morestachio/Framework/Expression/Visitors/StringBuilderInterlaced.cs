@@ -14,28 +14,23 @@ namespace Morestachio.Framework.Expression.Visitors
 	public class StringBuilderInterlaced<TColor> : IStringBuilderInterlaced<TColor>, ICollection 
 		where TColor : class, new()
 	{
-
-		private readonly uint _interlacedSpace;
+		
 
 		private readonly List<ITextWithColor<TColor>> _source;
-		private readonly bool _transformInterlaced;
+		private readonly string _interlacedText;
 		private TColor _color;
 		private int _interlacedLevel;
 
 		/// <summary>
+		///		Creates a new <see cref="StringBuilderInterlaced{TColor}"/> that uses the set color and the interlacedText after each line break
 		/// </summary>
-		/// <param name="transformInterlaced">If true an level will be displaced as <paramref name="intedtSize" /> spaces</param>
-		/// <param name="intedtSize">ammount of spaces for each level</param>
-		public StringBuilderInterlaced(bool transformInterlaced = false, uint intedtSize = 4)
+		public StringBuilderInterlaced(string interlacedText)
 		{
-			_interlacedSpace = intedtSize;
-			_transformInterlaced = transformInterlaced;
+			_interlacedText = interlacedText;
 			_source = new List<ITextWithColor<TColor>>();
 			SyncRoot = new object();
 		}
-
-
-
+		
 		/// <summary>
 		///     Sets the color for all Folloring Text parts
 		/// </summary>
@@ -92,20 +87,9 @@ namespace Morestachio.Framework.Expression.Visitors
 		private void ApplyLevel()
 		{
 			var text = "";
-			if (_transformInterlaced)
+			for (var i = 0; i < _interlacedLevel; i++)
 			{
-				for (var i = 0; i < _interlacedLevel; i++)
-				for (var j = 0; j < _interlacedSpace; j++)
-				{
-					text += " ";
-				}
-			}
-			else
-			{
-				for (var i = 0; i < _interlacedLevel; i++)
-				{
-					text += "\t";
-				}
+				text += _interlacedText;
 			}
 			Add(new ColoredString(text));
 		}
@@ -200,6 +184,9 @@ namespace Morestachio.Framework.Expression.Visitors
 			{
 				color = _color;
 			}
+
+			//value = value.Replace("\r\n", "\r\n" + Enumerable.Repeat(_interlacedText, _interlacedLevel));
+
 			Add(new ColoredString(value, color));
 			return this;
 		}
@@ -362,6 +349,11 @@ namespace Morestachio.Framework.Expression.Visitors
 		/// </returns>
 		public override string ToString()
 		{
+			if (_source.Count == 0)
+			{
+				return string.Empty;
+			}
+
 			return _source.Select(f => f.ToString()).Aggregate((e, f) => e + f).ToString();
 		}
 
@@ -407,7 +399,7 @@ namespace Morestachio.Framework.Expression.Visitors
 			get { return Monitor.IsEntered(SyncRoot); }
 		}
 
-		struct ColoredString : ITextWithColor<TColor>
+		readonly struct ColoredString : ITextWithColor<TColor>
 		{
 			private readonly string _text;
 			private readonly TColor _color;
