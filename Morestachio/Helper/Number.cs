@@ -474,7 +474,7 @@ namespace Morestachio.Helper
 		private static readonly string[] SizeSuffixes =
 			{"b", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
 
-		[MorestachioFormatter("ToBytes", "Format a number to it's equivalent in bytes. If a string is passed, it's length will be formatted and returned.")]
+		[MorestachioFormatter("ToBytes", "Format a number to it's equivalent in bytes.")]
 		public static string ToBytes(Number value, Number? decimalPlaces = null)
 		{
 			if (value == NaN || value.Equals(0L))
@@ -513,7 +513,7 @@ namespace Morestachio.Helper
 
 		}
 
-		[MorestachioGlobalFormatter("ParseNumber", "Parses a string into a number. Returns -1")]
+		[MorestachioGlobalFormatter("ParseNumber", "Parses a string into a number. Returns NaN if invalid")]
 		public static Number Parse(string text)
 		{
 			if (TryParse(text, null, out var nr))
