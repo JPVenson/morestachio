@@ -314,9 +314,8 @@ namespace Morestachio.Formatter.Framework
 		{
 			Log(parserOptions, () => $"Lookup formatter for type {typeToFormat} with name {name}",
 				() => arguments.ToDictionary(e => e.Name, e => (object)e));
-
-			IList<MorestachioFormatterModel> formatters = null;
-			if (!Formatters.TryGetValue(name ?? "{NULL}", out formatters))
+			
+			if (!Formatters.TryGetValue(name ?? "{NULL}", out var formatters))
 			{
 				Log(parserOptions, () => $"There are no formatters for the name {name}");
 				return Enumerable.Empty<MorestachioFormatterModel>();
@@ -340,6 +339,7 @@ namespace Morestachio.Formatter.Framework
 							if (!CheckGenericTypeForMatch(typeToFormat, formatTemplateElement))
 							{
 								var foundInterface = false;
+								//TODO cleanup this mess or rewrite the generic interface matching!
 								//foreach (var @interface in typeToFormat.GetInterfaces())
 								//{
 								//	if (CheckGenericTypeForMatch(@interface, formatTemplateElement))

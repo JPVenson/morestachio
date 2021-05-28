@@ -469,11 +469,6 @@ namespace Morestachio.Framework.Context
 		/// <summary>
 		///     Gets an FormatterCache from ether the custom formatter or the global one
 		/// </summary>
-		/// <param name="type"></param>
-		/// <param name="name"></param>
-		/// <param name="arguments"></param>
-		/// <param name="scope"></param>
-		/// <returns></returns>
 		public virtual FormatterCache PrepareFormatterCall(Type type,
 			 string name,
 			 FormatterArgumentType[] arguments,
