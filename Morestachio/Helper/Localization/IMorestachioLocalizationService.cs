@@ -6,6 +6,11 @@ namespace Morestachio.Helper.Localization
 	/// <summary>
 	/// 
 	/// </summary>
+	/// 
+	/// <remarks>
+	///		This service allows localization of text within your template by adding one or more <see cref="ITranslationResource"/>
+	///		It is not available in the standard configuration and must be first enabled via <see cref="MorestachioLocalizationServiceExtensions.RegisterLocalizationService"/>
+	/// </remarks>
 	public interface IMorestachioLocalizationService
 	{
 		/// <summary>

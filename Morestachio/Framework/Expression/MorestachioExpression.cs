@@ -302,8 +302,9 @@ namespace Morestachio.Framework.Expression
 					getContext =
 						(contextObject, data, expression) =>
 						{
-							foreach (var func in pathQueue)
+							for (var index = 0; index < pathQueue.Length; index++)
 							{
+								var func = pathQueue[index];
 								contextObject = func(contextObject, data, expression);
 							}
 

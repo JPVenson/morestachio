@@ -114,8 +114,12 @@ namespace Morestachio.Helper.FileSystem
 #pragma warning restore
 
 	/// <summary>
-	///		Service for accessing the local File System
+	///		Service for accessing the local File System.
 	/// </summary>
+	/// <remarks>
+	///		This service allows the access to the underlying FileSystem.
+	///		It is not available in the standard configuration and must be first enabled via <see cref="FileSystemExtensions.RegisterFileSystem(Morestachio.ParserOptions,System.Func{Morestachio.Helper.FileSystem.FileSystemService})"/>
+	/// </remarks>
 	public class FileSystemService
 	{
 		private readonly string _workingDirectory;
@@ -160,16 +164,28 @@ namespace Morestachio.Helper.FileSystem
 	public static class FileSystemExtensions
 	{
 		/// <summary>
-		///		Registers all nessenary components to use the <code>$services.FileSystemService</code>
+		///		Registers all necessary components to use the <code>FileSystemService</code>
 		/// </summary>
 		/// <param name="options"></param>
 		/// <param name="action"></param>
-		public static void RegisterFileSystem(this ParserOptions options, Func<FileSystemService> action)
+		public static ParserOptions RegisterFileSystem(this ParserOptions options, Func<FileSystemService> action)
 		{
 			var fs = action();
-			options.Formatters.Services.AddService(typeof(FileSystemService), fs);
+			options.Formatters.Constants["FileSystem"] = fs;
+			options.Formatters.Services.AddService(fs);
+
 			options.Formatters.AddFromType<FileSystemService>();
 			options.Formatters.AddFromType<FileSystemFileService>();
+			return options;
+		}
+
+		/// <summary>
+		///		Registers all necessary components to use the <code>FileSystemService</code>
+		/// </summary>
+		/// <param name="options"></param>
+		public static ParserOptions RegisterFileSystem(this ParserOptions options)
+		{
+			return options.RegisterFileSystem(() => new FileSystemService());
 		}
 	}
 }
