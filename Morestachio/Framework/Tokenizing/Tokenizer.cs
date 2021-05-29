@@ -59,14 +59,11 @@ namespace Morestachio.Framework.Tokenizing
 		public static List<int> FindNewLines(string text)
 		{
 			var nlIdxes = new List<int>();
-			for (int i = 0; i < text.Length; i++)
+			int idx = -1;
+			while ((idx = text.IndexOf('\n', idx + 1)) != -1)
 			{
-				if (text[i] == '\n')
-				{
-					nlIdxes.Add(i);
-				}
+				nlIdxes.Add(idx);
 			}
-
 			return nlIdxes;
 		}
 
@@ -85,7 +82,19 @@ namespace Morestachio.Framework.Tokenizing
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static bool IsEndOfExpression(char formatChar)
 		{
-			return formatChar == ';' || formatChar == '#';
+			return IsEndOfWholeExpression(formatChar) || IsEndOfExpressionSection(formatChar);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		internal static bool IsEndOfExpressionSection(char formatChar)
+		{
+			return formatChar == '#';
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		internal static bool IsEndOfWholeExpression(char formatChar)
+		{
+			return formatChar == ';';
 		}
 
 		private static char[] _whitespaceDelimiters = new[] { '\r', '\n', '\t', ' ' };
@@ -172,6 +181,12 @@ namespace Morestachio.Framework.Tokenizing
 				formatChar == '|';
 		}
 
+		/// <summary>
+		///		This method is hard coded for performance reasons. If modified here, the changes must be reflected in
+		/// <see cref="MorestachioOperator"/>
+		/// </summary>
+		/// <param name="operatorText"></param>
+		/// <returns></returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static bool IsOperationString(string operatorText)
 		{

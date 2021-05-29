@@ -99,7 +99,6 @@ namespace Morestachio.Framework.Expression.Framework
 
 		public bool Add(char c, TokenzierContext context, int index, out Func<IMorestachioError> errProducer)
 		{
-			errProducer = null;
 			if (!Tokenizer.IsExpressionPathChar(c))
 			{
 				errProducer = () => new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
@@ -131,6 +130,7 @@ namespace Morestachio.Framework.Expression.Framework
 
 						return false;
 					}
+					errProducer = null;
 					PathParts.Add(null, PathType.ParentSelector);
 					CurrentPart = string.Empty;
 					return true;
@@ -153,7 +153,8 @@ namespace Morestachio.Framework.Expression.Framework
 
 					return false;
 				}
-
+				
+				errProducer = null;
 				PathParts.Add(null, PathType.RootSelector);
 				CurrentPart = string.Empty;
 				return true;
@@ -162,6 +163,7 @@ namespace Morestachio.Framework.Expression.Framework
 			//otherwise an ?? null cor operator would be tokenized as two times a object selector
 			if (c == '?')
 			{
+				errProducer = null;
 				if (!LastCharWasDelimiter)
 				{
 					return false;
@@ -192,7 +194,8 @@ namespace Morestachio.Framework.Expression.Framework
 			{
 				CurrentPart += c;
 			}
-
+			
+			errProducer = null;
 			return true;
 		}
 
@@ -334,9 +337,9 @@ namespace Morestachio.Framework.Expression.Framework
 			return -1;
 		}
 
-		public string GetFormatterName(TokenzierContext context, int index, out bool found, out Func<IMorestachioError> errProducer)
+		public string GetFormatterName(TokenzierContext context, int index)
 		{
-			var last = CompileCurrent(context, index, out errProducer);
+			var last = CompileCurrent(context, index);
 
 			if (last == null)
 			{
@@ -346,12 +349,9 @@ namespace Morestachio.Framework.Expression.Framework
 				}
 				else
 				{
-					found = false;
 					return null;
 				}
 			}
-
-			found = true;
 
 			if (last.Value.Value != PathType.DataPath)
 			{
@@ -366,9 +366,9 @@ namespace Morestachio.Framework.Expression.Framework
 			return PathParts.GetList();
 		}
 
-		public IList<KeyValuePair<string, PathType>> CompileListWithCurrent(TokenzierContext context, int index, out Func<IMorestachioError> errProducer)
+		public IList<KeyValuePair<string, PathType>> CompileListWithCurrent(TokenzierContext context, int index)
 		{
-			var last = CompileCurrent(context, index, out errProducer);
+			var last = CompileCurrent(context, index);
 			if (last == null)
 			{
 				return PathParts.GetList();
@@ -381,7 +381,7 @@ namespace Morestachio.Framework.Expression.Framework
 			return PathParts.GetList();
 		}
 
-		public KeyValuePair<string, PathType>? CompileCurrent(TokenzierContext context, int index, out Func<IMorestachioError> errProducer)
+		public KeyValuePair<string, PathType>? CompileCurrent(TokenzierContext context, int index)
 		{
 			if (CurrentPart == ".")
 			{
@@ -401,19 +401,18 @@ namespace Morestachio.Framework.Expression.Framework
 			}
 			else if (CurrentPart.Trim() != string.Empty)
 			{
-				if (!ComputeCurrentPart(context, index, out errProducer))
+				if (!ComputeCurrentPart(context, index, out var errProducer))
 				{
-					errProducer = () => (
-						new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-								.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
-							CurrentPart,
-							"Invalid character"));
+					errProducer();
+					context.Errors.Add(new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
+							.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
+						CurrentPart,
+						"Invalid character"));
 					return default;
 				}
 			}
 			else
 			{
-				errProducer = null;
 				return default;
 			}
 
@@ -422,11 +421,10 @@ namespace Morestachio.Framework.Expression.Framework
 				var pathPartsLast = PathParts.Last.Value;
 				PathParts.RemoveLast();
 				CurrentPart = "";
-				errProducer = null;
 				return pathPartsLast;
 			}
 			
-			errProducer = () => (
+			context.Errors.Add(
 				new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
 						.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
 					CurrentPart,
