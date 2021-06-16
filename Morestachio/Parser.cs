@@ -35,6 +35,7 @@ namespace Morestachio
 		/// <returns></returns>
 		public static async Task<IEnumerable<IMorestachioError>> Validate(ITemplateContainer template)
 		{
+			throw new Exception("BLA");
 			var options = new ParserOptions(template);
 			var tokenzierContext = new TokenzierContext(new List<int>(), null);
 			await Tokenizer.Tokenize(options, tokenzierContext);
