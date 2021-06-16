@@ -10,6 +10,9 @@ using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework.Expression.Parser
 {
+	/// <summary>
+	///		Defines methods for interpreting a string that is formatted as an path expression
+	/// </summary>
 	public class ExpressionTokenizer
 	{
 		public static ExpressionTokens TokenizeExpression(string text, TokenzierContext context, int tokenIndex)
@@ -28,7 +31,7 @@ namespace Morestachio.Framework.Expression.Parser
 				}
 				else if (c == ')')
 				{
-					if (queue.Count == 0)
+					if (queue.Count == 0)//a closing bracket without any leading brackets is invalid
 					{
 						queue.SyntaxError(context, context
 								.CurrentLocation
@@ -236,7 +239,11 @@ namespace Morestachio.Framework.Expression.Parser
 				{
 					if (!Tokenizer.IsExpressionPathChar(c) || Tokenizer.IsOperationChar(c))
 					{
-						if (c == '(' || c == ')' || Tokenizer.IsPathDelimiterChar(c) || Tokenizer.IsEndOfExpression(c) || Tokenizer.IsOperationChar(c))
+						if (c == '(' 
+						    || c == ')' 
+						    || Tokenizer.IsPathDelimiterChar(c) 
+						    || Tokenizer.IsEndOfExpression(c) 
+						    || Tokenizer.IsOperationChar(c))
 							//the only char that can follow on a expression is ether an bracket or an argument seperator or an operator
 						{
 							consumed--;

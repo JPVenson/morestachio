@@ -160,7 +160,14 @@ namespace Morestachio.Framework.Tokenizing
 		{
 			return formatChar == ',';
 		}
+		
 
+		/// <summary>
+		///		This method is hard coded for performance reasons. If modified here, the changes must be reflected in
+		/// <see cref="MorestachioOperator"/>
+		/// </summary>
+		/// <param name="formatChar"></param>
+		/// <returns></returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static bool IsOperationChar(char formatChar)
 		{
