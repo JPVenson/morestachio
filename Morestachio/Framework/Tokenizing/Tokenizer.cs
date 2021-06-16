@@ -152,6 +152,7 @@ namespace Morestachio.Framework.Tokenizing
 			return formatChar == ',';
 		}
 
+///NO COMMENT
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static bool IsOperationChar(char formatChar)
 		{
