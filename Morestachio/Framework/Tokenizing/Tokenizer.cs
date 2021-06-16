@@ -55,7 +55,7 @@ namespace Morestachio.Framework.Tokenizing
 		///		Gets the indexes of all newlines
 		/// </summary>
 		/// <param name="text"></param>
-		/// <returns></returns>
+		/// <returns>A list of all indexes where \n is present</returns>
 		public static List<int> FindNewLines(string text)
 		{
 			var nlIdxes = new List<int>();
