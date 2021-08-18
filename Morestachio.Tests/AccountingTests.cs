@@ -1,4 +1,6 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
+using System.Linq;
 using Morestachio.Formatter.Predefined.Accounting;
 using NUnit.Framework;
 
@@ -19,6 +21,7 @@ namespace Morestachio.Tests
 			Assert.That(wt.ToString(null, CultureInfo.InvariantCulture), Is.EqualTo(expectedTime));
 			Assert.That(wt.ToString("d", CultureInfo.InvariantCulture), Is.EqualTo(expectedDecimal));
 		}
+
 		[Test]
 		[TestCase(590, 60, MoneyChargeRate.PerHour, 19, "¤702.10")]
 		[TestCase(590, 60, MoneyChargeRate.PerMinute, 19, "¤42,126.00")]
@@ -33,6 +36,24 @@ namespace Morestachio.Tests
 			var taxValue = money.GetTax(tax);
 			money = money.Add(taxValue);
 			Assert.That(money.ToString(null, CultureInfo.InvariantCulture), Is.EqualTo(expected));
+		}
+
+		[Test]
+		[TestCase("100€", "100€", 1)]
+		[TestCase("100€", "50$", 0.5)]
+		public void TestMoneyConversion(string currencyLeft, string expectedCurrency, double conversion)
+		{
+			var handler = CurrencyHandler.DefaultHandler.Clone();
+
+			var moneyLeft = Money.Parse(currencyLeft, handler);
+			Assert.That(moneyLeft, Is.Not.EqualTo(new Money()));
+			var expected = Money.Parse(expectedCurrency, handler);
+			Assert.That(expected, Is.Not.EqualTo(new Money()));
+
+			handler.ConversionFactors.Add(new CurrencyConversion(moneyLeft.Currency, expected.Currency, conversion));
+
+			var actual = handler.Convert(moneyLeft, expected.Currency);
+			Assert.That(actual.Same(expected), Is.True);
 		}
 	}
 }

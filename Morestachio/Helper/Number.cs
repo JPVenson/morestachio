@@ -843,11 +843,19 @@ namespace Morestachio.Helper
 		/// <returns></returns>
 		public Number Round(Number other)
 		{
+			return Round(other, MidpointRounding.ToEven);
+		}
+		
+		/// <summary>
+		///		Rounds a decimal value to a specified number of fractional digits.
+		/// </summary>
+		public Number Round(Number other, MidpointRounding mode)
+		{
 			if (_value is decimal)
 			{
-				return Math.Round(_value.ToDecimal(null), other.ToInt32(null));
+				return Math.Round(_value.ToDecimal(null), other.ToInt32(null), mode);
 			}
-			return Math.Round(_value.ToDouble(null), other.ToInt32(null));
+			return Math.Round(_value.ToDouble(null), other.ToInt32(null), mode);
 		}
 
 		/// <summary>
@@ -1328,7 +1336,7 @@ namespace Morestachio.Helper
 		/// <returns></returns>
 		public bool Equals(Number other)
 		{
-			if (other._value.GetType() != _value.GetType())
+			if (other._value?.GetType() != _value?.GetType())
 			{
 				return false;
 			}
@@ -1343,7 +1351,7 @@ namespace Morestachio.Helper
 		/// <returns></returns>
 		public bool Same(Number other)
 		{
-			if (other._value == _value)
+			if (Equals(other._value, _value))
 			{
 				return true;
 			}

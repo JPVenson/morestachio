@@ -1,56 +1,79 @@
 ﻿using System;
+using System.Globalization;
+using System.Linq;
+using System.Xml;
 using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Framework.Expression;
+using Morestachio.Helper;
 
 namespace Morestachio.Formatter.Predefined.Accounting
 {
 	/// <summary>
 	///		Represents an amount of money
 	/// </summary>
-	public readonly struct Money : IFormattable
+	public readonly struct Money : IFormattable, IEquatable<Money>
 	{
 		/// <summary>
-		///		The value
+		///		The monetary value
 		/// </summary>
-		public double Value { get; }
+		public Number Value { get; }
 
 		/// <summary>
-		/// 
+		///		The values currency
 		/// </summary>
-		/// <param name="val"></param>
-		public Money(double val)
+		public Currency Currency { get; }
+
+		/// <summary>
+		///		Creates a new Money type
+		/// </summary>
+		public Money(Number val, Currency currency)
 		{
 			Value = val;
+			Currency = currency;
 		}
+
+		/// <summary>
+		///		Creates a new Money type
+		/// </summary>
+		public Money(Number val) : this(val, Currency.UnknownCurrency)
+		{
+		}
+
 #pragma warning disable CS1591
 		[MorestachioGlobalFormatter("Money", "Creates a new Money Object")]
-		public static Money MoneyFactory(double value)
+		public static Money MoneyFactory(Number value)
+		{
+			return new Money(value);
+		}
+
+		[MorestachioGlobalFormatter("Money", "Creates a new Money Object")]
+		public static Money MoneyFactory(Number value, [FormatterValueConverter(typeof(CurrencyTypeConverter))]Currency currency)
 		{
 			return new Money(value);
 		}
 
 		[MorestachioFormatter("GetMoney", "Calculates the value of the worktime by taking the rate and chargerate")]
-		public static Money GetMoney([SourceObject]Worktime worktime, double rate, MoneyChargeRate chargeRate)
+		public static Money GetMoney([SourceObject] Worktime worktime, double rate, MoneyChargeRate chargeRate)
 		{
 			return Get(worktime, rate, chargeRate);
 		}
 
 		[MorestachioFormatter("GetTax", "Gets the amount of Tax for this money object")]
-		public static Money GetTax([SourceObject]Money worktime, double value)
+		public static Money GetTax([SourceObject] Money worktime, double value)
 		{
 			return worktime.GetTax(value);
 		}
 
 		[MorestachioFormatter("Add", "Adds the value to a new money object and returns it")]
 		[MorestachioOperator(OperatorTypes.Add, "Adds the value to a new money object and returns it")]
-		public static Money Add([SourceObject]Money worktime, Money value)
+		public static Money Add([SourceObject] Money worktime, Money value)
 		{
 			return worktime.Add(value);
 		}
 
 		[MorestachioFormatter("Round", "Rounds the value using common commercial rules IEEE 754")]
-		public static Money Round([SourceObject]Money worktime)
+		public static Money Round([SourceObject] Money worktime)
 		{
 			return worktime.CommercialRound();
 		}
@@ -79,9 +102,9 @@ namespace Morestachio.Formatter.Predefined.Accounting
 		/// <summary>
 		///		Adds the value to a new money object and returns it
 		/// </summary>
-		public Money Round(int by, MidpointRounding mode)
+		public Money Round(Number by, MidpointRounding mode)
 		{
-			return new Money(Math.Round(Value, by, mode));
+			return new Money(Value.Round(by, mode));
 		}
 
 		/// <summary>
@@ -89,7 +112,7 @@ namespace Morestachio.Formatter.Predefined.Accounting
 		/// </summary>
 		public Money CommercialRound()
 		{
-			return new Money(Math.Round(Value, 2));
+			return new Money(Value.Round(2));
 		}
 
 		/// <summary>
@@ -140,7 +163,65 @@ namespace Morestachio.Formatter.Predefined.Accounting
 		/// <inheritdoc />
 		public string ToString(string format, IFormatProvider formatProvider)
 		{
-			return Value.ToString("C", formatProvider);
+			return Currency.ToString(this.Value.ToString(formatProvider), formatProvider);
+		}
+
+		/// <inheritdoc />
+		public override string ToString()
+		{
+			return ToString("", CultureInfo.CurrentCulture);
+		}
+
+		/// <summary>
+		///		Parses a text formatted as an currency value e.g. €100 or 100€ or EUR100 or 100EUR
+		/// </summary>
+		public static Money Parse(string text, CurrencyHandler handler = null)
+		{
+			var currencies = handler?.Currencies ?? CurrencyHandler.DefaultHandler.Currencies;
+			var currencyByChar = currencies.FirstOrDefault(e => text.StartsWith(e.Value.IsoName) || text.StartsWith(e.Value.DisplayValue)).Value;
+			if (currencyByChar.Equals(default))
+			{
+				currencyByChar = currencies.FirstOrDefault(e => text.EndsWith(e.Value.IsoName) || text.EndsWith(e.Value.DisplayValue)).Value;
+				
+				if (currencyByChar.Equals(default))
+				{
+					return new Money(Number.Parse(text));
+				}
+			}
+
+			text = text.Replace(currencyByChar.DisplayValue, "").Replace(currencyByChar.IsoName, "");
+			return new Money(Number.Parse(text), currencyByChar);
+		}
+
+		/// <inheritdoc />
+		public bool Equals(Money other)
+		{
+			return Value.Equals(other.Value) && Currency.Equals(other.Currency);
+		}
+
+		/// <summary>
+		///		Checks if both values are the same but maybe not of equal type and if the currency matches exactly
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		public bool Same(Money other)
+		{
+			return Value.Same(other.Value) && Currency.Equals(other.Currency);
+		}
+		
+		/// <inheritdoc />
+		public override bool Equals(object obj)
+		{
+			return obj is Money other && Equals(other);
+		}
+		
+		/// <inheritdoc />
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				return (Value.GetHashCode() * 397) ^ Currency.GetHashCode();
+			}
 		}
 	}
 }

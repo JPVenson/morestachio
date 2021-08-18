@@ -1,0 +1,115 @@
+﻿using System;
+using System.Globalization;
+
+namespace Morestachio.Formatter.Predefined.Accounting
+{
+	/// <summary>
+	///		A list of common used Currencies
+	/// </summary>
+	public static class WellKnownCurrencies
+	{
+		/// <summary>
+		///		US Dollar
+		/// </summary>
+		public static Currency USD => new Currency("$", "USD");
+		/// <summary>
+		///		EURO
+		/// </summary>
+		public static Currency EUR => new Currency("€", "EUR");
+		/// <summary>
+		///		Russian Ruble
+		/// </summary>
+		public static Currency RUB => new Currency("RUB", "RUB");
+
+		/// <summary>
+		///		Indian Rupee
+		/// </summary>
+		public static Currency INR => new Currency("₹", "INR");
+		/// <summary>
+		///		Chinese Yuan
+		/// </summary>
+		public static Currency CNY => new Currency("¥", "CNY");
+		/// <summary>
+		///		Great British Pound
+		/// </summary>
+		public static Currency GBP => new Currency("£", "GBP");
+
+		/// <summary>
+		///		Japanese Yen
+		/// </summary>
+		public static Currency JPY => new Currency("￥", "JPY");
+
+		/// <summary>
+		///		Gets the current regions currency info
+		/// </summary>
+		/// <returns></returns>
+		public static Currency GetCurrentCurrency()
+		{
+			return new Currency(RegionInfo.CurrentRegion.CurrencySymbol, RegionInfo.CurrentRegion.ISOCurrencySymbol);
+		}
+	}
+
+	/// <summary>
+	///		Contains the ISO4217 currency name and its symbol
+	/// </summary>
+	public readonly struct Currency : IFormattable, IComparable<Currency>, IEquatable<Currency>
+	{
+		/// <summary>
+		///		Creates a new Currency
+		/// </summary>
+		/// <param name="displayValue"></param>
+		/// <param name="isoName"></param>
+		public Currency(string displayValue, string isoName)
+		{
+			DisplayValue = displayValue ?? throw new ArgumentException("The display name of a currency cannot be null", nameof(displayValue));
+			IsoName = isoName ?? throw new ArgumentException("The ISO 4217 name of a currency cannot be null", nameof(isoName));
+		}
+
+		/// <summary>
+		///		An currency that can be used if the real currency type is unknown
+		/// </summary>
+		/// <remarks>Uses the ¤ (U+00A4) sign to display its values as set in ISO8859</remarks>
+		public static readonly Currency UnknownCurrency = new Currency("¤", "¤¤");
+
+		/// <summary>
+		///		The Symbol that represents the current currency
+		/// </summary>
+		public string DisplayValue { get; }
+
+		/// <summary>
+		///		The ISO4217 currency name
+		/// </summary>
+		public string IsoName { get; }
+
+		/// <inheritdoc />
+		public string ToString(string format, IFormatProvider formatProvider)
+		{
+			//TODO change currency format to allow culture specific display
+			return format + DisplayValue;
+		}
+
+		/// <inheritdoc />
+		public int CompareTo(Currency other)
+		{
+			return string.Compare(IsoName, other.IsoName, StringComparison.Ordinal);
+		}
+
+		/// <inheritdoc />
+		public bool Equals(Currency other)
+		{
+			return IsoName == other.IsoName;
+		}
+
+		/// <inheritdoc />
+		public override bool Equals(object obj)
+		{
+			return obj is Currency other && Equals(other);
+		}
+
+		/// <inheritdoc />
+		public override int GetHashCode()
+		{
+			return (IsoName != null ? IsoName.GetHashCode() : 0);
+		}
+	}
+}
