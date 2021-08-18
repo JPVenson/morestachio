@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Morestachio.Formatter.Framework.Attributes;
 
 namespace Morestachio.Formatter.Predefined.Accounting
 {
@@ -63,6 +64,7 @@ namespace Morestachio.Formatter.Predefined.Accounting
 		/// <param name="one"></param>
 		/// <param name="toCurrency"></param>
 		/// <returns></returns>
+		[MorestachioFormatter("Convert", "Converts a money object using an currency and the current known conversion factors")]
 		public Money Convert(Money one, Currency toCurrency)
 		{
 			if (one.Currency.Equals(Currency.UnknownCurrency))

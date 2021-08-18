@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Morestachio.Document.Contracts;
 using Morestachio.Framework.Context;
+using Morestachio.Framework.Context.Resolver;
 using Morestachio.Profiler;
 
 namespace Morestachio.Document
@@ -34,7 +35,61 @@ namespace Morestachio.Document
 
 			foreach (var @constValue in parserOptions.Formatters.Constants)
 			{
-				AddVariable(@constValue.Key, (scope) => scope.ParserOptions.CreateContextObject(@constValue.Key, @constValue.Value));
+				var value = @constValue.Value;
+				if (value is Type type)
+				{
+					value = new StaticTypeAccessor(type);
+				}
+				AddVariable(@constValue.Key, (scope) => scope.ParserOptions.CreateContextObject(@constValue.Key, value));
+			}
+		}
+
+		/// <summary>
+		///		Wraps a Type to allow access to its static members
+		/// </summary>
+		public class StaticTypeAccessor : IMorestachioPropertyResolver
+		{
+			/// <summary>
+			///		The Encapsulated type
+			/// </summary>
+			public Type Type { get; }
+
+			/// <summary>
+			/// 
+			/// </summary>
+			/// <param name="type"></param>
+			public StaticTypeAccessor(Type type)
+			{
+				Type = type;
+			}
+
+			/// <inheritdoc />
+			public bool TryGetValue(string name, out object found)
+			{
+				var property = Type.GetProperty(name);
+				if (property == null)
+				{
+					found = null;
+					return false;
+				}
+				found = property.GetValue(null);
+				return true;
+			}
+		}
+
+		private class ServiceUiWrapper : IMorestachioPropertyResolver
+		{
+			private readonly IDictionary<Type, object> _services;
+
+			public ServiceUiWrapper(IDictionary<Type, object> services)
+			{
+				_services = services;
+			}
+
+			public bool TryGetValue(string name, out object found)
+			{
+				found = _services.FirstOrDefault(e => e.Key.Name == name).Value;
+				return found != null;
 			}
 		}
 
@@ -46,14 +101,7 @@ namespace Morestachio.Document
 				{
 					return null;
 				}
-
-				var services = new Dictionary<string, object>();
-				foreach (var service in scopeData.ParserOptions.Formatters.Services.Enumerate())
-				{
-					services[service.Key.Name] = service.Value;
-				}
-
-				return scopeData.ParserOptions.CreateContextObject(".", services);
+				return scopeData.ParserOptions.CreateContextObject(".", new ServiceUiWrapper(scopeData.ParserOptions.Formatters.Services.Enumerate()));
 			});
 		}
 

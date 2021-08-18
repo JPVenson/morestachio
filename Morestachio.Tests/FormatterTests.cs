@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Framework.Attributes;
+using Morestachio.Formatter.Predefined.Accounting;
 using Morestachio.Helper;
 using Morestachio.Helper.FileSystem;
 using Morestachio.Linq;
@@ -1196,6 +1197,15 @@ namespace Morestachio.Tests
 					File.Delete(combine);
 				}
 			}
+		}
+
+		[Test]
+		public async Task CanCallStaticConstType()
+		{
+			var template = "{{Currencies.USD}}";
+			var result = await ParserFixture.CreateAndParseWithOptions(template, (1), _opts);
+			Assert.That(result, Is.EqualTo(WellKnownCurrencies.USD.ToString()));
+
 		}
 	}
 }

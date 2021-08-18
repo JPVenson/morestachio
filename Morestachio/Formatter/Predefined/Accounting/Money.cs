@@ -59,6 +59,12 @@ namespace Morestachio.Formatter.Predefined.Accounting
 			return Get(worktime, rate, chargeRate);
 		}
 
+		[MorestachioFormatter("GetMoney", "Calculates the value of the worktime by taking the rate and chargerate")]
+		public static Money GetMoney([SourceObject] Worktime worktime, double rate, MoneyChargeRate chargeRate, [FormatterValueConverter(typeof(CurrencyTypeConverter))]Currency currency)
+		{
+			return Get(worktime, rate, chargeRate, currency);
+		}
+
 		[MorestachioFormatter("GetTax", "Gets the amount of Tax for this money object")]
 		public static Money GetTax([SourceObject] Money worktime, double value)
 		{
@@ -67,9 +73,16 @@ namespace Morestachio.Formatter.Predefined.Accounting
 
 		[MorestachioFormatter("Add", "Adds the value to a new money object and returns it")]
 		[MorestachioOperator(OperatorTypes.Add, "Adds the value to a new money object and returns it")]
-		public static Money Add([SourceObject] Money worktime, Money value)
+		public static Money Add([SourceObject] Money sourceValue, Money value)
 		{
-			return worktime.Add(value);
+			return sourceValue.Add(value);
+		}
+
+		[MorestachioFormatter("Substract", "Substracts the value to a new money object and returns it")]
+		[MorestachioOperator(OperatorTypes.Substract, "Substracts the value to a new money object and returns it")]
+		public static Money Subtract([SourceObject] Money sourceValue, Money value)
+		{
+			return sourceValue.Subtract(value);
 		}
 
 		[MorestachioFormatter("Round", "Rounds the value using common commercial rules IEEE 754")]
@@ -96,7 +109,29 @@ namespace Morestachio.Formatter.Predefined.Accounting
 		/// <returns></returns>
 		public Money Add(Money value)
 		{
-			return new Money(Value + value.Value);
+			if (value.Currency.Equals(value.Currency))
+			{
+				return new Money(Value + value.Value);
+			}
+
+			throw new InvalidOperationException(
+				$"Cannot add two different currencies. Please convert one of them to the other using the {typeof(CurrencyHandler)}");
+		}
+
+		/// <summary>
+		///		Subtracts the value to a new money object and returns it
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		public Money Subtract(Money value)
+		{
+			if (value.Currency.Equals(value.Currency))
+			{
+				return new Money(Value - value.Value);
+			}
+
+			throw new InvalidOperationException(
+				$"Cannot add two different currencies. Please convert one of them to the other using the {typeof(CurrencyHandler)}");
 		}
 
 		/// <summary>
@@ -123,6 +158,18 @@ namespace Morestachio.Formatter.Predefined.Accounting
 		/// <param name="chargeRate"></param>
 		/// <returns></returns>
 		public static Money Get(Worktime worktime, double value, MoneyChargeRate chargeRate)
+		{
+			return Get(worktime, value, chargeRate, Currency.UnknownCurrency);
+		}
+		
+		/// <summary>
+		///		Calculates money based on the <see cref="Worktime"/> and the <see cref="MoneyChargeRate"/>
+		/// </summary>
+		/// <param name="worktime"></param>
+		/// <param name="value"></param>
+		/// <param name="chargeRate"></param>
+		/// <returns></returns>
+		public static Money Get(Worktime worktime, double value, MoneyChargeRate chargeRate, Currency currency)
 		{
 			var minuteWorktime =
 				Worktime.ConvertValue(worktime.TimeWorked, worktime.Precision, WorktimePrecision.Minutes);
@@ -157,7 +204,7 @@ namespace Morestachio.Formatter.Predefined.Accounting
 				default:
 					throw new ArgumentOutOfRangeException(nameof(chargeRate), chargeRate, null);
 			}
-			return new Money(val);
+			return new Money(val, currency);
 		}
 
 		/// <inheritdoc />
@@ -175,6 +222,7 @@ namespace Morestachio.Formatter.Predefined.Accounting
 		/// <summary>
 		///		Parses a text formatted as an currency value e.g. €100 or 100€ or EUR100 or 100EUR
 		/// </summary>
+		[MorestachioGlobalFormatter("ParseMoney", "Parses a string to a money object")]
 		public static Money Parse(string text, CurrencyHandler handler = null)
 		{
 			var currencies = handler?.Currencies ?? CurrencyHandler.DefaultHandler.Currencies;

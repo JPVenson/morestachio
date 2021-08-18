@@ -9,70 +9,53 @@ namespace Morestachio.Formatter.Constants
 	/// <summary>
 	///		Grants access to the Encodings supported
 	/// </summary>
-	public sealed class EncodingConstant
+	public static class EncodingConstant
 	{
-		private EncodingConstant()
-		{
-			
-		}
-
-		private static EncodingConstant _instance;
-		/// <summary>
-		///		The Singleton Instance
-		/// </summary>
-		public static EncodingConstant Instance
-		{
-			get
-			{
-				return _instance ?? (_instance = new EncodingConstant());
-			}
-		}
-		
 		/// <summary>Gets an encoding for the ASCII (7-bit) character set.</summary>
 		/// <returns>An  encoding for the ASCII (7-bit) character set.</returns>
-		public Encoding ASCII
+		public static Encoding ASCII
 		{
 			get { return new Encoding(NetEncoding.ASCII); }
 		}
 		
 		/// <summary>Gets an encoding for the UTF-16 format that uses the big endian byte order.</summary>
 		/// <returns>An encoding object for the UTF-16 format that uses the big endian byte order.</returns>
-		public Encoding BigEndianUnicode
+		public static Encoding BigEndianUnicode
 		{
 			get { return new Encoding(NetEncoding.BigEndianUnicode); }
 		}
 		
 		/// <summary>Gets an encoding for the operating system's current ANSI code page.</summary>
 		/// <returns>An encoding for the operating system's current ANSI code page.</returns>
-		public Encoding Default
+		public static Encoding Default
 		{
 			get { return new Encoding(NetEncoding.Default); }
 		}
 		
 		/// <summary>Gets an encoding for the UTF-16 format using the little endian byte order.</summary>
 		/// <returns>An encoding for the UTF-16 format using the little endian byte order.</returns>
-		public Encoding Unicode
+		public static Encoding Unicode
 		{
 			get { return new Encoding(NetEncoding.Unicode); }
 		}
 		
 		/// <summary>Gets an encoding for the UTF-32 format using the little endian byte order.</summary>
 		/// <returns>An  encoding object for the UTF-32 format using the little endian byte order.</returns>
-		public Encoding UTF32
+		public static Encoding UTF32
 		{
 			get { return new Encoding(NetEncoding.UTF32); }
 		}
 		
 		/// <summary>Gets an encoding for the UTF-7 format.</summary>
 		/// <returns>An encoding for the UTF-7 format.</returns>
-		public Encoding UTF7
+		public static Encoding UTF7
 		{
 			get { return new Encoding(NetEncoding.UTF7); }
 		}
 		
 		/// <summary>Gets an encoding for the UTF-8 format.</summary>
 		/// <returns>An encoding for the UTF-8 format.</returns>
-		public Encoding UTF8
+		public static Encoding UTF8
 		{
 			get { return new Encoding(NetEncoding.UTF8); }
 		}
@@ -81,7 +64,7 @@ namespace Morestachio.Formatter.Constants
 		/// <param name="codePage">The code page identifier of the preferred encoding. Possible values are listed in the Code Page column of the table that appears in the <see cref="T:System.Text.Encoding"></see> class topic.   -or-   0 (zero), to use the default encoding.</param>
 		/// <returns>The encoding that is associated with the specified code page.</returns>
 		[MorestachioFormatter("[MethodName]", "Returns the encoding associated with the specified code page identifier")]
-		public Encoding GetEncoding(int codePage)
+		public static Encoding GetEncoding(int codePage)
 		{
 			return new Encoding(NetEncoding.GetEncoding(codePage));
 		}
@@ -90,7 +73,7 @@ namespace Morestachio.Formatter.Constants
 		/// <param name="name">The code page name of the preferred encoding. Any value returned by the <see cref="P:System.Text.Encoding.WebName"></see> property is valid. Possible values are listed in the Name column of the table that appears in the <see cref="T:System.Text.Encoding"></see> class topic.</param>
 		/// <returns>The encoding  associated with the specified code page.</returns>
 		[MorestachioFormatter("[MethodName]", "Returns the encoding associated with the specified code page name.")]
-		public Encoding GetEncoding(string name)
+		public static Encoding GetEncoding(string name)
 		{
 			return new Encoding(NetEncoding.GetEncoding(name));
 		}

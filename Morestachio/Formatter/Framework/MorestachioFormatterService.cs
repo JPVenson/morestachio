@@ -14,6 +14,7 @@ using Morestachio.Formatter.Constants;
 using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Formatter.Framework.Converter;
 using Morestachio.Formatter.Predefined;
+using Morestachio.Formatter.Predefined.Accounting;
 using Morestachio.Formatter.Services;
 using Morestachio.Helper;
 using Morestachio.Helper.Logging;
@@ -70,11 +71,12 @@ namespace Morestachio.Formatter.Framework
 
 			Constants = new Dictionary<string, object>()
 			{
-				{"Encoding", EncodingConstant.Instance},
-				{"DateTime", DateTimeConstant.Instance},
+				{"Encoding", typeof(EncodingConstant)},
+				{"DateTime", typeof(DateTimeConstant)},
+				{"Currencies", typeof(WellKnownCurrencies)},
 			};
-			this.AddFromType<EncodingConstant>();
-			this.AddFromType<DateTimeConstant>();
+			this.AddFromType(typeof(EncodingConstant));
+			this.AddFromType(typeof(DateTimeConstant));
 			this.AddFromType<Encoding>();
 			
 			if (useCache)
