@@ -1,4 +1,5 @@
 ﻿using System;
+using Morestachio.Framework.Expression;
 
 namespace Morestachio.Formatter.Framework
 {
@@ -8,7 +9,7 @@ namespace Morestachio.Formatter.Framework
 	public class FormatterArgumentType : IEquatable<FormatterArgumentType>
 	{
 		/// <summary>
-		///		
+		///		Is used only for source object evaluation
 		/// </summary>
 		public FormatterArgumentType(int index, string name, Type value)
 		{
@@ -19,14 +20,15 @@ namespace Morestachio.Formatter.Framework
 		}
 		
 		/// <summary>
-		///		
+		///		Is used to declare a formatter argument
 		/// </summary>
-		public FormatterArgumentType(int index, string name, object value)
+		public FormatterArgumentType(int index, string name, object value, IMorestachioExpression expression)
 		{
 			Index = index;
 			Name = name;
 			Type = value?.GetType();
 			Value = value;
+			Expression = expression;
 		}
 
 		/// <summary>
@@ -47,8 +49,12 @@ namespace Morestachio.Formatter.Framework
 		/// <summary>
 		///		if present, the known value
 		/// </summary>
-		
 		public object Value { get; }
+
+		/// <summary>
+		///		Defines the expression that value originates from
+		/// </summary>
+		public IMorestachioExpression Expression { get; }
 
 		/// <inheritdoc />
 		public bool Equals(FormatterArgumentType other)

@@ -18,6 +18,7 @@ using Morestachio.Formatter.Framework.Converter;
 using Morestachio.Formatter.Predefined;
 using Morestachio.Formatter.Predefined.Accounting;
 using Morestachio.Formatter.Services;
+using Morestachio.Framework.Expression;
 using Morestachio.Helper;
 using Morestachio.Helper.Logging;
 using Morestachio.Util.Sealing;
@@ -352,8 +353,7 @@ namespace Morestachio.Formatter.Framework
 			 ParserOptions parserOptions,
 			 string name)
 		{
-			Log(parserOptions, () => $"Lookup formatter for type {typeToFormat} with name {name}",
-				() => arguments.ToDictionary(e => e.Name, e => (object)e));
+			Log(parserOptions, () => $"Lookup formatter for type {typeToFormat} with name {name}", () => arguments.ToDictionary(e => e.Name, e => (object)e));
 			
 			if (!Formatters.TryGetValue(name ?? "{NULL}", out var formatters))
 			{
@@ -366,8 +366,9 @@ namespace Morestachio.Formatter.Framework
 			{
 				Log(parserOptions, () => $"Test formatter input type: '{formatTemplateElement.InputType}' on formatter named '{formatTemplateElement.Function.Name}'");
 
-				if (formatTemplateElement.InputType != typeToFormat
-					&& !formatTemplateElement.InputType.GetTypeInfo().IsAssignableFrom(typeToFormat))
+				//this checks only for source type equality
+				if (formatTemplateElement.InputType != typeToFormat 
+				    && !formatTemplateElement.InputType.GetTypeInfo().IsAssignableFrom(typeToFormat))
 				{
 					if (ValueConverter.All(e => !e.CanConvert(typeToFormat, formatTemplateElement.InputType)))
 					{
@@ -696,12 +697,22 @@ namespace Morestachio.Formatter.Framework
 							index++;
 							return !string.IsNullOrWhiteSpace(e.Name) && e.Name.Equals(parameter.Name);
 						});
-						if (!Equals(match, default(FormatterArgumentType)))
+						if (!Equals(match, default(FormatterArgumentType)))//a match by named parameter
 						{
-							matched[parameter] = new FormatterArgumentMap(i, index - 1)
+							if (parameter.ParameterType == typeof(IMorestachioExpression))
 							{
-								ObtainValue = (source, args) => args[index - 1].Value
-							};
+								matched[parameter] = new FormatterArgumentMap(i, index - 1)
+								{
+									ObtainValue = (source, args) => args[index - 1].Expression
+								};
+							}
+							else
+							{
+								matched[parameter] = new FormatterArgumentMap(i, index - 1)
+								{
+									ObtainValue = (source, args) => args[index - 1].Value
+								};	
+							}
 						}
 						else
 						{
@@ -709,16 +720,26 @@ namespace Morestachio.Formatter.Framework
 							//match by index
 							index = 0;
 							match = templateArguments.FirstOrDefault(g => index++ == parameter.Index);
-							if (!Equals(match, default(FormatterArgumentType)))
+							if (!Equals(match, default(FormatterArgumentType)))//a match by index
 							{
-								matched[parameter] = new FormatterArgumentMap(i, index - 1)
+								if (parameter.ParameterType == typeof(IMorestachioExpression))
 								{
-									ObtainValue = (source, args) => args[index - 1].Value
-								};
+									matched[parameter] = new FormatterArgumentMap(i, index - 1)
+									{
+										ObtainValue = (source, args) => args[index - 1].Expression
+									};
+								}
+								else
+								{
+									matched[parameter] = new FormatterArgumentMap(i, index - 1)
+									{
+										ObtainValue = (source, args) => args[index - 1].Value
+									};	
+								}
 							}
 							else
 							{
-								if (parameter.IsOptional)
+								if (parameter.IsOptional)//no match but optional so set null
 								{
 									matched[parameter] = new FormatterArgumentMap(i, null)
 									{
@@ -737,7 +758,7 @@ namespace Morestachio.Formatter.Framework
 				}
 
 				//check for matching types
-				if (!parameter.IsOptional && !Equals(match, default(FormatterArgumentType)))
+				if (!parameter.IsOptional && !Equals(match, default(FormatterArgumentType)) && parameter.ParameterType != typeof(IMorestachioExpression))
 				{
 					var converterFunction =
 						PrepareComposeArgumentValue(parameter, i, services, match.Type, out var success, parserOptions);

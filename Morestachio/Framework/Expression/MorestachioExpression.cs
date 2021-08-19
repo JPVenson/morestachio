@@ -277,9 +277,7 @@ namespace Morestachio.Framework.Expression
 							var booleanValue = key == "true";
 							pathQueue[idx++] = ((contextObject, scopeData, expression) =>
 							{
-								var booleanContext =
-									scopeData.ParserOptions.CreateContextObject(".",
-										booleanValue);
+								var booleanContext = scopeData.ParserOptions.CreateContextObject(".", booleanValue);
 								booleanContext.IsNaturalContext = true;
 								return booleanContext;
 							});
@@ -341,7 +339,7 @@ namespace Morestachio.Framework.Expression
 				for (var index = 0; index < formatsCompiled.Length; index++)
 				{
 					var keyValuePair = formatsCompiled[index];
-					arguments[index] = new FormatterArgumentType(index, keyValuePair.Key.Name, keyValuePair.Value);
+					arguments[index] = new FormatterArgumentType(index, keyValuePair.Key.Name, keyValuePair.Value, keyValuePair.Key.MorestachioExpression);
 				}
 			}
 
@@ -368,7 +366,7 @@ namespace Morestachio.Framework.Expression
 							value = formatterArgument.Value;
 						}
 					
-						arguments[index] = new FormatterArgumentType(index, formatterArgument.Key.Name, value);
+						arguments[index] = new FormatterArgumentType(index, formatterArgument.Key.Name, value, formatterArgument.Key.MorestachioExpression);
 					}
 				}
 
@@ -434,7 +432,7 @@ namespace Morestachio.Framework.Expression
 			{
 				var formatterArgument = Formats[index];
 				var value = await formatterArgument.MorestachioExpression.GetValue(naturalValue, scopeData);
-				arguments[index] = new FormatterArgumentType(index, formatterArgument.Name, value?.Value);
+				arguments[index] = new FormatterArgumentType(index, formatterArgument.Name, value?.Value, formatterArgument.MorestachioExpression);
 			}
 			//contextForPath.Value = await contextForPath.Format(FormatterName, argList, scopeData);
 

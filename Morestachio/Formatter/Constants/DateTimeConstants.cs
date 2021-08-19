@@ -22,5 +22,13 @@ namespace Morestachio.Formatter.Constants
 		/// <summary>Gets a <see cref="T:System.DateTime"></see> object that is set to the current date and time on this computer, expressed as the Coordinated Universal Time (UTC).</summary>
 		/// <returns>An object whose value is the current UTC date and time.</returns>
 		public static DateTime UtcNow { get { return DateTime.UtcNow; } }
+
+		/// <summary>Gets a <see cref="T:System.DateTime"></see> object that is set to the current date and time on this computer, expressed as the local time.</summary>
+		/// <returns>An object whose value is the current local date and time.</returns>
+		public static DateTimeOffset OffsetNow { get { return DateTimeOffset.Now; } }
+		
+		/// <summary>Gets a <see cref="T:System.DateTime"></see> object that is set to the current date and time on this computer, expressed as the Coordinated Universal Time (UTC).</summary>
+		/// <returns>An object whose value is the current UTC date and time.</returns>
+		public static DateTimeOffset OffsetUtcNow { get { return DateTimeOffset.UtcNow; } }
 	}
 }

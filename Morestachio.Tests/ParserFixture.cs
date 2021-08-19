@@ -1787,6 +1787,33 @@ Static
 			}
 		}
 
+		[Test]
+		public async Task TestParserCanBindExpression()
+		{
+			var template = @"Data: {{this.RenderExpression(123, data.value.test)}}";
+			var data = new
+			{
+				data = 777
+			};
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.Formatters.AddFromType<BoundExpressionFormatter>();
+			});
+			Assert.That(result, Is.EqualTo(@"Data: 123|data.value.test"));
+		}
+
+		private class BoundExpressionFormatter
+		{
+			[MorestachioFormatter("[MethodName]", "")]
+			public static string RenderExpression(object source, int constValue, IMorestachioExpression expression)
+			{
+				var visitor = new ToParsableStringExpressionVisitor();
+				expression.Accept(visitor);
+				return constValue + "|" + visitor.StringBuilder.ToString();
+			}
+		}
+
 		private class CollectionContextInfo
 		{
 			public int IndexProp { private get; set; }

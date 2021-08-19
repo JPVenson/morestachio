@@ -405,15 +405,15 @@ namespace Morestachio.Framework.Expression.Parser
 			void ParseAndAddBracket(ExpressionValueToken token)
 			{
 				var exp = new MorestachioBracketExpression(token.Location);
-				Func<IExpressionToken, bool> subCondition = subToken =>
-				{
-					return !(subToken.TokenType == ExpressionTokenType.Bracket &&
-							 ((ExpressionValueToken)subToken).Value == ")");
-				};
+				
 
-				tokens.PeekLoop(subCondition, subToken =>
+				bool SubCondition(IExpressionToken subToken)
 				{
-					exp.Add(ParseAnyExpression(tokens, context, subCondition));
+					return !(subToken.TokenType == ExpressionTokenType.Bracket && ((ExpressionValueToken)subToken).Value == ")");
+				}
+				tokens.PeekLoop(SubCondition, subToken =>
+				{
+					exp.Add(ParseAnyExpression(tokens, context, SubCondition));
 				});
 
 				tokens.TryDequeue(() =>
@@ -520,7 +520,7 @@ namespace Morestachio.Framework.Expression.Parser
 				}
 			}
 
-			tokens.Loop(condition, token =>
+			bool LoopExpressions(IExpressionToken token)
 			{
 				switch (token.TokenType)
 				{
@@ -542,14 +542,14 @@ namespace Morestachio.Framework.Expression.Parser
 					case ExpressionTokenType.ArgumentSeperator:
 					default:
 
-						tokens.SyntaxError(context,
-							token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-								tokens.SourceExpression)), "Unexpected use of an argument seperator");
+						tokens.SyntaxError(context, token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length, tokens.SourceExpression)), "Unexpected use of an argument seperator");
 						return false;
 				}
 
 				return true;
-			});
+			}
+
+			tokens.Loop(condition, LoopExpressions);
 		}
 
 		private static IMorestachioExpression ParseMorestachioExpression(

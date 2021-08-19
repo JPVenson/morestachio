@@ -78,7 +78,7 @@ namespace Morestachio.Formatter.Predefined
 			[ExternalData] ScopeData scopeData,
 			[RestParameter] params object[] arguments)
 		{
-			var argumentTypes = arguments.Select((item, index) => new FormatterArgumentType(index, null, item)).ToArray();
+			var argumentTypes = arguments.Select((item, index) => new FormatterArgumentType(index, null, item, null)).ToArray();
 			var formatterMatch = options.Formatters.PrepareCallMostMatchingFormatter(source.GetType(),
 				argumentTypes,
 				formatterName, options, scopeData);

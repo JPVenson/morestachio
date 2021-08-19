@@ -188,7 +188,7 @@ namespace Morestachio.Framework.Expression
 			{
 				arguments = new[]
 				{
-					new FormatterArgumentType(0, null, (await RightExpression.GetValue(contextObject, scopeData)).Value)
+					new FormatterArgumentType(0, null, (await RightExpression.GetValue(contextObject, scopeData)).Value, RightExpression)
 				};
 			}
 			else
@@ -233,7 +233,7 @@ namespace Morestachio.Framework.Expression
 				var arguments = right != null
 					? new FormatterArgumentType[]
 					{
-						new FormatterArgumentType(0, null, (await right(contextObject, scopeData)).Value),
+						new FormatterArgumentType(0, null, (await right(contextObject, scopeData)).Value, RightExpression),
 					}
 					: new FormatterArgumentType[0];
 				if (Cache == null)
