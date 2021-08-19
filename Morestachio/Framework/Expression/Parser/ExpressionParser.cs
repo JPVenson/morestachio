@@ -509,7 +509,7 @@ namespace Morestachio.Framework.Expression.Parser
 				}
 				else
 				{
-					//the operator is placed on the left hand of the expression
+					//the operator is placed on the left hand of the expression so it muse be an unary operator
 					//it can only accept one argument
 					var operatorExp = new MorestachioOperatorExpression(op, null, context.CurrentLocation);
 					AddToParent(operatorExp);

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Morestachio.Document;
@@ -21,19 +22,19 @@ namespace Morestachio.Formatter.Predefined
 	public static class ObjectFormatter
 	{
 		[MorestachioFormatter("ToString", "Formats a value according to the structure set by the argument")]
-		public static string Formattable(IFormattable source, string argument, [ExternalData]ParserOptions options)
+		public static string Formattable(IFormattable source, string argument, [ExternalData] ParserOptions options)
 		{
 			return source.ToString(argument, options.CultureInfo);
 		}
-		
+
 		[MorestachioFormatter("ToString", "Formats the value according to the build in rules for that object")]
 		public static string Formattable(object source)
 		{
 			return source.ToString();
 		}
-		
+
 		[MorestachioFormatter("ToXml", null)]
-		public static string ToXml(object source, [ExternalData]ParserOptions options)
+		public static string ToXml(object source, [ExternalData] ParserOptions options)
 		{
 			var xmlSerializer = new XmlSerializer(source.GetType());
 			using (var xmlStream = new MemoryStream())
@@ -70,9 +71,9 @@ namespace Morestachio.Formatter.Predefined
 				return _values.TryGetValue(binder.Name, out result);
 			}
 		}
-		
+
 		[MorestachioFormatter("Call", "Calls a formatter by dynamically providing name and arguments")]
-		public static async Task<object> Call(object source, string formatterName, 
+		public static async Task<object> Call(object source, string formatterName,
 			[ExternalData] ParserOptions options,
 			[ExternalData] ScopeData scopeData,
 			[RestParameter] params object[] arguments)
@@ -89,9 +90,9 @@ namespace Morestachio.Formatter.Predefined
 			return await options.Formatters.Execute(formatterMatch, source, options,
 				argumentTypes);
 		}
-		
+
 		[MorestachioFormatter("Get", "Gets a specific property from an object or IDictionary")]
-		public static object Get(object source, string propertyName, [ExternalData]ParserOptions options)
+		public static object Get(object source, string propertyName, [ExternalData] ParserOptions options)
 		{
 			if (options.ValueResolver?.CanResolve(source.GetType(), source, propertyName, null) == true)
 			{
@@ -124,6 +125,106 @@ namespace Morestachio.Formatter.Predefined
 			}
 
 			return source.GetType().GetProperty(propertyName)?.GetValue(source);
+		}
+
+		[MorestachioFormatter("Combine", "Combines two objects together were the other one overwrites any value from the source in the new object")]
+		public static IDictionary<T, TE> Combine<T, TE>(IDictionary<T, TE> source, IDictionary<T, TE> other)
+		{
+			var newSource = new Dictionary<T, TE>(source);
+			foreach (var o in other)
+			{
+				newSource[o.Key] = o.Value;
+			}
+
+			return newSource;
+		}
+
+
+		static Dictionary<Type, string> primitiveTypes = new Dictionary<Type, string>
+		{
+			{ typeof(bool), "bool" },
+			{ typeof(byte), "byte" },
+			{ typeof(char), "char" },
+			{ typeof(decimal), "decimal" },
+			{ typeof(double), "double" },
+			{ typeof(float), "float" },
+			{ typeof(int), "int" },
+			{ typeof(long), "long" },
+			{ typeof(sbyte), "sbyte" },
+			{ typeof(short), "short" },
+			{ typeof(string), "string" },
+			{ typeof(uint), "uint" },
+			{ typeof(ulong), "ulong" },
+			{ typeof(ushort), "ushort" },
+			{ typeof(object), "object" },
+		};
+
+		[MorestachioFormatter("TypeName", "Formats a Type according to the structure set by the argument")]
+		public static string FormatType(Type type)
+		{
+			void VisitType(Type inType, StringBuilder stringBuilder)
+			{
+				if (inType.IsArray)
+				{
+					var rankDeclarations = new Queue<string>();
+					Type elType = inType;
+
+					do
+					{
+						rankDeclarations.Enqueue($"[{new string(',', elType.GetArrayRank() - 1)}]");
+						elType = elType.GetElementType();
+					} while (elType.IsArray);
+
+					VisitType(elType, stringBuilder);
+
+					while (rankDeclarations.Count > 0)
+					{
+						stringBuilder.Append(rankDeclarations.Dequeue());
+					}
+				}
+				else
+				{
+					if (inType.IsGenericType)
+					{
+						var isNullable = Nullable.GetUnderlyingType(inType) != null;
+						if (!isNullable)
+						{
+							stringBuilder.Append($"{inType.Name.Substring(0, inType.Name.IndexOf('`'))}<");
+						}
+
+						for (var index = 0; index < inType.GetGenericArguments().Length; index++)
+						{
+							var genericArgument = inType.GetGenericArguments()[index];
+							VisitType(genericArgument, stringBuilder);
+							if (index + 1 < inType.GetGenericArguments().Length)
+							{
+								stringBuilder.Append(", ");
+							}
+						}
+
+						if (isNullable)
+						{
+							stringBuilder.Append("?");
+						}
+						else
+						{
+							stringBuilder.Append(">");
+						}
+					}
+					else
+					{
+						primitiveTypes.TryGetValue(inType, out var name);
+						stringBuilder.Append(name ?? inType.Name);
+					}
+				}
+			}
+
+
+
+			var sb = new StringBuilder();
+			VisitType(type, sb);
+
+			return sb.ToString();
 		}
 	}
 }

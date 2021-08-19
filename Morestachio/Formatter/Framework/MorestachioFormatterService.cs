@@ -8,6 +8,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 using Morestachio.Document;
 using Morestachio.Formatter.Constants;
@@ -19,6 +21,7 @@ using Morestachio.Formatter.Services;
 using Morestachio.Helper;
 using Morestachio.Helper.Logging;
 using Morestachio.Util.Sealing;
+using Encoding = Morestachio.Formatter.Constants.Encoding;
 #if ValueTask
 using ObjectPromise = System.Threading.Tasks.ValueTask<object>;
 #else
@@ -55,30 +58,17 @@ namespace Morestachio.Formatter.Framework
 		public MorestachioFormatterService(bool useCache = false)
 		{
 			Formatters = new Dictionary<string, IList<MorestachioFormatterModel>>();
+			Constants = new Dictionary<string, object>();
+
 			ValueConverter = new List<IFormatterValueConverter>
 			{
 				NumberConverter.Instance
 			};
+
 			DefaultConverter = GenericTypeConverter.Instance;
 			Services = new ServiceCollection(); //i would love to allow custom external containers to be set as parent but the interface does not allow the necessary enumeration of services 
-			Services.AddService(typeof(IMorestachioFormatterService), this);
-			Services.AddService(typeof(CryptService), CryptService.Instance);
-			this.AddFromType<CryptService>();
-			this.AddFromType<IMorestachioCryptographyService>();
-			this.AddFromType<AesCryptography>();
-			Services.AddService(typeof(HashService), HashService.Instance);
-			this.AddFromType<HashService>();
+			AddService(typeof(IMorestachioFormatterService), this);
 
-			Constants = new Dictionary<string, object>()
-			{
-				{"Encoding", typeof(EncodingConstant)},
-				{"DateTime", typeof(DateTimeConstant)},
-				{"Currencies", typeof(WellKnownCurrencies)},
-			};
-			this.AddFromType(typeof(EncodingConstant));
-			this.AddFromType(typeof(DateTimeConstant));
-			this.AddFromType<Encoding>();
-			
 			if (useCache)
 			{
 				Cache = new ConcurrentDictionary<FormatterCacheCompareKey, FormatterCache>();
@@ -87,18 +77,66 @@ namespace Morestachio.Formatter.Framework
 
 		static MorestachioFormatterService()
 		{
-			Default = new MorestachioFormatterService();
+			var defaultFormatter = new MorestachioFormatterService();
+			defaultFormatter.AddFromType(typeof(ObjectFormatter));
+			defaultFormatter.AddFromType(typeof(Number));
+			defaultFormatter.AddFromType(typeof(BooleanFormatter));
+			defaultFormatter.AddFromType(typeof(DateFormatter));
+			defaultFormatter.AddFromType(typeof(EqualityFormatter));
+			defaultFormatter.AddFromType(typeof(LinqFormatter));
+			defaultFormatter.AddFromType(typeof(ListExtensions));
+			defaultFormatter.AddFromType(typeof(RegexFormatter));
+			defaultFormatter.AddFromType(typeof(TimeSpanFormatter));
+			defaultFormatter.AddFromType(typeof(StringFormatter));
+			defaultFormatter.AddFromType(typeof(RandomFormatter));
+			defaultFormatter.AddFromType(typeof(Worktime));
+			defaultFormatter.AddFromType(typeof(Money));
+			defaultFormatter.AddFromType(typeof(Currency));
+			defaultFormatter.AddFromType(typeof(CurrencyHandler));
+			defaultFormatter.AddFromType(typeof(CurrencyConversion));
+			defaultFormatter.AddFromType(typeof(HtmlFormatter));
+			defaultFormatter.AddFromType(typeof(LoggingFormatter));
+			
+			defaultFormatter.AddService(typeof(CryptService), new CryptService());
+			defaultFormatter.AddFromType<IMorestachioCryptographyService>();
+			defaultFormatter.AddFromType<AesCryptography>();
+			
+			defaultFormatter.AddService(typeof(HashService), new HashService());
+			defaultFormatter.AddFromType(typeof(HashAlgorithm));
+			
+			defaultFormatter.Constants.Add("Encoding", typeof(EncodingConstant));
+			defaultFormatter.Constants.Add("DateTime", typeof(DateTimeConstant));
+			defaultFormatter.Constants.Add("Currencies", typeof(WellKnownCurrencies));
+			defaultFormatter.Constants.Add("CurrencyHandler", CurrencyHandler.DefaultHandler);
+			
+			defaultFormatter.AddFromType(typeof(EncodingConstant));
+			defaultFormatter.AddFromType(typeof(EncoderFallback));
+			defaultFormatter.AddFromType(typeof(DateTimeConstant));
+			defaultFormatter.AddFromType<Encoding>();
+
+			Default = defaultFormatter;
 		}
 
 
 		/// <inheritdoc />
 		public ServiceCollection Services { get; private set; }
 
+		/// <summary>
+		///		Adds the service to the inner collection and registers all morestachio functions
+		/// </summary>
+		/// <param name="type"></param>
+		/// <param name="instance"></param>
+		public void AddService(Type type, object instance)
+		{
+			Services.AddService(type, instance);
+			this.AddFromType(type);
+		}
+
 		/// <inheritdoc />
 		public IDictionary<string, object> Constants { get; set; }
 
 		/// <summary>
-		///     Gets the gloabl formatter that are used always for any formatting run.
+		///     Gets the global formatter that are used always for any formatting run.
 		/// </summary>
 		public IDictionary<string, IList<MorestachioFormatterModel>> Formatters { get; }
 
@@ -120,7 +158,7 @@ namespace Morestachio.Formatter.Framework
 		public StringComparison FormatterNameCompareMode { get; set; } = StringComparison.Ordinal;
 
 		/// <summary>
-		/// 
+		///		Specifies how exceptions should be handled
 		/// </summary>
 		public FormatterServiceExceptionHandling ExceptionHandling { get; set; }
 		

@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Morestachio.Document.Contracts;
+using Morestachio.Formatter.Framework;
+using Morestachio.Formatter.Predefined;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Context.Resolver;
 using Morestachio.Profiler;
+using Morestachio.Util.StaticBinding;
 
 namespace Morestachio.Document
 {
@@ -32,51 +36,25 @@ namespace Morestachio.Document
 			IsOutputLimited = !cancellationToken.Equals(CancellationToken.None) || parserOptions.MaxSize != 0;
 			AddCollectionContextSpecialVariables();
 			AddServicesVariable();
+			AddConstants(parserOptions);
+		}
 
-			foreach (var @constValue in parserOptions.Formatters.Constants)
+		private void AddConstants(ParserOptions parserOptions)
+		{
+			var constants = ObjectFormatter.Combine(MorestachioFormatterService.Default.Constants, parserOptions.Formatters.Constants);
+			
+			foreach (var @constValue in constants)
 			{
 				var value = @constValue.Value;
 				if (value is Type type)
 				{
-					value = new StaticTypeAccessor(type);
+					value = new Static(type);
 				}
+
 				AddVariable(@constValue.Key, (scope) => scope.ParserOptions.CreateContextObject(@constValue.Key, value));
 			}
 		}
-
-		/// <summary>
-		///		Wraps a Type to allow access to its static members
-		/// </summary>
-		public class StaticTypeAccessor : IMorestachioPropertyResolver
-		{
-			/// <summary>
-			///		The Encapsulated type
-			/// </summary>
-			public Type Type { get; }
-
-			/// <summary>
-			/// 
-			/// </summary>
-			/// <param name="type"></param>
-			public StaticTypeAccessor(Type type)
-			{
-				Type = type;
-			}
-
-			/// <inheritdoc />
-			public bool TryGetValue(string name, out object found)
-			{
-				var property = Type.GetProperty(name);
-				if (property == null)
-				{
-					found = null;
-					return false;
-				}
-				found = property.GetValue(null);
-				return true;
-			}
-		}
-
+		
 		private class ServiceUiWrapper : IMorestachioPropertyResolver
 		{
 			private readonly IDictionary<Type, object> _services;
@@ -88,7 +66,7 @@ namespace Morestachio.Document
 
 			public bool TryGetValue(string name, out object found)
 			{
-				found = _services.FirstOrDefault(e => e.Key.Name == name).Value;
+				found = _services.FirstOrDefault(e => e.Key.GetCustomAttribute<ServiceNameAttribute>()?.Name == name || e.Key.Name == name).Value;
 				return found != null;
 			}
 		}
@@ -101,7 +79,9 @@ namespace Morestachio.Document
 				{
 					return null;
 				}
-				return scopeData.ParserOptions.CreateContextObject(".", new ServiceUiWrapper(scopeData.ParserOptions.Formatters.Services.Enumerate()));
+
+				var services = ObjectFormatter.Combine(MorestachioFormatterService.Default.Services.Enumerate(), scopeData.ParserOptions.Formatters.Services.Enumerate());
+				return scopeData.ParserOptions.CreateContextObject(".", new ServiceUiWrapper(services));
 			});
 		}
 

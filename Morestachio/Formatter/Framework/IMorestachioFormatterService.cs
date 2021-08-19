@@ -17,6 +17,7 @@ namespace Morestachio.Formatter.Framework
 	/// <summary>
 	///     Interface for Resolving formatters
 	/// </summary>
+	[ServiceName("Formatters")]
 	public interface IMorestachioFormatterService : ISealed
 	{
 		/// <summary>

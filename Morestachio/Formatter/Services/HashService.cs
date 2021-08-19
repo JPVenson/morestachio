@@ -12,13 +12,7 @@ namespace Morestachio.Formatter.Services
 	/// </summary>
 	public class HashService
 	{
-		private static HashService _instance;
-		public static HashService Instance
-		{
-			get { return _instance ?? (_instance = new HashService()); }
-		}
-
-		private HashService()
+		public HashService()
 		{
 		}
 

@@ -7,6 +7,7 @@ namespace Morestachio.Helper.Localization
 	/// <summary>
 	///		Contains the Localization Formatter to use with the <see cref="IMorestachioLocalizationService"/>
 	/// </summary>
+	[MorestachioExtensionSetup("Must be Setup using the IMorestachioLocalizationService service")]
 	public static class LocalizationFormatter
 	{
 		/// <summary>

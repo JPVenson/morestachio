@@ -120,6 +120,8 @@ namespace Morestachio.Helper.FileSystem
 	///		This service allows the access to the underlying FileSystem.
 	///		It is not available in the standard configuration and must be first enabled via <see cref="FileSystemExtensions.RegisterFileSystem(Morestachio.ParserOptions,System.Func{Morestachio.Helper.FileSystem.FileSystemService})"/>
 	/// </remarks>
+	[MorestachioExtensionSetup("Must be enabled with FileSystemExtensions.RegisterFileSystem before available")]
+	[ServiceName("FileSystem")]
 	public class FileSystemService
 	{
 		private readonly string _workingDirectory;
@@ -167,10 +169,10 @@ namespace Morestachio.Helper.FileSystem
 		///		Registers all necessary components to use the <code>FileSystemService</code>
 		/// </summary>
 		/// <param name="options"></param>
-		/// <param name="action"></param>
-		public static ParserOptions RegisterFileSystem(this ParserOptions options, Func<FileSystemService> action)
+		/// <param name="config"></param>
+		public static ParserOptions RegisterFileSystem(this ParserOptions options, Func<FileSystemService> config)
 		{
-			var fs = action();
+			var fs = config();
 			options.Formatters.Constants["FileSystem"] = fs;
 			options.Formatters.Services.AddService(fs);
 

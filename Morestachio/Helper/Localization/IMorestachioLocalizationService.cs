@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Threading.Tasks;
+using Morestachio.Formatter.Framework;
 
 namespace Morestachio.Helper.Localization
 {
@@ -11,6 +12,7 @@ namespace Morestachio.Helper.Localization
 	///		This service allows localization of text within your template by adding one or more <see cref="ITranslationResource"/>
 	///		It is not available in the standard configuration and must be first enabled via <see cref="MorestachioLocalizationServiceExtensions.RegisterLocalizationService"/>
 	/// </remarks>
+	[ServiceName("Localization")]
 	public interface IMorestachioLocalizationService
 	{
 		/// <summary>

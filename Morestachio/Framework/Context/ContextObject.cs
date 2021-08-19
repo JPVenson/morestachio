@@ -4,16 +4,20 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using Morestachio.Document;
+using Morestachio.Formatter.Constants;
 using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Predefined;
 using Morestachio.Formatter.Predefined.Accounting;
+using Morestachio.Formatter.Services;
 using Morestachio.Framework.Context.Resolver;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Helper;
 using Morestachio.Helper.Logging;
+using Encoding = Morestachio.Formatter.Constants.Encoding;
 using PathPartElement =
 	System.Collections.Generic.KeyValuePair<string, Morestachio.Framework.Expression.Framework.PathType>;
 #if ValueTask
@@ -52,23 +56,6 @@ namespace Morestachio.Framework.Context
 
 		static ContextObject()
 		{
-			DefaultFormatter = MorestachioFormatterService.Default;
-			DefaultFormatter.AddFromType(typeof(ObjectFormatter));
-			DefaultFormatter.AddFromType(typeof(Number));
-			DefaultFormatter.AddFromType(typeof(BooleanFormatter));
-			DefaultFormatter.AddFromType(typeof(DateFormatter));
-			DefaultFormatter.AddFromType(typeof(EqualityFormatter));
-			DefaultFormatter.AddFromType(typeof(LinqFormatter));
-			DefaultFormatter.AddFromType(typeof(ListExtensions));
-			DefaultFormatter.AddFromType(typeof(RegexFormatter));
-			DefaultFormatter.AddFromType(typeof(TimeSpanFormatter));
-			DefaultFormatter.AddFromType(typeof(StringFormatter));
-			DefaultFormatter.AddFromType(typeof(RandomFormatter));
-			DefaultFormatter.AddFromType(typeof(Worktime));
-			DefaultFormatter.AddFromType(typeof(Money));
-			DefaultFormatter.AddFromType(typeof(HtmlFormatter));
-			DefaultFormatter.AddFromType(typeof(LoggingFormatter));
-
 			DefaultDefinitionOfFalse = value => value != null &&
 												value as bool? != false &&
 												// ReSharper disable once CompareOfFloatsByEqualityOperator
@@ -125,8 +112,14 @@ namespace Morestachio.Framework.Context
 		///     should not be printed, or their printing should be specialized.
 		///     Add an typeof(object) entry as Type to define a Default Output
 		/// </summary>
-
-		public static IMorestachioFormatterService DefaultFormatter { get; }
+		[Obsolete("Please use the MorestachioFormatterService.Default instead")]
+		public static IMorestachioFormatterService DefaultFormatter
+		{
+			get
+			{
+				return MorestachioFormatterService.Default;
+			}
+		}
 
 		/// <summary>
 		///     The parent of the current context or null if its the root context
@@ -488,7 +481,7 @@ namespace Morestachio.Framework.Context
 			}
 
 			//all formatters in the options object have rejected the value so try use the global ones
-			return DefaultFormatter.PrepareCallMostMatchingFormatter(type, arguments, name, scopeData.ParserOptions, scopeData);
+			return MorestachioFormatterService.Default.PrepareCallMostMatchingFormatter(type, arguments, name, scopeData.ParserOptions, scopeData);
 		}
 
 		/// <summary>

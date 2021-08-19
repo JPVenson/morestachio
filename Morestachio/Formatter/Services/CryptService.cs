@@ -9,15 +9,9 @@ namespace Morestachio.Formatter.Services
 	/// </summary>
 	public class CryptService
 	{
-		private CryptService()
+		public CryptService()
 		{
 			Aes = new AesCryptography();
-		}
-
-		private static CryptService _instance;
-		public static CryptService Instance
-		{
-			get { return _instance ?? (_instance = new CryptService()); }
 		}
 
 		public IMorestachioCryptographyService Aes { get; set; }

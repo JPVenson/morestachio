@@ -11,7 +11,10 @@ namespace Morestachio.Util.StaticBinding
 	/// </summary>
 	public class Static : IMorestachioPropertyResolver
 	{
-		private readonly Type _type;
+		/// <summary>
+		///		The bound type
+		/// </summary>
+		public Type Type { get; }
 
 		/// <summary>
 		///		Creates a new static object that wraps its static properties
@@ -19,13 +22,13 @@ namespace Morestachio.Util.StaticBinding
 		/// <param name="type"></param>
 		public Static(Type type)
 		{
-			_type = type;
+			Type = type;
 		}
 		
 		/// <inheritdoc />
 		public bool TryGetValue(string name, out object found)
 		{
-			var property = _type.GetProperty(name, BindingFlags.Static | BindingFlags.Public);
+			var property = Type.GetProperty(name, BindingFlags.Static | BindingFlags.Public);
 			if (property == null || !property.CanRead)
 			{
 				found = null;

@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using Morestachio.Formatter.Framework.Attributes;
+using Morestachio.Helper;
 
 namespace Morestachio.Linq
 {
 	/// <summary>
 	///     This class wraps the System.Linq.Dynamic.Core package for Morstachio
 	/// </summary>
+	[MorestachioExtensionSetup("Must be added via Nuget package 'Morestachio.Linq' and added via 'contextObject.Formatters.AddFromType(typeof(DynamicLinq))'")]
 	public static class DynamicLinq
 	{
 		[MorestachioFormatter("Where",

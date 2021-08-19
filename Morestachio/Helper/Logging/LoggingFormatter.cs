@@ -7,6 +7,7 @@ namespace Morestachio.Helper.Logging
 	/// <summary>
 	///		Contains formatter calls for access to the ILogger interface
 	/// </summary>
+	[MorestachioExtensionSetup("Must be first setup by setting the ParserOptions.Logger property")]
 	public static class LoggingFormatter
 	{
 		/// <summary>

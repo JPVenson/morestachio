@@ -6,6 +6,25 @@ using System.ComponentModel.Design;
 namespace Morestachio.Formatter.Framework
 {
 	/// <summary>
+	///		Allows to change the name this service is available from template
+	/// </summary>
+	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, Inherited = false, AllowMultiple = false)]
+	public sealed class ServiceNameAttribute : Attribute
+	{
+		/// <summary>
+		///		The name of this Service
+		/// </summary>
+		public string Name { get; }
+
+		// See the attribute guidelines at 
+		//  http://go.microsoft.com/fwlink/?LinkId=85236
+		public ServiceNameAttribute(string name)
+		{
+			Name = name;
+		}
+	}
+
+	/// <summary>
 	///		Collection of services
 	/// </summary>
 	public class ServiceCollection : IServiceContainer
