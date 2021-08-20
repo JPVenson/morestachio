@@ -510,8 +510,21 @@ namespace Morestachio.Formatter.Framework
 		/// <param name="namedParameter"></param>
 		/// <returns></returns>
 		public static MethodInfo PrepareMakeGenericMethodInfoByValues(
+			MethodInfo methodInfo,
+			object[] namedParameter)
+		{
+			return PrepareMakeGenericMethodInfoByValues(methodInfo, namedParameter.Select(f => f.GetType()).ToArray());
+		}
+
+		/// <summary>
+		///     Internal use only
+		/// </summary>
+		/// <param name="methodInfo"></param>
+		/// <param name="namedParameter"></param>
+		/// <returns></returns>
+		public static MethodInfo PrepareMakeGenericMethodInfoByValues(
 			 MethodInfo methodInfo,
-			 object[] namedParameter)
+			 Type[] namedParameter)
 		{
 			var generics = new List<Type>();
 			foreach (var genericArgument in methodInfo.GetGenericArguments())
@@ -521,7 +534,7 @@ namespace Morestachio.Formatter.Framework
 				{
 					var parameterInfo = methodInfo.GetParameters()[i];
 					var argument = new Stack<Tuple<Type, Type>>();
-					var sourceValueType = namedParameter[i].GetType();
+					var sourceValueType = namedParameter[i];
 
 					//in case the parameter is an generic argument directly
 
@@ -883,6 +896,12 @@ namespace Morestachio.Formatter.Framework
 			var parameterParameterType = parameter.ParameterType;
 			if (parameterParameterType.IsConstructedGenericType)
 			{
+				//if (givenType == typeof(MorestachioTemplateExpression) && parameterParameterType.BaseType == typeof(MulticastDelegate))
+				//{
+				//	success = true;
+				//	return o => (o as MorestachioTemplateExpression).As(parameterParameterType);
+				//}
+
 				//TODO check constraints of the generic type
 				success = true;
 				return null;

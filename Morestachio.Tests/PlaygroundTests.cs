@@ -502,10 +502,10 @@ namespace Morestachio.Tests
 		/// </summary>
 		public Func<{{#REPEAT nr}}T{{$index}}, {{/REPEAT}}TResult> AsFunc<{{#REPEAT nr}}T{{$index}}, {{/REPEAT}}TResult>()
 		{
-			AssertParameterCount({{$index}});
-			return ({{#REPEAT nr - 1}}arg{{$index}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}}) =>
+			AssertParameterCount({{nr}});
+			return ({{#REPEAT nr - 1}}arg{{$index + 1}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}}) =>
 			{
-				AddArguments({{#REPEAT nr - 1}}arg{{$index}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}});
+				AddArguments({{#REPEAT nr - 1}}arg{{$index + 1}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}});
 				var clone = _contextObject.CloneForEdit();
 				var result = (TResult)((_expression.Expression.GetValue(clone, _scopeData)).GetAwaiter().GetResult().Value);
 				RemoveArguments();
@@ -519,10 +519,10 @@ namespace Morestachio.Tests
 		/// </summary>
 		public Func<{{#REPEAT nr}}T{{$index}}, {{/REPEAT}}Task<TResult>> AsAsyncFunc<{{#REPEAT nr}}T{{$index}}, {{/REPEAT}}TResult>()
 		{
-			AssertParameterCount({{$index}});
-			return async ({{#REPEAT nr - 1}}arg{{$index}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}}) =>
+			AssertParameterCount({{nr}});
+			return async ({{#REPEAT nr - 1}}arg{{$index + 1}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}}) =>
 			{
-				AddArguments({{#REPEAT nr - 1}}arg{{$index}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}});
+				AddArguments({{#REPEAT nr - 1}}arg{{$index + 1}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}});
 				var clone = _contextObject.CloneForEdit();
 				var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData)).Value);
 				RemoveArguments();
@@ -551,9 +551,9 @@ namespace Morestachio.Tests
 		public Action<{{#REPEAT nr - 1}}T{{$index}}, {{/REPEAT}}T{{$index + 1}}> AsAction<{{#REPEAT nr - 1}}T{{$index}}, {{/REPEAT}}T{{$index + 1}}>()
 		{
 			AssertParameterCount({{$index + 1}});
-			return ({{#REPEAT nr - 1}}arg{{$index}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}}) =>
+			return ({{#REPEAT nr - 1}}arg{{$index + 1}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}}) =>
 			{
-				AddArguments({{#REPEAT nr - 1}}arg{{$index}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}});
+				AddArguments({{#REPEAT nr - 1}}arg{{$index + 1}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}});
 				var clone = _contextObject.CloneForEdit();
 				_expression.Expression.GetValue(clone, _scopeData).GetAwaiter().GetResult();
 				RemoveArguments();

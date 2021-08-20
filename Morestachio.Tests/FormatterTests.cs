@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Framework.Attributes;
@@ -1206,6 +1207,25 @@ namespace Morestachio.Tests
 			var result = await ParserFixture.CreateAndParseWithOptions(template, (1), _opts);
 			Assert.That(result, Is.EqualTo(WellKnownCurrencies.USD.ToString()));
 
+		}
+
+		[Test]
+		public async Task TestExpressionCanParseOperators()
+		{
+			var template = "{{list.FirstOrDefault((e) => e.Value == true).Key}}";
+			var data = new
+			{
+				list = new List<object>()
+				{
+					new KeyValuePair<string, bool>("A", false),
+					new KeyValuePair<string, bool>("B", true),
+					new KeyValuePair<string, bool>("C", false),
+				}
+			};
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts);
+
+			Assert.That(result, Is.EqualTo("B"));
 		}
 	}
 }
