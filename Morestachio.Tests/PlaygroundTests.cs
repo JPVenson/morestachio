@@ -33,50 +33,25 @@ namespace Morestachio.Tests
 		{
 
 		}
-		
+
 		[Test]
-		[TestCase("d.f(fA.TS('', e), (A + Delta((D + 4), A) + d))")]
-		public void TestExpressionCanParseOperators(string query)
+		public async Task TestExpressionCanParseOperators()
 		{
-			var sw = new Stopwatches();
-			IMorestachioExpression expressions = null;
-			TokenzierContext context = null;
-			for (int i = 0; i < 50000; i++)
+			var template = "{{list.Fod(e => e.Value == true).Key}}";
+			var data = new
 			{
-				sw.Start();
-				context = TokenzierContext.FromText(query);
-				expressions = ExpressionParser.ParseExpression(query, context);
-				sw.Stop();
-			}
+				list = new List<object>()
+				{
+					new KeyValuePair<string, bool>("A", false),
+					new KeyValuePair<string, bool>("B", true),
+					new KeyValuePair<string, bool>("C", false),
+				}
+			};
 
-			Assert.Warn("Result: " + sw.Elapsed + " average: " + sw.ElapsedAverage);
-			//TestContext.Out.WriteLine();
-			
-			//Assert.That(expressions, Is.Not.Null, () => context.Errors.GetErrorText());
-			//Assert.That(context.Errors, Is.Empty, () => context.Errors.GetErrorText());
+			var result = await (await Parser.ParseWithOptionsAsync(new ParserOptions(template, null, ParserFixture.DefaultEncoding))).CreateRenderer()
+				.RenderAsync(data, CancellationToken.None);
 
-			//var visitor = new ToParsableStringExpressionVisitor();
-			//expressions.Accept(visitor);
-
-			//var actual = visitor.StringBuilder.ToString();
-			//Assert.That(actual, Is.EqualTo(query));
-
-
-			//var template = "{{" + query + "}}";
-			//var data = new Dictionary<string, object>();
-			//for (var index = 0; index < args.Length; index++)
-			//{
-			//	var arg = args[index];
-			//	data.Add(((char)('A' + index)).ToString(), arg);
-			//}
-			//var result = await ParserFixture.CreateAndParseWithOptions(template, data, ParserOptionTypes.UseOnDemandCompile, options =>
-			//{
-			//	//options.Formatters.AddSingleGlobal<object, object>(f =>
-			//	//{
-			//	//	return f;
-			//	//}, "Self");
-			//});
-			//Assert.That(result, Is.EqualTo((valExp).ToString()));
+			Assert.That(result.Stream.Stringify(true, ParserFixture.DefaultEncoding), Is.EqualTo("B"));
 		}
 
 		[Test]
@@ -116,7 +91,7 @@ namespace Morestachio.Tests
 		{
 			public Product()
 			{
-				
+
 			}
 
 			public Product(string name, float price, string description)
@@ -188,7 +163,7 @@ namespace Morestachio.Tests
 			{
 				get
 				{
-					return TimeSpan.FromTicks((long) Watches.Average(f => (decimal)f.Ticks));
+					return TimeSpan.FromTicks((long)Watches.Average(f => (decimal)f.Ticks));
 				}
 			}
 
@@ -341,17 +316,17 @@ namespace Morestachio.Tests
 			}
 
 			var swElapsed = sw.Elapsed;
-			Console.WriteLine("Done in: " 
-			                  + HumanizeTimespan(swElapsed)
-			                  + " thats " 
-			                  + HumanizeTimespan(sw.ElapsedAverage)
-			                  + " per run with lower " 
-			                  + HumanizeTimespan(sw.ElapsedMin)
-			                  + " and high " 
-			                  + HumanizeTimespan(sw.ElapsedMax));
-			#if NETCOREAPP
+			Console.WriteLine("Done in: "
+							  + HumanizeTimespan(swElapsed)
+							  + " thats "
+							  + HumanizeTimespan(sw.ElapsedAverage)
+							  + " per run with lower "
+							  + HumanizeTimespan(sw.ElapsedMin)
+							  + " and high "
+							  + HumanizeTimespan(sw.ElapsedMax));
+#if NETCOREAPP
 			Console.WriteLine("- Mem: " + Process.GetCurrentProcess().PrivateMemorySize64);
-			#endif
+#endif
 			//PrintPerformanceGroup(profiler.SelectMany(f => f.))
 		}
 
@@ -412,17 +387,17 @@ namespace Morestachio.Tests
 
 
 			var swElapsed = sw.Elapsed;
-			Console.WriteLine("Done in: " 
-			                  + HumanizeTimespan(swElapsed)
-			                  + " thats " 
-			                  + HumanizeTimespan(sw.ElapsedAverage)
-			                  + " per run with lower " 
-			                  + HumanizeTimespan(sw.ElapsedMin)
-			                  + " and high " 
-			                  + HumanizeTimespan(sw.ElapsedMax));
-			#if NETCOREAPP
+			Console.WriteLine("Done in: "
+							  + HumanizeTimespan(swElapsed)
+							  + " thats "
+							  + HumanizeTimespan(sw.ElapsedAverage)
+							  + " per run with lower "
+							  + HumanizeTimespan(sw.ElapsedMin)
+							  + " and high "
+							  + HumanizeTimespan(sw.ElapsedMax));
+#if NETCOREAPP
 			Console.WriteLine("- Mem: " + Process.GetCurrentProcess().PrivateMemorySize64);
-			#endif
+#endif
 			//PrintPerformanceGroup(profiler.SelectMany(f => f.))
 		}
 
@@ -489,6 +464,107 @@ namespace Morestachio.Tests
 
 			sw.Stop();
 			Console.WriteLine("Number Operation: " + sw.Elapsed);
+		}
+
+		[Test]
+		public async Task GenerateExpressions()
+		{
+			var template = @"
+
+		/// <summary>
+		///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
+		/// </summary>
+		public Func<TResult> AsFunc<TResult>()
+		{
+			AssertParameterCount(0);
+			return () =>
+			{
+				var clone = _contextObject.CloneForEdit();
+				return (TResult)_expression.Expression.GetValue(clone, _scopeData).GetAwaiter().GetResult().Value;
+			};
+		}
+
+		/// <summary>
+		///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
+		/// </summary>
+		public Func<Task<TResult>> AsAsyncFunc<TResult>()
+		{
+			AssertParameterCount(0);
+			return async () =>
+			{
+				var clone = _contextObject.CloneForEdit();
+				return (TResult)((await _expression.Expression.GetValue(clone, _scopeData)).Value);
+			};
+		}
+{{#REPEAT 16}}{{#LET nr = $index + 1}}
+		/// <summary>
+		///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
+		/// </summary>
+		public Func<{{#REPEAT nr}}T{{$index}}, {{/REPEAT}}TResult> AsFunc<{{#REPEAT nr}}T{{$index}}, {{/REPEAT}}TResult>()
+		{
+			AssertParameterCount({{$index}});
+			return ({{#REPEAT nr - 1}}arg{{$index}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}}) =>
+			{
+				AddArguments({{#REPEAT nr - 1}}arg{{$index}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}});
+				var clone = _contextObject.CloneForEdit();
+				var result = (TResult)((_expression.Expression.GetValue(clone, _scopeData)).GetAwaiter().GetResult().Value);
+				RemoveArguments();
+				return result;
+			};
+		}
+{{/REPEAT}}
+{{#REPEAT 16}}{{#LET nr = $index + 1}}
+		/// <summary>
+		///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
+		/// </summary>
+		public Func<{{#REPEAT nr}}T{{$index}}, {{/REPEAT}}Task<TResult>> AsAsyncFunc<{{#REPEAT nr}}T{{$index}}, {{/REPEAT}}TResult>()
+		{
+			AssertParameterCount({{$index}});
+			return async ({{#REPEAT nr - 1}}arg{{$index}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}}) =>
+			{
+				AddArguments({{#REPEAT nr - 1}}arg{{$index}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}});
+				var clone = _contextObject.CloneForEdit();
+				var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData)).Value);
+				RemoveArguments();
+				return result;
+			};
+		}
+{{/REPEAT}}
+		/// <summary>
+		///		Creates a new c# Delegate that invokes the morestachio expression
+		/// </summary>
+		public Action<T> AsAction<T>()
+		{
+			AssertParameterCount(1);
+			return arg1 =>
+			{
+				AddArguments(arg1);
+				var clone = _contextObject.CloneForEdit();
+				_expression.Expression.GetValue(clone, _scopeData).GetAwaiter().GetResult();
+				RemoveArguments();
+			};
+		}
+{{#REPEAT 15}}{{#LET nr = $index + 2}}
+		/// <summary>
+		///		Creates a new c# Delegate that invokes the morestachio expression
+		/// </summary>
+		public Action<{{#REPEAT nr - 1}}T{{$index}}, {{/REPEAT}}T{{$index + 1}}> AsAction<{{#REPEAT nr - 1}}T{{$index}}, {{/REPEAT}}T{{$index + 1}}>()
+		{
+			AssertParameterCount({{$index + 1}});
+			return ({{#REPEAT nr - 1}}arg{{$index}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}}) =>
+			{
+				AddArguments({{#REPEAT nr - 1}}arg{{$index}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}});
+				var clone = _contextObject.CloneForEdit();
+				_expression.Expression.GetValue(clone, _scopeData).GetAwaiter().GetResult();
+				RemoveArguments();
+			};
+		}
+{{/REPEAT}}
+";
+			var result = (await (await Parser.ParseWithOptionsAsync(new ParserOptions(template)))
+				.CreateRenderer().RenderAsync(null, CancellationToken.None)).Stream.Stringify(true, Encoding.UTF8);
+
+			Console.WriteLine(result);
 		}
 	}
 }

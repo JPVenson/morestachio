@@ -357,7 +357,7 @@ namespace Morestachio.Framework.Expression
 						var formatterArgument = formatsCompiled[index];
 
 						object value;
-						if(formatterArgument.Value is CompiledExpression cex)
+						if (formatterArgument.Value is CompiledExpression cex)
 						{
 							value = (await cex(naturalContext, scopeData))?.Value;
 						}
@@ -365,7 +365,7 @@ namespace Morestachio.Framework.Expression
 						{
 							value = formatterArgument.Value;
 						}
-					
+
 						arguments[index] = new FormatterArgumentType(index, formatterArgument.Key.Name, value, formatterArgument.Key.MorestachioExpression);
 					}
 				}
@@ -619,7 +619,12 @@ namespace Morestachio.Framework.Expression
 
 			public string Expression
 			{
-				get { return _exp.ToString(); }
+				get
+				{
+					var visitor = new ToParsableStringExpressionVisitor();
+					_exp.Accept(visitor);
+					return visitor.StringBuilder.ToString();
+				}
 			}
 
 			/// <inheritdoc />

@@ -29,9 +29,9 @@ namespace Morestachio.Framework.Expression
 	{
 		internal MorestachioExpressionNumber()
 		{
-			
+
 		}
-		
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -40,7 +40,7 @@ namespace Morestachio.Framework.Expression
 			Number = number;
 			Location = location;
 		}
-		
+
 		/// <summary>
 		///		The number of the Expression
 		/// </summary>
@@ -59,20 +59,20 @@ namespace Morestachio.Framework.Expression
 			Number = nr;
 			Location = CharacterLocation.FromFormatString(info.GetString(nameof(Location)));
 		}
-		
+
 		/// <inheritdoc />
 		public void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			info.AddValue(nameof(Number), Number.AsParsableString());
 			info.AddValue(nameof(Location), Location.ToFormatString());
 		}
-		
+
 		/// <inheritdoc />
 		public XmlSchema GetSchema()
 		{
 			throw new NotImplementedException();
 		}
-		
+
 		/// <inheritdoc />
 		public void ReadXml(XmlReader reader)
 		{
@@ -80,7 +80,7 @@ namespace Morestachio.Framework.Expression
 			Number.TryParse(reader.GetAttribute(nameof(Number)), CultureInfo.CurrentCulture, out var nr);
 			Number = nr;
 		}
-		
+
 		/// <inheritdoc />
 		public void WriteXml(XmlWriter writer)
 		{
@@ -93,7 +93,7 @@ namespace Morestachio.Framework.Expression
 		{
 			return Equals((object)other);
 		}
-		
+
 		/// <inheritdoc />
 		public bool Equals(MorestachioExpressionNumber other)
 		{
@@ -143,7 +143,7 @@ namespace Morestachio.Framework.Expression
 			return scopeData.ParserOptions.CreateContextObject(".", Number,
 				contextObject).ToPromise();
 		}
-		
+
 		/// <inheritdoc />
 		public CompiledExpression Compile()
 		{
@@ -169,7 +169,7 @@ namespace Morestachio.Framework.Expression
 		{
 			return true;
 		}
-		
+
 		/// <inheritdoc />
 		public object GetCompileTimeValue()
 		{
@@ -187,7 +187,12 @@ namespace Morestachio.Framework.Expression
 
 			public string Expression
 			{
-				get { return _exp.ToString(); }
+				get
+				{
+					var visitor = new ToParsableStringExpressionVisitor();
+					_exp.Accept(visitor);
+					return visitor.StringBuilder.ToString();
+				}
 			}
 
 			public Number Number

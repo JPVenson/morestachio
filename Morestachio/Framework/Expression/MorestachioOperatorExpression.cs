@@ -269,9 +269,9 @@ namespace Morestachio.Framework.Expression
 		{
 			// this would be possible when a ScopeData object is supplied to access the formatters which is currently not possible
 			return false;
-//			return LeftExpression.IsCompileTimeEval() && (RightExpression == null || RightExpression.IsCompileTimeEval());
+			//			return LeftExpression.IsCompileTimeEval() && (RightExpression == null || RightExpression.IsCompileTimeEval());
 		}
-		
+
 		/// <inheritdoc />
 		public object GetCompileTimeValue()
 		{
@@ -289,7 +289,12 @@ namespace Morestachio.Framework.Expression
 
 			public string Expression
 			{
-				get { return _exp.ToString(); }
+				get
+				{
+					var visitor = new ToParsableStringExpressionVisitor();
+					_exp.Accept(visitor);
+					return visitor.StringBuilder.ToString();
+				}
 			}
 
 			public string Operator

@@ -15,6 +15,57 @@ using ContextObjectPromise = System.Threading.Tasks.Task<Morestachio.Framework.C
 
 namespace Morestachio.Framework.Expression
 {
+	//[DebuggerTypeProxy(typeof(ExpressionDebuggerDisplay))]
+	//[Serializable]
+	//public class MorestachioLambdaArgumentList : MorestachioMultiPartExpressionList
+	//{
+	//	internal MorestachioLambdaArgumentList()
+	//	{
+
+	//	}
+
+	//	internal MorestachioLambdaArgumentList(CharacterLocation location) : base(location)
+	//	{
+	//	}
+
+	//	/// <summary>
+	//	/// 
+	//	/// </summary>
+	//	/// <param name="info"></param>
+	//	/// <param name="context"></param>
+	//	protected MorestachioLambdaArgumentList(SerializationInfo info, StreamingContext context) : base(info, context)
+	//	{
+	//	}
+
+	//	private class ExpressionDebuggerDisplay
+	//	{
+	//		private readonly MorestachioBracketExpression _exp;
+
+	//		public ExpressionDebuggerDisplay(MorestachioBracketExpression exp)
+	//		{
+	//			_exp = exp;
+	//		}
+
+	//		public string Expression
+	//		{
+	//			get { return _exp.ToString(); }
+	//		}
+
+	//		public CharacterLocation Location
+	//		{
+	//			get { return _exp.Location; }
+	//		}
+
+	//		/// <inheritdoc />
+	//		public override string ToString()
+	//		{
+	//			var visitor = new DebuggerViewExpressionVisitor();
+	//			_exp.Accept(visitor);
+	//			return visitor.StringBuilder.ToString();
+	//		}
+	//	}
+	//}
+
 	/// <summary>
 	///		Acts as a expression that only encases another expression within a bracket
 	/// </summary>
@@ -24,7 +75,7 @@ namespace Morestachio.Framework.Expression
 	{
 		internal MorestachioBracketExpression()
 		{
-			
+
 		}
 
 		internal MorestachioBracketExpression(CharacterLocation location) : base(location)
@@ -51,7 +102,12 @@ namespace Morestachio.Framework.Expression
 
 			public string Expression
 			{
-				get { return _exp.ToString(); }
+				get
+				{
+					var visitor = new ToParsableStringExpressionVisitor();
+					_exp.Accept(visitor);
+					return visitor.StringBuilder.ToString();
+				}
 			}
 
 			public CharacterLocation Location

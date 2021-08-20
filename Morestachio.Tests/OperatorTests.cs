@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Morestachio.Framework.Expression.Parser;
+using Morestachio.Framework.Expression.Visitors;
 using NUnit.Framework;
 
 namespace Morestachio.Tests
@@ -64,6 +66,26 @@ namespace Morestachio.Tests
 				{"B", true},
 			};
 			Assert.That(await ParserFixture.CreateAndParseWithOptions(template, data, _opts), Is.EqualTo("true"));
+		}
+
+		[Test]
+		[TestCase("(e, f) => e + f")]
+		[TestCase("(e, f) => e.Call(f)")]
+		[TestCase("(e) => e.Call()")]
+		[TestCase("() => this.Call()")]
+		public void TestLambdaCanBeParsed(string expressionText, bool expectError = false)
+		{
+			var exp = ExpressionParser.ParseExpression(expressionText, out var ctx);
+			if (expectError)
+			{
+				Assert.That(ctx.Errors.Count, Is.GreaterThan(0));
+			}
+			Assert.That(ctx.Errors.Count, Is.EqualTo(0));
+			Assert.That(exp, Is.Not.Null);
+			
+			var visitor = new ToParsableStringExpressionVisitor();
+			exp.Accept(visitor);
+			Assert.That(visitor.StringBuilder.ToString(), Is.EqualTo(expressionText));
 		}
 	}
 }

@@ -39,5 +39,10 @@
 		///		Defines the use of an operator
 		/// </summary>
 		Operator,
+
+		/// <summary>
+		///		Defines the use of an operator
+		/// </summary>
+		LambdaOperator,
 	}
 }

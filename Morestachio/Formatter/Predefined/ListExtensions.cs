@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Framework.Attributes;
+using Morestachio.Framework.Expression;
 
 namespace Morestachio.Formatter.Predefined
 {
@@ -84,6 +85,10 @@ namespace Morestachio.Formatter.Predefined
 			return itemsList;
 		}
 
-
+		//[MorestachioFormatter("Fod", "Selected the first item that matches the condition")]
+		//public static T FirstOrDefault<T>(IEnumerable<T> items, MorestachioTemplateExpression expression)
+		//{
+		//	//return items.FirstOrDefault(expression.AsFunc<T, bool>());
+		//}
 	}
 }

@@ -266,5 +266,22 @@ namespace Morestachio.Framework.Expression.Visitors
 			}
 			StringBuilder.Down().AppendLine().AppendInterlaced("}");
 		}
+		
+
+		/// <inheritdoc />
+		public void Visit(MorestachioLambdaExpression expression)
+		{
+			StringBuilder
+				.Append("func(");
+
+			this.Visit(expression.Parameters);
+
+			StringBuilder.Append(" => ");
+
+			this.Visit(expression.Expression);
+
+			StringBuilder
+				.Append(")");
+		}
 	}
 }

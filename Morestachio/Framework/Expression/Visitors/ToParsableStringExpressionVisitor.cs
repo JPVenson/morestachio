@@ -222,5 +222,29 @@ namespace Morestachio.Framework.Expression.Visitors
 				}
 			}
 		}
+
+		/// <inheritdoc />
+		public void Visit(MorestachioLambdaExpression expression)
+		{
+			StringBuilder.Append("(");
+			if (expression.Parameters is MorestachioExpression exp)
+			{
+				this.Visit(exp);
+			}
+			else if (expression.Parameters is MorestachioBracketExpression argList)
+			{
+				for (var index = 0; index < argList.Expressions.Count; index++)
+				{
+					var arg = argList.Expressions[index];
+					this.Visit(arg);
+					if (index + 1 < argList.Expressions.Count)
+					{
+						StringBuilder.Append(", ");
+					}
+				}
+			}
+			StringBuilder.Append(") => ");
+			this.Visit(expression.Expression);
+		}
 	}
 }

@@ -194,6 +194,12 @@ namespace Morestachio.Framework.Expression.Parser
 			{
 				opText += textPart[index];
 			}
+
+			if (opText == "=>")
+			{
+				consumed++;
+				return new LambdaExpressionToken(context.CurrentLocation.Offset(index - consumed + 1));
+			}
 			
 			if (Tokenizer.IsOperationString(opText))
 			{

@@ -141,13 +141,13 @@ namespace Morestachio.Framework.Expression
 		{
 			visitor.Visit(this);
 		}
-		
+
 		/// <inheritdoc />
 		public bool IsCompileTimeEval()
 		{
 			return true;
 		}
-		
+
 		/// <inheritdoc />
 		public object GetCompileTimeValue()
 		{
@@ -228,7 +228,12 @@ namespace Morestachio.Framework.Expression
 
 			public string Expression
 			{
-				get { return _exp.ToString(); }
+				get
+				{
+					var visitor = new ToParsableStringExpressionVisitor();
+					_exp.Accept(visitor);
+					return visitor.StringBuilder.ToString();
+				}
 			}
 
 			public char Delimiter

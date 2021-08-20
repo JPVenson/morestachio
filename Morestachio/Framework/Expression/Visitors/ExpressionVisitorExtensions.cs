@@ -38,6 +38,9 @@ namespace Morestachio.Framework.Expression.Visitors
 				case MorestachioOperatorExpression operatorExpression:
 					visitor.Visit(operatorExpression);
 					break;
+				case MorestachioLambdaExpression operatorExpression:
+					visitor.Visit(operatorExpression);
+					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(morestachioExpression));
 			}

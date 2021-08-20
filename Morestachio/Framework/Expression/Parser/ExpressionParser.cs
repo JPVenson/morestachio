@@ -15,6 +15,7 @@ using Morestachio.Document;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.StringParts;
+using Morestachio.Framework.Expression.Visitors;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
 using Morestachio.Parsing.ParserErrors;
@@ -339,6 +340,7 @@ namespace Morestachio.Framework.Expression.Parser
 					case ExpressionTokenType.Number:
 					case ExpressionTokenType.String:
 					case ExpressionTokenType.Operator:
+					case ExpressionTokenType.LambdaOperator:
 						return true;
 					default:
 						tokens.SyntaxError(context,
@@ -406,14 +408,19 @@ namespace Morestachio.Framework.Expression.Parser
 			{
 				var exp = new MorestachioBracketExpression(token.Location);
 				
-
 				bool SubCondition(IExpressionToken subToken)
 				{
 					return !(subToken.TokenType == ExpressionTokenType.Bracket && ((ExpressionValueToken)subToken).Value == ")");
 				}
 				tokens.PeekLoop(SubCondition, subToken =>
 				{
-					exp.Add(ParseAnyExpression(tokens, context, SubCondition));
+					if (subToken.TokenType == ExpressionTokenType.ArgumentSeperator)
+					{
+						tokens.Dequeue();
+						return;
+					}
+
+					exp.Add(ParseAnyExpression(tokens, context, expToken => SubCondition(expToken) && expToken.TokenType != ExpressionTokenType.ArgumentSeperator));
 				});
 
 				tokens.TryDequeue(() =>
@@ -460,8 +467,7 @@ namespace Morestachio.Framework.Expression.Parser
 
 						var leftExpression = parentBracket.Expressions.Last();
 						parentBracket.Expressions.Remove(leftExpression);
-						parentBracket.Expressions.Add(
-							operat = new MorestachioOperatorExpression(op, leftExpression, leftExpression.Location));
+						parentBracket.Expressions.Add(operat = new MorestachioOperatorExpression(op, leftExpression, leftExpression.Location));
 					}
 					else if (topParent is MorestachioExpression exp)
 					{
@@ -520,6 +526,110 @@ namespace Morestachio.Framework.Expression.Parser
 				}
 			}
 
+			void ParseAndAddLambdaOperator(LambdaExpressionToken token)
+			{
+				void ValidateArgumentItem(MorestachioExpression argument)
+				{
+					if (argument.FormatterName != null || !argument.PathParts.HasValue || argument.PathParts.Count > 1 || argument.PathParts.Current.Value != PathType.DataPath)
+					{
+						
+						var visitor = new ToParsableStringExpressionVisitor();
+						argument.Accept(visitor);
+						tokens.SyntaxError(context,
+							token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
+								tokens.SourceExpression)), $"The argument {visitor.StringBuilder.ToString()} is not in the correct format only single names without special characters and without path are supported");
+					}
+				}
+
+				void ValidateArgumentItemOrList(IMorestachioExpression argument)
+				{
+					if (argument is MorestachioBracketExpression bracket)
+					{
+						foreach (var morestachioExpression in bracket.Expressions)
+						{
+							if (morestachioExpression is MorestachioExpression exp)
+							{
+								ValidateArgumentItem(exp);
+							}
+							else
+							{
+								var visitor = new ToParsableStringExpressionVisitor();
+								morestachioExpression.Accept(visitor);
+								tokens.SyntaxError(context,
+									token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
+										tokens.SourceExpression)), $"The argument {visitor.StringBuilder.ToString()} is not in the correct format only single names without special characters and without path are supported");
+							}
+						}
+					}
+					else if (argument is MorestachioExpression exp)
+					{
+						ValidateArgumentItem(exp);
+					}
+					else
+					{
+						var visitor = new ToParsableStringExpressionVisitor();
+						argument.Accept(visitor);
+						tokens.SyntaxError(context,
+							token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
+								tokens.SourceExpression)), $"The argument {visitor.StringBuilder.ToString()} is not in the correct format only single names without special characters and without path are supported");
+
+					}
+				}
+
+				MorestachioLambdaExpression lambdaExpression;
+				if (topParent is MorestachioMultiPartExpressionList parentBracket)
+				{
+					if (parentBracket.Expressions.Count == 0)
+					{
+						tokens.SyntaxError(context,
+							token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
+								tokens.SourceExpression)), "Invalid use of lambda operator without an list of parameters to its left");
+						return;
+					}
+
+					var leftExpression = parentBracket.Expressions.Last();
+					ValidateArgumentItemOrList(leftExpression);
+					parentBracket.Expressions.Remove(leftExpression);
+					parentBracket.Expressions.Add(lambdaExpression = new MorestachioLambdaExpression(leftExpression, leftExpression.Location));
+				}
+				else if (topParent is MorestachioExpression exp)
+				{
+					if (exp.Formats.Count == 0)
+					{
+						tokens.SyntaxError(context,
+							token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
+								tokens.SourceExpression)), "Invalid use of lambda operator without an list of parameters to its left");
+						return;
+					}
+
+					var argExp = exp.Formats.Last().MorestachioExpression;
+					ValidateArgumentItemOrList(argExp);
+					exp.Formats.Last().MorestachioExpression = lambdaExpression = new MorestachioLambdaExpression(argExp, argExp.Location);
+				}
+				else
+				{
+					tokens.SyntaxError(context,
+						token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
+							tokens.SourceExpression)), "Invalid use of a Lambda expression. A Lambda expression can only be used as an argument for an Formatter");
+					return;
+				}
+
+				if (tokens.Count == 0)
+				{
+					tokens.SyntaxError(context,
+						token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
+							tokens.SourceExpression)), "Expected a 2nd expression for the used binary operator");
+					return;
+				}
+						
+				//AddToParent(lambdaExpression);
+				var operatRightExpression = ParseAnyExpression(tokens, context, subToken =>
+				{
+					return condition(subToken);
+				});
+				lambdaExpression.Expression = operatRightExpression;
+			}
+
 			bool LoopExpressions(IExpressionToken token)
 			{
 				switch (token.TokenType)
@@ -538,6 +648,9 @@ namespace Morestachio.Framework.Expression.Parser
 						break;
 					case ExpressionTokenType.Operator:
 						ParseAndAddOperator((OperatorToken)token);
+						break;
+					case ExpressionTokenType.LambdaOperator:
+						ParseAndAddLambdaOperator((LambdaExpressionToken)token);
 						break;
 					case ExpressionTokenType.ArgumentSeperator:
 					default:

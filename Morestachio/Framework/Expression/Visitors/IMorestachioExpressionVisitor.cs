@@ -43,5 +43,10 @@
 		///		Visits an Operator
 		/// </summary>
 		void Visit(MorestachioOperatorExpression expression);
+
+		/// <summary>
+		///		Visits an Operator
+		/// </summary>
+		void Visit(MorestachioLambdaExpression expression);
 	}
 }

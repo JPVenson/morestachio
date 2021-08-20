@@ -26,7 +26,7 @@ namespace Morestachio.Framework.Expression
 	{
 		internal MorestachioExpressionListBase()
 		{
-			
+
 		}
 
 		/// <summary>
@@ -146,7 +146,7 @@ namespace Morestachio.Framework.Expression
 		{
 			return false;
 		}
-		
+
 		/// <inheritdoc />
 		public object GetCompileTimeValue()
 		{
@@ -234,7 +234,12 @@ namespace Morestachio.Framework.Expression
 
 			public string Expression
 			{
-				get { return _exp.ToString(); }
+				get
+				{
+					var visitor = new ToParsableStringExpressionVisitor();
+					_exp.Accept(visitor);
+					return visitor.StringBuilder.ToString();
+				}
 			}
 
 			/// <inheritdoc />
