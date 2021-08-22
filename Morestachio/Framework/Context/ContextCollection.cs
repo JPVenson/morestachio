@@ -49,36 +49,5 @@ namespace Morestachio.Framework.Context
 			yield return new KeyValuePair<string, Func<ContextCollection, object>>("$odd", context => context.Index % 2 != 0);
 			yield return new KeyValuePair<string, Func<ContextCollection, object>>("$even", context => context.Index % 2 == 0);
 		}
-
-		///// <inheritdoc />
-		//public override ContextObject GetContextVariable(string path)
-		//{
-		//	object value = null;
-		//	if (path.Equals("$first"))
-		//	{
-		//		value = Index == 0;
-		//	}
-		//	else if (path.Equals("$index"))
-		//	{
-		//		value = Index;
-		//	}
-		//	else if (path.Equals("$middel"))
-		//	{
-		//		value = Index != 0 && !Last;
-		//	}
-		//	else if (path.Equals("$last"))
-		//	{
-		//		value = Last;
-		//	}
-		//	else if (path.Equals("$odd"))
-		//	{
-		//		value = Index % 2 != 0;
-		//	}
-		//	else if (path.Equals("$even"))
-		//	{
-		//		value = Index % 2 == 0;
-		//	}
-		//	return value == null ? null : Options.CreateContextObject(path, CancellationToken, value, this);
-		//}
 	}
 }

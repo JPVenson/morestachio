@@ -602,6 +602,7 @@ namespace Morestachio.Framework.Tokenizing
 					else if (StartsWith(trimmedToken, "#while "))
 					{
 						var token = TrimToken(trimmedToken, "while");
+						TryParseStringOption(ref token, GetAsKeyword(), out var alias);
 
 						scopestack.Push(new ScopeStackItem(TokenType.WhileLoopOpen, token, match.Index));
 
@@ -615,6 +616,13 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							context.Errors.Add(new InvalidPathSyntaxError(context.CurrentLocation
 								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), ""));
+						}
+
+						if (!string.IsNullOrWhiteSpace(alias))
+						{
+							context.AdvanceLocation("each ".Length + alias.Length);
+							tokens.Add(new TokenPair(TokenType.Alias, alias,
+								context.CurrentLocation));
 						}
 					}
 					else if (trimmedToken.Equals("/while", StringComparison.OrdinalIgnoreCase))
@@ -634,6 +642,8 @@ namespace Morestachio.Framework.Tokenizing
 					else if (StartsWith(trimmedToken, "#do "))
 					{
 						var token = TrimToken(trimmedToken, "do");
+						TryParseStringOption(ref token, GetAsKeyword(), out var alias);
+
 						scopestack.Push(new ScopeStackItem(TokenType.DoLoopOpen, token, match.Index));
 
 						if (token.Trim() != "")
@@ -646,6 +656,13 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							context.Errors.Add(new InvalidPathSyntaxError(context.CurrentLocation
 								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), ""));
+						}
+
+						if (!string.IsNullOrWhiteSpace(alias))
+						{
+							context.AdvanceLocation("each ".Length + alias.Length);
+							tokens.Add(new TokenPair(TokenType.Alias, alias,
+								context.CurrentLocation));
 						}
 					}
 					else if (trimmedToken.Equals("/do", StringComparison.OrdinalIgnoreCase))
@@ -665,6 +682,8 @@ namespace Morestachio.Framework.Tokenizing
 					else if (StartsWith(trimmedToken, "#repeat "))
 					{
 						var token = TrimToken(trimmedToken, "repeat");
+						TryParseStringOption(ref token, GetAsKeyword(), out var alias);
+
 						scopestack.Push(new ScopeStackItem(TokenType.RepeatLoopOpen, token, match.Index));
 
 						if (token.Trim() != "")
@@ -677,6 +696,13 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							context.Errors.Add(new InvalidPathSyntaxError(context.CurrentLocation
 								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), ""));
+						}
+
+						if (!string.IsNullOrWhiteSpace(alias))
+						{
+							context.AdvanceLocation("each ".Length + alias.Length);
+							tokens.Add(new TokenPair(TokenType.Alias, alias,
+								context.CurrentLocation));
 						}
 					}
 					else if (trimmedToken.Equals("/repeat", StringComparison.OrdinalIgnoreCase))

@@ -85,8 +85,7 @@ namespace Morestachio.Document.Items
 				var nr = new Number(c.Value as IConvertible);
 				for (int i = 0; i < nr; i++)
 				{
-					var contextCollection = new ContextCollection(i, i + 1 == nr, $"[{i}]", context,
-						context.Value);
+					var contextCollection = new ContextCollection(i, i + 1 == nr, $"[{i}]", context, context.Value);
 					await children(stream, contextCollection, scopeData);
 				}
 			};
@@ -99,7 +98,7 @@ namespace Morestachio.Document.Items
 
 			if (!c.Exists())
 			{
-				return new DocumentItemExecution[0];
+				return Array.Empty<DocumentItemExecution>();
 			}
 
 			if (!(Number.IsIntegralNumber(c.Value)))

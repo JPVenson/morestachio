@@ -1607,6 +1607,25 @@ namespace Morestachio.Tests
 			Assert.That(result, Is.EqualTo("0,1,2,3,4,"));
 		}
 
+		[Test]
+		public async Task TestRepeatInnerLoopContext()
+		{
+			var template = 
+@"{{#REPEAT 2}}
+{{--| $index}}(
+{{--| #REPEAT 3}}
+{{--| $index}},
+{{--| /REPEAT}})
+{{--| /REPEAT}}";
+			var data = new Dictionary<string, object> { };
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.Formatters.AddFromType(typeof(EqualityFormatter));
+			});
+			Assert.That(result, Is.EqualTo("0(0,1,2,)1(0,1,2,)"));
+		}
+
 
 		[Test]
 		public async Task TestWhileLoopContext()
