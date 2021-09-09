@@ -18,8 +18,8 @@ using Morestachio.TemplateContainers;
 using MorestachioDocumentInfoPromise = System.Threading.Tasks.ValueTask<Morestachio.MorestachioDocumentInfo>;
 #else
 using MorestachioDocumentInfoPromise = System.Threading.Tasks.Task<Morestachio.MorestachioDocumentInfo>;
-#endif
-
+#endif 
+   
 namespace Morestachio
 {
 	/// <summary>
@@ -78,7 +78,7 @@ namespace Morestachio
 		public static MorestachioDocumentInfo ParseWithOptions(ParserOptions parsingOptions)
 		{
 			return ParseWithOptionsAsync(parsingOptions).Result;
-		}
+		} 
 
 		/// <summary>
 		///     Parses the Tokens into a Document.
@@ -142,8 +142,8 @@ namespace Morestachio
 
 				// remove the last document from the stack and go back to the parents
 				documentScopes.Pop();
-			}
-
+			} 
+			   
 			foreach (var currentToken in tokenizerResult)
 			{
 				var currentDocumentItem = buildStack.Peek(); //get the latest document
@@ -219,7 +219,7 @@ namespace Morestachio
 					if (currentDocumentItem.Document is IfExpressionScopeDocumentItem ifDocument)
 					{
 						ifDocument.Add(nestedDocument);
-					}
+					}  
 				}
 				else if (currentToken.Type.Equals(TokenType.ElseIf))
 				{

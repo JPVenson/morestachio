@@ -210,7 +210,7 @@ namespace Morestachio.Formatter.Predefined.Accounting
 		/// <inheritdoc />
 		public string ToString(string format, IFormatProvider formatProvider)
 		{
-			return Currency.ToString(this.Value.ToString(formatProvider), formatProvider);
+			return Currency.ToString(this.Value.ToString("F2", formatProvider), formatProvider);
 		}
 
 		/// <inheritdoc />

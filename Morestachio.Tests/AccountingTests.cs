@@ -23,18 +23,18 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
-		[TestCase(590, 60, MoneyChargeRate.PerHour, 19, "¤702.10")]
-		[TestCase(590, 60, MoneyChargeRate.PerMinute, 19, "¤42,126.00")]
-		[TestCase(590, 60, MoneyChargeRate.PerQuarterHour, 19, "¤2,808.40")]
-		[TestCase(590, 60, MoneyChargeRate.PerHalfHour, 19, "¤1,404.20")]
-		[TestCase(590, 60, MoneyChargeRate.PerDay, 19, "¤29.25")]
-		[TestCase(590, 60, MoneyChargeRate.PerStartedHour, 19, "¤714.00")]
+		[TestCase(590, 60, MoneyChargeRate.PerHour, 19, "702.10¤")]
+		[TestCase(590, 60, MoneyChargeRate.PerMinute, 19, "42,126.00¤")]
+		[TestCase(590, 60, MoneyChargeRate.PerQuarterHour, 19, "2,808.40¤")]
+		[TestCase(590, 60, MoneyChargeRate.PerHalfHour, 19, "1,404.20¤")]
+		[TestCase(590, 60, MoneyChargeRate.PerDay, 19, "29.25¤")]
+		[TestCase(590, 60, MoneyChargeRate.PerStartedHour, 19, "714.00¤")]
 		public void TestMoneyCanAddAndFormatAsTime(double worktime, double value, MoneyChargeRate chargeRate, double tax, string expected)
 		{
 			var wt = new Worktime(worktime, WorktimePrecision.Minutes);
 			var money = Money.Get(wt, value, chargeRate);
 			var taxValue = money.GetTax(tax);
-			money = money.Add(taxValue);
+			money = money.Add(taxValue).CommercialRound();
 			Assert.That(money.ToString(null, CultureInfo.InvariantCulture), Is.EqualTo(expected));
 		}
 
