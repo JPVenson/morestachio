@@ -13,7 +13,7 @@ namespace Morestachio.Document.Items.Base
 	/// <summary>
 	///		Defines a Document item that contains an opening tag and an closing tag
 	/// </summary>
-	public abstract class BlockDocumentItemBase : DocumentItemBase, IBlockDocumentItem, IEquatable<BlockDocumentItemBase>
+	public abstract class BlockDocumentItemBase : DocumentItemBase, IBlockDocumentItem, IEquatable<BlockDocumentItemBase>, IReportUsage
 	{
 		internal BlockDocumentItemBase()
 		{
@@ -153,6 +153,15 @@ namespace Morestachio.Document.Items.Base
 				hashCode = (hashCode * 397) ^ (Children.Any() ? Children.Select(f => f.GetHashCode()).Aggregate((e, f) => e ^ f) : 0);
 				hashCode = (hashCode * 397) ^ (BlockClosingOptions.Any() ? BlockClosingOptions.Select(f => f.GetHashCode()).Aggregate((e, f) => e ^ f) : 0);
 				return hashCode;
+			}
+		}
+
+		/// <inheritdoc />
+		public virtual IEnumerable<string> Usage(UsageData data)
+		{
+			foreach (var reportUsage in Children.OfType<IReportUsage>().SelectMany(f => f.Usage(data)))
+			{
+				yield return reportUsage;
 			}
 		}
 	}

@@ -49,4 +49,79 @@
 		/// </summary>
 		void Visit(MorestachioLambdaExpression expression);
 	}
+
+	/// <summary>
+	///		Base class for visiting expressions
+	/// </summary>
+	public class MorestachioExpressionVisitorBase : IMorestachioExpressionVisitor
+	{
+		/// <inheritdoc />
+		public virtual void Visit(MorestachioExpression expression)
+		{
+			foreach (var expressionArgument in expression.Formats)
+			{
+				this.Visit(expressionArgument);
+			}
+		}
+		
+		/// <inheritdoc />
+		public virtual void Visit(MorestachioArgumentExpressionList expression)
+		{
+			foreach (var expressionArgument in expression.Expressions)
+			{
+				this.Visit(expressionArgument);
+			}
+		}
+		
+		/// <inheritdoc />
+		public virtual void Visit(MorestachioBracketExpression expression)
+		{
+			foreach (var expressionArgument in expression.Expressions)
+			{
+				this.Visit(expressionArgument);
+			}
+		}
+		
+		/// <inheritdoc />
+		public virtual void Visit(MorestachioMultiPartExpressionList expression)
+		{
+			foreach (var expressionArgument in expression.Expressions)
+			{
+				this.Visit(expressionArgument);
+			}
+		}
+		
+		/// <inheritdoc />
+		public virtual void Visit(MorestachioExpressionString expression)
+		{
+		}
+		
+		/// <inheritdoc />
+		public virtual void Visit(ExpressionArgument expression)
+		{
+			this.Visit(expression.MorestachioExpression);
+		}
+		
+		/// <inheritdoc />
+		public virtual void Visit(MorestachioExpressionNumber expression)
+		{
+		}
+		
+		/// <inheritdoc />
+		public virtual void Visit(MorestachioOperatorExpression expression)
+		{
+			this.Visit(expression.LeftExpression);
+			if (expression.RightExpression != null)
+			{
+				this.Visit(expression.RightExpression);
+			}
+		}
+		
+		/// <inheritdoc />
+		public virtual void Visit(MorestachioLambdaExpression expression)
+		{
+			this.Visit(expression.Expression);
+			this.Visit(expression.Parameters);
+		}
+	}
 }

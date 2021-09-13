@@ -114,5 +114,11 @@ namespace Morestachio.Document.Items
 		{
 			visitor.Visit(this);
 		}
+
+		public override IEnumerable<string> Usage(UsageData data)
+		{
+			data.VariableSource[Value] = data.CurrentPath;
+			return base.Usage(data);
+		}
 	}
 }

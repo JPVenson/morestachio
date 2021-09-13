@@ -82,6 +82,40 @@ namespace Morestachio.Tests
 			Action<MorestachioDocumentResult> documentResultCallback = null,
 			CancellationTokenSource cancellationTokenSource = null)
 		{
+			var document = await CreateWithOptionsStream(template, opt, option, documentCallback);
+			if (document == null)
+			{
+				return null;
+			}
+
+			MorestachioDocumentResult docInfo = null;
+			if (documentResultCallback != null)
+			{
+				docInfo = await document.CreateRenderer().RenderAsync(data, CancellationToken.None);
+				documentResultCallback(docInfo);
+			}
+
+			var cToken = cancellationTokenSource?.Token ?? CancellationToken.None;
+
+			if (opt.HasFlag(ParserOptionTypes.UseOnDemandCompile))
+			{
+				docInfo = docInfo ?? await document.CreateRenderer().RenderAsync(data, cToken);
+				return docInfo.Stream;
+			}
+			if (opt.HasFlag(ParserOptionTypes.Precompile))
+			{
+				var compilation = document.CreateCompiledRenderer();
+				return (await compilation.RenderAsync(data, cToken)).Stream;
+			}
+
+			return null;
+		}
+
+		public static async Task<MorestachioDocumentInfo> CreateWithOptionsStream(string template,
+			ParserOptionTypes opt,
+			Action<ParserOptions> option = null,
+			Action<MorestachioDocumentInfo> documentCallback = null)
+		{
 			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding)
 			{
 				Logger = !opt.HasFlag(ParserOptionTypes.NoLoggingTest) ? new TestLogger() : null,
@@ -97,6 +131,7 @@ namespace Morestachio.Tests
 
 				TestLocationsInOrder(document);
 			}
+
 			documentCallback?.Invoke(document);
 			if (document.Document == null)
 			{
@@ -106,29 +141,11 @@ namespace Morestachio.Tests
 					morestachioError.Format(sb);
 					TestContext.Error.WriteLine(sb.ToString());
 				}
+
 				return null;
 			}
-			MorestachioDocumentResult docInfo = null;
-			if (documentResultCallback != null)
-			{
-				docInfo = await document.CreateAsync(data);
-				documentResultCallback(docInfo);
-			}
 
-			var cToken = cancellationTokenSource?.Token ?? CancellationToken.None;
-
-			if (opt.HasFlag(ParserOptionTypes.UseOnDemandCompile))
-			{
-				docInfo = docInfo ?? await document.CreateAsync(data, cToken);
-				return docInfo.Stream;
-			}
-			if (opt.HasFlag(ParserOptionTypes.Precompile))
-			{
-				var compilation = document.Compile();
-				return (await compilation(data, cToken)).Stream;
-			}
-
-			return null;
+			return document;
 		}
 
 		public static void TestLocationsInOrder(MorestachioDocumentInfo documentInfo)

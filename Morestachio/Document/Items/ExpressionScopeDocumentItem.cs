@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using Morestachio.Analyzer.DataAccess;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
@@ -73,10 +74,34 @@ namespace Morestachio.Document.Items
 
 			return Enumerable.Empty<DocumentItemExecution>();
 		}
+
 		/// <inheritdoc />
 		public override void Accept(IDocumentItemVisitor visitor)
 		{
 			visitor.Visit(this);
+		}
+
+		/// <inheritdoc />
+		public override IEnumerable<string> Usage(UsageData data)
+		{
+			var path = MorestachioExpression.InferExpressionUsage(data).ToArray();
+			var mainPath = path.FirstOrDefault();
+			if (mainPath != null)
+			{
+				mainPath = mainPath.TrimEnd('.') + ".";
+				data.ScopeTo(mainPath);
+			}
+
+			foreach (var usage in path)
+			{
+				yield return usage;
+			}
+
+			foreach (var usage in Children.OfType<IReportUsage>().SelectMany(f => f.Usage(data)))
+			{
+				yield return usage;
+			}
+			data.PopScope(mainPath);
 		}
 	}
 }

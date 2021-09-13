@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml;
+using Morestachio.Analyzer.DataAccess;
+using Morestachio.Document.Contracts;
 using Morestachio.Framework;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Parser;
@@ -109,6 +111,20 @@ namespace Morestachio.Document.Items.Base
 			var hashCode = base.GetHashCode();
 			hashCode = (hashCode * 397) ^ MorestachioExpression.GetHashCode();
 			return hashCode;
+		}
+
+		/// <inheritdoc />
+		public override IEnumerable<string> Usage(UsageData data)
+		{
+			foreach (var usage in MorestachioExpression.InferExpressionUsage(data))
+			{
+				yield return usage;
+			}
+
+			foreach (var usage in base.Usage(data))
+			{
+				yield return usage;
+			}
 		}
 	}
 }

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml;
+using Morestachio.Analyzer.DataAccess;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
@@ -134,6 +135,20 @@ namespace Morestachio.Document.Items
 		public override void Accept(IDocumentItemVisitor visitor)
 		{
 			visitor.Visit(this);
+		}
+
+		/// <inheritdoc />
+		public override IEnumerable<string> Usage(UsageData data)
+		{
+			var exp = MorestachioExpression.InferExpressionUsage(data).ToArray();
+			var mainExp = exp.FirstOrDefault();
+
+			foreach (var part in exp)
+			{
+				yield return part;
+			}
+
+			data.VariableSource[Value] = mainExp;
 		}
 	}
 
