@@ -80,6 +80,6 @@ namespace Morestachio.Formatter.Framework
 		/// <param name="method"></param>
 		/// <param name="morestachioFormatterAttribute"></param>
 		/// <returns></returns>
-		MorestachioFormatterModel Add(MethodInfo method, MorestachioFormatterAttribute morestachioFormatterAttribute);
+		MorestachioFormatterModel Add(MethodInfo method, IMorestachioFormatterDescriptor morestachioFormatterAttribute);
 	}
 }

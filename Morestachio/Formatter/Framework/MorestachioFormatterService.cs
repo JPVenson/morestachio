@@ -170,8 +170,7 @@ namespace Morestachio.Formatter.Framework
 		}
 
 		/// <inheritdoc />
-		public virtual MorestachioFormatterModel Add(MethodInfo method,
-			MorestachioFormatterAttribute morestachioFormatterAttribute)
+		public virtual MorestachioFormatterModel Add(MethodInfo method, IMorestachioFormatterDescriptor morestachioFormatterAttribute)
 		{
 			morestachioFormatterAttribute.ValidateFormatter(method);
 			var arguments = morestachioFormatterAttribute.GetParameters(method);
@@ -320,7 +319,7 @@ namespace Morestachio.Formatter.Framework
 				var method = formatter.TestedTypes.PrepareInvoke(mappedValues);
 
 				if (formatter.Model.LinkFunctionTarget && !method.IsStatic &&
-					method.DeclaringType == sourceValue.GetType())
+				    method.DeclaringType.IsInstanceOfType(sourceValue))
 				{
 					functionTarget = sourceValue;
 				}

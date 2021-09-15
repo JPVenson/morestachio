@@ -6,10 +6,51 @@ using Morestachio.Formatter.Framework.Attributes;
 
 namespace Morestachio.Formatter.Framework
 {
+	public static class MorestachioFormatterServiceFassadeExtensions
+	{
+		public static FormatterServiceAddFassade AddForType(this IMorestachioFormatterService service, Type type)
+		{
+			return new FormatterServiceAddFassade(type, service);
+		}
+	}
+
+	public class FormatterServiceAddFassade
+	{
+		private readonly Type _type;
+		private readonly IMorestachioFormatterService _morestachioFormatterService;
+
+		internal FormatterServiceAddFassade(Type type, IMorestachioFormatterService morestachioFormatterService)
+		{
+			_type = type;
+			_morestachioFormatterService = morestachioFormatterService;
+		}
+
+		public FormatterServiceAddFassade AllowMethod(string methodName, IMorestachioFormatterDescriptor formatterDescriptor)
+		{
+			var method = _type.GetMethod(methodName);
+			if (method == null)
+			{
+				throw new InvalidOperationException($"The method '{_type}.{methodName}' could not be found.");
+			}
+
+			return AllowMethod(method, formatterDescriptor);
+		}
+		
+		public FormatterServiceAddFassade AllowMethod(MethodInfo methodName, IMorestachioFormatterDescriptor formatterDescriptor)
+		{
+			if (methodName == null)
+			{
+				throw new ArgumentNullException(nameof(methodName));
+			}
+
+			_morestachioFormatterService.Add(methodName, formatterDescriptor);
+			return this;
+		}
+	}
+
 	/// <summary>
 	///		Add Extensions for easy runtime added Functions
 	/// </summary>
-
 	public static class MorestachioFormatterServiceExtensions
 	{
 		/// <summary>
