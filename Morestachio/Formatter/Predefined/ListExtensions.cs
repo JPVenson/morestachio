@@ -140,7 +140,7 @@ namespace Morestachio.Formatter.Predefined
 		}
 
 		[MorestachioFormatter("GroupBy", "Groups a list")]
-		public static IEnumerable<IGrouping<TE, T>> GroupBy<T, TE>(IOrderedEnumerable<T> items, MorestachioTemplateExpression expression)
+		public static IEnumerable<IGrouping<TE, T>> GroupBy<T, TE>(IEnumerable<T> items, MorestachioTemplateExpression expression)
 		{
 			return items.GroupBy(expression.AsFunc<T, TE>());
 		}

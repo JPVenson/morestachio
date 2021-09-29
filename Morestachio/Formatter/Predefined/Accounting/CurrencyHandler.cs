@@ -16,7 +16,19 @@ namespace Morestachio.Formatter.Predefined.Accounting
 			DefaultHandler = new CurrencyHandler();
 			DefaultHandler.Currencies = CultureInfo.GetCultures(CultureTypes.SpecificCultures)
 				.GroupBy(e => e.LCID)
-				.Select(f => new RegionInfo(f.Key))
+				.Select(f =>
+				{
+					//this has to be tried because in some systems we can get invalid regions
+					try
+					{
+						return new RegionInfo(f.Key);
+					}
+					catch (Exception e)
+					{
+						return null;
+					}
+				})
+				.Where(e => e != null)
 				.GroupBy(e => e.CurrencyEnglishName)
 				.Select(f => f.First()).ToDictionary(e => e.ISOCurrencySymbol, e => new Currency(e.CurrencySymbol, e.ISOCurrencySymbol));
 		}
