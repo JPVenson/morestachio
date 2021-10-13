@@ -44,7 +44,7 @@ namespace Morestachio.Formatter.Framework.Attributes
 		/// <inheritdoc />
 		public virtual string GetFormatterName(MethodInfo method)
 		{
-			return Name
+			return Name?
 				.Replace("[MethodName]", method?.Name);
 		}
 
