@@ -97,19 +97,19 @@ namespace Morestachio.Formatter.Framework
 			defaultFormatter.AddFromType(typeof(CurrencyConversion));
 			defaultFormatter.AddFromType(typeof(HtmlFormatter));
 			defaultFormatter.AddFromType(typeof(LoggingFormatter));
-			
+
 			defaultFormatter.AddService(typeof(CryptService), new CryptService());
 			defaultFormatter.AddFromType<IMorestachioCryptographyService>();
 			defaultFormatter.AddFromType<AesCryptography>();
-			
+
 			defaultFormatter.AddService(typeof(HashService), new HashService());
 			defaultFormatter.AddFromType(typeof(HashAlgorithm));
-			
+
 			defaultFormatter.Constants.Add("Encoding", typeof(EncodingConstant));
 			defaultFormatter.Constants.Add("DateTime", typeof(DateTimeConstant));
 			defaultFormatter.Constants.Add("Currencies", typeof(WellKnownCurrencies));
 			defaultFormatter.Constants.Add("CurrencyHandler", CurrencyHandler.DefaultHandler);
-			
+
 			defaultFormatter.AddFromType(typeof(EncodingConstant));
 			defaultFormatter.AddFromType(typeof(EncoderFallback));
 			defaultFormatter.AddFromType(typeof(DateTimeConstant));
@@ -162,7 +162,7 @@ namespace Morestachio.Formatter.Framework
 		///		Specifies how exceptions should be handled
 		/// </summary>
 		public FormatterServiceExceptionHandling ExceptionHandling { get; set; }
-		
+
 		/// <inheritdoc />
 		public IEnumerable<MorestachioFormatterModel> Filter(Func<MorestachioFormatterModel, bool> filter)
 		{
@@ -174,7 +174,7 @@ namespace Morestachio.Formatter.Framework
 		{
 			morestachioFormatterAttribute.ValidateFormatter(method);
 			var arguments = morestachioFormatterAttribute.GetParameters(method);
-			
+
 			var name = morestachioFormatterAttribute.GetFormatterName(method); ;
 			var morestachioFormatterModel = new MorestachioFormatterModel(name,
 				morestachioFormatterAttribute.Description,
@@ -319,7 +319,7 @@ namespace Morestachio.Formatter.Framework
 				var method = formatter.TestedTypes.PrepareInvoke(mappedValues);
 
 				if (formatter.Model.LinkFunctionTarget && !method.IsStatic &&
-				    method.DeclaringType.IsInstanceOfType(sourceValue))
+					method.DeclaringType.IsInstanceOfType(sourceValue))
 				{
 					functionTarget = sourceValue;
 				}
@@ -353,7 +353,7 @@ namespace Morestachio.Formatter.Framework
 			 string name)
 		{
 			Log(parserOptions, () => $"Lookup formatter for type {typeToFormat} with name {name}", () => arguments.ToDictionary(e => e.Name, e => (object)e));
-			
+
 			if (!Formatters.TryGetValue(name ?? "{NULL}", out var formatters))
 			{
 				Log(parserOptions, () => $"There are no formatters for the name {name}");
@@ -366,8 +366,8 @@ namespace Morestachio.Formatter.Framework
 				Log(parserOptions, () => $"Test formatter input type: '{formatTemplateElement.InputType}' on formatter named '{formatTemplateElement.Function.Name}'");
 
 				//this checks only for source type equality
-				if (formatTemplateElement.InputType != typeToFormat 
-				    && !formatTemplateElement.InputType.GetTypeInfo().IsAssignableFrom(typeToFormat))
+				if (formatTemplateElement.InputType != typeToFormat
+					&& !formatTemplateElement.InputType.GetTypeInfo().IsAssignableFrom(typeToFormat))
 				{
 					if (ValueConverter.All(e => !e.CanConvert(typeToFormat, formatTemplateElement.InputType)))
 					{
@@ -515,6 +515,111 @@ namespace Morestachio.Formatter.Framework
 			return PrepareMakeGenericMethodInfoByValues(methodInfo, namedParameter.Select(f => f.GetType()).ToArray());
 		}
 
+		public static MethodInfo MakeGenericMethod(MethodInfo method, Type[] givenTypes)
+		{
+			var generics = new List<Type>();
+			var arguments = method.GetParameters().Zip(givenTypes, Tuple.Create).ToArray();
+			var genericArguments = method.GetGenericArguments();
+			foreach (var genericArgument in genericArguments)
+			{
+				var directlyFromParameter = arguments
+					.Where(e => e.Item1.ParameterType.IsGenericParameter)
+					.FirstOrDefault(e => e.Item1.ParameterType == genericArgument);
+				if (directlyFromParameter != null)
+				{
+					//The parameter is a generic type
+					generics.Add(directlyFromParameter.Item2);
+					continue;
+				}
+
+				var nestedGeneric = arguments.Select(e => GetGenericTypeLookup(e.Item1.ParameterType, e.Item2, genericArgument)).FirstOrDefault();
+				if (nestedGeneric != null)
+				{
+					generics.Add(nestedGeneric);
+					continue;
+				}
+
+				var returnGeneric = GetGenericTypeLookup(method.ReturnType, method.ReturnType, genericArgument);
+				if (method.ReturnType == genericArgument || returnGeneric != null)
+				{
+					generics.Add(typeof(object));
+					continue;
+				}
+
+				return null;
+			}
+
+			return method.MakeGenericMethod(generics.ToArray());
+		}
+
+		private static Type GetGenericTypeLookup(Type declaredType, Type realType, Type genericArgument)
+		{
+			//examine the generic arguments and check that they both declare the same amount of generics
+			var paramGenerics = declaredType.GetGenericArguments();
+			var sourceGenerics = realType.GetGenericArguments();
+			if (paramGenerics.Length != sourceGenerics.Length)
+			{
+				//in the special case that we need to assign a IEnumerable from an Array we have make this workaround
+				var genericTypeDefinition = declaredType.GetGenericTypeDefinition();
+				if (genericTypeDefinition == typeof(IEnumerable<>) && realType.IsArray && paramGenerics[0] == genericArgument)
+				{
+					return realType.GetElementType();
+				}
+
+				return null;
+			}
+
+			//list all arguments of that parameter and try to substitute them
+			//example
+			//void Formatter<T>(IItem<T> item)
+			//we always have an object where we can substitute for example an IItem<T> or an instance of Item where it inherts from Item<T>
+			var argument = new Stack<Tuple<Type, Type>>();
+			for (var index = 0; index < paramGenerics.Length; index++)
+			{
+				var paramGeneric = paramGenerics[index];
+				var sourceGeneric = sourceGenerics[index];
+
+				if (paramGeneric == genericArgument)
+				{
+					return sourceGeneric;
+				}
+
+				argument.Push(new Tuple<Type, Type>(paramGeneric, sourceGeneric));
+			}
+
+			while (argument.Any())
+			{
+				var arg = argument.Pop();
+
+				if (arg.Item1 == genericArgument)
+				{
+					return arg.Item2;
+				}
+
+				var innerParamGenerics = arg.Item1.GetGenericArguments();
+				var innerSourceGenerics = arg.Item2.GetGenericArguments();
+				if (paramGenerics.Length != sourceGenerics.Length)
+				{
+					return null;
+				}
+
+				for (var index = 0; index < innerParamGenerics.Length; index++)
+				{
+					var innerParamGeneric = innerParamGenerics[index];
+					var innerSourceGeneric = innerSourceGenerics[index];
+
+					if (innerParamGeneric == genericArgument)
+					{
+						return innerSourceGeneric;
+					}
+
+					argument.Push(new Tuple<Type, Type>(innerParamGeneric, innerSourceGeneric));
+				}
+			}
+
+			return null;
+		}
+
 		/// <summary>
 		///     Internal use only
 		/// </summary>
@@ -525,21 +630,24 @@ namespace Morestachio.Formatter.Framework
 			 MethodInfo methodInfo,
 			 Type[] namedParameter)
 		{
+			return MakeGenericMethod(methodInfo, namedParameter);
+
 			var generics = new List<Type>();
+			var parameterInfos = methodInfo.GetParameters();
+
 			foreach (var genericArgument in methodInfo.GetGenericArguments())
 			{
 				var found = false;
-				for (var i = 0; i < methodInfo.GetParameters().Length; i++)
+				for (var i = 0; i < parameterInfos.Length; i++)
 				{
-					var parameterInfo = methodInfo.GetParameters()[i];
-					var argument = new Stack<Tuple<Type, Type>>();
+					var parameterInfo = parameterInfos[i];
 					var sourceValueType = namedParameter[i];
-
-					//in case the parameter is an generic argument directly
 
 					if (parameterInfo.ParameterType.IsGenericParameter &&
 						parameterInfo.ParameterType == genericArgument)
 					{
+						//in case the parameter is an generic argument directly
+						//like void Formatter<T>(T item)
 						found = true;
 						generics.Add(sourceValueType);
 						break;
@@ -565,6 +673,11 @@ namespace Morestachio.Formatter.Framework
 						return null;
 					}
 
+					//list all arguments of that parameter and try to substitute them
+					//example
+					//void Formatter<T>(IItem<T> item)
+					//we always have an object where we can substitute for example an IItem<T> or an instance of Item where it inherts from Item<T>
+					var argument = new Stack<Tuple<Type, Type>>();
 					for (var index = 0; index < paramGenerics.Length; index++)
 					{
 						var paramGeneric = paramGenerics[index];
@@ -619,6 +732,13 @@ namespace Morestachio.Formatter.Framework
 
 					if (found)
 					{
+						//the source value does not match any parameter. Maybe its an out generic only
+						//if its an out generic we must replace them with object as we have no way of knowing what type its gonna be
+						if (methodInfo.ReturnType == genericArgument || IsAssignableToGenericType(methodInfo.ReturnType, genericArgument))
+						{
+							generics.Add(typeof(object));
+							continue;
+						}
 						break;
 					}
 				}
@@ -638,7 +758,6 @@ namespace Morestachio.Formatter.Framework
 				return null;
 			}
 		}
-
 
 		/// <summary>
 		///     Composes the values into a Dictionary for each formatter. If returns null, the formatter will not be called.
@@ -723,7 +842,7 @@ namespace Morestachio.Formatter.Framework
 								matched[parameter] = new FormatterArgumentMap(i, index - 1)
 								{
 									ObtainValue = (source, args) => args[index - 1].Value
-								};	
+								};
 							}
 						}
 						else
@@ -746,7 +865,7 @@ namespace Morestachio.Formatter.Framework
 									matched[parameter] = new FormatterArgumentMap(i, index - 1)
 									{
 										ObtainValue = (source, args) => args[index - 1].Value
-									};	
+									};
 								}
 							}
 							else
