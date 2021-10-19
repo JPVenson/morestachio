@@ -515,7 +515,7 @@ namespace Morestachio.Formatter.Framework
 			return PrepareMakeGenericMethodInfoByValues(methodInfo, namedParameter.Select(f => f.GetType()).ToArray());
 		}
 
-		public static MethodInfo MakeGenericMethod(MethodInfo method, Type[] givenTypes)
+		private MethodInfo MakeGenericMethod(MethodInfo method, Type[] givenTypes, ParserOptions parserOptions)
 		{
 			var generics = new List<Type>();
 			var arguments = method.GetParameters().Zip(givenTypes, Tuple.Create).ToArray();
@@ -542,6 +542,7 @@ namespace Morestachio.Formatter.Framework
 				var returnGeneric = GetGenericTypeLookup(method.ReturnType, method.ReturnType, genericArgument);
 				if (method.ReturnType == genericArgument || returnGeneric != null)
 				{
+					Log(parserOptions, () => $"Cannot evaluate generic '{genericArgument}' of method '{method}'. Substitute with typeof(object).");
 					generics.Add(typeof(object));
 					continue;
 				}
@@ -618,145 +619,6 @@ namespace Morestachio.Formatter.Framework
 			}
 
 			return null;
-		}
-
-		/// <summary>
-		///     Internal use only
-		/// </summary>
-		/// <param name="methodInfo"></param>
-		/// <param name="namedParameter"></param>
-		/// <returns></returns>
-		public static MethodInfo PrepareMakeGenericMethodInfoByValues(
-			 MethodInfo methodInfo,
-			 Type[] namedParameter)
-		{
-			return MakeGenericMethod(methodInfo, namedParameter);
-
-			var generics = new List<Type>();
-			var parameterInfos = methodInfo.GetParameters();
-
-			foreach (var genericArgument in methodInfo.GetGenericArguments())
-			{
-				var found = false;
-				for (var i = 0; i < parameterInfos.Length; i++)
-				{
-					var parameterInfo = parameterInfos[i];
-					var sourceValueType = namedParameter[i];
-
-					if (parameterInfo.ParameterType.IsGenericParameter &&
-						parameterInfo.ParameterType == genericArgument)
-					{
-						//in case the parameter is an generic argument directly
-						//like void Formatter<T>(T item)
-						found = true;
-						generics.Add(sourceValueType);
-						break;
-					}
-
-					//this is a hack for T[] to IEnumerable<T> support
-					if (sourceValueType.IsArray &&
-						IsAssignableToGenericType(parameterInfo.ParameterType, typeof(IEnumerable<>)) &&
-						typeof(IEnumerable<>).MakeGenericType(sourceValueType.GetElementType())
-							.IsAssignableFrom(sourceValueType))
-					{
-						found = true;
-						//the source value is an array and the parameter is of type of IEnumerable<>
-						generics.Add(sourceValueType.GetElementType());
-						break;
-					}
-
-					//examine the generic arguments and check that they both declare the same amount of generics
-					var paramGenerics = parameterInfo.ParameterType.GetGenericArguments();
-					var sourceGenerics = sourceValueType.GetGenericArguments();
-					if (paramGenerics.Length != sourceGenerics.Length)
-					{
-						return null;
-					}
-
-					//list all arguments of that parameter and try to substitute them
-					//example
-					//void Formatter<T>(IItem<T> item)
-					//we always have an object where we can substitute for example an IItem<T> or an instance of Item where it inherts from Item<T>
-					var argument = new Stack<Tuple<Type, Type>>();
-					for (var index = 0; index < paramGenerics.Length; index++)
-					{
-						var paramGeneric = paramGenerics[index];
-						var sourceGeneric = sourceGenerics[index];
-
-						if (paramGeneric == genericArgument)
-						{
-							found = true;
-							generics.Add(sourceGeneric);
-							argument.Clear();
-							break;
-						}
-
-						argument.Push(new Tuple<Type, Type>(paramGeneric, sourceGeneric));
-					}
-
-					while (argument.Any())
-					{
-						var arg = argument.Pop();
-
-						if (arg.Item1 == genericArgument)
-						{
-							found = true;
-							generics.Add(arg.Item2);
-							argument.Clear();
-							break;
-						}
-
-						var innerParamGenerics = arg.Item1.GetGenericArguments();
-						var innerSourceGenerics = arg.Item2.GetGenericArguments();
-						if (paramGenerics.Length != sourceGenerics.Length)
-						{
-							return null;
-						}
-
-						for (var index = 0; index < innerParamGenerics.Length; index++)
-						{
-							var innerParamGeneric = innerParamGenerics[index];
-							var innerSourceGeneric = innerSourceGenerics[index];
-
-							if (innerParamGeneric == genericArgument)
-							{
-								found = true;
-								generics.Add(innerSourceGeneric);
-								argument.Clear();
-								break;
-							}
-
-							argument.Push(new Tuple<Type, Type>(innerParamGeneric, innerSourceGeneric));
-						}
-					}
-
-					if (found)
-					{
-						//the source value does not match any parameter. Maybe its an out generic only
-						//if its an out generic we must replace them with object as we have no way of knowing what type its gonna be
-						if (methodInfo.ReturnType == genericArgument || IsAssignableToGenericType(methodInfo.ReturnType, genericArgument))
-						{
-							generics.Add(typeof(object));
-							continue;
-						}
-						break;
-					}
-				}
-
-				if (!found)
-				{
-					return null;
-				}
-			}
-
-			try
-			{
-				return methodInfo.MakeGenericMethod(generics.ToArray());
-			}
-			catch
-			{
-				return null;
-			}
 		}
 
 		/// <summary>
@@ -913,7 +775,14 @@ namespace Morestachio.Formatter.Framework
 			if (method.ContainsGenericParameters)
 			{
 				methodCallback = objects =>
-					PrepareMakeGenericMethodInfoByValues(method, objects);
+				{
+					var types = new Type[objects.Length];
+					for (int i = 0; i < types.Length; i++)
+					{
+						types[i] = objects?.GetType();
+					}
+					return MakeGenericMethod(method, types, parserOptions);
+				};
 			}
 			else
 			{
