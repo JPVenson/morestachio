@@ -254,6 +254,11 @@ namespace Morestachio.Formatter.Framework
 				.Where(e => e != null)
 				.ToArray();
 
+			if (!hasFormatter.Any())
+			{
+				return null;
+			}
+
 			var services = this.Services.CreateChild();
 			services.AddService(parserOptions);
 			services.AddService(scope.Profiler);
@@ -500,19 +505,6 @@ namespace Morestachio.Formatter.Framework
 			}
 
 			return IsAssignableToGenericType(baseType, genericType);
-		}
-
-		/// <summary>
-		///     Internal use only
-		/// </summary>
-		/// <param name="methodInfo"></param>
-		/// <param name="namedParameter"></param>
-		/// <returns></returns>
-		public static MethodInfo PrepareMakeGenericMethodInfoByValues(
-			MethodInfo methodInfo,
-			object[] namedParameter)
-		{
-			return PrepareMakeGenericMethodInfoByValues(methodInfo, namedParameter.Select(f => f.GetType()).ToArray());
 		}
 
 		private MethodInfo MakeGenericMethod(MethodInfo method, Type[] givenTypes, ParserOptions parserOptions)
@@ -779,7 +771,7 @@ namespace Morestachio.Formatter.Framework
 					var types = new Type[objects.Length];
 					for (int i = 0; i < types.Length; i++)
 					{
-						types[i] = objects?.GetType();
+						types[i] = objects[i]?.GetType();
 					}
 					return MakeGenericMethod(method, types, parserOptions);
 				};
