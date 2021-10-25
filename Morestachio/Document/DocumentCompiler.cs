@@ -94,7 +94,7 @@ namespace Morestachio.Document
 					}));
 				}
 			}
-
+			
 			return async (stream, context, data) =>
 			{
 				if (!data.IsOutputLimited)

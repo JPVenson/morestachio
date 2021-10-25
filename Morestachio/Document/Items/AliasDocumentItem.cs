@@ -82,7 +82,7 @@ namespace Morestachio.Document.Items
 		/// <param name="compiler"></param>
 		/// <inheritdoc />
 		public CompilationAsync Compile(IDocumentCompiler compiler)
-		{
+		{			
 			var children = compiler.Compile(Children);
 			return async (stream, context, scopeData) =>
 			{
