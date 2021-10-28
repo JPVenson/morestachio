@@ -1,14 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>
-      net46;
-      net461;
-      net462;
-      net47;
-      net471;
-      net472;
-    </TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net5.0</TargetFrameworks>
     <PackageTags>Formatter, C#, Engine, NetStandard</PackageTags>
     <Description>A powerfull c# infused templating engine.</Description>
     <PackageReleaseNotes>Several Bugfixes and Formatter refactoring</PackageReleaseNotes>
@@ -24,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotlessClientOnly" Version="1.5.2" />
+    <PackageReference Include="dotless.Core" Version="1.6.7" />
   </ItemGroup>
 
   <ItemGroup>

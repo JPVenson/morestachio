@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>Net5.0</TargetFramework>
     <PackageTags>Formatter, C#, Engine, NetStandard, Morestachio</PackageTags>
   </PropertyGroup>
 
