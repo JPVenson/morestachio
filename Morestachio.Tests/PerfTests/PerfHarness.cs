@@ -12,6 +12,7 @@ using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
+using Morestachio.Rendering;
 using NUnit.Framework;
 
 namespace Morestachio.Tests.PerfTests
@@ -192,7 +193,12 @@ namespace Morestachio.Tests.PerfTests
 			TokenizerResult tokenizerResult = null;
 
 			//make sure this class is JIT'd before we start timing.
-			(await Parser.ParseWithOptionsAsync(new ParserOptions("asdf"))).Create(new object()).Stream.Dispose();
+			var morestachioDocumentInfo = await Parser.ParseWithOptionsAsync(new ParserOptions("asdf"));
+			var docRenderer = morestachioDocumentInfo.CreateRenderer();
+			var compRenderer = morestachioDocumentInfo.CreateCompiledRenderer();
+			
+			(await docRenderer.RenderAsync(new object())).Stream.Dispose();
+			(await compRenderer.RenderAsync(new object())).Stream.Dispose();
 
 			var totalTime = Stopwatch.StartNew();
 			var tokenizingTime = Stopwatch.StartNew();
@@ -214,13 +220,12 @@ namespace Morestachio.Tests.PerfTests
 			}
 
 			parseTime.Stop();
-
-			var tmp = await template.CreateAndStringifyAsync(model.Item1);
-
+			
 			var renderTime = Stopwatch.StartNew();
+
 			for (var i = 0; i < runs; i++)
 			{
-				var morestachioDocumentResult = await template.CreateAsync(model.Item1);
+				var morestachioDocumentResult = await docRenderer.RenderAsync(model.Item1);
 				morestachioDocumentResult.Stream.Dispose();
 			}
 
@@ -228,10 +233,9 @@ namespace Morestachio.Tests.PerfTests
 			totalTime.Stop();
 
 			var compileTime = Stopwatch.StartNew();
-			CompilationResult compilationResult = null;
 			for (var i = 0; i < runs; i++)
 			{
-				compilationResult = template.Compile();
+				template.CreateCompiledRenderer();
 			}
 
 			compileTime.Stop();
@@ -239,7 +243,7 @@ namespace Morestachio.Tests.PerfTests
 			var compiledRenderTime = Stopwatch.StartNew();
 			for (var i = 0; i < runs; i++)
 			{
-				var morestachioDocumentResult = await compilationResult(model.Item1, CancellationToken.None);
+				var morestachioDocumentResult = await compRenderer.RenderAsync(model.Item1, CancellationToken.None);
 				morestachioDocumentResult.Stream.Dispose();
 			}
 

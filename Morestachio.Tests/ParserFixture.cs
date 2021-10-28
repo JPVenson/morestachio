@@ -28,6 +28,7 @@ using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.IO;
 using Morestachio.Helper.Logging;
 using Morestachio.Parsing.ParserErrors;
+using Morestachio.Rendering;
 using Morestachio.Tests.SerilalizerTests;
 using Morestachio.Tests.SerilalizerTests.Strategies;
 
@@ -894,7 +895,7 @@ namespace Morestachio.Tests
 			model["name"] = "Mike";
 
 			Assert.That(
-				Parser.ParseWithOptions(new ParserOptions(template, null, DefaultEncoding)).CreateAndStringify(model),
+				Parser.ParseWithOptions(new ParserOptions(template, null, DefaultEncoding)).CreateRenderer().Render(model),
 				Is.EqualTo(expected));
 		}
 

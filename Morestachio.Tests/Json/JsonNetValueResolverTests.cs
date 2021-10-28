@@ -1,4 +1,5 @@
 ﻿using Morestachio.Newtonsoft.Json;
+using Morestachio.Rendering;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
@@ -21,7 +22,7 @@ namespace Morestachio.Tests.Json
 			var options = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
 			options.ValueResolver = new JsonNetValueResolver();
 			var document = Parser.ParseWithOptions(options);
-			Assert.That(document.CreateAndStringify(JsonConvert.DeserializeObject(data)), Is.EqualTo("Test"));
+			Assert.That(document.CreateRenderer().Render(JsonConvert.DeserializeObject(data)), Is.EqualTo("Test"));
 		}
 
 		[Test]
@@ -38,7 +39,7 @@ namespace Morestachio.Tests.Json
 			var options = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
 			options.ValueResolver = new JsonNetValueResolver();
 			var document = Parser.ParseWithOptions(options);
-			Assert.That(document.CreateAndStringify(JsonConvert.DeserializeObject(data)), Is.EqualTo("Test"));
+			Assert.That(document.CreateRenderer().Render(JsonConvert.DeserializeObject(data)), Is.EqualTo("Test"));
 		}
 
 		[Test]
@@ -55,7 +56,7 @@ namespace Morestachio.Tests.Json
 			var options = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
 			options.ValueResolver = new JsonNetValueResolver();
 			var document = Parser.ParseWithOptions(options);
-			Assert.That(document.CreateAndStringify(JsonConvert.DeserializeObject(data)), Is.EqualTo("Test"));
+			Assert.That(document.CreateRenderer().Render(JsonConvert.DeserializeObject(data)), Is.EqualTo("Test"));
 		}
 	}
 }

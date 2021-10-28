@@ -34,7 +34,9 @@ namespace Morestachio.Formatter.Predefined
 				return instance;
 			}
 
-			return new List<object>(toBeAdded);
+			return new ArrayList(toBeAdded);
+
+			//return new List<object>(toBeAdded);
 		}
 
 
@@ -50,9 +52,9 @@ namespace Morestachio.Formatter.Predefined
 		}
 
 		[MorestachioFormatter("Remove", "Removes an element from the SourceCollection")]
-		public static IList<T> Remove<T>(IList<T> sourceCollection, [RestParameter] params object[] toBeAdded)
+		public static IList<T> Remove<T>(IList<T> sourceCollection, [RestParameter] params object[] toBeRemoved)
 		{
-			foreach (T o in toBeAdded)
+			foreach (T o in toBeRemoved)
 			{
 				sourceCollection.Remove(o);
 			}
@@ -78,7 +80,7 @@ namespace Morestachio.Formatter.Predefined
 		}
 
 		[MorestachioGlobalFormatter("ToList", "Gets any number of elements and returns a new list containing those elements")]
-		public static IList<T> RemoveAt<T>(params object[] items)
+		public static IList<T> ToList<T>(params object[] items)
 		{
 			var itemsList = new List<T>();
 			itemsList.AddRange(items.OfType<T>());

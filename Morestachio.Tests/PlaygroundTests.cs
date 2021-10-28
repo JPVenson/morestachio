@@ -14,6 +14,7 @@ using Morestachio.Framework.Expression.Visitors;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
 using Morestachio.Profiler;
+using Morestachio.Rendering;
 using Morestachio.Tests.PerfTests;
 using NUnit.Framework;
 
@@ -188,10 +189,11 @@ namespace Morestachio.Tests
 		[Explicit]
 		public async Task ProfileTest()
 		{
+#pragma warning disable 219
 			string variation = "Template Size";
-			int modelDepth = 5;
-			int sizeOfTemplate = 100000;
-			int inserts = 5;
+			int modelDepth = 100;
+			int sizeOfTemplate = 30000;
+			int inserts = 10;
 			int runs = 1;
 
 			var model = PerfHarness.ConstructModelAndPath(modelDepth);
@@ -204,21 +206,29 @@ namespace Morestachio.Tests
 
 			MorestachioDocumentInfo template = null;
 			TokenizerResult tokenizerResult = null;
+#pragma warning restore 219
 
 			//make sure this class is JIT'd before we start timing.
 			//await Parser.ParseWithOptionsAsync(new ParserOptions("asdf"));
+			
 
-			var totalTime = Stopwatch.StartNew();
-			var tokenizingTime = Stopwatch.StartNew();
-
-			for (var i = 0; i < runs; i++)
+			async Task RunTokenizeing()
 			{
 				var options = new ParserOptions(baseTemplate, () => Stream.Null);
 				var tokenzierContext = new TokenzierContext(new List<int>(), options.CultureInfo);
 				tokenizerResult = await Tokenizer.Tokenize(options, tokenzierContext);
 			}
+			
+			await RunTokenizeing();
+			await RunTokenizeing();
+
+			var totalTime = Stopwatch.StartNew();
+			var tokenizingTime = Stopwatch.StartNew();
+
+			await RunTokenizeing();
 
 			tokenizingTime.Stop();
+			Console.WriteLine("Took " + tokenizingTime.Elapsed);
 
 			//var parseTime = Stopwatch.StartNew();
 			//for (var i = 0; i < runs; i++)
@@ -285,26 +295,26 @@ namespace Morestachio.Tests
 			var parsingOptions = new ParserOptions(TextTemplateMorestachio, null, Encoding.UTF8, true);
 			parsingOptions.ProfileExecution = false;
 			var parsed = await Parser.ParseWithOptionsAsync(parsingOptions);
-			var andStringifyAsync = await parsed.CreateAndStringifyAsync(new
+			var andStringifyAsync = await parsed.CreateRenderer().RenderAndStringifyAsync(new
 			{
 				Products = _products
 			});
 			var runs = 200;
 			for (int i = 0; i < runs / 5; i++)
 			{
-				andStringifyAsync = await parsed.CreateAndStringifyAsync(new
+				andStringifyAsync = await parsed.CreateRenderer().RenderAndStringifyAsync(new
 				{
 					Products = _products
 				});
 			}
 
-			var compiled = parsed.Compile();
+			var compiled = parsed.CreateCompiledRenderer();
 
 			var sw = new Stopwatches();
 			for (int i = 0; i < runs; i++)
 			{
 				sw.Start();
-				await compiled(new
+				await compiled.RenderAsync(new
 				{
 					Products = _products
 				}, CancellationToken.None);
@@ -330,76 +340,76 @@ namespace Morestachio.Tests
 			//PrintPerformanceGroup(profiler.SelectMany(f => f.))
 		}
 
-		[Test]
-		[Explicit]
-		[Repeat(5)]
-		public async Task PerformanceCompiledDebuggerTest()
-		{
-			var _products = new List<object>(500);
-			for (int i = 0; i < 500; i++)
-			{
-				//_products.Add(new Dictionary<string, object>()
-				//{
-				//	{"Name", "Name" + i},
-				//	{"Price", i},
-				//	{"Description", Lorem},
-				//});
-				_products.Add(new Product()
-				{
-					Name = "Name" + i,
-					Price = i,
-					Description = Lorem
-				});
-			}
+//		[Test]
+//		[Explicit]
+//		[Repeat(5)]
+//		public async Task PerformanceCompiledDebuggerTest()
+//		{
+//			var _products = new List<object>(500);
+//			for (int i = 0; i < 500; i++)
+//			{
+//				//_products.Add(new Dictionary<string, object>()
+//				//{
+//				//	{"Name", "Name" + i},
+//				//	{"Price", i},
+//				//	{"Description", Lorem},
+//				//});
+//				_products.Add(new Product()
+//				{
+//					Name = "Name" + i,
+//					Price = i,
+//					Description = Lorem
+//				});
+//			}
 
-			var parsingOptions = new ParserOptions(TextTemplateMorestachio, null, Encoding.UTF8, true);
-			parsingOptions.ProfileExecution = false;
-			var parsed = await Parser.ParseWithOptionsAsync(parsingOptions);
-			var andStringifyAsync = await parsed.CreateAndStringifyAsync(new
-			{
-				Products = _products
-			});
-			var runs = 200;
-			for (int i = 0; i < runs / 5; i++)
-			{
-				andStringifyAsync = await parsed.CreateAndStringifyAsync(new
-				{
-					Products = _products
-				});
-			}
+//			var parsingOptions = new ParserOptions(TextTemplateMorestachio, null, Encoding.UTF8, true);
+//			parsingOptions.ProfileExecution = false;
+//			var parsed = await Parser.ParseWithOptionsAsync(parsingOptions);
+//			var andStringifyAsync = await parsed.CreateAndStringifyAsync(new
+//			{
+//				Products = _products
+//			});
+//			var runs = 200;
+//			for (int i = 0; i < runs / 5; i++)
+//			{
+//				andStringifyAsync = await parsed.CreateAndStringifyAsync(new
+//				{
+//					Products = _products
+//				});
+//			}
 
-			var compiled = parsed.Compile();
+//			var compiled = parsed.Compile();
 
-			var sw = new Stopwatches();
-			for (int i = 0; i < runs; i++)
-			{
-				sw.Start();
-				await compiled(new
-				{
-					Products = _products
-				}, CancellationToken.None);
-				//var f = await parsed.CreateAsync(new
-				//{
-				//	Products = _products
-				//});
-				sw.Stop();
-			}
+//			var sw = new Stopwatches();
+//			for (int i = 0; i < runs; i++)
+//			{
+//				sw.Start();
+//				await compiled(new
+//				{
+//					Products = _products
+//				}, CancellationToken.None);
+//				//var f = await parsed.CreateAsync(new
+//				//{
+//				//	Products = _products
+//				//});
+//				sw.Stop();
+//			}
 
 
-			var swElapsed = sw.Elapsed;
-			Console.WriteLine("Done in: "
-							  + HumanizeTimespan(swElapsed)
-							  + " thats "
-							  + HumanizeTimespan(sw.ElapsedAverage)
-							  + " per run with lower "
-							  + HumanizeTimespan(sw.ElapsedMin)
-							  + " and high "
-							  + HumanizeTimespan(sw.ElapsedMax));
-#if NETCOREAPP
-			Console.WriteLine("- Mem: " + Process.GetCurrentProcess().PrivateMemorySize64);
-#endif
-			//PrintPerformanceGroup(profiler.SelectMany(f => f.))
-		}
+//			var swElapsed = sw.Elapsed;
+//			Console.WriteLine("Done in: "
+//							  + HumanizeTimespan(swElapsed)
+//							  + " thats "
+//							  + HumanizeTimespan(sw.ElapsedAverage)
+//							  + " per run with lower "
+//							  + HumanizeTimespan(sw.ElapsedMin)
+//							  + " and high "
+//							  + HumanizeTimespan(sw.ElapsedMax));
+//#if NETCOREAPP
+//			Console.WriteLine("- Mem: " + Process.GetCurrentProcess().PrivateMemorySize64);
+//#endif
+//			//PrintPerformanceGroup(profiler.SelectMany(f => f.))
+//		}
 
 		public string HumanizeTimespan(TimeSpan timespan)
 		{

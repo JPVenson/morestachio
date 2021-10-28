@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using Morestachio.Formatter.Framework;
 using Morestachio.Framework;
 using Morestachio.Framework.Error;
 using Morestachio.Linq;
+using Morestachio.Rendering;
 using NUnit.Framework;
 
 namespace Morestachio.Tests
@@ -247,7 +247,7 @@ namespace Morestachio.Tests
 			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
 			var parsedTemplate = Parser.ParseWithOptions(parsingOptions);
 			ParserFixture.TestLocationsInOrder(parsedTemplate);
-			Assert.That(async () => await parsedTemplate.CreateAndStringifyAsync(data),
+			Assert.That(async () => await parsedTemplate.CreateRenderer().RenderAndStringifyAsync(data),
 				Throws.Exception.TypeOf<MustachioStackOverflowException>());
 			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document, parsingOptions);
 		}

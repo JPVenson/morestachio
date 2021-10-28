@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Morestachio.Formatter.Framework;
 using Morestachio.Linq;
+using Morestachio.Rendering;
 using NUnit.Framework;
 
 namespace Morestachio.Tests
@@ -18,7 +19,7 @@ namespace Morestachio.Tests
 				ParserFixture.DefaultEncoding);
 			var collection = new[] { 0, 1, 2, 3, 5, 4, 6, 7 };
 			options.Formatters.AddFromType(typeof(DynamicLinq));
-			var report = Parser.ParseWithOptions(options).CreateAndStringify(new Dictionary<string, object>
+			var report = Parser.ParseWithOptions(options).CreateRenderer().Render(new Dictionary<string, object>
 			{
 				{
 					"data", collection
