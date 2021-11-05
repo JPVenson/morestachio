@@ -71,7 +71,7 @@ namespace Morestachio.Document.Items
 			{
 				await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, o, scopeData);
 			});
-			return new DocumentItemExecution[0];
+			return Array.Empty<DocumentItemExecution>();
 		}
 		
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -111,7 +111,7 @@ namespace Morestachio.Document.Items
 							}
 						};
 					case PartialStackOverflowBehavior.FailSilent:
-						return new DocumentItemExecution[0];
+						return Array.Empty<DocumentItemExecution>();
 					default:
 						throw new ArgumentOutOfRangeException();
 				}

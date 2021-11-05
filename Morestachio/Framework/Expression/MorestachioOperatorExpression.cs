@@ -193,7 +193,7 @@ namespace Morestachio.Framework.Expression
 			}
 			else
 			{
-				arguments = new FormatterArgumentType[0];
+				arguments = Array.Empty<FormatterArgumentType>();
 			}
 
 
@@ -235,7 +235,7 @@ namespace Morestachio.Framework.Expression
 					{
 						new FormatterArgumentType(0, null, (await right(contextObject, scopeData)).Value, RightExpression),
 					}
-					: new FormatterArgumentType[0];
+					: Array.Empty<FormatterArgumentType>();
 				if (Cache == null)
 				{
 					Cache = leftValue.PrepareFormatterCall(
