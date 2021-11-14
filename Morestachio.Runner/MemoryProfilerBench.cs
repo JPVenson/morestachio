@@ -10,9 +10,9 @@ namespace Morestachio.Runner
 		//	return 0;
 		//}
 
-		public MemoryProfilerBench()
-		{
-			new PlaygroundTests().PerformanceCompiledDebuggerTest();
-		}
+		//public MemoryProfilerBench()
+		//{
+		//	new PlaygroundTests().PerformanceCompiledDebuggerTest();
+		//}
 	}
 }

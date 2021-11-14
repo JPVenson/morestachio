@@ -24,7 +24,7 @@ namespace Morestachio.TemplateContainers
 		/// </summary>
 		public TemplateResource Template { get; }
 
-		private readonly ref struct InStringInfo
+		private readonly struct InStringInfo
 		{
 			public InStringInfo(int index, char delimiter)
 			{
