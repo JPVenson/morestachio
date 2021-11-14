@@ -59,12 +59,10 @@ Morestachio is build upon Mustachio and extends the mustachio syntax in a a lot 
 4. Morestachio accepts any object as source
 5. Cancellation of Template generation is supported
 6. Async calls are supported (For Formatters)
-7. No External Depedencies.
+7. No External Depedencies for Morestachio.dll.
 8. Support for several .Net framworks:
-   - NetFramework (net46;net461;net462;net47;net471;net472)
-   - NetCore (netcoreapp2.1;netcoreapp2.2;netcoreapp3.0;netcoreapp3.1) 
-   - NetStandard (netstandard2.0) 
-   - Net5.0
+   - NetStandard (netstandard2.0; netstandard2.1; see [.NET implementation support](https://docs.microsoft.com/en-us/dotnet/standard/net-standard#net-implementation-support)) 
+   - Net5.0, Net6.0(comming soon)
 9. Build in Localization support and Logging support
 10. Supports user Encoding of the result template
 11. Supports Template Partials `{{#import 'secondary_template' }}`
