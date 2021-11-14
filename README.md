@@ -126,7 +126,7 @@ parserOptions.Formatters.AddSingle(new Func<DateTime, string  , string>((value, 
   return value.ToString(argument);
 }, "ToStringX"));
 
-Parser.ParseWithOptions(parserOptions).CreateAndStringify(); // Friday, September 21, 2018 ish
+Parser.ParseWithOptions(parserOptions).CreateRenderer().RenderAndStringify(model); // Friday, September 21, 2018 ish
 
 ```
 
