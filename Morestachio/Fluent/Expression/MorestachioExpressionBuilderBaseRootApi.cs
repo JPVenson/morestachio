@@ -3,6 +3,7 @@ using Morestachio.Framework;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.Parser;
+using Morestachio.Framework.Expression.StringParts;
 using Morestachio.Helper;
 
 namespace Morestachio.Fluent.Expression
@@ -37,6 +38,24 @@ namespace Morestachio.Fluent.Expression
 		{
 			ExpressionParts.Add(new MorestachioExpressionNumber(number, new CharacterLocation(0, Column, Column)));
 			Column += number.AsParsableString().Length;
+			return this;
+		}
+
+		/// <summary>
+		///		Adds a number at the start of an expression
+		/// </summary>
+		/// <param name="number"></param>
+		/// <returns></returns>
+		public MorestachioExpressionBuilder String(string text)
+		{
+			ExpressionParts.Add(new MorestachioExpressionString(new CharacterLocation(0, Column, Column), '\"')
+			{
+				StringParts =
+				{
+					new ExpressionStringConstPart(text, new CharacterLocation(0, Column, Column))
+				}
+			});
+			Column += text.Length;
 			return this;
 		}
 
