@@ -46,34 +46,35 @@ model["sender"] = "Sally";
 var model = new {name= "John", sender= "Sally"}
 
 // Combine the model with the template to get content:
-var content = document.CreateAndStringify(model); // Dear John, this is definitely a personalized note to you. Very truly yours, Sally
+var content = document.CreateRenderer().RenderAndStringify(model); // Dear John, this is definitely a personalized note to you. Very truly yours, Sally
 ```
 
 
 ##### Key Features
 Morestachio is build upon Mustachio and extends the mustachio syntax in a a lot of points.
 
-1. each object can be formatted by adding formatter the the morestachio
-2. Templates will be parsed as streams and will create a new stream for its output. This is better when creating larger templates and best for web as you can also limit the length of the "to be" created template to a certain size and write the result ether directly to an output stream or the Disc.
-3. Its Lightning fast. Even unreasonably huge templates that contain >5000 instructions can be executed in around *0.5 secounds*
+1. each object can be formatted by adding [formatter](https://github.com/JPVenson/morestachio/wiki/Formatter) to morestachio
+2. Templates will be parsed as [streams](https://github.com/JPVenson/morestachio/wiki/ParserOptions#template-itemplatecontainer-property) and will create a new stream for its [output](). This is better when creating larger templates and best for web as you can also [limit the length](https://github.com/JPVenson/morestachio/wiki/ParserOptions#maxsize-long-property) of the "to be" created template to a certain size and write the result ether directly to an output stream or the Disc.
+3. [Its Lightning fast](https://github.com/JPVenson/morestachio/wiki/Performance). Even unreasonably huge templates that contain >5000 instructions can be executed in around *0.5 secounds*
 4. Morestachio accepts any object as source
-5. Cancellation of Template generation is supported
+5. [Cancellation](https://github.com/JPVenson/morestachio/wiki/ParserOptions#timeout-timespan-property) of Template generation is supported
 6. Async calls are supported (For Formatters)
-7. No External Depedencies.
+7. No External Depedencies for Morestachio.dll.
 8. Support for several .Net framworks:
-   - NetFramework (net46;net461;net462;net47;net471;net472)
-   - NetCore (netcoreapp2.1;netcoreapp2.2;netcoreapp3.0;netcoreapp3.1) 
-   - NetStandard (netstandard2.0) 
-   - Net5.0
-9. Build in Localization support and Logging support
-10. Supports user Encoding of the result template
-11. Supports Template Partials `{{#import 'secondary_template' }}`
-12. Complex paths are supported `{{ this.is.a.valid.path }}` and `{{ ../this.goes.up.one.level }}` and `{{ ~.this.goes.up.to.Root }}`
-13. Loops with `#each` & `#do` & `#while` & `#repeat`
-14. Object Enumeration with `#each data.?`
+   - NetStandard (netstandard2.0; netstandard2.1; see [.NET implementation support](https://docs.microsoft.com/en-us/dotnet/standard/net-standard#net-implementation-support)) 
+   - Net5.0, Net6.0(comming soon)
+9. Build in [Localization support](https://github.com/JPVenson/morestachio/wiki/Localisation) and [Logging support](https://github.com/JPVenson/morestachio/wiki/ParserOptions#logger-ilogger-property)
+10. Supports user [Encoding](https://github.com/JPVenson/morestachio/wiki/ParserOptions#encoding-encoding-property) of the result template
+11. Supports [Template Partials](https://github.com/JPVenson/morestachio/wiki/Templates-Partials) `{{#import 'secondary_template' }}`
+12. [Complex paths](https://github.com/JPVenson/morestachio/wiki/Keywords#paths) are supported `{{ this.is.a.valid.path }}` and `{{ ../this.goes.up.one.level }}` and `{{ ~.this.goes.up.to.Root }}`
+13. [Loops](https://github.com/JPVenson/morestachio/wiki/Keywords#do--while--repeat---blocks) with `#each` & `#do` & `#while` & `#repeat`
+14. [Object Enumeration](https://github.com/JPVenson/morestachio/wiki/Keywords#each--every---blocks) with `#each data.?`
 15. Formatters can be declared in C# and be called from the template to provide you with a maximum of freedom
-16. Extensive Build-In list of Formatters for most usecases
-17. The Parser produces a Serilizable Document Tree that can be send to clients to provide a rich user edit experience 
+16. Extensive (275) [Build-In list of Formatters](https://github.com/JPVenson/morestachio/wiki/Predefined-Formatter) for a broad usecases
+17. The Parser produces a Serilizable [Document Tree](https://github.com/JPVenson/morestachio/wiki/Document-Tree) that can be send to clients to provide a rich user edit experience 
+
+Checkout the Github Wiki for an extensive documentation:
+https://github.com/JPVenson/morestachio/wiki
  
 **Template partials** ARE a great feature for large scale template development.
 
@@ -128,7 +129,7 @@ parserOptions.Formatters.AddSingle(new Func<DateTime, string  , string>((value, 
   return value.ToString(argument);
 }, "ToStringX"));
 
-Parser.ParseWithOptions(parserOptions).CreateAndStringify(); // Friday, September 21, 2018 ish
+Parser.ParseWithOptions(parserOptions).CreateRenderer().RenderAndStringify(model); // Friday, September 21, 2018 ish
 
 ```
 
