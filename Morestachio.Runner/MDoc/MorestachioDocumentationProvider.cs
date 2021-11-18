@@ -117,8 +117,13 @@ namespace Morestachio.Runner.MDoc
 			public string Name { get; set; }
 			public ServicePropertyType PropType { get; set; }
 		}
-
+		
 		public static IDictionary<string, object> GetMorestachioFormatterDocumentation()
+		{
+			return GetMorestachioFormatterDocumentation(null);
+		}
+
+		public static IDictionary<string, object> GetMorestachioFormatterDocumentation(string filter = null)
 		{
 			FormatterData EnumerateFormatters(IGrouping<Type, MorestachioFormatterModel> formatterServiceFormatter, bool includeInstanceMethods)
 			{
@@ -249,6 +254,7 @@ namespace Morestachio.Runner.MDoc
 
 			foreach (var formatterServiceFormatter in sourceFormatters
 				.SelectMany(f => f.Value)
+				.Where(e => filter == null || e.Name.Contains(filter))
 				.GroupBy(e => e.Function.DeclaringType))
 			{
 				var data = EnumerateFormatters(formatterServiceFormatter, false);
@@ -266,6 +272,10 @@ namespace Morestachio.Runner.MDoc
 			{
 				var serviceData = new ServiceData();
 				serviceData.ServiceName = service.Key.GetCustomAttribute<ServiceNameAttribute>()?.Name ?? service.Key.Name;
+				if(filter != null && !serviceData.ServiceName.Contains(filter))
+				{
+					continue;
+				}
 				serviceData.Types = new HashSet<ServicePropertyType>();
 				serviceData.Description = service.Key.GetCustomAttribute<MorestachioExtensionSetupAttribute>()?.Description;
 				EnumerateObject(service.Key, sourceFormatters, serviceData.Types);
@@ -278,6 +288,10 @@ namespace Morestachio.Runner.MDoc
 			{
 				var serviceData = new ServiceData();
 				serviceData.ServiceName = service.Key;
+				if(filter != null && !serviceData.ServiceName.Contains(filter))
+				{
+					continue;
+				}
 				serviceData.Types = new HashSet<ServicePropertyType>();
 				if (service.Value is Static typeAccessor)
 				{

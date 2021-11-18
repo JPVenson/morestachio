@@ -72,19 +72,24 @@ namespace Morestachio.Framework.Tokenizing
 					writer.WriteAttributeString("Type", "x:string");
 					writer.WriteAttributeString("Value", token.Value.ToString());
 				}
-				if (token.Value is bool)
+				else if (token.Value is bool)
 				{
 					writer.WriteAttributeString("Type", "x:boolean");
 					writer.WriteAttributeString("Value", token.Value.ToString());
 				}
-				if (token.Value is Enum)
+				else if (token.Value is int i)
+				{
+					writer.WriteAttributeString("Type", "x:int32");
+					writer.WriteAttributeString("Value", i.ToString());
+				}
+				else if (token.Value is Enum)
 				{
 					writer.WriteAttributeString("Type", "x:int32");
 					writer.WriteAttributeString("Value", ((int)token.Value).ToString());
 				}
 				else
 				{
-					throw new InvalidOperationException($"Cannot serialize the object of value: {token.Value} for the TokenOption: {token.Name}");	
+					throw new InvalidOperationException($"Cannot serialize the object of value: {token.Value}:{token.Value?.GetType()} for the TokenOption: {token.Name}");	
 				}
 			}
 			writer.WriteEndElement();//Option
