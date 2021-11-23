@@ -79,13 +79,13 @@ namespace Morestachio.Benchmark
 		public string GetTemplate()
 		{
 			return @"<ul id='products'>
-  {{#each Products}}
+  {{#FOREACH item IN Products}}
 	<li>
-	  <h2>{{Name}}</h2>
-		   Only {{Price}}
-		   {{Description.Truncate(15)}}
+	  <h2>{{item.Name}}</h2>
+		   Only {{item.Price}}
+		   {{item.Description.Truncate(15)}}
 	</li>
-  {{/each}}
+  {{/FOREACH}}
 </ul>";
 		}
 	}

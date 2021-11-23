@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Runtime.Serialization;
+﻿using System.Globalization;
 using System.Xml;
 using Morestachio.Document;
 using Morestachio.Document.Contracts;
@@ -16,15 +12,7 @@ using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper.Localization.Documents.CustomCultureDocument;
 using Morestachio.Helper.Localization.Documents.LocPDocument;
-#if ValueTask
-using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
-using ObjectPromise = System.Threading.Tasks.ValueTask<object>;
-using Promise = System.Threading.Tasks.ValueTask;
-#else
-using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
-using ObjectPromise = System.Threading.Tasks.Task<object>;
-using Promise = System.Threading.Tasks.Task;
-#endif
+
 namespace Morestachio.Helper.Localization.Documents.LocDocument
 {
 	/// <summary>

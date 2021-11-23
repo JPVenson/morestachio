@@ -1555,6 +1555,61 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		public async Task TestStoredCollectionContext()
+		{
+			var template = "{{#each data}}{{data.$index}},{{data.$first}},{{data.$middel}},{{data.$last}},{{data.$odd}},{{data.$even}}.{{/each}}";
+
+			var elementdata = new List<CollectionContextInfo>
+			{
+				new CollectionContextInfo
+				{
+					IndexProp = 0,
+					EvenProp = true,
+					OddProp = false,
+					LastProp = false,
+					FirstProp = true,
+					MiddelProp = false
+				},
+				new CollectionContextInfo
+				{
+					IndexProp = 1,
+					EvenProp = false,
+					OddProp = true,
+					LastProp = false,
+					FirstProp = false,
+					MiddelProp = true
+				},
+				new CollectionContextInfo
+				{
+					IndexProp = 2,
+					EvenProp = true,
+					OddProp = false,
+					LastProp = true,
+					FirstProp = false,
+					MiddelProp = false
+				}
+			};
+
+			var data = new Dictionary<string, object> { { "data", elementdata } };
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				options.CustomDocumentItemProviders.Add(new BlockDocumentItemProvider("#PI", "/PI",
+					(outputStream,
+						context,
+						scopeData,
+						value,
+						children) =>
+					{
+						var firstOrDefault = children.OfType<ContentDocumentItem>().FirstOrDefault();
+						outputStream.Write((Math.PI * int.Parse(firstOrDefault.Value)).ToString());
+						return Enumerable.Empty<DocumentItemExecution>().ToPromise();
+					}));
+			});
+			Assert.That(result, Is.EqualTo(elementdata.Select(e => e.ToString()).Aggregate((e, f) => e + f)));
+		}
+
+		[Test]
 		public async Task TestRepeatContext()
 		{
 			var template = "{{#repeat data.Count}}{{$index}},{{$first}},{{$middel}},{{$last}},{{$odd}},{{$even}}.{{/repeat}}";

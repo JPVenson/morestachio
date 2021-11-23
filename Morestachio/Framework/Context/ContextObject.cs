@@ -1,33 +1,13 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
+﻿using System.ComponentModel;
 using System.Reflection;
-using System.Text;
-using System.Threading;
 using Morestachio.Document;
-using Morestachio.Formatter.Constants;
 using Morestachio.Formatter.Framework;
-using Morestachio.Formatter.Predefined;
-using Morestachio.Formatter.Predefined.Accounting;
-using Morestachio.Formatter.Services;
 using Morestachio.Framework.Context.Resolver;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
-using Morestachio.Helper;
-using Morestachio.Helper.Logging;
-using Encoding = Morestachio.Formatter.Constants.Encoding;
 using PathPartElement =
 	System.Collections.Generic.KeyValuePair<string, Morestachio.Framework.Expression.Framework.PathType>;
-#if ValueTask
-using ContextObjectPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.Context.ContextObject>;
-using StringPromise = System.Threading.Tasks.ValueTask<string>;
-#else
-using ContextObjectPromise = System.Threading.Tasks.Task<Morestachio.Framework.Context.ContextObject>;
-using StringPromise = System.Threading.Tasks.Task<string>;
 
-#endif
 
 namespace Morestachio.Framework.Context
 {
@@ -284,8 +264,22 @@ namespace Morestachio.Framework.Context
 					innerContext = scopeData.ParserOptions.CreateContextObject(key, type
 							.GetTypeInfo()
 							.GetProperties(BindingFlags.Instance | BindingFlags.Public)
-							.Where(e => !e.IsSpecialName && !e.GetIndexParameters().Any())
-							.Select(e => new KeyValuePair<string, object>(e.Name, e.GetValue(Value))),
+							.Where(e => !e.IsSpecialName && !e.GetIndexParameters().Any() && e.CanRead)
+							.Select(e =>
+							{
+								object value;
+
+								if (scopeData.ParserOptions.ValueResolver?.CanResolve(type, _value, e.Name, null) == true)
+								{
+									value = scopeData.ParserOptions.ValueResolver.Resolve(type, _value, e.Name, null);
+								}
+								else
+								{
+									value = e.GetValue(Value);
+								}
+
+								return new KeyValuePair<string, object>(e.Name, value);
+							}),
 						this);
 				}
 			}

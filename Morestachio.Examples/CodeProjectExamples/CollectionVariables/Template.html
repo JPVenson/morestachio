@@ -11,7 +11,7 @@
 	</tr>
 	</thead>
 	<tbody>
-		{{#EACH this AS item |-}}
+		{{#FOREACH item IN this |-}}
 		<tr>
 			<td>{{item}}</td>
 			<td>{{item.$first}}</td>
@@ -21,6 +21,6 @@
 			<td>{{item.$odd}}</td>
 			<td>{{item.$even}}</td>
 		</tr>
-		{{-| /EACH}}
+		{{-| /FOREACH}}
 	</tbody>
 </table>

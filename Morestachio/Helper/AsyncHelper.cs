@@ -1,16 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Morestachio.Document.Contracts;
-#if ValueTask
-using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
-using Promise = System.Threading.Tasks.ValueTask;
-using ObjectPromise = System.Threading.Tasks.ValueTask<object>;
-#else
-using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
-using Promise = System.Threading.Tasks.Task;
-using ObjectPromise = System.Threading.Tasks.Task<object>;
-#endif
 
 namespace Morestachio.Helper
 {

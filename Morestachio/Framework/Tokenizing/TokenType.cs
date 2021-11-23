@@ -234,5 +234,15 @@
 		///		The end of an Isolation Scope
 		/// </summary>
 		IsolationScopeClose,
+
+		/// <summary>
+		///		The start of a Foreach collection loop
+		/// </summary>
+		ForeachCollectionOpen,
+
+		/// <summary>
+		///		The end of a Foreach collection loop
+		/// </summary>
+		ForeachCollectionClose,
 	}
 }

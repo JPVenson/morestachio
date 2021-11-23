@@ -1,21 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <PackageTags>Formatter, C#, Engine, NetStandard</PackageTags>
-    <Description>A powerfull c# infused templating engine.</Description>
-    <PackageReleaseNotes>Several Bugfixes and Formatter refactoring</PackageReleaseNotes>
-    <BuildPackage>true</BuildPackage>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;net5.0</TargetFrameworks>
-  </PropertyGroup>
+	<PropertyGroup>
+		<PackageTags>Formatter, C#, Engine, NetStandard</PackageTags>
+		<Description>A powerfull c# infused templating engine.</Description>
+		<PackageReleaseNotes>Several Bugfixes and Formatter refactoring</PackageReleaseNotes>
+		<BuildPackage>true</BuildPackage>
+		<TargetFrameworks>netstandard2.0;netstandard2.1;net5.0</TargetFrameworks>
+		<LangVersion>Latest</LangVersion>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <DocumentationFile>bin\Release\Morestachio.xml</DocumentationFile>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='Release'">
+		<DocumentationFile>bin\Release\Morestachio.xml</DocumentationFile>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-    <DocumentationFile>bin\Release\Morestachio.xml</DocumentationFile>
-    <NoWarn>1701;1702;1573</NoWarn>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+		<DocumentationFile>bin\Release\Morestachio.xml</DocumentationFile>
+		<NoWarn>1701;1702;1573</NoWarn>
+	</PropertyGroup>
 
-  <Import Project="../AfterDirectory.Build.props"></Import>
+	<Import Project="../AfterDirectory.Build.props"></Import>
 </Project>

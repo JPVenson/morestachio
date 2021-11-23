@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Morestachio.Document.Custom;
 using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Error;
@@ -13,13 +8,6 @@ using Morestachio.Framework.Expression.Parser;
 using Morestachio.Helper.Logging;
 using Morestachio.Parsing.ParserErrors;
 using Morestachio.TemplateContainers;
-#if ValueTask
-using TokenizerResultPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.Tokenizing.TokenizerResult>;
-using Promise = System.Threading.Tasks.ValueTask;
-#else
-using TokenizerResultPromise = System.Threading.Tasks.Task<Morestachio.Framework.Tokenizing.TokenizerResult>;
-using Promise = System.Threading.Tasks.Task;
-#endif
 
 namespace Morestachio.Framework.Tokenizing
 {
@@ -392,6 +380,37 @@ namespace Morestachio.Framework.Tokenizing
 				return false;
 			}
 
+			void ValidateAliasName(string alias, string tokenTypeName)
+			{
+				if (string.IsNullOrWhiteSpace(alias))
+				{
+					context.Errors.Add(new MorestachioSyntaxError(
+						context.CurrentLocation.AddWindow(new CharacterSnippedLocation(1, 1, tokenTypeName)), alias, tokenTypeName, tokenTypeName + " name", tokenTypeName + " option was specified but did not follow any value."));
+					return;
+				}
+
+				for (var i = 0; i < alias.Length; i++)
+				{
+					var c = alias[i];
+					if (char.IsLetter(c))
+					{
+						continue;
+					}
+
+					if (char.IsDigit(c))
+					{
+						if (i == 0)
+						{
+							context.Errors.Add(new MorestachioSyntaxError(
+								context.CurrentLocation.AddWindow(new CharacterSnippedLocation(1, i, alias)), alias, tokenTypeName, tokenTypeName + " name", tokenTypeName + " option cannot not start with a digit."));
+						}
+						continue;
+					}
+					context.Errors.Add(new MorestachioSyntaxError(
+						context.CurrentLocation.AddWindow(new CharacterSnippedLocation(1, i, alias)), alias, tokenTypeName, tokenTypeName + " name", tokenTypeName + " option can only consists of letters and numbers."));
+				}
+			}
+
 			//[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			bool StartsWith(string token, string keyword)
 			{
@@ -400,6 +419,8 @@ namespace Morestachio.Framework.Tokenizing
 
 			context.TokenizeComments = parserOptions.TokenizeComments;
 			context.SetLocation(0);
+
+
 			foreach (var match in templateString.Matches(context))
 			{
 				if (match.ContentToken)
@@ -580,9 +601,9 @@ namespace Morestachio.Framework.Tokenizing
 
 						if (!string.IsNullOrWhiteSpace(alias))
 						{
+							ValidateAliasName(alias, "AS");
 							context.AdvanceLocation("each ".Length + alias.Length);
-							tokens.Add(new TokenPair(TokenType.Alias, alias,
-								context.CurrentLocation));
+							tokens.Add(new TokenPair(TokenType.Alias, alias, context.CurrentLocation));
 						}
 					}
 					else if (trimmedToken.Equals("/each", StringComparison.OrdinalIgnoreCase))
@@ -591,6 +612,62 @@ namespace Morestachio.Framework.Tokenizing
 						{
 							var token = scopestack.Pop().Value;
 							tokens.Add(new TokenPair(TokenType.CollectionClose, token,
+								context.CurrentLocation, tokenOptions));
+						}
+						else
+						{
+							context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
+								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "each", "{{#each name}}"));
+						}
+					}
+					else if (StartsWith(trimmedToken, "#foreach "))
+					{
+						var token = TrimToken(trimmedToken, "foreach");
+						var inKeywordLocation = token.IndexOf("IN", StringComparison.OrdinalIgnoreCase);
+						if (inKeywordLocation == -1)
+						{
+							context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation
+								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "#foreach", "in", "in", "the foreach keyword expects the format of: '{{#FOREACH item IN list}}'"));
+						}
+						else
+						{
+							var alias = token.Substring(0, inKeywordLocation);
+							if (string.IsNullOrWhiteSpace(alias))
+							{
+								context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation
+									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "#foreach", "in", "in", "the foreach keyword expects the format of: '{{#FOREACH item IN list}}'"));
+							}
+							else
+							{
+								ValidateAliasName(alias, "IN");
+								var expression = token.Substring(inKeywordLocation + 2);
+
+								scopestack.Push(new ScopeStackItem(TokenType.ForeachCollectionOpen, expression ?? token, match.Index));
+								tokenOptions.Add(new TokenOption("Alias", expression));
+
+								if (token.Trim() != "")
+								{
+									token = token.Trim();
+									tokens.Add(new TokenPair(TokenType.ForeachCollectionOpen,
+										token, context.CurrentLocation, 
+										ExpressionParser.ParseExpression(token, context), 
+										tokenOptions));
+								}
+								else
+								{
+									context.Errors.Add(new InvalidPathSyntaxError(context.CurrentLocation
+										.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), ""));
+								}
+							}
+
+						}
+					}
+					else if (trimmedToken.Equals("/foreach", StringComparison.OrdinalIgnoreCase))
+					{
+						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.ForeachCollectionOpen)
+						{
+							var token = scopestack.Pop().Value;
+							tokens.Add(new TokenPair(TokenType.ForeachCollectionClose, token,
 								context.CurrentLocation, tokenOptions));
 						}
 						else
@@ -620,6 +697,7 @@ namespace Morestachio.Framework.Tokenizing
 
 						if (!string.IsNullOrWhiteSpace(alias))
 						{
+							ValidateAliasName(alias, "AS");
 							context.AdvanceLocation("each ".Length + alias.Length);
 							tokens.Add(new TokenPair(TokenType.Alias, alias,
 								context.CurrentLocation));
@@ -660,7 +738,8 @@ namespace Morestachio.Framework.Tokenizing
 
 						if (!string.IsNullOrWhiteSpace(alias))
 						{
-							context.AdvanceLocation("each ".Length + alias.Length);
+							ValidateAliasName(alias, "AS");
+							context.AdvanceLocation("do ".Length + alias.Length);
 							tokens.Add(new TokenPair(TokenType.Alias, alias,
 								context.CurrentLocation));
 						}
@@ -700,7 +779,8 @@ namespace Morestachio.Framework.Tokenizing
 
 						if (!string.IsNullOrWhiteSpace(alias))
 						{
-							context.AdvanceLocation("each ".Length + alias.Length);
+							ValidateAliasName(alias, "AS");
+							context.AdvanceLocation("repeat ".Length + alias.Length);
 							tokens.Add(new TokenPair(TokenType.Alias, alias,
 								context.CurrentLocation));
 						}
@@ -1019,6 +1099,7 @@ namespace Morestachio.Framework.Tokenizing
 
 						if (!string.IsNullOrWhiteSpace(alias))
 						{
+							ValidateAliasName(alias, "AS");
 							context.AdvanceLocation(1 + alias.Length);
 							tokens.Add(new TokenPair(TokenType.Alias, alias,
 								context.CurrentLocation));
@@ -1045,6 +1126,7 @@ namespace Morestachio.Framework.Tokenizing
 
 						if (!string.IsNullOrWhiteSpace(alias))
 						{
+							ValidateAliasName(alias, "AS");
 							context.AdvanceLocation("scope ".Length + alias.Length);
 							tokens.Add(new TokenPair(TokenType.Alias, alias,
 								context.CurrentLocation));
@@ -1202,6 +1284,7 @@ namespace Morestachio.Framework.Tokenizing
 
 						if (!string.IsNullOrWhiteSpace(alias))
 						{
+							ValidateAliasName(alias, "AS");
 							context.AdvanceLocation(1 + alias.Length);
 							tokens.Add(new TokenPair(TokenType.Alias, alias,
 								context.CurrentLocation));

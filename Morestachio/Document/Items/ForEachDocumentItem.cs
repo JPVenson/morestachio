@@ -23,28 +23,36 @@ namespace Morestachio.Document.Items
 	///		Emits N items that are in the collection
 	/// </summary>
 	[Serializable]
-	public class EachDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
+	public class ForEachDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 	{
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal EachDocumentItem()
+		internal ForEachDocumentItem()
 		{
 
 		}
 
 		/// <inheritdoc />
-		public EachDocumentItem(CharacterLocation location,
+		public ForEachDocumentItem(CharacterLocation location,
 			IMorestachioExpression value,
-			IEnumerable<ITokenOption> tagCreationOptions) : base(location, value, tagCreationOptions)
+			string itemVariableName,
+			IEnumerable<ITokenOption> tagCreationOptions)
+			: base(location, value, tagCreationOptions)
 		{
 		}
 
 		/// <inheritdoc />
 
-		protected EachDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
+		protected ForEachDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
+			ItemVariableName = info.GetString(nameof(ItemVariableName));
 		}
+
+		/// <summary>
+		///		The name of the Variable for each item
+		/// </summary>
+		public string ItemVariableName { get; set; }
 
 		/// <param name="compiler"></param>
 		/// <inheritdoc />
@@ -67,15 +75,13 @@ namespace Morestachio.Document.Items
 		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
 			ScopeData scopeData)
 		{
-			var contexts = new List<DocumentItemExecution>();
 			await CoreAction(outputStream,
 				await MorestachioExpression.GetValue(context, scopeData)
 				, scopeData, async itemContext =>
 				{
 					await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, itemContext, scopeData);
-					//contexts.AddRange(Children.WithScope(itemContext));
 				});
-			return contexts;
+			return Enumerable.Empty<DocumentItemExecution>();
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -118,13 +124,15 @@ namespace Morestachio.Document.Items
 
 		}
 
-		private static async Promise LoopCollection(IByteCounterStream outputStream, ContextObject c, ScopeData scopeData,
+		private async Promise LoopCollection(IByteCounterStream outputStream, ContextObject parentContext, ScopeData scopeData,
 			Func<ContextObject, Promise> onItem, ICollection value)
 		{
 			var index = 0;
 			var innerContext =
-				new ContextCollection(index, false, $"[{index}]", c, null)
+				new ContextCollection(index, false, $"[{index}]", parentContext, null)
 					.MakeNatural() as ContextCollection;
+			scopeData.AddVariable(ItemVariableName, (e, cx) => innerContext, 999999);
+
 			foreach (var item in value)
 			{
 				if (!ContinueBuilding(outputStream, scopeData))
@@ -134,12 +142,14 @@ namespace Morestachio.Document.Items
 				innerContext.Index = index;
 				innerContext.Last = index + 1 == value.Count;
 				innerContext.Value = item;
-				await onItem(innerContext);
+				await onItem(parentContext);
 				index++;
 			}
+
+			scopeData.RemoveVariable(ItemVariableName, 999999);
 		}
 
-		private static async Promise LoopEnumerable(IByteCounterStream outputStream, ContextObject c, ScopeData scopeData,
+		private async Promise LoopEnumerable(IByteCounterStream outputStream, ContextObject loopContext, ScopeData scopeData,
 			Func<ContextObject, Promise> onItem, IEnumerable value)
 		{
 			//Use this "lookahead" enumeration to allow the $last keyword
@@ -153,18 +163,22 @@ namespace Morestachio.Document.Items
 			var current = enumerator.Current;
 
 			var innerContext =
-				new ContextCollection(index, false, $"[{index}]", c, current)
+				new ContextCollection(index, false, $"[{index}]", loopContext, current)
 					.MakeNatural() as ContextCollection;
+			scopeData.AddVariable(ItemVariableName, (e, cx) => innerContext, 999999);
+
 			do
 			{
 				var next = enumerator.MoveNext() ? enumerator.Current : null;
 				innerContext.Value = current;
 				innerContext.Index = index;
 				innerContext.Last = next == null;
-				await onItem(innerContext);
+				await onItem(loopContext);
 				index++;
 				current = next;
 			} while (current != null && ContinueBuilding(outputStream, scopeData));
+
+			scopeData.RemoveVariable(ItemVariableName, 999999);
 		}
 
 		/// <inheritdoc />

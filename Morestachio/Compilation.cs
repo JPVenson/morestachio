@@ -3,11 +3,6 @@ using Morestachio.Document;
 using Morestachio.Document.Contracts;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
-#if ValueTask
-using Promise = System.Threading.Tasks.ValueTask;
-#else
-using Promise = System.Threading.Tasks.Task;
-#endif
 namespace Morestachio
 {
 	/// <summary>

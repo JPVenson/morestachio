@@ -1,15 +1,4 @@
-﻿#if ValueTask
-using ObjectPromise = System.Threading.Tasks.ValueTask<object>;
-#else
-using ObjectPromise = System.Threading.Tasks.Task<object>;
-#endif
-
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
+﻿using System.Globalization;
 using System.Xml;
 using Morestachio.Document;
 using Morestachio.Framework.Context;
@@ -17,7 +6,6 @@ using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.StringParts;
 using Morestachio.Framework.Expression.Visitors;
 using Morestachio.Framework.Tokenizing;
-using Morestachio.Helper;
 using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework.Expression.Parser

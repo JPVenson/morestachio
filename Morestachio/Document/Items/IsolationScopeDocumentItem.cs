@@ -1,14 +1,4 @@
-﻿#if ValueTask
-using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
-#else
-using ItemExecutionPromise = System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
-#endif
-using System;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.Security.Permissions;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Security.Permissions;
 using System.Xml;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
@@ -20,7 +10,6 @@ using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
-using Morestachio.Helper;
 
 namespace Morestachio.Document.Items
 {

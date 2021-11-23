@@ -241,6 +241,15 @@ namespace Morestachio
 					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					TryAdd(currentDocumentItem.Document, nestedDocument);
 				}
+				else if (currentToken.Type.Equals(TokenType.ForeachCollectionOpen))
+				{
+					var nestedDocument = new ForEachDocumentItem(currentToken.TokenLocation, 
+						currentToken.MorestachioExpression, 
+						currentToken.FindOption<string>("Alias"),
+						GetPublicOptions(currentToken));
+					buildStack.Push(new DocumentScope(nestedDocument, getScope));
+					TryAdd(currentDocumentItem.Document, nestedDocument);
+				}
 				else if (currentToken.Type.Equals(TokenType.SwitchOpen))
 				{
 					var nestedDocument = new SwitchDocumentItem(currentToken.TokenLocation,
@@ -293,6 +302,7 @@ namespace Morestachio
 					TryAdd(currentDocumentItem.Document, nestedDocument);
 				}
 				else if (currentToken.Type.Equals(TokenType.CollectionClose)
+						|| currentToken.Type.Equals(TokenType.ForeachCollectionClose)
 						|| currentToken.Type.Equals(TokenType.ElementClose)
 						|| currentToken.Type.Equals(TokenType.IfClose)
 						|| currentToken.Type.Equals(TokenType.ElseClose)

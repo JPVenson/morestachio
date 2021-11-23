@@ -1,10 +1,4 @@
-﻿using System.Collections.Generic;
-#if ValueTask
-using ObjectPromise = System.Threading.Tasks.ValueTask<object>;
-#else
-using ObjectPromise = System.Threading.Tasks.Task<object>;
-#endif
-
+﻿
 namespace Morestachio.Framework.Expression
 {
 	/// <summary>

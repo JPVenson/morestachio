@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
+﻿using System.Threading;
 using Morestachio.Document;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items;
@@ -10,14 +7,6 @@ using Morestachio.Helper;
 using Morestachio.Parsing.ParserErrors;
 using Morestachio.Profiler;
 using Morestachio.Rendering;
-#if ValueTask
-using MorestachioDocumentResultPromise = System.Threading.Tasks.ValueTask<Morestachio.MorestachioDocumentResult>;
-using StringPromise = System.Threading.Tasks.ValueTask<string>;
-#else
-using MorestachioDocumentResultPromise = System.Threading.Tasks.Task<Morestachio.MorestachioDocumentResult>;
-using StringPromise = System.Threading.Tasks.Task<string>;
-
-#endif
 
 namespace Morestachio
 {

@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel.Design;
-using System.Data;
+﻿using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
@@ -23,11 +16,6 @@ using Morestachio.Helper;
 using Morestachio.Helper.Logging;
 using Morestachio.Util.Sealing;
 using Encoding = Morestachio.Formatter.Constants.Encoding;
-#if ValueTask
-using ObjectPromise = System.Threading.Tasks.ValueTask<object>;
-#else
-using ObjectPromise = System.Threading.Tasks.Task<object>;
-#endif
 
 namespace Morestachio.Formatter.Framework
 {
