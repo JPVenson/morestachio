@@ -1,11 +1,4 @@
-﻿#if ValueTask
-using MorestachioDocumentResultPromise = System.Threading.Tasks.ValueTask<Morestachio.MorestachioDocumentResult>;
-#else
-using MorestachioDocumentResultPromise = System.Threading.Tasks.Task<Morestachio.MorestachioDocumentResult>;
-#endif
-using System;
-using System.Linq;
-using System.Threading;
+﻿using System.Threading;
 using Morestachio.Document;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items;
@@ -127,7 +120,9 @@ namespace Morestachio.Rendering
 
 				return new MorestachioDocumentResult(byteCounterStream,
 					profiler,
-					scopeData.Variables.ToDictionary(e => e.Key, e => scopeData.GetFromVariable(null, e.Value)?.Value));
+					scopeData.Variables
+					.Where(e => !e.Key.StartsWith("$"))
+					.ToDictionary(e => e.Key, e => scopeData.GetFromVariable(null, e.Value)?.Value));
 			}
 		}
 	}
