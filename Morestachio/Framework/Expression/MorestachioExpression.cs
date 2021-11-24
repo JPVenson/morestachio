@@ -202,7 +202,7 @@ namespace Morestachio.Framework.Expression
 
 			if (pathParts.Length != 0)
 			{
-				var pathQueue = new Func<ContextObject, ScopeData, IMorestachioExpression, ContextObject>[pathParts.Length];
+                var pathQueue = new Func<ContextObject, ScopeData, IMorestachioExpression, ContextObject>[pathParts.Length];
 				var idx = 0;
 				if (pathParts.Length > 0 && pathParts.First().Value == PathType.DataPath)
 				{

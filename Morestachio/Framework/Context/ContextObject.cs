@@ -289,12 +289,10 @@ namespace Morestachio.Framework.Context
 
 		internal ContextObject ExecuteDataPath(string key, IMorestachioExpression morestachioExpression, Type type, ScopeData scopeData)
 		{
-			//await EnsureValue();
 			if (_value is null)
 			{
 				return scopeData.ParserOptions.CreateContextObject("x:null", null);
 			}
-			//TODO: handle array accessors and maybe "special" keys.
 			//ALWAYS return the context, even if the value is null.
 
 			//allow build-in variables to be accessed at any level
@@ -308,6 +306,7 @@ namespace Morestachio.Framework.Context
             }
 
 			var innerContext = scopeData.ParserOptions.CreateContextObject(key, null, this);
+			//A value resolver should always be checked first to allow overwriting of all other logic
 			if (scopeData.ParserOptions.ValueResolver?.CanResolve(type, _value, key, innerContext) == true)
 			{
 				innerContext._value = scopeData.ParserOptions.ValueResolver.Resolve(type, _value, key, innerContext);
