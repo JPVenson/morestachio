@@ -90,53 +90,53 @@ namespace Morestachio.Formatter.Predefined
 		[MorestachioFormatter("Where", "Filteres the collection based on the predicate")]
 		public static IEnumerable<T> Where<T>(IEnumerable<T> items, MorestachioTemplateExpression expression)
 		{
-			return items.Where(expression.AsFunc<T, bool>());
+			return items.Where(expression.AsFunc<T, bool>()).ToArray();
 		}
 
 		[MorestachioFormatter("Select", "Selects items from the collection based on the predicate")]
 		public static IEnumerable<TE> Select<T, TE>(IEnumerable<T> items, MorestachioTemplateExpression expression)
 		{
-			return items.Select(expression.AsFunc<T, TE>());
+			return items.Select(expression.AsFunc<T, TE>()).ToArray();
 		}
 
 		[MorestachioFormatter("SelectMany", "Selects a list of items from the collection based on the predicate and flattens them")]
 		public static IEnumerable<TE> SelectMany<T, TE>(IEnumerable<T> items, MorestachioTemplateExpression expression)
 		{
-			return items.SelectMany(expression.AsFunc<T, IEnumerable<TE>>());
+			return items.SelectMany(expression.AsFunc<T, IEnumerable<TE>>()).ToArray();
 		}
 
 		[MorestachioFormatter("TakeWhile", "Takes items from the collection as long as the predicate is true")]
 		public static IEnumerable<T> TakeWhile<T>(IEnumerable<T> items, MorestachioTemplateExpression expression)
 		{
-			return items.TakeWhile(expression.AsFunc<T, bool>());
+			return items.TakeWhile(expression.AsFunc<T, bool>()).ToArray();
 		}
 
 		[MorestachioFormatter("SkipWhile", "Skips items from the collection as long as the predicate is true")]
 		public static IEnumerable<T> SkipWhile<T>(IEnumerable<T> items, MorestachioTemplateExpression expression)
 		{
-			return items.SkipWhile(expression.AsFunc<T, bool>());
+			return items.SkipWhile(expression.AsFunc<T, bool>()).ToArray();
 		}
 
 		[MorestachioFormatter("OrderBy", "Orders the list descending")]
-		public static IOrderedEnumerable<T> OrderBy<T>(IEnumerable<T> items, MorestachioTemplateExpression expression)
+		public static IEnumerable<T> OrderBy<T>(IEnumerable<T> items, MorestachioTemplateExpression expression)
 		{
-			return items.OrderBy(expression.AsFunc<T, bool>());
+			return items.OrderBy(expression.AsFunc<T, object>()).ToArray();
 		}
 
 		[MorestachioFormatter("OrderBy", "Orders the list descending")]
-		public static IOrderedEnumerable<T> OrderBy<T>(IEnumerable<T> items)
+		public static IEnumerable<T> OrderBy<T>(IEnumerable<T> items)
 		{
-			return items.OrderBy(e => e);
+			return items.OrderBy(e => e).ToArray();
 		}
 
 		[MorestachioFormatter("ThenBy", "Orders the list descending")]
-		public static IOrderedEnumerable<T> ThenBy<T>(IOrderedEnumerable<T> items)
+		public static IEnumerable<T> ThenBy<T>(IOrderedEnumerable<T> items)
 		{
-			return items.ThenBy(e => e);
+			return items.ThenBy(e => e).ToArray();
 		}
 
 		[MorestachioFormatter("ThenBy", "Orders the list descending")]
-		public static IOrderedEnumerable<T> ThenBy<T>(IOrderedEnumerable<T> items, MorestachioTemplateExpression expression)
+		public static IEnumerable<T> ThenBy<T>(IOrderedEnumerable<T> items, MorestachioTemplateExpression expression)
 		{
 			return items.ThenBy(expression.AsFunc<T, bool>());
 		}
@@ -144,7 +144,7 @@ namespace Morestachio.Formatter.Predefined
 		[MorestachioFormatter("GroupBy", "Groups a list")]
 		public static IEnumerable<IGrouping<TE, T>> GroupBy<T, TE>(IEnumerable<T> items, MorestachioTemplateExpression expression)
 		{
-			return items.GroupBy(expression.AsFunc<T, TE>());
+			return items.GroupBy(expression.AsFunc<T, TE>()).ToArray();
 		}
 
 		[MorestachioFormatter("First", "Selected the first item that matches the condition")]
@@ -211,6 +211,12 @@ namespace Morestachio.Formatter.Predefined
 		public static T Aggregate<T>(IEnumerable<T> items, MorestachioTemplateExpression expression)
 		{
 			return items.Aggregate(expression.AsFunc<T, T, T>());
+		}
+
+		[MorestachioFormatter("ToArray", "Enumerates the list of items to a fixed size array")]
+		public static T[] Aggregate<T>(IEnumerable<T> items)
+		{
+			return items.ToArray();
 		}
 	}
 }

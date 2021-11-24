@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Morestachio.Framework.Context.Resolver;
 
 namespace Morestachio.Framework.Context
 {
@@ -49,5 +50,5 @@ namespace Morestachio.Framework.Context
 			yield return new KeyValuePair<string, Func<ContextCollection, object>>("$odd", context => context.Index % 2 != 0);
 			yield return new KeyValuePair<string, Func<ContextCollection, object>>("$even", context => context.Index % 2 == 0);
 		}
-	}
+    }
 }

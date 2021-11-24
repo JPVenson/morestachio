@@ -240,6 +240,30 @@ namespace Morestachio.Document.Visitor
 		}
 
 		/// <inheritdoc />
+		public void Visit(ForEachDocumentItem documentItem)
+		{
+			StringBuilder.Append("{{");
+			CheckForInlineTagLineBreakAtStart(documentItem);
+			StringBuilder.Append("#FOREACH ");
+			StringBuilder.Append(documentItem.ItemVariableName);
+			StringBuilder.Append(" IN ");
+			StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
+			CheckForInlineTagLineBreakAtEnd(documentItem);
+			StringBuilder.Append("}}");
+
+			if (documentItem is IBlockDocumentItem blockItem && blockItem.Children.Any())
+			{
+				VisitChildren(documentItem);
+
+				StringBuilder.Append("{{");
+				CheckForInlineBlockLineBreakAtStart(blockItem);
+				StringBuilder.Append("/FOREACH");
+				CheckForInlineBlockLineBreakAtEnd(blockItem);
+				StringBuilder.Append("}}");
+			}
+		}
+
+		/// <inheritdoc />
 		public void Visit(ElseExpressionScopeDocumentItem documentItem)
 		{
 			Visit(documentItem, "ELSE");

@@ -158,7 +158,7 @@ namespace Morestachio.Runner
 			{
 				try
 				{
-					ContextObject.DefaultFormatter.AddFromType(typeof(DynamicLinq));
+					MorestachioFormatterService.Default.AddFromType(typeof(DynamicLinq));
 					if (buildLog != null)
 					{
 						BuildLog = new StreamWriter(new FileStream(buildLog, FileMode.OpenOrCreate));

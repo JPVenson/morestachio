@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Morestachio.Framework.Context.Resolver;
 using NUnit.Framework;
 
 namespace Morestachio.Tests.FormatterFunctionTests
@@ -32,10 +33,13 @@ namespace Morestachio.Tests.FormatterFunctionTests
 			object result = null;
 			var template = @"{{#VAR result = " + expression + "}}";
 			await ParserFixture.CreateAndParseWithOptions(template, source,
-				ParserOptionTypes.NoRerenderingTest | ParserOptionTypes.UseOnDemandCompile, null,
+				ParserOptionTypes.NoRerenderingTest | ParserOptionTypes.UseOnDemandCompile, e =>
+				{
+					e.ValueResolver = new FieldValueResolver();
+				},
 				e =>
 				{
-					e.CaptureVariables = true;
+					e.CaptureVariables = true;					
 				},
 				e =>
 				{

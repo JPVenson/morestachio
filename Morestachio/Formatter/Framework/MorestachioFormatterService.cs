@@ -451,7 +451,7 @@ namespace Morestachio.Formatter.Framework
 			}
 
 			//the type check has maybe failed because of generic parameter. Check if both the formatter and the typ have generic arguments
-
+			
 			var formatterGenerics = formatTemplateElement.InputType.GetTypeInfo().GetGenericArguments();
 
 			if (typeToFormatGenerics.Length <= 0 || formatterGenerics.Length <= 0 ||

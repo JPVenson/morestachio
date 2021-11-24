@@ -1,14 +1,9 @@
 ﻿This is a Collection example.
 
-<!-- this will output each value within data. The each scopes its children to the item-->
+<!-- this will output each value within data. The #foreach does not scope-->
 {{#FOREACH item IN Data}}
 {{item}} <!--now you can access each element via the item name or any other you set-->
 {{/FOREACH}}
-
-<!-- Alternative you could use an alias and access it with the alias. The scope will still change -->
-{{#EACH Data AS item}}
-{{item}}
-{{/EACH}}
 
 <!-- this will output each value within data. The each scopes its children to the item-->
 {{#EACH Data}}

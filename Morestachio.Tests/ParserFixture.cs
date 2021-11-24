@@ -895,7 +895,7 @@ namespace Morestachio.Tests
 			model["name"] = "Mike";
 
 			Assert.That(
-				Parser.ParseWithOptions(new ParserOptions(template, null, DefaultEncoding)).CreateRenderer().Render(model),
+				Parser.ParseWithOptions(new ParserOptions(template, null, DefaultEncoding)).CreateRenderer().Render(model).Stream.Stringify(true, DefaultEncoding),
 				Is.EqualTo(expected));
 		}
 
@@ -1557,7 +1557,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task TestStoredCollectionContext()
 		{
-			var template = "{{#each data}}{{data.$index}},{{data.$first}},{{data.$middel}},{{data.$last}},{{data.$odd}},{{data.$even}}.{{/each}}";
+			var template = "{{#FOREACH item IN data}}{{item.$index}},{{item.$first}},{{item.$middel}},{{item.$last}},{{item.$odd}},{{item.$even}}.{{/FOREACH}}";
 
 			var elementdata = new List<CollectionContextInfo>
 			{

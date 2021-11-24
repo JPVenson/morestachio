@@ -39,8 +39,9 @@ namespace Morestachio.Document.Items
 			string itemVariableName,
 			IEnumerable<ITokenOption> tagCreationOptions)
 			: base(location, value, tagCreationOptions)
-		{
-		}
+        {
+            ItemVariableName = itemVariableName;
+        }
 
 		/// <inheritdoc />
 
@@ -86,19 +87,19 @@ namespace Morestachio.Document.Items
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private async Promise CoreAction(IByteCounterStream outputStream,
-			ContextObject c,
+			ContextObject context,
 			ScopeData scopeData,
 			Func<ContextObject, Promise> onItem)
 		{
-			if (!c.Exists())
+			if (!context.Exists())
 			{
 				return;
 			}
 
-			if (!(c.Value is IEnumerable value) || value is string || value is IDictionary<string, object>)
+			if (!(context.Value is IEnumerable value) || value is string || value is IDictionary<string, object>)
 			{
 				var path = new Stack<string>();
-				var parent = c.Parent;
+				var parent = context.Parent;
 				while (parent != null)
 				{
 					path.Push(parent.Key);
@@ -115,11 +116,11 @@ namespace Morestachio.Document.Items
 
 			if (value is ICollection col)
 			{
-				await LoopCollection(outputStream, c, scopeData, onItem, col);
+				await LoopCollection(outputStream, context, scopeData, onItem, col);
 			}
 			else
 			{
-				await LoopEnumerable(outputStream, c, scopeData, onItem, value);
+				await LoopEnumerable(outputStream, context, scopeData, onItem, value);
 			}
 
 		}
@@ -131,6 +132,7 @@ namespace Morestachio.Document.Items
 			var innerContext =
 				new ContextCollection(index, false, $"[{index}]", parentContext, null)
 					.MakeNatural() as ContextCollection;
+
 			scopeData.AddVariable(ItemVariableName, (e, cx) => innerContext, 999999);
 
 			foreach (var item in value)

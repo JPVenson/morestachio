@@ -4,6 +4,7 @@ using System.Linq;
 using Morestachio.Formatter.Framework;
 using Morestachio.Linq;
 using Morestachio.Rendering;
+using Morestachio.Helper;
 using NUnit.Framework;
 
 namespace Morestachio.Tests
@@ -24,7 +25,7 @@ namespace Morestachio.Tests
 				{
 					"data", collection
 				}
-			});
+			}).Stream.Stringify(true, ParserFixture.DefaultEncoding);
 			Assert.That(report,
 				Is.EqualTo(collection.OrderBy(e => e).Select(e => e.ToString()).Aggregate((e, f) => e + "," + f) + ","));
 			Console.WriteLine(report);

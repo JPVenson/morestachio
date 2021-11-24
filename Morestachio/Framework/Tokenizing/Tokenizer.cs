@@ -631,7 +631,7 @@ namespace Morestachio.Framework.Tokenizing
 						}
 						else
 						{
-							var alias = token.Substring(0, inKeywordLocation);
+							var alias = token.Substring(0, inKeywordLocation).Trim();
 							if (string.IsNullOrWhiteSpace(alias))
 							{
 								context.Errors.Add(new MorestachioSyntaxError(context.CurrentLocation
@@ -643,14 +643,16 @@ namespace Morestachio.Framework.Tokenizing
 								var expression = token.Substring(inKeywordLocation + 2);
 
 								scopestack.Push(new ScopeStackItem(TokenType.ForeachCollectionOpen, expression ?? token, match.Index));
-								tokenOptions.Add(new TokenOption("Alias", expression));
+								tokenOptions.Add(new TokenOption("Alias", alias));
+								
+                                expression = expression.Trim();
 
-								if (token.Trim() != "")
+								if (!string.IsNullOrWhiteSpace(expression))
 								{
-									token = token.Trim();
 									tokens.Add(new TokenPair(TokenType.ForeachCollectionOpen,
-										token, context.CurrentLocation, 
-										ExpressionParser.ParseExpression(token, context), 
+										token, 
+                                        context.CurrentLocation, 
+										ExpressionParser.ParseExpression(expression, context), 
 										tokenOptions));
 								}
 								else

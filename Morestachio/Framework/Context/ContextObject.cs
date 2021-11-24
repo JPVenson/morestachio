@@ -297,6 +297,16 @@ namespace Morestachio.Framework.Context
 			//TODO: handle array accessors and maybe "special" keys.
 			//ALWAYS return the context, even if the value is null.
 
+			//allow build-in variables to be accessed at any level
+            if (key.StartsWith("$"))
+            {
+                var getFromAlias = scopeData.GetVariable(this, key);
+                if (getFromAlias != null)
+                {
+                    return getFromAlias;
+                }
+            }
+
 			var innerContext = scopeData.ParserOptions.CreateContextObject(key, null, this);
 			if (scopeData.ParserOptions.ValueResolver?.CanResolve(type, _value, key, innerContext) == true)
 			{
@@ -406,15 +416,16 @@ namespace Morestachio.Framework.Context
 			}
 
 			var targetContext = this;
-			if (elements.Current.Value == PathType.DataPath)
-			{
-				var getFromAlias = scopeData.GetVariable(targetContext, elements.Current.Key);
-				if (getFromAlias != null)
-				{
-					elements = elements.Next();
-					targetContext = getFromAlias;
-				}
-			}
+            if (elements.Current.Value == PathType.DataPath)
+            {
+                var getFromAlias = scopeData.GetVariable(targetContext, elements.Current.Key);
+                if (getFromAlias != null)
+                {
+                    elements = elements.Next();
+                    targetContext = getFromAlias;
+                }
+            }
+
 
 			return targetContext.LoopContextTraversable(elements, scopeData, morestachioExpression);
 			//return await targetContext.GetContextForPathInternal(elements, scopeData, morestachioExpression);

@@ -1,13 +1,7 @@
 ﻿using System.Threading;
-using System.Threading.Tasks;
 using Morestachio.Document;
 using Morestachio.Document.Contracts;
 using Morestachio.Framework.IO;
-#if ValueTask
-using MorestachioDocumentResultPromise = System.Threading.Tasks.ValueTask<Morestachio.MorestachioDocumentResult>;
-#else
-using MorestachioDocumentResultPromise = System.Threading.Tasks.Task<Morestachio.MorestachioDocumentResult>;
-#endif
 
 namespace Morestachio.Rendering
 {

@@ -14,6 +14,7 @@ namespace Morestachio.Document.Visitor
 		void Visit(ContentDocumentItem documentItem);
 		void Visit(DoLoopDocumentItem documentItem);
 		void Visit(EachDocumentItem documentItem);
+		void Visit(ForEachDocumentItem documentItem);
 		void Visit(EvaluateVariableDocumentItem documentItem);
 		void Visit(EvaluateLetVariableDocumentItem documentItem);
 		void Visit(ExpressionScopeDocumentItem documentItem);

@@ -495,15 +495,15 @@ namespace Morestachio.Framework.Expression.Parser
 						}
 						
 						var operatRightExpression = ParseAnyExpression(tokens, context, subToken =>
-						{
-							return condition(subToken) && subToken.TokenType != ExpressionTokenType.Operator;
-						});
+                        {
+                            return condition(subToken) && subToken.TokenType != ExpressionTokenType.Operator;
+                        });
 						operat.RightExpression = operatRightExpression;
 					}
 				}
 				else
 				{
-					//the operator is placed on the left hand of the expression so it muse be an unary operator
+					//the operator is placed on the left hand of the expression so it must be an unary operator
 					//it can only accept one argument
 					var operatorExp = new MorestachioOperatorExpression(op, null, context.CurrentLocation);
 					AddToParent(operatorExp);
@@ -610,7 +610,6 @@ namespace Morestachio.Framework.Expression.Parser
 					return;
 				}
 						
-				//AddToParent(lambdaExpression);
 				var operatRightExpression = ParseAnyExpression(tokens, context, subToken =>
 				{
 					return condition(subToken);

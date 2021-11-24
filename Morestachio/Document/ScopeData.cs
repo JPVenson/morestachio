@@ -90,8 +90,23 @@ namespace Morestachio.Document
 			foreach (var keyValuePair in ContextCollection.GetVariables())
 			{
 				AddVariable(keyValuePair.Key, (scopeData, context) =>
-				{
-					if (context is ContextCollection coll)
+                {
+                    ContextCollection coll = null;
+                    if (context is ContextCollection)
+                    {
+						coll = context as ContextCollection;
+                    }
+                    else
+                    {
+                        var ctx = context;
+                        while (ctx != null && ctx is not ContextCollection)
+                        {
+                            ctx = ctx.Parent;
+                        }
+						coll = ctx as ContextCollection;
+                    }
+
+					if (coll != null)
 					{
 						return scopeData.ParserOptions.CreateContextObject(keyValuePair.Key, keyValuePair.Value(coll), context);
 					}
