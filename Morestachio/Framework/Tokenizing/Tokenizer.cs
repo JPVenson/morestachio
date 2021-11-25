@@ -255,11 +255,14 @@ namespace Morestachio.Framework.Tokenizing
 		/// <param name="parserOptions"></param>
 		/// <param name="context"></param>
 		/// <returns></returns>
-		public static async TokenizerResultPromise Tokenize(ParserOptions parserOptions,
+		public static TokenizerResultPromise Tokenize(ParserOptions parserOptions,
 			TokenzierContext context)
 		{
-			var templateString = parserOptions.Template;
-
+			return Tokenize(parserOptions, context, parserOptions.Template.Matches(context));
+		}
+		internal static async TokenizerResultPromise Tokenize(ParserOptions parserOptions,
+			TokenzierContext context, IEnumerable<TokenMatch> templateString)
+		{
 			var scopestack = new Stack<ScopeStackItem>();
 			List<string> partialsNames;
 
@@ -419,9 +422,7 @@ namespace Morestachio.Framework.Tokenizing
 
 			context.TokenizeComments = parserOptions.TokenizeComments;
 			context.SetLocation(0);
-
-
-			foreach (var match in templateString.Matches(context))
+			foreach (var match in templateString)
 			{
 				if (match.ContentToken)
 				{

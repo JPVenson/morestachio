@@ -145,7 +145,7 @@ namespace Morestachio.Tests.PerfTests
 			exp += ")";
 			return new Tuple<string, Dictionary<string, object>>(exp, data);
 		}
-		
+
 		[Test()]
 		[TestCase("Model Depth", 100, 30000, 10, 5000)]
 		public async Task TestTokenizerTime(string variation, int modelDepth, int sizeOfTemplate, int inserts, int runs)
@@ -157,11 +157,23 @@ namespace Morestachio.Tests.PerfTests
 			{
 				baseTemplate += model.Item2;
 			}
-			
-			var options = new ParserOptions(baseTemplate, () => Stream.Null);
-			var tokenzierContext = new TokenzierContext(new List<int>(), options.CultureInfo);
-			var tokenizerResult = await Tokenizer.Tokenize(options, tokenzierContext);
 
+			var tokenizingOptions = new ParserOptions(baseTemplate, () => Stream.Null);
+			var tokenizingTime = new Stopwatch();
+			var stringMatchingTime = new Stopwatch();
+
+			for (var i = 0; i < runs; i++)
+			{
+				var tokenzierContext = new TokenzierContext(new List<int>(), tokenizingOptions.CultureInfo);
+				stringMatchingTime.Start();
+				var tokens = tokenizingOptions.Template.Matches(tokenzierContext).ToArray();
+				stringMatchingTime.Stop();
+				tokenizingTime.Start();
+				var tokenizerResult = await Tokenizer.Tokenize(tokenizingOptions, tokenzierContext, tokens);
+				tokenizingTime.Stop();
+			}
+
+			Console.WriteLine($"Tokenizing time: {tokenizingTime.Elapsed:c}; Matching time: {stringMatchingTime.Elapsed:c}");
 		}
 
 		[Test()]
@@ -196,21 +208,27 @@ namespace Morestachio.Tests.PerfTests
 			var morestachioDocumentInfo = await Parser.ParseWithOptionsAsync(new ParserOptions("asdf"));
 			var docRenderer = morestachioDocumentInfo.CreateRenderer();
 			var compRenderer = morestachioDocumentInfo.CreateCompiledRenderer();
-			
+
 			(await docRenderer.RenderAsync(new object())).Stream.Dispose();
 			(await compRenderer.RenderAsync(new object())).Stream.Dispose();
 
 			var totalTime = Stopwatch.StartNew();
-			var tokenizingTime = Stopwatch.StartNew();
+
+			var tokenizingOptions = new ParserOptions(baseTemplate, () => Stream.Null);
+
+			var tokenizingTime = new Stopwatch();
+			var stringMatchingTime = new Stopwatch();
 
 			for (var i = 0; i < runs; i++)
 			{
-				var options = new ParserOptions(baseTemplate, () => Stream.Null);
-				var tokenzierContext = new TokenzierContext(new List<int>(), options.CultureInfo);
-				tokenizerResult = await Tokenizer.Tokenize(options, tokenzierContext);
+				var tokenzierContext = new TokenzierContext(new List<int>(), tokenizingOptions.CultureInfo);
+				stringMatchingTime.Start();
+				var tokens = tokenizingOptions.Template.Matches(tokenzierContext).ToArray();
+				stringMatchingTime.Stop();
+				tokenizingTime.Start();
+				tokenizerResult = await Tokenizer.Tokenize(tokenizingOptions, tokenzierContext, tokens);
+				tokenizingTime.Stop();
 			}
-
-			tokenizingTime.Stop();
 
 			var parseTime = Stopwatch.StartNew();
 			for (var i = 0; i < runs; i++)
@@ -220,7 +238,7 @@ namespace Morestachio.Tests.PerfTests
 			}
 
 			parseTime.Stop();
-			
+
 			var renderTime = Stopwatch.StartNew();
 
 			for (var i = 0; i < runs; i++)
@@ -235,7 +253,7 @@ namespace Morestachio.Tests.PerfTests
 			var compileTime = Stopwatch.StartNew();
 			for (var i = 0; i < runs; i++)
 			{
-				template.CreateCompiledRenderer();
+				template.CreateCompiledRenderer().Dispose();
 			}
 
 			compileTime.Stop();
@@ -252,12 +270,13 @@ namespace Morestachio.Tests.PerfTests
 			var modelPerformanceCounterEntity = new PerformanceCounter.ModelPerformanceCounterEntity(variation)
 			{
 				TimePerRun = new TimeSpan((tokenizingTime.ElapsedTicks / runs) +
-				                          (parseTime.ElapsedTicks / runs) +
-				                          (renderTime.ElapsedTicks / runs)),
+										  (parseTime.ElapsedTicks / runs) +
+										  (renderTime.ElapsedTicks / runs)),
 				RunOver = runs,
 				ModelDepth = modelDepth,
 				SubstitutionCount = inserts,
 				TemplateSize = sizeOfTemplate,
+				TokenMatchTime = stringMatchingTime.Elapsed,
 				TokenizingTime = tokenizingTime.Elapsed,
 				ParseTime = parseTime.Elapsed,
 				RenderTime = renderTime.Elapsed,

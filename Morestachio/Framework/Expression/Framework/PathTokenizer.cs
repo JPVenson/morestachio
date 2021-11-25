@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Parsing.ParserErrors;
 
@@ -15,7 +16,7 @@ namespace Morestachio.Framework.Expression.Framework
 		public PathTokenizer()
 		{
 			PathParts = new PathPartsCollection();
-			CurrentPart = "";
+			_currentPart = new StringBuilder();
 		}
 
 		private PathPartsCollection PathParts { get; set; }
@@ -94,24 +95,63 @@ namespace Morestachio.Framework.Expression.Framework
 			}
 		}
 
-		public string CurrentPart { get; set; }
+		private StringBuilder _currentPart;
 		public bool LastCharWasDelimiter { get; set; }
+
+		private bool PartEquals(string text)
+		{
+			if (_currentPart.Length != text.Length)
+			{
+				return false;
+			}
+
+			for (int i = 0; i < text.Length; i++)
+			{
+				if (_currentPart[i] != text[i])
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		private bool PartEquals(char text)
+		{
+			if (_currentPart.Length != 1)
+			{
+				return false;
+			}
+
+			return _currentPart[0] == text;
+		}
+
+		private bool PartStartsWith(char text)
+		{
+			if (_currentPart.Length < 1)
+			{
+				return false;
+			}
+
+			return _currentPart[0] == text;
+		}
 
 		public bool Add(char c, TokenzierContext context, int index, out Func<IMorestachioError> errProducer)
 		{
 			if (!Tokenizer.IsExpressionPathChar(c))
 			{
+				var text = _currentPart.ToString();
 				errProducer = () => new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-						.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
-					CurrentPart);
+						.AddWindow(new CharacterSnippedLocation(1, index, text)), text);
 				return false;
 			}
 
 			if (PathParts.IsNullValue)
 			{
+				var text = _currentPart.ToString();
 				errProducer = () => new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-						.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
-					CurrentPart,
+						.AddWindow(new CharacterSnippedLocation(1, index, text)),
+					text,
 					"Nothing can follow on a null");
 				return false;
 			}
@@ -119,36 +159,39 @@ namespace Morestachio.Framework.Expression.Framework
 
 			if (c == '/')
 			{
-				if (CurrentPart == "..")
+				if (PartEquals(".."))
 				{
 					if (PathParts.Any && !PathParts.HasParentSelector)
 					{
+						var text = _currentPart.ToString();
 						errProducer = () => new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-								.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
-							CurrentPart,
+								.AddWindow(new CharacterSnippedLocation(1, index, text)),
+							text,
 							"An Parent selector '..\\' can only follow on another parent selector like and never on an root or an data selector");
 
 						return false;
 					}
 					errProducer = null;
 					PathParts.Add(null, PathType.ParentSelector);
-					CurrentPart = string.Empty;
+					_currentPart.Clear();
 					return true;
 				}
+				var errText = _currentPart.ToString();
 				errProducer = () => new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-						.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
-					CurrentPart,
+						.AddWindow(new CharacterSnippedLocation(1, index, errText)),
+					errText,
 					"Unexpected '/'. Expected ether the start of an expression or an './'");
 				return false;
 			}
 
 			if (c == '~')
 			{
-				if (CurrentPart != string.Empty || PathParts.Any)
+				if (_currentPart.Length > 0 || PathParts.Any)
 				{
+					var text = _currentPart.ToString();
 					errProducer = () => new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-							.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
-						CurrentPart,
+							.AddWindow(new CharacterSnippedLocation(1, index, text)),
+						text,
 						"An root selector '~' must be at the start of an expression");
 
 					return false;
@@ -156,7 +199,7 @@ namespace Morestachio.Framework.Expression.Framework
 				
 				errProducer = null;
 				PathParts.Add(null, PathType.RootSelector);
-				CurrentPart = string.Empty;
+				_currentPart.Clear();
 				return true;
 			}
 
@@ -169,30 +212,30 @@ namespace Morestachio.Framework.Expression.Framework
 					return false;
 				}
 				PathParts.Add(null, PathType.ObjectSelector);
-				CurrentPart = string.Empty;
+				_currentPart.Clear();
 				return true;
 			}
 
-			if (c != '.' && CurrentPart == "." && !PathParts.Any)
+			if (c != '.' && PartEquals('.') && !PathParts.Any)
 			{
 				//in this case somebody wrote .data
 				//so ignore the dot
-				CurrentPart = string.Empty;
+				_currentPart.Clear();
 			}
 			LastCharWasDelimiter = c == '.';
 
-			if (CurrentPart != string.Empty && CurrentPart != "." && c == '.')
+			if (_currentPart.Length > 0 && !PartEquals('.') && c == '.')
 			{
 				if (!ComputeCurrentPart(context, index, out errProducer))
 				{
 					return false;
 				}
-
-				CurrentPart = "";
+				
+				_currentPart.Clear();
 			}
 			else
 			{
-				CurrentPart += c;
+				_currentPart.Append(c);
 			}
 			
 			errProducer = null;
@@ -205,22 +248,24 @@ namespace Morestachio.Framework.Expression.Framework
 			var checkPathPart = CheckPathPart();
 			if (checkPathPart != -1)
 			{
+				var text = _currentPart.ToString();
 				errProducer = () => (
 					new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-							.AddWindow(new CharacterSnippedLocation(1, checkPathPart, CurrentPart)),
-						CurrentPart));
+							.AddWindow(new CharacterSnippedLocation(1, checkPathPart, text)),
+						text));
 
 				return false;
 			}
 
-			if (CurrentPart == "null")
+			if (PartEquals("null"))
 			{
 				if (PathParts.Any)
 				{
+					var text = _currentPart.ToString();
 					errProducer = () => (
 						new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-								.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
-							CurrentPart,
+								.AddWindow(new CharacterSnippedLocation(1, index, text)),
+							text,
 							"An null must be at the start of an expression"));
 
 					return false;
@@ -229,14 +274,15 @@ namespace Morestachio.Framework.Expression.Framework
 				return true;
 			}
 
-			if (CurrentPart == "this")
+			if (PartEquals("this"))
 			{
 				if (PathParts.Any)
 				{
+					var text = _currentPart.ToString();
 					errProducer = () => (
 						new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-								.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
-							CurrentPart,
+								.AddWindow(new CharacterSnippedLocation(1, index, text)),
+							text,
 							"An 'this' must be at the start of an expression"));
 
 					return false;
@@ -245,14 +291,15 @@ namespace Morestachio.Framework.Expression.Framework
 				return true;
 			}
 
-			if (CurrentPart == ".")
+			if (PartEquals('.'))
 			{
 				if (PathParts.Any)
 				{
+					var text = _currentPart.ToString();
 					errProducer = () => (
 						new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-								.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
-							CurrentPart,
+								.AddWindow(new CharacterSnippedLocation(1, index, text)),
+							text,
 							"An '.' must be at the start of an expression"));
 
 					return false;
@@ -261,74 +308,74 @@ namespace Morestachio.Framework.Expression.Framework
 				return true;
 			}
 
-			if (CurrentPart == "true" || CurrentPart == "false")
+			if (PartEquals("true") || PartEquals("false"))
 			{
 				if (PathParts.Any)
 				{
+					var text = _currentPart.ToString();
 					errProducer = () => (
 						new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-								.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
-							CurrentPart,
+								.AddWindow(new CharacterSnippedLocation(1, index, text)),
+							text,
 							"An boolean must be at the start of an expression"));
 
 					return false;
 				}
 
-				PathParts.Add(CurrentPart, PathType.Boolean);
+				PathParts.Add(_currentPart.ToString(), PathType.Boolean);
 				return true;
 			}
-			if (CurrentPart == "../")
+			if (PartEquals("../"))
 			{
 				PathParts.Add(null, PathType.ParentSelector);
 				return true;
 			}
-			if (CurrentPart == "~")
+			if (PartEquals('~'))
 			{
 				PathParts.Add(null, PathType.RootSelector);
 				return true;
 			}
-			if (CurrentPart == "?")
+			if (PartEquals('?'))
 			{
 				PathParts.Add(null, PathType.ObjectSelector);
 				return true;
 			}
-			PathParts.Add(CurrentPart, PathType.DataPath);
+			PathParts.Add(_currentPart.ToString(), PathType.DataPath);
 			return true;
 		}
 
 		private int CheckPathPart()
 		{
-			var part = CurrentPart;
-			if (part.StartsWith("$") && part != "$")
+			if (PartStartsWith('$') && !PartEquals('$'))
 			{
-				part = part.Substring(1, part.Length - 1);
+				_currentPart = _currentPart.Remove(0, 1);
 			}
 
-			if (part.StartsWith("."))
+			if (PartStartsWith('.'))
 			{
-				if (part.Equals("../"))
+				if (PartEquals("../"))
 				{
 					return -1;
 				}
-				if (part.Equals("."))
+				if (PartEquals('.'))
 				{
 					return -1;
 				}
 
 				return 0;
 			}
-			if (part.Equals("~"))
+			if (PartEquals('~'))
 			{
 				return -1;
 			}
-			if (part.Equals("?"))
+			if (PartEquals('?'))
 			{
 				return -1;
 			}
 
-			for (int i = 0; i < part.Length; i++)
+			for (int i = 0; i < _currentPart.Length; i++)
 			{
-				if (!Tokenizer.IsExpressionDataPathChar(part[i]))
+				if (!Tokenizer.IsExpressionDataPathChar(_currentPart[i]))
 				{
 					return i;
 				}
@@ -343,7 +390,7 @@ namespace Morestachio.Framework.Expression.Framework
 
 			if (last == null)
 			{
-				if (CurrentPart == string.Empty)
+				if (_currentPart.Length == 0)
 				{
 					last = new KeyValuePair<string, PathType>(string.Empty, PathType.DataPath);
 				}
@@ -383,30 +430,31 @@ namespace Morestachio.Framework.Expression.Framework
 
 		public KeyValuePair<string, PathType>? CompileCurrent(TokenzierContext context, int index)
 		{
-			if (CurrentPart == ".")
+			if (PartEquals('.'))
 			{
 				PathParts.Add(null, PathType.SelfAssignment);
 			}
-			else if (CurrentPart == "../")
+			else if (PartEquals("../"))
 			{
 				PathParts.Add(null, PathType.ParentSelector);
 			}
-			else if (CurrentPart == "~")
+			else if (PartEquals('~'))
 			{
 				PathParts.Add(null, PathType.RootSelector);
 			}
-			else if (CurrentPart == "?")
+			else if (PartEquals('?'))
 			{
 				PathParts.Add(null, PathType.ObjectSelector);
 			}
-			else if (CurrentPart.Trim() != string.Empty)
+			else if (_currentPart.Length > 0 /*.Trim() != string.Empty*/)
 			{
 				if (!ComputeCurrentPart(context, index, out var errProducer))
 				{
+					var text = _currentPart.ToString();
 					errProducer();
 					context.Errors.Add(new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-							.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
-						CurrentPart,
+							.AddWindow(new CharacterSnippedLocation(1, index, text)),
+						text,
 						"Invalid character"));
 					return default;
 				}
@@ -420,14 +468,15 @@ namespace Morestachio.Framework.Expression.Framework
 			{
 				var pathPartsLast = PathParts.Last.Value;
 				PathParts.RemoveLast();
-				CurrentPart = "";
+				_currentPart.Clear();
 				return pathPartsLast;
 			}
 			
+			var errText = _currentPart.ToString();
 			context.Errors.Add(
 				new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-						.AddWindow(new CharacterSnippedLocation(1, index, CurrentPart)),
-					CurrentPart,
+						.AddWindow(new CharacterSnippedLocation(1, index, errText)),
+					errText,
 					"Invalid character"));
 			return null;
 		}

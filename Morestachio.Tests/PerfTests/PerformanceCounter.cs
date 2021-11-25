@@ -40,6 +40,8 @@ namespace Morestachio.Tests.PerfTests
 			public int SubstitutionCount { get; set; }
 			[DisplayName("Template Size(byte)")]
 			public int TemplateSize { get; set; }
+			[DisplayName("Token Match Time")]
+			public TimeSpan TokenMatchTime { get; set; }
 			[DisplayName("TokenizingTime")]
 			public TimeSpan TokenizingTime { get; set; }
 			[DisplayName("ParseTime")]
@@ -52,6 +54,7 @@ namespace Morestachio.Tests.PerfTests
 			public TimeSpan CompiledRenderTime { get; set; }
 			[DisplayName("Total Time")]
 			public TimeSpan TotalTime { get; set; }
+
 
 			private static MemberInfo GetMemberName(Expression expression)
 			{
@@ -154,6 +157,7 @@ namespace Morestachio.Tests.PerfTests
 					$"{MakeHeaderField(all, f => f.ModelDepth.ToString(), fieldSizes)} {delimiter} " +
 					$"{MakeHeaderField(all, f => f.SubstitutionCount.ToString(), fieldSizes)} {delimiter} " +
 					$"{MakeHeaderField(all, f => f.TemplateSize.ToString(), fieldSizes)} {delimiter} " +
+					$"{MakeHeaderField(all, f => f.TokenMatchTime.ToString("c"), fieldSizes)} {delimiter} " +
 					$"{MakeHeaderField(all, f => f.TokenizingTime.ToString("c"), fieldSizes)} {delimiter} " +
 					$"{MakeHeaderField(all, f => f.ParseTime.ToString("c"), fieldSizes)} {delimiter} " +
 					$"{MakeHeaderField(all, f => f.RenderTime.ToString("c"), fieldSizes)} {delimiter} " +
@@ -167,6 +171,7 @@ namespace Morestachio.Tests.PerfTests
 					$"{MakeHeaderFieldSeperator(all, f => f.ModelDepth.ToString())}{delimiter}" +
 					$"{MakeHeaderFieldSeperator(all, f => f.SubstitutionCount.ToString())}{delimiter}" +
 					$"{MakeHeaderFieldSeperator(all, f => f.TemplateSize.ToString())}{delimiter}" +
+					$"{MakeHeaderFieldSeperator(all, f => f.TokenMatchTime.ToString("c"))}{delimiter}" +
 					$"{MakeHeaderFieldSeperator(all, f => f.TokenizingTime.ToString("c"))}{delimiter}" +
 					$"{MakeHeaderFieldSeperator(all, f => f.ParseTime.ToString("c"))}{delimiter}" +
 					$"{MakeHeaderFieldSeperator(all, f => f.RenderTime.ToString("c"))}{delimiter}" +
@@ -187,6 +192,7 @@ namespace Morestachio.Tests.PerfTests
 					$"{MakeValueField(this, e => e.ModelDepth.ToString(), fieldSizes)} {delimiter} " +
 					$"{MakeValueField(this, e => e.SubstitutionCount.ToString(), fieldSizes)} {delimiter} " +
 					$"{MakeValueField(this, e => e.TemplateSize.ToString(), fieldSizes)} {delimiter} " +
+					$"{MakeValueField(this, e => e.TokenMatchTime.ToString("c"), fieldSizes)} {delimiter} " +
 					$"{MakeValueField(this, e => e.TokenizingTime.ToString("c"), fieldSizes)} {delimiter} " +
 					$"{MakeValueField(this, e => e.ParseTime.ToString("c"), fieldSizes)} {delimiter} " +
 					$"{MakeValueField(this, e => e.RenderTime.ToString("c"), fieldSizes)} {delimiter} " +
