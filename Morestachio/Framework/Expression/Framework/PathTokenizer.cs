@@ -20,7 +20,6 @@ namespace Morestachio.Framework.Expression.Framework
 		}
 
 		private PathPartsCollection PathParts { get; set; }
-
 		internal class PathPartsCollection
 		{
 			public PathPartsCollection()
@@ -98,14 +97,14 @@ namespace Morestachio.Framework.Expression.Framework
 		private StringBuilder _currentPart;
 		public bool LastCharWasDelimiter { get; set; }
 
-		private bool PartEquals(string text)
+		private bool PartEquals(string text, int offset = 0)
 		{
 			if (_currentPart.Length != text.Length)
 			{
 				return false;
 			}
 
-			for (int i = 0; i < text.Length; i++)
+			for (int i = offset; i < text.Length; i++)
 			{
 				if (_currentPart[i] != text[i])
 				{
@@ -116,24 +115,24 @@ namespace Morestachio.Framework.Expression.Framework
 			return true;
 		}
 
-		private bool PartEquals(char text)
+		private bool PartEquals(char text, int offset = 0)
 		{
 			if (_currentPart.Length != 1)
 			{
 				return false;
 			}
 
-			return _currentPart[0] == text;
+			return _currentPart[offset] == text;
 		}
 
-		private bool PartStartsWith(char text)
+		private bool PartStartsWith(char text, int offset = 0)
 		{
 			if (_currentPart.Length < 1)
 			{
 				return false;
 			}
 
-			return _currentPart[0] == text;
+			return _currentPart[offset] == text;
 		}
 
 		public bool Add(char c, TokenzierContext context, int index, out Func<IMorestachioError> errProducer)
@@ -346,34 +345,35 @@ namespace Morestachio.Framework.Expression.Framework
 
 		private int CheckPathPart()
 		{
+			var offset = 0;
 			if (PartStartsWith('$') && !PartEquals('$'))
 			{
-				_currentPart = _currentPart.Remove(0, 1);
+				offset = 1;
 			}
 
-			if (PartStartsWith('.'))
+			if (PartStartsWith('.', offset))
 			{
-				if (PartEquals("../"))
+				if (PartEquals("../", offset))
 				{
 					return -1;
 				}
-				if (PartEquals('.'))
+				if (PartEquals('.', offset))
 				{
 					return -1;
 				}
 
 				return 0;
 			}
-			if (PartEquals('~'))
+			if (PartEquals('~', offset))
 			{
 				return -1;
 			}
-			if (PartEquals('?'))
+			if (PartEquals('?', offset))
 			{
 				return -1;
 			}
 
-			for (int i = 0; i < _currentPart.Length; i++)
+			for (int i = offset; i < _currentPart.Length; i++)
 			{
 				if (!Tokenizer.IsExpressionDataPathChar(_currentPart[i]))
 				{

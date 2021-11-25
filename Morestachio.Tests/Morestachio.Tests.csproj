@@ -2,7 +2,7 @@
 
   <PropertyGroup>
 	  <!--netcoreapp2.0; is not supported via nunit? I dont care much as quite old and not much usage anymore-->
-	  <TargetFrameworks>netcoreapp2.1;netcoreapp2.2;netcoreapp3.0;netcoreapp3.1;net461;net462;net47;net471;net472;net5;</TargetFrameworks>
+	  <TargetFrameworks>netcoreapp2.1;netcoreapp2.2;netcoreapp3.0;netcoreapp3.1;net461;net462;net47;net471;net472;net5;net6.0;</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
