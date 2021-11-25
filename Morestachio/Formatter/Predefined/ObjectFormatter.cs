@@ -72,6 +72,12 @@ namespace Morestachio.Formatter.Predefined
 			}
 		}
 
+		[MorestachioGlobalFormatter("new", "Creates a new object from given parameters with names. Example: {{new([Name]\"Test\", [Age] 57, [Gender] Genders.Male)}}")]
+		public static object New([RestParameter]FormatterParameterList values)
+		{
+			return new Dictionary<string, object>(values.Parameters.ToDictionary(e => e.ParameterName, e => e.Value));
+		}
+
 		[MorestachioFormatter("Call", "Calls a formatter by dynamically providing name and arguments")]
 		public static async Task<object> Call(object source, string formatterName,
 			[ExternalData] ParserOptions options,

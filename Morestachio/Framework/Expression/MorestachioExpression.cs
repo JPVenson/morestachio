@@ -209,13 +209,7 @@ namespace Morestachio.Framework.Expression
 					var key = pathParts[0].Key;
 					pathQueue[idx++] = ((context, scopeData, expression) =>
 					{
-						var variable = scopeData.GetVariable(context, key);
-						if (variable != null)
-						{
-							return variable;
-						}
-
-						return context.ExecuteDataPath(key, expression, context.Value?.GetType(), scopeData);
+						return scopeData.GetVariable(context, key) ?? context.ExecuteDataPath(key, expression, scopeData);
 					});
 				}
 
@@ -228,7 +222,7 @@ namespace Morestachio.Framework.Expression
 						case PathType.DataPath:
 							pathQueue[idx++] = ((contextObject, scopeData, expression) =>
 							{
-								return contextObject.ExecuteDataPath(key, expression, contextObject.Value?.GetType(), scopeData);
+								return contextObject.ExecuteDataPath(key, expression, scopeData);
 							});
 							break;
 						case PathType.RootSelector:
@@ -247,7 +241,7 @@ namespace Morestachio.Framework.Expression
 						case PathType.ObjectSelector:
 							pathQueue[idx++] = ((contextObject, scopeData, expression) =>
 							{
-								return contextObject.ExecuteObjectSelector(key, contextObject.Value?.GetType(), scopeData);
+								return contextObject.ExecuteObjectSelector(key, scopeData);
 							});
 							break;
 						case PathType.Null:

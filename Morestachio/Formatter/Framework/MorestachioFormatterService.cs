@@ -781,7 +781,7 @@ namespace Morestachio.Formatter.Framework
 
 			//{{"test", Buffer.X, "1"}}
 			//only use the values that are not matched.
-			if (typeof(Tuple<string, object>[]) == hasRest.ParameterType)
+			if (typeof(FormatterParameterList) == hasRest.ParameterType)
 			{
 				var idxSource = new List<int>();
 				foreach (var argument in templateArguments)
@@ -799,15 +799,15 @@ namespace Morestachio.Formatter.Framework
 				{
 					ObtainValue = (source, values) =>
 					{
-						var vals = new object[idxSource.Count];
+						var vals = new FormatterParameter[idxSource.Count];
 						for (var index = 0; index < idxSource.Count; index++)
 						{
 							var i = idxSource[index];
 							var formatterArgumentType = values[i];
-							vals[index] = Tuple.Create(formatterArgumentType.Name, formatterArgumentType.Value);
+							vals[index] = new FormatterParameter(formatterArgumentType.Name, formatterArgumentType.Value);
 						}
 
-						return vals;
+						return new FormatterParameterList(vals);
 					}
 				};
 			}

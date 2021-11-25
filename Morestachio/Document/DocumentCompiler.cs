@@ -87,7 +87,7 @@ namespace Morestachio.Document
 			{
 				if (!data.IsOutputLimited)
 				{
-					for (int i = 0; i < docs.Length; i++)
+					for (int i = 0; i < actions.Length; i++)
 					{
 						var action = actions[i];
 						if (action is CompilationAsync ca)
@@ -102,7 +102,7 @@ namespace Morestachio.Document
 				}
 				else
 				{
-					for (int i = 0; i < docs.Length; i++)
+					for (int i = 0; i < actions.Length; i++)
 					{
 						if (!DocumentItemBase.ContinueBuilding(stream, data))
 						{

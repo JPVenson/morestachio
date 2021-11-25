@@ -8,14 +8,17 @@ namespace Morestachio.Formatter.Framework
 	public class MultiFormatterInfoCollection : IReadOnlyList<MultiFormatterInfo>
 	{
 		private readonly IReadOnlyList<MultiFormatterInfo> _source;
-		
+
 		/// <inheritdoc />
 		public MultiFormatterInfoCollection(IEnumerable<MultiFormatterInfo> source)
 		{
 			_source = source.ToArray();
-			SourceObject = source.FirstOrDefault(e => e.IsSourceObject);
-			ParamsArgument = source.FirstOrDefault(e => e.IsRestObject);
-			NonParamsArguments = this.Except(new[] {ParamsArgument}).ToArray();
+			SourceObject = _source.FirstOrDefault(e => e.IsSourceObject);
+			ParamsArgument = _source.FirstOrDefault(e => e.IsRestObject);
+			NonParamsArguments = this.Except(new[]
+			{
+				ParamsArgument, 
+			}).ToArray();
 			MandetoryArguments = this.Where(e => !e.IsRestObject && !e.IsOptional && !e.IsSourceObject && !e.IsInjected).ToArray();
 		}
 
@@ -24,13 +27,13 @@ namespace Morestachio.Formatter.Framework
 		{
 			return _source.GetEnumerator();
 		}
-		
+
 		/// <inheritdoc />
 		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return _source.GetEnumerator();
 		}
-		
+
 		/// <inheritdoc />
 		public int Count
 		{
@@ -62,13 +65,12 @@ namespace Morestachio.Formatter.Framework
 		/// <summary>
 		///		The Source argument
 		/// </summary>
-		
+
 		public MultiFormatterInfo SourceObject { get; private set; }
 
 		/// <summary>
 		///		The Params argument
 		/// </summary>
-		 
 		public MultiFormatterInfo ParamsArgument { get; private set; }
 
 		/// <summary>
@@ -94,7 +96,7 @@ namespace Morestachio.Formatter.Framework
 			}
 
 			ParamsArgument = this.LastOrDefault();
-			
+
 			if (ParamsArgument == null)
 			{
 				return this;
@@ -105,7 +107,7 @@ namespace Morestachio.Formatter.Framework
 				ParamsArgument.IsRestObject = true;
 			}
 
-			NonParamsArguments = this.Except(new[] {ParamsArgument}).ToArray();
+			NonParamsArguments = this.Except(new[] { ParamsArgument }).ToArray();
 			return this;
 		}
 	}

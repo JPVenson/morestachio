@@ -7,6 +7,7 @@ using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
 using Morestachio.Parsing.ParserErrors;
+using Morestachio.Util;
 
 namespace Morestachio.Framework.Expression.Parser
 {
@@ -114,7 +115,7 @@ namespace Morestachio.Framework.Expression.Parser
 			var delimiter = textPart[index];
 			index++;
 			consumed = 1;
-			var stringContents = new StringBuilder();
+			var stringContents = StringBuilderCache.Acquire(textPart.Length);
 
 			var endDelimiterFound = false;
 			var isEscapeChar = false;
@@ -154,12 +155,12 @@ namespace Morestachio.Framework.Expression.Parser
 					.AddWindow(new CharacterSnippedLocation(0, text.Length - 1, text)), "string", text[text.Length - 1].ToString(), "expected to find " + delimiter));
 			}
 
-			return new StringToken(stringContents.ToString(), delimiter, context.CurrentLocation.Offset(index - consumed + 1));
+			return new StringToken(StringBuilderCache.GetStringAndRelease(stringContents), delimiter, context.CurrentLocation.Offset(index - consumed + 1));
 		}
 
 		private static IExpressionToken TokenizeArgument(string textPart, int index, out int consumed, string text, TokenzierContext context)
 		{
-			var expressionContents = new StringBuilder();
+			var expressionContents = StringBuilderCache.Acquire();
 			consumed = 1;
 			index++;
 			for (int i = index; i < textPart.Length; i++)
@@ -173,7 +174,7 @@ namespace Morestachio.Framework.Expression.Parser
 
 				if (c == ']')
 				{
-					return new ExpressionValueToken(ExpressionTokenType.Argument, expressionContents.ToString(), context.CurrentLocation.Offset(index - consumed + 1));
+					return new ExpressionValueToken(ExpressionTokenType.Argument, StringBuilderCache.GetStringAndRelease(expressionContents), context.CurrentLocation.Offset(index - consumed + 1));
 				}
 
 				expressionContents.Append(c);
@@ -269,7 +270,7 @@ namespace Morestachio.Framework.Expression.Parser
 		{
 			consumed = 0;
 			var isFloatingNumber = false;
-			var nrText = new StringBuilder();
+			var nrText = StringBuilderCache.Acquire();
 			for (; index < textPart.Length; index++)
 			{
 				consumed++;
@@ -304,7 +305,7 @@ namespace Morestachio.Framework.Expression.Parser
 				nrText.Append(c);
 			}
 
-			textPart = nrText.ToString();
+			textPart = StringBuilderCache.GetStringAndRelease(nrText);
 			if (Number.TryParse(textPart, CultureInfo.InvariantCulture, out var nr))
 			{
 				return new NumberToken(nr, context.CurrentLocation.Offset(index - consumed + 1));

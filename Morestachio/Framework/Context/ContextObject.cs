@@ -200,8 +200,7 @@ namespace Morestachio.Framework.Context
 			{
 				return preHandeld;
 			}
-
-			var type = _value?.GetType();
+			
 			if (elements.Current.Value == PathType.RootSelector) //go the root object
 			{
 				return ExecuteRootSelector() ?? this;
@@ -225,7 +224,7 @@ namespace Morestachio.Framework.Context
 				}
 
 				//ALWAYS return the context, even if the value is null.
-				return ExecuteObjectSelector(elements.Current.Key, type, scopeData);
+				return ExecuteObjectSelector(elements.Current.Key, scopeData);
 			}
 			else if (elements.Current.Value == PathType.Boolean)
 			{
@@ -245,12 +244,12 @@ namespace Morestachio.Framework.Context
 			}
 			else if (elements.Current.Value == PathType.DataPath)
 			{
-				return ExecuteDataPath(elements.Current.Key, morestachioExpression, type, scopeData);
+				return ExecuteDataPath(elements.Current.Key, morestachioExpression, scopeData);
 			}
 			return retval;
 		}
 
-		internal ContextObject ExecuteObjectSelector(string key, Type type, ScopeData scopeData)
+		internal ContextObject ExecuteObjectSelector(string key, ScopeData scopeData)
 		{
 			ContextObject innerContext = null;
 			if (!scopeData.ParserOptions.HandleDictionaryAsObject && _value is IDictionary<string, object> dictList)
@@ -261,6 +260,7 @@ namespace Morestachio.Framework.Context
 			{
 				if (_value != null)
 				{
+					var type = _value.GetType();
 					innerContext = scopeData.ParserOptions.CreateContextObject(key, type
 							.GetTypeInfo()
 							.GetProperties(BindingFlags.Instance | BindingFlags.Public)
@@ -287,7 +287,7 @@ namespace Morestachio.Framework.Context
 			return innerContext ?? this;
 		}
 
-		internal ContextObject ExecuteDataPath(string key, IMorestachioExpression morestachioExpression, Type type, ScopeData scopeData)
+		internal ContextObject ExecuteDataPath(string key, IMorestachioExpression morestachioExpression, ScopeData scopeData)
 		{
 			if (_value is null)
 			{
@@ -306,6 +306,7 @@ namespace Morestachio.Framework.Context
             }
 
 			var innerContext = scopeData.ParserOptions.CreateContextObject(key, null, this);
+			var type = _value?.GetType();
 			//A value resolver should always be checked first to allow overwriting of all other logic
 			if (scopeData.ParserOptions.ValueResolver?.CanResolve(type, _value, key, innerContext) == true)
 			{

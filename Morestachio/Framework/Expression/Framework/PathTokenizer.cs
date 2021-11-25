@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Parsing.ParserErrors;
+using Morestachio.Util;
 
 namespace Morestachio.Framework.Expression.Framework
 {
@@ -16,7 +17,7 @@ namespace Morestachio.Framework.Expression.Framework
 		public PathTokenizer()
 		{
 			PathParts = new PathPartsCollection();
-			_currentPart = new StringBuilder();
+			_currentPart = StringBuilderCache.Acquire();
 		}
 
 		private PathPartsCollection PathParts { get; set; }
@@ -410,12 +411,14 @@ namespace Morestachio.Framework.Expression.Framework
 
 		public IList<KeyValuePair<string, PathType>> Compile(TokenzierContext context, int index)
 		{
+			StringBuilderCache.Release(_currentPart);
 			return PathParts.GetList();
 		}
 
 		public IList<KeyValuePair<string, PathType>> CompileListWithCurrent(TokenzierContext context, int index)
 		{
 			var last = CompileCurrent(context, index);
+			StringBuilderCache.Release(_currentPart);
 			if (last == null)
 			{
 				return PathParts.GetList();
