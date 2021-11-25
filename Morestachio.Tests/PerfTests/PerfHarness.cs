@@ -253,7 +253,7 @@ namespace Morestachio.Tests.PerfTests
 			var compileTime = Stopwatch.StartNew();
 			for (var i = 0; i < runs; i++)
 			{
-				template.CreateCompiledRenderer().Dispose();
+				template.CreateCompiledRenderer();
 			}
 
 			compileTime.Stop();
