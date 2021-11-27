@@ -141,11 +141,7 @@ namespace Morestachio.Formatter.Framework
 
 		/// <inheritdoc />
 		public bool AllParametersAllDefaultValue { get; set; }
-
-		/// <inheritdoc />
-		[Obsolete("The Formatter name must now always be in the exact casing as the given name", true)]
-		public StringComparison FormatterNameCompareMode { get; set; } = StringComparison.Ordinal;
-
+		
 		/// <summary>
 		///		Specifies how exceptions should be handled
 		/// </summary>
@@ -311,6 +307,7 @@ namespace Morestachio.Formatter.Framework
 				var functionTarget = formatter.Model.FunctionTarget;
 				var method = formatter.TestedTypes.PrepareInvoke(mappedValues);
 
+				//if this is an instance method use the source type as the target for invoking the method
 				if (formatter.Model.LinkFunctionTarget && !method.IsStatic &&
 					method.DeclaringType.IsInstanceOfType(sourceValue))
 				{

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 using Morestachio.Formatter.Framework.Attributes;
 using NetEncoding = System.Text.Encoding;
@@ -13,6 +14,7 @@ namespace Morestachio.Formatter.Constants
 	{
 		/// <summary>Gets an encoding for the ASCII (7-bit) character set.</summary>
 		/// <returns>An  encoding for the ASCII (7-bit) character set.</returns>
+		[Description("Gets an encoding for the ASCII (7-bit) character set.")]
 		public static Encoding ASCII
 		{
 			get { return new Encoding(NetEncoding.ASCII); }
@@ -20,6 +22,7 @@ namespace Morestachio.Formatter.Constants
 		
 		/// <summary>Gets an encoding for the UTF-16 format that uses the big endian byte order.</summary>
 		/// <returns>An encoding object for the UTF-16 format that uses the big endian byte order.</returns>
+		[Description("Gets an encoding for the UTF-16 format that uses the big endian byte order.")]
 		public static Encoding BigEndianUnicode
 		{
 			get { return new Encoding(NetEncoding.BigEndianUnicode); }
@@ -27,6 +30,7 @@ namespace Morestachio.Formatter.Constants
 		
 		/// <summary>Gets an encoding for the operating system's current ANSI code page.</summary>
 		/// <returns>An encoding for the operating system's current ANSI code page.</returns>
+		[Description("Gets an encoding for the operating system's current ANSI code page.")]
 		public static Encoding Default
 		{
 			get { return new Encoding(NetEncoding.Default); }
@@ -34,6 +38,7 @@ namespace Morestachio.Formatter.Constants
 		
 		/// <summary>Gets an encoding for the UTF-16 format using the little endian byte order.</summary>
 		/// <returns>An encoding for the UTF-16 format using the little endian byte order.</returns>
+		[Description("Gets an encoding for the UTF-16 format using the little endian byte order.")]
 		public static Encoding Unicode
 		{
 			get { return new Encoding(NetEncoding.Unicode); }
@@ -41,6 +46,7 @@ namespace Morestachio.Formatter.Constants
 		
 		/// <summary>Gets an encoding for the UTF-32 format using the little endian byte order.</summary>
 		/// <returns>An  encoding object for the UTF-32 format using the little endian byte order.</returns>
+		[Description("Gets an encoding for the UTF-32 format using the little endian byte order.")]
 		public static Encoding UTF32
 		{
 			get { return new Encoding(NetEncoding.UTF32); }
@@ -48,6 +54,7 @@ namespace Morestachio.Formatter.Constants
 		
 		/// <summary>Gets an encoding for the UTF-7 format.</summary>
 		/// <returns>An encoding for the UTF-7 format.</returns>
+		[Description("Gets an encoding for the UTF-7 format.")]
 		public static Encoding UTF7
 		{
 			get { return new Encoding(NetEncoding.UTF7); }
@@ -55,6 +62,7 @@ namespace Morestachio.Formatter.Constants
 		
 		/// <summary>Gets an encoding for the UTF-8 format.</summary>
 		/// <returns>An encoding for the UTF-8 format.</returns>
+		[Description("Gets an encoding for the UTF-8 format.")]
 		public static Encoding UTF8
 		{
 			get { return new Encoding(NetEncoding.UTF8); }

@@ -4,6 +4,7 @@ using System.Text;
 
 namespace Morestachio.Formatter.Framework
 {
+
 	/// <summary>
 	///		Represents all unmatched parameters of an Formatter
 	/// </summary>
@@ -29,6 +30,11 @@ namespace Morestachio.Formatter.Framework
 	/// </summary>
 	public class FormatterParameter
 	{
+		/// <summary>
+		///		Creates a new FormatterParameter to be used in Formatters
+		/// </summary>
+		/// <param name="parameterName"></param>
+		/// <param name="value"></param>
 		public FormatterParameter(string parameterName, object value)
 		{
 			ParameterName = parameterName;

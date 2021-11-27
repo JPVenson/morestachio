@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace Morestachio.Formatter.Predefined.Accounting
 {
@@ -23,16 +24,19 @@ namespace Morestachio.Formatter.Predefined.Accounting
 		/// <summary>
 		///		One part of currency
 		/// </summary>
+		[Description("One part of currency")]
 		public Currency FromCurrency { get; }
 
 		/// <summary>
 		///		One part of currency
 		/// </summary>
+		[Description("One part of currency")]
 		public Currency ToCurrency { get; }
 
 		/// <summary>
 		///		The factor of the conversion. Can be inverted to use in <see cref="ToCurrency"/> -> <see cref="FromCurrency"/>
 		/// </summary>
+		[Description("The factor of the conversion. Can be inverted to use in ToCurrency -> FromCurrency")]
 		public double Factor { get; }
 
 		/// <inheritdoc />

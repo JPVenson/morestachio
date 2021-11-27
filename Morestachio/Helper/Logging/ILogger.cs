@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Morestachio.Formatter.Framework.Attributes;
 
 namespace Morestachio.Helper.Logging
 {
@@ -19,6 +20,7 @@ namespace Morestachio.Helper.Logging
 		/// <param name="eventId"></param>
 		/// <param name="message"></param>
 		/// <param name="data"></param>
+		[MorestachioFormatter("Log", "Logs an specific event")]
 		void Log(string logLevel, string eventId, string message, IDictionary<string, object> data);
 	}
 }

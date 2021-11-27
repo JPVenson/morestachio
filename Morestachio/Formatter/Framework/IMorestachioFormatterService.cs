@@ -28,12 +28,7 @@ namespace Morestachio.Formatter.Framework
 		///     Allows all parameters that are objects to be null
 		/// </summary>
 		bool AllParametersAllDefaultValue { get; set; }
-
-		/// <summary>
-		///     Defines how Formatters names are compared
-		/// </summary>
-		StringComparison FormatterNameCompareMode { get; set; }
-
+		
 		/// <summary>
 		///     Defines the list of all formatter value converters
 		/// </summary>

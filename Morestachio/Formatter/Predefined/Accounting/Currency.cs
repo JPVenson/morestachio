@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace Morestachio.Formatter.Predefined.Accounting
 {
@@ -22,16 +23,19 @@ namespace Morestachio.Formatter.Predefined.Accounting
 		///		An currency that can be used if the real currency type is unknown
 		/// </summary>
 		/// <remarks>Uses the ¤ (U+00A4) sign to display its values as set in ISO8859</remarks>
+		[Description("An currency that can be used if the real currency type is unknown")]
 		public static readonly Currency UnknownCurrency = new Currency("¤", "¤¤");
 
 		/// <summary>
 		///		The Symbol that represents the current currency
 		/// </summary>
+		[Description("The Symbol that represents the current currency")]
 		public string DisplayValue { get; }
 
 		/// <summary>
 		///		The ISO4217 currency name
 		/// </summary>
+		[Description("The ISO4217 currency name")]
 		public string IsoName { get; }
 
 		/// <inheritdoc />

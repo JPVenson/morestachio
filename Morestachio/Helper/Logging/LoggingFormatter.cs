@@ -10,10 +10,6 @@ namespace Morestachio.Helper.Logging
 	[MorestachioExtensionSetup("Must be first setup by setting the ParserOptions.Logger property")]
 	public static class LoggingFormatter
 	{
-		/// <summary>
-		///		Gets the list of all event ids that are invoked by the framework itself
-		/// </summary>
-		public static string[] FrameworkEventIds { get; } = new[] { FormatterObsoleteEventId, ParserEventId, TokenizerEventId, FormatterServiceId };
 
 		/// <summary>
 		///		The event ID for an obsolete formatter 
@@ -34,6 +30,11 @@ namespace Morestachio.Helper.Logging
 		///		The event ID for an <see cref="MorestachioFormatterService"/> event
 		/// </summary>
 		public static readonly string FormatterServiceId = "FormatterService";
+
+		/// <summary>
+		///		Gets the list of all event ids that are invoked by the framework itself
+		/// </summary>
+		public static string[] FrameworkEventIds { get; } = new[] { FormatterObsoleteEventId, ParserEventId, TokenizerEventId, FormatterServiceId };
 
 		/// <summary>
 		///		Enables the logger

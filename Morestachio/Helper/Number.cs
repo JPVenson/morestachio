@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Globalization;
 using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Framework.Attributes;
@@ -41,6 +42,7 @@ namespace Morestachio.Helper
 		/// <summary>
 		///		Contains the numeric value
 		/// </summary>
+		[Description("Contains the numeric value")]
 		public IConvertible Value
 		{
 			get { return _value; }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using Morestachio.Formatter.Framework.Attributes;
@@ -45,16 +46,19 @@ namespace Morestachio.Formatter.Predefined.Accounting
 		/// <summary>
 		///		The Default handler that contains all system wide known currencies
 		/// </summary>
+		[Description("The Default handler that contains all system wide known currencies")]
 		public static CurrencyHandler DefaultHandler { get; }
 
 		/// <summary>
 		///		The list of all known currencies
 		/// </summary>
+		[Description("The list of all known currencies")]
 		public IDictionary<string, Currency> Currencies { get; private set; }
 
 		/// <summary>
 		///		A list of known conversions for Currencies
 		/// </summary>
+		[Description("A list of known conversions for Currencies")]
 		public HashSet<CurrencyConversion> ConversionFactors { get; set; }
 
 		/// <summary>

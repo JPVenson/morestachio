@@ -62,7 +62,7 @@ namespace Morestachio.Framework.IO.SingleStream
 		public long BytesWritten { get; private set; }
 		/// <inheritdoc />
 		public bool ReachedLimit { get; private set; }
-
+		
 #if Span
 		/// <inheritdoc />
 		public void Write(ReadOnlySpan<char> content)

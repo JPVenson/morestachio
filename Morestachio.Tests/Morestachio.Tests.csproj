@@ -85,7 +85,7 @@
 	<DefineConstants>ValueTask; ValueTaskFromResult</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' or $(TargetFramework) == 'net5.0'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' or $(TargetFramework) == 'net5.0' or $(TargetFramework) == 'net6.0'">
 	<DefineConstants>ValueTask; ValueTaskFromResult</DefineConstants>
   </PropertyGroup>
 </Project>

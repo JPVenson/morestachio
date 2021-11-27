@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using Morestachio.Document;
@@ -116,8 +117,9 @@ namespace Morestachio.Runner.MDoc
 		{
 			public string Name { get; set; }
 			public ServicePropertyType PropType { get; set; }
+			public string Description { get; set; }
 		}
-		
+
 		public static IDictionary<string, object> GetMorestachioFormatterDocumentation()
 		{
 			return GetMorestachioFormatterDocumentation(null);
@@ -189,10 +191,37 @@ namespace Morestachio.Runner.MDoc
 				IDictionary<string, IList<MorestachioFormatterModel>> formatters,
 				ICollection<ServicePropertyType> servicePropertyTypes)
 			{
+
 				var any = servicePropertyTypes.FirstOrDefault(f => f.Type == csType);
 				if (any != null)
 				{
 					return any;
+				}
+
+				if (csType.Namespace?.StartsWith("Morestachio") is false && servicePropertyTypes.Any())
+				{
+					var genericsType = csType.GetGenericArguments();
+					foreach (var type1 in genericsType)
+					{
+						EnumerateObject(type1, formatters, servicePropertyTypes);
+					}
+
+					if (csType.GetInterface("IEnumerable`1") != null 
+					    && csType != typeof(string)
+					    && (csType.GetInterface("IDictionary`2") == null && csType.Name != "IDictionary`2"))
+					{
+						return new ServicePropertyType()
+						{
+							Type = csType.GetInterface("IEnumerable`1"),
+							IsFrameworkType = false
+						};
+					}
+
+					return new ServicePropertyType()
+					{
+						Type = csType,
+						IsFrameworkType = false
+					};
 				}
 
 				var type = new ServicePropertyType();
@@ -208,26 +237,23 @@ namespace Morestachio.Runner.MDoc
 					.GroupBy(e => e.Function.DeclaringType))
 				{
 					type.Formatter = EnumerateFormatters(formatterServiceFormatter, true);
+					foreach (var formatterMethod in type.Formatter.Methods)
+					{
+						foreach (var formatterMethodParameter in formatterMethod.Parameters)
+						{
+							EnumerateObject(formatterMethodParameter.Type, formatters, servicePropertyTypes);
+						}
+
+						EnumerateObject(formatterMethod.Returns, formatters, servicePropertyTypes);
+					}
 				}
 
 				foreach (var propertyInfo in csType.GetProperties())
 				{
 					var prop = new ServiceProperty();
 					prop.Name = propertyInfo.Name;
-
-					if (propertyInfo.PropertyType.Namespace.StartsWith("Morestachio"))
-					{
-						prop.PropType = EnumerateObject(propertyInfo.PropertyType, formatters, servicePropertyTypes);
-					}
-					else
-					{
-						prop.PropType = new ServicePropertyType()
-						{
-							Type = propertyInfo.PropertyType,
-							IsFrameworkType = false
-						};
-					}
-
+					prop.Description = propertyInfo.GetCustomAttribute<DescriptionAttribute>()?.Description;
+					prop.PropType = EnumerateObject(propertyInfo.PropertyType, formatters, servicePropertyTypes);
 					type.Properties.Add(prop);
 				}
 
@@ -272,7 +298,7 @@ namespace Morestachio.Runner.MDoc
 			{
 				var serviceData = new ServiceData();
 				serviceData.ServiceName = service.Key.GetCustomAttribute<ServiceNameAttribute>()?.Name ?? service.Key.Name;
-				if(filter != null && !serviceData.ServiceName.Contains(filter))
+				if (filter != null && !serviceData.ServiceName.Contains(filter))
 				{
 					continue;
 				}
@@ -288,7 +314,7 @@ namespace Morestachio.Runner.MDoc
 			{
 				var serviceData = new ServiceData();
 				serviceData.ServiceName = service.Key;
-				if(filter != null && !serviceData.ServiceName.Contains(filter))
+				if (filter != null && !serviceData.ServiceName.Contains(filter))
 				{
 					continue;
 				}

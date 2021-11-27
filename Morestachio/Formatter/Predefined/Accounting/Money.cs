@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Xml;
@@ -17,11 +18,13 @@ namespace Morestachio.Formatter.Predefined.Accounting
 		/// <summary>
 		///		The monetary value
 		/// </summary>
+		[Description("The monetary value")]
 		public Number Value { get; }
 
 		/// <summary>
 		///		The values currency
 		/// </summary>
+		[Description("The values currency")]
 		public Currency Currency { get; }
 
 		/// <summary>

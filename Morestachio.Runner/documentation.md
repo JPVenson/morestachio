@@ -27,6 +27,11 @@ Go to:
 
 type {{type.Type.TypeName()}} {
 	{{--|#EACH type.Properties AS prop |--}}
+	{{--|#IF prop.Description}}
+
+	/**
+	* {{prop.Description}}
+	*/{{/IF}}
 	{{prop.Name}}: {{prop.PropType.Type.TypeName()}},
 	{{--|/EACH |--}}
 	{{--|#EACH type.Formatter.Methods AS method |--}}
