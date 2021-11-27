@@ -73,31 +73,36 @@ namespace Morestachio.Document.Items
 		{
 			return WebUtility.HtmlEncode(context);
 		}
+		#if Span
+		private static ReadOnlyMemory<char> HtmlEncodeString(ReadOnlyMemory<char> context)
+		{
+			return WebUtility.HtmlEncode(context.ToString()).AsMemory();
+		}
+
+		#endif
 
 		/// <param name="compiler"></param>
+		/// <param name="parserOptions"></param>
 		/// <inheritdoc />
-		public CompilationAsync Compile(IDocumentCompiler compiler)
+		public CompilationAsync Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
 		{
-			var children = compiler.Compile(Children);
+			//var children = compiler.Compile(Children, parserOptions);
 			var expression = MorestachioExpression.Compile();
+			
+			//try to locate the value in the context, if it exists, append it.
+			if (EscapeValue && !parserOptions.DisableContentEscaping)
+			{
+				return async (outputStream, context, scopeData) =>
+				{
+					var contextObject = await expression(context, scopeData);
+					outputStream.Write(HtmlEncodeString(contextObject.RenderToString(scopeData)));
+				};
+			}
+
 			return async (outputStream, context, scopeData) =>
 			{
-				//try to locate the value in the context, if it exists, append it.
-				var contextObject = context != null ? (await expression(context, scopeData)) : null;
-				if (contextObject != null)
-				{
-					//await contextObject.EnsureValue();
-					if (EscapeValue && !scopeData.ParserOptions.DisableContentEscaping)
-					{
-						outputStream.Write(HtmlEncodeString(await contextObject.RenderToString(scopeData)));
-					}
-					else
-					{
-						outputStream.Write(await contextObject.RenderToString(scopeData));
-					}
-				}
-
-				await children(outputStream, contextObject, scopeData);
+				var contextObject = await expression(context, scopeData);
+				outputStream.Write(contextObject.RenderToString(scopeData));
 			};
 		}
 		
@@ -111,11 +116,11 @@ namespace Morestachio.Document.Items
 				//await contextObject.EnsureValue();
 				if (EscapeValue && !scopeData.ParserOptions.DisableContentEscaping)
 				{
-					outputStream.Write(HtmlEncodeString(await contextObject.RenderToString(scopeData)));
+					outputStream.Write(HtmlEncodeString(contextObject.RenderToString(scopeData)));
 				}
 				else
 				{
-					outputStream.Write(await contextObject.RenderToString(scopeData));
+					outputStream.Write(contextObject.RenderToString(scopeData));
 				}
 			}
 			

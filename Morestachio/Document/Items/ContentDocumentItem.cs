@@ -44,9 +44,13 @@ namespace Morestachio.Document.Items
 		}
 
 		/// <param name="compiler"></param>
+		/// <param name="parserOptions"></param>
 		/// <inheritdoc />
-		public Compilation Compile(IDocumentCompiler compiler)
+		public Compilation Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
 		{
+			//return DocumentCompiler.NopAction;
+			//return (stream, context, scopeData) => {};
+
 			var value = Value;
 			foreach (var textEditDocumentItem in Children.OfType<TextEditDocumentItem>())
 			{
@@ -62,7 +66,7 @@ namespace Morestachio.Document.Items
 			var memValue = value.AsMemory();
 			return (stream, context, scopeData) =>
 			{
-				stream.Write(memValue.Span);
+				stream.Write(memValue);
 			};
 			
 #else

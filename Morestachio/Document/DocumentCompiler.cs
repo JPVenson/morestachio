@@ -15,13 +15,13 @@ namespace Morestachio.Document
 		///		Compile a <see cref="IDocumentItem"/> into a delegate
 		/// </summary>
 		/// <returns></returns>
-		CompilationAsync Compile(IDocumentItem document);
+		CompilationAsync Compile(IDocumentItem document, ParserOptions parserOptions);
 
 		/// <summary>
 		///		Compile a number of <see cref="IDocumentItem"/> into a delegate 
 		/// </summary>
 		/// <returns></returns>
-		CompilationAsync Compile(IEnumerable<IDocumentItem> documents);
+		CompilationAsync Compile(IList<IDocumentItem> documents, ParserOptions parserOptions);
 	}
 
 	/// <summary>
@@ -30,15 +30,35 @@ namespace Morestachio.Document
 	public class DocumentCompiler : IDocumentCompiler
 	{
 		/// <inheritdoc />
-		public CompilationAsync Compile(IDocumentItem document)
+		public CompilationAsync Compile(IDocumentItem document, ParserOptions parserOptions)
 		{
-			return CompileItemsAndChildren(new[] { document });
+			var action = CompileSingle(parserOptions, document);
+			return async (stream, context, data) =>
+			{
+				if (action is CompilationAsync ca)
+				{
+					await ca(stream, context, data);
+				}
+				else if (action is Compilation c)
+				{
+					c(stream, context, data);
+				}
+			};
 		}
 
 		/// <inheritdoc />
-		public CompilationAsync Compile(IEnumerable<IDocumentItem> documents)
+		public CompilationAsync Compile(IList<IDocumentItem> documents, ParserOptions parserOptions)
 		{
-			return CompileItemsAndChildren(documents);
+			if (documents.Count == 0)
+			{
+				return NopAction;
+			}
+			if (documents.Count == 1)
+			{
+				return Compile(documents[0], parserOptions);
+			}
+
+			return CompileItemsAndChildren(documents, parserOptions);
 		}
 
 		/// <summary>
@@ -47,7 +67,7 @@ namespace Morestachio.Document
 		/// </summary>
 		/// <param name="documentItems"></param>
 		/// <returns></returns>
-		public CompilationAsync CompileItemsAndChildren(IEnumerable<IDocumentItem> documentItems)
+		public CompilationAsync CompileItemsAndChildren(IEnumerable<IDocumentItem> documentItems, ParserOptions parserOptions)
 		{
 			var docs = documentItems.ToArray();
 			var actions = new Delegate[docs.Length];
@@ -56,31 +76,34 @@ namespace Morestachio.Document
 			{
 				var documentItem = docs[index];
 				var document = documentItem;
-				if (document is ISupportCustomAsyncCompilation customAsyncCompilation)
-				{
-					actions[index] = (customAsyncCompilation.Compile(this));
-				}
-				else if (document is ISupportCustomCompilation customCompilation)
-				{
-					actions[index] = (customCompilation.Compile(this));
-				}
-				else
-				{
-					actions[index] = new CompilationAsync((async (outputStream,
-						context,
-						scopeData) =>
-					{
-						var children = await document.Render(outputStream, context, scopeData);
+				actions[index] = CompileSingle(parserOptions, document);
+			}
 
-						foreach (var documentItemExecution in children)
+			if (actions.All(e => e is CompilationAsync))
+			{
+				return async (stream, context, data) =>
+				{
+					if (!data.IsOutputLimited)
+					{
+						for (int i = 0; i < actions.Length; i++)
 						{
-							await MorestachioDocument.ProcessItemsAndChildren(new[]
-							{
-								documentItemExecution.DocumentItem
-							}, outputStream, documentItemExecution.ContextObject, scopeData);
+							var action = (CompilationAsync)actions[i];
+							await action(stream, context, data);
 						}
-					}));
-				}
+					}
+					else
+					{
+						for (int i = 0; i < actions.Length; i++)
+						{
+							if (!DocumentItemBase.ContinueBuilding(stream, data))
+							{
+								return;
+							}
+							var action = (CompilationAsync)actions[i];
+							await action(stream, context, data);
+						}	
+					}
+				};
 			}
 			
 			return async (stream, context, data) =>
@@ -121,7 +144,35 @@ namespace Morestachio.Document
 				}
 			};
 		}
-		
+
+		private Delegate CompileSingle(ParserOptions parserOptions, IDocumentItem document)
+		{
+			if (document is ISupportCustomAsyncCompilation customAsyncCompilation)
+			{
+				return (customAsyncCompilation.Compile(this, parserOptions));
+			}
+
+			if (document is ISupportCustomCompilation customCompilation)
+			{
+				return (customCompilation.Compile(this, parserOptions));
+			}
+
+			return new CompilationAsync((async (outputStream,
+				context,
+				scopeData) =>
+			{
+				var children = await document.Render(outputStream, context, scopeData);
+
+				foreach (var documentItemExecution in children)
+				{
+					await MorestachioDocument.ProcessItemsAndChildren(new[]
+					{
+						documentItemExecution.DocumentItem
+					}, outputStream, documentItemExecution.ContextObject, scopeData);
+				}
+			}));
+		}
+
 		/// <summary>
 		///		Defines an option that does nothing
 		/// </summary>

@@ -55,8 +55,9 @@ namespace Morestachio.Document.Items
 		}
 
 		/// <param name="compiler"></param>
+		/// <param name="parserOptions"></param>
 		/// <inheritdoc />
-		public Compilation Compile(IDocumentCompiler compiler)
+		public Compilation Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
 		{
 			return (outputStream, context, scopeData) =>
 			{

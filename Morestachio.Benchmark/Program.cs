@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,12 +37,20 @@ namespace Morestachio.Benchmark
 		private object _data;
 
 		[GlobalSetup]
-		public void Setup()
+		public async Task Setup()
 		{
 			var parsingOptions = new ParserOptions(GetTemplate());
-			_templateCompiled = Parser.ParseWithOptions(parsingOptions)
+			parsingOptions.DisableContentEscaping = true;
+			_templateCompiled = (await Parser.ParseWithOptionsAsync(parsingOptions))
 				.CreateCompiledRenderer(new DocumentCompiler());
 			_data = GetData();
+
+			var bench = await Bench();
+			//Console.WriteLine(bench);
+			if (string.IsNullOrWhiteSpace(bench))
+			{
+				throw new InvalidOperationException("Result does not equal expected value");
+			}
 		}
 
 		[Benchmark]
@@ -52,6 +61,7 @@ namespace Morestachio.Benchmark
 			await _templateCompiled.RenderAsync(_data, CancellationToken.None, output);
 			return output.ToString();
 		}
+
 		private const string Lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
 
 
@@ -75,6 +85,19 @@ namespace Morestachio.Benchmark
 
 			return productsDict;
 		}
+
+		//public object GetData()
+		//{
+		//	return new
+		//	{
+		//		Products = Enumerable.Range(0, 500).Select(f => new
+		//		{
+		//			Name = "Name" + f,
+		//			Price = f,
+		//			Description = Lorem
+		//		})
+		//	};
+		//}
 
 		public string GetTemplate()
 		{

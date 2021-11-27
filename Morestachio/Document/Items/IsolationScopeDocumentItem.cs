@@ -123,10 +123,11 @@ namespace Morestachio.Document.Items
 		}
 
 		/// <param name="compiler"></param>
+		/// <param name="parserOptions"></param>
 		/// <inheritdoc />
-		public CompilationAsync Compile(IDocumentCompiler compiler)
+		public CompilationAsync Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
 		{
-			var children = compiler.Compile(Children);
+			var children = compiler.Compile(Children, parserOptions);
 			if (ScopeIsolationExpression != null)
 			{
 				var compiledExpression = ScopeIsolationExpression.Compile();

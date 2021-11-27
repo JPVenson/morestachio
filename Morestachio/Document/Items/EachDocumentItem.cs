@@ -47,11 +47,12 @@ namespace Morestachio.Document.Items
 		}
 
 		/// <param name="compiler"></param>
+		/// <param name="parserOptions"></param>
 		/// <inheritdoc />
-		public CompilationAsync Compile(IDocumentCompiler compiler)
+		public CompilationAsync Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
 		{
 			var expression = MorestachioExpression.Compile();
-			var children = compiler.Compile(Children);
+			var children = compiler.Compile(Children, parserOptions);
 			return async (outputStream, context, scopeData) =>
 			{
 				await CoreAction(outputStream, await expression(context, scopeData), scopeData,

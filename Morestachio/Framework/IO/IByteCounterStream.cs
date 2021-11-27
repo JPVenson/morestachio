@@ -30,7 +30,7 @@ namespace Morestachio.Framework.IO
 		///		Writes the Content into the underlying Stream when the limit is not exceeded
 		/// </summary>
 		/// <param name="content"></param>
-		void Write(ReadOnlySpan<char> content);
+		void Write(ReadOnlyMemory<char> content);
 #endif
 		/// <summary>
 		///		Writes the Content into the underlying Stream when the limit is not exceeded

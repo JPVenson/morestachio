@@ -44,10 +44,11 @@ namespace Morestachio.Helper.Localization.Documents.CustomCultureDocument
 
 
 		/// <param name="compiler"></param>
+		/// <param name="parserOptions"></param>
 		/// <inheritdoc />
-		public CompilationAsync Compile(IDocumentCompiler compiler)
+		public CompilationAsync Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
 		{
-			var children = compiler.Compile(Children);
+			var children = compiler.Compile(Children, parserOptions);
 			var expression = MorestachioExpression.Compile();
 
 			return async (outputStream, context, scopeData) =>
@@ -68,7 +69,7 @@ namespace Morestachio.Helper.Localization.Documents.CustomCultureDocument
 				}
 				else
 				{
-					requestedCulture = CultureInfo.GetCultureInfo(await expValue.RenderToString(scopeData));
+					requestedCulture = CultureInfo.GetCultureInfo(expValue.RenderToString(scopeData).ToString());
 				}
 
 				scopeData.CustomData[LocalizationCultureKey] = requestedCulture;
@@ -94,7 +95,7 @@ namespace Morestachio.Helper.Localization.Documents.CustomCultureDocument
 			}
 			else
 			{
-				requestedCulture = CultureInfo.GetCultureInfo(await expValue.RenderToString(scopeData));
+				requestedCulture = CultureInfo.GetCultureInfo(expValue.RenderToString(scopeData).ToString());
 			}
 
 			scopeData.CustomData[LocalizationCultureKey] = requestedCulture;

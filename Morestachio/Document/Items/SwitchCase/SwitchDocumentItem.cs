@@ -83,14 +83,15 @@ namespace Morestachio.Document.Items.SwitchCase
 		}
 
 		/// <param name="compiler"></param>
+		/// <param name="parserOptions"></param>
 		/// <inheritdoc />
-		public CompilationAsync Compile(IDocumentCompiler compiler)
+		public CompilationAsync Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
 		{
 			var children = Children.Where(e => e is SwitchCaseDocumentItem || e is SwitchDefaultDocumentItem)
 				.Cast<BlockDocumentItemBase>()
 				.Select(e => new SwitchExecutionContainerCompiledAction()
 			{
-				Callback = compiler.Compile(e.Children),
+				Callback = compiler.Compile(e.Children, parserOptions),
 				Expression = (e as SwitchCaseDocumentItem)?.MorestachioExpression.Compile()
 			}).ToArray();
 			var expression = MorestachioExpression.Compile();

@@ -11,8 +11,9 @@ namespace Morestachio
 		/// 		Should return a delegate for performing the main rendering task
 		///  </summary>
 		///  <param name="compiler"></param>
+		///  <param name="parserOptions"></param>
 		///  <returns></returns>
-		CompilationAsync Compile(IDocumentCompiler compiler);
+		CompilationAsync Compile(IDocumentCompiler compiler, ParserOptions parserOptions);
 	}
 
 	/// <summary>
@@ -24,7 +25,8 @@ namespace Morestachio
 		/// 		Should return a delegate for performing the main rendering task
 		///  </summary>
 		///  <param name="compiler"></param>
+		///  <param name="parserOptions"></param>
 		///  <returns></returns>
-		Compilation Compile(IDocumentCompiler compiler);
+		Compilation Compile(IDocumentCompiler compiler, ParserOptions parserOptions);
 	}
 }

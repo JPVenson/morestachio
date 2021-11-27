@@ -157,14 +157,15 @@ namespace Morestachio.Document.Items
 		}
 
 		/// <param name="compiler"></param>
+		/// <param name="parserOptions"></param>
 		/// <inheritdoc />
-		public CompilationAsync Compile(IDocumentCompiler compiler)
+		public CompilationAsync Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
 		{
-			var doneAction = new RenderPartialDoneDocumentItem().Compile(compiler);
+			var doneAction = new RenderPartialDoneDocumentItem().Compile(compiler, parserOptions);
 			var expression = MorestachioExpression.Compile();
 			return async (stream, context, scopeData) =>
 			{
-				var partialName = await (await expression(context, scopeData)).RenderToString(scopeData);
+				var partialName = (await expression(context, scopeData)).RenderToString(scopeData).ToString();
 
 				if (partialName == null)
 				{
@@ -187,7 +188,7 @@ namespace Morestachio.Document.Items
 					await compiler.Compile(new IDocumentItem[]
 					{
 						toExecute.Item1
-					})(stream, toExecute.Item2, scopeData);
+					}, parserOptions)(stream, toExecute.Item2, scopeData);
 					await doneAction(stream, toExecute.Item2, scopeData);
 				}
 			};
@@ -201,7 +202,7 @@ namespace Morestachio.Document.Items
 			Tuple<IDocumentItem, ContextObject> action = null;
 			Tuple<IDocumentItem, ContextObject> actiona = null;
 
-			var partialName = await (await MorestachioExpression.GetValue(context, scopeData)).RenderToString(scopeData);
+			var partialName = (await MorestachioExpression.GetValue(context, scopeData)).RenderToString(scopeData).ToString();
 
 			if (partialName == null)
 			{

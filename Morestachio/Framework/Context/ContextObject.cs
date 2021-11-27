@@ -48,6 +48,7 @@ namespace Morestachio.Framework.Context
 												(!(value is IEnumerable) || ((IEnumerable)value).Cast<object>().Any()
 												);
 			DefinitionOfFalse = DefaultDefinitionOfFalse;
+			_cache = new Dictionary<Type, TypeCache>();
 		}
 
 		/// <summary>
@@ -201,7 +202,7 @@ namespace Morestachio.Framework.Context
 			{
 				return preHandeld;
 			}
-			
+
 			if (elements.Current.Value == PathType.RootSelector) //go the root object
 			{
 				return ExecuteRootSelector() ?? this;
@@ -292,28 +293,32 @@ namespace Morestachio.Framework.Context
 		{
 			if (_value is null)
 			{
+				scopeData.ParserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+					key, _value?.GetType()));
 				return scopeData.ParserOptions.CreateContextObject("x:null", null);
 			}
 			//ALWAYS return the context, even if the value is null.
 
 			//allow build-in variables to be accessed at any level
-            if (key.StartsWith("$"))
-            {
-                var getFromAlias = scopeData.GetVariable(this, key);
-                if (getFromAlias != null)
-                {
-                    return getFromAlias;
-                }
-            }
+			if (key.StartsWith("$"))
+			{
+				var getFromAlias = scopeData.GetVariable(this, key);
+				if (getFromAlias != null)
+				{
+					return getFromAlias;
+				}
+			}
 
 			var innerContext = scopeData.ParserOptions.CreateContextObject(key, null, this);
 			var type = _value?.GetType();
+
 			//A value resolver should always be checked first to allow overwriting of all other logic
 			if (scopeData.ParserOptions.ValueResolver?.CanResolve(type, _value, key, innerContext) == true)
 			{
 				innerContext._value = scopeData.ParserOptions.ValueResolver.Resolve(type, _value, key, innerContext);
 			}
-			else if (!scopeData.ParserOptions.HandleDictionaryAsObject && _value is IDictionary<string, object> ctx)
+			else
+			if (!scopeData.ParserOptions.HandleDictionaryAsObject && _value is IDictionary<string, object> ctx)
 			{
 				if (!ctx.TryGetValue(key, out var o))
 				{
@@ -333,54 +338,72 @@ namespace Morestachio.Framework.Context
 
 				innerContext._value = o;
 			}
-			else if (_value != null)
+			else
+			if (_value is ICustomTypeDescriptor descriptor)
 			{
-				if (_value is ICustomTypeDescriptor descriptor)
+				var propertyDescriptor = descriptor.GetProperties().Find(key, false);
+				if (propertyDescriptor != null)
 				{
-					var propertyDescriptor = descriptor.GetProperties().Find(key, false);
-					if (propertyDescriptor != null)
-					{
-						innerContext._value = propertyDescriptor.GetValue(_value);
-					}
-					else
-					{
-						scopeData.ParserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
-							key, _value?.GetType()));
-					}
-				}
-				else if (_value is DynamicObject dynObject)
-				{
-					if (dynObject.TryGetMember(new DynamicObjectBinder(key, false), out var val))
-					{
-						innerContext._value = val;
-					}
-					else
-					{
-						scopeData.ParserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
-							key, _value?.GetType()));
-					}
+					innerContext._value = propertyDescriptor.GetValue(_value);
 				}
 				else
 				{
-					var propertyInfo = type.GetTypeInfo().GetProperty(key);
-					if (propertyInfo != null)
-					{
-						innerContext._value = propertyInfo.GetValue(_value);
-					}
-					else
-					{
-						scopeData.ParserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
-							key, _value?.GetType()));
-					}
+					scopeData.ParserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+						key, _value?.GetType()));
+				}
+			}
+			else if (_value is DynamicObject dynObject)
+			{
+				if (dynObject.TryGetMember(new DynamicObjectBinder(key, false), out var val))
+				{
+					innerContext._value = val;
+				}
+				else
+				{
+					scopeData.ParserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+						key, _value?.GetType()));
 				}
 			}
 			else
 			{
-				scopeData.ParserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
-					key, _value?.GetType()));
+				if (!_cache.TryGetValue(type, out var typeCache))
+				{
+					typeCache = new TypeCache(type.GetTypeInfo());
+					_cache[type] = typeCache;
+				}
+
+				if (!typeCache._members.TryGetValue(key, out var propertyInfo))
+				{
+					propertyInfo = typeCache._type.GetProperty(key);
+					typeCache._members[key] = propertyInfo;
+				}
+
+				if (propertyInfo != null)
+				{
+					innerContext._value = propertyInfo.GetValue(_value);
+				}
+				else
+				{
+					scopeData.ParserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+						key, _value?.GetType()));
+				}
 			}
 
 			return innerContext;
+		}
+
+		private static IDictionary<Type, TypeCache> _cache;
+
+		private class TypeCache
+		{
+			public TypeInfo _type;
+			public IDictionary<string, PropertyInfo> _members;
+
+			public TypeCache(TypeInfo type)
+			{
+				_type = type;
+				_members = new Dictionary<string, PropertyInfo>();
+			}
 		}
 
 		private class DynamicObjectBinder : GetMemberBinder
@@ -441,15 +464,15 @@ namespace Morestachio.Framework.Context
 			}
 
 			var targetContext = this;
-            if (elements.Current.Value == PathType.DataPath)
-            {
-                var getFromAlias = scopeData.GetVariable(targetContext, elements.Current.Key);
-                if (getFromAlias != null)
-                {
-                    elements = elements.Next();
-                    targetContext = getFromAlias;
-                }
-            }
+			if (elements.Current.Value == PathType.DataPath)
+			{
+				var getFromAlias = scopeData.GetVariable(targetContext, elements.Current.Key);
+				if (getFromAlias != null)
+				{
+					elements = elements.Next();
+					targetContext = getFromAlias;
+				}
+			}
 
 
 			return targetContext.LoopContextTraversable(elements, scopeData, morestachioExpression);
@@ -478,16 +501,53 @@ namespace Morestachio.Framework.Context
 		{
 			return DefinitionOfFalse(_value);
 		}
-
+		#if Span
 		/// <summary>
 		///     Renders the Current value to a string or if null to the Null placeholder in the Options
 		/// </summary>
 		/// <param name="scopeData"></param>
 		/// <returns></returns>
-		public virtual StringPromise RenderToString(ScopeData scopeData)
+		public virtual ReadOnlyMemory<char> RenderToString(ScopeData scopeData)
 		{
-			return (_value?.ToString() ?? scopeData.GetVariable(this, "$null")?._value?.ToString() ?? scopeData.ParserOptions.Null).ToPromise();
+			if (_value is string str)
+			{
+				return str.AsMemory();
+			}
+
+			if (_value is null)
+			{
+				return (scopeData.GetVariable(this, "$null")?._value?.ToString() ?? scopeData.ParserOptions.Null)
+					.AsMemory();
+			}
+
+			return _value.ToString().AsMemory();
 		}
+
+		#else
+		/// <summary>
+		///     Renders the Current value to a string or if null to the Null placeholder in the Options
+		/// </summary>
+		/// <param name="scopeData"></param>
+		/// <returns></returns>
+		public virtual string RenderToString(ScopeData scopeData)
+		{
+			if (_value is string str)
+			{
+				return str;
+			}
+			//#if Span
+			//			if (_value is ReadOnlyMemory<char> rostr)
+			//			{
+			//				return rostr.ToPromise();
+			//			}
+			//#endif
+
+			return (_value?.ToString() ?? scopeData.GetVariable(this, "$null")?._value?.ToString() ?? scopeData.ParserOptions.Null);
+		}
+		#endif
+	
+		
+		
 
 		/// <summary>
 		///     Gets an FormatterCache from ether the custom formatter or the global one

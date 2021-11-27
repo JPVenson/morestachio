@@ -70,11 +70,11 @@ namespace Morestachio.Document.Items
 		///		Filters <see cref="BlockDocumentItemBase.Children"/> to only return anything before the first else block
 		/// </summary>
 		/// <returns></returns>
-		protected virtual IEnumerable<IDocumentItem> GetIfContents()
+		protected virtual IList<IDocumentItem> GetIfContents()
 		{
 			return Children.TakeWhile(e => !(e is ElseIfExpressionScopeDocumentItem)
 										   &&
-										   !(e is ElseExpressionScopeDocumentItem));
+										   !(e is ElseExpressionScopeDocumentItem)).ToArray();
 		}
 
 		/// <summary>
@@ -147,13 +147,14 @@ namespace Morestachio.Document.Items
 		}
 
 		/// <param name="compiler"></param>
+		/// <param name="parserOptions"></param>
 		/// <inheritdoc />
-		public virtual CompilationAsync Compile(IDocumentCompiler compiler)
+		public virtual CompilationAsync Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
 		{
 			var elseChildren = GetNestedElseConditions()
 				.Select(e => new IfExecutionContainer()
 				{
-					Callback = compiler.Compile(e.Children),
+					Callback = compiler.Compile(e.Children, parserOptions),
 					Expression = e.MorestachioExpression.Compile()
 				}).ToArray();
 
@@ -161,10 +162,10 @@ namespace Morestachio.Document.Items
 			CompilationAsync elseBlock = null;
 			if (elseDocument != null)
 			{
-				elseBlock = compiler.Compile(new[] { elseDocument });
+				elseBlock = compiler.Compile(new[] { elseDocument }, parserOptions);
 			}
 
-			var children = compiler.Compile(GetIfContents());
+			var children = compiler.Compile(GetIfContents(), parserOptions);
 
 			var expression = MorestachioExpression.Compile();
 			return async (stream, context, scopeData) =>

@@ -85,10 +85,11 @@ namespace Morestachio.Document.Items
 		public Version MorestachioVersion { get; private set; }
 
 		/// <param name="compiler"></param>
+		/// <param name="parserOptions"></param>
 		/// <inheritdoc />
-		public CompilationAsync Compile(IDocumentCompiler compiler)
+		public CompilationAsync Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
 		{
-			var compilation = compiler.Compile(Children);
+			var compilation = compiler.Compile(Children, parserOptions);
 			return async (stream, context, data) =>
 			{
 				await compilation(stream, context, data);

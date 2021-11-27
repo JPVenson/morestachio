@@ -32,6 +32,12 @@ namespace Morestachio.Util
 				StringBuilder cachedBuilder;
 				_cacheLock.ExitReadLock();
 				_cacheLock.EnterWriteLock();
+
+				if (_cache.Count > 0)
+				{
+					_cacheLock.ExitWriteLock();
+					return new StringBuilder(capacity);
+				}
 				try
 				{
 					cachedBuilder = _cache.Dequeue();

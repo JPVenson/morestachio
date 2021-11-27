@@ -41,7 +41,7 @@ namespace Morestachio.Rendering
 		/// </summary>
 		public void PreCompile()
 		{
-			CompiledDocument = _compiler.Compile(Document);
+			CompiledDocument = _compiler.Compile(Document, ParserOptions);
 		}
 		
 		/// <inheritdoc />

@@ -50,7 +50,7 @@ namespace Morestachio.Framework.IO.SingleStream
 
 #if Span
 		/// <inheritdoc />
-		public void Write(ReadOnlySpan<char> content)
+		public void Write(ReadOnlyMemory<char> content)
 		{
 			var sourceCount = BytesWritten;
 
@@ -67,7 +67,7 @@ namespace Morestachio.Framework.IO.SingleStream
 			}
 
 			//TODO this is a performance critical operation. As we might deal with variable-length encodings this cannot be compute initial
-			var cl = Options.Encoding.GetByteCount(content);
+			var cl = Options.Encoding.GetByteCount(content.Span);
 
 			var overflow = sourceCount + cl - Options.MaxSize;
 			if (overflow <= 0)
