@@ -51,7 +51,7 @@ namespace Morestachio.Formatter.Predefined
 			return new DicFassade(value);
 		}
 
-		private class DicFassade : DynamicObject
+		private class DicFassade : DynamicObject, IMorestachioPropertyResolver
 		{
 			private readonly IDictionary<string, object> _values;
 
@@ -70,10 +70,15 @@ namespace Morestachio.Formatter.Predefined
 			{
 				return _values.TryGetValue(binder.Name, out result);
 			}
+
+			public bool TryGetValue(string name, out object found)
+			{
+				return _values.TryGetValue(name, out found);
+			}
 		}
 
 		[MorestachioGlobalFormatter("new", "Creates a new object from given parameters with names. Example: {{new([Name]\"Test\", [Age] 57, [Gender] Genders.Male)}}")]
-		public static object New([RestParameter]FormatterParameterList values)
+		public static object New([RestParameter] FormatterParameterList values)
 		{
 			return new Dictionary<string, object>(values.Parameters.ToDictionary(e => e.ParameterName, e => e.Value));
 		}
@@ -87,10 +92,21 @@ namespace Morestachio.Formatter.Predefined
 			var argumentTypes = arguments.Select((item, index) => new FormatterArgumentType(index, null, item, null)).ToArray();
 			var formatterMatch = options.Formatters.PrepareCallMostMatchingFormatter(source.GetType(),
 				argumentTypes,
-				formatterName, options, scopeData);
+				formatterName,
+				options,
+				scopeData);
 			if (formatterMatch == null)
 			{
-				return null;
+				formatterMatch = MorestachioFormatterService.Default.PrepareCallMostMatchingFormatter(source.GetType(),
+					argumentTypes,
+					formatterName,
+					options,
+					scopeData);
+
+				if (formatterMatch == null)
+				{
+					return null;
+				}
 			}
 
 			return await options.Formatters.Execute(formatterMatch, source, options,
@@ -173,7 +189,7 @@ namespace Morestachio.Formatter.Predefined
 				if (inType.IsArray)
 				{
 					var rankDeclarations = new Queue<string>();
-					Type elType = inType;
+					var elType = inType;
 
 					do
 					{

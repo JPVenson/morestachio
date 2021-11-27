@@ -5,29 +5,13 @@ using System.Threading.Tasks;
 using Morestachio.Formatter.Predefined;
 using Morestachio.Framework.Context.Resolver;
 using NUnit.Framework;
+using NUnit.Framework.Constraints;
 
 namespace Morestachio.Tests.FormatterFunctionTests
 {
 	[TestFixture]
 	public class ObjectFormatterTests : FormatterBaseTest
 	{
-		[Test]
-		public async Task TestNew()
-		{
-			var data = new
-			{
-				Genders = new
-				{
-					Male = "MALE",
-					Female = "FEMALE"
-				}
-			};
-			var result = await CallFormatter<IDictionary<string, object>>("new([Name]\"Test\", [Age] 57, [Gender] Genders.Male)", data);
-			Assert.IsNotNull(result);
-			Assert.That(result["Name"], Is.EqualTo("Test"));
-			Assert.That(result["Age"], Is.EqualTo(57));
-			Assert.That(result["Gender"], Is.EqualTo(data.Genders.Male));
-		}
 
 		public class XmlTestData
 		{
@@ -57,22 +41,103 @@ namespace Morestachio.Tests.FormatterFunctionTests
 			Assert.That(result, Is.EqualTo(expected));
 		}
 
-		//[Test]
-		//public async Task TestToObject()
-		//{
-		//	var data = new
-		//	{
-		//		Genders = new
-		//		{
-		//			Male = "MALE",
-		//			Female = "FEMALE"
-		//		}
-		//	};
+		[Test]
+		public async Task TestToObject()
+		{
+			var data = new Dictionary<string, object>()
+			{
+				{"Genders", new
+				{
+					Male = "MALE",
+					Female = "FEMALE"
+				}}
+			};
 
-		//	var result = await CallFormatter<dynamic>("this.AsObject()", data);
-		//	Assert.IsNotNull(result);
-		//	Assert.That(data.Genders.Male, Is.EqualTo(result.Male));
-		//}
+			var result = await CallFormatter<object>("this.AsObject().Genders.Male", data);
+			Assert.IsNotNull(result);
+			Assert.That("MALE", Is.EqualTo(result));
+		}
+
+		[Test]
+		public async Task TestNew()
+		{
+			var data = new
+			{
+				Genders = new
+				{
+					Male = "MALE",
+					Female = "FEMALE"
+				}
+			};
+			var result = await CallFormatter<IDictionary<string, object>>("new([Name]\"Test\", [Age] 57, [Gender] Genders.Male)", data);
+			Assert.IsNotNull(result);
+			Assert.That(result["Name"], Is.EqualTo("Test"));
+			Assert.That(result["Age"], Is.EqualTo(57));
+			Assert.That(result["Gender"], Is.EqualTo(data.Genders.Male));
+		}
+
+		[Test]
+		public async Task TestDynamicCall()
+		{
+			var data = new XmlTestData()
+			{
+				GenderDatas = new[]
+				{
+					new XmlTestData.GenderData(){Id = "MALE", Type = "male"},
+					new XmlTestData.GenderData(){Id = "FEMALE", Type = "female"},
+				}
+			};
+			var result = await CallFormatter<string>("this.Call('ToXml')", data);
+			Assert.IsNotNull(result);
+			var expected = ObjectFormatter.ToXml(data, new ParserOptions() { Encoding = ParserFixture.DefaultEncoding });
+
+			Assert.That(result, Is.EqualTo(expected));
+		}
+
+		[Test]
+		public async Task TestDynamicGet()
+		{
+			var data = new XmlTestData()
+			{
+				GenderDatas = new[]
+				{
+					new XmlTestData.GenderData(){Id = "MALE", Type = "male"},
+					new XmlTestData.GenderData(){Id = "FEMALE", Type = "female"},
+				}
+			};
+			var result = await CallFormatter<string>("this.Get('GenderDatas').First().Get('Id')", data);
+			Assert.IsNotNull(result);
+			var expected = ObjectFormatter.ToXml(data, new ParserOptions() { Encoding = ParserFixture.DefaultEncoding });
+
+			Assert.That(result, Is.EqualTo("MALE"));
+		}
+
+		[Test]
+		public async Task TestCombine()
+		{
+			var leftObject = new Dictionary<string, object>()
+			{
+				{ "ValueA", "A" }
+			};
+			var rightObject = new Dictionary<string, object>()
+			{
+				{ "ValueB", "B" }
+			};
+
+			var result = await CallFormatter<IDictionary<string, object>>("left.Combine(right)", new
+			{
+				left = leftObject,
+				right = rightObject
+			});
+
+			Assert.IsNotNull(result);
+
+			var expected = ObjectFormatter.Combine(leftObject, rightObject);
+			foreach (var item in result)
+			{
+				Assert.That(item.Value, Is.EqualTo(expected[item.Key]));
+			}
+		}
 	}
 
 	public class FormatterBaseTest

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Dynamic;
 using System.Reflection;
 using Morestachio.Document;
 using Morestachio.Formatter.Framework;
@@ -347,6 +348,18 @@ namespace Morestachio.Framework.Context
 							key, _value?.GetType()));
 					}
 				}
+				else if (_value is DynamicObject dynObject)
+				{
+					if (dynObject.TryGetMember(new DynamicObjectBinder(key, false), out var val))
+					{
+						innerContext._value = val;
+					}
+					else
+					{
+						scopeData.ParserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+							key, _value?.GetType()));
+					}
+				}
 				else
 				{
 					var propertyInfo = type.GetTypeInfo().GetProperty(key);
@@ -368,6 +381,18 @@ namespace Morestachio.Framework.Context
 			}
 
 			return innerContext;
+		}
+
+		private class DynamicObjectBinder : GetMemberBinder
+		{
+			public DynamicObjectBinder(string name, bool ignoreCase) : base(name, ignoreCase)
+			{
+			}
+
+			public override DynamicMetaObject FallbackGetMember(DynamicMetaObject target, DynamicMetaObject errorSuggestion)
+			{
+				return errorSuggestion;
+			}
 		}
 
 		internal ContextObject ExecuteRootSelector()

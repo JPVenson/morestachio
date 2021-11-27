@@ -122,7 +122,6 @@ namespace Morestachio.Document.Items
 			{
 				await LoopEnumerable(outputStream, context, scopeData, onItem, value);
 			}
-
 		}
 
 		private async Promise LoopCollection(IByteCounterStream outputStream, ContextObject parentContext, ScopeData scopeData,
