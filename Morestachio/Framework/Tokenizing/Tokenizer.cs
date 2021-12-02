@@ -148,7 +148,7 @@ namespace Morestachio.Framework.Tokenizing
 		{
 			return formatChar == ',';
 		}
-		
+
 
 		/// <summary>
 		///		This method is hard coded for performance reasons. If modified here, the changes must be reflected in
@@ -290,36 +290,28 @@ namespace Morestachio.Framework.Tokenizing
 							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)),
 						"if",
 						"{{#if name}}"));
+					return;
 				}
-				else
+				var item1 = scopestack.Peek();
+				if (item1.TokenType != TokenType.If && item1.TokenType != TokenType.IfNot)
 				{
-					var item1 = scopestack.Peek();
-					if (item1.TokenType == TokenType.If || item1.TokenType == TokenType.IfNot)
-					{
-						var token = scopestack.Pop().Value;
-						tokens.Add(new TokenPair(TokenType.IfClose, token,
-							context.CurrentLocation, tokenOptions));
-					}
-					else
-					{
-						context.Errors.Add(new MorestachioUnopendScopeError(
-							context.CurrentLocation
-								.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)),
-							"if",
-							"{{#if name}}"));
-					}
+					context.Errors.Add(new MorestachioUnopendScopeError(
+						context.CurrentLocation
+							.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)),
+						"if",
+						"{{#if name}}"));
+					return;
 				}
+
+				var token = scopestack.Pop().Value;
+				tokens.Add(new TokenPair(TokenType.IfClose, token,
+					context.CurrentLocation, tokenOptions));
 			}
 
 			string TrimToken(string token, string keyword, char key = '#')
 			{
 				token = token.TrimStart(key).TrimStart();
-				if (keyword != null)
-				{
-					token = token.Substring(keyword.Length);
-				}
-
-				return token;
+				return keyword != null ? token.Substring(keyword.Length) : token;
 			}
 
 			IMorestachioExpression ExtractExpression(ref string token)
@@ -333,13 +325,13 @@ namespace Morestachio.Framework.Tokenizing
 			bool TryParseFlagOption(ref string token, string flagName)
 			{
 				var indexOf = token.IndexOf(flagName, StringComparison.OrdinalIgnoreCase);
-				if (indexOf != -1)
+				if (indexOf == -1)
 				{
-					token = token.Remove(indexOf, flagName.Length);
-					return true;
+					return false;
 				}
 
-				return false;
+				token = token.Remove(indexOf, flagName.Length);
+				return true;
 			}
 
 			bool TryParseExpressionOption(ref string token, string optionName, out IMorestachioExpression expression)
@@ -645,15 +637,15 @@ namespace Morestachio.Framework.Tokenizing
 
 								scopestack.Push(new ScopeStackItem(TokenType.ForeachCollectionOpen, expression ?? token, match.Index));
 								tokenOptions.Add(new TokenOption("Alias", alias));
-								
-                                expression = expression.Trim();
+
+								expression = expression.Trim();
 
 								if (!string.IsNullOrWhiteSpace(expression))
 								{
 									tokens.Add(new TokenPair(TokenType.ForeachCollectionOpen,
-										token, 
-                                        context.CurrentLocation, 
-										ExpressionParser.ParseExpression(expression, context), 
+										token,
+										context.CurrentLocation,
+										ExpressionParser.ParseExpression(expression, context),
 										tokenOptions));
 								}
 								else

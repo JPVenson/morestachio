@@ -130,7 +130,7 @@ namespace Morestachio.Document.Items
 			var children = compiler.Compile(Children, parserOptions);
 			if (ScopeIsolationExpression != null)
 			{
-				var compiledExpression = ScopeIsolationExpression.Compile();
+				var compiledExpression = ScopeIsolationExpression.Compile(parserOptions);
 				return async (stream, context, data) =>
 				{
 					context = await compiledExpression(context, data);

@@ -271,41 +271,42 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
-		[Explicit]
+		//[Explicit]
 		[Repeat(5)]
 		public async Task PerformanceDebuggerTest()
 		{
-			var _products = new List<object>(500);
-			for (int i = 0; i < 500; i++)
+			object GetData()
 			{
-				_products.Add(new Dictionary<string, object>()
+				var productsDict = new Dictionary<string, object>();
+				const int ProductCount = 500;
+
+				var prodList = new List<Dictionary<string, object>>();
+				productsDict.Add("Products", prodList);
+
+				var lorem = Lorem.AsMemory();
+				for (int i = 0; i < ProductCount; i++)
 				{
-					{"Name", "Name" + i},
-					{"Price", i},
-					{"Description", Lorem},
-				});
-				//_products.Add(new Product()
-				//{
-				//	Name = "Name" + i,
-				//	Price = i,
-				//	Description = Lorem
-				//});
+					prodList.Add(new Dictionary<string, object>()
+					{
+						{ "Name", "Name" + i},
+						{ "Price", i},
+						{ "Description", lorem},
+					});
+				}
+
+				return productsDict;
 			}
+
+			var data = GetData();
 
 			var parsingOptions = new ParserOptions(TextTemplateMorestachio, null, Encoding.UTF8, true);
 			parsingOptions.ProfileExecution = false;
 			var parsed = await Parser.ParseWithOptionsAsync(parsingOptions);
-			var andStringifyAsync = await parsed.CreateRenderer().RenderAndStringifyAsync(new
-			{
-				Products = _products
-			});
+			var andStringifyAsync = await parsed.CreateRenderer().RenderAndStringifyAsync(data);
 			var runs = 200;
 			for (int i = 0; i < runs / 5; i++)
 			{
-				andStringifyAsync = await parsed.CreateRenderer().RenderAndStringifyAsync(new
-				{
-					Products = _products
-				});
+				andStringifyAsync = await parsed.CreateRenderer().RenderAndStringifyAsync(data);
 			}
 
 			var compiled = parsed.CreateCompiledRenderer();
@@ -314,10 +315,8 @@ namespace Morestachio.Tests
 			for (int i = 0; i < runs; i++)
 			{
 				sw.Start();
-				await compiled.RenderAsync(new
-				{
-					Products = _products
-				}, CancellationToken.None);
+				var morestachioDocumentResult = await compiled.RenderAsync(data, CancellationToken.None);
+				//var txt = morestachioDocumentResult.Stream.Stringify(true, parsingOptions.Encoding);
 				//var f = await parsed.CreateAsync(new
 				//{
 				//	Products = _products

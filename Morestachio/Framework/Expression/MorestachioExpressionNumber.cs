@@ -132,8 +132,9 @@ namespace Morestachio.Framework.Expression
 				contextObject).ToPromise();
 		}
 
+		/// <param name="parserOptions"></param>
 		/// <inheritdoc />
-		public CompiledExpression Compile()
+		public CompiledExpression Compile(ParserOptions parserOptions)
 		{
 			var nrContext = new ContextObject(".", null, Number);
 			return (contextObject, scopeData) =>

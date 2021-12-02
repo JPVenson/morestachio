@@ -100,7 +100,7 @@ namespace Morestachio.Document.Items
 		/// <inheritdoc />
 		public CompilationAsync Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
 		{
-			var expression = MorestachioExpression.Compile();
+			var expression = MorestachioExpression.Compile(parserOptions);
 			return async (stream, context, scopeData) =>
 			{
 				context = await expression(context, scopeData);

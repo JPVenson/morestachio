@@ -67,10 +67,11 @@ namespace Morestachio.Framework.Expression
 			return contextObject;
 		}
 
+		/// <param name="parserOptions"></param>
 		/// <inheritdoc />
-		public CompiledExpression Compile()
+		public CompiledExpression Compile(ParserOptions parserOptions)
 		{
-			var exps = Expressions.Select(f => f.Compile()).ToArray();
+			var exps = Expressions.Select(f => f.Compile(parserOptions)).ToArray();
 			return async (contextObject, data) =>
 			{
 				foreach (var compiledExpression in exps)

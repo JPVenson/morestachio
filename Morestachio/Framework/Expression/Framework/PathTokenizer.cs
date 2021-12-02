@@ -156,7 +156,6 @@ namespace Morestachio.Framework.Expression.Framework
 				return false;
 			}
 
-
 			if (c == '/')
 			{
 				if (PartEquals(".."))

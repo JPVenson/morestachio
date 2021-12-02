@@ -212,11 +212,12 @@ namespace Morestachio.Framework.Expression
 				contextObject.Parent);
 		}
 
+		/// <param name="parserOptions"></param>
 		/// <inheritdoc />
-		public CompiledExpression Compile()
+		public CompiledExpression Compile(ParserOptions parserOptions)
 		{
-			var left = LeftExpression.Compile();
-			var right = RightExpression?.Compile();
+			var left = LeftExpression.Compile(parserOptions);
+			var right = RightExpression?.Compile(parserOptions);
 
 			var operatorFormatterName = "op_" + Operator.OperatorType;
 			return async (contextObject, scopeData) =>

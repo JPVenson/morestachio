@@ -51,10 +51,11 @@ namespace Morestachio.Framework.Expression
 		/// </summary>
 		public IMorestachioExpression MorestachioExpression { get; set; }
 
+		/// <param name="parserOptions"></param>
 		/// <inheritdoc />
-		public CompiledExpression Compile()
+		public CompiledExpression Compile(ParserOptions parserOptions)
 		{
-			return MorestachioExpression.Compile();
+			return MorestachioExpression.Compile(parserOptions);
 		}
 
 		/// <inheritdoc />

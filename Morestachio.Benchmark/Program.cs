@@ -73,13 +73,14 @@ namespace Morestachio.Benchmark
 			List<DictObject> prodList = new List<DictObject>();
 			productsDict.Add("Products", prodList);
 
+			var lorem = Lorem.AsMemory();
 			for (int i = 0; i < ProductCount; i++)
 			{
 				prodList.Add(new Dictionary<string, object>()
 				{
 					{ "Name", "Name" + i},
 					{ "Price", i},
-					{ "Description", Lorem},
+					{ "Description", lorem[0..15]},
 				});
 			}
 

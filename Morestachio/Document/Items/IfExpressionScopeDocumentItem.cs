@@ -155,7 +155,7 @@ namespace Morestachio.Document.Items
 				.Select(e => new IfExecutionContainer()
 				{
 					Callback = compiler.Compile(e.Children, parserOptions),
-					Expression = e.MorestachioExpression.Compile()
+					Expression = e.MorestachioExpression.Compile(parserOptions)
 				}).ToArray();
 
 			var elseDocument = GetNestedElse();
@@ -167,7 +167,7 @@ namespace Morestachio.Document.Items
 
 			var children = compiler.Compile(GetIfContents(), parserOptions);
 
-			var expression = MorestachioExpression.Compile();
+			var expression = MorestachioExpression.Compile(parserOptions);
 			return async (stream, context, scopeData) =>
 			{
 				var c = await expression(context, scopeData);

@@ -114,8 +114,9 @@ namespace Morestachio.Framework.Expression
 				contextObject);
 		}
 
+		/// <param name="parserOptions"></param>
 		/// <inheritdoc />
-		public CompiledExpression Compile()
+		public CompiledExpression Compile(ParserOptions parserOptions)
 		{
 			var str = GetCompileTimeValue();
 			var value = new ContextObject(".", null, str);

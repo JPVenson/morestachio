@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Framework.Expression;
+using Morestachio.Util;
 
 namespace Morestachio.Formatter.Predefined
 {
@@ -16,7 +17,7 @@ namespace Morestachio.Formatter.Predefined
 		{
 			return source + target;
 		}
-		
+
 		[MorestachioOperator(OperatorTypes.Add, "Concatenates two strings")]
 		public static string Append(object source, string target)
 		{
@@ -43,7 +44,7 @@ namespace Morestachio.Formatter.Predefined
 		[MorestachioFormatter("CapitalizeWords", "Converts the first character of each word in the passed string to a upper case character.")]
 		public static string CapitalizeWords(string source)
 		{
-			return source.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries)
+			return source.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
 				.Select(Capitalize)
 				.Aggregate((e, f) => e + " " + f);
 		}
@@ -55,13 +56,13 @@ namespace Morestachio.Formatter.Predefined
 		}
 
 		[MorestachioFormatter("ToLower", "Converts the string to lower case.")]
-		public static string ToLower(string source, [ExternalData]ParserOptions options)
+		public static string ToLower(string source, [ExternalData] ParserOptions options)
 		{
 			return source.ToLower(options.CultureInfo);
 		}
 
 		[MorestachioFormatter("ToUpper", "Converts the string to upper case.")]
-		public static string ToUpper(string source, [ExternalData]ParserOptions options)
+		public static string ToUpper(string source, [ExternalData] ParserOptions options)
 		{
 			return source.ToUpper(options.CultureInfo);
 		}
@@ -136,7 +137,7 @@ namespace Morestachio.Formatter.Predefined
 			{
 				return string.Empty;
 			}
-			
+
 			return source.Substring(start);
 		}
 
@@ -153,6 +154,28 @@ namespace Morestachio.Formatter.Predefined
 			return string.Join(seperator, source);
 		}
 
+#if Span
+		
+		[MorestachioFormatter("Truncate", "Truncates a string down to the number of characters passed as the first parameter. An ellipsis (...) is appended to the truncated string and is included in the character count")]
+		public static ReadOnlyMemory<char> Truncate(ReadOnlyMemory<char> source, int length, string ellipsis = "...")
+		{
+			if (source.IsEmpty)
+			{
+				return ReadOnlyMemory<char>.Empty;
+			}
+			ellipsis = ellipsis ?? "...";
+			int lMinusTruncate = length - ellipsis.Length;
+			if (source.Length > length)
+			{
+				var builder = new ValueStringBuilder(length + ellipsis.Length);
+				builder.Append(source[..(lMinusTruncate < 0 ? 0 : lMinusTruncate)].Span);
+				builder.Append(ellipsis);
+				return builder.AsMemory();
+			}
+			return source;
+		}
+#endif
+
 		[MorestachioFormatter("Truncate", "Truncates a string down to the number of characters passed as the first parameter. An ellipsis (...) is appended to the truncated string and is included in the character count")]
 		public static string Truncate(string source, int length, string ellipsis = "...")
 		{
@@ -164,13 +187,22 @@ namespace Morestachio.Formatter.Predefined
 			int lMinusTruncate = length - ellipsis.Length;
 			if (source.Length > length)
 			{
-				var builder = new StringBuilder();
+#if Span
+				var builder = new ValueStringBuilder(length + ellipsis.Length);
+				builder.Append(source[..(lMinusTruncate < 0 ? 0 : lMinusTruncate)]);
+				builder.Append(ellipsis);
+				return builder.ToString();
+#else
+				var builder = StringBuilderCache.Acquire(length + ellipsis.Length);
 				builder.Append(source, 0, lMinusTruncate < 0 ? 0 : lMinusTruncate);
 				builder.Append(ellipsis);
-				source = builder.ToString();
+				source = StringBuilderCache.GetStringAndRelease(builder);
+#endif
+
 			}
 			return source;
 		}
+		
 
 		[MorestachioFormatter("PadLeft", "Pads a string with leading spaces to a specified total length.")]
 		public static string PadLeft(string source, int width)
@@ -185,13 +217,13 @@ namespace Morestachio.Formatter.Predefined
 		}
 
 		[MorestachioFormatter("ToBase64", "Encodes a string to its Base64 representation the encoding will be the same as the template")]
-		public static string ToBase64(string source, [ExternalData]ParserOptions options)
+		public static string ToBase64(string source, [ExternalData] ParserOptions options)
 		{
 			return Convert.ToBase64String(options.Encoding.GetBytes(source ?? string.Empty));
 		}
 
 		[MorestachioFormatter("FromBase64", "Decodes a string from its Base64 representation the decoding is expected be the same as the template")]
-		public static string FromBase64(string source, [ExternalData]ParserOptions options)
+		public static string FromBase64(string source, [ExternalData] ParserOptions options)
 		{
 			return options.Encoding.GetString(Convert.FromBase64String(source));
 		}
@@ -207,7 +239,7 @@ namespace Morestachio.Formatter.Predefined
 		{
 			return Encoding.UTF32.GetBytes(source);
 		}
-		
+
 		[MorestachioFormatter("AsAscii", "Decodes the string source as an ASCII encoded byte[]")]
 		public static byte[] AsAscii(string source)
 		{

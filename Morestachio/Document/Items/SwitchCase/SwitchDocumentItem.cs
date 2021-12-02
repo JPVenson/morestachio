@@ -92,9 +92,9 @@ namespace Morestachio.Document.Items.SwitchCase
 				.Select(e => new SwitchExecutionContainerCompiledAction()
 			{
 				Callback = compiler.Compile(e.Children, parserOptions),
-				Expression = (e as SwitchCaseDocumentItem)?.MorestachioExpression.Compile()
+				Expression = (e as SwitchCaseDocumentItem)?.MorestachioExpression.Compile(parserOptions)
 			}).ToArray();
-			var expression = MorestachioExpression.Compile();
+			var expression = MorestachioExpression.Compile(parserOptions);
 
 			return async (outputStream, context, scopeData) =>
 			{

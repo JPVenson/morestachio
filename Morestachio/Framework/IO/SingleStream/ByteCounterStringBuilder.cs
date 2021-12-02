@@ -81,25 +81,25 @@ namespace Morestachio.Framework.IO.SingleStream
 			}
 
 			//TODO this is a performance critical operation. As we might deal with variable-length encodings this cannot be compute initial
-			var cl = Options.Encoding.GetByteCount(content.Span);
+			var bl = Options.Encoding.GetByteCount(content.Span);
 
-			var overflow = sourceCount + cl - Options.MaxSize;
+			var overflow = sourceCount + bl - Options.MaxSize;
 			if (overflow <= 0)
 			{
-				BytesWritten += cl;
+				BytesWritten += bl;
 				_sb.Append(content);
 				return;
 			}
 
 			if (overflow < content.Length)
 			{
-				BytesWritten += cl - overflow;
+				BytesWritten += bl - overflow;
 				//BaseWriter.Write(content.ToCharArray(0, (int)(cl - overflow)));
-				_sb.Append(content[0..((int)(cl - overflow))]);
+				_sb.Append(content[0..((int)(bl - overflow))]);
 			}
 			else
 			{
-				BytesWritten += cl;
+				BytesWritten += bl;
 				_sb.Append(content);
 			}
 		}

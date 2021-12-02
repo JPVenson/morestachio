@@ -87,7 +87,7 @@ namespace Morestachio.Document.Items
 		public CompilationAsync Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
 		{
 			//var children = compiler.Compile(Children, parserOptions);
-			var expression = MorestachioExpression.Compile();
+			var expression = MorestachioExpression.Compile(parserOptions);
 			
 			//try to locate the value in the context, if it exists, append it.
 			if (EscapeValue && !parserOptions.DisableContentEscaping)

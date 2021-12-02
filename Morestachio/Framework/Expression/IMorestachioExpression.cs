@@ -23,11 +23,12 @@ namespace Morestachio.Framework.Expression
 		/// <returns></returns>
 		ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData);
 
-		/// <summary>
-		///		Compiles the Expression for later faster execution
-		/// </summary>
-		/// <returns></returns>
-		CompiledExpression Compile();
+		///  <summary>
+		/// 		Compiles the Expression for later faster execution
+		///  </summary>
+		///  <param name="parserOptions"></param>
+		///  <returns></returns>
+		CompiledExpression Compile(ParserOptions parserOptions);
 
 		/// <summary>
 		///		Visits this Expression

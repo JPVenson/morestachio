@@ -1396,7 +1396,7 @@ namespace Morestachio.Tests
 					 await Task.CompletedTask;
 				 }));
 			 });
-			Assert.That(result, Is.EqualTo((Math.PI * 3).ToString()));
+			Assert.That(result, Is.EqualTo((Math.PI * 3).ToString()));			
 		}
 
 		[Test]

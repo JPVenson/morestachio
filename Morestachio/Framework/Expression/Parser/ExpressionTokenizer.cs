@@ -74,8 +74,9 @@ namespace Morestachio.Framework.Expression.Parser
 				}
 				else if (Tokenizer.IsStartOfExpressionPathChar(c))
 				{
-					queue.Enqueue(TokenizePath(text, tokenIndex, out var consumed, context, text));
-					tokenIndex += consumed - 1;
+					var tokenizePath = TokenizePath(text, tokenIndex, context, text);
+					queue.Enqueue(tokenizePath.Item1);
+					tokenIndex = tokenizePath.Item2;
 				}
 				else if (Tokenizer.IsStringDelimiter(c))
 				{
@@ -223,19 +224,13 @@ namespace Morestachio.Framework.Expression.Parser
 			return new OperatorToken(op.OperatorType, context.CurrentLocation.Offset(index - consumed + 1));
 		}
 
-		private static IExpressionToken TokenizePath(string textPart, int index, out int consumed, TokenzierContext context, string text)
+		private static (IExpressionToken, int) TokenizePath(string textPart, int index, TokenzierContext context, string text)
 		{
-			if (Tokenizer.IsNumberExpressionChar(textPart[index]))
-			{
-				return TokenizeNumber(textPart, index, out consumed, context);
-			}
-
 			var pathTokenizer = new PathTokenizer();
 
-			consumed = 0;
-			for (int i = index; i < textPart.Length; i++)
+			int i = index;
+			for (; i < textPart.Length; i++)
 			{
-				consumed++;
 				var c = text[i];
 				if (Tokenizer.IsWhiteSpaceDelimiter(c))
 				{
@@ -253,17 +248,17 @@ namespace Morestachio.Framework.Expression.Parser
 						    || Tokenizer.IsOperationChar(c))
 							//the only char that can follow on a expression is ether an bracket or an argument seperator or an operator
 						{
-							consumed--;
-							return new ExpressionToken(pathTokenizer, context.CurrentLocation.Offset(index - consumed + 1));
+							i--;
+							return (new ExpressionToken(pathTokenizer, context.CurrentLocation.Offset(i + 1)), i);
 						}
 					}
 
 					context.Errors.Add(err());
-					return null;
+					return default;
 				}
 			}
 
-			return new ExpressionToken(pathTokenizer, context.CurrentLocation.Offset(index - consumed + 1));
+			return (new ExpressionToken(pathTokenizer, context.CurrentLocation.Offset(i + 1)), i);
 		}
 
 		private static IExpressionToken TokenizeNumber(string textPart, int index, out int consumed, TokenzierContext context)

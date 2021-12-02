@@ -177,8 +177,9 @@ namespace Morestachio.Framework.Expression
 		/// </summary>
 		public bool EndsWithDelimiter { get; private set; }
 
+		/// <param name="parserOptions"></param>
 		/// <inheritdoc />
-		public CompiledExpression Compile()
+		public CompiledExpression Compile(ParserOptions parserOptions)
 		{
 			if (!PathParts.HasValue && Formats.Count == 0 && FormatterName == null)
 			{
@@ -192,8 +193,8 @@ namespace Morestachio.Framework.Expression
 
 			if (PathParts.Count == 1 && PathParts.Current.Value == PathType.Null)
 			{
-				return (contextObject, scopeData) => scopeData.ParserOptions
-					.CreateContextObject("x:null", null).ToPromise();
+				var nullValue = parserOptions.CreateContextObject("x:null", null).ToPromise();
+				return (contextObject, scopeData) => nullValue;
 			}
 
 			var pathParts = PathParts.ToArray();
@@ -202,7 +203,7 @@ namespace Morestachio.Framework.Expression
 
 			if (pathParts.Length != 0)
 			{
-                var pathQueue = new Func<ContextObject, ScopeData, IMorestachioExpression, ContextObject>[pathParts.Length];
+				var pathQueue = new Func<ContextObject, ScopeData, IMorestachioExpression, ContextObject>[pathParts.Length];
 				var idx = 0;
 				if (pathParts.Length > 0 && pathParts.First().Value == PathType.DataPath)
 				{
@@ -245,19 +246,14 @@ namespace Morestachio.Framework.Expression
 							});
 							break;
 						case PathType.Null:
-							pathQueue[idx++] = ((contextObject, scopeData, expression) =>
-							{
-								return scopeData.ParserOptions.CreateContextObject("x:null", null);
-							});
+							var nullValue = parserOptions.CreateContextObject("x:null", null);
+							pathQueue[idx++] = ((contextObject, scopeData, expression) => nullValue);
 							break;
 						case PathType.Boolean:
 							var booleanValue = key == "true";
-							pathQueue[idx++] = ((contextObject, scopeData, expression) =>
-							{
-								var booleanContext = scopeData.ParserOptions.CreateContextObject(".", booleanValue);
-								booleanContext.IsNaturalContext = true;
-								return booleanContext;
-							});
+							var booleanContext = parserOptions.CreateContextObject(".", booleanValue);
+							booleanContext.IsNaturalContext = true;
+							pathQueue[idx++] = ((contextObject, scopeData, expression) => booleanContext);
 							break;
 						case PathType.SelfAssignment:
 						case PathType.ThisPath:
@@ -305,7 +301,7 @@ namespace Morestachio.Framework.Expression
 					return f.GetCompileTimeValue();
 				}
 
-				return f.Compile();
+				return f.Compile(parserOptions);
 			}).ToArray();
 
 			var arguments = new FormatterArgumentType[formatsCompiled.Length];
@@ -358,7 +354,7 @@ namespace Morestachio.Framework.Expression
 
 				if (cache != null)
 				{
-					outputContext.Value = await scopeData.ParserOptions.Formatters.Execute(cache, outputContext.Value, scopeData.ParserOptions, arguments);
+					outputContext._value = await scopeData.ParserOptions.Formatters.Execute(cache, outputContext.Value, scopeData.ParserOptions, arguments);
 					outputContext.MakeSyntetic();
 				}
 			}

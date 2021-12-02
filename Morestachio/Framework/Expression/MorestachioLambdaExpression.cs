@@ -94,8 +94,9 @@ namespace Morestachio.Framework.Expression
 			return scopeData.ParserOptions.CreateContextObject(".", new MorestachioTemplateExpression(this, contextObject, scopeData)).ToPromise();
 		}
 
+		/// <param name="parserOptions"></param>
 		/// <inheritdoc />
-		public CompiledExpression Compile()
+		public CompiledExpression Compile(ParserOptions parserOptions)
 		{
 			return (contextObject, scopeData) => scopeData.ParserOptions.CreateContextObject(".", new MorestachioTemplateExpression(this, contextObject, scopeData)).ToPromise();
 		}

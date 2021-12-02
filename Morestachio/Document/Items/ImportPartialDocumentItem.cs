@@ -162,7 +162,7 @@ namespace Morestachio.Document.Items
 		public CompilationAsync Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
 		{
 			var doneAction = new RenderPartialDoneDocumentItem().Compile(compiler, parserOptions);
-			var expression = MorestachioExpression.Compile();
+			var expression = MorestachioExpression.Compile(parserOptions);
 			return async (stream, context, scopeData) =>
 			{
 				var partialName = (await expression(context, scopeData)).RenderToString(scopeData).ToString();
