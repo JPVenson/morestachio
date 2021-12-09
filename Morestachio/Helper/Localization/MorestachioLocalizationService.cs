@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Morestachio.Util;
 
 namespace Morestachio.Helper.Localization
 {
@@ -206,7 +207,7 @@ namespace Morestachio.Helper.Localization
 			{
 				var textPart = match.Value.Trim();
 
-				if (textPart.Trim('{', '}').StartsWith("!"))
+				if (textPart.Trim('{', '}').StartsWith('!'))
 				{
 					text = textPart.Replace("!", "");
 					continue;

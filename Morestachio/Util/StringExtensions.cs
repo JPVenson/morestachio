@@ -16,5 +16,14 @@ namespace Morestachio.Util
 		{
 			return value is { Length: > 1 } && OrdinalCharComparer.ComparerIgnoreCase.Equals(value[0], check);
 		}
+		public static bool IsEquals(this string value, char check)
+		{
+			return value.Length == 1 && value[0] == check;
+		}
+
+		public static bool IsEqualsIgnoreCase(this string value, char check)
+		{
+			return value.Length == 1 && OrdinalCharComparer.ComparerIgnoreCase.Equals(value[0], check);
+		}
 	}
 }

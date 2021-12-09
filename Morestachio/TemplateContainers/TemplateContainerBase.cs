@@ -2,6 +2,7 @@
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Parsing.ParserErrors;
+using Morestachio.Util;
 
 namespace Morestachio.TemplateContainers
 {
@@ -109,14 +110,14 @@ namespace Morestachio.TemplateContainers
 
 							var tokenContent = templateString.Substring(startOfToken, tokenLength);
 							//it's a comment drop this on the floor, no need to even yield it.
-							if (tokenContent.StartsWith("!"))
+							if (tokenContent.StartsWith('!'))
 							{
 								if (preText != string.Empty)
 								{
 									yield return new TokenMatch(preLastIndex, preText, null, preText.Length, true);
 								}
 
-								if (tokenContent.Equals("!"))
+								if (tokenContent.IsEquals('!'))
 								{
 									context.CommentIntend++;
 									while (context.CommentIntend > 0)

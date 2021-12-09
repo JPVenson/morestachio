@@ -4,6 +4,7 @@ using Morestachio.Document.Contracts;
 using Morestachio.Document.Items;
 using Morestachio.Framework.IO;
 using Morestachio.Profiler;
+using Morestachio.Util;
 
 namespace Morestachio.Rendering
 {
@@ -121,7 +122,7 @@ namespace Morestachio.Rendering
 				return new MorestachioDocumentResult(byteCounterStream,
 					profiler,
 					scopeData.Variables
-					.Where(e => !e.Key.StartsWith("$"))
+					.Where(e => !e.Key.StartsWith('$'))
 					.ToDictionary(e => e.Key, e => scopeData.GetFromVariable(null, e.Value)?.Value));
 			}
 		}

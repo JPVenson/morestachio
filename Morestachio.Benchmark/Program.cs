@@ -27,16 +27,41 @@ namespace Morestachio.Benchmark
 			Console.ReadKey();
 		}
 	}
+	
+	[MemoryDiagnoser]
+	[MarkdownExporter]
+	[HtmlExporter]
+	public class BenchRenderPerformance
+	{
+		private BenchPerfHarness _dictionaryCall;
+		private BenchPerfHarness _objectCall;
+		[GlobalSetup]
+		public async Task Setup()
+		{
+			_dictionaryCall = new BenchPerfHarnessDictionary();
+			await _dictionaryCall.Setup();
+			_objectCall = new BenchPerfHarnessObject();
+			await _objectCall.Setup();
+		}
+		
+		[Benchmark(Baseline = false, Description = "Call Dictionary")]
+		public ValueTask<string> BenchDictionary()
+		{
+			return _dictionaryCall.Bench();
+		}
 
-	//[MemoryDiagnoser]
-	//[MarkdownExporter]
-	//[HtmlExporter]
+		[Benchmark(Baseline = true, Description = "Call Object")]
+		public ValueTask<string> BenchObject()
+		{
+			return _objectCall.Bench();
+		}
+	}
+	
 	public abstract class BenchPerfHarness
 	{
 		private IRenderer _templateCompiled;
 		private object _data;
-
-		[GlobalSetup]
+		
 		public virtual async Task Setup()
 		{
 			var parsingOptions = new ParserOptions(GetTemplate());
@@ -52,8 +77,7 @@ namespace Morestachio.Benchmark
 				throw new InvalidOperationException("Result does not equal expected value");
 			}
 		}
-
-		[Benchmark]
+		
 		public virtual async ValueTask<string> Bench()
 		{
 			var output = new ByteCounterStringBuilder(new StringBuilder(), _templateCompiled.ParserOptions);
@@ -80,37 +104,32 @@ namespace Morestachio.Benchmark
 		}
 	}
 	
-	//[MemoryDiagnoser]
-	//[MarkdownExporter]
-	//[HtmlExporter]
-	//public class BenchPerfHarnessDictionary : BenchPerfHarness
-	//{
-	//	public override object GetData()
-	//	{
-	//		var productsDict = new DictObject();
-	//		const int ProductCount = 500;
+	public class BenchPerfHarnessDictionary : BenchPerfHarness
+	{
 
-	//		List<DictObject> prodList = new List<DictObject>();
-	//		productsDict.Add("Products", prodList);
+		public override object GetData()
+		{
+			var productsDict = new DictObject();
+			const int ProductCount = 500;
 
-	//		var lorem = Lorem.AsMemory();
-	//		for (int i = 0; i < ProductCount; i++)
-	//		{
-	//			prodList.Add(new Dictionary<string, object>()
-	//			{
-	//				{ "Name", "Name" + i},
-	//				{ "Price", i},
-	//				{ "Description", lorem},
-	//			});
-	//		}
+			List<DictObject> prodList = new List<DictObject>();
+			productsDict.Add("Products", prodList);
 
-	//		return productsDict;
-	//	}
-	//}
+			var lorem = Lorem.AsMemory();
+			for (int i = 0; i < ProductCount; i++)
+			{
+				prodList.Add(new Dictionary<string, object>()
+				{
+					{ "Name", "Name" + i},
+					{ "Price", i},
+					{ "Description", lorem},
+				});
+			}
 
-	[MemoryDiagnoser]
-	[MarkdownExporter]
-	[HtmlExporter]
+			return productsDict;
+		}
+	}
+	
 	public class BenchPerfHarnessObject : BenchPerfHarness
 	{
 		public override object GetData()

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Dynamic;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using Morestachio.Document;
@@ -24,7 +26,7 @@ namespace Morestachio.Framework.Context.FallbackResolver
 		{
 			var sourceValue = source._value;
 			var type = sourceValue.GetType();
-
+			
 			if (!_cache.TryGetValue(type, out var typeCache))
 			{
 				typeCache = new TypeCache(type.GetTypeInfo());

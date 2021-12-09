@@ -2,6 +2,7 @@
 using Morestachio.Document;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
+using Morestachio.Util;
 
 namespace Morestachio.Framework.Context
 {
@@ -20,7 +21,7 @@ namespace Morestachio.Framework.Context
 														IMorestachioExpression morestachioExpression,
 														ScopeData scopeData)
 		{
-			if (currentElement.Value != PathType.DataPath || !currentElement.Key.StartsWith("$"))
+			if (currentElement.Value != PathType.DataPath || !currentElement.Key.StartsWith('$'))
 			{
 				return null;
 			}
