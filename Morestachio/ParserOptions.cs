@@ -26,7 +26,6 @@ namespace Morestachio
 	/// <summary>
 	///     Options for Parsing run
 	/// </summary>
-
 	public class ParserOptions : SealedBase
 	{
 		private IMorestachioFormatterService _formatters;
@@ -51,11 +50,10 @@ namespace Morestachio
 		private UnmatchedTagBehavior _unmatchedTagBehavior;
 
 		/// <summary>
-		///		Creates a new object without any template
+		///     Creates a new object without any template
 		/// </summary>
 		public ParserOptions() : this(new StringTemplateContainer(""))
 		{
-
 		}
 
 		/// <summary>
@@ -73,7 +71,7 @@ namespace Morestachio
 		/// <param name="template"></param>
 		/// <param name="sourceStream">The factory that is used for each template generation</param>
 		public ParserOptions(ITemplateContainer template,
-			 Func<Stream> sourceStream)
+							Func<Stream> sourceStream)
 			: this(template, sourceStream, null)
 		{
 		}
@@ -85,8 +83,9 @@ namespace Morestachio
 		/// <param name="sourceStream">The source stream.</param>
 		/// <param name="encoding">The encoding.</param>
 		public ParserOptions(ITemplateContainer template,
-			 Func<Stream> sourceStream,
-			 Encoding encoding) : this(template, ByteCounterFactory.GetDefaultByteCounter(sourceStream), encoding)
+							Func<Stream> sourceStream,
+							Encoding encoding) 
+			: this(template, ByteCounterFactory.GetDefaultByteCounter(sourceStream), encoding)
 		{
 		}
 
@@ -97,8 +96,8 @@ namespace Morestachio
 		/// <param name="sourceStream">The source stream.</param>
 		/// <param name="encoding">The encoding.</param>
 		public ParserOptions(ITemplateContainer template,
-			 Func<ParserOptions, IByteCounterStream> sourceStream,
-			 Encoding encoding)
+							Func<ParserOptions, IByteCounterStream> sourceStream,
+							Encoding encoding)
 		{
 			Template = template ?? new StringTemplateContainer("");
 			StreamFactory = new ByteCounterFactory(sourceStream);
@@ -121,7 +120,7 @@ namespace Morestachio
 		/// <param name="sourceStream">The source stream.</param>
 		/// <param name="encoding">The encoding.</param>
 		public ParserOptions(ITemplateContainer template,
-			 Func<ParserOptions, IByteCounterStream> sourceStream) 
+							Func<ParserOptions, IByteCounterStream> sourceStream)
 			: this(template, sourceStream, null)
 		{
 		}
@@ -135,10 +134,10 @@ namespace Morestachio
 		/// <param name="maxSize">The maximum size.</param>
 		/// <param name="disableContentEscaping">if set to <c>true</c> [disable content escaping].</param>
 		public ParserOptions(ITemplateContainer template,
-			 Func<Stream> sourceStream,
-			 Encoding encoding,
-			long maxSize,
-			bool disableContentEscaping = false)
+							Func<Stream> sourceStream,
+							Encoding encoding,
+							long maxSize,
+							bool disableContentEscaping = false)
 			: this(template, sourceStream, encoding)
 		{
 			MaxSize = maxSize;
@@ -153,9 +152,9 @@ namespace Morestachio
 		/// <param name="encoding">The encoding.</param>
 		/// <param name="disableContentEscaping">if set to <c>true</c> [disable content escaping].</param>
 		public ParserOptions(ITemplateContainer template,
-			 Func<Stream> sourceStream,
-			 Encoding encoding,
-			bool disableContentEscaping = false)
+							Func<Stream> sourceStream,
+							Encoding encoding,
+							bool disableContentEscaping = false)
 			: this(template, sourceStream, encoding, 0, disableContentEscaping)
 		{
 		}
@@ -175,7 +174,7 @@ namespace Morestachio
 		/// <param name="template"></param>
 		/// <param name="sourceStream">The factory that is used for each template generation</param>
 		public ParserOptions(string template,
-			 Func<Stream> sourceStream)
+							Func<Stream> sourceStream)
 			: this(template, sourceStream, null)
 		{
 		}
@@ -187,9 +186,9 @@ namespace Morestachio
 		/// <param name="sourceStream">The source stream.</param>
 		/// <param name="encoding">The encoding.</param>
 		public ParserOptions(string template,
-			 Func<Stream> sourceStream,
-			 Encoding encoding)
-		: this(new StringTemplateContainer(template), sourceStream, encoding)
+							Func<Stream> sourceStream,
+							Encoding encoding)
+			: this(new StringTemplateContainer(template), sourceStream, encoding)
 		{
 		}
 
@@ -202,10 +201,10 @@ namespace Morestachio
 		/// <param name="maxSize">The maximum size.</param>
 		/// <param name="disableContentEscaping">if set to <c>true</c> [disable content escaping].</param>
 		public ParserOptions(string template,
-			 Func<Stream> sourceStream,
-			 Encoding encoding,
-			long maxSize,
-			bool disableContentEscaping = false)
+							Func<Stream> sourceStream,
+							Encoding encoding,
+							long maxSize,
+							bool disableContentEscaping = false)
 			: this(template, sourceStream, encoding)
 		{
 			MaxSize = maxSize;
@@ -220,9 +219,9 @@ namespace Morestachio
 		/// <param name="encoding">The encoding.</param>
 		/// <param name="disableContentEscaping">if set to <c>true</c> [disable content escaping].</param>
 		public ParserOptions(string template,
-			 Func<Stream> sourceStream,
-			 Encoding encoding,
-			bool disableContentEscaping = false)
+							Func<Stream> sourceStream,
+							Encoding encoding,
+							bool disableContentEscaping = false)
 			: this(template, sourceStream, encoding, 0, disableContentEscaping)
 		{
 		}
@@ -235,7 +234,7 @@ namespace Morestachio
 		}
 
 		/// <summary>
-		///		If set to true, the tokenizer will add an token for each comment found. Default is <code>false</code>
+		///     If set to true, the tokenizer will add an token for each comment found. Default is <code>false</code>
 		/// </summary>
 		public bool TokenizeComments
 		{
@@ -248,7 +247,7 @@ namespace Morestachio
 		}
 
 		/// <summary>
-		///		The store for PreParsed Partials
+		///     The store for PreParsed Partials
 		/// </summary>
 		public IPartialsStore PartialsStore
 		{
@@ -261,7 +260,7 @@ namespace Morestachio
 		}
 
 		/// <summary>
-		///		The list of provider that emits custom document items
+		///     The list of provider that emits custom document items
 		/// </summary>
 		public ICustomDocumentList CustomDocumentItemProviders
 		{
@@ -269,7 +268,8 @@ namespace Morestachio
 		}
 
 		/// <summary>
-		///		[Experimental]If set to True morestachio will profile the execution and report the result in both <seealso cref="MorestachioDocumentInfo"/>
+		///     [Experimental]If set to True morestachio will profile the execution and report the result in both
+		///     <seealso cref="MorestachioDocumentInfo" />
 		/// </summary>
 		public bool ProfileExecution
 		{
@@ -282,7 +282,7 @@ namespace Morestachio
 		}
 
 		/// <summary>
-		///		Can be used to resolve values from custom objects
+		///     Can be used to resolve values from custom objects
 		/// </summary>
 		public IValueResolver ValueResolver
 		{
@@ -295,7 +295,7 @@ namespace Morestachio
 		}
 
 		/// <summary>
-		///		Gets or Sets the Culture in which the template should be rendered
+		///     Gets or Sets the Culture in which the template should be rendered
 		/// </summary>
 		public CultureInfo CultureInfo
 		{
@@ -308,7 +308,7 @@ namespace Morestachio
 		}
 
 		/// <summary>
-		///		Can be used to observe unresolved paths
+		///     Can be used to observe unresolved paths
 		/// </summary>
 		public event InvalidPath UnresolvedPath;
 
@@ -327,7 +327,8 @@ namespace Morestachio
 		}
 
 		/// <summary>
-		///		Gets or sets the max Stack size for nested Partials in execution. Recommended to be not exceeding 2000. Defaults to 255.
+		///     Gets or sets the max Stack size for nested Partials in execution. Recommended to be not exceeding 2000. Defaults to
+		///     255.
 		/// </summary>
 		public uint PartialStackSize
 		{
@@ -340,7 +341,7 @@ namespace Morestachio
 		}
 
 		/// <summary>
-		///		Defines how blocks should behave when a scope is present
+		///     Defines how blocks should behave when a scope is present
 		/// </summary>
 		public ScopingBehavior ScopingBehavior
 		{
@@ -353,8 +354,8 @@ namespace Morestachio
 		}
 
 		/// <summary>
-		///		Defines how the Parser should behave when encountering a the PartialStackSize to be exceeded.
-		///		Default is <see cref="PartialStackOverflowBehavior.FailWithException"/>
+		///     Defines how the Parser should behave when encountering a the PartialStackSize to be exceeded.
+		///     Default is <see cref="PartialStackOverflowBehavior.FailWithException" />
 		/// </summary>
 		public PartialStackOverflowBehavior StackOverflowBehavior
 		{
@@ -367,8 +368,8 @@ namespace Morestachio
 		}
 
 		/// <summary>
-		///		Defines how the Parser should behave when encountering a formatter call that cannot be resolved
-		///		Default is <see cref="UnmatchedFormatterBehavior.ParentValue"/>
+		///     Defines how the Parser should behave when encountering a formatter call that cannot be resolved
+		///     Default is <see cref="UnmatchedFormatterBehavior.ParentValue" />
 		/// </summary>
 		public UnmatchedFormatterBehavior UnmatchedFormatterBehavior
 		{
@@ -381,7 +382,7 @@ namespace Morestachio
 		}
 
 		/// <summary>
-		///		Defines the behavior how the tokenizer should react to tags it does not recognizance
+		///     Defines the behavior how the tokenizer should react to tags it does not recognizance
 		/// </summary>
 		public UnmatchedTagBehavior UnmatchedTagBehavior
 		{
@@ -394,11 +395,12 @@ namespace Morestachio
 		}
 
 		/// <summary>
-		///		Gets or sets the timeout. After the timeout is reached and the Template has not finished Processing an Exception is thrown.
-		///		For no timeout use <code>TimeSpan.Zero</code>
+		///     Gets or sets the timeout. After the timeout is reached and the Template has not finished Processing an Exception is
+		///     thrown.
+		///     For no timeout use <code>TimeSpan.Zero</code>
 		/// </summary>
 		/// <value>
-		/// The timeout.
+		///     The timeout.
 		/// </value>
 		public TimeSpan Timeout
 		{
@@ -482,7 +484,7 @@ namespace Morestachio
 		}
 
 		/// <summary>
-		///		The Logger used for this template
+		///     The Logger used for this template
 		/// </summary>
 		public ILogger Logger
 		{
@@ -509,8 +511,8 @@ namespace Morestachio
 		}
 
 		/// <summary>
-		///		If enabled all instances of IDictionary{string, object} will be processed as normal objects.
-		/// <value>Default is false</value>
+		///     If enabled all instances of IDictionary{string, object} will be processed as normal objects.
+		///     <value>Default is false</value>
 		/// </summary>
 		public bool HandleDictionaryAsObject
 		{
@@ -523,7 +525,7 @@ namespace Morestachio
 		}
 
 		/// <summary>
-		///		Copies all values from one parser options to a new instance
+		///     Copies all values from one parser options to a new instance
 		/// </summary>
 		/// <returns></returns>
 		public ParserOptions Copy()
@@ -559,7 +561,7 @@ namespace Morestachio
 		private bool _tokenizeComments;
 
 		/// <summary>
-		///		Allows the creation of an custom Context object
+		///     Allows the creation of an custom Context object
 		/// </summary>
 		/// <param name="key"></param>
 		/// <param name="token"></param>
@@ -567,26 +569,25 @@ namespace Morestachio
 		/// <param name="parent"></param>
 		/// <returns></returns>
 		public virtual ContextObject CreateContextObject(string key,
-			object value,
-			ContextObject parent = null)
+														object value,
+														ContextObject parent = null)
 		{
 			if (key == "x:null")
 			{
-				return _nullContext ?? (_nullContext = new ContextObject("x:null", null, null));
-			}
-			if (value is bool val)
-			{
-				if (val)
-				{
-					return _trueContext ?? (_trueContext = new ContextObject("x:true", null, true));
-				}
-				else
-				{
-					return _falseContext ?? (_falseContext = new ContextObject("x:false", null, false));
-				}
+				return _nullContext ??= new ContextObject("x:null", null, null);
 			}
 
-			return new ContextObject(key, parent, value);
+			if (value is not bool val)
+			{
+				return new ContextObject(key, parent, value);
+			}
+
+			if (val)
+			{
+				return _trueContext ??= new ContextObject("x:true", null, true);
+			}
+
+			return _falseContext ??= new ContextObject("x:false", null, false);
 		}
 
 		internal void OnUnresolvedPath(InvalidPathEventArgs args)

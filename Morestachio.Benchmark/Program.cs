@@ -46,7 +46,7 @@ namespace Morestachio.Benchmark
 			_data = GetData();
 
 			var bench = await Bench();
-			//Console.WriteLine(bench);
+			Console.WriteLine(bench);
 			if (string.IsNullOrWhiteSpace(bench))
 			{
 				throw new InvalidOperationException("Result does not equal expected value");
