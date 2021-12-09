@@ -10,6 +10,7 @@ using Morestachio.Document.Custom;
 using Morestachio.Formatter.Framework;
 using Morestachio.Framework;
 using Morestachio.Framework.Context;
+using Morestachio.Framework.Context.FallbackResolver;
 using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Context.Resolver;
 using Morestachio.Framework.IO;
@@ -33,6 +34,7 @@ namespace Morestachio
 		private IPartialsStore _partialsStore;
 		private bool _profileExecution;
 		private IValueResolver _valueResolver;
+		private IFallbackValueResolver _fallbackValueResolver;
 		private CultureInfo _cultureInfo;
 		private uint _partialStackSize;
 		private ScopingBehavior _scopingBehavior;
@@ -111,6 +113,7 @@ namespace Morestachio
 			_customDocumentItemProviders = new CustomDocumentList();
 			CultureInfo = CultureInfo.CurrentCulture;
 			UnmatchedTagBehavior = UnmatchedTagBehavior.ThrowError | UnmatchedTagBehavior.LogWarning;
+			FallbackValueResolver = GetDefaultResolver();
 		}
 
 		/// <summary>
@@ -226,6 +229,11 @@ namespace Morestachio
 		{
 		}
 
+		private IFallbackValueResolver GetDefaultResolver()
+		{
+			return new CachedReflectionTypeFallbackResolver();
+		}
+
 		/// <inheritdoc />
 		public override void Seal()
 		{
@@ -291,6 +299,22 @@ namespace Morestachio
 			{
 				CheckSealed();
 				_valueResolver = value;
+			}
+		}
+
+		/// <summary>
+		///     The Value Resolver that is called when the <see cref="ValueResolver"/> does not support an object and its not an <see cref="IDictionary{T,TE}"/>
+		/// </summary>
+		/// <value>
+		///		Default depends on executing .Net runtime
+		/// </value>
+		public IFallbackValueResolver FallbackValueResolver
+		{
+			get { return _fallbackValueResolver; }
+			set
+			{
+				CheckSealed();
+				_fallbackValueResolver = value;
 			}
 		}
 

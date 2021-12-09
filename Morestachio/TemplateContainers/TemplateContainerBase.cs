@@ -45,7 +45,6 @@ namespace Morestachio.TemplateContainers
 			var templateString = Template;
 			var index = 0;
 			var preLastIndex = 0;
-			var charComparer = new CharComparer();
 			var lastChars = new MorestachioDefaultRollingArray();
 
 			//use the index of method for fast lookup of the next token
@@ -104,7 +103,7 @@ namespace Morestachio.TemplateContainers
 							preText += c;
 							tokenCount = 0;
 						}
-						else if (lastChars.EndsWith(context.SuffixToken, charComparer))//something like "zzddata }}"
+						else if (lastChars.EndsWith(context.SuffixToken, OrdinalCharComparer.Comparer))//something like "zzddata }}"
 						{
 							var tokenLength = tokenCount - context.SuffixToken.Length;
 

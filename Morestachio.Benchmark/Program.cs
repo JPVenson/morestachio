@@ -28,16 +28,16 @@ namespace Morestachio.Benchmark
 		}
 	}
 
-	[MemoryDiagnoser]
-	[MarkdownExporter]
-	[HtmlExporter]
-	public class BenchPerfHarness
+	//[MemoryDiagnoser]
+	//[MarkdownExporter]
+	//[HtmlExporter]
+	public abstract class BenchPerfHarness
 	{
 		private IRenderer _templateCompiled;
 		private object _data;
 
 		[GlobalSetup]
-		public async Task Setup()
+		public virtual async Task Setup()
 		{
 			var parsingOptions = new ParserOptions(GetTemplate());
 			parsingOptions.DisableContentEscaping = true;
@@ -46,7 +46,7 @@ namespace Morestachio.Benchmark
 			_data = GetData();
 
 			var bench = await Bench();
-			Console.WriteLine(bench);
+			//Console.WriteLine(bench);
 			if (string.IsNullOrWhiteSpace(bench))
 			{
 				throw new InvalidOperationException("Result does not equal expected value");
@@ -54,7 +54,7 @@ namespace Morestachio.Benchmark
 		}
 
 		[Benchmark]
-		public async ValueTask<string> Bench()
+		public virtual async ValueTask<string> Bench()
 		{
 			var output = new ByteCounterStringBuilder(new StringBuilder(), _templateCompiled.ParserOptions);
 			//var output = new ByteCounterStringBuilderV2(_templateCompiled.ParserOptions);
@@ -62,43 +62,9 @@ namespace Morestachio.Benchmark
 			return output.ToString();
 		}
 
-		private const string Lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
+		public const string Lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
 
-
-		public object GetData()
-		{
-			var productsDict = new DictObject();
-			const int ProductCount = 500;
-
-			List<DictObject> prodList = new List<DictObject>();
-			productsDict.Add("Products", prodList);
-
-			var lorem = Lorem.AsMemory();
-			for (int i = 0; i < ProductCount; i++)
-			{
-				prodList.Add(new Dictionary<string, object>()
-				{
-					{ "Name", "Name" + i},
-					{ "Price", i},
-					{ "Description", lorem[0..15]},
-				});
-			}
-
-			return productsDict;
-		}
-
-		//public object GetData()
-		//{
-		//	return new
-		//	{
-		//		Products = Enumerable.Range(0, 500).Select(f => new
-		//		{
-		//			Name = "Name" + f,
-		//			Price = f,
-		//			Description = Lorem
-		//		})
-		//	};
-		//}
+		public abstract object GetData();
 
 		public string GetTemplate()
 		{
@@ -111,6 +77,62 @@ namespace Morestachio.Benchmark
 	</li>
   {{/EACH}}
 </ul>";
+		}
+	}
+	
+	//[MemoryDiagnoser]
+	//[MarkdownExporter]
+	//[HtmlExporter]
+	//public class BenchPerfHarnessDictionary : BenchPerfHarness
+	//{
+	//	public override object GetData()
+	//	{
+	//		var productsDict = new DictObject();
+	//		const int ProductCount = 500;
+
+	//		List<DictObject> prodList = new List<DictObject>();
+	//		productsDict.Add("Products", prodList);
+
+	//		var lorem = Lorem.AsMemory();
+	//		for (int i = 0; i < ProductCount; i++)
+	//		{
+	//			prodList.Add(new Dictionary<string, object>()
+	//			{
+	//				{ "Name", "Name" + i},
+	//				{ "Price", i},
+	//				{ "Description", lorem},
+	//			});
+	//		}
+
+	//		return productsDict;
+	//	}
+	//}
+
+	[MemoryDiagnoser]
+	[MarkdownExporter]
+	[HtmlExporter]
+	public class BenchPerfHarnessObject : BenchPerfHarness
+	{
+		public override object GetData()
+		{
+			const int ProductCount = 500;
+
+			var items = new List<object>();
+			var lorem = Lorem.AsMemory();
+			for (int i = 0; i < ProductCount; i++)
+			{
+				items.Add(new
+				{
+					Name = "Name" + i,
+					Price = i,
+					Description = lorem
+				});
+			}
+
+			return new
+			{
+				Products = items
+			};
 		}
 	}
 }

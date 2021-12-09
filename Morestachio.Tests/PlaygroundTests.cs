@@ -275,26 +275,48 @@ namespace Morestachio.Tests
 		[Repeat(5)]
 		public async Task PerformanceDebuggerTest()
 		{
+			//object GetData()
+			//{
+			//	var productsDict = new Dictionary<string, object>();
+			//	const int ProductCount = 500;
+
+			//	var prodList = new List<Dictionary<string, object>>();
+			//	productsDict.Add("Products", prodList);
+
+			//	var lorem = Lorem.AsMemory();
+			//	for (int i = 0; i < ProductCount; i++)
+			//	{
+			//		prodList.Add(new Dictionary<string, object>()
+			//		{
+			//			{ "Name", "Name" + i},
+			//			{ "Price", i},
+			//			{ "Description", lorem},
+			//		});
+			//	}
+
+			//	return productsDict;
+			//}
+			
 			object GetData()
 			{
-				var productsDict = new Dictionary<string, object>();
 				const int ProductCount = 500;
 
-				var prodList = new List<Dictionary<string, object>>();
-				productsDict.Add("Products", prodList);
-
+				var items = new List<object>();
 				var lorem = Lorem.AsMemory();
 				for (int i = 0; i < ProductCount; i++)
 				{
-					prodList.Add(new Dictionary<string, object>()
+					items.Add(new
 					{
-						{ "Name", "Name" + i},
-						{ "Price", i},
-						{ "Description", lorem},
+						Name = "Name" + i,
+						Price = i,
+						Description = lorem
 					});
 				}
 
-				return productsDict;
+				return new
+				{
+					Products = items
+				};
 			}
 
 			var data = GetData();
