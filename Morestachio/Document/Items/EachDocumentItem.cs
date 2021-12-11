@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
-using System.Threading.Tasks;
-using Morestachio.Analyzer.DataAccess;
+﻿using Morestachio.Analyzer.DataAccess;
 using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
@@ -20,28 +13,27 @@ using Morestachio.Parsing.ParserErrors;
 namespace Morestachio.Document.Items
 {
 	/// <summary>
-	///		Emits N items that are in the collection
+	///     Emits N items that are in the collection
 	/// </summary>
 	[Serializable]
 	public class EachDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 	{
 		/// <summary>
-		///		Used for XML Serialization
+		///     Used for XML Serialization
 		/// </summary>
 		internal EachDocumentItem()
 		{
-
 		}
 
 		/// <inheritdoc />
 		public EachDocumentItem(CharacterLocation location,
-			IMorestachioExpression value,
-			IEnumerable<ITokenOption> tagCreationOptions) : base(location, value, tagCreationOptions)
+								IMorestachioExpression value,
+								IEnumerable<ITokenOption> tagCreationOptions)
+			: base(location, value, tagCreationOptions)
 		{
 		}
 
 		/// <inheritdoc />
-
 		protected EachDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
 		}
@@ -56,19 +48,16 @@ namespace Morestachio.Document.Items
 			return async (outputStream, context, scopeData) =>
 			{
 				await CoreAction(outputStream, await expression(context, scopeData), scopeData,
-					async o =>
-					{
-						await children(outputStream, o, scopeData);
-					});
+					async o => { await children(outputStream, o, scopeData); });
 			};
 		}
 
 		/// <exception cref="IndexedParseException"></exception>
 		/// <inheritdoc />
-		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
-			ScopeData scopeData)
+		public override async ItemExecutionPromise Render(IByteCounterStream outputStream,
+														ContextObject context,
+														ScopeData scopeData)
 		{
-			var contexts = new List<DocumentItemExecution>();
 			await CoreAction(outputStream,
 				await MorestachioExpression.GetValue(context, scopeData)
 				, scopeData, async itemContext =>
@@ -76,14 +65,14 @@ namespace Morestachio.Document.Items
 					await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, itemContext, scopeData);
 					//contexts.AddRange(Children.WithScope(itemContext));
 				});
-			return contexts;
+			return Enumerable.Empty<DocumentItemExecution>();
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private async Promise CoreAction(IByteCounterStream outputStream,
-			ContextObject c,
-			ScopeData scopeData,
-			Func<ContextObject, Promise> onItem)
+										ContextObject c,
+										ScopeData scopeData,
+										Func<ContextObject, Promise> onItem)
 		{
 			if (!c.Exists())
 			{
@@ -94,6 +83,7 @@ namespace Morestachio.Document.Items
 			{
 				var path = new Stack<string>();
 				var parent = c.Parent;
+
 				while (parent != null)
 				{
 					path.Push(parent.Key);
@@ -108,7 +98,11 @@ namespace Morestachio.Document.Items
 						(path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 			}
 
-			if (value is ICollection col)
+			if (value is IList lst)
+			{
+				await LoopList(outputStream, c, scopeData, onItem, lst);
+			}
+			else if (value is ICollection col)
 			{
 				await LoopCollection(outputStream, c, scopeData, onItem, col);
 			}
@@ -116,22 +110,50 @@ namespace Morestachio.Document.Items
 			{
 				await LoopEnumerable(outputStream, c, scopeData, onItem, value);
 			}
-
 		}
 
-		private static async Promise LoopCollection(IByteCounterStream outputStream, ContextObject c, ScopeData scopeData,
-			Func<ContextObject, Promise> onItem, ICollection value)
+		private static async Promise LoopList(IByteCounterStream outputStream,
+											ContextObject context,
+											ScopeData scopeData,
+											Func<ContextObject, Promise> onItem,
+											IList value)
+		{
+			var innerContext =
+				new ContextCollection(0, false, $"[]", context, null)
+					.MakeNatural() as ContextCollection;
+
+			for (var i = 0; i < value.Count; i++)
+			{
+				if (!ContinueBuilding(outputStream, scopeData))
+				{
+					return;
+				}
+
+				innerContext.Index = i;
+				innerContext.Last = i + 1 == value.Count;
+				innerContext.Value = value[i];
+				await onItem(innerContext);
+			}
+		}
+
+		private static async Promise LoopCollection(IByteCounterStream outputStream,
+													ContextObject context,
+													ScopeData scopeData,
+													Func<ContextObject, Promise> onItem,
+													ICollection value)
 		{
 			var index = 0;
 			var innerContext =
-				new ContextCollection(index, false, $"[{index}]", c, null)
+				new ContextCollection(index, false, $"[]", context, null)
 					.MakeNatural() as ContextCollection;
+
 			foreach (var item in value)
 			{
 				if (!ContinueBuilding(outputStream, scopeData))
 				{
 					return;
 				}
+
 				innerContext.Index = index;
 				innerContext.Last = index + 1 == value.Count;
 				innerContext.Value = item;
@@ -140,12 +162,16 @@ namespace Morestachio.Document.Items
 			}
 		}
 
-		private static async Promise LoopEnumerable(IByteCounterStream outputStream, ContextObject c, ScopeData scopeData,
-			Func<ContextObject, Promise> onItem, IEnumerable value)
+		private static async Promise LoopEnumerable(IByteCounterStream outputStream,
+													ContextObject context,
+													ScopeData scopeData,
+													Func<ContextObject, Promise> onItem,
+													IEnumerable value)
 		{
 			//Use this "lookahead" enumeration to allow the $last keyword
 			var index = 0;
 			var enumerator = value.GetEnumerator();
+
 			if (!enumerator.MoveNext())
 			{
 				return;
@@ -154,8 +180,9 @@ namespace Morestachio.Document.Items
 			var current = enumerator.Current;
 
 			var innerContext =
-				new ContextCollection(index, false, $"[{index}]", c, current)
+				new ContextCollection(index, false, $"[]", context, current)
 					.MakeNatural() as ContextCollection;
+
 			do
 			{
 				var next = enumerator.MoveNext() ? enumerator.Current : null;
@@ -179,6 +206,7 @@ namespace Morestachio.Document.Items
 		{
 			var path = MorestachioExpression.InferExpressionUsage(data).ToArray();
 			var mainPath = path.FirstOrDefault();
+
 			if (mainPath != null)
 			{
 				mainPath = mainPath.TrimEnd('.') + ".[].";
@@ -194,6 +222,7 @@ namespace Morestachio.Document.Items
 			{
 				yield return usage;
 			}
+
 			data.PopScope(mainPath);
 		}
 	}

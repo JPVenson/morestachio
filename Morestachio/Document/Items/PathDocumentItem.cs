@@ -57,7 +57,7 @@ namespace Morestachio.Document.Items
 		/// <inheritdoc />
 		protected override void DeSerializeXml(XmlReader reader)
 		{
-			EscapeValue = reader.GetAttribute(nameof(EscapeValue)) == Boolean.TrueString;
+			EscapeValue = reader.GetAttribute(nameof(EscapeValue)) == bool.TrueString;
 			base.DeSerializeXml(reader);
 		}
 		
@@ -73,13 +73,12 @@ namespace Morestachio.Document.Items
 		{
 			return WebUtility.HtmlEncode(context);
 		}
-		#if Span
+#if Span
 		private static ReadOnlyMemory<char> HtmlEncodeString(ReadOnlyMemory<char> context)
 		{
 			return WebUtility.HtmlEncode(context.ToString()).AsMemory();
 		}
-
-		#endif
+#endif
 
 		/// <param name="compiler"></param>
 		/// <param name="parserOptions"></param>

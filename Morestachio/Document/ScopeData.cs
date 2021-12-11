@@ -25,7 +25,7 @@ namespace Morestachio.Document
 		/// </summary>
 		public ScopeData(ParserOptions parserOptions, CancellationToken? cancellationToken = null)
 		{
-			ParserOptions = parserOptions;
+			_parserOptions = parserOptions;
 			Partials = new Dictionary<string, IDocumentItem>();
 			CompiledPartials = new Dictionary<string, CompilationAsync>();
 			PartialDepth = new Stack<Tuple<string, int>>();
@@ -90,21 +90,21 @@ namespace Morestachio.Document
 			foreach (var keyValuePair in ContextCollection.GetVariables())
 			{
 				AddVariable(keyValuePair.Key, (scopeData, context) =>
-                {
-                    ContextCollection coll = null;
-                    if (context is ContextCollection)
-                    {
+				{
+					ContextCollection coll = null;
+					if (context is ContextCollection)
+					{
 						coll = context as ContextCollection;
-                    }
-                    else
-                    {
-                        var ctx = context;
-                        while (ctx != null && ctx is not ContextCollection)
-                        {
-                            ctx = ctx.Parent;
-                        }
+					}
+					else
+					{
+						var ctx = context;
+						while (ctx != null && ctx is not ContextCollection)
+						{
+							ctx = ctx.Parent;
+						}
 						coll = ctx as ContextCollection;
-                    }
+					}
 
 					if (coll != null)
 					{
@@ -116,10 +116,15 @@ namespace Morestachio.Document
 			}
 		}
 
+		internal ParserOptions _parserOptions;
+
 		/// <summary>
 		///		The ParserOptions used to parse this template
 		/// </summary>
-		public ParserOptions ParserOptions { get; private set; }
+		public ParserOptions ParserOptions
+		{
+			get { return _parserOptions; }
+		}
 
 		internal readonly bool IsOutputLimited;
 		/// <summary>

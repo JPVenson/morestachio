@@ -7,8 +7,7 @@ using Morestachio.Framework.Context.Resolver;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Util;
-using PathPartElement =
-	System.Collections.Generic.KeyValuePair<string, Morestachio.Framework.Expression.Framework.PathType>;
+using PathPartElement = System.Collections.Generic.KeyValuePair<string, Morestachio.Framework.Expression.Framework.PathType>;
 
 
 namespace Morestachio.Framework.Context
@@ -193,7 +192,7 @@ namespace Morestachio.Framework.Context
 			IMorestachioExpression morestachioExpression)
 		{
 			var retval = this;
-
+			
 			if (elements == null)
 			{
 				return retval;
@@ -210,44 +209,49 @@ namespace Morestachio.Framework.Context
 			{
 				return ExecuteRootSelector() ?? this;
 			}
-			else if (elements.Current.Value == PathType.ParentSelector) //go one level up
+
+			if (elements.Current.Value == PathType.ParentSelector) //go one level up
 			{
 				if (Parent != null)
 				{
-					return FindNextNaturalContextObject()?.Parent ?? this.Parent ?? this;
+					return FindNextNaturalContextObject()?.Parent ?? Parent ?? this;
 				}
 
 				return this;
 			}
-			else if (elements.Current.Value == PathType.ObjectSelector)
+
+			if (elements.Current.Value == PathType.ObjectSelector)
 				//enumerate ether an IDictionary, an cs object or an IEnumerable to a KeyValuePair array
 			{
 				//await EnsureValue();
 				if (_value is null)
 				{
-					return scopeData.ParserOptions.CreateContextObject("x:null", null);
+					return scopeData._parserOptions.CreateContextObject("x:null", null);
 				}
 
 				//ALWAYS return the context, even if the value is null.
 				return ExecuteObjectSelector(elements.Current.Key, scopeData);
 			}
-			else if (elements.Current.Value == PathType.Boolean)
+
+			if (elements.Current.Value == PathType.Boolean)
 			{
 				if (elements.Current.Key is "true" or "false")
 				{
 					var booleanContext =
-						scopeData.ParserOptions.CreateContextObject(".", elements.Current.Key == "true", this);
+						scopeData._parserOptions.CreateContextObject(".", elements.Current.Key == "true", this);
 					booleanContext.IsNaturalContext = IsNaturalContext;
 					return booleanContext;
 				}
 
 				return this;
 			}
-			else if (elements.Current.Value == PathType.Null)
+
+			if (elements.Current.Value == PathType.Null)
 			{
-				return scopeData.ParserOptions.CreateContextObject("x:null", null);
+				return scopeData._parserOptions.CreateContextObject("x:null", null);
 			}
-			else if (elements.Current.Value == PathType.DataPath)
+
+			if (elements.Current.Value == PathType.DataPath)
 			{
 				return ExecuteDataPath(elements.Current.Key, morestachioExpression, scopeData);
 			}
@@ -259,16 +263,16 @@ namespace Morestachio.Framework.Context
 		{
 			ContextObject innerContext = null;
 
-			if (!scopeData.ParserOptions.HandleDictionaryAsObject && _value is IDictionary<string, object> dictList)
+			if (!scopeData._parserOptions.HandleDictionaryAsObject && _value is IDictionary<string, object> dictList)
 			{
-				innerContext = scopeData.ParserOptions.CreateContextObject(key, dictList.Select(e => e), this);
+				innerContext = scopeData._parserOptions.CreateContextObject(key, dictList.Select(e => e), this);
 			}
 			else
 			{
 				if (_value != null)
 				{
 					var type = _value.GetType();
-					innerContext = scopeData.ParserOptions.CreateContextObject(key, type
+					innerContext = scopeData._parserOptions.CreateContextObject(key, type
 						.GetTypeInfo()
 						.GetProperties(BindingFlags.Instance | BindingFlags.Public)
 						.Where(e => !e.IsSpecialName && !e.GetIndexParameters().Any() && e.CanRead)
@@ -276,9 +280,9 @@ namespace Morestachio.Framework.Context
 						{
 							object value;
 
-							if (scopeData.ParserOptions.ValueResolver?.CanResolve(type, _value, e.Name, null) == true)
+							if (scopeData._parserOptions.ValueResolver?.CanResolve(type, _value, e.Name, null) == true)
 							{
-								value = scopeData.ParserOptions.ValueResolver.Resolve(type, _value, e.Name, null);
+								value = scopeData._parserOptions.ValueResolver.Resolve(type, _value, e.Name, null);
 							}
 							else
 							{
@@ -300,9 +304,9 @@ namespace Morestachio.Framework.Context
 		{
 			if (_value is null)
 			{
-				scopeData.ParserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+				scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
 				key, _value?.GetType()));
-				return scopeData.ParserOptions.CreateContextObject("x:null", null);
+				return scopeData._parserOptions.CreateContextObject("x:null", null);
 			}
 			//ALWAYS return the context, even if the value is null.
 
@@ -319,39 +323,39 @@ namespace Morestachio.Framework.Context
 			}
 
 			//A value resolver should always be checked first to allow overwriting of all other logic
-			if (scopeData.ParserOptions.ValueResolver != null)
+			if (scopeData._parserOptions.ValueResolver != null)
 			{
 				var type = _value.GetType();
-				var innerContext = scopeData.ParserOptions.CreateContextObject(key, null, this);
+				var innerContext = scopeData._parserOptions.CreateContextObject(key, null, this);
 
-				if (scopeData.ParserOptions.ValueResolver.CanResolve(type, _value, key, innerContext))
+				if (scopeData._parserOptions.ValueResolver.CanResolve(type, _value, key, innerContext))
 				{
 					innerContext._value
-						= scopeData.ParserOptions.ValueResolver.Resolve(type, _value, key, innerContext);
+						= scopeData._parserOptions.ValueResolver.Resolve(type, _value, key, innerContext);
 					return innerContext;
 				}
 			}
 
-			if (!scopeData.ParserOptions.HandleDictionaryAsObject && _value is IDictionary<string, object> ctx)
+			if (!scopeData._parserOptions.HandleDictionaryAsObject && _value is IDictionary<string, object> ctx)
 			{
 				if (!ctx.TryGetValue(key, out var o))
 				{
-					scopeData.ParserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+					scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
 					key, _value?.GetType()));
 				}
 
-				return scopeData.ParserOptions.CreateContextObject(key, o, this);
+				return scopeData._parserOptions.CreateContextObject(key, o, this);
 			}
 
 			if (_value is IMorestachioPropertyResolver cResolver)
 			{
 				if (!cResolver.TryGetValue(key, out var o))
 				{
-					scopeData.ParserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+					scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
 					key, _value?.GetType()));
 				}
 
-				return scopeData.ParserOptions.CreateContextObject(key, o, this);
+				return scopeData._parserOptions.CreateContextObject(key, o, this);
 			}
 
 			if (_value is ICustomTypeDescriptor descriptor)
@@ -360,29 +364,29 @@ namespace Morestachio.Framework.Context
 
 				if (propertyDescriptor != null)
 				{
-					return scopeData.ParserOptions.CreateContextObject(key, propertyDescriptor.GetValue(_value), this);
+					return scopeData._parserOptions.CreateContextObject(key, propertyDescriptor.GetValue(_value), this);
 				}
 
-				scopeData.ParserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression, key,
+				scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression, key,
 				_value?.GetType()));
-				return scopeData.ParserOptions.CreateContextObject(key, null, this);
+				return scopeData._parserOptions.CreateContextObject(key, null, this);
 			}
 
 			if (_value is DynamicObject dynObject)
 			{
 				if (dynObject.TryGetMember(new DynamicObjectBinder(key, false), out var val))
 				{
-					return scopeData.ParserOptions.CreateContextObject(key, val, this);
+					return scopeData._parserOptions.CreateContextObject(key, val, this);
 				}
 
-				scopeData.ParserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression, key,
+				scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression, key,
 				_value?.GetType()));
-				return scopeData.ParserOptions.CreateContextObject(key, null, this);
+				return scopeData._parserOptions.CreateContextObject(key, null, this);
 			}
 
-			var value = scopeData.ParserOptions.FallbackValueResolver.Resolve(this, key, scopeData,
+			var value = scopeData._parserOptions.FallbackValueResolver.Resolve(this, key, scopeData,
 			morestachioExpression);
-			return scopeData.ParserOptions.CreateContextObject(key, value, this);
+			return scopeData._parserOptions.CreateContextObject(key, value, this);
 		}
 
 		private class DynamicObjectBinder : GetMemberBinder
@@ -443,7 +447,7 @@ namespace Morestachio.Framework.Context
 			//var peekPathPart = elements.Peek();
 			if (elements.Count == 1 && elements.Current.Value == PathType.Null)
 			{
-				return scopeData.ParserOptions.CreateContextObject("x:null", null);
+				return scopeData._parserOptions.CreateContextObject("x:null", null);
 			}
 
 			var targetContext = this;
@@ -487,6 +491,7 @@ namespace Morestachio.Framework.Context
 		{
 			return DefinitionOfFalse(_value);
 		}
+
 #if Span
 		/// <summary>
 		///     Renders the Current value to a string or if null to the Null placeholder in the Options
@@ -507,7 +512,7 @@ namespace Morestachio.Framework.Context
 
 			if (_value is null)
 			{
-				return (scopeData.GetVariable(this, "$null")?._value?.ToString() ?? scopeData.ParserOptions.Null)
+				return (scopeData.GetVariable(this, "$null")?._value?.ToString() ?? scopeData._parserOptions.Null)
 					.AsMemory();
 			}
 
@@ -525,15 +530,9 @@ namespace Morestachio.Framework.Context
 			{
 				return str;
 			}
-			//#if Span
-			//			if (_value is ReadOnlyMemory<char> rostr)
-			//			{
-			//				return rostr.ToPromise();
-			//			}
-			//#endif
 
 			return (_value?.ToString() ??
-				scopeData.GetVariable(this, "$null")?._value?.ToString() ?? scopeData.ParserOptions.Null);
+				scopeData.GetVariable(this, "$null")?._value?.ToString() ?? scopeData._parserOptions.Null);
 		}
 #endif
 
@@ -552,8 +551,7 @@ namespace Morestachio.Framework.Context
 			}
 
 			//call formatters that are given by the Options for this run
-			var cache = scopeData.ParserOptions.Formatters.PrepareCallMostMatchingFormatter(type, arguments, name,
-			scopeData.ParserOptions, scopeData);
+			var cache = scopeData._parserOptions.Formatters.PrepareCallMostMatchingFormatter(type, arguments, name, scopeData._parserOptions, scopeData);
 
 			if (cache != null)
 			{
@@ -562,8 +560,7 @@ namespace Morestachio.Framework.Context
 			}
 
 			//all formatters in the options object have rejected the value so try use the global ones
-			return MorestachioFormatterService.Default.PrepareCallMostMatchingFormatter(type, arguments, name,
-			scopeData.ParserOptions, scopeData);
+			return MorestachioFormatterService.Default.PrepareCallMostMatchingFormatter(type, arguments, name, scopeData._parserOptions, scopeData);
 		}
 
 		/// <summary>

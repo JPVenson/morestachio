@@ -141,7 +141,7 @@ namespace Morestachio.Formatter.Framework
 
 		/// <inheritdoc />
 		public bool AllParametersAllDefaultValue { get; set; }
-		
+
 		/// <summary>
 		///		Specifies how exceptions should be handled
 		/// </summary>
@@ -255,22 +255,21 @@ namespace Morestachio.Formatter.Framework
 					type,
 					morestachioFormatterModel.Function,
 					services,
-					arguments, parserOptions);
-				if (tryCompose != null)
+					arguments,
+					parserOptions);
+
+				if (tryCompose == null)
 				{
-					var cache = new FormatterCache(morestachioFormatterModel, tryCompose);
-					if (Cache != null)
-					{
-						Cache[new FormatterCacheCompareKey(type, arguments, name)] = cache;
-					}
-
-					return cache;
+					continue;
 				}
-			}
 
-			if (Cache != null)
-			{
-				return Cache[new FormatterCacheCompareKey(type, arguments, name)] = null;
+				var cache = new FormatterCache(morestachioFormatterModel, tryCompose);
+				if (Cache != null)
+				{
+					Cache[new FormatterCacheCompareKey(type, arguments, name)] = cache;
+				}
+
+				return cache;
 			}
 
 			return null;
@@ -305,17 +304,15 @@ namespace Morestachio.Formatter.Framework
 			try
 			{
 				var functionTarget = formatter.Model.FunctionTarget;
-				var method = formatter.TestedTypes.PrepareInvoke(mappedValues);
+				var callerWrapper = formatter.TestedTypes.PrepareInvoke(mappedValues);
 
 				//if this is an instance method use the source type as the target for invoking the method
-				if (formatter.Model.LinkFunctionTarget && !method.IsStatic &&
-					method.DeclaringType.IsInstanceOfType(sourceValue))
+				if (formatter.Model.LinkFunctionTarget && !callerWrapper.Item2.IsStatic && callerWrapper.Item2.DeclaringType.IsInstanceOfType(sourceValue))
 				{
 					functionTarget = sourceValue;
 				}
 
-				var taskAlike = method.Invoke(functionTarget, mappedValues);
-				return taskAlike.UnpackFormatterTask();
+				return callerWrapper.Item1(functionTarget, mappedValues).UnpackFormatterTask();
 			}
 			catch (Exception e)
 			{
@@ -448,7 +445,7 @@ namespace Morestachio.Formatter.Framework
 			}
 
 			//the type check has maybe failed because of generic parameter. Check if both the formatter and the typ have generic arguments
-			
+
 			var formatterGenerics = formatTemplateElement.InputType.GetTypeInfo().GetGenericArguments();
 
 			if (typeToFormatGenerics.Length <= 0 || formatterGenerics.Length <= 0 ||
@@ -602,11 +599,11 @@ namespace Morestachio.Formatter.Framework
 		///     Composes the values into a Dictionary for each formatter. If returns null, the formatter will not be called.
 		/// </summary>
 		public virtual PrepareFormatterComposingResult PrepareComposeValues(MorestachioFormatterModel formatter,
-			Type sourceType,
-			MethodInfo method,
-			ServiceCollection services,
-			FormatterArgumentType[] templateArguments,
-			ParserOptions parserOptions)
+																			Type sourceType,
+																			MethodInfo method,
+																			ServiceCollection services,
+																			FormatterArgumentType[] templateArguments,
+																			ParserOptions parserOptions)
 		{
 			Log(parserOptions, () =>
 				$"Compose values for object '{sourceType}' with formatter '{formatter.InputType}' targets '{formatter.Function.Name}'");
@@ -709,7 +706,7 @@ namespace Morestachio.Formatter.Framework
 							}
 							else
 							{
-								if (parameter.IsOptional)//no match but optional so set null
+								if (parameter.IsOptional) //no match but optional so set null
 								{
 									matched[parameter] = new FormatterArgumentMap(i, null)
 									{
@@ -718,8 +715,7 @@ namespace Morestachio.Formatter.Framework
 								}
 								else
 								{
-									Log(parserOptions, () =>
-										 $"Skip: Could not match the parameter at index '{parameter.Index}' nether by name nor by index");
+									Log(parserOptions, () => $"Skip: Could not match the parameter at index '{parameter.Index}' nether by name nor by index");
 									return default;
 								}
 							}
@@ -781,8 +777,11 @@ namespace Morestachio.Formatter.Framework
 			if (typeof(FormatterParameterList) == hasRest.ParameterType)
 			{
 				var idxSource = new List<int>();
-				foreach (var argument in templateArguments)
+
+				for (var index = 0; index < templateArguments.Length; index++)
 				{
+					var argument = templateArguments[index];
+
 					if (matched
 						.Where(e => e.Value.ParameterIndex.HasValue)
 						.All(f => f.Value.ParameterIndex != argument.Index))
@@ -811,8 +810,11 @@ namespace Morestachio.Formatter.Framework
 			else if (typeof(object[]).IsAssignableFrom(hasRest.ParameterType))
 			{
 				var idxSource = new List<int>();
-				foreach (var argument in templateArguments)
+
+				for (var index = 0; index < templateArguments.Length; index++)
 				{
+					var argument = templateArguments[index];
+
 					if (matched
 						.Where(e => e.Value.ParameterIndex.HasValue)
 						.All(f => f.Value.ParameterIndex != argument.Index))
