@@ -65,7 +65,7 @@ public class Tokenizer
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	internal static bool IsStringDelimiter(char formatChar)
 	{
-		return formatChar == '\'' || formatChar == '\"';
+		return formatChar is '\'' or '\"';
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -101,31 +101,25 @@ public class Tokenizer
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	internal static bool IsWhiteSpaceDelimiter(char formatChar)
 	{
-		return formatChar == '\r' || formatChar == '\n' || formatChar == '\t' || formatChar == ' ';
+		return formatChar is '\r' or '\n' or '\t' or ' ';
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	internal static bool IsExpressionPathChar(char formatChar)
 	{
-		return formatChar == '?'
-			|| formatChar == '/'
-			|| IsStartOfExpressionPathChar(formatChar);
+		return formatChar is '?' or '/' || IsStartOfExpressionPathChar(formatChar);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	internal static bool IsStartOfExpressionPathChar(char formatChar)
 	{
-		return formatChar == '$'
-			|| formatChar == '?'
-			|| IsSingleExpressionPathChar(formatChar);
+		return formatChar is '$' or '?' || IsSingleExpressionPathChar(formatChar);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	internal static bool IsSingleExpressionPathChar(char formatChar)
 	{
-		return formatChar == '.'
-			|| formatChar == '~'
-			|| IsExpressionDataPathChar(formatChar);
+		return formatChar is '.' or '~' || IsExpressionDataPathChar(formatChar);
 		//|| IsCharRegex.IsMatch(formatChar.ToString());
 	}
 
@@ -145,8 +139,7 @@ public class Tokenizer
 	internal static bool IsExpressionChar(char formatChar)
 	{
 		return IsExpressionPathChar(formatChar) ||
-			formatChar == '(' ||
-			formatChar == ')';
+			formatChar is '(' or ')';
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -166,20 +159,20 @@ public class Tokenizer
 	internal static bool IsOperationChar(char formatChar)
 	{
 		return
-			formatChar == '+' ||
-			formatChar == '-' ||
-			formatChar == '*' ||
-			formatChar == '/' ||
-			formatChar == '^' ||
-			formatChar == '%' ||
-			formatChar == '<' ||
-			formatChar == '>' ||
-			formatChar == '=' ||
-			formatChar == '!' ||
-			formatChar == '&' ||
-			formatChar == '?' ||
-			formatChar == '!' ||
-			formatChar == '|';
+			formatChar is '+'
+						or '-'
+						or '*'
+						or '/'
+						or '^'
+						or '%'
+						or '<'
+						or '>'
+						or '='
+						or '!'
+						or '&'
+						or '?'
+						or '!'
+						or '|';
 	}
 
 	/// <summary>
@@ -192,32 +185,32 @@ public class Tokenizer
 	internal static bool IsOperationString(string operatorText)
 	{
 		return
-			operatorText == "+" ||
-			operatorText == "-" ||
-			operatorText == "*" ||
-			operatorText == "/" ||
-			operatorText == "^" ||
-			operatorText == "%" ||
-			operatorText == "<<" ||
-			operatorText == ">>" ||
-			operatorText == "==" ||
-			operatorText == "!=" ||
-			operatorText == "<" ||
-			operatorText == "<=" ||
-			operatorText == ">" ||
-			operatorText == ">=" ||
-			operatorText == "&&" ||
-			operatorText == "||" ||
-			operatorText == "<?" ||
-			operatorText == ">?" ||
-			operatorText == "!" ||
-			operatorText == "??";
+			operatorText is "+"
+							or "-"
+							or "*"
+							or "/"
+							or "^"
+							or "%"
+							or "<<"
+							or ">>"
+							or "=="
+							or "!="
+							or "<"
+							or "<="
+							or ">"
+							or ">="
+							or "&&"
+							or "||"
+							or "<?"
+							or ">?"
+							or "!"
+							or "??";
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	internal static bool IsEndOfFormatterArgument(char? formatChar)
 	{
-		return formatChar == ',' || formatChar == '.' || formatChar == ')';
+		return formatChar is ',' or '.' or ')';
 	}
 
 	/// <summary>
