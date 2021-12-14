@@ -3,77 +3,75 @@ using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Framework.Expression;
 
-namespace Morestachio.Formatter.Predefined
-{
+namespace Morestachio.Formatter.Predefined;
 #pragma warning disable CS1591
+/// <summary>
+///		A list of predefined Morestachio Formatters
+/// </summary>
+public static class EqualityFormatter
+{
 	/// <summary>
-	///		A list of predefined Morestachio Formatters
+	///		Checks two objects for equality
 	/// </summary>
-	public static class EqualityFormatter
+	/// <param name="source"></param>
+	/// <param name="target"></param>
+	/// <returns></returns>
+	[MorestachioFormatter("Equals", "Checks if two objects are equal")]
+	[MorestachioGlobalFormatter("Equals", "Checks if two objects are equal")]
+	[MorestachioOperator(OperatorTypes.Equals, "Checks if two objects are equal")]
+	public static bool IsEquals([SourceObject]object source, object target)
 	{
-		/// <summary>
-		///		Checks two objects for equality
-		/// </summary>
-		/// <param name="source"></param>
-		/// <param name="target"></param>
-		/// <returns></returns>
-		[MorestachioFormatter("Equals", "Checks if two objects are equal")]
-		[MorestachioGlobalFormatter("Equals", "Checks if two objects are equal")]
-		[MorestachioOperator(OperatorTypes.Equals, "Checks if two objects are equal")]
-		public static bool IsEquals([SourceObject]object source, object target)
+		if ((source == null && target == null))
 		{
-			if ((source == null && target == null))
-			{
-				return true;
-			}
-			if (source == null || target == null)
-			{
-				return false;
-			}
+			return true;
+		}
+		if (source == null || target == null)
+		{
+			return false;
+		}
 
-			if (source is IConvertible conv)
-			{
-				return conv.ToType(target.GetType(), null)?.Equals(target) == true;
-			}
+		if (source is IConvertible conv)
+		{
+			return conv.ToType(target.GetType(), null)?.Equals(target) == true;
+		}
 			
-			if (target is IConvertible conv2)
-			{
-				return conv2.ToType(source.GetType(), null)?.Equals(source) == true;
-			}
-
-			if (source is IComparable comp)
-			{
-				return comp.CompareTo(target) == 0;
-			}
-
-			return source == target || source.Equals(target) || Equals(source, target);
-		}
-
-		[MorestachioOperator(OperatorTypes.UnEquals, "Checks if two objects are not equal")]
-		public static bool IsNotEquals([SourceObject]object source, object target)
+		if (target is IConvertible conv2)
 		{
-			return !Equals(source, target);
+			return conv2.ToType(source.GetType(), null)?.Equals(source) == true;
 		}
 
-		/// <summary>
-		///		Checks if two objects are the same
-		/// </summary>
-		/// <param name="source"></param>
-		/// <param name="target"></param>
-		/// <returns></returns>
-		[MorestachioFormatter("ReferenceEquals", "Checks if two objects are the same")]
-		[MorestachioGlobalFormatter("ReferenceEquals", "Checks if two objects are the same")]
-		public static bool IsReferenceEquals([SourceObject]object source, object target)
+		if (source is IComparable comp)
 		{
-			return ReferenceEquals(source, target);
+			return comp.CompareTo(target) == 0;
 		}
+
+		return source == target || source.Equals(target) || Equals(source, target);
+	}
+
+	[MorestachioOperator(OperatorTypes.UnEquals, "Checks if two objects are not equal")]
+	public static bool IsNotEquals([SourceObject]object source, object target)
+	{
+		return !Equals(source, target);
+	}
+
+	/// <summary>
+	///		Checks if two objects are the same
+	/// </summary>
+	/// <param name="source"></param>
+	/// <param name="target"></param>
+	/// <returns></returns>
+	[MorestachioFormatter("ReferenceEquals", "Checks if two objects are the same")]
+	[MorestachioGlobalFormatter("ReferenceEquals", "Checks if two objects are the same")]
+	public static bool IsReferenceEquals([SourceObject]object source, object target)
+	{
+		return ReferenceEquals(source, target);
+	}
 		
-		[MorestachioOperator(OperatorTypes.NullCoalescing, "returns the value of its left-hand operand if it isn't null; otherwise, it evaluates the right-hand operand and returns its result")]
-		[MorestachioFormatter("NullCoalescing", "returns the value of its left-hand operand if it isn't null; otherwise, it evaluates the right-hand operand and returns its result")]
-		[MorestachioGlobalFormatter("NullCoalescing", "returns the value of its left-hand operand if it isn't null; otherwise, it evaluates the right-hand operand and returns its result")]
-		public static object NullCoalescing(object left, object right)
-		{
-			return left ?? right;
-		}
+	[MorestachioOperator(OperatorTypes.NullCoalescing, "returns the value of its left-hand operand if it isn't null; otherwise, it evaluates the right-hand operand and returns its result")]
+	[MorestachioFormatter("NullCoalescing", "returns the value of its left-hand operand if it isn't null; otherwise, it evaluates the right-hand operand and returns its result")]
+	[MorestachioGlobalFormatter("NullCoalescing", "returns the value of its left-hand operand if it isn't null; otherwise, it evaluates the right-hand operand and returns its result")]
+	public static object NullCoalescing(object left, object right)
+	{
+		return left ?? right;
 	}
 }

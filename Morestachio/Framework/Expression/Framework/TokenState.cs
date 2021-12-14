@@ -1,11 +1,10 @@
-﻿namespace Morestachio.Framework.Expression.Framework
+﻿namespace Morestachio.Framework.Expression.Framework;
+
+internal enum TokenState
 {
-	internal enum TokenState
-	{
-		Expression,
-		DecideArgumentType,
-		ArgumentStart,
-		Operator,
-		Bracket
-	}
+	Expression,
+	DecideArgumentType,
+	ArgumentStart,
+	Operator,
+	Bracket
 }

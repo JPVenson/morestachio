@@ -13,63 +13,63 @@ using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
 
-namespace Morestachio.Document.Items
+namespace Morestachio.Document.Items;
+
+/// <summary>
+///		Defines a area that has no morestachio keywords and can be rendered as is
+/// </summary>
+[Serializable]
+public class ContentDocumentItem : ValueDocumentItemBase, ISupportCustomCompilation
 {
 	/// <summary>
-	///		Defines a area that has no morestachio keywords and can be rendered as is
+	///		Used for XML Serialization
 	/// </summary>
-	[Serializable]
-	public class ContentDocumentItem : ValueDocumentItemBase, ISupportCustomCompilation
+	internal ContentDocumentItem()
 	{
-		/// <summary>
-		///		Used for XML Serialization
-		/// </summary>
-		internal ContentDocumentItem()
-		{
 
+	}
+
+	/// <summary>
+	///		Creates a new ContentDocumentItem that represents some static content
+	/// </summary>
+	public ContentDocumentItem(in CharacterLocation location, 
+								string content,
+								IEnumerable<ITokenOption> tagCreationOptions) 
+		: base(location, content, tagCreationOptions)
+	{
+	}
+
+	/// <inheritdoc />
+
+	protected ContentDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
+	{
+	}
+
+	/// <param name="compiler"></param>
+	/// <param name="parserOptions"></param>
+	/// <inheritdoc />
+	public Compilation Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
+	{
+		//return DocumentCompiler.NopAction;
+		//return (stream, context, scopeData) => {};
+
+		var value = Value;
+		foreach (var textEditDocumentItem in Children.OfType<TextEditDocumentItem>())
+		{
+			value = textEditDocumentItem.Operation.Apply(value);
 		}
 
-		/// <summary>
-		///		Creates a new ContentDocumentItem that represents some static content
-		/// </summary>
-		public ContentDocumentItem(in CharacterLocation location, 
-									string content,
-									IEnumerable<ITokenOption> tagCreationOptions) 
-			: base(location, content, tagCreationOptions)
+		if (value == null)
 		{
+			return null;
 		}
-
-		/// <inheritdoc />
-
-		protected ContentDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
-		{
-		}
-
-		/// <param name="compiler"></param>
-		/// <param name="parserOptions"></param>
-		/// <inheritdoc />
-		public Compilation Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
-		{
-			//return DocumentCompiler.NopAction;
-			//return (stream, context, scopeData) => {};
-
-			var value = Value;
-			foreach (var textEditDocumentItem in Children.OfType<TextEditDocumentItem>())
-			{
-				value = textEditDocumentItem.Operation.Apply(value);
-			}
-
-			if (value == null)
-			{
-				return null;
-			}
 			
 #if Span
-			var memValue = value.AsMemory();
-			return (stream, context, scopeData) =>
-			{
-				stream.Write(memValue);
-			};
+		var memValue = value.AsMemory();
+		return (stream, context, scopeData) =>
+		{
+			stream.Write(memValue);
+		};
 			
 #else
 			return (stream, context, scopeData) =>
@@ -79,30 +79,29 @@ namespace Morestachio.Document.Items
 
 #endif
 
-		}
+	}
 
-		/// <inheritdoc />
-		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
-			ScopeData scopeData)
+	/// <inheritdoc />
+	public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
+												ScopeData scopeData)
+	{
+		var value = Value;
+		foreach (var textEditDocumentItem in Children.OfType<TextEditDocumentItem>())
 		{
-			var value = Value;
-			foreach (var textEditDocumentItem in Children.OfType<TextEditDocumentItem>())
-			{
-				value = textEditDocumentItem.Operation.Apply(value);
-			}
-
-			if (value != string.Empty)
-			{
-				outputStream.Write(value);
-			}
-			return Enumerable.Empty<DocumentItemExecution>().ToPromise();
-			//return Children.WithScope(context).ToPromise();
+			value = textEditDocumentItem.Operation.Apply(value);
 		}
 
-		/// <inheritdoc />
-		public override void Accept(IDocumentItemVisitor visitor)
+		if (value != string.Empty)
 		{
-			visitor.Visit(this);
+			outputStream.Write(value);
 		}
+		return Enumerable.Empty<DocumentItemExecution>().ToPromise();
+		//return Children.WithScope(context).ToPromise();
+	}
+
+	/// <inheritdoc />
+	public override void Accept(IDocumentItemVisitor visitor)
+	{
+		visitor.Visit(this);
 	}
 }

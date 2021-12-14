@@ -6,102 +6,101 @@ using Morestachio.Framework.Tokenizing;
 using Morestachio.Parsing;
 using Morestachio.Parsing.ParserErrors;
 
-namespace Morestachio.Document.Custom
+namespace Morestachio.Document.Custom;
+
+/// <summary>
+///		Allows the injection of a custom DocumentItem 
+/// </summary>
+public abstract class CustomDocumentItemProvider
 {
 	/// <summary>
-	///		Allows the injection of a custom DocumentItem 
+	/// 
 	/// </summary>
-	public abstract class CustomDocumentItemProvider
+	protected CustomDocumentItemProvider()
 	{
-		/// <summary>
-		/// 
-		/// </summary>
-		protected CustomDocumentItemProvider()
+		ScopeStack = new Stack<Tokenizer.ScopeStackItem>();
+	}
+
+	/// <summary>
+	///		A Custom stack that keeps track of enclosing tokens such as #IF and /IF
+	/// </summary>
+	public Stack<Tokenizer.ScopeStackItem> ScopeStack { get; }
+
+	/// <summary>
+	///		An helper object that will be given to the Tokenize method
+	/// </summary>
+	public class TokenInfo
+	{
+		internal TokenInfo(string token,
+							TokenzierContext context,
+							Stack<Tokenizer.ScopeStackItem> scopeStack, IList<ITokenOption> tokenOptions)
 		{
-			ScopeStack = new Stack<Tokenizer.ScopeStackItem>();
+			TokenizerContext = context;
+			ScopeStack = scopeStack;
+			TokenOptions = tokenOptions;
+			Token = token;
+			Errors = new List<IMorestachioError>();
 		}
 
 		/// <summary>
-		///		A Custom stack that keeps track of enclosing tokens such as #IF and /IF
+		///		Provides the current context you document item is created in
+		/// </summary>
+		public TokenzierContext TokenizerContext { get; set; }
+
+		/// <summary>
+		///		The global scope stack
 		/// </summary>
 		public Stack<Tokenizer.ScopeStackItem> ScopeStack { get; }
 
 		/// <summary>
-		///		An helper object that will be given to the Tokenize method
+		///		Contains the list of Options that are determend outside of the processing of this token
 		/// </summary>
-		public class TokenInfo
-		{
-			internal TokenInfo(string token,
-				TokenzierContext context,
-				Stack<Tokenizer.ScopeStackItem> scopeStack, IList<ITokenOption> tokenOptions)
-			{
-				TokenizerContext = context;
-				ScopeStack = scopeStack;
-				TokenOptions = tokenOptions;
-				Token = token;
-				Errors = new List<IMorestachioError>();
-			}
-
-			/// <summary>
-			///		Provides the current context you document item is created in
-			/// </summary>
-			public TokenzierContext TokenizerContext { get; set; }
-
-			/// <summary>
-			///		The global scope stack
-			/// </summary>
-			public Stack<Tokenizer.ScopeStackItem> ScopeStack { get; }
-
-			/// <summary>
-			///		Contains the list of Options that are determend outside of the processing of this token
-			/// </summary>
-			public IList<ITokenOption> TokenOptions { get; }
-
-			/// <summary>
-			///		The obtained Token. This is the Full text token
-			/// </summary>
-			public string Token { get; }
-
-			/// <summary>
-			///		Can be filled to return errors that occured in the formatting process
-			/// </summary>
-			public ICollection<IMorestachioError> Errors { get; }
-		}
+		public IList<ITokenOption> TokenOptions { get; }
 
 		/// <summary>
-		///		Should check if the token contains this partial token. If returns true further actions will happen.
+		///		The obtained Token. This is the Full text token
 		/// </summary>
-		/// <param name="token"></param>
-		/// <returns></returns>
-		public abstract bool ShouldTokenize(string token);
+		public string Token { get; }
 
 		/// <summary>
-		///		Should return any kind of token Pair that encapsulates the value for the DocumentItem
+		///		Can be filled to return errors that occured in the formatting process
 		/// </summary>
-		/// <param name="token"></param>
-		/// <param name="options"></param>
-		/// <returns></returns>
-		public abstract IEnumerable<TokenPair> Tokenize(TokenInfo token, ParserOptions options);
-
-		///  <summary>
-		/// 		Should return True if the Token is produced by this provider and should be parsed with this provider
-		///  </summary>
-		///  <param name="token"></param>
-		///  <param name="options"></param>
-		///  <param name="tokenOptions"></param>
-		///  <returns></returns>
-		public abstract bool ShouldParse(TokenPair token, ParserOptions options, IEnumerable<ITokenOption> tokenOptions);
-
-		///  <summary>
-		/// 		Should return an document item that will be invoked when parsing the Template
-		///  </summary>
-		///  <param name="token"></param>
-		///  <param name="options"></param>
-		///  <param name="buildStack"></param>
-		///  <param name="getScope"></param>
-		///  <param name="tokenOptions"></param>
-		///  <returns></returns>
-		public abstract IDocumentItem Parse(TokenPair token, ParserOptions options, Stack<DocumentScope> buildStack,
-			Func<int> getScope, IEnumerable<ITokenOption> tokenOptions);
+		public ICollection<IMorestachioError> Errors { get; }
 	}
+
+	/// <summary>
+	///		Should check if the token contains this partial token. If returns true further actions will happen.
+	/// </summary>
+	/// <param name="token"></param>
+	/// <returns></returns>
+	public abstract bool ShouldTokenize(string token);
+
+	/// <summary>
+	///		Should return any kind of token Pair that encapsulates the value for the DocumentItem
+	/// </summary>
+	/// <param name="token"></param>
+	/// <param name="options"></param>
+	/// <returns></returns>
+	public abstract IEnumerable<TokenPair> Tokenize(TokenInfo token, ParserOptions options);
+
+	///  <summary>
+	/// 		Should return True if the Token is produced by this provider and should be parsed with this provider
+	///  </summary>
+	///  <param name="token"></param>
+	///  <param name="options"></param>
+	///  <param name="tokenOptions"></param>
+	///  <returns></returns>
+	public abstract bool ShouldParse(TokenPair token, ParserOptions options, IEnumerable<ITokenOption> tokenOptions);
+
+	///  <summary>
+	/// 		Should return an document item that will be invoked when parsing the Template
+	///  </summary>
+	///  <param name="token"></param>
+	///  <param name="options"></param>
+	///  <param name="buildStack"></param>
+	///  <param name="getScope"></param>
+	///  <param name="tokenOptions"></param>
+	///  <returns></returns>
+	public abstract IDocumentItem Parse(TokenPair token, ParserOptions options, Stack<DocumentScope> buildStack,
+										Func<int> getScope, IEnumerable<ITokenOption> tokenOptions);
 }

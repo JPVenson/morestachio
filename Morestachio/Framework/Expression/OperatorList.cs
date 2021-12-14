@@ -1,69 +1,68 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace Morestachio.Framework.Expression
+namespace Morestachio.Framework.Expression;
+
+internal class OperatorList : IReadOnlyDictionary<OperatorTypes, MorestachioOperator>
 {
-	internal class OperatorList : IReadOnlyDictionary<OperatorTypes, MorestachioOperator>
+	public OperatorList()
 	{
-		public OperatorList()
+		Operators = new Dictionary<OperatorTypes, MorestachioOperator>();
+	}
+
+	private IDictionary<OperatorTypes, MorestachioOperator> Operators { get; }
+
+	public void Add(MorestachioOperator mOperator)
+	{
+		Operators[mOperator.OperatorType] = mOperator;
+	}
+
+	public IEnumerator<KeyValuePair<OperatorTypes, MorestachioOperator>> GetEnumerator()
+	{
+		return Operators.GetEnumerator();
+	}
+
+	IEnumerator IEnumerable.GetEnumerator()
+	{
+		return ((IEnumerable)Operators).GetEnumerator();
+	}
+
+	public int Count
+	{
+		get
 		{
-			Operators = new Dictionary<OperatorTypes, MorestachioOperator>();
+			return Operators.Count;
 		}
+	}
 
-		private IDictionary<OperatorTypes, MorestachioOperator> Operators { get; }
+	public bool ContainsKey(OperatorTypes key)
+	{
+		return Operators.ContainsKey(key);
+	}
 
-		public void Add(MorestachioOperator mOperator)
+	public bool TryGetValue(OperatorTypes key, out MorestachioOperator value)
+	{
+		return Operators.TryGetValue(key, out value);
+	}
+
+	public MorestachioOperator this[OperatorTypes key]
+	{
+		get { return Operators[key]; }
+	}
+
+	public IEnumerable<OperatorTypes> Keys
+	{
+		get
 		{
-			Operators[mOperator.OperatorType] = mOperator;
+			return Operators.Keys;
 		}
+	}
 
-		public IEnumerator<KeyValuePair<OperatorTypes, MorestachioOperator>> GetEnumerator()
+	public IEnumerable<MorestachioOperator> Values
+	{
+		get
 		{
-			return Operators.GetEnumerator();
-		}
-
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return ((IEnumerable)Operators).GetEnumerator();
-		}
-
-		public int Count
-		{
-			get
-			{
-				return Operators.Count;
-			}
-		}
-
-		public bool ContainsKey(OperatorTypes key)
-		{
-			return Operators.ContainsKey(key);
-		}
-
-		public bool TryGetValue(OperatorTypes key, out MorestachioOperator value)
-		{
-			return Operators.TryGetValue(key, out value);
-		}
-
-		public MorestachioOperator this[OperatorTypes key]
-		{
-			get { return Operators[key]; }
-		}
-
-		public IEnumerable<OperatorTypes> Keys
-		{
-			get
-			{
-				return Operators.Keys;
-			}
-		}
-
-		public IEnumerable<MorestachioOperator> Values
-		{
-			get
-			{
-				return Operators.Values;
-			}
+			return Operators.Values;
 		}
 	}
 }

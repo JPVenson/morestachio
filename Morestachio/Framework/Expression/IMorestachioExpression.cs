@@ -3,47 +3,46 @@ using Morestachio.Document;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression.Visitors;
 
-namespace Morestachio.Framework.Expression
+namespace Morestachio.Framework.Expression;
+
+/// <summary>
+///		Defines an Morestachio expression that contains dynamic data
+/// </summary>
+public interface IMorestachioExpression : ISerializable, IXmlSerializable, IEquatable<IMorestachioExpression>
 {
 	/// <summary>
-	///		Defines an Morestachio expression that contains dynamic data
+	///		Where in the original template was this expression located
 	/// </summary>
-	public interface IMorestachioExpression : ISerializable, IXmlSerializable, IEquatable<IMorestachioExpression>
-	{
-		/// <summary>
-		///		Where in the original template was this expression located
-		/// </summary>
-		CharacterLocation Location { get; }
+	CharacterLocation Location { get; }
 
-		/// <summary>
-		///		The method for obtaining the Value
-		/// </summary>
-		/// <param name="contextObject"></param>
-		/// <param name="scopeData"></param>
-		/// <returns></returns>
-		ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData);
+	/// <summary>
+	///		The method for obtaining the Value
+	/// </summary>
+	/// <param name="contextObject"></param>
+	/// <param name="scopeData"></param>
+	/// <returns></returns>
+	ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData);
 
-		///  <summary>
-		/// 		Compiles the Expression for later faster execution
-		///  </summary>
-		///  <param name="parserOptions"></param>
-		///  <returns></returns>
-		CompiledExpression Compile(ParserOptions parserOptions);
+	///  <summary>
+	/// 		Compiles the Expression for later faster execution
+	///  </summary>
+	///  <param name="parserOptions"></param>
+	///  <returns></returns>
+	CompiledExpression Compile(ParserOptions parserOptions);
 
-		/// <summary>
-		///		Visits this Expression
-		/// </summary>
-		/// <param name="visitor"></param>
-		void Accept(IMorestachioExpressionVisitor visitor);
+	/// <summary>
+	///		Visits this Expression
+	/// </summary>
+	/// <param name="visitor"></param>
+	void Accept(IMorestachioExpressionVisitor visitor);
 
-		/// <summary>
-		///		Should return true if the expected value is completely evaluable at compile time 
-		/// </summary>
-		bool IsCompileTimeEval();
+	/// <summary>
+	///		Should return true if the expected value is completely evaluable at compile time 
+	/// </summary>
+	bool IsCompileTimeEval();
 
-		/// <summary>
-		///		When <see cref="IsCompileTimeEval"/> returns true this is called to obtain the value
-		/// </summary>
-		object GetCompileTimeValue();
-	}
+	/// <summary>
+	///		When <see cref="IsCompileTimeEval"/> returns true this is called to obtain the value
+	/// </summary>
+	object GetCompileTimeValue();
 }

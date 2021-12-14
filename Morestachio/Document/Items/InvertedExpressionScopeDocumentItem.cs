@@ -7,67 +7,66 @@ using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 
-namespace Morestachio.Document.Items
+namespace Morestachio.Document.Items;
+
+/// <summary>
+///		Defines an inverted scope
+/// </summary>
+/// <seealso cref="ExpressionScopeDocumentItem"/>
+[Serializable]
+public class InvertedExpressionScopeDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 {
 	/// <summary>
-	///		Defines an inverted scope
+	///		Used for XML Serialization
 	/// </summary>
-	/// <seealso cref="ExpressionScopeDocumentItem"/>
-	[Serializable]
-	public class InvertedExpressionScopeDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
+	internal InvertedExpressionScopeDocumentItem() 
 	{
-		/// <summary>
-		///		Used for XML Serialization
-		/// </summary>
-		internal InvertedExpressionScopeDocumentItem() 
-		{
 
-		}
+	}
 
-		/// <inheritdoc />
-		public InvertedExpressionScopeDocumentItem(CharacterLocation location, IMorestachioExpression value,
-			IEnumerable<ITokenOption> tagCreationOptions) : base(location, value,tagCreationOptions)
-		{
-		}
+	/// <inheritdoc />
+	public InvertedExpressionScopeDocumentItem(CharacterLocation location, IMorestachioExpression value,
+												IEnumerable<ITokenOption> tagCreationOptions) : base(location, value,tagCreationOptions)
+	{
+	}
 		
-		/// <inheritdoc />
-		protected InvertedExpressionScopeDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
-		{
-		}
+	/// <inheritdoc />
+	protected InvertedExpressionScopeDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
+	{
+	}
 
-		/// <param name="compiler"></param>
-		/// <param name="parserOptions"></param>
-		/// <inheritdoc />
-		public CompilationAsync Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
-		{
-			var children = compiler.Compile(Children, parserOptions);
-			var expression = MorestachioExpression.Compile(parserOptions);
+	/// <param name="compiler"></param>
+	/// <param name="parserOptions"></param>
+	/// <inheritdoc />
+	public CompilationAsync Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
+	{
+		var children = compiler.Compile(Children, parserOptions);
+		var expression = MorestachioExpression.Compile(parserOptions);
 
-			return async (stream, context, scopeData) =>
-			{
-				var c = await expression(context, scopeData);
-				if (!c.Exists())
-				{
-					await children(stream, c, scopeData);
-				}
-			};
-		}
-		
-		/// <inheritdoc />
-		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+		return async (stream, context, scopeData) =>
 		{
-			//var c = await context.GetContextForPath(Value, scopeData);
-			var c = await MorestachioExpression.GetValue(context, scopeData);
+			var c = await expression(context, scopeData);
 			if (!c.Exists())
 			{
-				return Children.WithScope(c);
+				await children(stream, c, scopeData);
 			}
-			return Enumerable.Empty<DocumentItemExecution>();
-		}
-		/// <inheritdoc />
-		public override void Accept(IDocumentItemVisitor visitor)
+		};
+	}
+		
+	/// <inheritdoc />
+	public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+	{
+		//var c = await context.GetContextForPath(Value, scopeData);
+		var c = await MorestachioExpression.GetValue(context, scopeData);
+		if (!c.Exists())
 		{
-			visitor.Visit(this);
+			return Children.WithScope(c);
 		}
+		return Enumerable.Empty<DocumentItemExecution>();
+	}
+	/// <inheritdoc />
+	public override void Accept(IDocumentItemVisitor visitor)
+	{
+		visitor.Visit(this);
 	}
 }

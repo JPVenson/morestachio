@@ -1,29 +1,28 @@
 ﻿using System;
 
-namespace Morestachio.Formatter.Framework.Attributes
+namespace Morestachio.Formatter.Framework.Attributes;
+
+/// <summary>
+///		Sets the name for a Formatter named Argument
+/// </summary>
+/// <seealso cref="System.Attribute" />
+[AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
+public class FormatterArgumentNameAttribute : Attribute
 {
 	/// <summary>
-	///		Sets the name for a Formatter named Argument
+	/// Initializes a new instance of the <see cref="FormatterArgumentNameAttribute"/> class.
 	/// </summary>
-	/// <seealso cref="System.Attribute" />
-	[AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
-	public class FormatterArgumentNameAttribute : Attribute
+	/// <param name="name">The name.</param>
+	public FormatterArgumentNameAttribute(string name)
 	{
-		/// <summary>
-		/// Initializes a new instance of the <see cref="FormatterArgumentNameAttribute"/> class.
-		/// </summary>
-		/// <param name="name">The name.</param>
-		public FormatterArgumentNameAttribute(string name)
-		{
-			Name = name;
-		}
-
-		/// <summary>
-		/// Gets the name.
-		/// </summary>
-		/// <value>
-		/// The name.
-		/// </value>
-		public string Name { get; private set; }
+		Name = name;
 	}
+
+	/// <summary>
+	/// Gets the name.
+	/// </summary>
+	/// <value>
+	/// The name.
+	/// </value>
+	public string Name { get; private set; }
 }

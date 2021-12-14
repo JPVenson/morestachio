@@ -1,10 +1,9 @@
-﻿namespace Morestachio.Framework.Expression.Visitors
+﻿namespace Morestachio.Framework.Expression.Visitors;
+
+/// <summary>
+///		A color that does represent nothing
+/// </summary>
+public class NoColor
 {
-	/// <summary>
-	///		A color that does represent nothing
-	/// </summary>
-	public class NoColor
-	{
 			
-	}
 }

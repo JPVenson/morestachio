@@ -10,269 +10,269 @@ using Morestachio.Util;
 using PathPartElement = System.Collections.Generic.KeyValuePair<string, Morestachio.Framework.Expression.Framework.PathType>;
 
 
-namespace Morestachio.Framework.Context
+namespace Morestachio.Framework.Context;
+
+/// <summary>
+///     The current context for any given expression
+/// </summary>
+public class ContextObject
 {
 	/// <summary>
-	///     The current context for any given expression
+	///     <para>Gets the Default Definition of false.</para>
+	///     This is ether:
+	///     <para>- Null</para>
+	///     <para>- boolean false</para>
+	///     <para>- 0 double or int</para>
+	///     <para>- string.Empty (whitespaces are allowed)</para>
+	///     <para>- collection not Any().</para>
+	///     This field can be used to define your own <see cref="DefinitionOfFalse" /> and then fallback to the default logic
 	/// </summary>
-	public class ContextObject
+	public static readonly Func<object, bool> DefaultDefinitionOfFalse;
+
+	private static Func<object, bool> _definitionOfFalse;
+
+	internal object _value;
+	private readonly ContextObject _parent;
+	private bool _isNaturalContext;
+	private readonly string _key;
+
+	static ContextObject()
 	{
-		/// <summary>
-		///     <para>Gets the Default Definition of false.</para>
-		///     This is ether:
-		///     <para>- Null</para>
-		///     <para>- boolean false</para>
-		///     <para>- 0 double or int</para>
-		///     <para>- string.Empty (whitespaces are allowed)</para>
-		///     <para>- collection not Any().</para>
-		///     This field can be used to define your own <see cref="DefinitionOfFalse" /> and then fallback to the default logic
-		/// </summary>
-		public static readonly Func<object, bool> DefaultDefinitionOfFalse;
+		DefaultDefinitionOfFalse = value => value != null &&
+			value as bool? != false &&
+			// ReSharper disable once CompareOfFloatsByEqualityOperator
+			value as double? != 0 &&
+			value as int? != 0 &&
+			value as string != string.Empty &&
+			// We've gotten this far, if it is an object that does NOT cast as enumberable, it exists
+			// OR if it IS an enumerable and .Any() returns true, then it exists as well
+			(!(value is IEnumerable) || ((IEnumerable)value).Cast<object>().Any()
+			);
+		DefinitionOfFalse = DefaultDefinitionOfFalse;
+	}
 
-		private static Func<object, bool> _definitionOfFalse;
+	/// <summary>
+	///     Initializes a new instance of the <see cref="ContextObject" /> class.
+	/// </summary>
+	public ContextObject(string key,
+						ContextObject parent,
+						object value)
+	{
+		_key = key;
+		_parent = parent;
+		_value = value;
+		_isNaturalContext = _parent?._isNaturalContext ?? true;
+	}
 
-		internal object _value;
-		private readonly ContextObject _parent;
-		private bool _isNaturalContext;
-		private readonly string _key;
 
-		static ContextObject()
+	/// <summary>
+	///     Gets the Definition of false on your Template.
+	/// </summary>
+	/// <value>
+	///     Must no be null
+	/// </value>
+	/// <exception cref="InvalidOperationException">If the value is null</exception>
+
+	public static Func<object, bool> DefinitionOfFalse
+	{
+		get { return _definitionOfFalse; }
+		set { _definitionOfFalse = value ?? throw new InvalidOperationException("The value must not be null"); }
+	}
+
+	/// <summary>
+	///     Gets a value indicating whether this instance is natural context.
+	///     A Natural context is a context outside an Isolated scope
+	/// </summary>
+	// ReSharper disable once ConvertToAutoPropertyWhenPossible
+	public bool IsNaturalContext
+	{
+		get { return _isNaturalContext; }
+		protected internal set { _isNaturalContext = value; }
+	}
+
+	/// <summary>
+	///     The set of allowed types that may be printed. Complex types (such as arrays and dictionaries)
+	///     should not be printed, or their printing should be specialized.
+	///     Add an typeof(object) entry as Type to define a Default Output
+	/// </summary>
+	[Obsolete("Please use the MorestachioFormatterService.Default instead")]
+	public static IMorestachioFormatterService DefaultFormatter
+	{
+		get { return MorestachioFormatterService.Default; }
+	}
+
+	/// <summary>
+	///     The parent of the current context or null if its the root context
+	/// </summary>
+	// ReSharper disable once ConvertToAutoPropertyWhenPossible
+	public ContextObject Parent
+	{
+		get { return _parent; }
+	}
+
+	/// <summary>
+	///     The evaluated value of the expression
+	/// </summary>
+	// ReSharper disable once ConvertToAutoPropertyWhenPossible
+	public object Value
+	{
+		get { return _value; }
+		set { _value = value; }
+	}
+
+	///// <summary>
+	/////	Ensures that the Value is loaded if needed
+	///// </summary>
+	///// <returns></returns>
+	//public async Task EnsureValue()
+	//{
+	//	if (Value is Task)
+	//	{
+	//		Value = await Value.UnpackFormatterTask();
+	//	}
+	//}
+
+	/// <summary>
+	///     The name of the property or key inside the value or indexer expression for lists
+	/// </summary>
+	// ReSharper disable once ConvertToAutoProperty
+	public string Key
+	{
+		get { return _key; }
+	}
+
+	internal ContextObject FindNextNaturalContextObject()
+	{
+		var context = this;
+
+		while (context != null && !context._isNaturalContext)
 		{
-			DefaultDefinitionOfFalse = value => value != null &&
-				value as bool? != false &&
-				// ReSharper disable once CompareOfFloatsByEqualityOperator
-				value as double? != 0 &&
-				value as int? != 0 &&
-				value as string != string.Empty &&
-				// We've gotten this far, if it is an object that does NOT cast as enumberable, it exists
-				// OR if it IS an enumerable and .Any() returns true, then it exists as well
-				(!(value is IEnumerable) || ((IEnumerable)value).Cast<object>().Any()
-				);
-			DefinitionOfFalse = DefaultDefinitionOfFalse;
+			context = context._parent;
 		}
 
-		/// <summary>
-		///     Initializes a new instance of the <see cref="ContextObject" /> class.
-		/// </summary>
-		public ContextObject(string key,
-							ContextObject parent,
-							object value)
-		{
-			_key = key;
-			_parent = parent;
-			_value = value;
-			_isNaturalContext = _parent?._isNaturalContext ?? true;
-		}
+		return context;
+	}
 
+	/// <summary>
+	///     Makes this instance natural
+	/// </summary>
+	/// <returns></returns>
+	internal ContextObject MakeNatural()
+	{
+		_isNaturalContext = true;
+		return this;
+	}
 
-		/// <summary>
-		///     Gets the Definition of false on your Template.
-		/// </summary>
-		/// <value>
-		///     Must no be null
-		/// </value>
-		/// <exception cref="InvalidOperationException">If the value is null</exception>
+	/// <summary>
+	///     Makes this instance natural
+	/// </summary>
+	/// <returns></returns>
+	internal ContextObject MakeSyntetic()
+	{
+		_isNaturalContext = false;
+		return this;
+	}
 
-		public static Func<object, bool> DefinitionOfFalse
-		{
-			get { return _definitionOfFalse; }
-			set { _definitionOfFalse = value ?? throw new InvalidOperationException("The value must not be null"); }
-		}
+	/// <summary>
+	///     if overwritten by a class it returns a context object for any non standard key or operation.
+	///     if non of that
+	///     <value>null</value>
+	/// </summary>
+	/// <returns></returns>
+	public virtual ContextObject HandlePathContext(PathPartElement currentElement,
+													IMorestachioExpression morestachioExpression,
+													ScopeData scopeData)
+	{
+		return null;
+	}
 
-		/// <summary>
-		///     Gets a value indicating whether this instance is natural context.
-		///     A Natural context is a context outside an Isolated scope
-		/// </summary>
-		// ReSharper disable once ConvertToAutoPropertyWhenPossible
-		public bool IsNaturalContext
-		{
-			get { return _isNaturalContext; }
-			protected internal set { _isNaturalContext = value; }
-		}
-
-		/// <summary>
-		///     The set of allowed types that may be printed. Complex types (such as arrays and dictionaries)
-		///     should not be printed, or their printing should be specialized.
-		///     Add an typeof(object) entry as Type to define a Default Output
-		/// </summary>
-		[Obsolete("Please use the MorestachioFormatterService.Default instead")]
-		public static IMorestachioFormatterService DefaultFormatter
-		{
-			get { return MorestachioFormatterService.Default; }
-		}
-
-		/// <summary>
-		///     The parent of the current context or null if its the root context
-		/// </summary>
-		// ReSharper disable once ConvertToAutoPropertyWhenPossible
-		public ContextObject Parent
-		{
-			get { return _parent; }
-		}
-
-		/// <summary>
-		///     The evaluated value of the expression
-		/// </summary>
-		// ReSharper disable once ConvertToAutoPropertyWhenPossible
-		public object Value
-		{
-			get { return _value; }
-			set { _value = value; }
-		}
-
-		///// <summary>
-		/////	Ensures that the Value is loaded if needed
-		///// </summary>
-		///// <returns></returns>
-		//public async Task EnsureValue()
-		//{
-		//	if (Value is Task)
-		//	{
-		//		Value = await Value.UnpackFormatterTask();
-		//	}
-		//}
-
-		/// <summary>
-		///     The name of the property or key inside the value or indexer expression for lists
-		/// </summary>
-		// ReSharper disable once ConvertToAutoProperty
-		public string Key
-		{
-			get { return _key; }
-		}
-
-		internal ContextObject FindNextNaturalContextObject()
-		{
-			var context = this;
-
-			while (context != null && !context._isNaturalContext)
-			{
-				context = context._parent;
-			}
-
-			return context;
-		}
-
-		/// <summary>
-		///     Makes this instance natural
-		/// </summary>
-		/// <returns></returns>
-		internal ContextObject MakeNatural()
-		{
-			_isNaturalContext = true;
-			return this;
-		}
-
-		/// <summary>
-		///     Makes this instance natural
-		/// </summary>
-		/// <returns></returns>
-		internal ContextObject MakeSyntetic()
-		{
-			_isNaturalContext = false;
-			return this;
-		}
-
-		/// <summary>
-		///     if overwritten by a class it returns a context object for any non standard key or operation.
-		///     if non of that
-		///     <value>null</value>
-		/// </summary>
-		/// <returns></returns>
-		public virtual ContextObject HandlePathContext(PathPartElement currentElement,
-														IMorestachioExpression morestachioExpression,
-														ScopeData scopeData)
-		{
-			return null;
-		}
-
-		private ContextObject GetContextForPathInternal(
-			Traversable elements,
-			ScopeData scopeData,
-			IMorestachioExpression morestachioExpression)
-		{
-			var retval = this;
+	private ContextObject GetContextForPathInternal(
+		Traversable elements,
+		ScopeData scopeData,
+		IMorestachioExpression morestachioExpression)
+	{
+		var retval = this;
 			
-			if (elements == null)
+		if (elements == null)
+		{
+			return retval;
+		}
+
+		var preHandeld = HandlePathContext(elements.Current, morestachioExpression, scopeData);
+
+		if (preHandeld != null)
+		{
+			return preHandeld;
+		}
+
+		if (elements.Current.Value == PathType.RootSelector) //go the root object
+		{
+			return ExecuteRootSelector() ?? this;
+		}
+
+		if (elements.Current.Value == PathType.ParentSelector) //go one level up
+		{
+			if (Parent != null)
 			{
-				return retval;
+				return FindNextNaturalContextObject()?.Parent ?? Parent ?? this;
 			}
 
-			var preHandeld = HandlePathContext(elements.Current, morestachioExpression, scopeData);
+			return this;
+		}
 
-			if (preHandeld != null)
-			{
-				return preHandeld;
-			}
-
-			if (elements.Current.Value == PathType.RootSelector) //go the root object
-			{
-				return ExecuteRootSelector() ?? this;
-			}
-
-			if (elements.Current.Value == PathType.ParentSelector) //go one level up
-			{
-				if (Parent != null)
-				{
-					return FindNextNaturalContextObject()?.Parent ?? Parent ?? this;
-				}
-
-				return this;
-			}
-
-			if (elements.Current.Value == PathType.ObjectSelector)
-				//enumerate ether an IDictionary, an cs object or an IEnumerable to a KeyValuePair array
-			{
-				//await EnsureValue();
-				if (_value is null)
-				{
-					return scopeData._parserOptions.CreateContextObject("x:null", null);
-				}
-
-				//ALWAYS return the context, even if the value is null.
-				return ExecuteObjectSelector(elements.Current.Key, scopeData);
-			}
-
-			if (elements.Current.Value == PathType.Boolean)
-			{
-				if (elements.Current.Key is "true" or "false")
-				{
-					var booleanContext =
-						scopeData._parserOptions.CreateContextObject(".", elements.Current.Key == "true", this);
-					booleanContext.IsNaturalContext = IsNaturalContext;
-					return booleanContext;
-				}
-
-				return this;
-			}
-
-			if (elements.Current.Value == PathType.Null)
+		if (elements.Current.Value == PathType.ObjectSelector)
+			//enumerate ether an IDictionary, an cs object or an IEnumerable to a KeyValuePair array
+		{
+			//await EnsureValue();
+			if (_value is null)
 			{
 				return scopeData._parserOptions.CreateContextObject("x:null", null);
 			}
 
-			if (elements.Current.Value == PathType.DataPath)
-			{
-				return ExecuteDataPath(elements.Current.Key, morestachioExpression, scopeData);
-			}
-
-			return retval;
+			//ALWAYS return the context, even if the value is null.
+			return ExecuteObjectSelector(elements.Current.Key, scopeData);
 		}
 
-		internal ContextObject ExecuteObjectSelector(string key, ScopeData scopeData)
+		if (elements.Current.Value == PathType.Boolean)
 		{
-			ContextObject innerContext = null;
-
-			if (!scopeData._parserOptions.HandleDictionaryAsObject && _value is IDictionary<string, object> dictList)
+			if (elements.Current.Key is "true" or "false")
 			{
-				innerContext = scopeData._parserOptions.CreateContextObject(key, dictList.Select(e => e), this);
+				var booleanContext =
+					scopeData._parserOptions.CreateContextObject(".", elements.Current.Key == "true", this);
+				booleanContext.IsNaturalContext = IsNaturalContext;
+				return booleanContext;
 			}
-			else
+
+			return this;
+		}
+
+		if (elements.Current.Value == PathType.Null)
+		{
+			return scopeData._parserOptions.CreateContextObject("x:null", null);
+		}
+
+		if (elements.Current.Value == PathType.DataPath)
+		{
+			return ExecuteDataPath(elements.Current.Key, morestachioExpression, scopeData);
+		}
+
+		return retval;
+	}
+
+	internal ContextObject ExecuteObjectSelector(string key, ScopeData scopeData)
+	{
+		ContextObject innerContext = null;
+
+		if (!scopeData._parserOptions.HandleDictionaryAsObject && _value is IDictionary<string, object> dictList)
+		{
+			innerContext = scopeData._parserOptions.CreateContextObject(key, dictList.Select(e => e), this);
+		}
+		else
+		{
+			if (_value != null)
 			{
-				if (_value != null)
-				{
-					var type = _value.GetType();
-					innerContext = scopeData._parserOptions.CreateContextObject(key, type
+				var type = _value.GetType();
+				innerContext = scopeData._parserOptions.CreateContextObject(key, type
 						.GetTypeInfo()
 						.GetProperties(BindingFlags.Instance | BindingFlags.Public)
 						.Where(e => !e.IsSpecialName && !e.GetIndexParameters().Any() && e.CanRead)
@@ -292,232 +292,232 @@ namespace Morestachio.Framework.Context
 							return new KeyValuePair<string, object>(e.Name, value);
 						}),
 					this);
-				}
 			}
-
-			return innerContext ?? this;
 		}
 
-		internal ContextObject ExecuteDataPath(string key,
-												IMorestachioExpression morestachioExpression,
-												ScopeData scopeData)
+		return innerContext ?? this;
+	}
+
+	internal ContextObject ExecuteDataPath(string key,
+											IMorestachioExpression morestachioExpression,
+											ScopeData scopeData)
+	{
+		if (_value is null)
 		{
-			if (_value is null)
+			scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+				key, _value?.GetType()));
+			return scopeData._parserOptions.CreateContextObject("x:null", null);
+		}
+		//ALWAYS return the context, even if the value is null.
+
+		//allow build-in variables to be accessed at any level
+		//DO NOT use string.StartsWith here as it happens to have be a huge performance impact
+		if (key.StartsWith('$'))
+		{
+			var getFromAlias = scopeData.GetVariable(this, key);
+
+			if (getFromAlias != null)
+			{
+				return getFromAlias;
+			}
+		}
+
+		//A value resolver should always be checked first to allow overwriting of all other logic
+		if (scopeData._parserOptions.ValueResolver != null)
+		{
+			var type = _value.GetType();
+			var innerContext = scopeData._parserOptions.CreateContextObject(key, null, this);
+
+			if (scopeData._parserOptions.ValueResolver.CanResolve(type, _value, key, innerContext))
+			{
+				innerContext._value
+					= scopeData._parserOptions.ValueResolver.Resolve(type, _value, key, innerContext);
+				return innerContext;
+			}
+		}
+
+		if (!scopeData._parserOptions.HandleDictionaryAsObject && _value is IDictionary<string, object> ctx)
+		{
+			if (!ctx.TryGetValue(key, out var o))
 			{
 				scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
-				key, _value?.GetType()));
-				return scopeData._parserOptions.CreateContextObject("x:null", null);
-			}
-			//ALWAYS return the context, even if the value is null.
-
-			//allow build-in variables to be accessed at any level
-			//DO NOT use string.StartsWith here as it happens to have be a huge performance impact
-			if (key.StartsWith('$'))
-			{
-				var getFromAlias = scopeData.GetVariable(this, key);
-
-				if (getFromAlias != null)
-				{
-					return getFromAlias;
-				}
-			}
-
-			//A value resolver should always be checked first to allow overwriting of all other logic
-			if (scopeData._parserOptions.ValueResolver != null)
-			{
-				var type = _value.GetType();
-				var innerContext = scopeData._parserOptions.CreateContextObject(key, null, this);
-
-				if (scopeData._parserOptions.ValueResolver.CanResolve(type, _value, key, innerContext))
-				{
-					innerContext._value
-						= scopeData._parserOptions.ValueResolver.Resolve(type, _value, key, innerContext);
-					return innerContext;
-				}
-			}
-
-			if (!scopeData._parserOptions.HandleDictionaryAsObject && _value is IDictionary<string, object> ctx)
-			{
-				if (!ctx.TryGetValue(key, out var o))
-				{
-					scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
 					key, _value?.GetType()));
-				}
-
-				return scopeData._parserOptions.CreateContextObject(key, o, this);
 			}
 
-			if (_value is IMorestachioPropertyResolver cResolver)
+			return scopeData._parserOptions.CreateContextObject(key, o, this);
+		}
+
+		if (_value is IMorestachioPropertyResolver cResolver)
+		{
+			if (!cResolver.TryGetValue(key, out var o))
 			{
-				if (!cResolver.TryGetValue(key, out var o))
-				{
-					scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+				scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
 					key, _value?.GetType()));
-				}
-
-				return scopeData._parserOptions.CreateContextObject(key, o, this);
 			}
 
-			if (_value is ICustomTypeDescriptor descriptor)
+			return scopeData._parserOptions.CreateContextObject(key, o, this);
+		}
+
+		if (_value is ICustomTypeDescriptor descriptor)
+		{
+			var propertyDescriptor = descriptor.GetProperties().Find(key, false);
+
+			if (propertyDescriptor != null)
 			{
-				var propertyDescriptor = descriptor.GetProperties().Find(key, false);
-
-				if (propertyDescriptor != null)
-				{
-					return scopeData._parserOptions.CreateContextObject(key, propertyDescriptor.GetValue(_value), this);
-				}
-
-				scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression, key,
-				_value?.GetType()));
-				return scopeData._parserOptions.CreateContextObject(key, null, this);
+				return scopeData._parserOptions.CreateContextObject(key, propertyDescriptor.GetValue(_value), this);
 			}
 
-			if (_value is DynamicObject dynObject)
+			scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression, key,
+				_value?.GetType()));
+			return scopeData._parserOptions.CreateContextObject(key, null, this);
+		}
+
+		if (_value is DynamicObject dynObject)
+		{
+			if (dynObject.TryGetMember(new DynamicObjectBinder(key, false), out var val))
 			{
-				if (dynObject.TryGetMember(new DynamicObjectBinder(key, false), out var val))
-				{
-					return scopeData._parserOptions.CreateContextObject(key, val, this);
-				}
-
-				scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression, key,
-				_value?.GetType()));
-				return scopeData._parserOptions.CreateContextObject(key, null, this);
+				return scopeData._parserOptions.CreateContextObject(key, val, this);
 			}
 
-			var value = scopeData._parserOptions.FallbackValueResolver.Resolve(this, key, scopeData,
+			scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression, key,
+				_value?.GetType()));
+			return scopeData._parserOptions.CreateContextObject(key, null, this);
+		}
+
+		var value = scopeData._parserOptions.FallbackValueResolver.Resolve(this, key, scopeData,
 			morestachioExpression);
-			return scopeData._parserOptions.CreateContextObject(key, value, this);
-		}
+		return scopeData._parserOptions.CreateContextObject(key, value, this);
+	}
 
-		private class DynamicObjectBinder : GetMemberBinder
+	private class DynamicObjectBinder : GetMemberBinder
+	{
+		public DynamicObjectBinder(string name, bool ignoreCase) : base(name, ignoreCase)
 		{
-			public DynamicObjectBinder(string name, bool ignoreCase) : base(name, ignoreCase)
-			{
-			}
-
-			public override DynamicMetaObject FallbackGetMember(DynamicMetaObject target,
-																DynamicMetaObject errorSuggestion)
-			{
-				return errorSuggestion;
-			}
 		}
 
-		internal ContextObject ExecuteRootSelector()
+		public override DynamicMetaObject FallbackGetMember(DynamicMetaObject target,
+															DynamicMetaObject errorSuggestion)
 		{
-			var parent = _parent ?? this;
-			var lastParent = parent;
-
-			while (parent != null)
-			{
-				parent = parent._parent;
-
-				if (parent != null)
-				{
-					lastParent = parent;
-				}
-			}
-
-			return lastParent;
+			return errorSuggestion;
 		}
+	}
 
-		/// <summary>
-		///     Returns a variable that is only present in this context but not below it
-		/// </summary>
-		/// <param name="path"></param>
-		/// <returns></returns>
-		public virtual ContextObject GetContextVariable(string path)
+	internal ContextObject ExecuteRootSelector()
+	{
+		var parent = _parent ?? this;
+		var lastParent = parent;
+
+		while (parent != null)
 		{
-			return null;
+			parent = parent._parent;
+
+			if (parent != null)
+			{
+				lastParent = parent;
+			}
 		}
 
-		/// <summary>
-		///     Will walk the path by using the path seperator "." and evaluate the object at the end
-		/// </summary>
-		/// <returns></returns>
-		internal ContextObject GetContextForPath(Traversable elements,
+		return lastParent;
+	}
+
+	/// <summary>
+	///     Returns a variable that is only present in this context but not below it
+	/// </summary>
+	/// <param name="path"></param>
+	/// <returns></returns>
+	public virtual ContextObject GetContextVariable(string path)
+	{
+		return null;
+	}
+
+	/// <summary>
+	///     Will walk the path by using the path seperator "." and evaluate the object at the end
+	/// </summary>
+	/// <returns></returns>
+	internal ContextObject GetContextForPath(Traversable elements,
+											ScopeData scopeData,
+											IMorestachioExpression morestachioExpression)
+	{
+		if (_key == "x:null" || !elements.HasValue)
+		{
+			return this;
+		}
+
+		//look at the first element if its an alias switch to that alias
+		//var peekPathPart = elements.Peek();
+		if (elements.Count == 1 && elements.Current.Value == PathType.Null)
+		{
+			return scopeData._parserOptions.CreateContextObject("x:null", null);
+		}
+
+		var targetContext = this;
+
+		if (elements.Current.Value == PathType.DataPath)
+		{
+			var getFromAlias = scopeData.GetVariable(targetContext, elements.Current.Key);
+
+			if (getFromAlias != null)
+			{
+				elements = elements.Next();
+				targetContext = getFromAlias;
+			}
+		}
+
+
+		return targetContext.LoopContextTraversable(elements, scopeData, morestachioExpression);
+		//return await targetContext.GetContextForPathInternal(elements, scopeData, morestachioExpression);
+	}
+
+	internal ContextObject LoopContextTraversable(Traversable elements,
 												ScopeData scopeData,
 												IMorestachioExpression morestachioExpression)
+	{
+		var context = this;
+
+		while (elements is { HasValue: true })
 		{
-			if (_key == "x:null" || !elements.HasValue)
-			{
-				return this;
-			}
-
-			//look at the first element if its an alias switch to that alias
-			//var peekPathPart = elements.Peek();
-			if (elements.Count == 1 && elements.Current.Value == PathType.Null)
-			{
-				return scopeData._parserOptions.CreateContextObject("x:null", null);
-			}
-
-			var targetContext = this;
-
-			if (elements.Current.Value == PathType.DataPath)
-			{
-				var getFromAlias = scopeData.GetVariable(targetContext, elements.Current.Key);
-
-				if (getFromAlias != null)
-				{
-					elements = elements.Next();
-					targetContext = getFromAlias;
-				}
-			}
-
-
-			return targetContext.LoopContextTraversable(elements, scopeData, morestachioExpression);
-			//return await targetContext.GetContextForPathInternal(elements, scopeData, morestachioExpression);
+			context = context.GetContextForPathInternal(elements, scopeData, morestachioExpression);
+			elements = elements.Next();
 		}
 
-		internal ContextObject LoopContextTraversable(Traversable elements,
-													ScopeData scopeData,
-													IMorestachioExpression morestachioExpression)
-		{
-			var context = this;
+		return context;
+	}
 
-			while (elements is { HasValue: true })
-			{
-				context = context.GetContextForPathInternal(elements, scopeData, morestachioExpression);
-				elements = elements.Next();
-			}
-
-			return context;
-		}
-
-		/// <summary>
-		///     Determines if the value of this context exists.
-		/// </summary>
-		/// <returns></returns>
-		public virtual bool Exists()
-		{
-			return DefinitionOfFalse(_value);
-		}
+	/// <summary>
+	///     Determines if the value of this context exists.
+	/// </summary>
+	/// <returns></returns>
+	public virtual bool Exists()
+	{
+		return DefinitionOfFalse(_value);
+	}
 
 #if Span
-		/// <summary>
-		///     Renders the Current value to a string or if null to the Null placeholder in the Options
-		/// </summary>
-		/// <param name="scopeData"></param>
-		/// <returns></returns>
-		public virtual ReadOnlyMemory<char> RenderToString(ScopeData scopeData)
+	/// <summary>
+	///     Renders the Current value to a string or if null to the Null placeholder in the Options
+	/// </summary>
+	/// <param name="scopeData"></param>
+	/// <returns></returns>
+	public virtual ReadOnlyMemory<char> RenderToString(ScopeData scopeData)
+	{
+		if (_value is ReadOnlyMemory<char> roSpan)
 		{
-			if (_value is ReadOnlyMemory<char> roSpan)
-			{
-				return roSpan;
-			}
-
-			if (_value is string str)
-			{
-				return str.AsMemory();
-			}
-
-			if (_value is null)
-			{
-				return (scopeData.GetVariable(this, "$null")?._value?.ToString() ?? scopeData._parserOptions.Null)
-					.AsMemory();
-			}
-
-			return _value.ToString().AsMemory();
+			return roSpan;
 		}
+
+		if (_value is string str)
+		{
+			return str.AsMemory();
+		}
+
+		if (_value is null)
+		{
+			return (scopeData.GetVariable(this, "$null")?._value?.ToString() ?? scopeData._parserOptions.Null)
+				.AsMemory();
+		}
+
+		return _value.ToString().AsMemory();
+	}
 #else
 		/// <summary>
 		///     Renders the Current value to a string or if null to the Null placeholder in the Options
@@ -537,75 +537,74 @@ namespace Morestachio.Framework.Context
 #endif
 
 
-		/// <summary>
-		///     Gets an FormatterCache from ether the custom formatter or the global one
-		/// </summary>
-		public virtual FormatterCache PrepareFormatterCall(Type type,
-															string name,
-															FormatterArgumentType[] arguments,
-															ScopeData scopeData)
+	/// <summary>
+	///     Gets an FormatterCache from ether the custom formatter or the global one
+	/// </summary>
+	public virtual FormatterCache PrepareFormatterCall(Type type,
+														string name,
+														FormatterArgumentType[] arguments,
+														ScopeData scopeData)
+	{
+		if (string.IsNullOrWhiteSpace(name))
 		{
-			if (string.IsNullOrWhiteSpace(name))
-			{
-				name = null;
-			}
-
-			//call formatters that are given by the Options for this run
-			var cache = scopeData._parserOptions.Formatters.PrepareCallMostMatchingFormatter(type, arguments, name, scopeData._parserOptions, scopeData);
-
-			if (cache != null)
-			{
-				//one formatter has returned a valid value so use this one.
-				return cache;
-			}
-
-			//all formatters in the options object have rejected the value so try use the global ones
-			return MorestachioFormatterService.Default.PrepareCallMostMatchingFormatter(type, arguments, name, scopeData._parserOptions, scopeData);
+			name = null;
 		}
 
-		/// <summary>
-		///     Clones the ContextObject into a new Detached object
-		/// </summary>
-		/// <returns></returns>
-		public virtual ContextObject CloneForEdit()
-		{
-			//note: Parent must be the original context so we can traverse up to an unmodified context
-			var contextClone = new ContextObject(_key, this, _value)
-			{
-				_isNaturalContext = false,
-			};
+		//call formatters that are given by the Options for this run
+		var cache = scopeData._parserOptions.Formatters.PrepareCallMostMatchingFormatter(type, arguments, name, scopeData._parserOptions, scopeData);
 
-			return contextClone;
+		if (cache != null)
+		{
+			//one formatter has returned a valid value so use this one.
+			return cache;
 		}
 
-		/// <summary>
-		///     Clones the ContextObject into a new Detached object
-		/// </summary>
-		/// <returns></returns>
-		public virtual ContextObject CloneForEdit(object newValue)
+		//all formatters in the options object have rejected the value so try use the global ones
+		return MorestachioFormatterService.Default.PrepareCallMostMatchingFormatter(type, arguments, name, scopeData._parserOptions, scopeData);
+	}
+
+	/// <summary>
+	///     Clones the ContextObject into a new Detached object
+	/// </summary>
+	/// <returns></returns>
+	public virtual ContextObject CloneForEdit()
+	{
+		//note: Parent must be the original context so we can traverse up to an unmodified context
+		var contextClone = new ContextObject(_key, this, _value)
 		{
-			//note: Parent must be the original context so we can traverse up to an unmodified context
-			var contextClone = new ContextObject(_key, this, newValue)
-			{
-				_isNaturalContext = false,
-			};
+			_isNaturalContext = false,
+		};
 
-			return contextClone;
-		}
+		return contextClone;
+	}
 
-		/// <summary>
-		///     Clones the ContextObject into a new Detached object
-		/// </summary>
-		/// <returns></returns>
-		public virtual ContextObject Copy()
+	/// <summary>
+	///     Clones the ContextObject into a new Detached object
+	/// </summary>
+	/// <returns></returns>
+	public virtual ContextObject CloneForEdit(object newValue)
+	{
+		//note: Parent must be the original context so we can traverse up to an unmodified context
+		var contextClone = new ContextObject(_key, this, newValue)
 		{
-			//note: Parent must be the original context so we can traverse up to an unmodified context
-			var contextClone = new ContextObject(_key, _parent, _value)
-			{
-				_isNaturalContext = true,
-			};
+			_isNaturalContext = false,
+		};
 
-			return contextClone;
-		}
+		return contextClone;
+	}
+
+	/// <summary>
+	///     Clones the ContextObject into a new Detached object
+	/// </summary>
+	/// <returns></returns>
+	public virtual ContextObject Copy()
+	{
+		//note: Parent must be the original context so we can traverse up to an unmodified context
+		var contextClone = new ContextObject(_key, _parent, _value)
+		{
+			_isNaturalContext = true,
+		};
+
+		return contextClone;
 	}
 }

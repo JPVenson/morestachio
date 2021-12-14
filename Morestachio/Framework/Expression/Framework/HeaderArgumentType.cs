@@ -1,17 +1,16 @@
-﻿namespace Morestachio.Framework.Expression.Framework
+﻿namespace Morestachio.Framework.Expression.Framework;
+
+/// <summary>
+/// </summary>
+public enum HeaderArgumentType
 {
 	/// <summary>
+	///     Defines the Value of the <see cref="HeaderTokenMatch" /> to be the content argument
 	/// </summary>
-	public enum HeaderArgumentType
-	{
-		/// <summary>
-		///     Defines the Value of the <see cref="HeaderTokenMatch" /> to be the content argument
-		/// </summary>
-		String,
+	String,
 
-		/// <summary>
-		///     Defines the Value of the <see cref="HeaderTokenMatch" /> to be an expression
-		/// </summary>
-		Expression
-	}
+	/// <summary>
+	///     Defines the Value of the <see cref="HeaderTokenMatch" /> to be an expression
+	/// </summary>
+	Expression
 }

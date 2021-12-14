@@ -9,248 +9,247 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 
-namespace Morestachio.Document.Items.Base
+namespace Morestachio.Document.Items.Base;
+
+/// <summary>
+///     Base class for Document items
+/// </summary>
+[Serializable]
+public abstract class DocumentItemBase : IMorestachioDocument,
+										IEquatable<DocumentItemBase>
 {
-	/// <summary>
-	///     Base class for Document items
-	/// </summary>
-	[Serializable]
-	public abstract class DocumentItemBase : IMorestachioDocument,
-		IEquatable<DocumentItemBase>
+	internal DocumentItemBase()
 	{
-		internal DocumentItemBase()
+		this.ExpressionStart = CharacterLocation.Unknown;
+	}
+
+	/// <summary>
+	///		Creates a new base object for encapsulating document items
+	/// </summary>
+	protected DocumentItemBase(in CharacterLocation location, IEnumerable<ITokenOption> tagCreationOptions)
+	{
+		ExpressionStart = location;
+		TagCreationOptions = tagCreationOptions;
+	}
+
+	/// <summary>
+	///		Creates a new DocumentItemBase from a Serialization context
+	/// </summary>
+	/// <param name="info"></param>
+	/// <param name="c"></param>
+	[SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
+	protected DocumentItemBase(SerializationInfo info, StreamingContext c)
+	{
+		var expStartLocation = info.GetString(nameof(ExpressionStart));
+		if (!string.IsNullOrWhiteSpace(expStartLocation))
 		{
-			this.ExpressionStart = CharacterLocation.Unknown;
+			ExpressionStart = CharacterLocation.FromFormatString(expStartLocation);
 		}
 
-		/// <summary>
-		///		Creates a new base object for encapsulating document items
-		/// </summary>
-		protected DocumentItemBase(in CharacterLocation location, IEnumerable<ITokenOption> tagCreationOptions)
+		TagCreationOptions =
+			info.GetValue(nameof(TagCreationOptions), typeof(IEnumerable<ITokenOption>)) as IEnumerable<ITokenOption>;
+	}
+
+
+	/// <inheritdoc />
+	public virtual bool Equals(DocumentItemBase other)
+	{
+		if (other is null)
 		{
-			ExpressionStart = location;
-			TagCreationOptions = tagCreationOptions;
+			return false;
 		}
 
-		/// <summary>
-		///		Creates a new DocumentItemBase from a Serialization context
-		/// </summary>
-		/// <param name="info"></param>
-		/// <param name="c"></param>
-		[SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
-		protected DocumentItemBase(SerializationInfo info, StreamingContext c)
+		if (ReferenceEquals(this, other))
 		{
-			var expStartLocation = info.GetString(nameof(ExpressionStart));
-			if (!string.IsNullOrWhiteSpace(expStartLocation))
-			{
-				ExpressionStart = CharacterLocation.FromFormatString(expStartLocation);
-			}
-
-			TagCreationOptions =
-				info.GetValue(nameof(TagCreationOptions), typeof(IEnumerable<ITokenOption>)) as IEnumerable<ITokenOption>;
+			return true;
 		}
 
-
-		/// <inheritdoc />
-		public virtual bool Equals(DocumentItemBase other)
+		if (!ExpressionStart.Equals(other.ExpressionStart))
 		{
-			if (other is null)
-			{
-				return false;
-			}
-
-			if (ReferenceEquals(this, other))
-			{
-				return true;
-			}
-
-			if (!ExpressionStart.Equals(other.ExpressionStart))
-			{
-				return false;
-			}
-			if (Equals(TagCreationOptions, other.TagCreationOptions))
-			{
-				return true;
-			}
-
-			return (TagCreationOptions?.SequenceEqual(other.TagCreationOptions) ?? false);
+			return false;
+		}
+		if (Equals(TagCreationOptions, other.TagCreationOptions))
+		{
+			return true;
 		}
 
-		/// <inheritdoc />
-		public abstract ItemExecutionPromise Render(IByteCounterStream outputStream,
-			ContextObject context,
-			ScopeData scopeData);
+		return (TagCreationOptions?.SequenceEqual(other.TagCreationOptions) ?? false);
+	}
 
-		/// <inheritdoc />
-		public CharacterLocation ExpressionStart { get; private set; }
+	/// <inheritdoc />
+	public abstract ItemExecutionPromise Render(IByteCounterStream outputStream,
+												ContextObject context,
+												ScopeData scopeData);
 
-		/// <inheritdoc />
-		public IEnumerable<ITokenOption> TagCreationOptions { get; set; }
+	/// <inheritdoc />
+	public CharacterLocation ExpressionStart { get; private set; }
 
-		/// <inheritdoc />
-		[SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
-		public void GetObjectData(SerializationInfo info, StreamingContext context)
+	/// <inheritdoc />
+	public IEnumerable<ITokenOption> TagCreationOptions { get; set; }
+
+	/// <inheritdoc />
+	[SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
+	public void GetObjectData(SerializationInfo info, StreamingContext context)
+	{
+		info.AddValue(nameof(ExpressionStart), ExpressionStart.ToFormatString());
+		info.AddValue(nameof(TagCreationOptions), TagCreationOptions);
+		SerializeBinaryCore(info, context);
+	}
+
+	/// <summary>
+	///		Gets the desired name for xml serialization
+	/// </summary>
+	/// <param name="type"></param>
+	/// <returns></returns>
+	protected static string GetSerializedMarkerName(Type type)
+	{
+		return type.Name;
+	}
+
+	/// <inheritdoc />
+	void IDocumentItem.SerializeXmlCore(XmlWriter writer)
+	{
+		writer.WriteStartElement(GetSerializedMarkerName(GetType()));
+		writer.WriteAttributeString(nameof(ExpressionStart), ExpressionStart.ToFormatString() ?? string.Empty);
+		SerializeXml(writer);
+		writer.WriteOptions(TagCreationOptions, nameof(TagCreationOptions));
+
+		writer.WriteEndElement(); //GetType().Name
+	}
+
+	/// <inheritdoc />
+	void IDocumentItem.DeSerializeXmlCore(XmlReader reader)
+	{
+		AssertElement(reader, GetSerializedMarkerName(GetType()));
+
+		var charLoc = reader.GetAttribute(nameof(ExpressionStart));
+		if (charLoc != null)
 		{
-			info.AddValue(nameof(ExpressionStart), ExpressionStart.ToFormatString());
-			info.AddValue(nameof(TagCreationOptions), TagCreationOptions);
-			SerializeBinaryCore(info, context);
+			ExpressionStart = CharacterLocation.FromFormatString(charLoc);
 		}
-
-		/// <summary>
-		///		Gets the desired name for xml serialization
-		/// </summary>
-		/// <param name="type"></param>
-		/// <returns></returns>
-		protected static string GetSerializedMarkerName(Type type)
+		if (!reader.IsEmptyElement)
 		{
-			return type.Name;
-		}
+			var readSubtree = reader.ReadSubtree();
+			readSubtree.Read();
+			DeSerializeXml(readSubtree);
+			TagCreationOptions = reader.ReadOptions(nameof(TagCreationOptions));
 
-		/// <inheritdoc />
-		void IDocumentItem.SerializeXmlCore(XmlWriter writer)
-		{
-			writer.WriteStartElement(GetSerializedMarkerName(GetType()));
-			writer.WriteAttributeString(nameof(ExpressionStart), ExpressionStart.ToFormatString() ?? string.Empty);
-			SerializeXml(writer);
-			writer.WriteOptions(TagCreationOptions, nameof(TagCreationOptions));
-
-			writer.WriteEndElement(); //GetType().Name
-		}
-
-		/// <inheritdoc />
-		void IDocumentItem.DeSerializeXmlCore(XmlReader reader)
-		{
-			AssertElement(reader, GetSerializedMarkerName(GetType()));
-
-			var charLoc = reader.GetAttribute(nameof(ExpressionStart));
-			if (charLoc != null)
+			if (reader.NodeType == XmlNodeType.EndElement && reader.Name.Equals(GetSerializedMarkerName(GetType())))
 			{
-				ExpressionStart = CharacterLocation.FromFormatString(charLoc);
-			}
-			if (!reader.IsEmptyElement)
-			{
-				var readSubtree = reader.ReadSubtree();
-				readSubtree.Read();
-				DeSerializeXml(readSubtree);
-				TagCreationOptions = reader.ReadOptions(nameof(TagCreationOptions));
-
-				if (reader.NodeType == XmlNodeType.EndElement && reader.Name.Equals(GetSerializedMarkerName(GetType())))
-				{
-					//there are no children and we have reached the end of the document
-					reader.ReadEndElement(); //GetType().Name
-				}
+				//there are no children and we have reached the end of the document
+				reader.ReadEndElement(); //GetType().Name
 			}
 		}
+	}
 
-		/// <inheritdoc />
-		public abstract void Accept(IDocumentItemVisitor visitor);
+	/// <inheritdoc />
+	public abstract void Accept(IDocumentItemVisitor visitor);
 
-		/// <inheritdoc />
-		public XmlSchema GetSchema()
+	/// <inheritdoc />
+	public XmlSchema GetSchema()
+	{
+		return null;
+	}
+
+	void IXmlSerializable.ReadXml(XmlReader reader)
+	{
+		var xmlReaderSettings = reader.Settings?.Clone() ?? new XmlReaderSettings();
+		xmlReaderSettings.IgnoreWhitespace = true;
+		xmlReaderSettings.IgnoreComments = true;
+		xmlReaderSettings.IgnoreProcessingInstructions = true;
+		var xmlReader = XmlReader.Create(reader, xmlReaderSettings);
+		xmlReader.Read();
+		((IDocumentItem)this).DeSerializeXmlCore(xmlReader);
+	}
+
+	void IXmlSerializable.WriteXml(XmlWriter writer)
+	{
+		SerializeXml(writer);
+	}
+
+	/// <summary>
+	///     Can be called to check if any stop is requested. If return true no stop is requested
+	/// </summary>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static bool ContinueBuilding(IByteCounterStream builder, ScopeData scopeData)
+	{
+		return !builder.ReachedLimit && !scopeData.CancellationToken.IsCancellationRequested;
+
+		//return (scopeData.HasCancellationToken && !scopeData.CancellationToken.IsCancellationRequested) &&
+		//	   !builder.ReachedLimit;
+	}
+
+	/// <summary>
+	///     Can be overwritten to extend the binary serialization process
+	/// </summary>
+	/// <param name="info"></param>
+	/// <param name="context"></param>
+	protected virtual void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
+	{
+	}
+
+
+	/// <summary>
+	///     Should be overwritten when using custom properties in deviated document items to add the necessary xml information.
+	///     When using this method it is ensured that there is already a distinct XML node present. You should not close this
+	///     node and always exit before leaving it.
+	///     This method will be called right after writing the document node and before writing the children of this node
+	/// </summary>
+	/// <param name="writer"></param>
+	protected virtual void SerializeXml(XmlWriter writer)
+	{
+	}
+
+	/// <summary>
+	///     Will be called to deserialize custom properties. See <see cref="SerializeXml" /> for further info.
+	/// </summary>
+	/// <param name="reader"></param>
+	protected virtual void DeSerializeXml(XmlReader reader)
+	{
+	}
+
+	/// <summary>
+	///		Internal Only
+	/// </summary>
+	/// <param name="reader"></param>
+	/// <param name="elementName"></param>
+	protected internal static void AssertElement(XmlReader reader, string elementName)
+	{
+		if (!reader.Name.Equals(elementName, StringComparison.OrdinalIgnoreCase))
 		{
-			return null;
+			throw new XmlSchemaException($"Unexpected Element '{reader.Name}' expected '{elementName}'");
+		}
+	}
+
+	/// <inheritdoc />
+	public override bool Equals(object obj)
+	{
+		if (ReferenceEquals(null, obj))
+		{
+			return false;
 		}
 
-		void IXmlSerializable.ReadXml(XmlReader reader)
+		if (ReferenceEquals(this, obj))
 		{
-			var xmlReaderSettings = reader.Settings?.Clone() ?? new XmlReaderSettings();
-			xmlReaderSettings.IgnoreWhitespace = true;
-			xmlReaderSettings.IgnoreComments = true;
-			xmlReaderSettings.IgnoreProcessingInstructions = true;
-			var xmlReader = XmlReader.Create(reader, xmlReaderSettings);
-			xmlReader.Read();
-			((IDocumentItem)this).DeSerializeXmlCore(xmlReader);
+			return true;
 		}
 
-		void IXmlSerializable.WriteXml(XmlWriter writer)
+		if (obj.GetType() != GetType())
 		{
-			SerializeXml(writer);
+			return false;
 		}
 
-		/// <summary>
-		///     Can be called to check if any stop is requested. If return true no stop is requested
-		/// </summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool ContinueBuilding(IByteCounterStream builder, ScopeData scopeData)
+		return Equals((DocumentItemBase)obj);
+	}
+
+	/// <inheritdoc />
+	public override int GetHashCode()
+	{
+		unchecked
 		{
-			return !builder.ReachedLimit && !scopeData.CancellationToken.IsCancellationRequested;
-
-			//return (scopeData.HasCancellationToken && !scopeData.CancellationToken.IsCancellationRequested) &&
-			//	   !builder.ReachedLimit;
-		}
-
-		/// <summary>
-		///     Can be overwritten to extend the binary serialization process
-		/// </summary>
-		/// <param name="info"></param>
-		/// <param name="context"></param>
-		protected virtual void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
-		{
-		}
-
-
-		/// <summary>
-		///     Should be overwritten when using custom properties in deviated document items to add the necessary xml information.
-		///     When using this method it is ensured that there is already a distinct XML node present. You should not close this
-		///     node and always exit before leaving it.
-		///     This method will be called right after writing the document node and before writing the children of this node
-		/// </summary>
-		/// <param name="writer"></param>
-		protected virtual void SerializeXml(XmlWriter writer)
-		{
-		}
-
-		/// <summary>
-		///     Will be called to deserialize custom properties. See <see cref="SerializeXml" /> for further info.
-		/// </summary>
-		/// <param name="reader"></param>
-		protected virtual void DeSerializeXml(XmlReader reader)
-		{
-		}
-
-		/// <summary>
-		///		Internal Only
-		/// </summary>
-		/// <param name="reader"></param>
-		/// <param name="elementName"></param>
-		protected internal static void AssertElement(XmlReader reader, string elementName)
-		{
-			if (!reader.Name.Equals(elementName, StringComparison.OrdinalIgnoreCase))
-			{
-				throw new XmlSchemaException($"Unexpected Element '{reader.Name}' expected '{elementName}'");
-			}
-		}
-
-		/// <inheritdoc />
-		public override bool Equals(object obj)
-		{
-			if (ReferenceEquals(null, obj))
-			{
-				return false;
-			}
-
-			if (ReferenceEquals(this, obj))
-			{
-				return true;
-			}
-
-			if (obj.GetType() != GetType())
-			{
-				return false;
-			}
-
-			return Equals((DocumentItemBase)obj);
-		}
-
-		/// <inheritdoc />
-		public override int GetHashCode()
-		{
-			unchecked
-			{
-				int hashCode = ExpressionStart.GetHashCode();
-				hashCode = (hashCode * 397) ^ (TagCreationOptions.Any() ? TagCreationOptions.Select(f => f.GetHashCode()).Aggregate((e, f) => e ^ f) : 0);
-				return hashCode;
-			}
+			int hashCode = ExpressionStart.GetHashCode();
+			hashCode = (hashCode * 397) ^ (TagCreationOptions.Any() ? TagCreationOptions.Select(f => f.GetHashCode()).Aggregate((e, f) => e ^ f) : 0);
+			return hashCode;
 		}
 	}
 }

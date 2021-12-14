@@ -7,84 +7,83 @@ using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 
-namespace Morestachio.Document.Items
+namespace Morestachio.Document.Items;
+
+/// <summary>
+///		Emits the template as long as the condition is true
+/// </summary>
+[Serializable]
+public class WhileLoopDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 {
 	/// <summary>
-	///		Emits the template as long as the condition is true
+	///		Used for XML Serialization
 	/// </summary>
-	[Serializable]
-	public class WhileLoopDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
+	internal WhileLoopDocumentItem()
 	{
-		/// <summary>
-		///		Used for XML Serialization
-		/// </summary>
-		internal WhileLoopDocumentItem()
-		{
 
-		}
+	}
 
-		/// <inheritdoc />
-		public WhileLoopDocumentItem(CharacterLocation location,
-			 IMorestachioExpression value,
-			IEnumerable<ITokenOption> tagCreationOptions) : base(location, value, tagCreationOptions)
-		{
+	/// <inheritdoc />
+	public WhileLoopDocumentItem(CharacterLocation location,
+								IMorestachioExpression value,
+								IEnumerable<ITokenOption> tagCreationOptions) : base(location, value, tagCreationOptions)
+	{
 
-		}
+	}
 
-		/// <inheritdoc />
+	/// <inheritdoc />
 		
-		protected WhileLoopDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
+	protected WhileLoopDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
+	{
+
+	}
+
+	/// <inheritdoc />
+	public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+	{
+		var index = 0;
+
+		var collectionContext = new ContextCollection(index, false, context.Key, context.Parent,
+			context.Value);
+
+		while (ContinueBuilding(outputStream, scopeData) && (await MorestachioExpression.GetValue(collectionContext, scopeData)).Exists())
 		{
-
+			//TODO get a way how to execute this on the caller
+			await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, collectionContext, scopeData);
+			collectionContext = new ContextCollection(++index, false, context.Key, context.Parent, context.Value);
 		}
+		return Enumerable.Empty<DocumentItemExecution>();
+	}
 
-		/// <inheritdoc />
-		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+	/// <inheritdoc />
+	public override void Accept(IDocumentItemVisitor visitor)
+	{
+		visitor.Visit(this);
+	}
+
+	/// <param name="compiler"></param>
+	/// <param name="parserOptions"></param>
+	/// <inheritdoc />
+	public CompilationAsync Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
+	{
+		var children = compiler.Compile(Children, parserOptions);
+		var expression = MorestachioExpression.Compile(parserOptions);
+
+		return async (outputStream, context, scopeData) =>
 		{
 			var index = 0;
 
-			var collectionContext = new ContextCollection(index, false, context.Key, context.Parent,
+			var collectionContext = new ContextCollection(index, false, context.Key,
+				context.Parent,
 				context.Value);
 
-			while (ContinueBuilding(outputStream, scopeData) && (await MorestachioExpression.GetValue(collectionContext, scopeData)).Exists())
+			while (ContinueBuilding(outputStream, scopeData) &&
+					(await expression(collectionContext, scopeData)).Exists())
 			{
-				//TODO get a way how to execute this on the caller
-				await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, collectionContext, scopeData);
-				collectionContext = new ContextCollection(++index, false, context.Key, context.Parent, context.Value);
+				await children(outputStream, collectionContext, scopeData);
+				collectionContext = new ContextCollection(++index, false, context.Key,
+					context.Parent, context.Value);
 			}
-			return Enumerable.Empty<DocumentItemExecution>();
-		}
-
-		/// <inheritdoc />
-		public override void Accept(IDocumentItemVisitor visitor)
-		{
-			visitor.Visit(this);
-		}
-
-		/// <param name="compiler"></param>
-		/// <param name="parserOptions"></param>
-		/// <inheritdoc />
-		public CompilationAsync Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
-		{
-			var children = compiler.Compile(Children, parserOptions);
-			var expression = MorestachioExpression.Compile(parserOptions);
-
-			return async (outputStream, context, scopeData) =>
-			{
-				var index = 0;
-
-				var collectionContext = new ContextCollection(index, false, context.Key,
-					context.Parent,
-					context.Value);
-
-				while (ContinueBuilding(outputStream, scopeData) &&
-					   (await expression(collectionContext, scopeData)).Exists())
-				{
-					await children(outputStream, collectionContext, scopeData);
-					collectionContext = new ContextCollection(++index, false, context.Key,
-						context.Parent, context.Value);
-				}
-			};
-		}
+		};
 	}
 }

@@ -1,19 +1,18 @@
 ﻿using System;
 
-namespace Morestachio.Framework.Error
+namespace Morestachio.Framework.Error;
+
+/// <summary>
+///     The General Exception type for Framework Exceptions
+/// </summary>
+public class MustachioException : Exception
 {
 	/// <summary>
-	///     The General Exception type for Framework Exceptions
+	///     Ctor
 	/// </summary>
-	public class MustachioException : Exception
+	/// <param name="message"></param>
+	public MustachioException(string message) 
+		: base(message)
 	{
-		/// <summary>
-		///     Ctor
-		/// </summary>
-		/// <param name="message"></param>
-		public MustachioException(string message) 
-			: base(message)
-		{
-		}
 	}
 }

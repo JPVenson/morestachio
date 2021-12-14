@@ -5,127 +5,126 @@ using System.Xml;
 using Morestachio.Framework;
 using Morestachio.Framework.Tokenizing;
 
-namespace Morestachio.Document.Items.Base
+namespace Morestachio.Document.Items.Base;
+
+/// <summary>
+///		A common base class for emitting a single string value
+/// </summary>
+[Serializable]
+public abstract class ValueDocumentItemBase : BlockDocumentItemBase, IEquatable<ValueDocumentItemBase>
 {
-	/// <summary>
-	///		A common base class for emitting a single string value
-	/// </summary>
-	[Serializable]
-	public abstract class ValueDocumentItemBase : BlockDocumentItemBase, IEquatable<ValueDocumentItemBase>
+	internal ValueDocumentItemBase()
 	{
-		internal ValueDocumentItemBase()
-		{
 
-		}
-		/// <summary>
-		/// 
-		/// </summary>
-		protected ValueDocumentItemBase(in CharacterLocation location, string value,
-										IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
-		{
-			Value = value;
-		}
+	}
+	/// <summary>
+	/// 
+	/// </summary>
+	protected ValueDocumentItemBase(in CharacterLocation location, string value,
+									IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
+	{
+		Value = value;
+	}
 
-		/// <summary>
-		///		A value from the Template
-		/// </summary>
-		public string Value { get; private set; }
+	/// <summary>
+	///		A value from the Template
+	/// </summary>
+	public string Value { get; private set; }
 		
-		/// <inheritdoc />
-		protected ValueDocumentItemBase(SerializationInfo info, StreamingContext c) : base(info, c)
+	/// <inheritdoc />
+	protected ValueDocumentItemBase(SerializationInfo info, StreamingContext c) : base(info, c)
+	{
+		Value = info.GetString(nameof(Value));
+	}
+		
+	/// <inheritdoc />
+	protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
+	{
+		base.SerializeBinaryCore(info, context);
+		info.AddValue(nameof(Value), Value);
+	}
+		
+	/// <inheritdoc />
+	protected override void SerializeXml(XmlWriter writer)
+	{
+		if (string.IsNullOrEmpty(Value))
 		{
-			Value = info.GetString(nameof(Value));
+			return;
 		}
+		writer.WriteStartElement(nameof(Value));
+		writer.WriteAttributeString("xml", "space", null, "preserve");
+		writer.WriteString(Value);
+		writer.WriteEndElement();
+	}
 		
-		/// <inheritdoc />
-		protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
+	/// <inheritdoc />
+	protected override void DeSerializeXml(XmlReader reader)
+	{
+		reader.ReadStartElement();
+		if (reader.Name == nameof(Value))
 		{
-			base.SerializeBinaryCore(info, context);
-			info.AddValue(nameof(Value), Value);
-		}
-		
-		/// <inheritdoc />
-		protected override void SerializeXml(XmlWriter writer)
-		{
-			if (string.IsNullOrEmpty(Value))
+			if (reader.IsEmptyElement)
 			{
 				return;
 			}
-			writer.WriteStartElement(nameof(Value));
-			writer.WriteAttributeString("xml", "space", null, "preserve");
-			writer.WriteString(Value);
-			writer.WriteEndElement();
+			//reader.ReadToFollowing(nameof(Value));
+			Value = reader.ReadString();
+			reader.ReadEndElement();
 		}
+	}
 		
-		/// <inheritdoc />
-		protected override void DeSerializeXml(XmlReader reader)
+	/// <inheritdoc />
+	public bool Equals(ValueDocumentItemBase other)
+	{
+		if (ReferenceEquals(null, other))
 		{
-			reader.ReadStartElement();
-			if (reader.Name == nameof(Value))
-			{
-				if (reader.IsEmptyElement)
-				{
-					return;
-				}
-				//reader.ReadToFollowing(nameof(Value));
-				Value = reader.ReadString();
-				reader.ReadEndElement();
-			}
+			return false;
 		}
+
+		if (ReferenceEquals(this, other))
+		{
+			return true;
+		}
+
+		if (!base.Equals(other))
+		{
+			return false;
+		}
+
+		if(string.IsNullOrEmpty(Value) && string.IsNullOrEmpty(other.Value))
+		{
+			return true;
+		}
+
+		return Value == other.Value;
+	}
 		
-		/// <inheritdoc />
-		public bool Equals(ValueDocumentItemBase other)
+	/// <inheritdoc />
+	public override bool Equals(object obj)
+	{
+		if (ReferenceEquals(null, obj))
 		{
-			if (ReferenceEquals(null, other))
-			{
-				return false;
-			}
-
-			if (ReferenceEquals(this, other))
-			{
-				return true;
-			}
-
-			if (!base.Equals(other))
-			{
-				return false;
-			}
-
-			if(string.IsNullOrEmpty(Value) && string.IsNullOrEmpty(other.Value))
-			{
-				return true;
-			}
-
-			return Value == other.Value;
-		}
-		
-		/// <inheritdoc />
-		public override bool Equals(object obj)
-		{
-			if (ReferenceEquals(null, obj))
-			{
-				return false;
-			}
-
-			if (ReferenceEquals(this, obj))
-			{
-				return true;
-			}
-
-			if (obj.GetType() != this.GetType())
-			{
-				return false;
-			}
-
-			return Equals((ValueDocumentItemBase)obj);
+			return false;
 		}
 
-		/// <inheritdoc />
-		public override int GetHashCode()
+		if (ReferenceEquals(this, obj))
 		{
-			int hashCode = base.GetHashCode();
-			hashCode = (hashCode * 397) ^ (!string.IsNullOrWhiteSpace(Value) ? Value.GetHashCode() : 0);
-			return hashCode;
+			return true;
 		}
+
+		if (obj.GetType() != this.GetType())
+		{
+			return false;
+		}
+
+		return Equals((ValueDocumentItemBase)obj);
+	}
+
+	/// <inheritdoc />
+	public override int GetHashCode()
+	{
+		int hashCode = base.GetHashCode();
+		hashCode = (hashCode * 397) ^ (!string.IsNullOrWhiteSpace(Value) ? Value.GetHashCode() : 0);
+		return hashCode;
 	}
 }

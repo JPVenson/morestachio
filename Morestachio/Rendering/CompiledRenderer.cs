@@ -3,56 +3,55 @@ using Morestachio.Document;
 using Morestachio.Document.Contracts;
 using Morestachio.Framework.IO;
 
-namespace Morestachio.Rendering
+namespace Morestachio.Rendering;
+
+/// <summary>
+///		Uses a <see cref="DocumentCompiler"/> to compile a DocumentTree into delegates
+/// </summary>
+public class CompiledRenderer : Renderer
 {
+	private readonly IDocumentCompiler _compiler;
+
 	/// <summary>
-	///		Uses a <see cref="DocumentCompiler"/> to compile a DocumentTree into delegates
+	/// 
 	/// </summary>
-	public class CompiledRenderer : Renderer
+	/// <param name="document"></param>
+	/// <param name="parserOptions"></param>
+	/// <param name="captureVariables"></param>
+	/// <param name="compiler"></param>
+	public CompiledRenderer(IDocumentItem document, ParserOptions parserOptions, bool captureVariables, IDocumentCompiler compiler) 
+		: base(document, parserOptions, captureVariables)
 	{
-		private readonly IDocumentCompiler _compiler;
+		_compiler = compiler;
+	}
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="document"></param>
-		/// <param name="parserOptions"></param>
-		/// <param name="captureVariables"></param>
-		/// <param name="compiler"></param>
-		public CompiledRenderer(IDocumentItem document, ParserOptions parserOptions, bool captureVariables, IDocumentCompiler compiler) 
-			: base(document, parserOptions, captureVariables)
-		{
-			_compiler = compiler;
-		}
-
-		private CompilationAsync CompiledDocument { get; set; }
+	private CompilationAsync CompiledDocument { get; set; }
 		
-		/// <inheritdoc />
-		public override void PreRender()
+	/// <inheritdoc />
+	public override void PreRender()
+	{
+		if (CompiledDocument == null)
 		{
-			if (CompiledDocument == null)
-			{
-				PreCompile();
-			}
+			PreCompile();
 		}
+	}
 		
-		/// <summary>
-		///		Compiles the <see cref="Renderer.Document"/> and stores the result
-		/// </summary>
-		public void PreCompile()
-		{
-			CompiledDocument = _compiler.Compile(Document, ParserOptions);
-		}
+	/// <summary>
+	///		Compiles the <see cref="Renderer.Document"/> and stores the result
+	/// </summary>
+	public void PreCompile()
+	{
+		CompiledDocument = _compiler.Compile(Document, ParserOptions);
+	}
 		
-		/// <inheritdoc />
-		public override async MorestachioDocumentResultPromise RenderAsync(object data,
-			CancellationToken cancellationToken,
-			IByteCounterStream targetStream = null)
+	/// <inheritdoc />
+	public override async MorestachioDocumentResultPromise RenderAsync(object data,
+																		CancellationToken cancellationToken,
+																		IByteCounterStream targetStream = null)
+	{
+		return await Render(data, cancellationToken, async (stream, context, scopeData) =>
 		{
-			return await Render(data, cancellationToken, async (stream, context, scopeData) =>
-			{
-				await CompiledDocument(stream, context, scopeData);
-			}, targetStream);
-		}
+			await CompiledDocument(stream, context, scopeData);
+		}, targetStream);
 	}
 }

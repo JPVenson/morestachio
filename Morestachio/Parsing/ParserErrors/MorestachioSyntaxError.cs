@@ -2,44 +2,43 @@
 using System.Text;
 using Morestachio.Framework.Error;
 
-namespace Morestachio.Parsing.ParserErrors
+namespace Morestachio.Parsing.ParserErrors;
+
+/// <summary>
+///		Defines an error that occured when parsing the template that has an invalid token
+/// </summary>
+public class MorestachioSyntaxError : IMorestachioError
 {
 	/// <summary>
-	///		Defines an error that occured when parsing the template that has an invalid token
+	/// Initializes a new instance of the <see cref="MorestachioSyntaxError"/> class.
 	/// </summary>
-	public class MorestachioSyntaxError : IMorestachioError
+	/// <param name="location">The location.</param>
+	public MorestachioSyntaxError(CharacterLocationExtended location, string operation, string tokenOccured, string syntaxExpected, string extra = null)
 	{
-		/// <summary>
-		/// Initializes a new instance of the <see cref="MorestachioSyntaxError"/> class.
-		/// </summary>
-		/// <param name="location">The location.</param>
-		public MorestachioSyntaxError(CharacterLocationExtended location, string operation, string tokenOccured, string syntaxExpected, string extra = null)
-		{
-			Location = location;
-			HelpText = $"line:char " +
-			           $"'{Location.Line}:{Location.Character}' " +
-			           $"- " +
-			           $"The syntax to " +
-			           $"{operation} the '{tokenOccured}' " +
-			           $"block should be: '{syntaxExpected}'.{extra}";
-		}
+		Location = location;
+		HelpText = $"line:char " +
+			$"'{Location.Line}:{Location.Character}' " +
+			$"- " +
+			$"The syntax to " +
+			$"{operation} the '{tokenOccured}' " +
+			$"block should be: '{syntaxExpected}'.{extra}";
+	}
 		
-		/// <inheritdoc />
-		public CharacterLocationExtended Location { get; }
+	/// <inheritdoc />
+	public CharacterLocationExtended Location { get; }
 
-		/// <inheritdoc />
-		public Exception GetException()
-		{
-			return new IndexedParseException(Location, HelpText);
-		}
+	/// <inheritdoc />
+	public Exception GetException()
+	{
+		return new IndexedParseException(Location, HelpText);
+	}
 		
-		/// <inheritdoc />
-		public string HelpText { get; }
+	/// <inheritdoc />
+	public string HelpText { get; }
 
-		/// <inheritdoc />
-		public void Format(StringBuilder sb)
-		{
-			sb.Append(IndexedParseException.FormatMessage(HelpText, Location));
-		}
+	/// <inheritdoc />
+	public void Format(StringBuilder sb)
+	{
+		sb.Append(IndexedParseException.FormatMessage(HelpText, Location));
 	}
 }

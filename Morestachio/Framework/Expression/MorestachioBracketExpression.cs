@@ -1,64 +1,63 @@
 ﻿using System.Diagnostics;
 using Morestachio.Framework.Expression.Visitors;
 
-namespace Morestachio.Framework.Expression
+namespace Morestachio.Framework.Expression;
+
+/// <summary>
+///		Acts as a expression that only encases another expression within a bracket
+/// </summary>
+[DebuggerTypeProxy(typeof(ExpressionDebuggerDisplay))]
+[Serializable]
+public class MorestachioBracketExpression : MorestachioMultiPartExpressionList
 {
-	/// <summary>
-	///		Acts as a expression that only encases another expression within a bracket
-	/// </summary>
-	[DebuggerTypeProxy(typeof(ExpressionDebuggerDisplay))]
-	[Serializable]
-	public class MorestachioBracketExpression : MorestachioMultiPartExpressionList
+	internal MorestachioBracketExpression()
 	{
-		internal MorestachioBracketExpression()
-		{
 
+	}
+
+	internal MorestachioBracketExpression(CharacterLocation location) : base(location)
+	{
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="info"></param>
+	/// <param name="context"></param>
+	protected MorestachioBracketExpression(SerializationInfo info, StreamingContext context) : base(info, context)
+	{
+	}
+
+	private class ExpressionDebuggerDisplay
+	{
+		private readonly MorestachioBracketExpression _exp;
+
+		public ExpressionDebuggerDisplay(MorestachioBracketExpression exp)
+		{
+			_exp = exp;
 		}
 
-		internal MorestachioBracketExpression(CharacterLocation location) : base(location)
+		public string Expression
 		{
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="info"></param>
-		/// <param name="context"></param>
-		protected MorestachioBracketExpression(SerializationInfo info, StreamingContext context) : base(info, context)
-		{
-		}
-
-		private class ExpressionDebuggerDisplay
-		{
-			private readonly MorestachioBracketExpression _exp;
-
-			public ExpressionDebuggerDisplay(MorestachioBracketExpression exp)
+			get
 			{
-				_exp = exp;
-			}
-
-			public string Expression
-			{
-				get
-				{
-					var visitor = new ToParsableStringExpressionVisitor();
-					_exp.Accept(visitor);
-					return visitor.StringBuilder.ToString();
-				}
-			}
-
-			public CharacterLocation Location
-			{
-				get { return _exp.Location; }
-			}
-
-			/// <inheritdoc />
-			public override string ToString()
-			{
-				var visitor = new DebuggerViewExpressionVisitor();
+				var visitor = new ToParsableStringExpressionVisitor();
 				_exp.Accept(visitor);
 				return visitor.StringBuilder.ToString();
 			}
+		}
+
+		public CharacterLocation Location
+		{
+			get { return _exp.Location; }
+		}
+
+		/// <inheritdoc />
+		public override string ToString()
+		{
+			var visitor = new DebuggerViewExpressionVisitor();
+			_exp.Accept(visitor);
+			return visitor.StringBuilder.ToString();
 		}
 	}
 }

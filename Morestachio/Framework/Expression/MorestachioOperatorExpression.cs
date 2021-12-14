@@ -7,190 +7,228 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.Expression.Visitors;
 
-namespace Morestachio.Framework.Expression
+namespace Morestachio.Framework.Expression;
+
+/// <summary>
+///		An operator expression that calls an Operator function on two expressions
+/// </summary>
+[DebuggerTypeProxy(typeof(ExpressionDebuggerDisplay))]
+[Serializable]
+public class MorestachioOperatorExpression : IMorestachioExpression
 {
 	/// <summary>
-	///		An operator expression that calls an Operator function on two expressions
+	/// 
 	/// </summary>
-	[DebuggerTypeProxy(typeof(ExpressionDebuggerDisplay))]
-	[Serializable]
-	public class MorestachioOperatorExpression : IMorestachioExpression
+	public MorestachioOperatorExpression()
 	{
-		/// <summary>
-		/// 
-		/// </summary>
-		public MorestachioOperatorExpression()
-		{
 
+	}
+	/// <summary>
+	///		The Operator that will be called
+	/// </summary>
+	public MorestachioOperator Operator { get; private set; }
+
+	/// <summary>
+	///		The left side of the operator
+	/// </summary>
+	public IMorestachioExpression LeftExpression { get; internal set; }
+
+	/// <summary>
+	///		The right site of the operator
+	/// </summary>
+	public IMorestachioExpression RightExpression { get; set; }
+
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="info"></param>
+	/// <param name="context"></param>
+	protected MorestachioOperatorExpression(SerializationInfo info, StreamingContext context)
+	{
+		Location = CharacterLocation.FromFormatString(info.GetString(nameof(Location)));
+		var opText = info.GetString(nameof(Operator));
+		Operator = MorestachioOperator.Yield().First(f => f.OperatorText.Equals(opText));
+		LeftExpression =
+			info.GetValue(nameof(LeftExpression), typeof(IMorestachioExpression)) as IMorestachioExpression;
+		RightExpression =
+			info.GetValue(nameof(RightExpression), typeof(IMorestachioExpression)) as IMorestachioExpression;
+	}
+
+	/// <summary>
+	///		Creates a new Operator
+	/// </summary>
+	/// <param name="operator"></param>
+	/// <param name="location"></param>
+	public MorestachioOperatorExpression(MorestachioOperator @operator, IMorestachioExpression leftExpression, CharacterLocation location)
+	{
+		Operator = @operator;
+		Location = location;
+		LeftExpression = leftExpression;
+	}
+
+	/// <inheritdoc />
+	public void GetObjectData(SerializationInfo info, StreamingContext context)
+	{
+		info.AddValue(nameof(Operator), Operator.OperatorText);
+		info.AddValue(nameof(Location), Location.ToFormatString());
+		info.AddValue(nameof(LeftExpression), LeftExpression);
+		info.AddValue(nameof(RightExpression), RightExpression);
+	}
+
+	/// <inheritdoc />
+	public XmlSchema GetSchema()
+	{
+		throw new System.NotImplementedException();
+	}
+
+	/// <inheritdoc />
+	public void ReadXml(XmlReader reader)
+	{
+		var opText = reader.GetAttribute(nameof(Operator));
+		Operator = MorestachioOperator.Yield().First(f => f.OperatorText.Equals(opText));
+		Location = CharacterLocation.FromFormatString(reader.GetAttribute(nameof(Location)));
+		reader.ReadStartElement();
+		var leftSubTree = reader.ReadSubtree();
+		LeftExpression = leftSubTree.ParseExpressionFromKind();
+		if (reader.Name == nameof(RightExpression))
+		{
+			var rightSubtree = reader.ReadSubtree();
+			RightExpression = rightSubtree.ParseExpressionFromKind();
 		}
-		/// <summary>
-		///		The Operator that will be called
-		/// </summary>
-		public MorestachioOperator Operator { get; private set; }
+	}
 
-		/// <summary>
-		///		The left side of the operator
-		/// </summary>
-		public IMorestachioExpression LeftExpression { get; internal set; }
-
-		/// <summary>
-		///		The right site of the operator
-		/// </summary>
-		public IMorestachioExpression RightExpression { get; set; }
-
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="info"></param>
-		/// <param name="context"></param>
-		protected MorestachioOperatorExpression(SerializationInfo info, StreamingContext context)
+	/// <inheritdoc />
+	public void WriteXml(XmlWriter writer)
+	{
+		writer.WriteAttributeString(nameof(Operator), Operator.OperatorText);
+		writer.WriteAttributeString(nameof(Location), Location.ToFormatString());
+		writer.WriteStartElement(nameof(LeftExpression));
+		writer.WriteExpressionToXml(LeftExpression);
+		writer.WriteEndElement();//LeftExpression
+		if (RightExpression != null)
 		{
-			Location = CharacterLocation.FromFormatString(info.GetString(nameof(Location)));
-			var opText = info.GetString(nameof(Operator));
-			Operator = MorestachioOperator.Yield().First(f => f.OperatorText.Equals(opText));
-			LeftExpression =
-				info.GetValue(nameof(LeftExpression), typeof(IMorestachioExpression)) as IMorestachioExpression;
-			RightExpression =
-				info.GetValue(nameof(RightExpression), typeof(IMorestachioExpression)) as IMorestachioExpression;
+			writer.WriteStartElement(nameof(RightExpression));
+			writer.WriteExpressionToXml(RightExpression);
+			writer.WriteEndElement();//RightExpression
+		}
+	}
+
+	/// <inheritdoc />
+	public override bool Equals(object other)
+	{
+		if (ReferenceEquals(null, other))
+		{
+			return false;
 		}
 
-		/// <summary>
-		///		Creates a new Operator
-		/// </summary>
-		/// <param name="operator"></param>
-		/// <param name="location"></param>
-		public MorestachioOperatorExpression(MorestachioOperator @operator, IMorestachioExpression leftExpression, CharacterLocation location)
+		if (ReferenceEquals(this, other))
 		{
-			Operator = @operator;
-			Location = location;
-			LeftExpression = leftExpression;
+			return true;
 		}
 
-		/// <inheritdoc />
-		public void GetObjectData(SerializationInfo info, StreamingContext context)
+		if (other.GetType() != this.GetType())
 		{
-			info.AddValue(nameof(Operator), Operator.OperatorText);
-			info.AddValue(nameof(Location), Location.ToFormatString());
-			info.AddValue(nameof(LeftExpression), LeftExpression);
-			info.AddValue(nameof(RightExpression), RightExpression);
+			return false;
 		}
 
-		/// <inheritdoc />
-		public XmlSchema GetSchema()
-		{
-			throw new System.NotImplementedException();
-		}
+		return Equals((MorestachioOperatorExpression)other);
+	}
 
-		/// <inheritdoc />
-		public void ReadXml(XmlReader reader)
+	/// <inheritdoc />
+	public bool Equals(IMorestachioExpression other)
+	{
+		return Equals((object)other);
+	}
+
+	/// <inheritdoc />
+	public bool Equals(MorestachioOperatorExpression other)
+	{
+		return Location.Equals(other.Location)
+			&& Operator.OperatorText.Equals(other.Operator.OperatorText)
+			&& LeftExpression.Equals(other.LeftExpression)
+			&& (RightExpression == other.RightExpression || RightExpression.Equals(other.RightExpression));
+	}
+
+	/// <inheritdoc />
+	public override int GetHashCode()
+	{
+		unchecked
 		{
-			var opText = reader.GetAttribute(nameof(Operator));
-			Operator = MorestachioOperator.Yield().First(f => f.OperatorText.Equals(opText));
-			Location = CharacterLocation.FromFormatString(reader.GetAttribute(nameof(Location)));
-			reader.ReadStartElement();
-			var leftSubTree = reader.ReadSubtree();
-			LeftExpression = leftSubTree.ParseExpressionFromKind();
-			if (reader.Name == nameof(RightExpression))
+			var hashCode = (Location.GetHashCode());
+			hashCode = (hashCode * 397) ^ (Operator != null ? Operator.GetHashCode() : 0);
+			hashCode = (hashCode * 397) ^ (LeftExpression != null ? LeftExpression.GetHashCode() : 0);
+			hashCode = (hashCode * 397) ^ (RightExpression != null ? RightExpression.GetHashCode() : 0);
+			return hashCode;
+		}
+	}
+
+	/// <inheritdoc />
+	public CharacterLocation Location { get; private set; }
+
+	/// <summary>
+	///		If the operator was called once this contains the exact formatter match that was executed and can be reused for execution
+	/// </summary>
+	protected FormatterCache Cache { get; private set; }
+
+	/// <inheritdoc />
+	public async ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
+	{
+		var leftValue = await LeftExpression.GetValue(contextObject, scopeData);
+		FormatterArgumentType[] arguments;
+		if (RightExpression != null)
+		{
+			arguments = new[]
 			{
-				var rightSubtree = reader.ReadSubtree();
-				RightExpression = rightSubtree.ParseExpressionFromKind();
-			}
+				new FormatterArgumentType(0, null, (await RightExpression.GetValue(contextObject, scopeData)).Value, RightExpression)
+			};
+		}
+		else
+		{
+			arguments = Array.Empty<FormatterArgumentType>();
 		}
 
-		/// <inheritdoc />
-		public void WriteXml(XmlWriter writer)
+
+		var operatorFormatterName = "op_" + Operator.OperatorType;
+
+		if (Cache == null)
 		{
-			writer.WriteAttributeString(nameof(Operator), Operator.OperatorText);
-			writer.WriteAttributeString(nameof(Location), Location.ToFormatString());
-			writer.WriteStartElement(nameof(LeftExpression));
-			writer.WriteExpressionToXml(LeftExpression);
-			writer.WriteEndElement();//LeftExpression
-			if (RightExpression != null)
-			{
-				writer.WriteStartElement(nameof(RightExpression));
-				writer.WriteExpressionToXml(RightExpression);
-				writer.WriteEndElement();//RightExpression
-			}
+			Cache = leftValue.PrepareFormatterCall(
+				leftValue.Value?.GetType() ?? typeof(object),
+				operatorFormatterName,
+				arguments,
+				scopeData);
 		}
 
-		/// <inheritdoc />
-		public override bool Equals(object other)
+		if (Cache != null/* && !Equals(Cache.Value, default(FormatterCache))*/)
 		{
-			if (ReferenceEquals(null, other))
-			{
-				return false;
-			}
-
-			if (ReferenceEquals(this, other))
-			{
-				return true;
-			}
-
-			if (other.GetType() != this.GetType())
-			{
-				return false;
-			}
-
-			return Equals((MorestachioOperatorExpression)other);
+			return scopeData.ParserOptions.CreateContextObject(".",
+				await scopeData.ParserOptions.Formatters.Execute(Cache, leftValue.Value, scopeData.ParserOptions, arguments),
+				contextObject.Parent);
 		}
 
-		/// <inheritdoc />
-		public bool Equals(IMorestachioExpression other)
+		return scopeData.ParserOptions.CreateContextObject(".",
+			null,
+			contextObject.Parent);
+	}
+
+	/// <param name="parserOptions"></param>
+	/// <inheritdoc />
+	public CompiledExpression Compile(ParserOptions parserOptions)
+	{
+		var left = LeftExpression.Compile(parserOptions);
+		var right = RightExpression?.Compile(parserOptions);
+
+		var operatorFormatterName = "op_" + Operator.OperatorType;
+		return async (contextObject, scopeData) =>
 		{
-			return Equals((object)other);
-		}
-
-		/// <inheritdoc />
-		public bool Equals(MorestachioOperatorExpression other)
-		{
-			return Location.Equals(other.Location)
-				   && Operator.OperatorText.Equals(other.Operator.OperatorText)
-				   && LeftExpression.Equals(other.LeftExpression)
-				   && (RightExpression == other.RightExpression || RightExpression.Equals(other.RightExpression));
-		}
-
-		/// <inheritdoc />
-		public override int GetHashCode()
-		{
-			unchecked
-			{
-				var hashCode = (Location.GetHashCode());
-				hashCode = (hashCode * 397) ^ (Operator != null ? Operator.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ (LeftExpression != null ? LeftExpression.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ (RightExpression != null ? RightExpression.GetHashCode() : 0);
-				return hashCode;
-			}
-		}
-
-		/// <inheritdoc />
-		public CharacterLocation Location { get; private set; }
-
-		/// <summary>
-		///		If the operator was called once this contains the exact formatter match that was executed and can be reused for execution
-		/// </summary>
-		protected FormatterCache Cache { get; private set; }
-
-		/// <inheritdoc />
-		public async ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
-		{
-			var leftValue = await LeftExpression.GetValue(contextObject, scopeData);
-			FormatterArgumentType[] arguments;
-			if (RightExpression != null)
-			{
-				arguments = new[]
+			var leftValue = await left(contextObject, scopeData);
+			var arguments = right != null
+				? new FormatterArgumentType[]
 				{
-					new FormatterArgumentType(0, null, (await RightExpression.GetValue(contextObject, scopeData)).Value, RightExpression)
-				};
-			}
-			else
-			{
-				arguments = Array.Empty<FormatterArgumentType>();
-			}
-
-
-			var operatorFormatterName = "op_" + Operator.OperatorType;
-
+					new FormatterArgumentType(0, null, (await right(contextObject, scopeData)).Value, RightExpression),
+				}
+				: Array.Empty<FormatterArgumentType>();
 			if (Cache == null)
 			{
 				Cache = leftValue.PrepareFormatterCall(
@@ -200,7 +238,7 @@ namespace Morestachio.Framework.Expression
 					scopeData);
 			}
 
-			if (Cache != null/* && !Equals(Cache.Value, default(FormatterCache))*/)
+			if (Cache != null /*&& !Equals(Cache.Value, default(FormatterCache))*/)
 			{
 				return scopeData.ParserOptions.CreateContextObject(".",
 					await scopeData.ParserOptions.Formatters.Execute(Cache, leftValue.Value, scopeData.ParserOptions, arguments),
@@ -210,108 +248,69 @@ namespace Morestachio.Framework.Expression
 			return scopeData.ParserOptions.CreateContextObject(".",
 				null,
 				contextObject.Parent);
+		};
+	}
+
+	/// <inheritdoc />
+	public void Accept(IMorestachioExpressionVisitor visitor)
+	{
+		visitor.Visit(this);
+	}
+
+	/// <inheritdoc />
+	public bool IsCompileTimeEval()
+	{
+		// this would be possible when a ScopeData object is supplied to access the formatters which is currently not possible
+		return false;
+		//			return LeftExpression.IsCompileTimeEval() && (RightExpression == null || RightExpression.IsCompileTimeEval());
+	}
+
+	/// <inheritdoc />
+	public object GetCompileTimeValue()
+	{
+		return null;
+	}
+
+	private class ExpressionDebuggerDisplay
+	{
+		private readonly MorestachioOperatorExpression _exp;
+
+		public ExpressionDebuggerDisplay(MorestachioOperatorExpression exp)
+		{
+			_exp = exp;
 		}
 
-		/// <param name="parserOptions"></param>
-		/// <inheritdoc />
-		public CompiledExpression Compile(ParserOptions parserOptions)
+		public string Expression
 		{
-			var left = LeftExpression.Compile(parserOptions);
-			var right = RightExpression?.Compile(parserOptions);
-
-			var operatorFormatterName = "op_" + Operator.OperatorType;
-			return async (contextObject, scopeData) =>
+			get
 			{
-				var leftValue = await left(contextObject, scopeData);
-				var arguments = right != null
-					? new FormatterArgumentType[]
-					{
-						new FormatterArgumentType(0, null, (await right(contextObject, scopeData)).Value, RightExpression),
-					}
-					: Array.Empty<FormatterArgumentType>();
-				if (Cache == null)
-				{
-					Cache = leftValue.PrepareFormatterCall(
-						leftValue.Value?.GetType() ?? typeof(object),
-						operatorFormatterName,
-						arguments,
-						scopeData);
-				}
-
-				if (Cache != null /*&& !Equals(Cache.Value, default(FormatterCache))*/)
-				{
-					return scopeData.ParserOptions.CreateContextObject(".",
-						await scopeData.ParserOptions.Formatters.Execute(Cache, leftValue.Value, scopeData.ParserOptions, arguments),
-						contextObject.Parent);
-				}
-
-				return scopeData.ParserOptions.CreateContextObject(".",
-					null,
-					contextObject.Parent);
-			};
-		}
-
-		/// <inheritdoc />
-		public void Accept(IMorestachioExpressionVisitor visitor)
-		{
-			visitor.Visit(this);
-		}
-
-		/// <inheritdoc />
-		public bool IsCompileTimeEval()
-		{
-			// this would be possible when a ScopeData object is supplied to access the formatters which is currently not possible
-			return false;
-			//			return LeftExpression.IsCompileTimeEval() && (RightExpression == null || RightExpression.IsCompileTimeEval());
-		}
-
-		/// <inheritdoc />
-		public object GetCompileTimeValue()
-		{
-			return null;
-		}
-
-		private class ExpressionDebuggerDisplay
-		{
-			private readonly MorestachioOperatorExpression _exp;
-
-			public ExpressionDebuggerDisplay(MorestachioOperatorExpression exp)
-			{
-				_exp = exp;
-			}
-
-			public string Expression
-			{
-				get
-				{
-					var visitor = new ToParsableStringExpressionVisitor();
-					_exp.Accept(visitor);
-					return visitor.StringBuilder.ToString();
-				}
-			}
-
-			public string Operator
-			{
-				get { return _exp.Operator.OperatorText; }
-			}
-
-			public IMorestachioExpression LeftExpression
-			{
-				get { return _exp.LeftExpression; }
-			}
-
-			public IMorestachioExpression RightExpression
-			{
-				get { return _exp.RightExpression; }
-			}
-
-			/// <inheritdoc />
-			public override string ToString()
-			{
-				var visitor = new DebuggerViewExpressionVisitor();
+				var visitor = new ToParsableStringExpressionVisitor();
 				_exp.Accept(visitor);
 				return visitor.StringBuilder.ToString();
 			}
+		}
+
+		public string Operator
+		{
+			get { return _exp.Operator.OperatorText; }
+		}
+
+		public IMorestachioExpression LeftExpression
+		{
+			get { return _exp.LeftExpression; }
+		}
+
+		public IMorestachioExpression RightExpression
+		{
+			get { return _exp.RightExpression; }
+		}
+
+		/// <inheritdoc />
+		public override string ToString()
+		{
+			var visitor = new DebuggerViewExpressionVisitor();
+			_exp.Accept(visitor);
+			return visitor.StringBuilder.ToString();
 		}
 	}
 }

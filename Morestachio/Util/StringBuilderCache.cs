@@ -6,54 +6,54 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 
-namespace Morestachio.Util
+namespace Morestachio.Util;
+
+internal static class StringBuilderCache
 {
-	internal static class StringBuilderCache
+
+
+	// The value 360 was chosen in discussion with performance experts as a compromise between using
+	// as litle memory (per thread) as possible and still covering a large part of short-lived
+	// StringBuilder creations on the startup path of VS designers.
+	private const int MAX_BUILDER_SIZE = 360;
+
+	private static AsyncLocal<StringBuilder> CachedInstance = new AsyncLocal<StringBuilder>();
+
+	public static StringBuilder Acquire(int capacity = 16)
 	{
-
-
-		// The value 360 was chosen in discussion with performance experts as a compromise between using
-		// as litle memory (per thread) as possible and still covering a large part of short-lived
-		// StringBuilder creations on the startup path of VS designers.
-		private const int MAX_BUILDER_SIZE = 360;
-
-		private static AsyncLocal<StringBuilder> CachedInstance = new AsyncLocal<StringBuilder>();
-
-		public static StringBuilder Acquire(int capacity = 16)
+		if (capacity <= MAX_BUILDER_SIZE)
 		{
-			if (capacity <= MAX_BUILDER_SIZE)
+			StringBuilder sb = StringBuilderCache.CachedInstance.Value;
+			if (sb != null)
 			{
-				StringBuilder sb = StringBuilderCache.CachedInstance.Value;
-				if (sb != null)
+				// Avoid stringbuilder block fragmentation by getting a new StringBuilder
+				// when the requested size is larger than the current capacity
+				if (capacity <= sb.Capacity)
 				{
-					// Avoid stringbuilder block fragmentation by getting a new StringBuilder
-					// when the requested size is larger than the current capacity
-					if (capacity <= sb.Capacity)
-					{
-						StringBuilderCache.CachedInstance.Value = null;
-						sb.Clear();
-						return sb;
-					}
+					StringBuilderCache.CachedInstance.Value = null;
+					sb.Clear();
+					return sb;
 				}
 			}
-			return new StringBuilder(capacity);
 		}
+		return new StringBuilder(capacity);
+	}
 
-		public static void Release(StringBuilder sb)
+	public static void Release(StringBuilder sb)
+	{
+		if (sb.Capacity <= MAX_BUILDER_SIZE)
 		{
-			if (sb.Capacity <= MAX_BUILDER_SIZE)
-			{
-				StringBuilderCache.CachedInstance.Value = sb;
-			}
-		}
-
-		public static string GetStringAndRelease(StringBuilder sb)
-		{
-			string result = sb.ToString();
-			Release(sb);
-			return result;
+			StringBuilderCache.CachedInstance.Value = sb;
 		}
 	}
+
+	public static string GetStringAndRelease(StringBuilder sb)
+	{
+		string result = sb.ToString();
+		Release(sb);
+		return result;
+	}
+}
 
 #if Span
 	internal ref partial struct ValueStringBuilder
@@ -357,146 +357,144 @@ namespace Morestachio.Util
 	}
 #endif
 
-	//static StringBuilderCache()
-	//{
-	//	_cache = new ConcurrentQueue<StringBuilder>();
-	//}
+//static StringBuilderCache()
+//{
+//	_cache = new ConcurrentQueue<StringBuilder>();
+//}
 
-	//private static ConcurrentQueue<StringBuilder> _cache;
+//private static ConcurrentQueue<StringBuilder> _cache;
 
-	//public static StringBuilder Acquire(int capacity = 16)
-	//{
+//public static StringBuilder Acquire(int capacity = 16)
+//{
 
-	//	//it should also be considered to sort or order the collection of stringbuilders to ensure optimal memory usage
-	//	//otherwise we might end up with unsessary large string builders that will be used for very small concatinations and no way in 
-	//	//getting smaller builders
-	//	//var cachedBuilder = _cache.Select(e => (builder: e, dif: e.Capacity.CompareTo(capacity))).OrderBy(e => e.dif).FirstOrDefault().builder;
+//	//it should also be considered to sort or order the collection of stringbuilders to ensure optimal memory usage
+//	//otherwise we might end up with unsessary large string builders that will be used for very small concatinations and no way in 
+//	//getting smaller builders
+//	//var cachedBuilder = _cache.Select(e => (builder: e, dif: e.Capacity.CompareTo(capacity))).OrderBy(e => e.dif).FirstOrDefault().builder;
 
-	//	if (_cache.TryDequeue(out var sb))
-	//	{
-	//		sb.Clear();
-	//		return sb;
-	//	}
+//	if (_cache.TryDequeue(out var sb))
+//	{
+//		sb.Clear();
+//		return sb;
+//	}
 
-	//	return new StringBuilder(capacity);
+//	return new StringBuilder(capacity);
 
-	//	//_cacheLock.EnterReadLock();
-	//	//if (_cache.Count > 0)
-	//	//{
-	//	//	StringBuilder cachedBuilder;
-	//	//	_cacheLock.ExitReadLock();
-	//	//	_cacheLock.EnterWriteLock();
+//	//_cacheLock.EnterReadLock();
+//	//if (_cache.Count > 0)
+//	//{
+//	//	StringBuilder cachedBuilder;
+//	//	_cacheLock.ExitReadLock();
+//	//	_cacheLock.EnterWriteLock();
 
-	//	//	if (_cache.Count == 0)
-	//	//	{
-	//	//		_cacheLock.ExitWriteLock();
-	//	//		return new StringBuilder(capacity);
-	//	//	}
-	//	//	try
-	//	//	{
-	//	//		cachedBuilder = _cache[_cache.Count];
-	//	//		_cache[_cache.Count] = null;
-	//	//	}
-	//	//	finally
-	//	//	{
-	//	//		_cacheLock.ExitWriteLock();
-	//	//	}
+//	//	if (_cache.Count == 0)
+//	//	{
+//	//		_cacheLock.ExitWriteLock();
+//	//		return new StringBuilder(capacity);
+//	//	}
+//	//	try
+//	//	{
+//	//		cachedBuilder = _cache[_cache.Count];
+//	//		_cache[_cache.Count] = null;
+//	//	}
+//	//	finally
+//	//	{
+//	//		_cacheLock.ExitWriteLock();
+//	//	}
 
-	//	//	cachedBuilder.Clear();
-	//	//	return cachedBuilder;
-	//	//}
-	//	//_cacheLock.ExitReadLock();
-	//	//return new StringBuilder(capacity);
-	//}
+//	//	cachedBuilder.Clear();
+//	//	return cachedBuilder;
+//	//}
+//	//_cacheLock.ExitReadLock();
+//	//return new StringBuilder(capacity);
+//}
 
-	//public static void Release(StringBuilder sb)
-	//{
-	//	_cache.Enqueue(sb);
-	//	//_cacheLock.EnterWriteLock();
-	//	//try
-	//	//{
-	//	//	_cache.Add(sb);
-	//	//}
-	//	//finally
-	//	//{
-	//	//	_cacheLock.ExitWriteLock();
-	//	//}
-	//}
+//public static void Release(StringBuilder sb)
+//{
+//	_cache.Enqueue(sb);
+//	//_cacheLock.EnterWriteLock();
+//	//try
+//	//{
+//	//	_cache.Add(sb);
+//	//}
+//	//finally
+//	//{
+//	//	_cacheLock.ExitWriteLock();
+//	//}
+//}
 
-	//public static string GetStringAndRelease(StringBuilder sb)
-	//{
-	//	var result = sb.ToString();
-	//	Release(sb);
-	//	return result;
-	//}
-	//}	
+//public static string GetStringAndRelease(StringBuilder sb)
+//{
+//	var result = sb.ToString();
+//	Release(sb);
+//	return result;
+//}
+//}	
 
-	//internal static class StringBuilderCache
-	//{
-	//	static StringBuilderCache()
-	//	{
-	//		_cache = new Queue<StringBuilder>(10);
-	//	}
+//internal static class StringBuilderCache
+//{
+//	static StringBuilderCache()
+//	{
+//		_cache = new Queue<StringBuilder>(10);
+//	}
 
-	//	private static Queue<StringBuilder> _cache;
+//	private static Queue<StringBuilder> _cache;
 
-	//	public static StringBuilder Acquire(int capacity = 16)
-	//	{
-	//		//var cachedBuilder = _cache.Select(e => (builder: e, dif: e.Capacity.CompareTo(capacity))).OrderBy(e => e.dif).FirstOrDefault().builder;
+//	public static StringBuilder Acquire(int capacity = 16)
+//	{
+//		//var cachedBuilder = _cache.Select(e => (builder: e, dif: e.Capacity.CompareTo(capacity))).OrderBy(e => e.dif).FirstOrDefault().builder;
 
-	//		if (_cache.Count > 0)
-	//		{
-	//			var cachedBuilder = _cache.Dequeue();
-	//			cachedBuilder.Clear();
-	//			return cachedBuilder;
-	//		}
-	//		return new StringBuilder(capacity);
-	//	}
+//		if (_cache.Count > 0)
+//		{
+//			var cachedBuilder = _cache.Dequeue();
+//			cachedBuilder.Clear();
+//			return cachedBuilder;
+//		}
+//		return new StringBuilder(capacity);
+//	}
 
-	//	public static void Release(StringBuilder sb)
-	//	{
-	//		_cache.Enqueue(sb);
-	//	}
+//	public static void Release(StringBuilder sb)
+//	{
+//		_cache.Enqueue(sb);
+//	}
 
-	//	public static string GetStringAndRelease(StringBuilder sb)
-	//	{
-	//		var result = sb.ToString();
-	//		Release(sb);
-	//		return result;
-	//	}
-	//}
+//	public static string GetStringAndRelease(StringBuilder sb)
+//	{
+//		var result = sb.ToString();
+//		Release(sb);
+//		return result;
+//	}
+//}
 
-	//internal static class StringBuilderCache
-	//{
-	//	static StringBuilderCache()
-	//	{
-	//		_cache = new ConcurrentQueue<StringBuilder>();
-	//	}
+//internal static class StringBuilderCache
+//{
+//	static StringBuilderCache()
+//	{
+//		_cache = new ConcurrentQueue<StringBuilder>();
+//	}
 
-	//	private static ConcurrentQueue<StringBuilder> _cache;
+//	private static ConcurrentQueue<StringBuilder> _cache;
 
-	//	public static StringBuilder Acquire(int capacity = 16)
-	//	{
-	//		//var cachedBuilder = _cache.Select(e => (builder: e, dif: e.Capacity.CompareTo(capacity))).OrderBy(e => e.dif).FirstOrDefault().builder;
+//	public static StringBuilder Acquire(int capacity = 16)
+//	{
+//		//var cachedBuilder = _cache.Select(e => (builder: e, dif: e.Capacity.CompareTo(capacity))).OrderBy(e => e.dif).FirstOrDefault().builder;
 
-	//		if (_cache.TryDequeue(out var cachedBuilder))
-	//		{
-	//			cachedBuilder.Clear();
-	//			return cachedBuilder;
-	//		}
-	//		return new StringBuilder(capacity);
-	//	}
+//		if (_cache.TryDequeue(out var cachedBuilder))
+//		{
+//			cachedBuilder.Clear();
+//			return cachedBuilder;
+//		}
+//		return new StringBuilder(capacity);
+//	}
 
-	//	public static void Release(StringBuilder sb)
-	//	{
-	//		_cache.Enqueue(sb);
-	//	}
+//	public static void Release(StringBuilder sb)
+//	{
+//		_cache.Enqueue(sb);
+//	}
 
-	//	public static string GetStringAndRelease(StringBuilder sb)
-	//	{
-	//		var result = sb.ToString();
-	//		Release(sb);
-	//		return result;
-	//	}
-
-}
+//	public static string GetStringAndRelease(StringBuilder sb)
+//	{
+//		var result = sb.ToString();
+//		Release(sb);
+//		return result;
+//	}

@@ -4,69 +4,68 @@ using System.Linq;
 using System.Reflection;
 using Morestachio.Formatter.Framework;
 
-namespace Morestachio.Framework.Context.Resolver
+namespace Morestachio.Framework.Context.Resolver;
+
+/// <summary>
+///     Can be implemented by an object to provide custom resolving logic
+/// </summary>
+public interface IMorestachioPropertyResolver
 {
 	/// <summary>
-	///     Can be implemented by an object to provide custom resolving logic
+	///     Gets the value of the property from this object
 	/// </summary>
-	public interface IMorestachioPropertyResolver
+	bool TryGetValue(string name, out object found);
+}
+
+/// <summary>
+///		Adds properties to an internal lookup for fast resolving
+/// </summary>
+public abstract class MorestachioPropertyListResolver 
+	: IMorestachioPropertyResolver
+{
+	/// <summary>
+	/// 
+	/// </summary>
+	protected MorestachioPropertyListResolver()
 	{
-		/// <summary>
-		///     Gets the value of the property from this object
-		/// </summary>
-		bool TryGetValue(string name, out object found);
+		_lookup = new Dictionary<string, Func<object, object>>();
+	}
+
+	private IDictionary<string, Func<object, object>> _lookup;
+
+	/// <summary>
+	///		Adds a new Property to the internal list
+	/// </summary>
+	/// <param name="name"></param>
+	/// <param name="getter"></param>
+	public virtual void Add(string name, Func<object, object> getter)
+	{
+		_lookup[name] = getter;
 	}
 
 	/// <summary>
-	///		Adds properties to an internal lookup for fast resolving
+	///		Adds all properties of the current type that matches the BindingFlags
 	/// </summary>
-	public abstract class MorestachioPropertyListResolver 
-		: IMorestachioPropertyResolver
+	/// <param name="flags"></param>
+	public virtual void AddAllProperties(BindingFlags flags)
 	{
-		/// <summary>
-		/// 
-		/// </summary>
-		protected MorestachioPropertyListResolver()
+		foreach (var propertyInfo in GetType().GetProperties(flags).Where(e => e.GetMethod != null))
 		{
-			_lookup = new Dictionary<string, Func<object, object>>();
+			var prop = propertyInfo;
+			Add(propertyInfo.Name, (instance) => prop.GetMethod?.Invoke(instance, null));
+		}
+	}
+
+	/// <inheritdoc />
+	public bool TryGetValue(string name, out object found)
+	{
+		if (_lookup.TryGetValue(name, out var getter))
+		{
+			found = getter(this);
+			return true;
 		}
 
-		private IDictionary<string, Func<object, object>> _lookup;
-
-		/// <summary>
-		///		Adds a new Property to the internal list
-		/// </summary>
-		/// <param name="name"></param>
-		/// <param name="getter"></param>
-		public virtual void Add(string name, Func<object, object> getter)
-		{
-			_lookup[name] = getter;
-		}
-
-		/// <summary>
-		///		Adds all properties of the current type that matches the BindingFlags
-		/// </summary>
-		/// <param name="flags"></param>
-		public virtual void AddAllProperties(BindingFlags flags)
-		{
-			foreach (var propertyInfo in GetType().GetProperties(flags).Where(e => e.GetMethod != null))
-			{
-				var prop = propertyInfo;
-				Add(propertyInfo.Name, (instance) => prop.GetMethod?.Invoke(instance, null));
-			}
-		}
-
-		/// <inheritdoc />
-		public bool TryGetValue(string name, out object found)
-		{
-			if (_lookup.TryGetValue(name, out var getter))
-			{
-				found = getter(this);
-				return true;
-			}
-
-			found = null;
-			return false;
-		}
+		found = null;
+		return false;
 	}
 }

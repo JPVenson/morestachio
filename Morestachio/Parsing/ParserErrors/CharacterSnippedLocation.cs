@@ -1,56 +1,55 @@
 ﻿using System;
 
-namespace Morestachio.Parsing.ParserErrors
+namespace Morestachio.Parsing.ParserErrors;
+
+/// <summary>
+///		Combines an location with an snipped
+/// </summary>
+public struct CharacterSnippedLocation : IEquatable<CharacterSnippedLocation>
 {
-	/// <summary>
-	///		Combines an location with an snipped
-	/// </summary>
-	public struct CharacterSnippedLocation : IEquatable<CharacterSnippedLocation>
+	internal CharacterSnippedLocation(int line, int character, string snipped)
 	{
-		internal CharacterSnippedLocation(int line, int character, string snipped)
-		{
-			Line = line;
-			Character = character;
-			Snipped = snipped;
-		}
+		Line = line;
+		Character = character;
+		Snipped = snipped;
+	}
 
-		/// <summary>
-		///		The text representing the current location
-		/// </summary>
-		public string Snipped { get; private set; }
+	/// <summary>
+	///		The text representing the current location
+	/// </summary>
+	public string Snipped { get; private set; }
 
-		/// <summary>
-		///		The line of the Template
-		/// </summary>
-		public int Line { get; }
+	/// <summary>
+	///		The line of the Template
+	/// </summary>
+	public int Line { get; }
 
-		/// <summary>
-		///		The Character at the <see cref="Line"/>
-		/// </summary>
-		public int Character { get; }
+	/// <summary>
+	///		The Character at the <see cref="Line"/>
+	/// </summary>
+	public int Character { get; }
 
-		/// <inheritdoc />
-		public bool Equals(CharacterSnippedLocation other)
-		{
-			return Snipped == other.Snipped && Line == other.Line && Character == other.Character;
-		}
+	/// <inheritdoc />
+	public bool Equals(CharacterSnippedLocation other)
+	{
+		return Snipped == other.Snipped && Line == other.Line && Character == other.Character;
+	}
 		
-		/// <inheritdoc />
-		public override bool Equals(object obj)
-		{
-			return obj is CharacterSnippedLocation other && Equals(other);
-		}
+	/// <inheritdoc />
+	public override bool Equals(object obj)
+	{
+		return obj is CharacterSnippedLocation other && Equals(other);
+	}
 		
-		/// <inheritdoc />
-		public override int GetHashCode()
+	/// <inheritdoc />
+	public override int GetHashCode()
+	{
+		unchecked
 		{
-			unchecked
-			{
-				var hashCode = (Snipped != null ? Snipped.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ Line;
-				hashCode = (hashCode * 397) ^ Character;
-				return hashCode;
-			}
+			var hashCode = (Snipped != null ? Snipped.GetHashCode() : 0);
+			hashCode = (hashCode * 397) ^ Line;
+			hashCode = (hashCode * 397) ^ Character;
+			return hashCode;
 		}
 	}
 }

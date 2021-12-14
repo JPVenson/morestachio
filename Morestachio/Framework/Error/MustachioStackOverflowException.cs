@@ -1,15 +1,14 @@
-﻿namespace Morestachio.Framework.Error
+﻿namespace Morestachio.Framework.Error;
+
+/// <summary>
+///		The Infinite Partials Exception type
+/// </summary>
+public class MustachioStackOverflowException : MustachioException
 {
 	/// <summary>
-	///		The Infinite Partials Exception type
+	/// 
 	/// </summary>
-	public class MustachioStackOverflowException : MustachioException
+	public MustachioStackOverflowException(string message) : base(message)
 	{
-		/// <summary>
-		/// 
-		/// </summary>
-		public MustachioStackOverflowException(string message) : base(message)
-		{
-		}
 	}
 }

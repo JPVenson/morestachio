@@ -2,33 +2,32 @@
 using System.Collections.Generic;
 using Morestachio.Profiler;
 
-namespace Morestachio
+namespace Morestachio;
+
+internal static class PerformanceProfilerExtensions
 {
-	internal static class PerformanceProfilerExtensions
+	private class FakeDisposable : IDisposable
 	{
-		private class FakeDisposable : IDisposable
+		public void Dispose()
 		{
-			public void Dispose()
-			{
-			}
 		}
+	}
 
-		private static IDisposable _instance = new FakeDisposable();
+	private static IDisposable _instance = new FakeDisposable();
 
-		public static IDisposable BeginSafe(this PerformanceProfiler profiler, string name)
+	public static IDisposable BeginSafe(this PerformanceProfiler profiler, string name)
+	{
+		return profiler?.Begin(name) ?? _instance;
+	}
+
+	public static PerformanceProfiler.PerformanceKey AddOrGet(this HashSet<PerformanceProfiler.PerformanceKey> profiler, PerformanceProfiler.PerformanceKey key)
+	{
+		if (profiler.Contains(key))
 		{
-			return profiler?.Begin(name) ?? _instance;
-		}
-
-		public static PerformanceProfiler.PerformanceKey AddOrGet(this HashSet<PerformanceProfiler.PerformanceKey> profiler, PerformanceProfiler.PerformanceKey key)
-		{
-			if (profiler.Contains(key))
-			{
-				return key;
-			}
-
-			profiler.Add(key);
 			return key;
 		}
+
+		profiler.Add(key);
+		return key;
 	}
 }

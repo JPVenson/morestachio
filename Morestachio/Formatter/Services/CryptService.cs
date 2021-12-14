@@ -2,18 +2,17 @@
 
 #pragma warning disable 1591
 
-namespace Morestachio.Formatter.Services
-{
-	/// <summary>
-	///		This class contains formatters for encrypting and decrypting data
-	/// </summary>
-	public class CryptService
-	{
-		public CryptService()
-		{
-			Aes = new AesCryptography();
-		}
+namespace Morestachio.Formatter.Services;
 
-		public IMorestachioCryptographyService Aes { get; set; }
+/// <summary>
+///		This class contains formatters for encrypting and decrypting data
+/// </summary>
+public class CryptService
+{
+	public CryptService()
+	{
+		Aes = new AesCryptography();
 	}
+
+	public IMorestachioCryptographyService Aes { get; set; }
 }

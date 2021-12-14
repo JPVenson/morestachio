@@ -4,68 +4,67 @@ using System.Text;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.IO.SingleStream;
 
-namespace Morestachio.Helper
+namespace Morestachio.Helper;
+
+/// <summary>
+///     Helper class for Steam operations
+/// </summary>
+public static class StreamExtensions
 {
 	/// <summary>
-	///     Helper class for Steam operations
+	///     Reads all content from the Stream and returns it as a String
 	/// </summary>
-	public static class StreamExtensions
+	/// <param name="source"></param>
+	/// <param name="disposeOriginal"></param>
+	/// <param name="encoding"></param>
+	/// <returns></returns>
+	public static string Stringify(this Stream source, bool disposeOriginal, Encoding encoding)
 	{
-		/// <summary>
-		///     Reads all content from the Stream and returns it as a String
-		/// </summary>
-		/// <param name="source"></param>
-		/// <param name="disposeOriginal"></param>
-		/// <param name="encoding"></param>
-		/// <returns></returns>
-		public static string Stringify(this Stream source, bool disposeOriginal, Encoding encoding)
+		try
 		{
-			try
+			source.Seek(0, SeekOrigin.Begin);
+			if (source is MemoryStream stream)
 			{
-				source.Seek(0, SeekOrigin.Begin);
-				if (source is MemoryStream stream)
-				{
-					return encoding.GetString(stream.ToArray());
-				}
-
-				using (var ms = new StreamReader(source, encoding))
-				{
-					return ms.ReadToEnd();
-				}
+				return encoding.GetString(stream.ToArray());
 			}
-			finally
+
+			using (var ms = new StreamReader(source, encoding))
 			{
-				if (disposeOriginal)
-				{
-					source.Dispose();
-				}
+				return ms.ReadToEnd();
 			}
 		}
-
-		/// <summary>
-		///     Reads all content from the Stream and returns it as a String
-		/// </summary>
-		/// <param name="source"></param>
-		/// <param name="disposeOriginal"></param>
-		/// <param name="encoding"></param>
-		/// <returns></returns>
-		public static string Stringify(this IByteCounterStream source, bool disposeOriginal, Encoding encoding)
+		finally
 		{
-			if (source is ByteCounterStream bcs)
+			if (disposeOriginal)
 			{
-				return bcs.Stream.Stringify(disposeOriginal, encoding);
+				source.Dispose();
 			}
+		}
+	}
 
-			try
+	/// <summary>
+	///     Reads all content from the Stream and returns it as a String
+	/// </summary>
+	/// <param name="source"></param>
+	/// <param name="disposeOriginal"></param>
+	/// <param name="encoding"></param>
+	/// <returns></returns>
+	public static string Stringify(this IByteCounterStream source, bool disposeOriginal, Encoding encoding)
+	{
+		if (source is ByteCounterStream bcs)
+		{
+			return bcs.Stream.Stringify(disposeOriginal, encoding);
+		}
+
+		try
+		{
+			return source.ToString();
+		}
+		finally
+		{
+			if (disposeOriginal)
 			{
-				return source.ToString();
-			}
-			finally
-			{
-				if (disposeOriginal)
-				{
-					source.Dispose();
-				}
+				source.Dispose();
 			}
 		}
 	}

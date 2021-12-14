@@ -8,191 +8,190 @@ using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
 
-namespace Morestachio.Document.Items
+namespace Morestachio.Document.Items;
+
+/// <summary>
+///		Defines a document that can be rendered. Does only store its Children
+/// </summary>
+[Serializable]
+public sealed class MorestachioDocument : BlockDocumentItemBase,
+										IEquatable<MorestachioDocument>, ISupportCustomAsyncCompilation
 {
 	/// <summary>
-	///		Defines a document that can be rendered. Does only store its Children
+	///		Gets the current version of Morestachio
 	/// </summary>
-	[Serializable]
-	public sealed class MorestachioDocument : BlockDocumentItemBase,
-		IEquatable<MorestachioDocument>, ISupportCustomAsyncCompilation
+	/// <returns></returns>
+	public static Version GetMorestachioVersion()
 	{
-		/// <summary>
-		///		Gets the current version of Morestachio
-		/// </summary>
-		/// <returns></returns>
-		public static Version GetMorestachioVersion()
-		{
-			return typeof(MorestachioDocument).Assembly.GetName().Version;
-		}
+		return typeof(MorestachioDocument).Assembly.GetName().Version;
+	}
 
-		/// <summary>
-		///		Used for XML Serialization
-		/// </summary>
-		public MorestachioDocument()
-		{
-			MorestachioVersion = GetMorestachioVersion();
-		}
+	/// <summary>
+	///		Used for XML Serialization
+	/// </summary>
+	public MorestachioDocument()
+	{
+		MorestachioVersion = GetMorestachioVersion();
+	}
 
-		/// <summary>
-		///		Used for XML Serialization
-		/// </summary>
-		public MorestachioDocument(CharacterLocation location,
-			IEnumerable<ITokenOption> tagCreationOptions) : base(location,tagCreationOptions)
-		{
-			MorestachioVersion = GetMorestachioVersion();
-		}
+	/// <summary>
+	///		Used for XML Serialization
+	/// </summary>
+	public MorestachioDocument(CharacterLocation location,
+								IEnumerable<ITokenOption> tagCreationOptions) : base(location,tagCreationOptions)
+	{
+		MorestachioVersion = GetMorestachioVersion();
+	}
 
-		/// <inheritdoc />
+	/// <inheritdoc />
 		
-		public MorestachioDocument(SerializationInfo info, StreamingContext c) : base(info, c)
+	public MorestachioDocument(SerializationInfo info, StreamingContext c) : base(info, c)
+	{
+		MorestachioVersion = info.GetValue(nameof(MorestachioVersion), typeof(Version)) as Version;
+	}
+
+	/// <inheritdoc />
+	protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
+	{
+		info.AddValue(nameof(MorestachioVersion), MorestachioVersion.ToString());
+		base.SerializeBinaryCore(info, context);
+	}
+
+	/// <inheritdoc />
+	protected override void DeSerializeXml(XmlReader reader)
+	{
+		var versionAttribute = reader.GetAttribute(nameof(MorestachioVersion));
+
+		if (!Version.TryParse(versionAttribute, out var version))
 		{
-			MorestachioVersion = info.GetValue(nameof(MorestachioVersion), typeof(Version)) as Version;
+			throw new XmlException($"Error while serializing '{nameof(MorestachioDocument)}'. " +
+				$"The value for '{nameof(MorestachioVersion)}' is expected to be an version string in form of 'x.x.x.x' .");
 		}
 
-		/// <inheritdoc />
-		protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
-		{
-			info.AddValue(nameof(MorestachioVersion), MorestachioVersion.ToString());
-			base.SerializeBinaryCore(info, context);
-		}
+		MorestachioVersion = version;
+		base.DeSerializeXml(reader);
+	}
 
-		/// <inheritdoc />
-		protected override void DeSerializeXml(XmlReader reader)
-		{
-			var versionAttribute = reader.GetAttribute(nameof(MorestachioVersion));
+	/// <inheritdoc />
+	protected override void SerializeXml(XmlWriter writer)
+	{
+		writer.WriteAttributeString(nameof(MorestachioVersion), MorestachioVersion.ToString());
+		base.SerializeXml(writer);
+	}
 
-			if (!Version.TryParse(versionAttribute, out var version))
+	/// <summary>
+	///		Gets the Version of Morestachio that this Document was parsed with
+	/// </summary>
+	public Version MorestachioVersion { get; private set; }
+
+	/// <param name="compiler"></param>
+	/// <param name="parserOptions"></param>
+	/// <inheritdoc />
+	public CompilationAsync Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
+	{
+		var compilation = compiler.Compile(Children, parserOptions);
+		return async (stream, context, data) =>
+		{
+			await compilation(stream, context, data);
+		};
+	}
+
+	/// <inheritdoc />
+	public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
+												ScopeData scopeData)
+	{
+		return Children.WithScope(context).ToPromise();
+	}
+
+	/// <summary>
+	///		Processes the items and children.
+	/// </summary>
+	/// <param name="documentItems">The document items.</param>
+	/// <param name="outputStream">The output stream.</param>
+	/// <param name="context">The context.</param>
+	/// <param name="scopeData">The scope data.</param>
+	/// <returns></returns>
+	public static async Promise ProcessItemsAndChildren(IEnumerable<IDocumentItem> documentItems,
+														IByteCounterStream outputStream,
+														ContextObject context,
+														ScopeData scopeData)
+	{
+		//we do NOT use a recursive loop to avoid stack overflows. 
+
+		var processStack = new Stack<DocumentItemExecution>(); //deep search. create a stack to go deeper into the tree without loosing work left on other branches
+
+		foreach (var documentItem in documentItems)
+		{
+			//abort as soon as the cancellation is requested OR the template size is reached
+			if (scopeData.IsOutputLimited && !ContinueBuilding(outputStream, scopeData))
 			{
-				throw new XmlException($"Error while serializing '{nameof(MorestachioDocument)}'. " +
-									   $"The value for '{nameof(MorestachioVersion)}' is expected to be an version string in form of 'x.x.x.x' .");
+				break;
 			}
 
-			MorestachioVersion = version;
-			base.DeSerializeXml(reader);
-		}
-
-		/// <inheritdoc />
-		protected override void SerializeXml(XmlWriter writer)
-		{
-			writer.WriteAttributeString(nameof(MorestachioVersion), MorestachioVersion.ToString());
-			base.SerializeXml(writer);
-		}
-
-		/// <summary>
-		///		Gets the Version of Morestachio that this Document was parsed with
-		/// </summary>
-		public Version MorestachioVersion { get; private set; }
-
-		/// <param name="compiler"></param>
-		/// <param name="parserOptions"></param>
-		/// <inheritdoc />
-		public CompilationAsync Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
-		{
-			var compilation = compiler.Compile(Children, parserOptions);
-			return async (stream, context, data) =>
+			processStack.Push(new DocumentItemExecution(documentItem, context));
+			while (processStack.Any() && ContinueBuilding(outputStream, scopeData))
 			{
-				await compilation(stream, context, data);
-			};
-		}
-
-		/// <inheritdoc />
-		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
-			ScopeData scopeData)
-		{
-			return Children.WithScope(context).ToPromise();
-		}
-
-		/// <summary>
-		///		Processes the items and children.
-		/// </summary>
-		/// <param name="documentItems">The document items.</param>
-		/// <param name="outputStream">The output stream.</param>
-		/// <param name="context">The context.</param>
-		/// <param name="scopeData">The scope data.</param>
-		/// <returns></returns>
-		public static async Promise ProcessItemsAndChildren(IEnumerable<IDocumentItem> documentItems,
-			IByteCounterStream outputStream,
-			ContextObject context,
-			ScopeData scopeData)
-		{
-			//we do NOT use a recursive loop to avoid stack overflows. 
-
-			var processStack = new Stack<DocumentItemExecution>(); //deep search. create a stack to go deeper into the tree without loosing work left on other branches
-
-			foreach (var documentItem in documentItems)
-			{
-				//abort as soon as the cancellation is requested OR the template size is reached
-				if (scopeData.IsOutputLimited && !ContinueBuilding(outputStream, scopeData))
+				var currentDocumentItem = processStack.Pop();//take the current branch
+				var next = await currentDocumentItem.DocumentItem.Render(outputStream, currentDocumentItem.ContextObject, scopeData);
+				foreach (var item in next.Reverse()) //we have to reverse the list as the logical first item returned must be the last inserted to be the next that pops out
 				{
-					break;
-				}
-
-				processStack.Push(new DocumentItemExecution(documentItem, context));
-				while (processStack.Any() && ContinueBuilding(outputStream, scopeData))
-				{
-					var currentDocumentItem = processStack.Pop();//take the current branch
-					var next = await currentDocumentItem.DocumentItem.Render(outputStream, currentDocumentItem.ContextObject, scopeData);
-					foreach (var item in next.Reverse()) //we have to reverse the list as the logical first item returned must be the last inserted to be the next that pops out
-					{
-						processStack.Push(item);
-					}
+					processStack.Push(item);
 				}
 			}
 		}
+	}
 
-		/// <inheritdoc />
-		public override void Accept(IDocumentItemVisitor visitor)
+	/// <inheritdoc />
+	public override void Accept(IDocumentItemVisitor visitor)
+	{
+		visitor.Visit(this);
+	}
+
+	/// <inheritdoc />
+	public bool Equals(MorestachioDocument other)
+	{
+		if (ReferenceEquals(null, other))
 		{
-			visitor.Visit(this);
+			return false;
 		}
 
-		/// <inheritdoc />
-		public bool Equals(MorestachioDocument other)
+		if (ReferenceEquals(this, other))
 		{
-			if (ReferenceEquals(null, other))
-			{
-				return false;
-			}
-
-			if (ReferenceEquals(this, other))
-			{
-				return true;
-			}
-
-			return base.Equals(other) &&
-				   Equals(MorestachioVersion, other.MorestachioVersion);
+			return true;
 		}
 
-		/// <inheritdoc />
-		public override bool Equals(object obj)
+		return base.Equals(other) &&
+			Equals(MorestachioVersion, other.MorestachioVersion);
+	}
+
+	/// <inheritdoc />
+	public override bool Equals(object obj)
+	{
+		if (ReferenceEquals(null, obj))
 		{
-			if (ReferenceEquals(null, obj))
-			{
-				return false;
-			}
-
-			if (ReferenceEquals(this, obj))
-			{
-				return true;
-			}
-
-			if (obj.GetType() != this.GetType())
-			{
-				return false;
-			}
-
-			return Equals((MorestachioDocument)obj);
+			return false;
 		}
 
-		/// <inheritdoc />
-		public override int GetHashCode()
+		if (ReferenceEquals(this, obj))
 		{
-			unchecked
-			{
-				return ((MorestachioVersion != null ? MorestachioVersion.GetHashCode() : 0) * 397) ^
-					   base.GetHashCode();
-			}
+			return true;
+		}
+
+		if (obj.GetType() != this.GetType())
+		{
+			return false;
+		}
+
+		return Equals((MorestachioDocument)obj);
+	}
+
+	/// <inheritdoc />
+	public override int GetHashCode()
+	{
+		unchecked
+		{
+			return ((MorestachioVersion != null ? MorestachioVersion.GetHashCode() : 0) * 397) ^
+				base.GetHashCode();
 		}
 	}
 }

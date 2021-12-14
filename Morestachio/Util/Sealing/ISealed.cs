@@ -1,18 +1,17 @@
-﻿namespace Morestachio.Util.Sealing
+﻿namespace Morestachio.Util.Sealing;
+
+/// <summary>
+///		Defines an object that can be sealed and no longer be modified
+/// </summary>
+public interface ISealed
 {
 	/// <summary>
-	///		Defines an object that can be sealed and no longer be modified
+	///		Gets if this object is sealed
 	/// </summary>
-	public interface ISealed
-	{
-		/// <summary>
-		///		Gets if this object is sealed
-		/// </summary>
-		bool IsSealed { get; }
+	bool IsSealed { get; }
 
-		/// <summary>
-		///		Seals this object
-		/// </summary>
-		void Seal();
-	}
+	/// <summary>
+	///		Seals this object
+	/// </summary>
+	void Seal();
 }

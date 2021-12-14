@@ -6,241 +6,240 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.Expression.Visitors;
 
-namespace Morestachio.Framework.Expression
+namespace Morestachio.Framework.Expression;
+
+/// <summary>
+///		Defines a list of Expressions 
+/// </summary>
+[DebuggerTypeProxy(typeof(ExpressionDebuggerDisplay))]
+[Serializable]
+public abstract class MorestachioExpressionListBase : IMorestachioExpression
 {
-	/// <summary>
-	///		Defines a list of Expressions 
-	/// </summary>
-	[DebuggerTypeProxy(typeof(ExpressionDebuggerDisplay))]
-	[Serializable]
-	public abstract class MorestachioExpressionListBase : IMorestachioExpression
+	internal MorestachioExpressionListBase()
 	{
-		internal MorestachioExpressionListBase()
-		{
 
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	public MorestachioExpressionListBase(CharacterLocation location)
+	{
+		Location = location;
+		Expressions = new List<IMorestachioExpression>();
+	}
+
+	/// <summary>
+	///	
+	/// </summary>
+	public MorestachioExpressionListBase(IList<IMorestachioExpression> expressions, CharacterLocation location)
+	{
+		Expressions = expressions;
+		Location = location;
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="info"></param>
+	/// <param name="context"></param>
+	protected MorestachioExpressionListBase(SerializationInfo info, StreamingContext context)
+	{
+		Location = CharacterLocation.FromFormatString(info.GetString(nameof(Location)));
+		Expressions = (IMorestachioExpression[])info.GetValue(nameof(Expressions), typeof(IMorestachioExpression[]));
+	}
+
+	/// <summary>
+	///		The list of Expressions
+	/// </summary>
+	public IList<IMorestachioExpression> Expressions { get; private set; }
+
+	/// <inheritdoc />
+	public CharacterLocation Location { get; private set; }
+	/// <inheritdoc />
+	public async ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
+	{
+		foreach (var expression in Expressions)
+		{
+			contextObject = await expression.GetValue(contextObject, scopeData);
 		}
 
-		/// <summary>
-		/// 
-		/// </summary>
-		public MorestachioExpressionListBase(CharacterLocation location)
-		{
-			Location = location;
-			Expressions = new List<IMorestachioExpression>();
-		}
+		return contextObject;
+	}
 
-		/// <summary>
-		///	
-		/// </summary>
-		public MorestachioExpressionListBase(IList<IMorestachioExpression> expressions, CharacterLocation location)
+	/// <param name="parserOptions"></param>
+	/// <inheritdoc />
+	public CompiledExpression Compile(ParserOptions parserOptions)
+	{
+		var exps = Expressions.Select(f => f.Compile(parserOptions)).ToArray();
+		return async (contextObject, data) =>
 		{
-			Expressions = expressions;
-			Location = location;
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="info"></param>
-		/// <param name="context"></param>
-		protected MorestachioExpressionListBase(SerializationInfo info, StreamingContext context)
-		{
-			Location = CharacterLocation.FromFormatString(info.GetString(nameof(Location)));
-			Expressions = (IMorestachioExpression[])info.GetValue(nameof(Expressions), typeof(IMorestachioExpression[]));
-		}
-
-		/// <summary>
-		///		The list of Expressions
-		/// </summary>
-		public IList<IMorestachioExpression> Expressions { get; private set; }
-
-		/// <inheritdoc />
-		public CharacterLocation Location { get; private set; }
-		/// <inheritdoc />
-		public async ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
-		{
-			foreach (var expression in Expressions)
+			foreach (var compiledExpression in exps)
 			{
-				contextObject = await expression.GetValue(contextObject, scopeData);
+				contextObject = await compiledExpression(contextObject, data);
 			}
 
 			return contextObject;
-		}
+		};
+	}
 
-		/// <param name="parserOptions"></param>
-		/// <inheritdoc />
-		public CompiledExpression Compile(ParserOptions parserOptions)
+	/// <inheritdoc />
+	public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+	{
+		info.AddValue(nameof(Location), Location.ToFormatString());
+		info.AddValue(nameof(Expressions), Expressions.ToArray());
+	}
+
+	/// <inheritdoc />
+	public XmlSchema GetSchema()
+	{
+		throw new System.NotImplementedException();
+	}
+
+	/// <inheritdoc />
+	public virtual void ReadXml(XmlReader reader)
+	{
+		Location = CharacterLocation.FromFormatString(reader.GetAttribute(nameof(Location)));
+		if (reader.IsEmptyElement)
 		{
-			var exps = Expressions.Select(f => f.Compile(parserOptions)).ToArray();
-			return async (contextObject, data) =>
-			{
-				foreach (var compiledExpression in exps)
-				{
-					contextObject = await compiledExpression(contextObject, data);
-				}
-
-				return contextObject;
-			};
+			return;
 		}
-
-		/// <inheritdoc />
-		public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+		reader.ReadStartElement();
+		var expression = new List<IMorestachioExpression>();
+		while (reader.NodeType == XmlNodeType.Element)
 		{
-			info.AddValue(nameof(Location), Location.ToFormatString());
-			info.AddValue(nameof(Expressions), Expressions.ToArray());
+			var childTree = reader.ReadSubtree();
+			childTree.Read();
+			expression.Add(childTree.ParseExpressionFromKind());
+			reader.Skip();
 		}
 
-		/// <inheritdoc />
-		public XmlSchema GetSchema()
+		Expressions = expression.ToArray();
+	}
+
+	/// <inheritdoc />
+	public virtual void WriteXml(XmlWriter writer)
+	{
+		writer.WriteAttributeString(nameof(Location), Location.ToFormatString());
+		foreach (var expression in Expressions)
 		{
-			throw new System.NotImplementedException();
+			writer.WriteExpressionToXml(expression);
 		}
+	}
 
-		/// <inheritdoc />
-		public virtual void ReadXml(XmlReader reader)
-		{
-			Location = CharacterLocation.FromFormatString(reader.GetAttribute(nameof(Location)));
-			if (reader.IsEmptyElement)
-			{
-				return;
-			}
-			reader.ReadStartElement();
-			var expression = new List<IMorestachioExpression>();
-			while (reader.NodeType == XmlNodeType.Element)
-			{
-				var childTree = reader.ReadSubtree();
-				childTree.Read();
-				expression.Add(childTree.ParseExpressionFromKind());
-				reader.Skip();
-			}
+	/// <inheritdoc />
+	public void Accept(IMorestachioExpressionVisitor visitor)
+	{
+		visitor.Visit(this);
+	}
 
-			Expressions = expression.ToArray();
-		}
+	/// <inheritdoc />
+	public bool IsCompileTimeEval()
+	{
+		return false;
+	}
 
-		/// <inheritdoc />
-		public virtual void WriteXml(XmlWriter writer)
-		{
-			writer.WriteAttributeString(nameof(Location), Location.ToFormatString());
-			foreach (var expression in Expressions)
-			{
-				writer.WriteExpressionToXml(expression);
-			}
-		}
+	/// <inheritdoc />
+	public object GetCompileTimeValue()
+	{
+		return null;
+	}
 
-		/// <inheritdoc />
-		public void Accept(IMorestachioExpressionVisitor visitor)
-		{
-			visitor.Visit(this);
-		}
+	/// <inheritdoc />
+	public bool Equals(IMorestachioExpression other)
+	{
+		return Equals((object)other);
+	}
 
-		/// <inheritdoc />
-		public bool IsCompileTimeEval()
+	/// <inheritdoc />
+	protected bool Equals(MorestachioExpressionListBase other)
+	{
+		if (!Location.Equals(other.Location))
 		{
 			return false;
 		}
 
-		/// <inheritdoc />
-		public object GetCompileTimeValue()
+		if (other.Expressions.Count != Expressions.Count)
 		{
-			return null;
+			return false;
 		}
 
-		/// <inheritdoc />
-		public bool Equals(IMorestachioExpression other)
+		for (var index = 0; index < Expressions.Count; index++)
 		{
-			return Equals((object)other);
-		}
-
-		/// <inheritdoc />
-		protected bool Equals(MorestachioExpressionListBase other)
-		{
-			if (!Location.Equals(other.Location))
+			var expression = Expressions[index];
+			var otherExp = other.Expressions[index];
+			if (!expression.Equals(otherExp))
 			{
 				return false;
 			}
+		}
+		return true;
+	}
 
-			if (other.Expressions.Count != Expressions.Count)
-			{
-				return false;
-			}
+	/// <inheritdoc />
+	public override bool Equals(object obj)
+	{
+		if (ReferenceEquals(null, obj))
+		{
+			return false;
+		}
 
-			for (var index = 0; index < Expressions.Count; index++)
-			{
-				var expression = Expressions[index];
-				var otherExp = other.Expressions[index];
-				if (!expression.Equals(otherExp))
-				{
-					return false;
-				}
-			}
+		if (ReferenceEquals(this, obj))
+		{
 			return true;
 		}
 
-		/// <inheritdoc />
-		public override bool Equals(object obj)
+		if (obj.GetType() != this.GetType())
 		{
-			if (ReferenceEquals(null, obj))
-			{
-				return false;
-			}
-
-			if (ReferenceEquals(this, obj))
-			{
-				return true;
-			}
-
-			if (obj.GetType() != this.GetType())
-			{
-				return false;
-			}
-
-			return Equals((MorestachioExpressionListBase)obj);
+			return false;
 		}
 
-		/// <inheritdoc />
-		public override int GetHashCode()
+		return Equals((MorestachioExpressionListBase)obj);
+	}
+
+	/// <inheritdoc />
+	public override int GetHashCode()
+	{
+		unchecked
 		{
-			unchecked
-			{
-				return ((Expressions != null ? Expressions.GetHashCode() : 0) * 397) ^ (Location.GetHashCode());
-			}
+			return ((Expressions != null ? Expressions.GetHashCode() : 0) * 397) ^ (Location.GetHashCode());
+		}
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="currentScopeValue"></param>
+	protected internal void Add(IMorestachioExpression currentScopeValue)
+	{
+		Expressions.Add(currentScopeValue);
+	}
+
+	private class ExpressionDebuggerDisplay
+	{
+		private readonly MorestachioExpressionListBase _exp;
+
+		public ExpressionDebuggerDisplay(MorestachioExpressionListBase exp)
+		{
+			_exp = exp;
 		}
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="currentScopeValue"></param>
-		protected internal void Add(IMorestachioExpression currentScopeValue)
+		public string Expression
 		{
-			Expressions.Add(currentScopeValue);
-		}
-
-		private class ExpressionDebuggerDisplay
-		{
-			private readonly MorestachioExpressionListBase _exp;
-
-			public ExpressionDebuggerDisplay(MorestachioExpressionListBase exp)
+			get
 			{
-				_exp = exp;
-			}
-
-			public string Expression
-			{
-				get
-				{
-					var visitor = new ToParsableStringExpressionVisitor();
-					_exp.Accept(visitor);
-					return visitor.StringBuilder.ToString();
-				}
-			}
-
-			/// <inheritdoc />
-			public override string ToString()
-			{
-				var visitor = new DebuggerViewExpressionVisitor();
+				var visitor = new ToParsableStringExpressionVisitor();
 				_exp.Accept(visitor);
 				return visitor.StringBuilder.ToString();
 			}
+		}
+
+		/// <inheritdoc />
+		public override string ToString()
+		{
+			var visitor = new DebuggerViewExpressionVisitor();
+			_exp.Accept(visitor);
+			return visitor.StringBuilder.ToString();
 		}
 	}
 }
