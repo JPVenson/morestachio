@@ -25,10 +25,10 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument
 		{
 			var locToken = token.Token.Remove(0, OpenTag.Length).Trim(Tokenizer.GetWhitespaceDelimiters());
 			var pre = token.TokenizerContext.Character;
-			var locExpression = ExpressionParser.ParseExpression(locToken, token.TokenizerContext);
+			var locExpression = ExpressionParser.ParseExpression(locToken, token.TokenizerContext, out var consumed);
 			var tokenOptions = new List<ITokenOption>();
 
-			locToken = locToken.Substring(token.TokenizerContext.Character - pre).Trim(Tokenizer.GetWhitespaceDelimiters());
+			locToken = locToken.Substring(consumed).Trim(Tokenizer.GetWhitespaceDelimiters());
 			if (locToken.StartsWith("#CULTURE ", StringComparison.OrdinalIgnoreCase))
 			{
 				locToken = locToken.Substring("#CULTURE ".Length);

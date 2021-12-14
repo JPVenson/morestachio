@@ -1413,6 +1413,12 @@ namespace Morestachio.Framework.Tokenizing
 						}
 						else if (StartsWith(trimmedToken, "^scope "))
 						{
+							parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId, 
+								"Use the {{^IF path}} block instead of the {{^path}} block",
+								new Dictionary<string, object>()
+								{
+									{ "Location", context.CurrentLocation },
+								});
 							//open inverted group
 							var token = TrimToken(trimmedToken, "scope ", '^');
 							TryParseStringOption(ref token, GetAsKeyword(), out var alias);
@@ -1432,8 +1438,8 @@ namespace Morestachio.Framework.Tokenizing
 						}
 						else
 						{
-							parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId,
-							"Use the new {{^scope path}} block instead of the {{^path}} block",
+							parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId, 
+								"Use the {{^IF path}} block instead of the {{^path}} block",
 							new Dictionary<string, object>()
 							{
 								{ "Location", context.CurrentLocation },

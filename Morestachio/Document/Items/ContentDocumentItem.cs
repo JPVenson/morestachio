@@ -32,8 +32,10 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Creates a new ContentDocumentItem that represents some static content
 		/// </summary>
-		public ContentDocumentItem(CharacterLocation location, string content,
-			IEnumerable<ITokenOption> tagCreationOptions) : base(location, content, tagCreationOptions)
+		public ContentDocumentItem(in CharacterLocation location, 
+									string content,
+									IEnumerable<ITokenOption> tagCreationOptions) 
+			: base(location, content, tagCreationOptions)
 		{
 		}
 

@@ -206,7 +206,7 @@ namespace Morestachio.Tests
 		public async Task NegationGroupRendersContentWhenValueNotSet()
 		{
 			var data = new Dictionary<string, object>();
-			var template = @"{{^SCOPE stuff}}No Stuff Here.{{/SCOPE}}";
+			var template = @"{{^IF stuff}}No Stuff Here.{{/IF}}";
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
 			Assert.That(result, Is.EqualTo("No Stuff Here."));
 		}
@@ -728,7 +728,7 @@ This is an partial included: ({{#IMPORT 'PartialA' #WITH other}}) with an set co
 						{
 							"d", new Dictionary<string, object>()
 							{
-								{"n", (int?) 1}
+								{ "n", (int?) 1 }
 							}
 						}
 					}
@@ -758,12 +758,13 @@ This is an partial included: ({{#IMPORT 'PartialA' #WITH other}}) with an set co
 		}
 
 		[Test]
+		[Explicit("^SCOPE is obsolete")]
 		public async Task TemplateShouldProcessVariablesInInvertedGroup()
 		{
 			var data = new Dictionary<string, object>
 			{
-				{"not_here", false},
-				{"placeholder", "a placeholder value"}
+				{ "not_here", false },
+				{ "placeholder", "a placeholder value" }
 			};
 
 			var template = "{{^SCOPE not_here}}{{../placeholder}}{{/SCOPE}}";
@@ -779,7 +780,7 @@ This is an partial included: ({{#IMPORT 'PartialA' #WITH other}}) with an set co
 		{
 			var data = new Dictionary<string, object>
 			{
-				{"times_won", false}
+				{ "times_won", false }
 			};
 
 			var template = "You've won {{times_won}} times!";

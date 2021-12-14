@@ -15,7 +15,7 @@ namespace Morestachio.Tests
 		}
 
 		[MorestachioFormatter("Plus", "XXX")]
-		public static int Reverse(object any, int right, int additional)
+		public static int Plus(object any, int right, int additional)
 		{
 			return right + additional;
 		}

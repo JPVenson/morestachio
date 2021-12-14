@@ -24,9 +24,9 @@ namespace Morestachio.Document.Items.Base
 
 		/// <param name="location"></param>
 		/// <inheritdoc />
-		protected ExpressionDocumentItemBase(CharacterLocation location,
-			IMorestachioExpression expression,
-			IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
+		protected ExpressionDocumentItemBase(in CharacterLocation location,
+											IMorestachioExpression expression,
+											IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
 		{
 			MorestachioExpression = expression;
 		}

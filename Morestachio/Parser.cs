@@ -118,7 +118,7 @@ namespace Morestachio
 				return false;
 			}
 
-			void CloseScope(Stack<DocumentScope> documentScopes, TokenPair currentToken, DocumentScope currentDocumentItem)
+			void CloseScope(Stack<DocumentScope> documentScopes, in TokenPair currentToken, DocumentScope currentDocumentItem)
 			{
 				DocumentScope scope = documentScopes.Peek();
 				if (!(scope.Document is IBlockDocumentItem blockDocument))

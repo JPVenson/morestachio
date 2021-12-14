@@ -3,7 +3,7 @@
 	/// <summary>
 	///     Can be returned by a Formatter to control what formatter should be used
 	/// </summary>
-	public struct FormatterFlow
+	public readonly struct FormatterFlow
 	{
 		/// <summary>
 		///     Return code for all formatters to skip the execution of the current formatter and try another one that could also

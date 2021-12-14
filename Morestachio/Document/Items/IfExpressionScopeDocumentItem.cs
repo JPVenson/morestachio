@@ -25,9 +25,9 @@ namespace Morestachio.Document.Items
 		}
 
 		/// <inheritdoc />
-		public IfExpressionScopeDocumentItem(CharacterLocation location, IMorestachioExpression value,
-			IEnumerable<ITokenOption> tagCreationOptions,
-			bool inverted)
+		public IfExpressionScopeDocumentItem(in CharacterLocation location, IMorestachioExpression value,
+											IEnumerable<ITokenOption> tagCreationOptions,
+											bool inverted)
 			: base(location, value, tagCreationOptions)
 		{
 			Inverted = inverted;

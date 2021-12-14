@@ -27,18 +27,9 @@ namespace Morestachio.Framework.Context.FallbackResolver
 			var sourceValue = source._value;
 			var type = sourceValue.GetType();
 			
-			if (!_cache.TryGetValue(type, out var typeCache))
-			{
-				typeCache = new TypeCache(type.GetTypeInfo());
-				_cache[type] = typeCache;
-			}
-
-			if (!typeCache._members.TryGetValue(path, out var propertyInfo))
-			{
-				propertyInfo = typeCache._type.GetProperty(path);
-				typeCache._members[path] = propertyInfo;
-			}
-
+			var typeCache = _cache.GetOrAdd(type, (key) => new TypeCache(key.GetTypeInfo()));
+			var propertyInfo = typeCache._members.GetOrAdd(path, (key) => typeCache._type.GetProperty(key));
+			
 			if (propertyInfo != null)
 			{
 				return propertyInfo.GetValue(sourceValue);
@@ -48,17 +39,17 @@ namespace Morestachio.Framework.Context.FallbackResolver
 			return null;
 		}
 
-		private static IDictionary<Type, TypeCache> _cache;
+		private static ConcurrentDictionary<Type, TypeCache> _cache;
 
 		private class TypeCache
 		{
 			public TypeInfo _type;
-			public IDictionary<string, PropertyInfo> _members;
+			public ConcurrentDictionary<string, PropertyInfo> _members;
 
 			public TypeCache(TypeInfo type)
 			{
 				_type = type;
-				_members = new Dictionary<string, PropertyInfo>();
+				_members = new ConcurrentDictionary<string, PropertyInfo>();
 			}
 		}
 	}

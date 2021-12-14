@@ -23,7 +23,7 @@ namespace Morestachio.Framework.Expression
 			Formats = new List<ExpressionArgument>();
 		}
 
-		internal MorestachioExpression(CharacterLocation location) : this()
+		internal MorestachioExpression(in CharacterLocation location) : this()
 		{
 			Location = location;
 		}

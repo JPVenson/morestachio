@@ -23,8 +23,8 @@ namespace Morestachio.Document.Items.Base
 		/// <summary>
 		///		Creates a new base object for encapsulating document items
 		/// </summary>
-		protected BlockDocumentItemBase(CharacterLocation location,
-			IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
+		protected BlockDocumentItemBase(in CharacterLocation location,
+										IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
 		{
 			Children = new List<IDocumentItem>();
 		}

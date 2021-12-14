@@ -386,7 +386,7 @@ namespace Morestachio.Framework.Expression.Parser
 				}
 			}
 
-			void ParseAndAddExpression(ExpressionToken expressionToken)
+			void ParseAndAddExpression(in ExpressionToken expressionToken)
 			{
 				var expression = ParseMorestachioExpression(expressionToken, tokens, context);
 				AddToParent(expression);
@@ -421,20 +421,20 @@ namespace Morestachio.Framework.Expression.Parser
 				AddToParent(exp);
 			}
 
-			void ParseAndAddString(StringToken token)
+			void ParseAndAddString(in StringToken token)
 			{
 				var strExpression = new MorestachioExpressionString(token.Location, token.Delimiter);
 				strExpression.StringParts.Add(new ExpressionStringConstPart(token.Value, token.Location));
 				AddToParent(strExpression);
 			}
 
-			void ParseAndAddNumber(NumberToken token)
+			void ParseAndAddNumber(in NumberToken token)
 			{
 				var expressionNumber = new MorestachioExpressionNumber(token.Number, token.Location);
 				AddToParent(expressionNumber);
 			}
 			
-			void ParseAndAddOperator(OperatorToken token)
+			void ParseAndAddOperator(in OperatorToken token)
 			{
 				var op = MorestachioOperator.Operators[token.Value];
 				if (op.Placement == OperatorPlacement.Right)

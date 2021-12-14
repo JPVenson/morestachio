@@ -20,8 +20,8 @@ namespace Morestachio.Document.Items.Base
 		/// <summary>
 		/// 
 		/// </summary>
-		protected ValueDocumentItemBase(CharacterLocation location, string value,
-			IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
+		protected ValueDocumentItemBase(in CharacterLocation location, string value,
+										IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
 		{
 			Value = value;
 		}

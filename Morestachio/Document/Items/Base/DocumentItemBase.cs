@@ -26,7 +26,7 @@ namespace Morestachio.Document.Items.Base
 		/// <summary>
 		///		Creates a new base object for encapsulating document items
 		/// </summary>
-		protected DocumentItemBase(CharacterLocation location, IEnumerable<ITokenOption> tagCreationOptions)
+		protected DocumentItemBase(in CharacterLocation location, IEnumerable<ITokenOption> tagCreationOptions)
 		{
 			ExpressionStart = location;
 			TagCreationOptions = tagCreationOptions;

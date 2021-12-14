@@ -70,7 +70,7 @@ namespace Morestachio.Formatter.Framework
 				Expression body = Expression.Call(callTarget, method,
 					parameterInfos.Select<ParameterInfo, Expression>((parameterInfo, index) =>
 					{
-						var val = parameterInfos.Length > index + 1 ? arguments[index] : null;
+						var val = parameterInfos.Length > index ? arguments[index] : null;
 						if (val == null)
 						{
 							return Expression.Default(parameterInfo.ParameterType);

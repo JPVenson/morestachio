@@ -23,6 +23,7 @@ namespace Morestachio.Framework.Expression.Parser
 			var oldIndex = tokenIndex;
 			for (; tokenIndex < text.Length; tokenIndex++)
 			{
+				//remember to reset the index by 1 to account for the increment part of the for loop that will add one
 				var c = text[tokenIndex];
 				if (c == '(')
 				{
@@ -92,9 +93,12 @@ namespace Morestachio.Framework.Expression.Parser
 				{
 					if (Tokenizer.IsEndOfWholeExpression(c))
 					{
-						tokenIndex++;
+						//also consume the ; token
+						tokenIndex += 1;
 					}
-					break;
+					
+					context.AdvanceLocation(tokenIndex - oldIndex);
+					return queue;
 				}
 				else if (Tokenizer.IsWhiteSpaceDelimiter(c))
 				{
@@ -107,7 +111,8 @@ namespace Morestachio.Framework.Expression.Parser
 					break;
 				}
 			}
-			context.AdvanceLocation(tokenIndex - oldIndex);
+			
+			context.AdvanceLocation(tokenIndex - oldIndex - 1);
 			return queue;
 		}
 
@@ -140,6 +145,7 @@ namespace Morestachio.Framework.Expression.Parser
 					}
 					else if (c == delimiter)
 					{
+						index++;
 						endDelimiterFound = true;
 						break;
 					}
@@ -156,7 +162,7 @@ namespace Morestachio.Framework.Expression.Parser
 					.AddWindow(new CharacterSnippedLocation(0, text.Length - 1, text)), "string", text[text.Length - 1].ToString(), "expected to find " + delimiter));
 			}
 
-			return new StringToken(StringBuilderCache.GetStringAndRelease(stringContents), delimiter, context.CurrentLocation.Offset(index - consumed + 1));
+			return new StringToken(StringBuilderCache.GetStringAndRelease(stringContents), delimiter, context.CurrentLocation.Offset(index - consumed));
 		}
 
 		private static IExpressionToken TokenizeArgument(string textPart, int index, out int consumed, string text, TokenzierContext context)
@@ -202,7 +208,7 @@ namespace Morestachio.Framework.Expression.Parser
 				consumed++;
 				return new LambdaExpressionToken(context.CurrentLocation.Offset(index - consumed + 1));
 			}
-			
+
 			if (Tokenizer.IsOperationString(opText))
 			{
 				consumed++;
@@ -227,11 +233,10 @@ namespace Morestachio.Framework.Expression.Parser
 		private static (IExpressionToken, int) TokenizePath(string textPart, int index, TokenzierContext context, string text)
 		{
 			var pathTokenizer = new PathTokenizer();
-
-			int i = index;
-			for (; i < textPart.Length; i++)
+			
+			for (; index < textPart.Length; index++)
 			{
-				var c = text[i];
+				var c = text[index];
 				if (Tokenizer.IsWhiteSpaceDelimiter(c))
 				{
 					continue;
@@ -241,24 +246,25 @@ namespace Morestachio.Framework.Expression.Parser
 				{
 					if (!Tokenizer.IsExpressionPathChar(c) || Tokenizer.IsOperationChar(c))
 					{
-						if (c == '(' 
-						    || c == ')' 
-						    || Tokenizer.IsPathDelimiterChar(c) 
-						    || Tokenizer.IsEndOfExpression(c) 
-						    || Tokenizer.IsOperationChar(c))
-							//the only char that can follow on a expression is ether an bracket or an argument seperator or an operator
+						if (c == '('
+							|| c == ')'
+							|| Tokenizer.IsPathDelimiterChar(c)
+							|| Tokenizer.IsEndOfExpression(c)
+							|| Tokenizer.IsOperationChar(c))
+						//the only char that can follow on a expression is ether an bracket or an argument seperator or an operator
 						{
-							i--;
-							return (new ExpressionToken(pathTokenizer, context.CurrentLocation.Offset(i + 1)), i);
+							//consume everything before that current char!
+							return (new ExpressionToken(pathTokenizer, context.CurrentLocation.Offset(index - 1)), index - 1);
 						}
 					}
 
 					context.Errors.Add(err());
-					return default;
+					return (new ExpressionToken(pathTokenizer, context.CurrentLocation.Offset(index)), index);
 				}
 			}
 
-			return (new ExpressionToken(pathTokenizer, context.CurrentLocation.Offset(i + 1)), i);
+			//decrement the index by one as the for loop will always add one after running out
+			return (new ExpressionToken(pathTokenizer, context.CurrentLocation.Offset(index - 1)), index - 1);
 		}
 
 		private static IExpressionToken TokenizeNumber(string textPart, int index, out int consumed, TokenzierContext context)

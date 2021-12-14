@@ -124,13 +124,6 @@ namespace Morestachio.Framework
 		public int ToPosition(TokenzierContext context)
 		{
 			return _index;
-			var line = Line - 1;
-			if (line >= 0 && context.Lines.Count > line)
-			{
-				return context.Lines[line] + Character;
-			}
-
-			return Character;
 		}
 
 		/// <inheritdoc />
