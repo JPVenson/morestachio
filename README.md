@@ -16,6 +16,7 @@ A Lightweight, powerful, flavorful, templating engine for C# and other .net-base
 | Morestachio.Linq |  | [![Nuget Morestachio Linq](https://img.shields.io/nuget/v/Morestachio.Linq?label=%20Morestachio.Linq)](https://www.nuget.org/packages/Morestachio.Linq/) | Install-Package Morestachio.Linq | [![Build status](https://dev.azure.com/JeanPierreBachmann/Mustachio/_apis/build/status/Morestachio-CI%20DotNet)](https://dev.azure.com/JeanPierreBachmann/Mustachio/_build/latest?definitionId=3)|
 | Morestachio.Runner |  | [![Nuget Morestachio Runner](https://img.shields.io/nuget/v/Morestachio.Runner?label=%20Morestachio.Runner)](https://www.nuget.org/packages/Morestachio.Runner/) | Install-Package Morestachio.Runner | [![Build status](https://dev.azure.com/JeanPierreBachmann/Mustachio/_apis/build/status/Morestachio-CI%20DotNet)](https://dev.azure.com/JeanPierreBachmann/Mustachio/_build/latest?definitionId=3)|
 | Morestachio.Newtonsoft.Json|  | [![Nuget Morestachio Json](https://img.shields.io/nuget/v/Morestachio.Newtonsoft.Json?label=Morestachio.Newtonsoft.Json)](https://www.nuget.org/packages/Morestachio.Newtonsoft.Json/) | Install-Package Morestachio.Newtonsoft.Json | [![Build status](https://dev.azure.com/JeanPierreBachmann/Mustachio/_apis/build/status/Morestachio-CI%20DotNet)](https://dev.azure.com/JeanPierreBachmann/Mustachio/_build/latest?definitionId=3)|
+> Currently Azure Pipelines do not support VS2022 therefor the pipeline does not run successfully!
 
 #### What's this for?
 
