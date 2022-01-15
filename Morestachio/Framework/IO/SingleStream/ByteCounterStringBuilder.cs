@@ -9,14 +9,15 @@ namespace Morestachio.Framework.IO.SingleStream;
 /// </summary>
 public class ByteCounterStringBuilder : IByteCounterStream
 {
-	private readonly StringBuilder _sb;
+	private StringBuilder _sb;
 
 	/// <summary>
 	///		The <see cref="System.Text.StringBuilder"/> used to write the template to
 	/// </summary>
-	public StringBuilder StringBuilder
+	public virtual StringBuilder StringBuilder
 	{
 		get { return _sb; }
+		protected set { _sb = value; }
 	}
 
 	/// <summary>

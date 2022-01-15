@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Running;
+using Morestachio.Benchmark.PerfRendering;
 using Morestachio.Framework.IO;
 using Morestachio.TemplateContainers;
 

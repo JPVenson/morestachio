@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Globalization;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,8 +33,8 @@ namespace Morestachio.Benchmark.PerfRendering
 		
 		public virtual async ValueTask<string> Bench()
 		{
-			var output = new ByteCounterStringBuilder(new StringBuilder(), _templateCompiled.ParserOptions);
-			//var output = new ByteCounterStringBuilderV2(_templateCompiled.ParserOptions);
+			//var output = new ByteCounterTextWriter(new StringWriter(CultureInfo.InvariantCulture), _templateCompiled.ParserOptions);
+			var output = new SharedByteCounterStringBuilder(_templateCompiled.ParserOptions);
 			await _templateCompiled.RenderAsync(_data, CancellationToken.None, output);
 			return output.ToString();
 		}

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
@@ -12,6 +12,15 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
+
+    <PackageReference Include="Cottle" Version="2.0.4" />
+    <PackageReference Include="DotLiquid" Version="2.2.585" />
+    <PackageReference Include="Fluid.Core" Version="2.2.8" />
+    <PackageReference Include="Handlebars.Net" Version="2.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor.Language" Version="6.0.1" />
+    <PackageReference Include="Nustache" Version="1.16.0.10" />
+    <PackageReference Include="Scriban" Version="5.0.0" />
+    <PackageReference Include="Stubble.Core" Version="1.9.3" />
   </ItemGroup>
 
   <ItemGroup>

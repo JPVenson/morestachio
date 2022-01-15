@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using Morestachio.Framework.IO.SubStream;
 
 namespace Morestachio.Framework.IO.SingleStream;

@@ -8,7 +8,6 @@ namespace Morestachio.Framework.Expression;
 [Flags]
 public enum OperatorTypes
 {
-#pragma warning disable 1591
 	/// <summary>
 	///		Mapped to the
 	/// <code>val + val</code>
@@ -147,4 +146,3 @@ public enum OperatorTypes
 	/// <remarks>Inverts an boolean value</remarks>
 	Invert = 1 << 19
 }
-#pragma warning restore 1591

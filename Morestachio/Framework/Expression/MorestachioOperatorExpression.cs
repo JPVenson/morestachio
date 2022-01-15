@@ -226,7 +226,7 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 			var arguments = right != null
 				? new FormatterArgumentType[]
 				{
-					new FormatterArgumentType(0, null, (await right(contextObject, scopeData)).Value, RightExpression),
+					new(0, null, (await right(contextObject, scopeData)).Value, RightExpression),
 				}
 				: Array.Empty<FormatterArgumentType>();
 			if (Cache == null)

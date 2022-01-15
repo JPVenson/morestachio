@@ -53,7 +53,7 @@ public static class RendererExtensions
 	/// </summary>
 	public static MorestachioDocumentResult Render(this IRenderer renderer, object data, CancellationToken token, IByteCounterStream targetStream)
 	{
-		return renderer.RenderAsync(data, token, targetStream).GetAwaiter().GetResult();
+		return renderer.RenderAsync(data, token, targetStream).Await();
 	}
 		
 	/// <summary>

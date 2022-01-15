@@ -195,7 +195,7 @@ public class MorestachioDocumentInfo
 	[Obsolete("Please use the CreateRenderer().Render method")]
 	public MorestachioDocumentResult Create(object source, CancellationToken token)
 	{
-		return CreateAsync(source, token).ConfigureAwait(false).GetAwaiter().GetResult();
+		return CreateAsync(source, token).Await();
 	}
 
 	/// <summary>

@@ -11,7 +11,7 @@ namespace Morestachio.Benchmark.PerfRendering
 			var productsDict = new Dictionary<string, object>();
 			const int ProductCount = 500;
 
-			List<Dictionary<string, object>> prodList = new List<Dictionary<string, object>>();
+			var prodList = new List<Dictionary<string, object>>();
 			productsDict.Add("Products", prodList);
 
 			var lorem = Lorem.AsMemory();

@@ -8,6 +8,40 @@ namespace Morestachio.Helper;
 /// </summary>
 public static class AsyncHelper
 {
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	internal static void Await(this Promise task)
+	{
+
+#if ValueTask
+		if (!task.IsCompleted)
+		{
+			task.AsTask().GetAwaiter().GetResult();
+			return;
+		}
+#endif
+		task.GetAwaiter().GetResult();
+	}
+
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	internal static T Await<T>(this
+#if ValueTask
+									ValueTask<T>
+#else
+									Task<T>
+#endif
+									task)
+	{
+
+#if ValueTask
+		if (task.IsCompleted)
+		{
+			return task.AsTask().GetAwaiter().GetResult();
+		}
+#endif
+		return task.GetAwaiter().GetResult();
+	}
+
 	/// <summary>
 	///		Wraps the object to ether an TaskT or an ValueTaskT
 	/// </summary>

@@ -511,7 +511,7 @@ namespace Morestachio.Tests
 			return () =>
 			{
 				var clone = _contextObject.CloneForEdit();
-				return (TResult)_expression.Expression.GetValue(clone, _scopeData).GetAwaiter().GetResult().Value;
+				return (TResult)_expression.Expression.GetValue(clone, _scopeData).Await().Value;
 			};
 		}
 
@@ -538,7 +538,7 @@ namespace Morestachio.Tests
 			{
 				AddArguments({{#REPEAT nr - 1}}arg{{$index + 1}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}});
 				var clone = _contextObject.CloneForEdit();
-				var result = (TResult)((_expression.Expression.GetValue(clone, _scopeData)).GetAwaiter().GetResult().Value);
+				var result = (TResult)((_expression.Expression.GetValue(clone, _scopeData)).Await().Value);
 				RemoveArguments();
 				return result;
 			};
@@ -571,7 +571,7 @@ namespace Morestachio.Tests
 			{
 				AddArguments(arg1);
 				var clone = _contextObject.CloneForEdit();
-				_expression.Expression.GetValue(clone, _scopeData).GetAwaiter().GetResult();
+				_expression.Expression.GetValue(clone, _scopeData).Await();
 				RemoveArguments();
 			};
 		}
@@ -586,14 +586,14 @@ namespace Morestachio.Tests
 			{
 				AddArguments({{#REPEAT nr - 1}}arg{{$index + 1}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}});
 				var clone = _contextObject.CloneForEdit();
-				_expression.Expression.GetValue(clone, _scopeData).GetAwaiter().GetResult();
+				_expression.Expression.GetValue(clone, _scopeData).Await();
 				RemoveArguments();
 			};
 		}
 {{/REPEAT}}
 ";
 			var result = (await (await Parser.ParseWithOptionsAsync(new ParserOptions(template)))
-				.CreateRenderer().RenderAsync(null, CancellationToken.None)).Stream.Stringify(true, Encoding.UTF8);
+				.CreateRenderer().RenderAndStringifyAsync(null));
 
 			Console.WriteLine(result);
 		}

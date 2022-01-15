@@ -55,7 +55,7 @@ namespace Morestachio.Tests
 			};
 			Assert.That(await ParserFixture.CreateAndParseWithOptions(template, data, _opts), Is.EqualTo(data["B"]));
 		}
-		
+
 		[Test]
 		public async Task TestInvertOperator()
 		{
@@ -82,7 +82,7 @@ namespace Morestachio.Tests
 			}
 			Assert.That(ctx.Errors.Count, Is.EqualTo(0));
 			Assert.That(exp, Is.Not.Null);
-			
+
 			var visitor = new ToParsableStringExpressionVisitor();
 			exp.Accept(visitor);
 			Assert.That(visitor.StringBuilder.ToString(), Is.EqualTo(expressionText));

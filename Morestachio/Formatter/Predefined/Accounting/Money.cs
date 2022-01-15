@@ -102,7 +102,7 @@ public readonly struct Money : IFormattable, IEquatable<Money>
 	/// <returns></returns>
 	public Money GetTax(double rate)
 	{
-		return new Money(Value / 100 * rate);
+		return new Money(Value / 100 * rate, Currency);
 	}
 
 	/// <summary>
@@ -114,7 +114,7 @@ public readonly struct Money : IFormattable, IEquatable<Money>
 	{
 		if (value.Currency.Equals(value.Currency))
 		{
-			return new Money(Value + value.Value);
+			return new Money(Value + value.Value, Currency);
 		}
 
 		throw new InvalidOperationException(
@@ -130,7 +130,7 @@ public readonly struct Money : IFormattable, IEquatable<Money>
 	{
 		if (value.Currency.Equals(value.Currency))
 		{
-			return new Money(Value - value.Value);
+			return new Money(Value - value.Value, Currency);
 		}
 
 		throw new InvalidOperationException(
@@ -142,7 +142,7 @@ public readonly struct Money : IFormattable, IEquatable<Money>
 	/// </summary>
 	public Money Round(Number by, MidpointRounding mode)
 	{
-		return new Money(Value.Round(by, mode));
+		return new Money(Value.Round(by, mode), Currency);
 	}
 
 	/// <summary>
@@ -150,7 +150,7 @@ public readonly struct Money : IFormattable, IEquatable<Money>
 	/// </summary>
 	public Money CommercialRound()
 	{
-		return new Money(Value.Round(2));
+		return new Money(Value.Round(2), Currency);
 	}
 
 	/// <summary>
