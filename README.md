@@ -62,7 +62,7 @@ Morestachio is build upon Mustachio and extends the mustachio syntax in a a lot 
 7. No External Depedencies for Morestachio.dll.
 8. Support for several .Net framworks:
    - NetStandard (netstandard2.0; netstandard2.1; see [.NET implementation support](https://docs.microsoft.com/en-us/dotnet/standard/net-standard#net-implementation-support)) 
-   - Net5.0, Net6.0(comming soon)
+   - Net5.0, Net6.0
 9. Build in [Localization support](https://github.com/JPVenson/morestachio/wiki/Localisation) and [Logging support](https://github.com/JPVenson/morestachio/wiki/ParserOptions#logger-ilogger-property)
 10. Supports user [Encoding](https://github.com/JPVenson/morestachio/wiki/ParserOptions#encoding-encoding-property) of the result template
 11. Supports [Template Partials](https://github.com/JPVenson/morestachio/wiki/Templates-Partials) `{{#import 'secondary_template' }}`
