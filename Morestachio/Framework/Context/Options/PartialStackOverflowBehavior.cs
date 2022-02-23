@@ -8,7 +8,7 @@ namespace Morestachio.Framework.Context.Options;
 public enum PartialStackOverflowBehavior
 {
 	/// <summary>
-	///		Throw a <see cref="MustachioStackOverflowException"/>
+	///		Throw a <see cref="MorestachioStackOverflowException"/>
 	/// </summary>
 	FailWithException,
 	/// <summary>

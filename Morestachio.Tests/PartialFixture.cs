@@ -248,7 +248,7 @@ namespace Morestachio.Tests
 			var parsedTemplate = Parser.ParseWithOptions(parsingOptions);
 			ParserFixture.TestLocationsInOrder(parsedTemplate);
 			Assert.That(async () => await parsedTemplate.CreateRenderer().RenderAndStringifyAsync(data),
-				Throws.Exception.TypeOf<MustachioStackOverflowException>());
+				Throws.Exception.TypeOf<MorestachioStackOverflowException>());
 			SerilalizerTests.SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document, parsingOptions);
 		}
 

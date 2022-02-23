@@ -13,6 +13,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.Context.FallbackResolver;
 using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Context.Resolver;
+using Morestachio.Framework.Error;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.IO.SingleStream;
 using Morestachio.Helper.Logging;
@@ -50,6 +51,7 @@ public class ParserOptions : SealedBase
 	private bool _handleDictionaryAsObject;
 	private ILogger _logger;
 	private UnmatchedTagBehavior _unmatchedTagBehavior;
+	private bool _strictExecution;
 
 	/// <summary>
 	///     Creates a new object without any template
@@ -239,6 +241,19 @@ public class ParserOptions : SealedBase
 	{
 		base.Seal();
 		_customDocumentItemProviders.Seal();
+	}
+
+	/// <summary>
+	///		When enabled, adds checks to ensure that a property resolving operation will always obtain a value. When enabled and a property cannot be resolved, an exception is thrown, otherwise null is returned.
+	/// </summary>
+	public bool StrictExecution
+	{
+		get { return _strictExecution; }
+		set
+		{
+			CheckSealed();
+			_strictExecution = value;
+		}
 	}
 
 	/// <summary>
@@ -617,5 +632,10 @@ public class ParserOptions : SealedBase
 	internal void OnUnresolvedPath(InvalidPathEventArgs args)
 	{
 		UnresolvedPath?.Invoke(args);
+
+		if (StrictExecution)
+		{
+			throw new UnresolvedPathException(args);
+		}
 	}
 }

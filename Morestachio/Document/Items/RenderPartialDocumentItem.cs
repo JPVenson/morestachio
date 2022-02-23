@@ -93,7 +93,7 @@ public class RenderPartialDocumentItem : ValueDocumentItemBase
 			switch (scopeData.ParserOptions.StackOverflowBehavior)
 			{
 				case PartialStackOverflowBehavior.FailWithException:
-					throw new MustachioStackOverflowException(
+					throw new MorestachioStackOverflowException(
 						$"You have exceeded the maximum stack Size for nested Partial calls of '{scopeData.ParserOptions.PartialStackSize}'. See Data for call stack")
 						{
 							Data =

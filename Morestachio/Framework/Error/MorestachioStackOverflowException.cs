@@ -3,12 +3,12 @@
 /// <summary>
 ///		The Infinite Partials Exception type
 /// </summary>
-public class MustachioStackOverflowException : MustachioException
+public class MorestachioStackOverflowException : MorestachioException
 {
 	/// <summary>
 	/// 
 	/// </summary>
-	public MustachioStackOverflowException(string message) : base(message)
+	public MorestachioStackOverflowException(string message) : base(message)
 	{
 	}
 }
