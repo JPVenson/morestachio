@@ -8,3 +8,4 @@ To ensure that all changes to the codebase ensures that the quallity of code sta
 - Document your methods. Every public method should have a short, descriptive xml documentation
 - Update the Wiki. If you introduce any changes that affect any part of the documentation, please update the wiki accordingly.
 - Its ok to not Aim for 100% Test-Coverage but at least your expected in/output should be covered by unittests
+- Before adding a new Feature, please discuss the planned changes brifly in the github discussions tab or in an issue. This ensures that your time is not wasted if your feature requires certain boundries or should be implemented in certain ways to fit into the architecture
