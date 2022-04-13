@@ -5,15 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Framework.Attributes;
+using Morestachio.Example.Base;
 
 namespace Morestachio.Examples.CustomFormatterExample
 {
-	public static class DataGeneration
+	public class DataGeneration : MorestachioExampleBase
 	{
 		//this method can be used to obtain a new ParserOptions
 		//here you could add custom formatters
 		//this method is optional you can safely remove it
-		public static ParserOptions Config(string templateText, Encoding encoding, bool shouldEscape)
+		public override ParserOptions Configurate(string templateText, Encoding encoding, bool shouldEscape)
 		{
 			var options = new ParserOptions(templateText, null, encoding, shouldEscape);
 			options.Formatters.AddFromType(typeof(DataGeneration));
@@ -35,7 +36,7 @@ namespace Morestachio.Examples.CustomFormatterExample
 		}
 		
 		//there must be always a method in the Program class that will be called to obtain the data
-		public static object GetData()
+		public override object GetData()
 		{
 			var collection = new List<object>();
 
