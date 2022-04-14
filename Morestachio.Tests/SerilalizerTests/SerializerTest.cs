@@ -49,11 +49,11 @@ namespace Morestachio.Tests.SerilalizerTests
 			}
 		}
 
-		public void SerilalizeAndDeserialize(IDocumentItem document)
+		public void SerializeAndDeserialize(IDocumentItem document)
 		{
-			var text = DocumentSerializerStrategy.SerializeToText(document);
-			var deserialized = DocumentSerializerStrategy.DeSerializeToText(text, document.GetType());
-			var deserializedText = DocumentSerializerStrategy.SerializeToText(deserialized);
+			var text = DocumentSerializerStrategy.SerializeDocumentToText(document);
+			var deserialized = DocumentSerializerStrategy.DeSerializeDocumentToText(text, document.GetType());
+			var deserializedText = DocumentSerializerStrategy.SerializeDocumentToText(deserialized);
 			Assert.That(text, Is.EqualTo(deserializedText));
 			Assert.That(document, Is.EqualTo(deserialized), () =>
 				{
@@ -78,7 +78,7 @@ namespace Morestachio.Tests.SerilalizerTests
 		{
 			var options = new ParserOptions(template);
 			var morestachioDocumentInfo = Parser.ParseWithOptions(options);
-			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
+			SerializeAndDeserialize(morestachioDocumentInfo.Document);
 			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document, options);
 		}
 
@@ -280,7 +280,7 @@ namespace Morestachio.Tests.SerilalizerTests
 						return new MorestachioLocalizationService();
 					});
 			var morestachioDocumentInfo = Parser.ParseWithOptions(options);
-			SerilalizeAndDeserialize(morestachioDocumentInfo.Document);
+			SerializeAndDeserialize(morestachioDocumentInfo.Document);
 			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document, options);
 		}
 
@@ -288,7 +288,7 @@ namespace Morestachio.Tests.SerilalizerTests
 		public void Alias()
 		{
 			var alias = new AliasDocumentItem(CharacterLocation.Unknown, "Alias", 101, null);
-			SerilalizeAndDeserialize(alias);
+			SerializeAndDeserialize(alias);
 		}
 	}
 }

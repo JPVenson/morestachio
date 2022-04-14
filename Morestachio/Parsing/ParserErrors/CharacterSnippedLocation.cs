@@ -5,7 +5,7 @@ namespace Morestachio.Parsing.ParserErrors;
 /// <summary>
 ///		Combines an location with an snipped
 /// </summary>
-public struct CharacterSnippedLocation : IEquatable<CharacterSnippedLocation>
+public readonly struct CharacterSnippedLocation : IEquatable<CharacterSnippedLocation>
 {
 	internal CharacterSnippedLocation(int line, int character, string snipped)
 	{
@@ -17,7 +17,7 @@ public struct CharacterSnippedLocation : IEquatable<CharacterSnippedLocation>
 	/// <summary>
 	///		The text representing the current location
 	/// </summary>
-	public string Snipped { get; private set; }
+	public string Snipped { get; }
 
 	/// <summary>
 	///		The line of the Template

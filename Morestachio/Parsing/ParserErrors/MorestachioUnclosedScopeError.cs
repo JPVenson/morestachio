@@ -1,39 +1,42 @@
-﻿using System;
-using System.Text;
-using Morestachio.Framework.Error;
-
-namespace Morestachio.Parsing.ParserErrors;
+﻿namespace Morestachio.Parsing.ParserErrors;
 
 /// <summary>
 ///		Defines an error that occured when parsing the template that has an invalid token
 /// </summary>
-public class MorestachioUnclosedScopeError : IMorestachioError
+[Serializable]
+public class MorestachioUnclosedScopeError : MorestachioErrorBase
 {
+	/// <summary>
+	///		Serialization constructor
+	/// </summary>
+	protected MorestachioUnclosedScopeError()
+	{
+		
+	}
+
+	/// <inheritdoc />
+	protected MorestachioUnclosedScopeError(SerializationInfo info, StreamingContext c) 
+		: base(info, c)
+	{
+	}
+
 	/// <summary>
 	/// Initializes a new instance of the <see cref="MorestachioSyntaxError"/> class.
 	/// </summary>
 	/// <param name="location">The location.</param>
-	public MorestachioUnclosedScopeError(CharacterLocationExtended location, string tokenOccured, string syntaxExpected, string extra = null)
+	public MorestachioUnclosedScopeError(CharacterLocationExtended location,
+										string tokenOccured,
+										string syntaxExpected,
+										string helpText = null)
+		: base(location, FormatHelpText(tokenOccured, syntaxExpected, helpText, location))
 	{
-		Location = location;
-		HelpText = $"line:char '{Location.Line}:{Location.Character}' - An '{tokenOccured}' block is being opened, but no corresponding opening element '{syntaxExpected}' was detected.{extra}";
 	}
-		
-	/// <inheritdoc />
-	public CharacterLocationExtended Location { get; }
 
-	/// <inheritdoc />
-	public Exception GetException()
+	private static string FormatHelpText(string tokenOccured,
+										string syntaxExpected,
+										string helpText,
+										CharacterLocationExtended location)
 	{
-		return new IndexedParseException(Location, HelpText);
-	}
-		
-	/// <inheritdoc />
-	public string HelpText { get; }
-
-	/// <inheritdoc />
-	public void Format(StringBuilder sb)
-	{
-		sb.Append(IndexedParseException.FormatMessage(HelpText, Location));
+		return $"line:char '{location.Line}:{location.Character}' - An '{tokenOccured}' block is being opened, but no corresponding opening element '{syntaxExpected}' was detected.{helpText}";
 	}
 }

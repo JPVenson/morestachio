@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Xml;
 using Morestachio.Framework.Error;
 
 namespace Morestachio.Parsing.ParserErrors;
@@ -7,10 +6,42 @@ namespace Morestachio.Parsing.ParserErrors;
 /// <summary>
 ///		Defines an Error on a position within the Template.
 /// </summary>
-public class InvalidPathSyntaxError : IMorestachioError
+[Serializable]
+public class InvalidPathSyntaxError : MorestachioErrorBase
 {
 	/// <inheritdoc />
-	public CharacterLocationExtended Location { get; }
+	protected InvalidPathSyntaxError()
+	{
+		
+	}
+
+	/// <inheritdoc />
+	protected InvalidPathSyntaxError(SerializationInfo info, StreamingContext c) 
+		: base(info, c)
+	{
+		Token = info.GetString(nameof(Token));
+	}
+	
+	/// <inheritdoc />
+	public InvalidPathSyntaxError(CharacterLocationExtended location, string token, string helpText = null)
+		: base(location, FormatHelpText(location, token, helpText))
+	{
+		Token = token;
+	}
+
+	private static string FormatHelpText(CharacterLocationExtended location,
+										string token,
+										string userHelpText)
+	{
+		var helpText =
+			$"line:char '{location.Line}:{location.Character}' - The path '{token}' is not valid. Please see documentation for examples of valid paths.";
+		if (userHelpText != null)
+		{
+			helpText += "\r\n" + userHelpText;
+		}
+
+		return helpText;
+	}
 
 	/// <summary>
 	/// Gets the token.
@@ -18,37 +49,32 @@ public class InvalidPathSyntaxError : IMorestachioError
 	/// <value>
 	/// The token.
 	/// </value>
-	public string Token { get; }
-
-	/// <summary>
-	/// 
-	/// </summary>
-	/// <param name="location"></param>
-	/// <param name="token"></param>
-	public InvalidPathSyntaxError(CharacterLocationExtended location, string token, string helpText = null)
-	{
-		Location = location;
-		Token = token;
-		HelpText =
-			$"line:char '{Location.Line}:{Location.Character}' - The path '{Token}' is not valid. Please see documentation for examples of valid paths.";
-		if (helpText != null)
-		{
-			HelpText += "\r\n" + helpText;
-		}
-	}
-		
+	public string Token { get; private set; }
+	
 	/// <inheritdoc />
-	public Exception GetException()
+	public override void ReadXml(XmlReader reader)
 	{
-		return new IndexedParseException(Location, HelpText);
+		Token = reader.GetAttribute(nameof(Token));
+		base.ReadXml(reader);
 	}
 
 	/// <inheritdoc />
-	public string HelpText { get; }
+	public override void WriteXml(XmlWriter writer)
+	{
+		writer.WriteAttributeString(nameof(Token), Token);
+		base.WriteXml(writer);
+	}
 
 	/// <inheritdoc />
-	public void Format(StringBuilder sb)
+	public override void GetObjectData(SerializationInfo info, StreamingContext context)
 	{
-		sb.Append(IndexedParseException.FormatMessage(HelpText, Location));
+		info.AddValue(nameof(Token), Token);
+		base.GetObjectData(info, context);
+	}
+
+	/// <inheritdoc />
+	public override bool Equals(IMorestachioError other)
+	{
+		return base.Equals(other) && (other is InvalidPathSyntaxError invalidPathSyntaxError) && invalidPathSyntaxError.Token.Equals(Token);
 	}
 }

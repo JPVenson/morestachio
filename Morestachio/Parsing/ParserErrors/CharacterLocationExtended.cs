@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Linq;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 using Morestachio.Framework;
 
 namespace Morestachio.Parsing.ParserErrors;
@@ -7,7 +10,8 @@ namespace Morestachio.Parsing.ParserErrors;
 /// <summary>
 ///		Defines a line within the template and the char that should be marked
 /// </summary>
-public struct CharacterLocationExtended : IEquatable<CharacterLocationExtended>, IEquatable<CharacterLocation>
+public struct CharacterLocationExtended : IEquatable<CharacterLocationExtended>, 
+										IEquatable<CharacterLocation>
 {
 	/// <summary>
 	/// 
@@ -24,7 +28,7 @@ public struct CharacterLocationExtended : IEquatable<CharacterLocationExtended>,
 	/// <summary>
 	///		The snipped of text the error occured in
 	/// </summary>
-	public CharacterSnippedLocation Snipped { get; private set; }
+	public CharacterSnippedLocation Snipped { get; }
 
 	/// <summary>
 	///		Renderes the Snipped with an indicator
