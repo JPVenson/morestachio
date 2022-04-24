@@ -1371,12 +1371,6 @@ public class Tokenizer
 					}
 					else if (StartsWith(trimmedToken, "^scope "))
 					{
-						parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId,
-							"Use the {{^IF path}} block instead of the {{^path}} block",
-							new Dictionary<string, object>
-							{
-								{ "Location", context.CurrentLocation }
-							});
 						//open inverted group
 						var token = TrimToken(trimmedToken, "scope ", '^');
 						TryParseStringOption(ref token, GetAsKeyword(), out var alias);
@@ -1397,7 +1391,7 @@ public class Tokenizer
 					else
 					{
 						parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId,
-							"Use the {{^IF path}} block instead of the {{^path}} block",
+							"Use the {{^SCOPE path}} block instead of the {{^path}} block",
 							new Dictionary<string, object>
 							{
 								{ "Location", context.CurrentLocation }
