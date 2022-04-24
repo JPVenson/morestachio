@@ -205,23 +205,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 	{
 		parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId, log(), getValues());
 	}
-
-	//public async ObjectPromise Execute(
-	//	 FormatterArgumentType[] args,
-	//	object sourceValue,
-	//	 string name,
-	//	ParserOptions options,
-	//	ScopeData scope)
-	//{
-	//	var cacheItem = PrepareCallMostMatchingFormatter(sourceValue.GetType(), args, name, options, scope);
-	//	if (cacheItem == null)
-	//	{
-	//		return FormatterFlow.Skip;
-	//	}
-
-	//	return await Execute(cacheItem.Value, sourceValue, args);
-	//}
-
+	
 	/// <inheritdoc />
 	public FormatterCache PrepareCallMostMatchingFormatter(
 		Type type,
@@ -869,6 +853,12 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 			//}
 
 			//TODO check constraints of the generic type
+			success = true;
+			return null;
+		}
+
+		if (parameterParameterType.IsGenericParameter)
+		{
 			success = true;
 			return null;
 		}

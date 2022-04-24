@@ -78,7 +78,9 @@ public class PrepareFormatterComposingResult
 					return Expression.Convert(Expression.ArrayAccess(argsParam, Expression.Constant(index)), val.GetType());
 				}));
 
-			if (!method.ReturnParameter.ParameterType.IsClass && !method.ReturnParameter.ParameterType.IsInterface)
+			if (!method.ReturnParameter.ParameterType.IsClass 
+				&& !method.ReturnParameter.ParameterType.IsInterface 
+				&& method.ReturnType != typeof(void))
 			{
 				//if its not a class and not an interface its an struct and we have to box it
 				body = Expression.Convert(body, typeof(object));
@@ -88,7 +90,17 @@ public class PrepareFormatterComposingResult
 				body = body.Reduce();
 			}
 
-			return Expression.Lambda<Func<object, object[], object>>(body, true, instParam, argsParam).Compile();
+			if (method.ReturnType != typeof(void))
+			{
+				return Expression.Lambda<Func<object, object[], object>>(body, true, instParam, argsParam).Compile();
+			}
+
+			var callerMethod = Expression.Lambda<Action<object, object[]>>(body, true, instParam, argsParam).Compile();
+			return (callee, parameter) =>
+			{
+				callerMethod(callee, parameter);
+				return null;
+			};
 		}
 		catch (Exception e)
 		{

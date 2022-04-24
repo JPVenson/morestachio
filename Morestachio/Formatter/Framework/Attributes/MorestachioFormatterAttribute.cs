@@ -14,7 +14,7 @@ public class MorestachioFormatterAttribute : Attribute, IMorestachioFormatterDes
 	/// <summary>
 	/// Initializes a new instance of the <see cref="MorestachioFormatterAttribute"/> class.
 	/// </summary>
-	/// <param name="name">The name.</param>
+	/// <param name="name">The name or [MethodName] as a placeholder for the method name</param>
 	/// <param name="description">The description.</param>
 	public MorestachioFormatterAttribute(string name, string description)
 	{
