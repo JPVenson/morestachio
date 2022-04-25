@@ -272,11 +272,11 @@ namespace Morestachio.Runner.MDoc
 
 			var formatterService = parserOptions.Formatters as MorestachioFormatterService;
 
-			var sourceServices = ObjectFormatter.Combine(formatterService.Services.Enumerate(), MorestachioFormatterService.Default.Services.Enumerate());
+			var sourceServices = formatterService.Services.Enumerate();
 			var sourceFormatters = ObjectFormatter.Combine(formatterService.Formatters,
-				(MorestachioFormatterService.Default as MorestachioFormatterService).Formatters);
+				(DefaultFormatterService.Default.Value as MorestachioFormatterService).Formatters);
 			var sourceConstants = ObjectFormatter.Combine(formatterService.Constants,
-				MorestachioFormatterService.Default.Constants);
+				DefaultFormatterService.Default.Value.Constants);
 
 			foreach (var formatterServiceFormatter in sourceFormatters
 				.SelectMany(f => f.Value)

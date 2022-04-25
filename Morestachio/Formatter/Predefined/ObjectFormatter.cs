@@ -94,20 +94,6 @@ public static class ObjectFormatter
 			formatterName,
 			options,
 			scopeData);
-		if (formatterMatch == null)
-		{
-			formatterMatch = MorestachioFormatterService.Default.PrepareCallMostMatchingFormatter(source.GetType(),
-				argumentTypes,
-				formatterName,
-				options,
-				scopeData);
-
-			if (formatterMatch == null)
-			{
-				return null;
-			}
-		}
-
 		return await options.Formatters.Execute(formatterMatch, source, options,
 			argumentTypes);
 	}

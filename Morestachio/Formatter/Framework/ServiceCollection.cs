@@ -1,31 +1,9 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
+﻿using System.ComponentModel.Design;
 
 namespace Morestachio.Formatter.Framework;
 
 /// <summary>
-///		Allows to change the name this service is available from template
-/// </summary>
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, Inherited = false, AllowMultiple = false)]
-public sealed class ServiceNameAttribute : Attribute
-{
-	/// <summary>
-	///		The name of this Service
-	/// </summary>
-	public string Name { get; }
-
-	// See the attribute guidelines at 
-	//  http://go.microsoft.com/fwlink/?LinkId=85236
-	public ServiceNameAttribute(string name)
-	{
-		Name = name;
-	}
-}
-
-/// <summary>
-///		Collection of services
+///     Collection of services
 /// </summary>
 public class ServiceCollection : IServiceContainer
 {
@@ -33,50 +11,25 @@ public class ServiceCollection : IServiceContainer
 	private readonly ServiceCollection _parentProvider;
 
 	/// <summary>
-	///		Creates a new Top level Service collection
+	///     Creates a new Top level Service collection
 	/// </summary>
 	public ServiceCollection() : this(null)
 	{
-			
 	}
 
 	/// <summary>
-	/// 
 	/// </summary>
 	public ServiceCollection(ServiceCollection parentProvider)
 	{
 		_parentProvider = parentProvider;
+
 		_localSource = new Dictionary<Type, object>
 		{
-			{typeof(ServiceCollection), this},
-			{typeof(IServiceContainer), this},
+			{ typeof(ServiceCollection), this },
+			{ typeof(IServiceContainer), this }
 		};
 	}
-		
 
-	/// <summary>
-	///		Enumerates all services known
-	/// </summary>
-	/// <returns></returns>
-	public IDictionary<Type, object> Enumerate()
-	{
-		var services = _parentProvider?.Enumerate() ?? new Dictionary<Type, object>();
-		foreach (var item in _localSource)
-		{
-			services[item.Key] = item.Value;
-		}
-		return services;
-	}
-
-	/// <summary>
-	///		Creates a new Service collection with this collection as its parent
-	/// </summary>
-	/// <returns></returns>
-	public ServiceCollection CreateChild()
-	{
-		return new ServiceCollection(this);
-	}
-		
 	/// <inheritdoc />
 	public object GetService(Type serviceType)
 	{
@@ -87,41 +40,67 @@ public class ServiceCollection : IServiceContainer
 	/// <inheritdoc />
 	public void AddService(Type serviceType, ServiceCreatorCallback callback)
 	{
-		this.AddService(serviceType, callback, false);
+		AddService(serviceType, callback, false);
 	}
-		
+
 	/// <inheritdoc />
 	public void AddService(Type serviceType, ServiceCreatorCallback callback, bool promote)
 	{
 		AddService(serviceType, (object)callback, false);
 	}
-		
+
 	/// <inheritdoc />
 	public void AddService(Type serviceType, object serviceInstance)
 	{
 		AddService(serviceType, serviceInstance, false);
 	}
-		
+
 	/// <inheritdoc />
 	public void AddService(Type serviceType, object serviceInstance, bool promote)
 	{
 		_localSource[serviceType] = serviceInstance;
 	}
-		
+
 	/// <inheritdoc />
 	public void RemoveService(Type serviceType)
 	{
 		_localSource.Remove(serviceType);
 	}
-		
+
 	/// <inheritdoc />
 	public void RemoveService(Type serviceType, bool promote)
 	{
 		_localSource.Remove(serviceType);
 	}
 
+
 	/// <summary>
-	///		Adds an service using an interface and Implementation
+	///     Enumerates all services known
+	/// </summary>
+	/// <returns></returns>
+	public IDictionary<Type, object> Enumerate()
+	{
+		var services = _parentProvider?.Enumerate() ?? new Dictionary<Type, object>();
+
+		foreach (var item in _localSource)
+		{
+			services[item.Key] = item.Value;
+		}
+
+		return services;
+	}
+
+	/// <summary>
+	///     Creates a new Service collection with this collection as its parent
+	/// </summary>
+	/// <returns></returns>
+	public ServiceCollection CreateChild()
+	{
+		return new ServiceCollection(this);
+	}
+
+	/// <summary>
+	///     Adds an service using an interface and Implementation
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
 	/// <typeparam name="TE"></typeparam>
@@ -132,7 +111,7 @@ public class ServiceCollection : IServiceContainer
 	}
 
 	/// <summary>
-	///		Adds an Service
+	///     Adds an Service
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
 	/// <param name="service"></param>
@@ -142,7 +121,7 @@ public class ServiceCollection : IServiceContainer
 	}
 
 	/// <summary>
-	///		Adds an service using an interface and factory
+	///     Adds an service using an interface and factory
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
 	/// <typeparam name="TE"></typeparam>
@@ -153,7 +132,7 @@ public class ServiceCollection : IServiceContainer
 	}
 
 	/// <summary>
-	///		Adds an service factory
+	///     Adds an service factory
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
 	/// <param name="serviceFactory"></param>
@@ -163,7 +142,7 @@ public class ServiceCollection : IServiceContainer
 	}
 
 	/// <summary>
-	///		Gets the service if present
+	///     Gets the service if present
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
 	/// <param name="service"></param>
@@ -171,6 +150,7 @@ public class ServiceCollection : IServiceContainer
 	public bool TryGetService<T>(out T service)
 	{
 		var found = TryGetService(typeof(T), out var serviceTem);
+
 		if (found)
 		{
 			service = (T)serviceTem;
@@ -184,7 +164,7 @@ public class ServiceCollection : IServiceContainer
 	}
 
 	/// <summary>
-	///		Gets the service if present or null
+	///     Gets the service if present or null
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
 	/// <returns></returns>
@@ -195,22 +175,24 @@ public class ServiceCollection : IServiceContainer
 	}
 
 	/// <summary>
-	///		Gets the service or throws an exception
+	///     Gets the service or throws an exception
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
 	/// <returns></returns>
 	public T GetRequiredService<T>()
 	{
 		var found = TryGetService(typeof(T), out var serviceTem);
+
 		if (found)
 		{
 			return (T)serviceTem;
 		}
+
 		throw new InvalidOperationException($"The required service {typeof(T)} was not found");
 	}
 
 	/// <summary>
-	///		Gets an service
+	///     Gets an service
 	/// </summary>
 	/// <param name="serviceType"></param>
 	/// <param name="service"></param>
@@ -226,7 +208,9 @@ public class ServiceCollection : IServiceContainer
 		{
 			return false;
 		}
+
 		service = _parentProvider.GetService(serviceType);
+
 		if (service is Delegate factory)
 		{
 			service = factory.DynamicInvoke();
@@ -236,7 +220,7 @@ public class ServiceCollection : IServiceContainer
 	}
 
 	/// <summary>
-	///		Searches in the list of services and if necessary executes the factory
+	///     Searches in the list of services and if necessary executes the factory
 	/// </summary>
 	/// <param name="services"></param>
 	/// <param name="serviceType"></param>

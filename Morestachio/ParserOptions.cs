@@ -106,7 +106,7 @@ public class ParserOptions : SealedBase
 		Template = template ?? new StringTemplateContainer("");
 		StreamFactory = new ByteCounterFactory(sourceStream);
 		Encoding = encoding ?? Encoding.UTF8;
-		_formatters = new MorestachioFormatterService();
+		_formatters = new MorestachioFormatterService(false);
 		Null = string.Empty;
 		MaxSize = 0;
 		DisableContentEscaping = false;

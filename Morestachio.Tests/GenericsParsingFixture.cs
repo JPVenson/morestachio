@@ -20,7 +20,7 @@ namespace Morestachio.Tests
 		private void CallWithResult(string methodName, IDictionary<string, object> values, object expected)
 		{
 			Assert.That(Result, Is.Null);
-			var morestachioFormatterService = new MorestachioFormatterService();
+			var morestachioFormatterService = new MorestachioFormatterService(false);
 			morestachioFormatterService.AddFromType<GenericsParsingFixture>();
 
 			var parserOptions = new ParserOptions();

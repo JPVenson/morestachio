@@ -12,9 +12,9 @@ namespace Morestachio.AspNetCore
 {
 	public abstract class MorestachioTemplateBase : IMorestachioTemplate
 	{
-		public MorestachioTemplateBase()
+		protected MorestachioTemplateBase()
 		{
-			MorestachioFormatterService = new MorestachioFormatterService();
+			MorestachioFormatterService = new MorestachioFormatterService(false);
 			Timeout = TimeSpan.FromMinutes(1);
 		}
 

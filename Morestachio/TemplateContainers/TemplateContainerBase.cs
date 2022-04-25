@@ -110,7 +110,7 @@ public abstract class TemplateContainerBase : ITemplateContainer
 
 						var tokenContent = templateString.Substring(startOfToken, tokenLength);
 						//it's a comment drop this on the floor, no need to even yield it.
-						if (tokenContent.StartsWith('!'))
+						if (tokenContent[0] == '!')
 						{
 							if (preText != string.Empty)
 							{

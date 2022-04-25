@@ -41,7 +41,7 @@ public class ScopeData : IDisposable
 
 	private void AddConstants(ParserOptions parserOptions)
 	{
-		var constants = ObjectFormatter.Combine(MorestachioFormatterService.Default.Constants, parserOptions.Formatters.Constants);
+		var constants = parserOptions.Formatters.Constants;
 			
 		foreach (var @constValue in constants)
 		{
@@ -80,7 +80,7 @@ public class ScopeData : IDisposable
 				return null;
 			}
 
-			var services = ObjectFormatter.Combine(MorestachioFormatterService.Default.Services.Enumerate(), scopeData.ParserOptions.Formatters.Services.Enumerate());
+			var services = scopeData.ParserOptions.Formatters.Services.Enumerate();
 			return scopeData.ParserOptions.CreateContextObject(".", new ServiceUiWrapper(services));
 		});
 	}

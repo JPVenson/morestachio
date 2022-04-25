@@ -1,23 +1,213 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Reflection;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.RegularExpressions;
 using Morestachio.Document;
-using Morestachio.Formatter.Constants;
 using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Formatter.Framework.Converter;
-using Morestachio.Formatter.Predefined;
-using Morestachio.Formatter.Predefined.Accounting;
-using Morestachio.Formatter.Services;
 using Morestachio.Framework.Expression;
 using Morestachio.Helper;
 using Morestachio.Helper.Logging;
 using Morestachio.Util.Sealing;
-using Encoding = Morestachio.Formatter.Constants.Encoding;
 
 namespace Morestachio.Formatter.Framework;
+
+/// <summary>
+///		Aggregates two dictionaries
+/// </summary>
+/// <typeparam name="TKey"></typeparam>
+/// <typeparam name="TItem"></typeparam>
+public class AggregateDictionary<TKey, TItem> : AggregateCollection<KeyValuePair<TKey, TItem>>, IDictionary<TKey, TItem>
+{
+	/// <inheritdoc />
+	public AggregateDictionary(IDictionary<TKey, TItem> self, IDictionary<TKey, TItem> parent)
+		: base(self, parent)
+	{
+		_self = self;
+		_parent = parent;
+	}
+
+	private readonly IDictionary<TKey, TItem> _self;
+	private readonly IDictionary<TKey, TItem> _parent;
+
+	/// <inheritdoc />
+	public void Add(TKey key, TItem value)
+	{
+		_self.Add(key, value);
+	}
+
+	/// <inheritdoc />
+	public bool ContainsKey(TKey key)
+	{
+		return _self.ContainsKey(key) || _parent.ContainsKey(key);
+	}
+
+	/// <inheritdoc />
+	public bool Remove(TKey key)
+	{
+		return _self.Remove(key);
+	}
+
+	/// <inheritdoc />
+	public bool TryGetValue(TKey key, out TItem value)
+	{
+		return _self.TryGetValue(key, out value) || _parent.TryGetValue(key, out value);
+	}
+
+	/// <inheritdoc />
+	public TItem this[TKey key]
+	{
+		get
+		{
+			if (ContainsKey(key))
+			{
+				return _self[key];
+			}
+			return _parent[key];
+		}
+		set { _self[key] = value; }
+	}
+
+	/// <inheritdoc />
+	public ICollection<TKey> Keys
+	{
+		get { return new AggregateCollection<TKey>(_self.Keys, _parent.Keys); }
+	}
+
+	/// <inheritdoc />
+	public ICollection<TItem> Values
+	{
+		get { return new AggregateCollection<TItem>(_self.Values, _parent.Values); }
+	}
+}
+
+/// <summary>
+///		Aggregates two Collections
+/// </summary>
+/// <typeparam name="T"></typeparam>
+public class AggregateCollection<T> : ICollection<T>
+{
+	public AggregateCollection(ICollection<T> self, ICollection<T> parent)
+	{
+		_self = self;
+		_parent = parent;
+	}
+
+	private readonly ICollection<T> _self;
+	private readonly ICollection<T> _parent;
+
+	private class AggregateEnumerator : IEnumerator<T>
+	{
+		private readonly IEnumerator<T> _self;
+		private readonly IEnumerator<T> _parent;
+
+		public AggregateEnumerator(IEnumerator<T> self, IEnumerator<T> parent)
+		{
+			_self = self;
+			_parent = parent;
+			_current = _self;
+		}
+
+		private IEnumerator<T> _current;
+
+		/// <inheritdoc />
+		public bool MoveNext()
+		{
+			var moveNext = _current.MoveNext();
+			if (!moveNext)
+			{
+				if (_current == _parent)
+				{
+					return false;
+				}
+				_current = _parent;
+				return _current.MoveNext();
+			}
+			return true;
+		}
+
+		/// <inheritdoc />
+		public void Reset()
+		{
+			_current.Reset();
+		}
+
+		/// <inheritdoc />
+		public T Current
+		{
+			get { return _current.Current; }
+		}
+
+		/// <inheritdoc />
+		object IEnumerator.Current
+		{
+			get { return ((IEnumerator)_current).Current; }
+		}
+
+		/// <inheritdoc />
+		public void Dispose()
+		{
+			_self.Dispose();
+			_parent.Dispose();
+		}
+	}
+
+	/// <inheritdoc />
+	public IEnumerator<T> GetEnumerator()
+	{
+		return new AggregateEnumerator(_self.GetEnumerator(),
+			_parent.GetEnumerator());
+	}
+
+	/// <inheritdoc />
+	IEnumerator IEnumerable.GetEnumerator()
+	{
+		return ((IEnumerable)_self).GetEnumerator();
+	}
+
+	/// <inheritdoc />
+	public void Add(T item)
+	{
+		_self.Add(item);
+	}
+
+	/// <inheritdoc />
+	public void Clear()
+	{
+		_self.Clear();
+	}
+
+	/// <inheritdoc />
+	public bool Contains(T item)
+	{
+		return _self.Contains(item) || _parent.Contains(item);
+	}
+
+	/// <inheritdoc />
+	public void CopyTo(T[] array, int arrayIndex)
+	{
+		_self.CopyTo(array, arrayIndex);
+		_parent.CopyTo(array, arrayIndex + _self.Count);
+	}
+
+	/// <inheritdoc />
+	public bool Remove(T item)
+	{
+		return _self.Remove(item);
+	}
+
+	/// <inheritdoc />
+	public int Count
+	{
+		get { return _self.Count + _parent.Count; }
+	}
+
+	/// <inheritdoc />
+	public bool IsReadOnly
+	{
+		get { return _self.IsReadOnly; }
+	}
+}
 
 /// <summary>
 ///     The Formatter service that can be used to interpret the Native C# formatter.
@@ -37,15 +227,23 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		new Regex("^[a-zA-Z]{1}[a-zA-Z0-9_]*$", RegexOptions.Compiled);
 
 	/// <summary>
-	///		Gets the default MorestachioFormatterService
+	///		Initializes a new instance of the <see cref="MorestachioFormatterService" /> class with the <see cref="DefaultFormatterService"/> as its parent formatter.
 	/// </summary>
-	public static IMorestachioFormatterService Default { get; }
+	/// <param name="useCache">When enabled, all formatter building operations are cached. Not threadsafe!</param>
+	public MorestachioFormatterService(bool useCache = false)
+		: this(useCache, DefaultFormatterService.Default.Value)
+	{
+
+	}
 
 	/// <summary>
 	///     Initializes a new instance of the <see cref="MorestachioFormatterService" /> class.
 	/// </summary>
-	public MorestachioFormatterService(bool useCache = false)
+	/// <param name="useCache">When enabled, all formatter building operations are cached. Not threadsafe!</param>
+	/// <param name="parent">When set, will include all services from the parent as a fallback.</param>
+	public MorestachioFormatterService(bool useCache = false, IMorestachioFormatterService parent = null)
 	{
+		Parent = parent;
 		Formatters = new Dictionary<string, IList<MorestachioFormatterModel>>();
 		Constants = new Dictionary<string, object>();
 
@@ -55,7 +253,15 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		};
 
 		DefaultConverter = GenericTypeConverter.Instance;
-		Services = new ServiceCollection(); //i would love to allow custom external containers to be set as parent but the interface does not allow the necessary enumeration of services 
+		Services = new ServiceCollection();
+
+		if (parent != null)
+		{
+			Constants = new AggregateDictionary<string, object>(Constants, parent.Constants);
+			ValueConverter = new AggregateCollection<IFormatterValueConverter>(ValueConverter, parent.ValueConverter);
+			Services = new ServiceCollection(parent.Services);
+		}
+
 		AddService(typeof(IMorestachioFormatterService), this);
 
 		if (useCache)
@@ -64,51 +270,13 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		}
 	}
 
-	static MorestachioFormatterService()
-	{
-		var defaultFormatter = new MorestachioFormatterService();
-		defaultFormatter.AddFromType(typeof(ObjectFormatter));
-		defaultFormatter.AddFromType(typeof(Number));
-		defaultFormatter.AddFromType(typeof(BooleanFormatter));
-		defaultFormatter.AddFromType(typeof(DateFormatter));
-		defaultFormatter.AddFromType(typeof(EqualityFormatter));
-		defaultFormatter.AddFromType(typeof(LinqFormatter));
-		defaultFormatter.AddFromType(typeof(ListExtensions));
-		defaultFormatter.AddFromType(typeof(RegexFormatter));
-		defaultFormatter.AddFromType(typeof(TimeSpanFormatter));
-		defaultFormatter.AddFromType(typeof(StringFormatter));
-		defaultFormatter.AddFromType(typeof(RandomFormatter));
-		defaultFormatter.AddFromType(typeof(Worktime));
-		defaultFormatter.AddFromType(typeof(Money));
-		defaultFormatter.AddFromType(typeof(Currency));
-		defaultFormatter.AddFromType(typeof(CurrencyHandler));
-		defaultFormatter.AddFromType(typeof(CurrencyConversion));
-		defaultFormatter.AddFromType(typeof(HtmlFormatter));
-		defaultFormatter.AddFromType(typeof(LoggingFormatter));
-
-		defaultFormatter.AddService(typeof(CryptService), new CryptService());
-		defaultFormatter.AddFromType<IMorestachioCryptographyService>();
-		defaultFormatter.AddFromType<AesCryptography>();
-
-		defaultFormatter.AddService(typeof(HashService), new HashService());
-		defaultFormatter.AddFromType(typeof(HashAlgorithm));
-
-		defaultFormatter.Constants.Add("Encoding", typeof(EncodingConstant));
-		defaultFormatter.Constants.Add("DateTime", typeof(DateTimeConstant));
-		defaultFormatter.Constants.Add("Currencies", typeof(WellKnownCurrencies));
-		defaultFormatter.Constants.Add("CurrencyHandler", CurrencyHandler.DefaultHandler);
-
-		defaultFormatter.AddFromType(typeof(EncodingConstant));
-		defaultFormatter.AddFromType(typeof(EncoderFallback));
-		defaultFormatter.AddFromType(typeof(DateTimeConstant));
-		defaultFormatter.AddFromType<Encoding>();
-
-		Default = defaultFormatter;
-	}
-
+	/// <summary>
+	///		The parent formatter the should be included in lookup
+	/// </summary>
+	public IMorestachioFormatterService Parent { get; }
 
 	/// <inheritdoc />
-	public ServiceCollection Services { get; private set; }
+	public ServiceCollection Services { get; }
 
 	/// <summary>
 	///		Adds the service to the inner collection and registers all morestachio functions
@@ -122,17 +290,23 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 	}
 
 	/// <inheritdoc />
-	public IDictionary<string, object> Constants { get; set; }
+	public IDictionary<string, object> Constants { get; }
 
 	/// <summary>
 	///     Gets the global formatter that are used always for any formatting run.
 	/// </summary>
 	public IDictionary<string, IList<MorestachioFormatterModel>> Formatters { get; }
 
+	private IFormatterValueConverter _defaultConverter;
+
 	/// <summary>
 	///     The fallback Converter that should convert all known mscore lib types
 	/// </summary>
-	public IFormatterValueConverter DefaultConverter { get; set; }
+	public IFormatterValueConverter DefaultConverter
+	{
+		get { return _defaultConverter; }
+		set { _defaultConverter = value ?? throw new ArgumentNullException("value", "The value of the DefaultConverter may never be null."); }
+	}
 
 	/// <summary>
 	///     List of all Value Converters that can be used to convert formatter arguments
@@ -150,7 +324,13 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 	/// <inheritdoc />
 	public IEnumerable<MorestachioFormatterModel> Filter(Func<MorestachioFormatterModel, bool> filter)
 	{
-		return Formatters.Values.SelectMany(f => f.Where(filter));
+		var formatters = Formatters.Values.SelectMany(f => f.Where(filter));
+
+		if (Parent != null)
+		{
+			formatters = formatters.Concat(Parent.Filter(filter));
+		}
+		return formatters;
 	}
 
 	/// <inheritdoc />
@@ -205,7 +385,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 	{
 		parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId, log(), getValues());
 	}
-	
+
 	/// <inheritdoc />
 	public FormatterCache PrepareCallMostMatchingFormatter(
 		Type type,
@@ -224,7 +404,11 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 
 		if (!hasFormatter.Any())
 		{
-			return null;
+			return Parent?.PrepareCallMostMatchingFormatter(type,
+				arguments,
+				name,
+				parserOptions,
+				scope);
 		}
 
 		var services = this.Services.CreateChild();
@@ -374,7 +558,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 			//var mandatoryArguments = formatTemplateElement.MetaData
 			//	.Where(e => !e.IsRestObject && !e.IsOptional && !e.IsSourceObject && !e.IsInjected).ToArray();
 			if (formatTemplateElement.MetaData.MandetoryArguments.Count > arguments.Length)
-				//if there are less arguments excluding rest then parameters
+			//if there are less arguments excluding rest then parameters
 			{
 				Log(parserOptions, () =>
 					"Exclude because formatter has " +

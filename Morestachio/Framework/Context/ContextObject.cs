@@ -95,10 +95,10 @@ public class ContextObject
 	///     should not be printed, or their printing should be specialized.
 	///     Add an typeof(object) entry as Type to define a Default Output
 	/// </summary>
-	[Obsolete("Please use the MorestachioFormatterService.Default instead")]
+	[Obsolete("Please use the DefaultFormatterService.Default instead", true)]
 	public static IMorestachioFormatterService DefaultFormatter
 	{
-		get { return MorestachioFormatterService.Default; }
+		get { throw new NotImplementedException(""); }
 	}
 
 	/// <summary>
@@ -551,16 +551,7 @@ public class ContextObject
 		}
 
 		//call formatters that are given by the Options for this run
-		var cache = scopeData._parserOptions.Formatters.PrepareCallMostMatchingFormatter(type, arguments, name, scopeData._parserOptions, scopeData);
-
-		if (cache != null)
-		{
-			//one formatter has returned a valid value so use this one.
-			return cache;
-		}
-
-		//all formatters in the options object have rejected the value so try use the global ones
-		return MorestachioFormatterService.Default.PrepareCallMostMatchingFormatter(type, arguments, name, scopeData._parserOptions, scopeData);
+		return scopeData._parserOptions.Formatters.PrepareCallMostMatchingFormatter(type, arguments, name, scopeData._parserOptions, scopeData);
 	}
 
 	/// <summary>
