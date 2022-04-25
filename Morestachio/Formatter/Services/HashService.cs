@@ -30,7 +30,7 @@ public class HashService
 	[MorestachioFormatter("[MethodName]", "Hashes the argument with the set HashAlgorithm")]
 	public byte[] HashWith(HashAlgorithm hashAlgorithm, byte[] data)
 	{
-		return HashWith(hashAlgorithm, data);
+		return hashAlgorithm.ComputeHash(data);
 	}
 
 	[MorestachioFormatter("[MethodName]", "Hashes the argument with the set HashAlgorithm and the set Encoding")]
