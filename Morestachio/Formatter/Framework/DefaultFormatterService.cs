@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using Morestachio.Formatter.Constants;
 using Morestachio.Formatter.Predefined;
 using Morestachio.Formatter.Predefined.Accounting;
@@ -16,7 +17,7 @@ public static class DefaultFormatterService
 {
 	static DefaultFormatterService()
 	{
-		Default = new Lazy<IMorestachioFormatterService>(BuildDefaultMorestachioFormatterService);
+		Default = new Lazy<IMorestachioFormatterService>(BuildDefaultMorestachioFormatterService, LazyThreadSafetyMode.ExecutionAndPublication);
 	}
 
 	/// <summary>
