@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using Morestachio.Formatter.Framework.Attributes;
 
 namespace Morestachio.Formatter.Predefined.Accounting;
@@ -14,32 +15,42 @@ public class CurrencyHandler
 {
 	static CurrencyHandler()
 	{
-		DefaultHandler = new CurrencyHandler();
-		DefaultHandler.Currencies = CultureInfo.GetCultures(CultureTypes.SpecificCultures)
-			.GroupBy(e => e.LCID)
-			.Select(f =>
-			{
-				//this has to be tried because in some systems we can get invalid regions
-				try
+		IDictionary<string, Currency> GetSystemCurrencies()
+		{
+			return CultureInfo.GetCultures(CultureTypes.SpecificCultures)
+				.GroupBy(e => e.LCID)
+				.Select(f =>
 				{
-					return new RegionInfo(f.Key);
-				}
-				catch (Exception e)
-				{
-					return null;
-				}
-			})
-			.Where(e => e != null)
-			.GroupBy(e => e.CurrencyEnglishName)
-			.Select(f => f.First()).ToDictionary(e => e.ISOCurrencySymbol, e => new Currency(e.CurrencySymbol, e.ISOCurrencySymbol));
+					//this has to be tried because in some systems we can get invalid regions
+					try
+					{
+						return new RegionInfo(f.Key);
+					}
+					catch (Exception e)
+					{
+						return null;
+					}
+				})
+				.Where(e => e != null)
+				.GroupBy(e => e.ISOCurrencySymbol)
+				.Select(f => f.First())
+				.ToDictionary(e => e.ISOCurrencySymbol, e => new Currency(e.CurrencySymbol, e.ISOCurrencySymbol));
+		}
+
+		DefaultHandler = new CurrencyHandler(GetSystemCurrencies);
 	}
 
 	/// <summary>
 	/// 
 	/// </summary>
-	public CurrencyHandler()
+	public CurrencyHandler() 
+		: this(() => new Dictionary<string, Currency>())
 	{
-		Currencies = new Dictionary<string, Currency>();
+	}
+
+	private CurrencyHandler(Func<IDictionary<string, Currency>> currencyFactory)
+	{
+		_currencies = new Lazy<IDictionary<string, Currency>>(currencyFactory);
 		ConversionFactors = new HashSet<CurrencyConversion>();
 	}
 
@@ -49,11 +60,16 @@ public class CurrencyHandler
 	[Description("The Default handler that contains all system wide known currencies")]
 	public static CurrencyHandler DefaultHandler { get; }
 
+	private Lazy<IDictionary<string, Currency>> _currencies;
+
 	/// <summary>
 	///		The list of all known currencies
 	/// </summary>
 	[Description("The list of all known currencies")]
-	public IDictionary<string, Currency> Currencies { get; private set; }
+	public IDictionary<string, Currency> Currencies
+	{
+		get { return _currencies.Value; }
+	}
 
 	/// <summary>
 	///		A list of known conversions for Currencies
@@ -67,9 +83,9 @@ public class CurrencyHandler
 	/// <returns></returns>
 	public CurrencyHandler Clone()
 	{
-		return new CurrencyHandler()
+		var currencies = new Dictionary<string, Currency>(Currencies);
+		return new CurrencyHandler(() => currencies)
 		{
-			Currencies = new Dictionary<string, Currency>(Currencies),
 			ConversionFactors = new HashSet<CurrencyConversion>(ConversionFactors)
 		};
 	}
