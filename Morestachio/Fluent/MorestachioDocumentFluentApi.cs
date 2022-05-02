@@ -230,7 +230,9 @@ public class MorestachioDocumentFluentApi
 	/// <returns></returns>
 	public MorestachioDocumentFluentApi ParseAndAdd(string documentPart)
 	{
-		var morestachioDocumentInfo = Parser.ParseWithOptions(new ParserOptions(new StringTemplateContainer(documentPart)));
+		var morestachioDocumentInfo = Parser.ParseWithOptions(ParserOptionsBuilder.New()
+			.WithTemplate(documentPart)
+			.Build());
 		AddChildInternal(f => morestachioDocumentInfo.Document);
 		return this;
 	}

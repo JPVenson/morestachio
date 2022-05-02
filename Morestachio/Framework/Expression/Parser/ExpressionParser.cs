@@ -228,7 +228,7 @@ public static class ExpressionParser
 	public static ObjectPromise EvaluateExpression(string expressionText,
 													object context)
 	{
-		return EvaluateExpression(expressionText, new ParserOptions(), context);
+		return EvaluateExpression(expressionText, ParserOptionsDefaultBuilder.GetDefaults().Build(), context);
 	}
 		
 	/// <summary>
@@ -245,7 +245,7 @@ public static class ExpressionParser
 	/// </summary>
 	public static ObjectPromise EvaluateExpression(string expressionText)
 	{
-		return EvaluateExpression(expressionText, new ParserOptions(), new Dictionary<string, object>());
+		return EvaluateExpression(expressionText, ParserOptionsDefaultBuilder.GetDefaults().Build(), new Dictionary<string, object>());
 	}
 
 	/// <summary>
