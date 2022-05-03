@@ -166,6 +166,12 @@ public static class ObjectFormatter
 		{ typeof(object), "object" },
 	};
 
+	[MorestachioFormatter("[MethodName]", "Gets the Cs type from any object")]
+	public static Type Typeof(object type)
+	{
+		return type?.GetType();
+	}
+
 	[MorestachioFormatter("TypeName", "Formats a Type according to the structure set by the argument")]
 	public static string FormatType(Type type)
 	{
