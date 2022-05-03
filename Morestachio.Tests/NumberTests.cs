@@ -161,6 +161,9 @@ namespace Morestachio.Tests
 		
 		[Test]
 		[TestCase("30.ToString('X2')", "1E")]
+		[TestCase("#VAR data = 30 + 50}}{{data.ToString('X2')", "50")]
+		[TestCase("30.ToString('F2')", "30.00")]
+		[TestCase("#VAR data = 30 + 50}}{{data.ToString('F2')", "80.00")]
 		public async Task CanFormatNumber(string templateData, string expected)
 		{			
 			var template = $"{{{{{templateData}}}}}";
