@@ -76,7 +76,7 @@ namespace Morestachio.Tests.SerilalizerTests
 
 		private void TestSerializableDocument(string template)
 		{
-			var options = new ParserOptions(template);
+			var options = ParserFixture.TestBuilder().WithTemplate(template).Build();
 			var morestachioDocumentInfo = Parser.ParseWithOptions(options);
 			SerializeAndDeserialize(morestachioDocumentInfo.Document);
 			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document, options);
@@ -273,13 +273,13 @@ namespace Morestachio.Tests.SerilalizerTests
 						   "{{#LOCP 'test'}}" +
 						   "{{#LOCPARAM 'ParamA'}}" +
 						   "{{/LOCP}}";
-			var options = new ParserOptions(template)
-				.RegisterLocalizationService(
-					() =>
-					{
-						return new MorestachioLocalizationService();
-					});
+			var options = ParserFixture.TestBuilder()
+				.WithTemplate(template)
+				.WithLocalizationService(() => new MorestachioLocalizationService())
+				.Build();
+
 			var morestachioDocumentInfo = Parser.ParseWithOptions(options);
+			Assert.That(morestachioDocumentInfo.Errors, Is.Empty);
 			SerializeAndDeserialize(morestachioDocumentInfo.Document);
 			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document, options);
 		}

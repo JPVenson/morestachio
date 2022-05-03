@@ -15,7 +15,7 @@ namespace Morestachio.Tests
 
 		private MorestachioDocumentInfo GenerateTemplate(string template)
 		{
-			return Parser.ParseWithOptions(new ParserOptions(template, null, ParserFixture.DefaultEncoding));
+			return Parser.ParseWithOptions(ParserFixture.TestBuilder().WithTemplate(template).Build());
 		}
 
 		[Test]

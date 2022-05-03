@@ -49,7 +49,7 @@ namespace Morestachio.Tests
 				}
 			};
 
-			var result = await (await Parser.ParseWithOptionsAsync(new ParserOptions(template, null, ParserFixture.DefaultEncoding))).CreateRenderer()
+			var result = await (await Parser.ParseWithOptionsAsync(ParserFixture.TestBuilder().WithTemplate(template).Build())).CreateRenderer()
 				.RenderAsync(data, CancellationToken.None);
 
 			Assert.That(result.Stream.Stringify(true, ParserFixture.DefaultEncoding), Is.EqualTo("B"));
@@ -214,7 +214,9 @@ namespace Morestachio.Tests
 
 			async Task RunTokenizeing()
 			{
-				var options = new ParserOptions(baseTemplate, () => Stream.Null);
+				var options = ParserFixture.TestBuilder().WithTemplate(baseTemplate)
+					.WithTargetStream(Stream.Null)
+					.Build();
 				var tokenzierContext = new TokenzierContext(new List<int>(), options.CultureInfo);
 				tokenizerResult = await Tokenizer.Tokenize(options, tokenzierContext);
 			}
@@ -321,7 +323,8 @@ namespace Morestachio.Tests
 
 			var data = GetData();
 
-			var parsingOptions = new ParserOptions(TextTemplateMorestachio, null, Encoding.UTF8, true);
+			var parsingOptions = ParserFixture.TestBuilder().WithTemplate(TextTemplateMorestachio)
+				.WithDisableContentEscaping(true).Build();
 			parsingOptions.ProfileExecution = false;
 			var parsed = await Parser.ParseWithOptionsAsync(parsingOptions);
 			var andStringifyAsync = await parsed.CreateRenderer().RenderAndStringifyAsync(data);
@@ -592,7 +595,8 @@ namespace Morestachio.Tests
 		}
 {{/REPEAT}}
 ";
-			var result = (await (await Parser.ParseWithOptionsAsync(new ParserOptions(template)))
+			
+			var result = (await (await Parser.ParseWithOptionsAsync(ParserFixture.TestBuilder().WithTemplate(template).Build()))
 				.CreateRenderer().RenderAndStringifyAsync(null));
 
 			Console.WriteLine(result);

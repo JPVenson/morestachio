@@ -94,7 +94,7 @@ namespace Morestachio.Tests.PerfTests
 			var executeTime = Stopwatch.StartNew();
 			for (int i = 0; i < runs; i++)
 			{
-				var parserOptions = new ParserOptions("");
+				var parserOptions = ParserOptionsDefaultBuilder.BuildDefault().Build();
 				await morestachioExpression.GetValue(new ContextObject(".", null, data)
 				{
 				}, new ScopeData(parserOptions));
@@ -158,19 +158,22 @@ namespace Morestachio.Tests.PerfTests
 			{
 				baseTemplate += model.Item2;
 			}
-
-			var tokenizingOptions = new ParserOptions(baseTemplate, () => Stream.Null);
+			
+			var options = ParserFixture.TestBuilder()
+				.WithTemplate(baseTemplate)
+				.WithTargetStream(Stream.Null)
+				.Build();
 			var tokenizingTime = new Stopwatch();
 			var stringMatchingTime = new Stopwatch();
 
 			for (var i = 0; i < runs; i++)
 			{
-				var tokenzierContext = new TokenzierContext(new List<int>(), tokenizingOptions.CultureInfo);
+				var tokenzierContext = new TokenzierContext(new List<int>(), options.CultureInfo);
 				stringMatchingTime.Start();
-				var tokens = tokenizingOptions.Template.Matches(tokenzierContext).ToArray();
+				var tokens = options.Template.Matches(tokenzierContext).ToArray();
 				stringMatchingTime.Stop();
 				tokenizingTime.Start();
-				var tokenizerResult = await Tokenizer.Tokenize(tokenizingOptions, tokenzierContext, tokens);
+				var tokenizerResult = await Tokenizer.Tokenize(options, tokenzierContext, tokens);
 				tokenizingTime.Stop();
 			}
 
@@ -206,7 +209,10 @@ namespace Morestachio.Tests.PerfTests
 			TokenizerResult tokenizerResult = null;
 
 			//make sure this class is JIT'd before we start timing.
-			var morestachioDocumentInfo = await Parser.ParseWithOptionsAsync(new ParserOptions("asdf"));
+			var morestachioDocumentInfo = await Parser.ParseWithOptionsAsync(ParserFixture.TestBuilder()
+				.WithTemplate("asdf")
+				.WithTargetStream(Stream.Null)
+				.Build());
 			var docRenderer = morestachioDocumentInfo.CreateRenderer();
 			var compRenderer = morestachioDocumentInfo.CreateCompiledRenderer();
 
@@ -214,28 +220,34 @@ namespace Morestachio.Tests.PerfTests
 			(await compRenderer.RenderAsync(new object())).Stream.Dispose();
 
 			var totalTime = Stopwatch.StartNew();
-
-			var tokenizingOptions = new ParserOptions(baseTemplate, () => Stream.Null);
+			
+			var options = ParserFixture.TestBuilder()
+				.WithTemplate(baseTemplate)
+				.WithTargetStream(Stream.Null)
+				.Build();
 
 			var tokenizingTime = new Stopwatch();
 			var stringMatchingTime = new Stopwatch();
 
 			for (var i = 0; i < runs; i++)
 			{
-				var tokenzierContext = new TokenzierContext(new List<int>(), tokenizingOptions.CultureInfo);
+				var tokenzierContext = new TokenzierContext(new List<int>(), options.CultureInfo);
 				stringMatchingTime.Start();
-				var tokens = tokenizingOptions.Template.Matches(tokenzierContext).ToArray();
+				var tokens = options.Template.Matches(tokenzierContext).ToArray();
 				stringMatchingTime.Stop();
 				tokenizingTime.Start();
-				tokenizerResult = await Tokenizer.Tokenize(tokenizingOptions, tokenzierContext, tokens);
+				tokenizerResult = await Tokenizer.Tokenize(options, tokenzierContext, tokens);
 				tokenizingTime.Stop();
 			}
 
 			var parseTime = Stopwatch.StartNew();
 			for (var i = 0; i < runs; i++)
 			{
-				var options = new ParserOptions(baseTemplate, () => Stream.Null);
-				template = new MorestachioDocumentInfo(options, Parser.Parse(tokenizerResult, options));
+				var tempOptions = ParserFixture.TestBuilder()
+					.WithTemplate(baseTemplate)
+					.WithTargetStream(Stream.Null)
+					.Build();
+				template = new MorestachioDocumentInfo(tempOptions, Parser.Parse(tokenizerResult, tempOptions));
 			}
 
 			parseTime.Stop();

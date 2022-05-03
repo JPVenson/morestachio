@@ -158,6 +158,18 @@ namespace Morestachio.Tests
 			Assert.That(Number.TryParse(right, CultureInfo.InvariantCulture, out var numberRight), Is.True);
 			Assert.That(numberLeft.Modulo(numberRight).Value, Is.EqualTo(expected).And.TypeOf(expected.GetType()));
 		}
+		
+		[Test]
+		[TestCase("30.ToString('X2')", "1E")]
+		public async Task CanFormatNumber(string templateData, string expected)
+		{			
+			var template = $"{{{{{templateData}}}}}";
+			var data = new
+			{
+			};
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
+			Assert.That(result, Is.EqualTo(expected));
+		}
 
 		[Test]
 		[TestCase(5L, "5", "Add", "10")]

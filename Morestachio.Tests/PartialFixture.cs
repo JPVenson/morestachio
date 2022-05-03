@@ -244,7 +244,7 @@ namespace Morestachio.Tests
 			var data = new Dictionary<string, object>();
 			var template = @"{{#declare TestPartial}}{{#IMPORT 'TestPartial'}}{{/declare}}{{#IMPORT 'TestPartial'}}";
 
-			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding);
+			var parsingOptions = ParserFixture.TestBuilder().WithTemplate(template).Build();
 			var parsedTemplate = Parser.ParseWithOptions(parsingOptions);
 			ParserFixture.TestLocationsInOrder(parsedTemplate);
 			Assert.That(async () => await parsedTemplate.CreateRenderer().RenderAndStringifyAsync(data),

@@ -16,7 +16,7 @@ namespace Morestachio;
 /// <summary>
 ///		Contains methods for creating a new ParserOptions object
 /// </summary>
-public interface IParserOptionsBuilder
+public interface IParserOptionsBuilder : IEnumerable<KeyValuePair<string, Func<ParserOptions, ParserOptions>>>
 {
 	IParserOptionsBuilder WithTemplate(string value);
 	IParserOptionsBuilder WithTemplate(Func<string> value);
@@ -72,6 +72,13 @@ public interface IParserOptionsBuilder
 	IParserOptionsBuilder WithHandleDictionaryAsObject(Func<bool> value);
 
 	/// <summary>
+	///		Adds a config step to be applied to the final parser options object
+	/// </summary>
+	/// <param name="callback"></param>
+	/// <returns></returns>
+	IParserOptionsBuilder WithConfig(Func<ParserOptions, ParserOptions> callback);
+
+	/// <summary>
 	///		Applies all settings to the given <see cref="ParserOptions"/>
 	/// </summary>
 	/// <param name="options"></param>
@@ -79,7 +86,7 @@ public interface IParserOptionsBuilder
 	ParserOptions Apply(ParserOptions options);
 
 	/// <summary>
-	///		Creates a new default <see cref="ParserOptions"/> from <see cref="ParserOptionsDefaultBuilder"/> and applies all custom settings
+	///		Creates a <see cref="ParserOptions"/> object and applies all settings to it
 	/// </summary>
 	/// <returns></returns>
 	ParserOptions Build();

@@ -48,6 +48,13 @@ namespace Morestachio.Tests
 			_options = options;
 		}
 
+		public static IParserOptionsBuilder TestBuilder()
+		{
+			return ParserOptionsBuilder.New()
+				.WithEncoding(DefaultEncoding)
+				.WithCultureInfo(DefaultCulture);
+		}
+
 		public static Encoding DefaultEncoding { get; set; } = new UnicodeEncoding(true, false, false);
 		public static CultureInfo DefaultCulture { get; set; } = CultureInfo.InvariantCulture;
 
@@ -117,11 +124,11 @@ namespace Morestachio.Tests
 			Action<ParserOptions> option = null,
 			Action<MorestachioDocumentInfo> documentCallback = null)
 		{
-			var parsingOptions = new ParserOptions(template, null, ParserFixture.DefaultEncoding)
-			{
-				Logger = !opt.HasFlag(ParserOptionTypes.NoLoggingTest) ? new TestLogger() : null,
-				CultureInfo = DefaultCulture
-			};
+			var parsingOptions = TestBuilder()
+				.WithTemplate(template)
+				.WithLogger(() => !opt.HasFlag(ParserOptionTypes.NoLoggingTest) ? new TestLogger() : null)
+				.Build();
+			
 			option?.Invoke(parsingOptions);
 			var document = await Parser.ParseWithOptionsAsync(parsingOptions);
 			if (!opt.HasFlag(ParserOptionTypes.NoRerenderingTest) && document.Document != null)
@@ -869,7 +876,7 @@ namespace Morestachio.Tests
 		public void ParserThrowsAnExceptionWhenFormatIsMismatched(string invalidTemplate, int expectedNoOfExceptions)
 		{
 			IEnumerable<IMorestachioError> errors;
-			Assert.That(errors = Parser.ParseWithOptions(new ParserOptions(invalidTemplate)).Errors,
+			Assert.That(errors = Parser.ParseWithOptions(TestBuilder().WithTemplate(invalidTemplate).Build()).Errors,
 				Is.Not.Empty,
 				() => errors.Select(e => e.HelpText).DefaultIfEmpty("").Aggregate((e, f) => e + Environment.NewLine + f));
 		}
@@ -881,7 +888,7 @@ namespace Morestachio.Tests
 		[TestCase("{{/each}}")]
 		public void ParserThrowsAnExceptionWhenEachIsMismatched(string invalidTemplate)
 		{
-			Assert.That(Parser.ParseWithOptions(new ParserOptions(invalidTemplate)).Errors, Is.Not.Empty);
+			Assert.That(Parser.ParseWithOptions(TestBuilder().WithTemplate(invalidTemplate).Build()).Errors, Is.Not.Empty);
 		}
 
 		[Test]
@@ -895,7 +902,11 @@ namespace Morestachio.Tests
 			model["name"] = "Mike";
 
 			Assert.That(
-				Parser.ParseWithOptions(new ParserOptions(template, null, DefaultEncoding)).CreateRenderer().Render(model).Stream.Stringify(true, DefaultEncoding),
+				Parser.ParseWithOptions(TestBuilder().WithTemplate(template).Build())
+					.CreateRenderer()
+					.Render(model)
+					.Stream
+					.Stringify(true, DefaultEncoding),
 				Is.EqualTo(expected));
 		}
 
@@ -905,9 +916,9 @@ namespace Morestachio.Tests
 		[TestCase("{{#element}}{{name}}")]
 		[TestCase("{{^element}}{{name}}")]
 		[TestCase("{{#IF element}}{{name}}")]
-		public void ParserThrowsParserExceptionForUnclosedGroups(string invalidTemplate)
+		public void ParserThrowsParserExceptionForUnclosedGroups(string template)
 		{
-			Assert.That(Parser.ParseWithOptions(new ParserOptions(invalidTemplate)).Errors,
+			Assert.That(Parser.ParseWithOptions(TestBuilder().WithTemplate(template).Build()).Errors,
 				Is.Not.Empty.And.Count.EqualTo(1));
 		}
 
@@ -930,7 +941,7 @@ namespace Morestachio.Tests
 		[TestCase("{{%}}")]
 		public void ParserShouldThrowForInvalidPaths(string template, int noOfErrors = 1)
 		{
-			Assert.That(Parser.ParseWithOptions(new ParserOptions(template)).Errors,
+			Assert.That(Parser.ParseWithOptions(TestBuilder().WithTemplate(template).Build()).Errors,
 				Is.Not.Empty);
 		}
 
@@ -941,7 +952,7 @@ namespace Morestachio.Tests
 		[TestCase("{{name}}")]
 		public void ParserShouldNotThrowForValidPath(string template)
 		{
-			Parser.ParseWithOptions(new ParserOptions(template));
+			Parser.ParseWithOptions(TestBuilder().WithTemplate(template).Build());
 		}
 
 
@@ -1282,19 +1293,23 @@ namespace Morestachio.Tests
 		[Test]
 		public void ParserCanProcessComplexValuePath()
 		{
+			var template = "{{#content}}Hello {{../Person.Name}}!{{/content}}";
 			Assert.That(() =>
-					Parser.ParseWithOptions(new ParserOptions("{{#content}}Hello {{../Person.Name}}!{{/content}}")),
+					Parser.ParseWithOptions(TestBuilder().WithTemplate(template).Build()),
 				Throws.Nothing);
 		}
 
 		[Test]
 		public void ParserCanProcessComplexFormattedValuePath()
 		{
+			var template = "{{../Data.Data(\"e\")}}";
+
 			var morestachioDocumentInfo = Parser.ParseWithOptions(
-				new ParserOptions("{{../Data.Data(\"e\")}}"));
+				TestBuilder().WithTemplate(template).Build());
 			Assert.That(morestachioDocumentInfo.Errors, Is.Empty, () => morestachioDocumentInfo.Errors.Select(e => e.HelpText).Aggregate((e, f) => e + f));
+			template = "{{~Data.Data(\"e\")}}";
 			morestachioDocumentInfo = Parser.ParseWithOptions(
-				new ParserOptions("{{~Data.Data(\"e\")}}"));
+				TestBuilder().WithTemplate(template).Build());
 			Assert.That(morestachioDocumentInfo.Errors, Is.Empty, () => morestachioDocumentInfo.Errors.Select(e => e.HelpText).Aggregate((e, f) => e + f));
 		}
 
@@ -1309,50 +1324,70 @@ namespace Morestachio.Tests
 		{
 			Assert.That(() =>
 			{
-				Parser.ParseWithOptions(new ParserOptions(
-					"{{#Collection}}Collection has elements{{/Collection}}{{^Collection}}Collection doesn't have elements{{/Collection}}"));
-				Parser.ParseWithOptions(new ParserOptions(
-					"{{^Collection}}Collection doesn't have elements{{/Collection}}{{#Collection}}Collection has elements{{/Collection}}"));
+				var template = "{{#Collection}}Collection has elements{{/Collection}}{{^Collection}}Collection doesn't have elements{{/Collection}}";
+				Parser.ParseWithOptions(TestBuilder().WithTemplate(template).Build());
+
+				template = "{{^Collection}}Collection doesn't have elements{{/Collection}}{{#Collection}}Collection has elements{{/Collection}}";
+				Parser.ParseWithOptions(TestBuilder().WithTemplate(template).Build());
+
 			}, Throws.Nothing);
 		}
 
 		[Test]
 		public void ParserCanProcessEachConstruct()
 		{
-			Assert.That(() => { Parser.ParseWithOptions(new ParserOptions("{{#each ACollection}}{{.}}{{/each}}")); },
+			var template = "{{#each ACollection}}{{.}}{{/each}}";
+			Assert.That(() =>
+				{
+					Parser.ParseWithOptions(TestBuilder().WithTemplate(template).Build());
+				},
 				Throws.Nothing);
 		}
 
 		[Test]
 		public void ParserCanProcessHandleMultilineTemplates()
 		{
-			Assert.That(() => Parser.ParseWithOptions(new ParserOptions(@"{{^Collection}}Collection doesn't have
+			var template = @"{{^Collection}}Collection doesn't have
 							elements{{#Collection}}Collection has
-						elements{{/Collection}}{{/Collection}}")), Throws.Nothing);
+						elements{{/Collection}}{{/Collection}}";
+
+			Assert.That(() =>
+			{
+				Parser.ParseWithOptions(TestBuilder().WithTemplate(template).Build());
+			}, Throws.Nothing);
 		}
 
 		[Test]
 		public void ParserCanProcessSimpleConditionalGroup()
 		{
+			var template = "{{#Collection}}Collection has elements{{/Collection}}";
 			Assert.That(() =>
-					Parser.ParseWithOptions(new ParserOptions("{{#Collection}}Collection has elements{{/Collection}}")),
+				{
+					Parser.ParseWithOptions(TestBuilder().WithTemplate(template).Build());
+				},
 				Throws.Nothing);
 		}
 
 		[Test]
 		public void ParserCanProcessSimpleNegatedCondionalGroup()
 		{
+			var template = "{{^Collection}}Collection has no elements{{/Collection}}";
 			Assert.That(() =>
-					Parser.ParseWithOptions(
-						new ParserOptions("{{^Collection}}Collection has no elements{{/Collection}}")),
+				{
+					Parser.ParseWithOptions(TestBuilder().WithTemplate(template).Build());
+				},
 				Throws.Nothing);
 		}
 
 		[Test]
 		public void ParserCanProcessSimpleValuePath()
 		{
+			var template = "Hello {{Name}}!";
 			Assert.That(() =>
-				Parser.ParseWithOptions(new ParserOptions("Hello {{Name}}!")), Throws.Nothing);
+				{
+					Parser.ParseWithOptions(TestBuilder().WithTemplate(template).Build());
+				},
+				Throws.Nothing);
 		}
 
 		[Test]
@@ -1426,21 +1461,23 @@ namespace Morestachio.Tests
 		[Test]
 		public void ParserThrowsParserExceptionForEachWithoutPath()
 		{
-			Assert.That(Parser.ParseWithOptions(new ParserOptions("{{#eachs}}{{name}}{{/each}}")).Errors, Is.Not.Empty);
+			var template = "{{#eachs}}{{name}}{{/each}}";
+			Assert.That(Parser.ParseWithOptions(TestBuilder().WithTemplate(template).Build()).Errors, Is.Not.Empty);
 		}
 
 		[Test]
 		public void ParserThrowsParserExceptionForEmptyEach()
 		{
-			Assert.That(Parser.ParseWithOptions(new ParserOptions("{{#each}}")).Errors, Is.Not.Empty);
+			var template = "{{#eachs}}{{name}}{{/each}}";
+			Assert.That(Parser.ParseWithOptions(TestBuilder().WithTemplate(template).Build()).Errors, Is.Not.Empty);
 		}
 
 		[Test]
 		public void ParsingThrowsAnExceptionWhenConditionalGroupsAreMismatched()
 		{
+			var template = "{{#Collection}}Collection has elements{{/AnotherCollection}}";
 			Assert.That(
-				Parser.ParseWithOptions(
-					new ParserOptions("{{#Collection}}Collection has elements{{/AnotherCollection}}")).Errors,
+				Parser.ParseWithOptions(TestBuilder().WithTemplate(template).Build()).Errors,
 				Is.Not.Empty.And.Count.EqualTo(2));
 		}
 

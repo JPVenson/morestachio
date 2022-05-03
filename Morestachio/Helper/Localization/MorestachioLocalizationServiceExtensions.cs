@@ -31,4 +31,29 @@ public static class MorestachioLocalizationServiceExtensions
 		options.CustomDocumentItemProviders.Add(new MorestachioLocalizationParamTagProvider());
 		return options;
 	}
+
+	/// <summary>
+	///		Registers everything for using the {{#loc "key"}}, {{Loc("key")}} and {{#LOCP "key"}} {{#LOCPARAM "argA"}} {{#loc "keyB"}} {{/LOCP}}
+	/// </summary>
+	/// <param name="builder"></param>
+	/// <param name="getService"></param>
+	/// <returns></returns>
+	public static IParserOptionsBuilder WithLocalizationService(this IParserOptionsBuilder builder,
+																Func<IMorestachioLocalizationService> getService)
+	{
+		return builder
+			.AddCustomDocument(new MorestachioLocalizationTagProvider())
+			.AddCustomDocument(new MorestachioCustomCultureLocalizationBlockProvider())
+			.AddCustomDocument(new MorestachioLocalizationBlockProvider())
+			.AddCustomDocument(new MorestachioLocalizationParamTagProvider())
+			.WithConfig(options =>
+			{
+				var service = getService();
+				options.Formatters.Services.AddService(service);
+				options.Formatters.AddFromType(typeof(IMorestachioLocalizationService));
+				options.Formatters.AddFromType(service.GetType());
+				options.Formatters.AddFromType(typeof(LocalizationFormatter));
+				return options;
+			});
+	}
 }

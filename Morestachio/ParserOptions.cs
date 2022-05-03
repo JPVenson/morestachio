@@ -58,7 +58,7 @@ public class ParserOptions : SealedBase
 	/// </summary>
 	internal ParserOptions()
 	{
-		
+		_customDocumentItemProviders = new CustomDocumentList();
 	}
 
 	///// <summary>
@@ -238,11 +238,6 @@ public class ParserOptions : SealedBase
 	//	: this(template, sourceStream, encoding, 0, disableContentEscaping)
 	//{
 	//}
-
-	private IFallbackValueResolver GetDefaultResolver()
-	{
-		return new CachedReflectionTypeFallbackResolver();
-	}
 
 	/// <inheritdoc />
 	public override void Seal()

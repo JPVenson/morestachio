@@ -32,10 +32,19 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	private readonly IDictionary<string, Func<ParserOptions, ParserOptions>> _builders;
 
 	/// <summary>
-	///		Creates a new ParserOptions Builder
+	///		Creates a new ParserOptions Builder that inherts its default values from the <see cref="ParserOptionsDefaultBuilder"/>
 	/// </summary>
 	/// <returns></returns>
 	public static IParserOptionsBuilder New()
+	{
+		return ParserOptionsDefaultBuilder.GetDefaults().Copy();
+	}
+
+	/// <summary>
+	///		Creates a new ParserOptions Builder that has no default values
+	/// </summary>
+	/// <returns></returns>
+	public static IParserOptionsBuilder NewPristine()
 	{
 		return new ParserOptionsBuilder();
 	}
@@ -52,7 +61,7 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	/// <inheritdoc />
 	public ParserOptions Build()
 	{
-		return Apply(ParserOptionsDefaultBuilder.GetDefaults().Apply(new ParserOptions()));
+		return Apply(new ParserOptions());
 	}
 
 	/// <inheritdoc />
@@ -62,9 +71,38 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	}
 
 	/// <inheritdoc />
+	public IParserOptionsBuilder WithConfig(Func<ParserOptions, ParserOptions> callback)
+	{
+		if (!_builders.TryGetValue("Config", out var preactions))
+		{
+			_builders["Config"] = callback;
+		}
+		else
+		{
+			_builders["Config"] = options =>
+			{
+				if (preactions != null)
+				{
+					options = preactions(options);
+				}
+
+				return callback(options);
+			};
+		}
+
+		return this;
+	}
+
+	/// <inheritdoc />
 	public ParserOptions Apply(ParserOptions options)
 	{
-		return _builders.Aggregate(options, (current, builder) => builder.Value(current));
+		var parserOptions = _builders.Aggregate(options, (current, builder) => builder.Value(current));
+		
+		if (_builders.TryGetValue("Config", out var actions))
+		{
+			parserOptions = actions(parserOptions);
+		}
+		return parserOptions;
 	}
 
 	private IParserOptionsBuilder WithValue(string name, Action<ParserOptions> operation)
@@ -110,7 +148,11 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	/// <inheritdoc />
 	public IParserOptionsBuilder AddCustomDocument(CustomDocumentItemProvider value)
 	{
-		return WithValue(nameof(ParserOptions.CustomDocumentItemProviders), options => options.CustomDocumentItemProviders.Add(value));
+		return WithConfig(options =>
+		{
+			options.CustomDocumentItemProviders.Add(value);
+			return options;
+		});
 	}
 
 	/// <inheritdoc />
@@ -381,5 +423,17 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	public IParserOptionsBuilder WithHandleDictionaryAsObject(Func<bool> value)
 	{
 		return WithValue(nameof(ParserOptions.HandleDictionaryAsObject), options => options.HandleDictionaryAsObject = value());
+	}
+
+	/// <inheritdoc />
+	public IEnumerator<KeyValuePair<string, Func<ParserOptions, ParserOptions>>> GetEnumerator()
+	{
+		return _builders.GetEnumerator();
+	}
+
+	/// <inheritdoc />
+	IEnumerator IEnumerable.GetEnumerator()
+	{
+		return ((IEnumerable)_builders).GetEnumerator();
 	}
 }

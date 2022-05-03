@@ -23,7 +23,7 @@ namespace Morestachio.Tests
 			var morestachioFormatterService = new MorestachioFormatterService(false);
 			morestachioFormatterService.AddFromType<GenericsParsingFixture>();
 
-			var parserOptions = new ParserOptions();
+			var parserOptions = ParserFixture.TestBuilder().Build();
 			var types = values.Select((e, i) => new FormatterArgumentType(i, e.Key, e.Value, new MorestachioExpression())).ToArray();
 
 			var cache = morestachioFormatterService.PrepareCallMostMatchingFormatter(GetType(),

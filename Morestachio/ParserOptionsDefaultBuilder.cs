@@ -29,18 +29,53 @@ public static class ParserOptionsDefaultBuilder
 	/// <returns></returns>
 	public static IParserOptionsBuilder BuildDefault()
 	{
-		return ParserOptionsBuilder.New()
-			.WithTemplate("")
-			.WithStreamFactory(new ByteCounterFactory())
-			.WithEncoding(Encoding.UTF8)
-			.WithFormatterService(new MorestachioFormatterService(false))
-			.WithNull(string.Empty)
+		return ParserOptionsBuilder.NewPristine()
+			.WithTemplate(DefaultTemplate)
+			.WithStreamFactory(DefaultStreamFactory)
+			.WithEncoding(DefaultEncoding)
+			.WithFormatterService(DefaultFormatterService)
+			.WithNull(EmptyTemplate)
 			.WithMaxSize(0)
 			.WithDisableContentEscaping(false)
-			.WithTimeout(TimeSpan.Zero)
-			.WithPartialStackSize(255)
-			.WithCultureInfo(() => CultureInfo.CurrentUICulture)
-			.WithUnmatchedTagBehavior(UnmatchedTagBehavior.ThrowError | UnmatchedTagBehavior.LogWarning)
-			.WithFallbackValueResolver(new CachedReflectionTypeFallbackResolver());
+			.WithTimeout(() => TimeSpan.Zero)
+			.WithPartialStackSize(() => 255)
+			.WithCultureInfo(DefaultCulture)
+			.WithUnmatchedTagBehavior(() => UnmatchedTagBehavior.ThrowError | UnmatchedTagBehavior.LogWarning)
+			.WithFallbackValueResolver(DefaultFallbackResolver);
+	}
+
+	private static IFallbackValueResolver DefaultFallbackResolver()
+	{
+		return new CachedReflectionTypeFallbackResolver();
+	}
+
+	private static CultureInfo DefaultCulture()
+	{
+		return CultureInfo.CurrentUICulture;
+	}
+
+	private static string EmptyTemplate()
+	{
+		return string.Empty;
+	}
+
+	private static IMorestachioFormatterService DefaultFormatterService()
+	{
+		return new MorestachioFormatterService(false);
+	}
+
+	private static Encoding DefaultEncoding()
+	{
+		return Encoding.UTF8;
+	}
+
+	private static ByteCounterFactory DefaultStreamFactory()
+	{
+		return new ByteCounterFactory();
+	}
+
+	private static string DefaultTemplate()
+	{
+		return "";
 	}
 }

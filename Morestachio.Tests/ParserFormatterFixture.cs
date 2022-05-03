@@ -21,8 +21,9 @@ namespace Morestachio.Tests
 		[Test]
 		public void TestCanExecuteAsyncFormatter()
 		{
-			var options = new ParserOptions("{{#each data.OrderBy('it')}}{{this}},{{/each}}", null,
-				ParserFixture.DefaultEncoding);
+			var template = "{{#each data.OrderBy('it')}}{{this}},{{/each}}";
+
+			var options = ParserFixture.TestBuilder().WithTemplate(template).Build();
 			var collection = new[] { 0, 1, 2, 3, 5, 4, 6, 7 };
 			options.Formatters.AddFromType(typeof(DynamicLinq));
 			var report = Parser.ParseWithOptions(options).CreateRenderer().Render(new Dictionary<string, object>
