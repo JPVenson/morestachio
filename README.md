@@ -94,11 +94,15 @@ One mayor component is the usage of Variable output strategies in morestachio.
 The output handling is done by a `IByteCounterStream` that wraps your specific output. This can ether be a `Stream`, `TextWriter`, `StringBuilder` or anything else. For thoese types Morestachio has pre defined Implementations named `ByteCounterStream`, `ByteCounterTextWriter` and `ByteCounterStringBuilder`. All thoese types are enforcing the `ParserOptions.MaxSize` property if set and will write your template with the set `ParserOptions.Encoding`
  
 ###### Formatter
-Use the `ContextObject.DefaultFormatter` collection to create own formatter for all your types or add one to the `ParserOptions.Formatters` object for just one call. To invoke them in your template use the new Function syntax:
+With Morestachio you can invoke C# methods from you template, so called 'Formatters'. There are [Build in formatters](https://github.com/JPVenson/morestachio/wiki/Predefined-Formatter) you can call in any template, registered via the `DefaultFormatterService.Default` class. When you add a formatter in the default service, it will be availible in every template. You can also add formatters per-template via the `ParserOptions.Formatters` service.
+
+To Invoke a formatter from you template use the Function syntax:
 ```csharp
 {{Just.One.Formattable.FormatterToCall().Thing}}
 ```
-This links a function named "FormatterToCall" that is ether present as a anonymous delegate added via `ParserOptions.Formatters.AddSingle(...)` or a `public static ` method attributed with the `MorestachioFormatterAttribute` added via the `ParserOptions.Formatters.AddFromType` or to an instance method attributed with the `MorestachioFormatterAttribute`
+This links a c# function named "FormatterToCall".
+
+You can register delegates by using `ParserOptions.Formatters.AddSingle(...)` or you can create a `public static class` that has methods attributed with the `MorestachioFormatterAttribute` and add them via the `ParserOptions.Formatters.AddFromType` or you can use an instance method attributed with the `MorestachioFormatterAttribute`.
 
 The formatter CAN return a new object on wich you can call new Propertys or it can return a string.
 There are formatter prepaired for all Primitve types. That means per default you can call on an object hat contains a DateTime:
