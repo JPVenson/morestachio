@@ -18,9 +18,15 @@ namespace Morestachio;
 /// </summary>
 public class ParserOptionsBuilder : IParserOptionsBuilder
 {
-	private ParserOptionsBuilder()
+	private ParserOptionsBuilder() 
+		: this(new Dictionary<string, Func<ParserOptions, ParserOptions>>())
 	{
-		_builders = new Dictionary<string, Func<ParserOptions, ParserOptions>>();
+		
+	}
+
+	private ParserOptionsBuilder(IDictionary<string, Func<ParserOptions, ParserOptions>> builders)
+	{
+		_builders = builders;
 	}
 
 	private readonly IDictionary<string, Func<ParserOptions, ParserOptions>> _builders;
@@ -34,10 +40,25 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 		return new ParserOptionsBuilder();
 	}
 
+	/// <summary>
+	///		Creates a new ParserOptions Builder that has default values
+	/// </summary>
+	/// <returns></returns>
+	public static IParserOptionsBuilder New(IDictionary<string, Func<ParserOptions, ParserOptions>> settings)
+	{
+		return new ParserOptionsBuilder(settings);
+	}
+
 	/// <inheritdoc />
 	public ParserOptions Build()
 	{
 		return Apply(ParserOptionsDefaultBuilder.GetDefaults().Apply(new ParserOptions()));
+	}
+
+	/// <inheritdoc />
+	public IParserOptionsBuilder Copy()
+	{
+		return New(new Dictionary<string, Func<ParserOptions, ParserOptions>>(_builders));
 	}
 
 	/// <inheritdoc />

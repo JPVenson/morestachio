@@ -83,4 +83,10 @@ public interface IParserOptionsBuilder
 	/// </summary>
 	/// <returns></returns>
 	ParserOptions Build();
+
+	/// <summary>
+	///		Creates an copy that is detached from this one but contains all settings
+	/// </summary>
+	/// <returns></returns>
+	IParserOptionsBuilder Copy();
 }
