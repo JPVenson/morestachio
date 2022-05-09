@@ -104,7 +104,7 @@ public readonly struct Money : IFormattable, IEquatable<Money>
 	{
 		return new Money(Value / 100 * rate, Currency);
 	}
-
+	
 	/// <summary>
 	///		Adds the value to a new money object and returns it
 	/// </summary>
@@ -112,9 +112,15 @@ public readonly struct Money : IFormattable, IEquatable<Money>
 	/// <returns></returns>
 	public Money Add(Money value)
 	{
-		if (value.Currency.Equals(value.Currency))
+		var currency = Currency;
+		if (currency.IsoName == Currency.UnknownCurrency.IsoName)
 		{
-			return new Money(Value + value.Value, Currency);
+			currency = value.Currency;
+		}
+
+		if (currency.Equals(value.Currency) || Currency.IsoName == Currency.UnknownCurrency.IsoName)
+		{
+			return new Money(Value + value.Value, currency);
 		}
 
 		throw new InvalidOperationException(
@@ -128,9 +134,15 @@ public readonly struct Money : IFormattable, IEquatable<Money>
 	/// <returns></returns>
 	public Money Subtract(Money value)
 	{
-		if (value.Currency.Equals(value.Currency))
+		var currency = Currency;
+		if (currency.IsoName == Currency.UnknownCurrency.IsoName)
 		{
-			return new Money(Value - value.Value, Currency);
+			currency = value.Currency;
+		}
+
+		if (currency.Equals(value.Currency) || Currency.IsoName == Currency.UnknownCurrency.IsoName)
+		{
+			return new Money(Value - value.Value, currency);
 		}
 
 		throw new InvalidOperationException(

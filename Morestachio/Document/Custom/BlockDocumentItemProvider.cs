@@ -66,8 +66,11 @@ public class BlockDocumentItemProvider : BlockDocumentItemProviderBase
 	}
 
 	/// <inheritdoc />
-	public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token,
-													ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions)
+	public override IDocumentItem CreateDocumentItem(string tag, 
+													 string value, 
+													 TokenPair token,
+													 ParserOptions options, 
+													 IEnumerable<ITokenOption> tagCreationOptions)
 	{
 		return new BlockDocumentItem(token.TokenLocation, _action, value, tagCreationOptions);
 	}
