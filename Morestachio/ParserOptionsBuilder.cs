@@ -13,11 +13,6 @@ using Morestachio.TemplateContainers;
 
 namespace Morestachio;
 
-#if ValueTask
-using MorestachioDocumentInfoPromise = System.Threading.Tasks.ValueTask<Morestachio.MorestachioDocumentInfo>;
-#else
-
-#endif
 
 /// <summary>
 ///		Allows the fluid creation of a <see cref="ParserOptions"/> object

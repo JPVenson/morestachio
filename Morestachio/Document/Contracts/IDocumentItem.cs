@@ -8,51 +8,6 @@ using Morestachio.Framework.Tokenizing;
 namespace Morestachio.Document.Contracts;
 
 /// <summary>
-///		Should be implemented to allow custom usage reporting on the structure of a DocumentItem for the <see cref="Morestachio.Analyzer.DataAccess.DataAccessAnalyzer"/>
-/// </summary>
-public interface IReportUsage
-{
-	/// <summary>
-	///		Gets all paths that will called
-	/// </summary>
-	/// <returns></returns>
-	IEnumerable<string> Usage(UsageData data);
-}
-
-public class UsageData
-{
-	public UsageData()
-	{
-		VariableSource = new Dictionary<string, string>();
-		_scopes = new Stack<string>();
-	}
-
-	public IDictionary<string, string> VariableSource { get; set; }
-
-	public string CurrentPath
-	{
-		get { return _scopes.Count == 0 ? null : _scopes.Peek(); }
-	}
-
-	private Stack<string> _scopes;
-
-	public UsageData ScopeTo(string currentPath)
-	{
-		_scopes.Push(currentPath);
-		return this;
-	}
-
-	public UsageData PopScope(string currentExpectedPath)
-	{
-		if (_scopes.Pop() != currentExpectedPath)
-		{
-			throw new InvalidOperationException($"Popped an unexpected scope while evaluating the usage. The document might be malformed or custom document item does not properly implement {nameof(IReportUsage)}");
-		}
-		return this;
-	}
-}
-
-/// <summary>
 ///		Defines a Part in the Template that can be processed
 /// </summary>
 public interface IDocumentItem

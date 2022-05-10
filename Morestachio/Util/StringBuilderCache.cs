@@ -58,7 +58,7 @@ internal static class StringBuilderCache
 #if Span
 	internal ref partial struct ValueStringBuilder
 	{
-		private char[]? _arrayToReturnToPool;
+		private char[] _arrayToReturnToPool;
 		private Span<char> _chars;
 		private int _pos;
 
@@ -195,7 +195,7 @@ internal static class StringBuilderCache
 			_pos += count;
 		}
 
-		public void Insert(int index, string? s)
+		public void Insert(int index, string s)
 		{
 			if (s == null)
 			{
@@ -235,7 +235,7 @@ internal static class StringBuilderCache
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void Append(string? s)
+		public void Append(string s)
 		{
 			if (s == null)
 			{
@@ -336,7 +336,7 @@ internal static class StringBuilderCache
 
 			_chars.Slice(0, _pos).CopyTo(poolArray);
 
-			char[]? toReturn = _arrayToReturnToPool;
+			char[] toReturn = _arrayToReturnToPool;
 			_chars = _arrayToReturnToPool = poolArray;
 			if (toReturn != null)
 			{
@@ -347,7 +347,7 @@ internal static class StringBuilderCache
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void Dispose()
 		{
-			char[]? toReturn = _arrayToReturnToPool;
+			var toReturn = _arrayToReturnToPool;
 			this = default; // for safety, to avoid using pooled array if this instance is erroneously appended to again
 			if (toReturn != null)
 			{

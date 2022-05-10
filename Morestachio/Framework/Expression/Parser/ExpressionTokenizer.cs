@@ -16,6 +16,13 @@ namespace Morestachio.Framework.Expression.Parser;
 /// </summary>
 public class ExpressionTokenizer
 {
+	/// <summary>
+	///		Tokenizes an expression text
+	/// </summary>
+	/// <param name="text"></param>
+	/// <param name="context"></param>
+	/// <param name="tokenIndex"></param>
+	/// <returns></returns>
 	public static ExpressionTokens TokenizeExpression(string text, TokenzierContext context, int tokenIndex)
 	{
 		var queue = new ExpressionTokens(text);

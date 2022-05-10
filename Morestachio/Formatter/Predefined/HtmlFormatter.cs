@@ -87,6 +87,6 @@ public static class HtmlFormatter
 		{
 			return text;
 		}
-		return Uri.EscapeUriString(text);
+		return Uri.EscapeDataString(text);
 	}
 }

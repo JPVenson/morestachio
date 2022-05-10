@@ -6,6 +6,7 @@ using Morestachio.Document.Contracts;
 using Morestachio.Document.Visitor;
 using Morestachio.Fluent.Expression;
 using Morestachio.Framework.IO;
+using Morestachio.Rendering;
 using Morestachio.TemplateContainers;
 
 namespace Morestachio.Fluent;
@@ -161,7 +162,7 @@ public class MorestachioDocumentFluentApi
 	public MorestachioDocumentFluentApi Render(object data, Action<IByteCounterStream> template)
 	{
 		var documentInfo = new MorestachioDocumentInfo(Context.Options, Context.CurrentNode.Item);
-		var morestachioDocumentResult = documentInfo.Create(data);
+		var morestachioDocumentResult = documentInfo.CreateRenderer().Render(data);
 		template(morestachioDocumentResult.Stream);
 		return this;
 	}

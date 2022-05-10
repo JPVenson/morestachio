@@ -5,10 +5,8 @@ using Morestachio.Helper;
 using Morestachio.TemplateContainers;
 
 #if ValueTask
-using MorestachioDocumentInfoPromise = System.Threading.Tasks.ValueTask<Morestachio.MorestachioDocumentInfo>;
 using StringArrayPromise = System.Threading.Tasks.ValueTask<string[]>;
 #else
-using MorestachioDocumentInfoPromise = System.Threading.Tasks.Task<Morestachio.MorestachioDocumentInfo>;
 using StringArrayPromise = System.Threading.Tasks.Task<string[]>;
 #endif
 

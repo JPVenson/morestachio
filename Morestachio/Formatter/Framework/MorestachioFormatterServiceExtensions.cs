@@ -6,14 +6,26 @@ using Morestachio.Formatter.Framework.Attributes;
 
 namespace Morestachio.Formatter.Framework;
 
+/// <summary>
+///		Extension methods for <see cref="IMorestachioFormatterService"/>
+/// </summary>
 public static class MorestachioFormatterServiceFassadeExtensions
 {
+	/// <summary>
+	///		Adds a type surrogate
+	/// </summary>
+	/// <param name="service"></param>
+	/// <param name="type"></param>
+	/// <returns></returns>
 	public static FormatterServiceAddFassade AddForType(this IMorestachioFormatterService service, Type type)
 	{
 		return new FormatterServiceAddFassade(type, service);
 	}
 }
 
+/// <summary>
+///		Allows or prohibits the calling for methods for a particular type
+/// </summary>
 public class FormatterServiceAddFassade
 {
 	private readonly Type _type;
@@ -25,6 +37,13 @@ public class FormatterServiceAddFassade
 		_morestachioFormatterService = morestachioFormatterService;
 	}
 
+	/// <summary>
+	///		Adds the method into the whitelist of allowed methods
+	/// </summary>
+	/// <param name="methodName"></param>
+	/// <param name="formatterDescriptor"></param>
+	/// <returns></returns>
+	/// <exception cref="InvalidOperationException"></exception>
 	public FormatterServiceAddFassade AllowMethod(string methodName, IMorestachioFormatterDescriptor formatterDescriptor)
 	{
 		var method = _type.GetMethod(methodName);
@@ -36,6 +55,14 @@ public class FormatterServiceAddFassade
 		return AllowMethod(method, formatterDescriptor);
 	}
 		
+
+	/// <summary>
+	///		Adds the method into the whitelist of allowed methods
+	/// </summary>
+	/// <param name="methodName"></param>
+	/// <param name="formatterDescriptor"></param>
+	/// <returns></returns>
+	/// <exception cref="InvalidOperationException"></exception>
 	public FormatterServiceAddFassade AllowMethod(MethodInfo methodName, IMorestachioFormatterDescriptor formatterDescriptor)
 	{
 		if (methodName == null)

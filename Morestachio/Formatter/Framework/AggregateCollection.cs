@@ -6,6 +6,11 @@
 /// <typeparam name="T"></typeparam>
 public class AggregateCollection<T> : ICollection<T>
 {
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="self"></param>
+	/// <param name="parent"></param>
 	public AggregateCollection(ICollection<T> self, ICollection<T> parent)
 	{
 		_self = self;

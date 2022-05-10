@@ -14,11 +14,6 @@ using Morestachio.Helper.Logging;
 using Morestachio.Parsing;
 using Morestachio.Parsing.ParserErrors;
 using Morestachio.TemplateContainers;
-#if ValueTask
-using MorestachioDocumentInfoPromise = System.Threading.Tasks.ValueTask<Morestachio.MorestachioDocumentInfo>;
-#else
-using MorestachioDocumentInfoPromise = System.Threading.Tasks.Task<Morestachio.MorestachioDocumentInfo>;
-#endif 
    
 namespace Morestachio
 {
@@ -343,7 +338,9 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.RenderPartial))
 				{
+#pragma warning disable CS0618
 					TryAdd(currentDocumentItem.Document, new RenderPartialDocumentItem(currentToken.TokenLocation,
+#pragma warning restore CS0618
 						currentToken.Value,
 						currentToken.MorestachioExpression, GetPublicOptions(currentToken)));
 				}

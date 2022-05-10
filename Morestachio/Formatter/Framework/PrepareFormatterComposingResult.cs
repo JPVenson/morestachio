@@ -108,7 +108,7 @@ public class PrepareFormatterComposingResult
 				return null;
 			};
 		}
-		catch (Exception e)
+		catch (Exception)
 		{
 			//in the case that the expression cannot be compiled. Fall back to reflection.
 			return method.Invoke;

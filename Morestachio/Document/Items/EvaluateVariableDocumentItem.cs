@@ -159,7 +159,7 @@ public class EvaluateLetVariableDocumentItem : EvaluateVariableDocumentItem
 	}
 
 	/// <summary>
-	///		Creates an new Variable that expires when its enclosing scope (<see cref="IdVariableScope"/>) is closed
+	///		Creates an new Variable that expires when its enclosing scope is closed
 	/// </summary>
 	/// <param name="value"></param>
 	/// <param name="morestachioExpression"></param>

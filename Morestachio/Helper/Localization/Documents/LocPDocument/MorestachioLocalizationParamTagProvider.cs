@@ -17,6 +17,9 @@ public class MorestachioLocalizationParamTagProvider : TagDocumentItemProviderBa
 	{
 	}
 
+	/// <summary>
+	///		The opening tag for an LocParam document item
+	/// </summary>
 	public const string OpenTag = "#LOCPARAM ";
 		
 	/// <inheritdoc />

@@ -37,7 +37,6 @@ public abstract class DocumentItemBase : IMorestachioDocument,
 	/// </summary>
 	/// <param name="info"></param>
 	/// <param name="c"></param>
-	[SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
 	protected DocumentItemBase(SerializationInfo info, StreamingContext c)
 	{
 		var expStartLocation = info.GetString(nameof(ExpressionStart));
@@ -88,7 +87,6 @@ public abstract class DocumentItemBase : IMorestachioDocument,
 	public IEnumerable<ITokenOption> TagCreationOptions { get; set; }
 
 	/// <inheritdoc />
-	[SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
 	public void GetObjectData(SerializationInfo info, StreamingContext context)
 	{
 		info.AddValue(nameof(ExpressionStart), ExpressionStart.ToFormatString());

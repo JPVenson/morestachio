@@ -39,7 +39,6 @@ public class IsolationScopeDocumentItem : BlockDocumentItemBase, ISupportCustomA
 	/// </summary>
 	/// <param name="info"></param>
 	/// <param name="c"></param>
-	[SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
 	protected IsolationScopeDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
 		Isolation = (IsolationOptions) info.GetValue(nameof(Isolation), typeof(IsolationOptions));

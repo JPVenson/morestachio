@@ -16,6 +16,9 @@ using Morestachio.Helper;
 
 namespace Morestachio.Document.Items;
 
+/// <summary>
+///		Defines a comment within the template. Will only be produced when <see cref="IParserOptionsBuilder.WithTokenizeComments(bool)"/> is enabled.
+/// </summary>
 [Serializable]
 public class CommentDocumentItem : ValueDocumentItemBase
 {
@@ -41,6 +44,9 @@ public class CommentDocumentItem : ValueDocumentItemBase
 		IsBlockComment = isBlockComment;
 	}
 
+	/// <summary>
+	///		Defines the current comment as a block of comments {{!}} {{/!}}
+	/// </summary>
 	public bool IsBlockComment { get; private set; }
 		
 	/// <inheritdoc />
@@ -48,19 +54,22 @@ public class CommentDocumentItem : ValueDocumentItemBase
 	{
 		IsBlockComment = info.GetBoolean(nameof(IsBlockComment));
 	}
-
+	
+	/// <inheritdoc />
 	protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
 	{
 		info.AddValue(nameof(IsBlockComment), IsBlockComment);
 		base.SerializeBinaryCore(info, context);
 	}
-
+	
+	/// <inheritdoc />
 	protected override void SerializeXml(XmlWriter writer)
 	{
 		writer.WriteAttributeString(nameof(IsBlockComment), IsBlockComment.ToString());
 		base.SerializeXml(writer);
 	}
-
+	
+	/// <inheritdoc />
 	protected override void DeSerializeXml(XmlReader reader)
 	{
 		IsBlockComment = reader.GetAttribute(nameof(IsBlockComment)) == bool.TrueString;

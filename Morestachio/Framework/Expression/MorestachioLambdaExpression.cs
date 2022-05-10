@@ -26,6 +26,11 @@ public class MorestachioLambdaExpression : IMorestachioExpression
 		Location = location;
 	}
 
+	/// <summary>
+	///		Serialization constructor
+	/// </summary>
+	/// <param name="info"></param>
+	/// <param name="context"></param>
 	public MorestachioLambdaExpression(SerializationInfo info, StreamingContext context)
 	{
 		Location = CharacterLocation.FromFormatString(info.GetString(nameof(Location)));
@@ -41,6 +46,7 @@ public class MorestachioLambdaExpression : IMorestachioExpression
 		info.AddValue(nameof(Parameters), Parameters);
 	}
 
+	/// <inheritdoc />
 	public XmlSchema GetSchema()
 	{
 		return null;

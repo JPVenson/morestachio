@@ -55,6 +55,7 @@ public static class EncodingConstant
 	/// <summary>Gets an encoding for the UTF-7 format.</summary>
 	/// <returns>An encoding for the UTF-7 format.</returns>
 	[Description("Gets an encoding for the UTF-7 format.")]
+	[Obsolete("'Encoding.UTF7' is obsolete: 'The UTF-7 encoding is insecure and should not be used. Consider using UTF-8 instead.'")]
 	public static Encoding UTF7
 	{
 		get { return new Encoding(NetEncoding.UTF7); }
@@ -102,50 +103,59 @@ public class Encoding : NetEncoding
 	{
 		_encoding = encoding;
 	}
-
+	
+	/// <inheritdoc />
 	[MorestachioFormatter("[MethodName]", "When overridden in a derived class, calculates the number of bytes produced by encoding the characters in the specified string.")]
 	public override int GetByteCount(string s)
 	{
 		return base.GetByteCount(s);
 	}
-
+	
+	/// <inheritdoc />
 	[MorestachioFormatter("[MethodName]", "When overridden in a derived class, encodes all the characters in the specified string into a sequence of bytes.")]
 	public override byte[] GetBytes(string s)
 	{
 		return base.GetBytes(s);
 	}
-
+	
+	/// <inheritdoc />
 	[MorestachioFormatter("[MethodName]", "When overridden in a derived class, decodes all the bytes in the specified byte array into a string.")]
 	public override string GetString(byte[] bytes)
 	{
 		return base.GetString(bytes);
 	}
-
+	
+	/// <inheritdoc />
 	public override int GetByteCount(char[] chars, int index, int count)
 	{
 		return _encoding.GetByteCount(chars, index, count);
 	}
-
+	
+	/// <inheritdoc />
 	public override int GetBytes(char[] chars, int charIndex, int charCount, byte[] bytes, int byteIndex)
 	{
 		return _encoding.GetBytes(chars, charIndex, charCount, bytes, byteIndex);
 	}
-
+	
+	/// <inheritdoc />
 	public override int GetCharCount(byte[] bytes, int index, int count)
 	{
 		return _encoding.GetCharCount(bytes, index, count);
 	}
 
+	/// <inheritdoc />
 	public override int GetChars(byte[] bytes, int byteIndex, int byteCount, char[] chars, int charIndex)
 	{
 		return _encoding.GetChars(bytes, byteIndex, byteCount, chars, charIndex);
 	}
-
+	
+	/// <inheritdoc />
 	public override int GetMaxByteCount(int charCount)
 	{
 		return _encoding.GetMaxByteCount(charCount);
 	}
-
+	
+	/// <inheritdoc />
 	public override int GetMaxCharCount(int byteCount)
 	{
 		return _encoding.GetMaxCharCount(byteCount);

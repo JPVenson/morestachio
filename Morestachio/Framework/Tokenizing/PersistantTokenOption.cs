@@ -58,9 +58,7 @@ public readonly struct PersistantTokenOption : ITokenOption, ISerializable
 		Value = value;
 		Persistent = true;
 	}
-		
 
-	[SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
 	private PersistantTokenOption(SerializationInfo info, StreamingContext c)
 	{
 		Name = info.GetString(nameof(Name));

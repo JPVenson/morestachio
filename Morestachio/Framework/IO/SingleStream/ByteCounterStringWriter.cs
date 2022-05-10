@@ -32,6 +32,9 @@ public class ByteCounterTextWriter : IByteCounterStream
 		return Writer.ToString();
 	}
 
+	/// <summary>
+	///		The parser options
+	/// </summary>
 	protected ParserOptions Options { get; }
 
 	/// <inheritdoc />
@@ -129,6 +132,7 @@ public class ByteCounterTextWriter : IByteCounterStream
 		}
 	}
 
+	/// <inheritdoc />
 	public ISubByteCounterStream GetSubStream()
 	{
 		return new SubByteCounterStream(this, Options);

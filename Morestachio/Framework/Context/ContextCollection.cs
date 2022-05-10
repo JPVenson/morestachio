@@ -14,8 +14,6 @@ public class ContextCollection : ContextObject
 	/// </summary>
 	/// <param name="index">the current index of the item inside the collection</param>
 	/// <param name="last">true if its the last item</param>
-	/// <param name="options"></param>
-	/// <param name="key"></param>
 	public ContextCollection(long index, 
 							bool last, 
 							string key, 

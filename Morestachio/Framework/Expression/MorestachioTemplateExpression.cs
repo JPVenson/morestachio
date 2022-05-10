@@ -84,6 +84,7 @@ public class MorestachioTemplateExpression
 		}
 	}
 
+	/// <inheritdoc />
 	public override string ToString()
 	{
 		var visitor = new ToParsableStringExpressionVisitor();

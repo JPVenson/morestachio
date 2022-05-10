@@ -444,7 +444,9 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 	}
 
 	/// <inheritdoc />
+#pragma warning disable CS0618
 	public void Visit(RenderPartialDocumentItem documentItem)
+#pragma warning restore CS0618
 	{
 		StringBuilder.Append("{{");
 		CheckForInlineTagLineBreakAtStart(documentItem);
@@ -510,6 +512,7 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 		RenderBlockFooter(documentItem, "ISOLATE");
 	}
 
+	/// <inheritdoc />
 	public void Visit(CommentDocumentItem documentItem)
 	{
 		if (documentItem.IsBlockComment)

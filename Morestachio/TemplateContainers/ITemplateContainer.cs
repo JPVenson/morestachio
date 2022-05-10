@@ -4,7 +4,7 @@ using Morestachio.Framework.Expression.Framework;
 namespace Morestachio.TemplateContainers;
 
 /// <summary>
-///		Defines a storage used to obtain token matches from a string or other source. Use the <see cref="TemplateContainerBase"/> or <see cref="LazyTemplateContainerBase"/> as base class for your own implementation
+///		Defines a storage used to obtain token matches from a string or other source. Use the <see cref="TemplateContainerBase"/> as base class for your own implementation
 /// </summary>
 public interface ITemplateContainer
 {

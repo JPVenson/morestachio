@@ -6,8 +6,10 @@
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, Inherited = false)]
 public sealed class ServiceNameAttribute : Attribute
 {
-	// See the attribute guidelines at 
-	//  http://go.microsoft.com/fwlink/?LinkId=85236
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="name"></param>
 	public ServiceNameAttribute(string name)
 	{
 		Name = name;

@@ -44,8 +44,6 @@ public class MorestachioExpressionBuilderBaseRootApi : MorestachioExpressionBuil
 	/// <summary>
 	///		Adds a number at the start of an expression
 	/// </summary>
-	/// <param name="number"></param>
-	/// <returns></returns>
 	public MorestachioExpressionBuilder String(string text)
 	{
 		ExpressionParts.Add(new MorestachioExpressionString(new CharacterLocation(0, Column, Column), '\"')

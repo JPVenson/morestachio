@@ -28,8 +28,6 @@ public class ByteCounterStringBuilder : IByteCounterStream
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="sb"></param>
-	/// <param name="options"></param>
 	public ByteCounterStringBuilder(StringBuilder sb, ParserOptions options)
 	{
 		_sb = sb;
@@ -39,8 +37,6 @@ public class ByteCounterStringBuilder : IByteCounterStream
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="sb"></param>
-	/// <param name="options"></param>
 	public ByteCounterStringBuilder(ParserOptions options)
 	{
 		_sb = new StringBuilder();

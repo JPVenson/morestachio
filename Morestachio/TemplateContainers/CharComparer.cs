@@ -7,9 +7,10 @@ namespace Morestachio.TemplateContainers;
 /// </summary>
 public class OrdinalCharComparer : IEqualityComparer<char>
 {
+#pragma warning disable CS1591
 	public static OrdinalCharComparer Comparer = new OrdinalCharComparer(false);
 	public static OrdinalCharComparer ComparerIgnoreCase = new OrdinalCharComparer(true);
-
+#pragma warning restore CS1591
 	private readonly bool _ignoreCase;
 
 	/// <summary>

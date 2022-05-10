@@ -14,7 +14,7 @@ public abstract class TemplateResource
 	public abstract int IndexOf(string token, int startIndex);
 
 	/// <summary>
-	///		Returns a substring at the <see cref="index"/> with <see cref="length"/>
+	///		Returns a substring at the index with length
 	/// </summary>
 	/// <param name="index"></param>
 	/// <param name="length"></param>
@@ -22,14 +22,14 @@ public abstract class TemplateResource
 	public abstract string Substring(int index, int length);
 
 	/// <summary>
-	///		Returns all content after <see cref="index"/>
+	///		Returns all content after index
 	/// </summary>
 	/// <param name="index"></param>
 	/// <returns></returns>
 	public abstract string Substring(int index);
 
 	/// <summary>
-	///		Returns a single character at <see cref="index"/>
+	///		Returns a single character at index
 	/// </summary>
 	/// <param name="index"></param>
 	/// <returns></returns>

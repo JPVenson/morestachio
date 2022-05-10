@@ -18,6 +18,10 @@ public class MorestachioLocalizationTagProvider : TagDocumentItemProviderBase
 	public MorestachioLocalizationTagProvider() : base(OpenTag)
 	{
 	}
+
+	/// <summary>
+	/// The opening tag for a loc document item
+	/// </summary>
 	public const string OpenTag = "#LOC ";
 
 	/// <inheritdoc />

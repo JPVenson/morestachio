@@ -12,7 +12,7 @@ public static class ParserOptionsBuilderExtensions
 	/// </summary>
 	/// <param name="builder"></param>
 	/// <returns></returns>
-	public static Task<MorestachioDocumentInfo> BuildAndParseAsync(this IParserOptionsBuilder builder)
+	public static MorestachioDocumentInfoPromise BuildAndParseAsync(this IParserOptionsBuilder builder)
 	{
 		return Parser.ParseWithOptionsAsync(builder.Build());
 	}

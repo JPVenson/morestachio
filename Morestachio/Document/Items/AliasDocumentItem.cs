@@ -112,6 +112,7 @@ public class AliasDocumentItem : ValueDocumentItemBase, ISupportCustomAsyncCompi
 		visitor.Visit(this);
 	}
 
+	/// <inheritdoc />
 	public override IEnumerable<string> Usage(UsageData data)
 	{
 		data.VariableSource[Value] = data.CurrentPath;

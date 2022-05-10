@@ -267,7 +267,7 @@ public static class ExpressionParser
 	///  <param name="text">the text expression that should be parsed until ether EOEX or ; or #</param>
 	///  <param name="context">the context describing the whole document</param>
 	///  <param name="parsedUntil">outputs the number of chars consumed by the parser</param>
-	///  <param name="index">the index within <see cref="text"/> from where to start the parsing</param>
+	///  <param name="index">the index within text from where to start the parsing</param>
 	///  <returns></returns>
 	public static IMorestachioExpression ParseExpression(
 		string text,

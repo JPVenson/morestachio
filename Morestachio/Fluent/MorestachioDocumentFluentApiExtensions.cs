@@ -125,6 +125,7 @@ public static class MorestachioDocumentFluentApiExtensions
 	/// <summary>
 	///		Adds a new <see cref="RenderPartialDocumentItem"/>
 	/// </summary>
+	[Obsolete("Use the #Import keyword")]
 	public static MorestachioDocumentFluentApi AddInclude(this MorestachioDocumentFluentApi api,
 														string name,
 														Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> condition = null)

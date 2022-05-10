@@ -34,7 +34,6 @@ public abstract class BlockDocumentItemBase : DocumentItemBase, IBlockDocumentIt
 	/// </summary>
 	/// <param name="info"></param>
 	/// <param name="c"></param>
-	[SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
 	protected BlockDocumentItemBase(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
 		var documentItemBases = info.GetValue(nameof(Children), typeof(IDocumentItem[])) as IDocumentItem[];

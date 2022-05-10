@@ -26,7 +26,7 @@ public class CurrencyHandler
 					{
 						return new RegionInfo(f.Key);
 					}
-					catch (Exception e)
+					catch (Exception)
 					{
 						return null;
 					}

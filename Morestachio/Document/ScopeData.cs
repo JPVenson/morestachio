@@ -145,7 +145,7 @@ public class ScopeData : IDisposable
 	///  <summary>
 	/// 		Adds a new variable or alias. An alias is bound to its scope and will
 	/// be reset when the scoping <see cref="IDocumentItem"/> is closed.
-	/// An Variable is global when the <see cref="idVariableScope"/> is 0
+	/// An Variable is global when the idVariableScope is 0
 	///  </summary>
 	private void AddVariableInternal(string name, object value, int idVariableScope)
 	{
@@ -187,7 +187,7 @@ public class ScopeData : IDisposable
 	///  <summary>
 	/// 		Adds a new variable or alias.
 	/// An alias is bound to its scope and will be reset when the scoping <see cref="IDocumentItem"/> is closed.
-	/// An Variable is global when the <see cref="idVariableScope"/> is 0
+	/// An Variable is global when the idVariableScope is 0
 	///  </summary>
 	public void AddVariable(string name, ContextObject value, int idVariableScope = 0)
 	{
@@ -197,7 +197,7 @@ public class ScopeData : IDisposable
 	///  <summary>
 	/// 		Adds a new variable or alias.
 	/// An alias is bound to its scope and will be reset when the scoping <see cref="IDocumentItem"/> is closed.
-	/// An Variable is global when the <see cref="idVariableScope"/> is 0
+	/// An Variable is global when the idVariableScope is 0
 	///  </summary>
 	public void AddVariable(string name, Func<ScopeData, ContextObject> value, int idVariableScope = 0)
 	{
@@ -207,7 +207,7 @@ public class ScopeData : IDisposable
 	///  <summary>
 	/// 		Adds a new variable or alias.
 	/// An alias is bound to its scope and will be reset when the scoping <see cref="IDocumentItem"/> is closed.
-	/// An Variable is global when the <see cref="idVariableScope"/> is 0
+	/// An Variable is global when the idVariableScope is 0
 	///  </summary>
 	public void AddVariable(string name, Func<ScopeData, ContextObject, ContextObject> value, int idVariableScope = 0)
 	{
