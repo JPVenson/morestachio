@@ -14,46 +14,22 @@ public static class MorestachioLocalizationServiceExtensions
 	/// <summary>
 	///		Registers everything for using the {{#loc "key"}}, {{Loc("key")}} and {{#LOCP "key"}} {{#LOCPARAM "argA"}} {{#loc "keyB"}} {{/LOCP}}
 	/// </summary>
-	/// <param name="options"></param>
-	/// <param name="getService"></param>
-	/// <returns></returns>
-	public static ParserOptions RegisterLocalizationService(this ParserOptions options,
-															Func<IMorestachioLocalizationService> getService)
-	{
-		var service = getService();
-		options.Formatters.Services.AddService(service);
-		options.Formatters.AddFromType(typeof(IMorestachioLocalizationService));
-		options.Formatters.AddFromType(service.GetType());
-		options.Formatters.AddFromType(typeof(LocalizationFormatter));
-		options.CustomDocumentItemProviders.Add(new MorestachioLocalizationTagProvider());
-		options.CustomDocumentItemProviders.Add(new MorestachioCustomCultureLocalizationBlockProvider());
-		options.CustomDocumentItemProviders.Add(new MorestachioLocalizationBlockProvider());
-		options.CustomDocumentItemProviders.Add(new MorestachioLocalizationParamTagProvider());
-		return options;
-	}
-
-	/// <summary>
-	///		Registers everything for using the {{#loc "key"}}, {{Loc("key")}} and {{#LOCP "key"}} {{#LOCPARAM "argA"}} {{#loc "keyB"}} {{/LOCP}}
-	/// </summary>
 	/// <param name="builder"></param>
 	/// <param name="getService"></param>
 	/// <returns></returns>
 	public static IParserOptionsBuilder WithLocalizationService(this IParserOptionsBuilder builder,
 																Func<IMorestachioLocalizationService> getService)
 	{
+		var service = getService();
+
 		return builder
-			.AddCustomDocument(new MorestachioLocalizationTagProvider())
-			.AddCustomDocument(new MorestachioCustomCultureLocalizationBlockProvider())
-			.AddCustomDocument(new MorestachioLocalizationBlockProvider())
-			.AddCustomDocument(new MorestachioLocalizationParamTagProvider())
-			.WithConfig(options =>
-			{
-				var service = getService();
-				options.Formatters.Services.AddService(service);
-				options.Formatters.AddFromType(typeof(IMorestachioLocalizationService));
-				options.Formatters.AddFromType(service.GetType());
-				options.Formatters.AddFromType(typeof(LocalizationFormatter));
-				return options;
-			});
+				.AddCustomDocument(new MorestachioLocalizationTagProvider())
+				.AddCustomDocument(new MorestachioCustomCultureLocalizationBlockProvider())
+				.AddCustomDocument(new MorestachioLocalizationBlockProvider())
+				.AddCustomDocument(new MorestachioLocalizationParamTagProvider())
+				.WithService(service)
+				.WithFormatters<IMorestachioLocalizationService>()
+				.WithFormatters(typeof(LocalizationFormatter))
+				.WithFormatters(service.GetType());
 	}
 }

@@ -13,6 +13,25 @@ using Morestachio.TemplateContainers;
 
 namespace Morestachio;
 
+#if ValueTask
+using MorestachioDocumentInfoPromise = System.Threading.Tasks.ValueTask<Morestachio.MorestachioDocumentInfo>;
+#else
+using MorestachioDocumentInfoPromise = System.Threading.Tasks.Task<Morestachio.MorestachioDocumentInfo>;
+#endif 
+
+public static class ParserOptionsBuilderExtensions
+{
+	public static MorestachioDocumentInfoPromise BuildAndParseAsync(this IParserOptionsBuilder builder)
+	{
+		return Parser.ParseWithOptionsAsync(builder.Build());
+	}
+
+	public static MorestachioDocumentInfo BuildAndParse(this IParserOptionsBuilder builder)
+	{
+		return Parser.ParseWithOptions(builder.Build());
+	}
+}
+
 /// <summary>
 ///		Allows the fluid creation of a <see cref="ParserOptions"/> object
 /// </summary>
@@ -61,7 +80,9 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	/// <inheritdoc />
 	public ParserOptions Build()
 	{
-		return Apply(new ParserOptions());
+		var parserOptions = Apply(new ParserOptions());
+		parserOptions.Seal();
+		return parserOptions;
 	}
 
 	/// <inheritdoc />
@@ -98,10 +119,10 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	{
 		var parserOptions = _builders.Aggregate(options, (current, builder) => builder.Value(current));
 		
-		if (_builders.TryGetValue("Config", out var actions))
-		{
-			parserOptions = actions(parserOptions);
-		}
+		//if (_builders.TryGetValue("Config", out var actions))
+		//{
+		//	parserOptions = actions(parserOptions);
+		//}
 		return parserOptions;
 	}
 

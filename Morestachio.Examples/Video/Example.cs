@@ -21,15 +21,21 @@ namespace Morestachio.Examples.Video
 					name = " Frank "
 				}
 			};
+			//var options = ParserOptionsBuilder.New()
+			//								.WithTemplate(template)
+			//								.WithEncoding(encoding)
+			//								.WithDisableContentEscaping(shouldEscape)
+			//								.WithTimeout(TimeSpan.FromSeconds(5));
 
-			var options = new ParserOptions(new StringTemplateContainer(template));
-			options.Formatters.AddSingle(new Func<string, string>(inputSource => " Sir " + inputSource.Trim()), "TrimEx");
+			//return options.Build();
+			//var options = new ParserOptions(new StringTemplateContainer(template));
+			//options.Formatters.AddSingle(new Func<string, string>(inputSource => " Sir " + inputSource.Trim()), "TrimEx");
 			
-			var documentResult = await Parser.ParseWithOptionsAsync(options);
+			//var documentResult = await Parser.ParseWithOptionsAsync(options);
 
-			var text = await documentResult.CreateAndStringifyAsync(data);
-			Console.WriteLine(text);
-			Console.ReadKey();
+			//var text = await documentResult.CreateAndStringifyAsync(data);
+			//Console.WriteLine(text);
+			//Console.ReadKey();
 		}
 	}
 }

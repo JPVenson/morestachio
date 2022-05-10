@@ -264,11 +264,10 @@ namespace Morestachio.Runner.MDoc
 			var formatterTypes = new List<FormatterData>();
 			values["FormatterData"] = formatterTypes;
 
-			var parserOptions = new ParserOptions();
-
-			parserOptions
-				.RegisterFileSystem(() => new FileSystemService())
-				.RegisterLocalizationService(() => new MorestachioLocalizationService());
+			var parserOptions = ParserOptionsBuilder.New()
+													.WithLocalizationService(() => new MorestachioLocalizationService())
+													.WithFileSystem(() => new FileSystemService())
+													.Build();
 
 			var formatterService = parserOptions.Formatters as MorestachioFormatterService;
 

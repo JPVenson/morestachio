@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Morestachio.Formatter.Framework;
 using Morestachio.Linq;
 using NUnit.Framework;
 
@@ -31,56 +30,58 @@ namespace Morestachio.Tests
 		public async Task TestEveryKeywordOnObject()
 		{
 			var template = "{{#each this.?}}{{Key}}:\"{{Value}}\"{{^IF $last}},{{/IF}}{{/each}}";
-			var data = new EveryObjectTest()
+
+			var data = new EveryObjectTest
 			{
 				TestA = "Du",
 				TestB = "Hast"
 			};
-
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
+
 			Assert.That(result, Is.EqualTo($"{nameof(EveryObjectTest.TestA)}:\"Du\"," +
-			                               $"{nameof(EveryObjectTest.TestB)}:\"Hast\"," +
-			                               $"{nameof(EveryObjectTest.ObjectTest)}:\"\""));
+				$"{nameof(EveryObjectTest.TestB)}:\"Hast\"," +
+				$"{nameof(EveryObjectTest.ObjectTest)}:\"\""));
 		}
 
 		[Test]
 		public async Task TestEveryKeywordOnDictionary()
 		{
-			
 			var template = "{{#each this.?}}{{Key}}:\"{{Value}}\"{{^IF $last}},{{/IF}}{{/each}}";
-			var data = new Dictionary<string, object>()
-			{
-				{nameof(EveryObjectTest.TestA), "Du"},
-				{nameof(EveryObjectTest.TestB), "Hast"},
-				{nameof(EveryObjectTest.ObjectTest), null},
-			};
 
+			var data = new Dictionary<string, object>
+			{
+				{ nameof(EveryObjectTest.TestA), "Du" },
+				{ nameof(EveryObjectTest.TestB), "Hast" },
+				{ nameof(EveryObjectTest.ObjectTest), null }
+			};
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
+
 			Assert.That(result, Is.EqualTo($"{nameof(EveryObjectTest.TestA)}:\"Du\"," +
-			                               $"{nameof(EveryObjectTest.TestB)}:\"Hast\"," +
-			                               $"{nameof(EveryObjectTest.ObjectTest)}:\"\""));
+				$"{nameof(EveryObjectTest.TestB)}:\"Hast\"," +
+				$"{nameof(EveryObjectTest.ObjectTest)}:\"\""));
 		}
 
 		[Test]
 		public async Task TestEveryKeywordOnComplexPathDictionary()
 		{
 			var template = "{{#each Data.?}}{{Key}}:\"{{Value}}\"{{^IF $last}},{{/IF}}{{/each}}";
-			var data = new Dictionary<string, object>()
+
+			var data = new Dictionary<string, object>
 			{
 				{
-					"Data", new Dictionary<string, object>()
+					"Data", new Dictionary<string, object>
 					{
-						{nameof(EveryObjectTest.TestA), "Du"},
-						{nameof(EveryObjectTest.TestB), "Hast"},
-						{nameof(EveryObjectTest.ObjectTest), null},
+						{ nameof(EveryObjectTest.TestA), "Du" },
+						{ nameof(EveryObjectTest.TestB), "Hast" },
+						{ nameof(EveryObjectTest.ObjectTest), null }
 					}
 				}
 			};
-
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options);
+
 			Assert.That(result, Is.EqualTo($"{nameof(EveryObjectTest.TestA)}:\"Du\"," +
-			                               $"{nameof(EveryObjectTest.TestB)}:\"Hast\"," +
-			                               $"{nameof(EveryObjectTest.ObjectTest)}:\"\""));
+				$"{nameof(EveryObjectTest.TestB)}:\"Hast\"," +
+				$"{nameof(EveryObjectTest.ObjectTest)}:\"\""));
 		}
 
 		[Test]
@@ -88,17 +89,14 @@ namespace Morestachio.Tests
 		{
 			var template = "{{#each data}}{{$index.PlusOne()}},{{/each}}";
 			var collection = new[] { 10, 11, 12, 14 };
+
 			var data = new Dictionary<string, object>
 			{
 				{
 					"data", collection
 				}
 			};
-
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
-			{
-				options.Formatters.AddSingle(new Func<long, long>((value) => value + 1), "PlusOne");
-			});
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatter(new Func<long, long>(value => value + 1), "PlusOne"); });
 
 			Assert.That(result,
 				Is.EqualTo(Enumerable.Range(1, collection.Length).Select(e => e.ToString()).Aggregate((e, f) => e + "," + f) + ","));
@@ -109,17 +107,14 @@ namespace Morestachio.Tests
 		{
 			var template = "{{#each data.OrderBy()}}{{this}},{{/each}}";
 			var collection = new[] { 0, 1, 2, 3, 5, 4, 6, 7 };
+
 			var data = new Dictionary<string, object>
 			{
 				{
 					"data", collection
 				}
 			};
-
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
-			{
-				options.Formatters.AddFromType(typeof(DynamicLinq));
-			});
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatters(typeof(DynamicLinq)); });
 
 			Assert.That(result,
 				Is.EqualTo(collection.OrderBy(e => e).Select(e => e.ToString()).Aggregate((e, f) => e + "," + f) + ","));
@@ -128,22 +123,17 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task TestCollectionFormattingScope()
 		{
-
-
 			var template = "{{#each data.OrderBy()}}{{this}},{{/each}}|{{#each data}}{{this}},{{/each}}";
 			var collection = new[] { 0, 1, 2, 3, 5, 4, 6, 7 };
+
 			var data = new Dictionary<string, object>
 			{
 				{
 					"data", collection
 				}
 			};
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatters(typeof(DynamicLinq)); });
 
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
-			{
-				options.Formatters.AddFromType(typeof(DynamicLinq));
-			});
-			
 			var resultLeftExpressionOrdered =
 				collection.OrderBy(e => e).Select(e => e.ToString()).Aggregate((e, f) => e + "," + f) + ",";
 			var resultRightExpression = collection.Select(e => e.ToString()).Aggregate((e, f) => e + "," + f) + ",";

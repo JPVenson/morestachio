@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Morestachio.Framework.Context.Resolver;
 using NUnit.Framework;
@@ -10,11 +8,6 @@ namespace Morestachio.Tests.FormatterFunctionTests
 	[TestFixture]
 	public partial class ListExtensionsTests
 	{
-		public ListExtensionsTests()
-		{
-			
-		}
-
 		[Test]
 		public async Task TestWith()
 		{
@@ -32,20 +25,16 @@ namespace Morestachio.Tests.FormatterFunctionTests
 		{
 			object result = null;
 			var template = @"{{#VAR result = " + expression + "}}";
+
 			await ParserFixture.CreateAndParseWithOptions(template, source,
-				ParserOptionTypes.NoRerenderingTest | ParserOptionTypes.UseOnDemandCompile, e =>
-				{
-					e.ValueResolver = new FieldValueResolver();
-				},
-				e =>
-				{
-					e.CaptureVariables = true;					
-				},
+				ParserOptionTypes.NoRerenderingTest | ParserOptionTypes.UseOnDemandCompile, e => { return e.WithValueResolver(new FieldValueResolver()); },
+				e => { e.CaptureVariables = true; },
 				e =>
 				{
 					result = e.CapturedVariables["result"];
 					Assert.That(result, Is.AssignableTo<T>());
 				});
+
 			return result is T ? (T)result : default;
 		}
 	}

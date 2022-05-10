@@ -263,11 +263,15 @@ namespace Morestachio.Runner
 						WriteLine("- Parse the template");
 						using (StartMetric("Parse Template"))
 						{
-							document = await Parser.ParseWithOptionsAsync(new ParserOptions(template, () => sourceFs, Encoding.UTF8, true)
-							{
-								Timeout = TimeSpan.FromMinutes(1),
-								ValueResolver = resolver,
-							});
+							document = await ParserOptionsBuilder
+											.New()
+											.WithTemplate(template)
+											.WithTargetStream(sourceFs)
+											.WithEncoding(Encoding.UTF8)
+											.WithDisableContentEscaping(true)
+											.WithTimeout(TimeSpan.FromMinutes(1))
+											.WithValueResolver(resolver)
+											.BuildAndParseAsync();
 						}
 						
 						if (document.Errors.Any())

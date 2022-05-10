@@ -10,7 +10,6 @@ using Morestachio.Framework.Context.Resolver;
 using Morestachio.Framework.IO;
 using Morestachio.Helper.Logging;
 using Morestachio.TemplateContainers;
-
 namespace Morestachio;
 
 /// <summary>
@@ -18,7 +17,9 @@ namespace Morestachio;
 /// </summary>
 public interface IParserOptionsBuilder : IEnumerable<KeyValuePair<string, Func<ParserOptions, ParserOptions>>>
 {
+#pragma warning disable CS1591
 	IParserOptionsBuilder WithTemplate(string value);
+
 	IParserOptionsBuilder WithTemplate(Func<string> value);
 	IParserOptionsBuilder WithTemplate(ITemplateContainer value);
 	IParserOptionsBuilder WithTemplate(Func<ITemplateContainer> value);
@@ -70,6 +71,7 @@ public interface IParserOptionsBuilder : IEnumerable<KeyValuePair<string, Func<P
 	IParserOptionsBuilder WithNull(Func<string> value);
 	IParserOptionsBuilder WithHandleDictionaryAsObject(bool value);
 	IParserOptionsBuilder WithHandleDictionaryAsObject(Func<bool> value);
+#pragma warning restore CS1591
 
 	/// <summary>
 	///		Adds a config step to be applied to the final parser options object

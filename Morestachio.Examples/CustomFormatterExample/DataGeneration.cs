@@ -16,11 +16,14 @@ namespace Morestachio.Examples.CustomFormatterExample
 		//this method is optional you can safely remove it
 		public override ParserOptions Configurate(string templateText, Encoding encoding, bool shouldEscape)
 		{
-			var options = new ParserOptions(templateText, null, encoding, shouldEscape);
-			options.Formatters.AddFromType(typeof(DataGeneration));
-			options.Timeout = TimeSpan.FromMinutes(1);
-			options.Encoding = Encoding.UTF8;
-			return options;
+			var options = ParserOptionsBuilder.New()
+											.WithTemplate(templateText)
+											.WithEncoding(encoding)
+											.WithDisableContentEscaping(shouldEscape)
+											.WithTimeout(TimeSpan.FromSeconds(5))
+											.WithFormatters<DataGeneration>();
+
+			return options.Build();
 		}
 
 		[MorestachioFormatter("ToBase64", "")]

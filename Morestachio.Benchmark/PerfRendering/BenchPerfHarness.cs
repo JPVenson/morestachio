@@ -17,9 +17,10 @@ namespace Morestachio.Benchmark.PerfRendering
 		
 		public virtual async Task Setup()
 		{
-			var parsingOptions = new ParserOptions(GetTemplate());
-			parsingOptions.DisableContentEscaping = true;
-			_templateCompiled = (await Parser.ParseWithOptionsAsync(parsingOptions))
+			_templateCompiled = (await ParserOptionsBuilder.New()
+															.WithTemplate(GetTemplate)
+															.WithDisableContentEscaping(true)
+															.BuildAndParseAsync())
 				.CreateCompiledRenderer(new DocumentCompiler());
 			_data = GetData();
 

@@ -38,7 +38,12 @@ namespace Morestachio.AspNetCore
 
 		public virtual ParserOptions CreateOptions(string template, Encoding encodingFromRequest)
 		{
-			var parserOptions = new ParserOptions(template, null, Encoding ?? encodingFromRequest, MaxSize, DisableContentEscaping);
+			var parserOptions = ParserOptionsBuilder.New()
+													.WithTemplate(template)
+													.WithEncoding(Encoding ?? encodingFromRequest)
+													.WithMaxSize(MaxSize)
+													.WithDisableContentEscaping(DisableContentEscaping)
+													.Build();
 			parserOptions.Formatters = MorestachioFormatterService ?? parserOptions.Formatters;
 			parserOptions.CultureInfo = Culture ?? parserOptions.CultureInfo;
 			parserOptions.ValueResolver = ValueResolver ?? parserOptions.ValueResolver;

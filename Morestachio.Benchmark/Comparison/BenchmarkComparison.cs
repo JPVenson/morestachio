@@ -105,7 +105,9 @@ namespace Morestachio.Benchmark.Comparison
 		[Benchmark(Description = "Morestachio - Parser")]
 		public MorestachioDocumentInfo TestMorestachio()
 		{
-			return Morestachio.Parser.ParseWithOptions(new ParserOptions(TextTemplateMorestachio));
+			return ParserOptionsBuilder.New()
+										.WithTemplate(TextTemplateMorestachio)
+										.BuildAndParse();
 		}
 		
 		[Benchmark(Description = "DotLiquid - Parser")]

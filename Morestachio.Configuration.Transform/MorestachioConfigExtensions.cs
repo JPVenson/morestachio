@@ -34,7 +34,7 @@ namespace Morestachio.Configuration.Transform
 		/// <param name="builder"></param>
 		/// <param name="options"></param>
 		/// <returns></returns>
-		public static IMorestachioConfigurationBuilder UseOptions(this IMorestachioConfigurationBuilder builder, Func<ParserOptions> options)
+		public static IMorestachioConfigurationBuilder UseOptions(this IMorestachioConfigurationBuilder builder, Func<IParserOptionsBuilder> options)
 		{
 			builder.Options.ParserOptions = options;
 			return builder;

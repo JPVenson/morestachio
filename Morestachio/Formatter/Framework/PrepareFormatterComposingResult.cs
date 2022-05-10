@@ -95,9 +95,15 @@ public class PrepareFormatterComposingResult
 				return Expression.Lambda<Func<object, object[], object>>(body, true, instParam, argsParam).Compile();
 			}
 
-			var callerMethod = Expression.Lambda<Action<object, object[]>>(body, true, instParam, argsParam).Compile();
+			var expression = Expression.Lambda<Action<object, object[]>>(body, true, instParam, argsParam);
+			var callerMethod = expression.Compile();
 			return (callee, parameter) =>
 			{
+				if (callee == null)
+				{
+					throw new InvalidOperationException("Cannot call instance formatter without setting an instance.");
+				}
+
 				callerMethod(callee, parameter);
 				return null;
 			};

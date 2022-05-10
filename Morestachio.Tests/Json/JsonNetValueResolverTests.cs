@@ -21,8 +21,7 @@ namespace Morestachio.Tests.Json
 ";
 			var template = "{{Data.PropA}}{{PropB}}";
 
-			var options = ParserFixture.TestBuilder().WithTemplate(template).Build();
-			options.ValueResolver = new JsonNetValueResolver();
+			var options = ParserFixture.TestBuilder().WithTemplate(template).WithValueResolver(new JsonNetValueResolver()).Build();
 			var document = Parser.ParseWithOptions(options);
 			Assert.That(document.CreateRenderer().Render(JsonConvert.DeserializeObject(data)).Stream.Stringify(true, ParserFixture.DefaultEncoding), Is.EqualTo("Test"));
 		}
@@ -38,8 +37,7 @@ namespace Morestachio.Tests.Json
 }
 ";
 			var template = "{{#each Data.PropA}}{{this}}{{/each}}{{PropB}}";
-			var options = ParserFixture.TestBuilder().WithTemplate(template).Build();
-			options.ValueResolver = new JsonNetValueResolver();
+			var options = ParserFixture.TestBuilder().WithTemplate(template).WithValueResolver(new JsonNetValueResolver()).Build();
 			var document = Parser.ParseWithOptions(options);
 			Assert.That(document.CreateRenderer().Render(JsonConvert.DeserializeObject(data)).Stream.Stringify(true, ParserFixture.DefaultEncoding), Is.EqualTo("Test"));
 		}
@@ -55,8 +53,7 @@ namespace Morestachio.Tests.Json
 }
 ";
 			var template = "{{#each Data.PropA.Skip(1)}}{{this}}{{/each}}{{PropB}}";
-			var options = ParserFixture.TestBuilder().WithTemplate(template).Build();
-			options.ValueResolver = new JsonNetValueResolver();
+			var options = ParserFixture.TestBuilder().WithTemplate(template).WithValueResolver(new JsonNetValueResolver()).Build();
 			var document = Parser.ParseWithOptions(options);
 			Assert.That(document.CreateRenderer().Render(JsonConvert.DeserializeObject(data)).Stream.Stringify(true, ParserFixture.DefaultEncoding), Is.EqualTo("Test"));
 		}

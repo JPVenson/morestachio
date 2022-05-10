@@ -10,7 +10,7 @@ namespace Morestachio.Configuration.Transform
 	{
 		public MorestachioConfigOptions()
 		{
-			ParserOptions = () => new ParserOptions();
+			ParserOptions = ParserOptionsBuilder.New;
 			TransformCondition = pair => pair.Value?.StartsWith("mex{{") == true && pair.Value.EndsWith("}}");
 			PreTransform = pair => new KeyValuePair<string, string>(pair.Key,
 				pair.Value
@@ -20,7 +20,7 @@ namespace Morestachio.Configuration.Transform
 			Values = new Dictionary<string, IDictionary<string, object>>();
 		}
 
-		public Func<ParserOptions> ParserOptions { get; set; }
+		public Func<IParserOptionsBuilder> ParserOptions { get; set; }
 		public Func<KeyValuePair<string, string>, bool> TransformCondition { get; set; }
 		public Func<KeyValuePair<string, string>, KeyValuePair<string, string>> PreTransform { get; set; }
 		public Func<KeyValuePair<string, string>, KeyValuePair<string, string>> PostTransform { get; set; }

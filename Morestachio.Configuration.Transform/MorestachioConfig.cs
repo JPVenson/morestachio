@@ -71,10 +71,11 @@ namespace Morestachio.Configuration.Transform
 		///		Transforms the value by using <see cref="Options"/>
 		/// </summary>
 		/// <returns></returns>
-		public static KeyValuePair<string, string> TransformValue(KeyValuePair<string, string> keyValue, MorestachioConfigOptions options)
+		public static KeyValuePair<string, string> TransformValue(KeyValuePair<string, string> keyValue, 
+																MorestachioConfigOptions options)
 		{
 			keyValue = options.PreTransform(keyValue);
-			var parserOptions = options.ParserOptions();
+			var parserOptions = options.ParserOptions().Build();
 			var values = new Dictionary<string, object>();
 			if (options.Values.TryGetValue(string.Empty, out var rootValues))
 			{

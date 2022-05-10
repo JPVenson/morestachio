@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
-using Morestachio.Formatter.Framework;
 using Morestachio.Linq;
 using NUnit.Framework;
 
@@ -21,19 +18,11 @@ namespace Morestachio.Tests
 			where TE : class, IEnumerable
 		{
 			IDictionary<string, object> variables = null;
-			var result = await ParserFixture.CreateAndParseWithOptions(template, new Dictionary<string, object>()
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, new Dictionary<string, object>
 			{
-				{ "data", data}
-			}, opt, options =>
-			{
-				options.Formatters.AddFromType(typeof(DynamicLinq));
-			}, info =>
-			{
-				info.CaptureVariables = true;
-			}, documentResult =>
-			{
-				variables = documentResult.CapturedVariables;
-			});
+				{ "data", data }
+			}, opt, options => { return	options.WithFormatters(typeof(DynamicLinq)); }, info => { info.CaptureVariables = true; }, documentResult => { variables = documentResult.CapturedVariables; });
 
 			return variables["result"] as TE;
 		}
@@ -46,7 +35,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task TestWhere()
 		{
-			var sl = new List<string>()
+			var sl = new List<string>
 			{
 				"ABC",
 				"ACB",
@@ -56,7 +45,6 @@ namespace Morestachio.Tests
 			Assert.That(simple, Contains.Item("ABC"));
 			Assert.That(simple, Contains.Item("ACB"));
 			Assert.That(simple, Is.Not.Contain("CBA"));
-
 			var withArg = await CreateAndExecute<IEnumerable<string>, IEnumerable<string>>("{{#var result = data.Where('it.StartsWith(@0)', 'A')}}", sl, _options);
 			Assert.That(withArg, Contains.Item("ABC"));
 			Assert.That(withArg, Contains.Item("ACB"));
@@ -66,7 +54,7 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task TestSelect()
 		{
-			var sl = new List<string>()
+			var sl = new List<string>
 			{
 				"ABC",
 				"ACB",
@@ -76,7 +64,6 @@ namespace Morestachio.Tests
 			Assert.That(simple, Contains.Item("ABCBla"));
 			Assert.That(simple, Contains.Item("ACBBla"));
 			Assert.That(simple, Contains.Item("CBABla"));
-
 			var withArg = await CreateAndExecute<IEnumerable<string>, IEnumerable<string>>("{{#var result = data.Select('it + @0', 'Bla')}}", sl, _options);
 			Assert.That(withArg, Contains.Item("ABCBla"));
 			Assert.That(withArg, Contains.Item("ACBBla"));

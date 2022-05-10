@@ -52,8 +52,7 @@ namespace Morestachio
 			{
 				throw new ArgumentNullException(nameof(parsingOptions));
 			}
-
-			parsingOptions.Seal();
+			
 			parsingOptions.Logger?.LogDebug(LoggingFormatter.ParserEventId, "Parse new Template");
 
 			var tokenzierContext = new TokenzierContext(new List<int>(), parsingOptions.CultureInfo);

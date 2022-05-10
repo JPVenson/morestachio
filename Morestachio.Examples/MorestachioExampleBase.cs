@@ -16,9 +16,13 @@ namespace Morestachio.Example.Base
 	{
 		public virtual ParserOptions Configurate(string templateText, Encoding encoding, bool shouldEscape)
 		{
-			var options = new ParserOptions(templateText, null, encoding, shouldEscape);
-			options.Timeout = TimeSpan.FromSeconds(5);
-			return options;
+			var options = ParserOptionsBuilder.New()
+											.WithTemplate(templateText)
+											.WithEncoding(encoding)
+											.WithDisableContentEscaping(shouldEscape)
+											.WithTimeout(TimeSpan.FromSeconds(5));
+
+			return options.Build();
 		}
 
 		public abstract object GetData();
