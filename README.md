@@ -32,7 +32,10 @@ Try it out, without consequenses. The Morestachio Online editor allows you to cr
 var sourceTemplate = "Dear {{name}}, this is definitely a personalized note to you. Very truly yours, {{sender}}"
 
 // Parse the Template into the Document Tree. 
-var document = await ParserOptionsBuilder.New().WithTemplate(sourceTemplate).BuildAndParseAsync();
+var document = await ParserOptionsBuilder
+   .New() //creates a new builder that inherts all default values
+   .WithTemplate(sourceTemplate) //sets the template for that builder
+   .BuildAndParseAsync(); //Builds the template and calls ParseAsync() on the returned ParserOptions
 
 // Create the values for the template model:
 dynamic model = new ExpandoObject();
@@ -82,19 +85,19 @@ You can create a Partial with the `{{#declare NAME}}Partial{{/declare}}` syntax.
 
 A Partial must be declared before its usage with `{{#import 'NAME'}}` but you can use a partial to create hirarical templates.    
 
-You can even inject your predefined Partials into all of your Templates by utilizing the `PartialsStore`. Use your own `IPartialStore` or a build in one with `builder.WithDefaultPartialStore(store => {...add partials to store...})`.
+You can even inject your predefined Partials into all of your Templates by utilizing the `PartialsStore`. Use your own `IPartialStore` or a build in one with `ParserOptionsBuilder.WithDefaultPartialStore(store => {...add partials to store...})`.
 
 ###### Infos about new features
  
 Its possible to use plain C# objects they will be called by reflection. 
-Also you can now set the excact size of the template to limit it (this could be come handy if you are in a hostet environment) use the `builder.WithMaxSize()` option to define a max size. It will be enforced on exact that amount of bytes in the stream.
+Also you can now set the excact size of the template to limit it (this could be come handy if you are in a hostet environment) use the `ParserOptionsBuilder.WithMaxSize()` option to define a max size. It will be enforced on exact that amount of bytes in the stream.
 
 ##### Variable Output
 One mayor component is the usage of Variable output strategies in morestachio.    
-The output handling is done by a `IByteCounterStream` that wraps your specific output. This can ether be a `Stream`, `TextWriter`, `StringBuilder` or anything else. For thoese types Morestachio has pre defined Implementations named `ByteCounterStream`, `ByteCounterTextWriter` and `ByteCounterStringBuilder`. All thoese types are enforcing the `builder.WithMaxSize()` config if set and will write your template with the set `builder.WithEncoding()`
+The output handling is done by a `IByteCounterStream` that wraps your specific output. This can ether be a `Stream`, `TextWriter`, `StringBuilder` or anything else. For thoese types Morestachio has pre defined Implementations named `ByteCounterStream`, `ByteCounterTextWriter` and `ByteCounterStringBuilder`. All thoese types are enforcing the `ParserOptionsBuilder.WithMaxSize()` config if set and will write your template with the set `ParserOptionsBuilder.WithEncoding()`
  
 ###### Formatter
-With Morestachio you can invoke C# methods from you template, so called 'Formatters'. There are [Build in formatters](https://github.com/JPVenson/morestachio/wiki/Predefined-Formatter) you can call in any template, registered via the `DefaultFormatterService.Default` class. When you add a formatter in the default service, it will be availible in every template. You can also add formatters per-template via the `builder.WithFormatters` service.
+With Morestachio you can invoke C# methods from you template, so called 'Formatters'. There are [Build in formatters](https://github.com/JPVenson/morestachio/wiki/Predefined-Formatter) you can call in any template, registered via the `DefaultFormatterService.Default` class. When you add a formatter in the default service, it will be availible in every template. You can also add formatters per-template via the `ParserOptionsBuilder.WithFormatters` service.
 
 To Invoke a formatter from you template use the Function syntax:
 ```csharp
@@ -102,7 +105,7 @@ To Invoke a formatter from you template use the Function syntax:
 ```
 This links a c# function named "FormatterToCall".
 
-You can register delegates by using `builder.WithFormatter(...)` or you can create a `public static class` that has methods attributed with the `MorestachioFormatterAttribute` and add them via the `builder.WithFormatters<TType>` or you can use an instance method attributed with the `MorestachioFormatterAttribute`.
+You can register delegates by using `ParserOptionsBuilder.WithFormatter(...)` or you can create a `public static class` that has methods attributed with the `MorestachioFormatterAttribute` and add them via the `ParserOptionsBuilder.WithFormatters<TType>` or you can use an instance method attributed with the `MorestachioFormatterAttribute`.
 
 The formatter CAN return a new object on wich you can call new Propertys or it can return a string.
 There are formatter prepaired for all Primitve types. That means per default you can call on an object hat contains a DateTime:
