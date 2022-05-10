@@ -126,7 +126,8 @@ model["Value"] = DateTime.Now;
 model["Key"] = "D";
 //now add a formatter for our DateTime and add it to the ParserOptions
 
-var document = await new ParserOptionsBuilder.New()
+var document = await ParserOptionsBuilder
+   .New()
    .WithTemplate(template)
 //                         Value   | Argument | Return
    .WithFormatter(new Func<DateTime, string   , string>((value, argument) => {
