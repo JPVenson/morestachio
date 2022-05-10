@@ -16,21 +16,8 @@ namespace Morestachio;
 #if ValueTask
 using MorestachioDocumentInfoPromise = System.Threading.Tasks.ValueTask<Morestachio.MorestachioDocumentInfo>;
 #else
-using MorestachioDocumentInfoPromise = System.Threading.Tasks.Task<Morestachio.MorestachioDocumentInfo>;
-#endif 
 
-public static class ParserOptionsBuilderExtensions
-{
-	public static MorestachioDocumentInfoPromise BuildAndParseAsync(this IParserOptionsBuilder builder)
-	{
-		return Parser.ParseWithOptionsAsync(builder.Build());
-	}
-
-	public static MorestachioDocumentInfo BuildAndParse(this IParserOptionsBuilder builder)
-	{
-		return Parser.ParseWithOptions(builder.Build());
-	}
-}
+#endif
 
 /// <summary>
 ///		Allows the fluid creation of a <see cref="ParserOptions"/> object
@@ -43,7 +30,11 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 		
 	}
 
-	private ParserOptionsBuilder(IDictionary<string, Func<ParserOptions, ParserOptions>> builders)
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="builders"></param>
+	public ParserOptionsBuilder(IDictionary<string, Func<ParserOptions, ParserOptions>> builders)
 	{
 		_builders = builders;
 	}
@@ -163,7 +154,17 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	/// <inheritdoc />
 	public IParserOptionsBuilder WithPartialsStore(IPartialsStore value)
 	{
-		return WithValue(nameof(ParserOptions.PartialsStore), options => options.PartialsStore = value);
+		return WithValue(nameof(ParserOptions.PartialsStore), options =>
+		{
+			if (options.PartialsStore is PartialsStoreAggregator aggregator)
+			{
+				aggregator.PartialsStores.Add(value);
+			}
+			else
+			{
+				options.PartialsStore = value;	
+			}
+		});
 	}
 
 	/// <inheritdoc />
@@ -323,7 +324,17 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	/// <inheritdoc />
 	public IParserOptionsBuilder WithPartialsStore(Func<IPartialsStore> value)
 	{
-		return WithValue(nameof(ParserOptions.PartialsStore), options => options.PartialsStore = value());
+		return WithValue(nameof(ParserOptions.PartialsStore), options =>
+		{
+			if (options.PartialsStore is PartialsStoreAggregator aggregator)
+			{
+				aggregator.PartialsStores.Add(value());
+			}
+			else
+			{
+				options.PartialsStore = value();	
+			}
+		});
 	}
 
 	/// <inheritdoc />
