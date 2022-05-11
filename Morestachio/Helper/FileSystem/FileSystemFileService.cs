@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Formatter.Framework.Converter;
-using Path = System.IO.Path;
 
 namespace Morestachio.Helper.FileSystem;
 #pragma warning disable 1591
@@ -111,81 +109,3 @@ public class FileSystemFileService
 	}
 }
 #pragma warning restore
-
-/// <summary>
-///		Service for accessing the local File System.
-/// </summary>
-/// <remarks>
-///		This service allows the access to the underlying FileSystem.
-///		It is not available in the standard configuration and must be first enabled via <see cref="FileSystemExtensions.WithFileSystem(Morestachio.IParserOptionsBuilder,System.Func{Morestachio.Helper.FileSystem.FileSystemService})"/>
-/// </remarks>
-[MorestachioExtensionSetup("Must be enabled with FileSystemExtensions.RegisterFileSystem before available")]
-[ServiceName("FileSystem")]
-public class FileSystemService
-{
-	private readonly string _workingDirectory;
-
-	/// <summary>
-	///		Creates a new FileSystemService that is rooted on <code>Directory.GetCurrentDirectory()</code>
-	/// </summary>
-	public FileSystemService() : this(Directory.GetCurrentDirectory())
-	{
-	}
-
-	/// <summary>
-	///		Creates a new FileSystemService that is rooted on the workingDirectory
-	/// </summary>
-	/// <param name="workingDirectory"></param>
-	public FileSystemService(string workingDirectory)
-	{
-		_workingDirectory = workingDirectory;
-		File = new FileSystemFileService(this);
-	}
-
-	internal string GetAbsolutePath(string path)
-	{
-		if (Path.IsPathRooted(path))
-		{
-			return path;
-		}
-
-		return Path.Combine(_workingDirectory, path);
-	}
-
-	/// <summary>
-	///		File specific methods for use with the $services collection
-	/// </summary>
-	public FileSystemFileService File { get; private set; }
-	
-}
-
-/// <summary>
-///		
-/// </summary>
-public static class FileSystemExtensions
-{
-	/// <summary>
-	///		Registers all necessary components to use the <code>FileSystemService</code>
-	/// </summary>
-	/// <param name="options"></param>
-	/// <param name="config"></param>
-	public static IParserOptionsBuilder WithFileSystem(this IParserOptionsBuilder options, Func<FileSystemService> config)
-	{
-		var fs = config();
-
-		return options
-				.WithConstant("FileSystem", fs)
-				.WithService(fs)
-				.WithFormatters<FileSystemService>()
-				.WithFormatters<FileSystemFileService>();
-	}
-
-	/// <summary>
-	///		Registers all necessary components to use the <code>FileSystemService</code>
-	/// </summary>
-	/// <param name="options"></param>
-	public static IParserOptionsBuilder WithFileSystem(this IParserOptionsBuilder options)
-	{
-		return options.WithFileSystem(() => new FileSystemService());
-	}
-}
