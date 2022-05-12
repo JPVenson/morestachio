@@ -245,7 +245,7 @@ namespace Morestachio.Tests.PerfTests
 		{
 			var output = new StringBuilder();
 			output.AppendLine("## Test Net" + Environment.Version + "   ");
-			output.AppendLine("> Run at " + DateTime.Today.ToString("g") + "   ");
+			output.AppendLine("> Run at " + DateTime.Now.ToString("g") + "   ");
 #if DEBUG
 			output.AppendLine("WARNING - RUN IN DEBUG - WARNING   ");
 #endif

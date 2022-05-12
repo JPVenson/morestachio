@@ -91,53 +91,6 @@ namespace Morestachio
 			buildStack.Push(new DocumentScope(new MorestachioDocument(), () => 0));
 			var textEdits = new List<TextEditDocumentItem>();
 
-			DocumentScope GetVariableScope()
-			{
-				return buildStack.FirstOrDefault(e => e.VariableScopeNumber != -1);
-			}
-			IEnumerable<ITokenOption> GetPublicOptions(TokenPair token)
-			{
-				var publicOptions = token.TokenOptions?.Where(e => e.Persistent).ToArray();
-				return publicOptions?.Length > 0 ? publicOptions : null;
-			}
-
-			bool TryAdd(IDocumentItem document, IDocumentItem child)
-			{
-				if (document is IBlockDocumentItem block)
-				{
-					block.Add(child);
-					return true;
-				}
-
-				return false;
-			}
-
-			void CloseScope(Stack<DocumentScope> documentScopes, in TokenPair currentToken, DocumentScope currentDocumentItem)
-			{
-				DocumentScope scope = documentScopes.Peek();
-				if (!(scope.Document is IBlockDocumentItem blockDocument))
-				{
-					throw new InvalidOperationException(
-						$"Closing an token '{currentToken.Type}' at '{currentToken.TokenLocation}'" +
-						$" that is not of type '{typeof(IBlockDocumentItem)}' is not possible.");
-				}
-
-				blockDocument.BlockClosingOptions = GetPublicOptions(currentToken);
-
-				if (scope.HasAlias) //are we in a alias then remove it
-				{
-					foreach (var scopeLocalVariable in scope.LocalVariables)
-					{
-						TryAdd(currentDocumentItem.Document, new RemoveAliasDocumentItem(currentToken.TokenLocation,
-							scopeLocalVariable,
-							scope.VariableScopeNumber, null));
-					}
-				}
-
-				// remove the last document from the stack and go back to the parents
-				documentScopes.Pop();
-			} 
-			   
 			foreach (var currentToken in tokenizerResult)
 			{
 				var currentDocumentItem = buildStack.Peek(); //get the latest document
@@ -361,7 +314,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.Alias))
 				{
-					var scope = GetVariableScope();
+					var scope = GetVariableScope(buildStack);
 					var nestedDocument = new AliasDocumentItem(currentToken.TokenLocation,
 						currentToken.Value,
 						scope.VariableScopeNumber,
@@ -398,7 +351,7 @@ namespace Morestachio
 					var scope = 0;
 					if (buildStack.Count > 1)
 					{
-						scope = GetVariableScope()
+						scope = GetVariableScope(buildStack)
 							.VariableScopeNumber;
 					}
 					var nestedDocument = new EvaluateLetVariableDocumentItem(currentToken.TokenLocation,
@@ -497,6 +450,54 @@ namespace Morestachio
 			}
 
 			return buildStack.Pop().Document;
+		}
+
+		private static void CloseScope(Stack<DocumentScope> documentScopes, in TokenPair currentToken, DocumentScope currentDocumentItem)
+		{
+			DocumentScope scope = documentScopes.Peek();
+			if (!(scope.Document is IBlockDocumentItem blockDocument))
+			{
+				throw new InvalidOperationException(
+					$"Closing an token '{currentToken.Type}' at '{currentToken.TokenLocation}'" +
+					$" that is not of type '{typeof(IBlockDocumentItem)}' is not possible.");
+			}
+
+			blockDocument.BlockClosingOptions = GetPublicOptions(currentToken);
+
+			if (scope.HasAlias) //are we in a alias then remove it
+			{
+				foreach (var scopeLocalVariable in scope.LocalVariables)
+				{
+					TryAdd(currentDocumentItem.Document, new RemoveAliasDocumentItem(currentToken.TokenLocation,
+						scopeLocalVariable,
+						scope.VariableScopeNumber, null));
+				}
+			}
+
+			// remove the last document from the stack and go back to the parents
+			documentScopes.Pop();
+		}
+
+		private static bool TryAdd(IDocumentItem document, IDocumentItem child)
+		{
+			if (document is IBlockDocumentItem block)
+			{
+				block.Add(child);
+				return true;
+			}
+
+			return false;
+		}
+
+		private static IEnumerable<ITokenOption> GetPublicOptions(TokenPair token)
+		{
+			var publicOptions = token.TokenOptions?.Where(e => e.Persistent).ToArray();
+			return publicOptions?.Length > 0 ? publicOptions : null;
+		}
+
+		private static DocumentScope GetVariableScope(Stack<DocumentScope> buildStack)
+		{
+			return buildStack.FirstOrDefault(e => e.VariableScopeNumber != -1);
 		}
 	}
 }
