@@ -36,7 +36,7 @@ public interface IByteCounterStream : IDisposable
 	///		Writes the Content into the underlying Stream when the limit is not exceeded
 	/// </summary>
 	/// <param name="content"></param>
-	void Write(string content);
+	void Write(in string content);
 
 	/// <summary>
 	///		Gets an <see cref="IByteCounterStream"/> that keeps tracking of the bytes written and will stop buffering bytes if the <see cref="ParserOptions.MaxSize"/> is reached but will not write into the parent stream

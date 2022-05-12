@@ -306,7 +306,10 @@ namespace Morestachio
 						|| currentToken.Type.Equals(TokenType.RepeatLoopClose)
 						|| currentToken.Type.Equals(TokenType.SwitchCaseClose)
 						|| currentToken.Type.Equals(TokenType.SwitchDefaultClose)
-						|| currentToken.Type.Equals(TokenType.SwitchClose))
+						|| currentToken.Type.Equals(TokenType.SwitchClose)
+						|| currentToken.Type.Equals(TokenType.NoPrintClose)
+						|| currentToken.Type.Equals(TokenType.PartialDeclarationClose)
+						|| currentToken.Type.Equals(TokenType.IsolationScopeClose))
 				{
 					CloseScope(buildStack, currentToken, currentDocumentItem);
 				}
@@ -330,11 +333,6 @@ namespace Morestachio
 					buildStack.Push(new DocumentScope(partialDocumentItem, getScope));
 
 					TryAdd(currentDocumentItem.Document, partialDocumentItem);
-				}
-				else if (currentToken.Type.Equals(TokenType.PartialDeclarationClose))
-				{
-					CloseScope(buildStack, currentToken, currentDocumentItem);
-					//buildStack.Pop();
 				}
 				else if (currentToken.Type.Equals(TokenType.RenderPartial))
 				{
@@ -360,10 +358,6 @@ namespace Morestachio
 							GetPublicOptions(currentToken));
 					TryAdd(currentDocumentItem.Document, nestedDocument);
 					buildStack.Push(new DocumentScope(nestedDocument, getScope));
-				}
-				else if (currentToken.Type.Equals(TokenType.IsolationScopeClose))
-				{
-					CloseScope(buildStack, currentToken, currentDocumentItem);
 				}
 				else if (currentToken.Type.Equals(TokenType.Alias))
 				{
@@ -456,6 +450,12 @@ namespace Morestachio
 						new TrimAllWhitespacesTextOperation(),
 						currentToken.IsEmbeddedToken, GetPublicOptions(currentToken)));
 				}
+				else if (currentToken.Type.Equals(TokenType.NoPrintOpen))
+				{
+					var nestedDocument = new NoPrintDocumentItem(currentToken.TokenLocation, GetPublicOptions(currentToken));
+					TryAdd(currentDocumentItem.Document, nestedDocument);
+					buildStack.Push(new DocumentScope(nestedDocument, getScope));
+				}
 				else if (currentToken.Type.Equals(TokenType.Comment) || currentToken.Type.Equals(TokenType.BlockComment))
 				{
 					//just ignore this part and print nothing
@@ -479,13 +479,21 @@ namespace Morestachio
 				}
 			}
 
-			if (buildStack.Count != 1)
+			if (buildStack.Count > 1)
 			{
 				//var invalidScopedElements = buildStack
 				//throw new MorestachioSyntaxError(new Tokenizer.CharacterLocation(){Character = }, );
 				throw new InvalidOperationException(
 					"There is an Error with the Parser. The Parser still contains unscoped builds: " +
 					buildStack.Select(e => e.Document.GetType().Name).Aggregate((e, f) => e + ", " + f));
+			}
+
+			if (buildStack.Count == 0)
+			{
+				//var invalidScopedElements = buildStack
+				//throw new MorestachioSyntaxError(new Tokenizer.CharacterLocation(){Character = }, );
+				throw new InvalidOperationException(
+					"There is an Error with the Parser. The Parser still closed the root scope prematurely");
 			}
 
 			return buildStack.Pop().Document;

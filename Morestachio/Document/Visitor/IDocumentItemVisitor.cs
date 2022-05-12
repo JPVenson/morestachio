@@ -37,6 +37,7 @@ public interface IDocumentItemVisitor
 	void Visit(TextEditDocumentItem documentItem);
 	void Visit(IsolationScopeDocumentItem documentItem);
 	void Visit(CommentDocumentItem documentItem);
+	void Visit(NoPrintDocumentItem documentItem);
 	void Visit(IDocumentItem documentItem);
 #pragma warning restore
 }

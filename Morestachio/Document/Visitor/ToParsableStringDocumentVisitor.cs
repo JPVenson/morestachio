@@ -530,6 +530,12 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 	}
 
 	/// <inheritdoc />
+	public void Visit(NoPrintDocumentItem documentItem)
+	{
+		Visit(documentItem, "NOPRINT");
+	}
+
+	/// <inheritdoc />
 	public void Visit(RepeatDocumentItem documentItem)
 	{
 		Visit(documentItem, "REPEAT ");

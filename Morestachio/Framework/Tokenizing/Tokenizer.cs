@@ -229,6 +229,7 @@ public class Tokenizer
 														TokenzierContext context,
 														IEnumerable<TokenMatch> templateString)
 	{
+
 		var scopestack = new Stack<ScopeStackItem>();
 		List<string> partialsNames;
 
@@ -248,221 +249,9 @@ public class Tokenizer
 		var tokens = new List<TokenPair>();
 		var tokenOptions = new List<ITokenOption>();
 
-		void EndIf(TokenMatch match)
-		{
-			if (!scopestack.Any())
-			{
-				context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
-						.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)),
-					"if",
-					"{{#if name}}"));
-				return;
-			}
-
-			var item1 = scopestack.Peek();
-
-			if (item1.TokenType != TokenType.If && item1.TokenType != TokenType.IfNot)
-			{
-				context.Errors.Add(new MorestachioUnopendScopeError(
-					context.CurrentLocation
-						.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)),
-					"if",
-					"{{#if name}}"));
-				return;
-			}
-
-			var token = scopestack.Pop().Value;
-			tokens.Add(new TokenPair(TokenType.IfClose, token,
-				context.CurrentLocation, tokenOptions));
-		}
-
-		string TrimToken(string token, string keyword, char key = '#')
-		{
-			token = token.TrimStart(key).TrimStart();
-			return keyword != null ? token.Substring(keyword.Length) : token;
-		}
-
-		IMorestachioExpression ExtractExpression(ref string token)
-		{
-			var pre = context.Character;
-			var expression = ExpressionParser.ParseExpression(token, context);
-			token = token.Remove(0, context.Character - pre);
-			return expression;
-		}
-
-		bool TryParseFlagOption(ref string token, string flagName)
-		{
-			var indexOf = token.IndexOf(flagName, StringComparison.OrdinalIgnoreCase);
-
-			if (indexOf == -1)
-			{
-				return false;
-			}
-
-			token = token.Remove(indexOf, flagName.Length);
-			return true;
-		}
-
-		bool TryParseExpressionOption(ref string token, string optionName, out IMorestachioExpression expression)
-		{
-			var optionIndex = token.IndexOf(optionName, StringComparison.OrdinalIgnoreCase);
-
-			if (optionIndex != -1)
-			{
-				token = token.Remove(optionIndex, optionName.Length);
-				expression = ExpressionParser.ParseExpression(token,
-					TokenzierContext.FromText(token), out _, optionIndex);
-				return true;
-			}
-
-			expression = null;
-			return false;
-		}
-
-		bool TryParseStringOption(ref string token, string optionName, out string expression)
-		{
-			var optionIndex = token.IndexOf(optionName, StringComparison.OrdinalIgnoreCase);
-
-			if (optionIndex != -1)
-			{
-				token = token.Remove(optionIndex, optionName.Length);
-				var endOfNameIndex = token.IndexOfAny(GetWhitespaceDelimiters(), optionIndex);
-
-				if (endOfNameIndex == -1)
-				{
-					endOfNameIndex = token.IndexOf('#', optionIndex);
-				}
-
-				if (endOfNameIndex == -1)
-				{
-					endOfNameIndex = token.Length;
-				}
-
-				expression = token.Substring(optionIndex, endOfNameIndex - optionIndex);
-				token = token.Remove(optionIndex, endOfNameIndex - optionIndex);
-
-				return true;
-			}
-
-			expression = null;
-			return false;
-		}
-
-		void ValidateAliasName(string alias, string tokenTypeName)
-		{
-			if (string.IsNullOrWhiteSpace(alias))
-			{
-				context.Errors.Add(new MorestachioSyntaxError(
-					context.CurrentLocation.AddWindow(new CharacterSnippedLocation(1, 1, tokenTypeName)), alias,
-					tokenTypeName, tokenTypeName + " name",
-					tokenTypeName + " option was specified but did not follow any value."));
-				return;
-			}
-
-			for (var i = 0; i < alias.Length; i++)
-			{
-				var c = alias[i];
-
-				if (char.IsLetter(c))
-				{
-					continue;
-				}
-
-				if (char.IsDigit(c))
-				{
-					if (i == 0)
-					{
-						context.Errors.Add(new MorestachioSyntaxError(
-							context.CurrentLocation.AddWindow(new CharacterSnippedLocation(1, i, alias)), alias,
-							tokenTypeName, tokenTypeName + " name",
-							tokenTypeName + " option cannot not start with a digit."));
-					}
-
-					continue;
-				}
-
-				context.Errors.Add(new MorestachioSyntaxError(
-					context.CurrentLocation.AddWindow(new CharacterSnippedLocation(1, i, alias)), alias, tokenTypeName,
-					tokenTypeName + " name", tokenTypeName + " option can only consists of letters and numbers."));
-			}
-		}
-
 		//[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		bool StartsWith(string token, string keyword)
-		{
-			return token.StartsWith(keyword, StringComparison.OrdinalIgnoreCase);
-		}
-
 		context.TokenizeComments = parserOptions.TokenizeComments;
 		context.SetLocation(0);
-
-		void FallbackProcessToken(string s, string tokenValue1)
-		{
-			//check for custom DocumentItem provider
-
-			void UnmatchedTagBehavior()
-			{
-				if (parserOptions.UnmatchedTagBehavior.HasFlagFast(Context.Options.UnmatchedTagBehavior
-						.LogWarning))
-				{
-					parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId,
-						$"Unknown Tag '{s}'.",
-						new Dictionary<string, object>
-						{
-							{ "Location", context.CurrentLocation }
-						});
-				}
-
-				if (parserOptions.UnmatchedTagBehavior.HasFlagFast(Context.Options.UnmatchedTagBehavior
-						.Output))
-				{
-					tokens.Add(new TokenPair(TokenType.Content, "{{" + s + "}}",
-						context.CurrentLocation));
-				}
-
-				if (parserOptions.UnmatchedTagBehavior.HasFlagFast(Context.Options.UnmatchedTagBehavior
-						.ThrowError))
-				{
-					context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
-							.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue1)),
-						"{{" + s + "}}", s,
-						"Unexpected token " + s));
-				}
-			}
-
-			var customDocumentProvider =
-				parserOptions.CustomDocumentItemProviders.FindTokenProvider(s);
-
-			if (customDocumentProvider != null)
-			{
-				var tokenPairs = customDocumentProvider
-					.Tokenize(
-						new CustomDocumentItemProvider.TokenInfo(s, context, scopestack,
-							tokenOptions),
-						parserOptions);
-				tokens.AddRange(tokenPairs);
-			}
-			else if (s.StartsWith('#'))
-			{
-				UnmatchedTagBehavior();
-			}
-			else if (s.StartsWith('^'))
-			{
-				UnmatchedTagBehavior();
-			}
-			else if (s.StartsWith('/'))
-			{
-				UnmatchedTagBehavior();
-			}
-			else
-			{
-				//unsingle value.
-				var token = s.Trim();
-				tokens.Add(new TokenPair(TokenType.EscapedSingleValue,
-					token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context),
-					tokenOptions));
-			}
-		}
 
 		foreach (var match in templateString)
 		{
@@ -616,7 +405,7 @@ public class Tokenizer
 					{
 						var token = trimmedToken.TrimStart('#').Substring("import".Length)
 							.Trim(GetWhitespaceDelimiters());
-						var tokenNameExpression = ExtractExpression(ref token);
+						var tokenNameExpression = ExtractExpression(ref token, context);
 
 						if (TryParseExpressionOption(ref token, "#WITH", out var withExpression))
 						{
@@ -649,7 +438,7 @@ public class Tokenizer
 
 						if (!string.IsNullOrWhiteSpace(alias))
 						{
-							ValidateAliasName(alias, "AS");
+							ValidateAliasName(alias, "AS", context);
 							context.AdvanceLocation("each ".Length + alias.Length);
 							tokens.Add(new TokenPair(TokenType.Alias, alias, context.CurrentLocation));
 						}
@@ -678,7 +467,7 @@ public class Tokenizer
 							}
 							else
 							{
-								ValidateAliasName(alias, "IN");
+								ValidateAliasName(alias, "IN", context);
 								var expression = token.Substring(inKeywordLocation + 2);
 
 								scopestack.Push(new ScopeStackItem(TokenType.ForeachCollectionOpen,
@@ -726,7 +515,7 @@ public class Tokenizer
 
 						if (!string.IsNullOrWhiteSpace(alias))
 						{
-							ValidateAliasName(alias, "AS");
+							ValidateAliasName(alias, "AS", context);
 							context.AdvanceLocation("each ".Length + alias.Length);
 							tokens.Add(new TokenPair(TokenType.Alias, alias,
 								context.CurrentLocation));
@@ -754,7 +543,7 @@ public class Tokenizer
 
 						if (!string.IsNullOrWhiteSpace(alias))
 						{
-							ValidateAliasName(alias, "AS");
+							ValidateAliasName(alias, "AS", context);
 							context.AdvanceLocation("do ".Length + alias.Length);
 							tokens.Add(new TokenPair(TokenType.Alias, alias,
 								context.CurrentLocation));
@@ -782,7 +571,7 @@ public class Tokenizer
 
 						if (!string.IsNullOrWhiteSpace(alias))
 						{
-							ValidateAliasName(alias, "AS");
+							ValidateAliasName(alias, "AS", context);
 							context.AdvanceLocation("repeat ".Length + alias.Length);
 							tokens.Add(new TokenPair(TokenType.Alias, alias,
 								context.CurrentLocation));
@@ -1014,7 +803,7 @@ public class Tokenizer
 
 						if (!string.IsNullOrWhiteSpace(alias))
 						{
-							ValidateAliasName(alias, "AS");
+							ValidateAliasName(alias, "AS", context);
 							context.AdvanceLocation("scope ".Length + alias.Length);
 							tokens.Add(new TokenPair(TokenType.Alias, alias,
 								context.CurrentLocation));
@@ -1061,6 +850,11 @@ public class Tokenizer
 						tokens.Add(new TokenPair(TokenType.IsolationScopeOpen, token, context.CurrentLocation,
 							tokenOptions));
 						scopestack.Push(new ScopeStackItem(TokenType.IsolationScopeOpen, token, match.Index));
+					}
+					else if (trimmedToken.Equals("#NOPRINT", StringComparison.OrdinalIgnoreCase))
+					{
+						tokens.Add(new TokenPair(TokenType.NoPrintOpen, trimmedToken, context.CurrentLocation, tokenOptions));
+						scopestack.Push(new ScopeStackItem(TokenType.NoPrintOpen, trimmedToken, match.Index));
 					}
 					else if (StartsWith(trimmedToken, "#SET OPTION "))
 					{
@@ -1120,223 +914,90 @@ public class Tokenizer
 					}
 					else
 					{
-						FallbackProcessToken(trimmedToken, tokenValue);
+						FallbackProcessToken(trimmedToken, tokenValue, parserOptions, context, scopestack,
+							tokenOptions, tokens);
 					}
 				}
 				else if (trimmedToken.StartsWith('/'))
 				{
 					if (trimmedToken.Equals("/declare", StringComparison.OrdinalIgnoreCase))
 					{
-						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.PartialDeclarationOpen)
-						{
-							var token = scopestack.Pop().Value;
-							tokens.Add(new TokenPair(TokenType.PartialDeclarationClose, token,
-								context.CurrentLocation, tokenOptions));
-						}
-						else
-						{
-							context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
-									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "declare",
-								"{{#declare name}}"));
-						}
+						CloseScope(tokenValue, TokenType.PartialDeclarationOpen, TokenType.PartialDeclarationClose, "DECLARE ...", scopestack,
+							tokens, context, tokenOptions);
 					}
 					else if (trimmedToken.Equals("/each", StringComparison.OrdinalIgnoreCase))
 					{
-						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.CollectionOpen)
-						{
-							var token = scopestack.Pop().Value;
-							tokens.Add(new TokenPair(TokenType.CollectionClose, token,
-								context.CurrentLocation, tokenOptions));
-						}
-						else
-						{
-							context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
-									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "each",
-								"{{#each name}}"));
-						}
+						CloseScope(tokenValue, TokenType.CollectionOpen, TokenType.CollectionClose, "EACH ...", scopestack,
+							tokens, context, tokenOptions);
 					}
 					else if (trimmedToken.Equals("/foreach", StringComparison.OrdinalIgnoreCase))
 					{
-						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.ForeachCollectionOpen)
-						{
-							var token = scopestack.Pop().Value;
-							tokens.Add(new TokenPair(TokenType.ForeachCollectionClose, token,
-								context.CurrentLocation, tokenOptions));
-						}
-						else
-						{
-							context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
-									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "each",
-								"{{#each name}}"));
-						}
+						CloseScope(tokenValue, TokenType.ForeachCollectionOpen, TokenType.ForeachCollectionClose, "FOREACH ...", scopestack,
+							tokens, context, tokenOptions);
 					}
 					else if (trimmedToken.Equals("/while", StringComparison.OrdinalIgnoreCase))
 					{
-						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.WhileLoopOpen)
-						{
-							var token = scopestack.Pop().Value;
-							tokens.Add(new TokenPair(TokenType.WhileLoopClose, token,
-								context.CurrentLocation, tokenOptions));
-						}
-						else
-						{
-							context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
-									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "while",
-								"{{#while Expression}}"));
-						}
+						CloseScope(tokenValue, TokenType.WhileLoopOpen, TokenType.WhileLoopClose, "WHILE ...", scopestack,
+							tokens, context, tokenOptions);
 					}
 					else if (trimmedToken.Equals("/do", StringComparison.OrdinalIgnoreCase))
 					{
-						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.DoLoopOpen)
-						{
-							var token = scopestack.Pop().Value;
-							tokens.Add(new TokenPair(TokenType.DoLoopClose, token,
-								context.CurrentLocation, tokenOptions));
-						}
-						else
-						{
-							context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
-									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "do",
-								"{{#do Expression}}"));
-						}
+						CloseScope(tokenValue, TokenType.DoLoopOpen, TokenType.DoLoopClose, "REPEAT ...", scopestack,
+							tokens, context, tokenOptions);
 					}
 					else if (trimmedToken.Equals("/repeat", StringComparison.OrdinalIgnoreCase))
 					{
-						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.RepeatLoopOpen)
-						{
-							var token = scopestack.Pop().Value;
-							tokens.Add(new TokenPair(TokenType.RepeatLoopClose, token,
-								context.CurrentLocation, tokenOptions));
-						}
-						else
-						{
-							context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
-									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "repeat",
-								"{{#repeat Expression}}"));
-						}
+						CloseScope(tokenValue, TokenType.RepeatLoopOpen, TokenType.RepeatLoopClose, "REPEAT ...", scopestack,
+							tokens, context, tokenOptions);
 					}
 					else if (trimmedToken.Equals("/switch", StringComparison.OrdinalIgnoreCase))
 					{
-						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.SwitchOpen)
-						{
-							var token = scopestack.Pop().Value;
-							tokens.Add(new TokenPair(TokenType.SwitchClose, token,
-								context.CurrentLocation, tokenOptions));
-						}
-						else
-						{
-							context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
-									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "switch",
-								"{{#switch Expression}}"));
-						}
+						CloseScope(tokenValue, TokenType.SwitchOpen, TokenType.SwitchClose, "SWITCH ...", scopestack,
+							tokens, context, tokenOptions);
 					}
 					else if (trimmedToken.Equals("/case", StringComparison.OrdinalIgnoreCase))
 					{
-						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.SwitchCaseOpen)
-						{
-							var token = scopestack.Pop().Value;
-							tokens.Add(new TokenPair(TokenType.SwitchCaseClose, token,
-								context.CurrentLocation, tokenOptions));
-						}
-						else
-						{
-							context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
-									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "case",
-								"{{#case Expression}}"));
-						}
+						CloseScope(tokenValue, TokenType.SwitchCaseOpen, TokenType.SwitchCaseClose, "CASE ...", scopestack,
+							tokens, context, tokenOptions);
 					}
 					else if (trimmedToken.Equals("/default", StringComparison.OrdinalIgnoreCase))
 					{
-						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.SwitchDefaultOpen)
-						{
-							var token = scopestack.Pop().Value;
-							tokens.Add(new TokenPair(TokenType.SwitchDefaultClose, token,
-								context.CurrentLocation, tokenOptions));
-						}
-						else
-						{
-							context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
-									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "default",
-								"{{#default}}"));
-						}
+						CloseScope(tokenValue, TokenType.SwitchDefaultOpen, TokenType.SwitchDefaultClose, "DEFAULT", scopestack,
+							tokens, context, tokenOptions);
 					}
 					else if (trimmedToken.Equals("/if", StringComparison.OrdinalIgnoreCase))
 					{
-						EndIf(match);
+						EndIf(match, scopestack, context, tokens, tokenOptions);
 					}
 					else if (trimmedToken.Equals("/elseif", StringComparison.OrdinalIgnoreCase))
 					{
-						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.ElseIf)
-						{
-							var token = scopestack.Pop().Value;
-							tokens.Add(new TokenPair(TokenType.ElseIfClose, token,
-								context.CurrentLocation, tokenOptions));
-							//EndIf(match);//as the parent is still an if block close that one of
-						}
-						else
-						{
-							context.Errors.Add(new MorestachioUnopendScopeError(
-								context.CurrentLocation
-									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "elseif",
-								"{{#ELSEIF expression}}"));
-						}
+						CloseScope(tokenValue, TokenType.ElseIf, TokenType.ElseIfClose, "ELSEIF ...", scopestack,
+							tokens, context, tokenOptions);
 					}
 					else if (trimmedToken.Equals("/else", StringComparison.OrdinalIgnoreCase))
 					{
-						if (scopestack.Any() && scopestack.Peek().TokenType == TokenType.Else)
-						{
-							var token = scopestack.Pop().Value;
-							tokens.Add(new TokenPair(TokenType.ElseClose, token,
-								context.CurrentLocation, tokenOptions));
-							//EndIf(match);//as the parent is still an if block close that one of
-						}
-						else
-						{
-							context.Errors.Add(new MorestachioUnopendScopeError(
-								context.CurrentLocation
-									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "else",
-								"{{#else name}}"));
-						}
+						CloseScope(tokenValue, TokenType.Else, TokenType.ElseClose, "ELSE", scopestack,
+							tokens, context, tokenOptions);
 					}
 					else if (trimmedToken.Equals("/scope", StringComparison.OrdinalIgnoreCase))
 					{
-						if (scopestack.Any() &&
-							(scopestack.Peek().TokenType == TokenType.ElementOpen ||
-								scopestack.Peek().TokenType == TokenType.InvertedElementOpen))
-						{
-							var token = scopestack.Pop().Value;
-
-							tokens.Add(new TokenPair(TokenType.ElementClose, token,
-								context.CurrentLocation, tokenOptions));
-						}
-						else
-						{
-							context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
-									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "/", "{{#SCOPE path}}",
-								" There are more closing elements then open."));
-						}
+						CloseScope(tokenValue, TokenType.ElementOpen | TokenType.InvertedElementOpen, TokenType.ElementClose, "SCOPE ...", scopestack,
+							tokens, context, tokenOptions);
 					}
 					else if (trimmedToken.Equals("/ISOLATE", StringComparison.OrdinalIgnoreCase))
 					{
-						if (scopestack.Any() &&
-							scopestack.Peek().TokenType == TokenType.IsolationScopeOpen)
-						{
-							var token = scopestack.Pop().Value;
-
-							tokens.Add(new TokenPair(TokenType.IsolationScopeClose, token,
-								context.CurrentLocation, tokenOptions));
-						}
-						else
-						{
-							context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
-									.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "/",
-								"{{#ISOLATION ...}}",
-								" There are more closing elements then open."));
-						}
+						CloseScope(tokenValue, TokenType.IsolationScopeOpen, TokenType.IsolationScopeClose, "ISOLATION ...", scopestack,
+							tokens, context, tokenOptions);
+					}
+					else if (trimmedToken.Equals("/NOPRINT", StringComparison.OrdinalIgnoreCase))
+					{
+						CloseScope(tokenValue, TokenType.NoPrintOpen, TokenType.NoPrintClose, "NOPRINT", scopestack,
+							tokens, context, tokenOptions);
 					}
 					else
 					{
-						FallbackProcessToken(trimmedToken, tokenValue);
+						FallbackProcessToken(trimmedToken, tokenValue, parserOptions, context, scopestack,
+							tokenOptions, tokens);
 					}
 				}
 				else if (trimmedToken.StartsWith('^'))
@@ -1382,7 +1043,7 @@ public class Tokenizer
 
 						if (!string.IsNullOrWhiteSpace(alias))
 						{
-							ValidateAliasName(alias, "AS");
+							ValidateAliasName(alias, "AS", context);
 							context.AdvanceLocation(1 + alias.Length);
 							tokens.Add(new TokenPair(TokenType.Alias, alias,
 								context.CurrentLocation));
@@ -1408,7 +1069,7 @@ public class Tokenizer
 
 						if (!string.IsNullOrWhiteSpace(alias))
 						{
-							ValidateAliasName(alias, "AS");
+							ValidateAliasName(alias, "AS", context);
 							context.AdvanceLocation(1 + alias.Length);
 							tokens.Add(new TokenPair(TokenType.Alias, alias,
 								context.CurrentLocation));
@@ -1436,7 +1097,8 @@ public class Tokenizer
 				}
 				else
 				{
-					FallbackProcessToken(trimmedToken, tokenValue);
+					FallbackProcessToken(trimmedToken, tokenValue, parserOptions, context, scopestack,
+						tokenOptions, tokens);
 				}
 
 				tokenOptions.Clear();
@@ -1470,6 +1132,262 @@ public class Tokenizer
 		}
 
 		return new TokenizerResult(tokens);
+	}
+
+	private static bool TryParseStringOption(ref string token, in string optionName, out string expression)
+	{
+		var optionIndex = token.IndexOf(optionName, StringComparison.OrdinalIgnoreCase);
+
+		if (optionIndex != -1)
+		{
+			token = token.Remove(optionIndex, optionName.Length);
+			var endOfNameIndex = token.IndexOfAny(GetWhitespaceDelimiters(), optionIndex);
+
+			if (endOfNameIndex == -1)
+			{
+				endOfNameIndex = token.IndexOf('#', optionIndex);
+			}
+
+			if (endOfNameIndex == -1)
+			{
+				endOfNameIndex = token.Length;
+			}
+
+			expression = token.Substring(optionIndex, endOfNameIndex - optionIndex);
+			token = token.Remove(optionIndex, endOfNameIndex - optionIndex);
+
+			return true;
+		}
+
+		expression = null;
+		return false;
+	}
+
+	private static bool TryParseExpressionOption(ref string token, in string optionName, out IMorestachioExpression expression)
+	{
+		var optionIndex = token.IndexOf(optionName, StringComparison.OrdinalIgnoreCase);
+
+		if (optionIndex != -1)
+		{
+			token = token.Remove(optionIndex, optionName.Length);
+			expression = ExpressionParser.ParseExpression(token,
+				TokenzierContext.FromText(token), out _, optionIndex);
+			return true;
+		}
+
+		expression = null;
+		return false;
+	}
+
+	private static bool TryParseFlagOption(ref string token, in string flagName)
+	{
+		var indexOf = token.IndexOf(flagName, StringComparison.OrdinalIgnoreCase);
+
+		if (indexOf == -1)
+		{
+			return false;
+		}
+
+		token = token.Remove(indexOf, flagName.Length);
+		return true;
+	}
+
+	private static IMorestachioExpression ExtractExpression(ref string token, TokenzierContext context)
+	{
+		var pre = context.Character;
+		var expression = ExpressionParser.ParseExpression(token, context);
+		token = token.Remove(0, context.Character - pre);
+		return expression;
+	}
+
+	private static string TrimToken(string token, in string keyword, in char key = '#')
+	{
+		token = token.TrimStart(key).TrimStart();
+		return keyword != null ? token.Substring(keyword.Length) : token;
+	}
+
+	private static void EndIf(TokenMatch match, 
+							Stack<ScopeStackItem> scopestack, 
+							TokenzierContext context,
+							List<TokenPair> tokens,
+							List<ITokenOption> tokenOptions
+	)
+	{
+		if (!scopestack.Any())
+		{
+			context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
+																		.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)),
+				"if",
+				"{{#if name}}"));
+			return;
+		}
+
+		var item1 = scopestack.Peek();
+
+		if (item1.TokenType != TokenType.If && item1.TokenType != TokenType.IfNot)
+		{
+			context.Errors.Add(new MorestachioUnopendScopeError(
+				context.CurrentLocation
+						.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)),
+				"if",
+				"{{#if name}}"));
+			return;
+		}
+
+		var token = scopestack.Pop().Value;
+		tokens.Add(new TokenPair(TokenType.IfClose, token,
+			context.CurrentLocation, tokenOptions));
+	}
+
+	private static void ValidateAliasName(in string alias, in string tokenTypeName, TokenzierContext context)
+	{
+		if (string.IsNullOrWhiteSpace(alias))
+		{
+			context.Errors.Add(new MorestachioSyntaxError(
+				context.CurrentLocation.AddWindow(new CharacterSnippedLocation(1, 1, tokenTypeName)), alias,
+				tokenTypeName, tokenTypeName + " name",
+				tokenTypeName + " option was specified but did not follow any value."));
+			return;
+		}
+
+		for (var i = 0; i < alias.Length; i++)
+		{
+			var c = alias[i];
+
+			if (char.IsLetter(c))
+			{
+				continue;
+			}
+
+			if (char.IsDigit(c))
+			{
+				if (i == 0)
+				{
+					context.Errors.Add(new MorestachioSyntaxError(
+						context.CurrentLocation.AddWindow(new CharacterSnippedLocation(1, i, alias)), alias,
+						tokenTypeName, tokenTypeName + " name",
+						tokenTypeName + " option cannot not start with a digit."));
+				}
+
+				continue;
+			}
+
+			context.Errors.Add(new MorestachioSyntaxError(
+				context.CurrentLocation.AddWindow(new CharacterSnippedLocation(1, i, alias)), alias, tokenTypeName,
+				tokenTypeName + " name", tokenTypeName + " option can only consists of letters and numbers."));
+		}
+	}
+
+	private static bool StartsWith(string token, string keyword)
+	{
+		return token.StartsWith(keyword, StringComparison.OrdinalIgnoreCase);
+	}
+
+	private static void FallbackProcessToken(in string tokenName, 
+											in string tokenValue1, 
+											ParserOptions parserOptions,
+											TokenzierContext context,
+											Stack<ScopeStackItem> scopestack,
+											List<ITokenOption> tokenOptions,
+											List<TokenPair> tokens
+	)
+	{
+		//check for custom DocumentItem provider
+
+		var customDocumentProvider =
+			parserOptions.CustomDocumentItemProviders.FindTokenProvider(tokenName);
+
+		if (customDocumentProvider != null)
+		{
+			var tokenPairs = customDocumentProvider
+				.Tokenize(
+					new CustomDocumentItemProvider.TokenInfo(tokenName, context, scopestack,
+						tokenOptions),
+					parserOptions);
+			tokens.AddRange(tokenPairs);
+		}
+		else if (tokenName.StartsWith('#'))
+		{
+			UnmatchedTagBehavior(parserOptions, tokenName, context, tokens, tokenValue1);
+		}
+		else if (tokenName.StartsWith('^'))
+		{
+			UnmatchedTagBehavior(parserOptions, tokenName, context, tokens, tokenValue1);
+		}
+		else if (tokenName.StartsWith('/'))
+		{
+			UnmatchedTagBehavior(parserOptions, tokenName, context, tokens, tokenValue1);
+		}
+		else
+		{
+			//unsingle value.
+			var token = tokenName.Trim();
+			tokens.Add(new TokenPair(TokenType.EscapedSingleValue,
+				token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context),
+				tokenOptions));
+		}
+	}
+
+	private static void UnmatchedTagBehavior(ParserOptions parserOptions, 
+											in string tokenName, 
+											TokenzierContext context,
+											List<TokenPair> tokens,
+											in string tokenValue1
+	)
+	{
+		if (parserOptions.UnmatchedTagBehavior.HasFlagFast(Context.Options.UnmatchedTagBehavior
+																.LogWarning))
+		{
+			parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId,
+				$"Unknown Tag '{tokenName}'.",
+				new Dictionary<string, object>
+				{
+					{ "Location", context.CurrentLocation }
+				});
+		}
+
+		if (parserOptions.UnmatchedTagBehavior.HasFlagFast(Context.Options.UnmatchedTagBehavior
+																.Output))
+		{
+			tokens.Add(new TokenPair(TokenType.Content, "{{" + tokenName + "}}",
+				context.CurrentLocation));
+		}
+
+		if (parserOptions.UnmatchedTagBehavior.HasFlagFast(Context.Options.UnmatchedTagBehavior
+																.ThrowError))
+		{
+			context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
+																		.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue1)),
+				"{{" + tokenName + "}}", tokenName,
+				"Unexpected token " + tokenName));
+		}
+	}
+
+	private static void CloseScope(in string tokenValue, 
+									in TokenType openToken, 
+									in TokenType closeToken,
+									in string expectedToken,
+									Stack<ScopeStackItem> scopestack,
+									List<TokenPair> tokens,
+									TokenzierContext context,
+									List<ITokenOption> tokenOptions
+	)
+	{
+		if (scopestack.Any() &&
+			openToken.HasFlag(scopestack.Peek().TokenType))
+		{
+			var token = scopestack.Pop().Value;
+
+			tokens.Add(new TokenPair(closeToken, token,
+				context.CurrentLocation, tokenOptions));
+		}
+		else
+		{
+			context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
+																		.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "/",
+				"{{" + expectedToken + "}}",
+				" There are more closing elements then open."));
+		}
 	}
 
 	/// <summary>

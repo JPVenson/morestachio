@@ -91,15 +91,15 @@ public class ByteCounterTextWriter : IByteCounterStream
 	}
 #endif
 	/// <inheritdoc />
-	public void Write(string content)
+	public void Write(in string content)
 	{
-		content = content ?? Options.Null?.ToString();
+		var contentOrNull = content ?? Options.Null?.ToString();
 
 		var sourceCount = BytesWritten;
 
 		if (Options.MaxSize == 0)
 		{
-			Writer.Write(content);
+			Writer.Write(contentOrNull);
 			return;
 		}
 
@@ -110,25 +110,25 @@ public class ByteCounterTextWriter : IByteCounterStream
 		}
 
 		//TODO this is a performance critical operation. As we might deal with variable-length encodings this cannot be compute initial
-		var cl = Options.Encoding.GetByteCount(content);
+		var cl = Options.Encoding.GetByteCount(contentOrNull);
 
 		var overflow = sourceCount + cl - Options.MaxSize;
 		if (overflow <= 0)
 		{
 			BytesWritten += cl;
-			Writer.Write(content);
+			Writer.Write(contentOrNull);
 			return;
 		}
 
-		if (overflow < content.Length)
+		if (overflow < contentOrNull.Length)
 		{
 			BytesWritten += cl - overflow;
-			Writer.Write(content.ToCharArray(0, (int)(cl - overflow)));
+			Writer.Write(contentOrNull.ToCharArray(0, (int)(cl - overflow)));
 		}
 		else
 		{
 			BytesWritten += cl;
-			Writer.Write(content);
+			Writer.Write(contentOrNull);
 		}
 	}
 

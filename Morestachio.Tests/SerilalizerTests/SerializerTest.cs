@@ -78,6 +78,7 @@ namespace Morestachio.Tests.SerilalizerTests
 		{
 			var options = ParserFixture.TestBuilder().WithTemplate(template).Build();
 			var morestachioDocumentInfo = Parser.ParseWithOptions(options);
+			Assert.That(morestachioDocumentInfo.Errors, Is.Empty);
 			SerializeAndDeserialize(morestachioDocumentInfo.Document);
 			AssertDocumentItemIsSameAsTemplate(template, morestachioDocumentInfo.Document, options);
 		}
@@ -248,6 +249,21 @@ namespace Morestachio.Tests.SerilalizerTests
 						   "{{#LET test = 'test'}}" +
 						   "{{/ELSE}}" +
 			               "{{/IF}}";
+			TestSerializableDocument(template);
+		}
+
+		[Test]
+		public void TestIsNoPrintIsSerializable()
+		{
+			var template = "I am <Text> " +
+				"{{#NOPRINT}}" +
+			               "{{#IF data}}" +
+						   "{{#LET test = 'test'}}" +
+						   "{{#ELSE}}" +
+						   "{{#LET test = 'test'}}" +
+						   "{{/ELSE}}" +
+			               "{{/IF}}" +
+				"{{/NOPRINT}}";
 			TestSerializableDocument(template);
 		}
 

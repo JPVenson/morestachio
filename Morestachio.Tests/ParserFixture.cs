@@ -14,6 +14,7 @@ using Morestachio.Document.Visitor;
 using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Formatter.Predefined;
 using Morestachio.Framework;
+using Morestachio.Framework.Context.Resolver;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.Parser;
@@ -1864,6 +1865,34 @@ Static
 			};
 			var result = await CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatters<BoundExpressionFormatter>(); });
 			Assert.That(result, Is.EqualTo(@"Data: 123|data.value.test"));
+		}
+
+		[Test]
+		public async Task TestParserCanProcessNoPrintBlock()
+		{
+			var template = @"{{#NOPRINT}}{{data.data}}{{this.TestFormatter()}}{{/NOPRINT}}";
+
+			var data = new
+			{
+				data = 777,
+				Called = false
+			};
+			var result = await CreateAndParseWithOptions(template, data, _options, options =>
+			{
+				return options.WithValueResolver(new FieldValueResolver()).WithFormatter<object, string>((obj) =>
+				{
+					Assert.That(data, Is.EqualTo(obj));
+					data = new 
+					{
+						data = 777,
+						Called = true
+					};
+
+					return "NOOOOOOOOOOO!";
+				}, "TestFormatter");
+			});
+			Assert.That(result, Is.EqualTo(@""));
+			Assert.That(data.Called, Is.True);
 		}
 
 		private class BoundExpressionFormatter
