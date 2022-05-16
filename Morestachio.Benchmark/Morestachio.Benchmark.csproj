@@ -28,4 +28,8 @@
     <ProjectReference Include="..\Morestachio\Morestachio.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Playground\" />
+  </ItemGroup>
+
 </Project>

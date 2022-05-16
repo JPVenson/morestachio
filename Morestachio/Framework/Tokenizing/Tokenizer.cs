@@ -674,39 +674,6 @@ public class Tokenizer
 																				.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), ""));
 						}
 					}
-					else if (trimmedToken.Equals("#ifelse", StringComparison.OrdinalIgnoreCase))
-					{
-						parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId,
-							"IFELSE is considered obsolete and should no longer be used. Just use the #ELSE keyword instead",
-							new Dictionary<string, object>
-							{
-								{ "Location", context.CurrentLocation }
-							});
-					}
-					else if (trimmedToken.Equals("#else", StringComparison.OrdinalIgnoreCase))
-					{
-						ScopeStackItem currentScope;
-
-						//the new else block must be located inside an #IF or ^IF block 
-						if (
-							scopestack.Count > 0 &&
-							!(currentScope = scopestack.Peek()).Equals(default) &&
-							currentScope.TokenType is TokenType.If or TokenType.IfNot or TokenType.ElseIf)
-						{
-							scopestack.Push(new ScopeStackItem(TokenType.Else, trimmedToken, match.Index));
-
-							tokens.Add(new TokenPair(TokenType.Else, trimmedToken,
-								context.CurrentLocation, tokenOptions));
-						}
-						else
-						{
-							context.Errors.Add(new MorestachioSyntaxError(
-								context.CurrentLocation
-										.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)),
-								"else", "{{#ELSE}}",
-								"Expected the else keyword to be a direct descended of an #if or #elseif"));
-						}
-					}
 					else if (StartsWith(trimmedToken, "#elseif "))
 					{
 						ScopeStackItem currentScope;
@@ -740,35 +707,6 @@ public class Tokenizer
 										.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)),
 								"else", "{{#ELSEIF}}",
 								"Expected the elseif keyword to be a direct descended of an #if"));
-						}
-					}
-					else if (trimmedToken.Equals("#default", StringComparison.OrdinalIgnoreCase))
-					{
-						var token = TrimToken(trimmedToken, "default");
-						TryParseStringOption(ref token, GetAsKeyword(), out var alias);
-
-						if (alias != null)
-						{
-							context.Errors.Add(new MorestachioSyntaxError(
-								context.CurrentLocation
-										.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "#default", "AS",
-								"No Alias"));
-						}
-
-						scopestack.Push(new ScopeStackItem(TokenType.SwitchDefaultOpen, token, match.Index));
-
-						if (token.Trim() == "")
-						{
-							token = token.Trim();
-
-							tokens.Add(new TokenPair(TokenType.SwitchDefaultOpen,
-								token,
-								context.CurrentLocation, tokenOptions));
-						}
-						else
-						{
-							context.Errors.Add(new InvalidPathSyntaxError(context.CurrentLocation
-																				.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), ""));
 						}
 					}
 					else if (StartsWith(trimmedToken, "#var "))
@@ -820,28 +758,6 @@ public class Tokenizer
 								context.CurrentLocation));
 						}
 					}
-					else if (trimmedToken.Equals("#NL", StringComparison.OrdinalIgnoreCase))
-					{
-						tokens.Add(new TokenPair(TokenType.WriteLineBreak, trimmedToken, context.CurrentLocation,
-							tokenOptions));
-					}
-					else if (trimmedToken.Equals("#TNL", StringComparison.OrdinalIgnoreCase))
-					{
-						tokens.Add(new TokenPair(TokenType.TrimLineBreak, trimmedToken, context.CurrentLocation,
-							tokenOptions));
-					}
-					else if (trimmedToken.Equals("#TNLS", StringComparison.OrdinalIgnoreCase))
-					{
-						tokenOptions.Add(new TokenOption("All", true));
-
-						tokens.Add(new TokenPair(TokenType.TrimLineBreaks, trimmedToken, context.CurrentLocation,
-							tokenOptions));
-					}
-					else if (trimmedToken.Equals("#TRIMALL", StringComparison.OrdinalIgnoreCase))
-					{
-						tokens.Add(new TokenPair(TokenType.TrimEverything, trimmedToken, context.CurrentLocation,
-							tokenOptions));
-					}
 					else if (StartsWith(trimmedToken, "#ISOLATE "))
 					{
 						var token = TrimToken(trimmedToken, "ISOLATE ");
@@ -864,10 +780,10 @@ public class Tokenizer
 							tokenOptions));
 						scopestack.Push(new ScopeStackItem(TokenType.IsolationScopeOpen, token, match.Index));
 					}
-					else if (trimmedToken.Equals("#NOPRINT", StringComparison.OrdinalIgnoreCase))
+					else if (ProcessHashTokenWithoutArgument(parserOptions, context, trimmedToken, tokenValue, scopestack,
+								match, tokens, tokenOptions))
 					{
-						tokens.Add(new TokenPair(TokenType.NoPrintOpen, trimmedToken, context.CurrentLocation, tokenOptions));
-						scopestack.Push(new ScopeStackItem(TokenType.NoPrintOpen, trimmedToken, match.Index));
+
 					}
 					else if (StartsWith(trimmedToken, "#SET OPTION "))
 					{
@@ -939,7 +855,7 @@ public class Tokenizer
 				else if (trimmedToken.StartsWith('/'))
 				{
 					ProcessClosingScope(parserOptions, context, trimmedToken, tokenValue, scopestack,
-						tokens, tokenOptions, match);
+						tokens, tokenOptions);
 				}
 				else if (trimmedToken.StartsWith('^'))
 				{
@@ -1005,6 +921,106 @@ public class Tokenizer
 		return new TokenizerResult(tokens);
 	}
 
+	private static bool ProcessHashTokenWithoutArgument(ParserOptions parserOptions,
+														TokenzierContext context,
+														in string trimmedToken,
+														in string tokenValue,
+														Stack<ScopeStackItem> scopeStack,
+														in TokenMatch match,
+														ICollection<TokenPair> tokens,
+														ICollection<ITokenOption> tokenOptions)
+	{
+		var upperCaseToken = trimmedToken.ToUpperInvariant();
+
+		switch (upperCaseToken)
+		{
+			case "#IFELSE":		
+				parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId,
+					"IFELSE is considered obsolete and should no longer be used and has no effect. Use the #ELSE keyword instead",
+					new Dictionary<string, object>
+					{
+						{ "Location", context.CurrentLocation }
+					});
+				break;
+			case "#ELSE":
+				ScopeStackItem currentScope;
+
+				//the new else block must be located inside an #IF or ^IF block 
+				if (scopeStack.Count > 0 &&
+					!(currentScope = scopeStack.Peek()).Equals(default) &&
+					currentScope.TokenType is TokenType.If or TokenType.IfNot or TokenType.ElseIf)
+				{
+					scopeStack.Push(new ScopeStackItem(TokenType.Else, trimmedToken, match.Index));
+
+					tokens.Add(new TokenPair(TokenType.Else, trimmedToken,
+						context.CurrentLocation, tokenOptions));
+				}
+				else
+				{
+					context.Errors.Add(new MorestachioSyntaxError(
+						context.CurrentLocation
+								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)),
+						"else", "{{#ELSE}}",
+						"Expected the else keyword to be a direct descended of an #if or #elseif"));
+				}
+				break;
+			case "#DEFAULT":
+				var token = TrimToken(trimmedToken, "default");
+				TryParseStringOption(ref token, GetAsKeyword(), out var alias);
+
+				if (alias != null)
+				{
+					context.Errors.Add(new MorestachioSyntaxError(
+						context.CurrentLocation
+								.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), "#default", "AS",
+						"No Alias"));
+				}
+
+				scopeStack.Push(new ScopeStackItem(TokenType.SwitchDefaultOpen, token, match.Index));
+
+				if (token.Trim() == "")
+				{
+					token = token.Trim();
+
+					tokens.Add(new TokenPair(TokenType.SwitchDefaultOpen,
+						token,
+						context.CurrentLocation, tokenOptions));
+				}
+				else
+				{
+					context.Errors.Add(new InvalidPathSyntaxError(context.CurrentLocation
+																		.AddWindow(new CharacterSnippedLocation(1, 1, tokenValue)), ""));
+				}
+				break;
+			case "#NL":
+				tokens.Add(new TokenPair(TokenType.WriteLineBreak, trimmedToken, context.CurrentLocation,
+					tokenOptions));
+				break;
+			case "#TNL":
+				tokens.Add(new TokenPair(TokenType.TrimLineBreak, trimmedToken, context.CurrentLocation,
+					tokenOptions));
+				break;
+			case "#TNLS":
+				tokenOptions.Add(new TokenOption("All", true));
+
+				tokens.Add(new TokenPair(TokenType.TrimLineBreaks, trimmedToken, context.CurrentLocation,
+					tokenOptions));
+				break;
+			case "#TRIMALL":
+				tokens.Add(new TokenPair(TokenType.TrimEverything, trimmedToken, context.CurrentLocation,
+					tokenOptions));
+				break;
+			case "#NOPRINT":
+				tokens.Add(new TokenPair(TokenType.NoPrintOpen, trimmedToken, context.CurrentLocation, tokenOptions));
+				scopeStack.Push(new ScopeStackItem(TokenType.NoPrintOpen, trimmedToken, match.Index));
+				break;
+			default:
+				return false;
+		}
+
+		return true;
+	}
+
 	private static void ProcessInvertedScope(
 		ParserOptions parserOptions,
 		TokenzierContext context,
@@ -1012,8 +1028,8 @@ public class Tokenizer
 		in string tokenValue,
 		Stack<ScopeStackItem> scopeStack,
 		in TokenMatch match,
-		List<TokenPair> tokens,
-		List<ITokenOption> tokenOptions
+		ICollection<TokenPair> tokens,
+		ICollection<ITokenOption> tokenOptions
 	)
 	{
 		if (StartsWith(trimmedToken, "^if "))
@@ -1087,14 +1103,16 @@ public class Tokenizer
 				token, context.CurrentLocation, ExpressionParser.ParseExpression(token, context),
 				tokenOptions));
 
-			if (!string.IsNullOrWhiteSpace(alias))
+			if (string.IsNullOrWhiteSpace(alias))
 			{
-				ValidateAliasName(alias, "AS", context);
-				context.AdvanceLocation(1 + alias.Length);
-
-				tokens.Add(new TokenPair(TokenType.Alias, alias,
-					context.CurrentLocation));
+				return;
 			}
+
+			ValidateAliasName(alias, "AS", context);
+			context.AdvanceLocation(1 + alias.Length);
+
+			tokens.Add(new TokenPair(TokenType.Alias, alias,
+				context.CurrentLocation));
 		}
 	}
 
@@ -1105,88 +1123,73 @@ public class Tokenizer
 		in string tokenValue,
 		Stack<ScopeStackItem> scopeStack,
 		List<TokenPair> tokens,
-		List<ITokenOption> tokenOptions,
-		in TokenMatch match
+		IList<ITokenOption> tokenOptions
 	)
 	{
-		if (trimmedToken.Equals("/declare", StringComparison.OrdinalIgnoreCase))
+		var upperToken = trimmedToken.ToUpperInvariant();
+
+		switch (upperToken)
 		{
-			CloseScope(tokenValue, TokenType.PartialDeclarationOpen, TokenType.PartialDeclarationClose, "DECLARE ...", scopeStack,
-				tokens, context, tokenOptions);
-		}
-		else if (trimmedToken.Equals("/each", StringComparison.OrdinalIgnoreCase))
-		{
-			CloseScope(tokenValue, TokenType.CollectionOpen, TokenType.CollectionClose, "EACH ...", scopeStack,
-				tokens, context, tokenOptions);
-		}
-		else if (trimmedToken.Equals("/foreach", StringComparison.OrdinalIgnoreCase))
-		{
-			CloseScope(tokenValue, TokenType.ForeachCollectionOpen, TokenType.ForeachCollectionClose, "FOREACH ...", scopeStack,
-				tokens, context, tokenOptions);
-		}
-		else if (trimmedToken.Equals("/while", StringComparison.OrdinalIgnoreCase))
-		{
-			CloseScope(tokenValue, TokenType.WhileLoopOpen, TokenType.WhileLoopClose, "WHILE ...", scopeStack,
-				tokens, context, tokenOptions);
-		}
-		else if (trimmedToken.Equals("/do", StringComparison.OrdinalIgnoreCase))
-		{
-			CloseScope(tokenValue, TokenType.DoLoopOpen, TokenType.DoLoopClose, "REPEAT ...", scopeStack,
-				tokens, context, tokenOptions);
-		}
-		else if (trimmedToken.Equals("/repeat", StringComparison.OrdinalIgnoreCase))
-		{
-			CloseScope(tokenValue, TokenType.RepeatLoopOpen, TokenType.RepeatLoopClose, "REPEAT ...", scopeStack,
-				tokens, context, tokenOptions);
-		}
-		else if (trimmedToken.Equals("/switch", StringComparison.OrdinalIgnoreCase))
-		{
-			CloseScope(tokenValue, TokenType.SwitchOpen, TokenType.SwitchClose, "SWITCH ...", scopeStack,
-				tokens, context, tokenOptions);
-		}
-		else if (trimmedToken.Equals("/case", StringComparison.OrdinalIgnoreCase))
-		{
-			CloseScope(tokenValue, TokenType.SwitchCaseOpen, TokenType.SwitchCaseClose, "CASE ...", scopeStack,
-				tokens, context, tokenOptions);
-		}
-		else if (trimmedToken.Equals("/default", StringComparison.OrdinalIgnoreCase))
-		{
-			CloseScope(tokenValue, TokenType.SwitchDefaultOpen, TokenType.SwitchDefaultClose, "DEFAULT", scopeStack,
-				tokens, context, tokenOptions);
-		}
-		else if (trimmedToken.Equals("/if", StringComparison.OrdinalIgnoreCase))
-		{
-			EndIf(match, scopeStack, context, tokens, tokenOptions);
-		}
-		else if (trimmedToken.Equals("/elseif", StringComparison.OrdinalIgnoreCase))
-		{
-			CloseScope(tokenValue, TokenType.ElseIf, TokenType.ElseIfClose, "ELSEIF ...", scopeStack,
-				tokens, context, tokenOptions);
-		}
-		else if (trimmedToken.Equals("/else", StringComparison.OrdinalIgnoreCase))
-		{
-			CloseScope(tokenValue, TokenType.Else, TokenType.ElseClose, "ELSE", scopeStack,
-				tokens, context, tokenOptions);
-		}
-		else if (trimmedToken.Equals("/scope", StringComparison.OrdinalIgnoreCase))
-		{
-			CloseScope(tokenValue, TokenType.ElementOpen | TokenType.InvertedElementOpen, TokenType.ElementClose, "SCOPE ...", scopeStack,
-				tokens, context, tokenOptions);
-		}
-		else if (trimmedToken.Equals("/ISOLATE", StringComparison.OrdinalIgnoreCase))
-		{
-			CloseScope(tokenValue, TokenType.IsolationScopeOpen, TokenType.IsolationScopeClose, "ISOLATION ...", scopeStack,
-				tokens, context, tokenOptions);
-		}
-		else if (trimmedToken.Equals("/NOPRINT", StringComparison.OrdinalIgnoreCase))
-		{
-			CloseScope(tokenValue, TokenType.NoPrintOpen, TokenType.NoPrintClose, "NOPRINT", scopeStack,
-				tokens, context, tokenOptions);
-		}
-		else
-		{
-			FallbackProcessToken(trimmedToken, tokenValue, parserOptions, context, scopeStack,
-				tokenOptions, tokens);
+			case "/DECLARE":
+				CloseScope(tokenValue, TokenType.PartialDeclarationOpen, TokenType.PartialDeclarationClose, "DECLARE ...", scopeStack,
+					tokens, context, tokenOptions);
+				break;
+			case "/EACH":
+				CloseScope(tokenValue, TokenType.CollectionOpen, TokenType.CollectionClose, "EACH ...", scopeStack,
+					tokens, context, tokenOptions);
+				break;
+			case "/WHILE":
+				CloseScope(tokenValue, TokenType.ForeachCollectionOpen, TokenType.ForeachCollectionClose, "FOREACH ...", scopeStack,
+					tokens, context, tokenOptions);
+				break;
+			case "/DO":
+				CloseScope(tokenValue, TokenType.WhileLoopOpen, TokenType.WhileLoopClose, "WHILE ...", scopeStack,
+					tokens, context, tokenOptions);
+				break;
+			case "/REPEAT":
+				CloseScope(tokenValue, TokenType.DoLoopOpen, TokenType.DoLoopClose, "REPEAT ...", scopeStack,
+					tokens, context, tokenOptions);
+				break;
+			case "/SWITCH":
+				CloseScope(tokenValue, TokenType.SwitchOpen, TokenType.SwitchClose, "SWITCH ...", scopeStack,
+					tokens, context, tokenOptions);
+				break;
+			case "/CASE":
+				CloseScope(tokenValue, TokenType.SwitchCaseOpen, TokenType.SwitchCaseClose, "CASE ...", scopeStack,
+					tokens, context, tokenOptions);
+				break;
+			case "/DEFAULT":
+				CloseScope(tokenValue, TokenType.SwitchDefaultOpen, TokenType.SwitchDefaultClose, "DEFAULT", scopeStack,
+					tokens, context, tokenOptions);
+				break;
+			case "/IF":
+				CloseScope(tokenValue, TokenType.If | TokenType.IfNot, TokenType.IfClose, "IF ...", scopeStack,
+					tokens, context, tokenOptions);
+				break;
+			case "/ELSEIF":
+				CloseScope(tokenValue, TokenType.ElseIf, TokenType.ElseIfClose, "ELSEIF ...", scopeStack,
+					tokens, context, tokenOptions);
+				break;
+			case "/ELSE":
+				CloseScope(tokenValue, TokenType.Else, TokenType.ElseClose, "ELSE", scopeStack,
+					tokens, context, tokenOptions);
+				break;
+			case "/SCOPE":
+				CloseScope(tokenValue, TokenType.ElementOpen | TokenType.InvertedElementOpen, TokenType.ElementClose, "SCOPE ...", scopeStack,
+					tokens, context, tokenOptions);
+				break;
+			case "/ISOLATE":
+				CloseScope(tokenValue, TokenType.IsolationScopeOpen, TokenType.IsolationScopeClose, "ISOLATION ...", scopeStack,
+					tokens, context, tokenOptions);
+				break;
+			case "/NOPRINT":
+				CloseScope(tokenValue, TokenType.NoPrintOpen, TokenType.NoPrintClose, "NOPRINT", scopeStack,
+					tokens, context, tokenOptions);
+				break;
+			default:
+				FallbackProcessToken(trimmedToken, tokenValue, parserOptions, context, scopeStack,
+					tokenOptions, tokens);
+				break;
 		}
 	}
 
@@ -1269,43 +1272,6 @@ public class Tokenizer
 		return keyword != null ? token.Substring(keyword.Length) : token;
 	}
 
-	private static void EndIf(
-		TokenMatch match,
-		Stack<ScopeStackItem> scopestack,
-		TokenzierContext context,
-		List<TokenPair> tokens,
-		List<ITokenOption> tokenOptions
-	)
-	{
-		if (!scopestack.Any())
-		{
-			context.Errors.Add(new MorestachioUnopendScopeError(context.CurrentLocation
-																		.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)),
-				"if",
-				"{{#if name}}"));
-
-			return;
-		}
-
-		var item1 = scopestack.Peek();
-
-		if (item1.TokenType != TokenType.If && item1.TokenType != TokenType.IfNot)
-		{
-			context.Errors.Add(new MorestachioUnopendScopeError(
-				context.CurrentLocation
-						.AddWindow(new CharacterSnippedLocation(1, 1, match.Value)),
-				"if",
-				"{{#if name}}"));
-
-			return;
-		}
-
-		var token = scopestack.Pop().Value;
-
-		tokens.Add(new TokenPair(TokenType.IfClose, token,
-			context.CurrentLocation, tokenOptions));
-	}
-
 	private static void ValidateAliasName(in string alias, in string tokenTypeName, TokenzierContext context)
 	{
 		if (string.IsNullOrWhiteSpace(alias))
@@ -1356,8 +1322,8 @@ public class Tokenizer
 		in string tokenValue1,
 		ParserOptions parserOptions,
 		TokenzierContext context,
-		Stack<ScopeStackItem> scopestack,
-		List<ITokenOption> tokenOptions,
+		Stack<ScopeStackItem> scopeStack,
+		IList<ITokenOption> tokenOptions,
 		List<TokenPair> tokens
 	)
 	{
@@ -1369,10 +1335,7 @@ public class Tokenizer
 		if (customDocumentProvider != null)
 		{
 			var tokenPairs = customDocumentProvider
-				.Tokenize(
-					new CustomDocumentItemProvider.TokenInfo(tokenName, context, scopestack,
-						tokenOptions),
-					parserOptions);
+				.Tokenize(new CustomDocumentItemProvider.TokenInfo(tokenName, context, scopeStack, tokenOptions), parserOptions);
 			tokens.AddRange(tokenPairs);
 		}
 		else if (tokenName.StartsWith('#'))
@@ -1402,7 +1365,7 @@ public class Tokenizer
 		ParserOptions parserOptions,
 		in string tokenName,
 		TokenzierContext context,
-		List<TokenPair> tokens,
+		ICollection<TokenPair> tokens,
 		in string tokenValue1
 	)
 	{
@@ -1440,18 +1403,17 @@ public class Tokenizer
 		in TokenType closeToken,
 		in string expectedToken,
 		Stack<ScopeStackItem> scopestack,
-		List<TokenPair> tokens,
+		ICollection<TokenPair> tokens,
 		TokenzierContext context,
-		List<ITokenOption> tokenOptions
+		IEnumerable<ITokenOption> tokenOptions
 	)
 	{
 		if (scopestack.Any() &&
-			openToken.HasFlag(scopestack.Peek().TokenType))
+			openToken.HasFlagFast(scopestack.Peek().TokenType))
 		{
 			var token = scopestack.Pop().Value;
 
-			tokens.Add(new TokenPair(closeToken, token,
-				context.CurrentLocation, tokenOptions));
+			tokens.Add(new TokenPair(closeToken, token, context.CurrentLocation, tokenOptions));
 		}
 		else
 		{

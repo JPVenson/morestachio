@@ -94,144 +94,60 @@ public class MorestachioDocumentInfo
 		return new CompiledRenderer(Document, ParserOptions, CaptureVariables, compiler ?? new DocumentCompiler());
 	}
 
-	/// <summary>
-	///		Returns an delegate that can be executed to perform the rendering tasks
-	/// </summary>
-	/// <returns></returns>
-	[Obsolete("Please use the CreateCompiledRenderer method")]
+	[Obsolete("Please use the CreateCompiledRenderer method", true)]
+#pragma warning disable CS1591
 	public CompilationResult Compile()
-	{
-		if (Errors.Any())
-		{
-			throw new AggregateException("You cannot Create this Template as there are one or more Errors. See Inner Exception for more infos.", Errors.Select(e => e.GetException())).Flatten();
-		}
 
-		if (Document is MorestachioDocument morestachioDocument && morestachioDocument.MorestachioVersion !=
-			MorestachioDocument.GetMorestachioVersion())
-		{
-			throw new InvalidOperationException($"The supplied version in the Morestachio document " +
-				$"'{morestachioDocument.MorestachioVersion}'" +
-				$" is not compatible with the current morestachio version of " +
-				$"'{MorestachioDocument.GetMorestachioVersion()}'");
-		}
-			
-		var compiledRenderer = new CompiledRenderer(Document, ParserOptions, CaptureVariables, new DocumentCompiler());
-		compiledRenderer.PreCompile();
-		return async (data, token) => await compiledRenderer.RenderAsync(data, token);
+	{
+		throw new NotImplementedException();
 	}
 
-	/// <summary>
-	///     Calls the Underlying Template Delegate and Produces a Stream
-	/// </summary>
-	/// <param name="data"></param>
-	/// <param name="token"></param>
-	/// <returns></returns>
-	/// <exception cref="InvalidOperationException">Will be thrown when the Version of the document mismatches</exception>
-	/// <exception cref="AggregateException">Will be thrown when there where any errors</exception>
-	/// <exception cref="TimeoutException">Will be thrown when the given timeout expires</exception>
-	[Obsolete("Please use the CreateRenderer().RenderAsync method")]
-	public async MorestachioDocumentResultPromise CreateAsync(object data, CancellationToken token)
+	[Obsolete("Please use the CreateRenderer().RenderAsync method", true)]
+	public MorestachioDocumentResultPromise CreateAsync(object data, CancellationToken token)
 	{
-		if (Errors.Any())
-		{
-			throw new AggregateException("You cannot Create this Template as there are one or more Errors. See Inner Exception for more infos.", Errors.Select(e => e.GetException())).Flatten();
-		}
-
-		if (Document is MorestachioDocument morestachioDocument && morestachioDocument.MorestachioVersion !=
-			MorestachioDocument.GetMorestachioVersion())
-		{
-			throw new InvalidOperationException($"The supplied version in the Morestachio document " +
-				$"'{morestachioDocument.MorestachioVersion}'" +
-				$" is not compatible with the current morestachio version of " +
-				$"'{MorestachioDocument.GetMorestachioVersion()}'");
-		}
-
-		return await CreateRenderer().RenderAsync(data, token);
+		throw new NotImplementedException();
 	}
 
-	/// <summary>
-	///     Calls the Underlying Template Delegate and Produces a Stream
-	/// </summary>
-	/// <param name="data"></param>
-	/// <returns></returns>
-	[Obsolete("Please use the CreateRenderer().RenderAsync method")]
-	public async MorestachioDocumentResultPromise CreateAsync(object data)
+	[Obsolete("Please use the CreateRenderer().RenderAsync method", true)]
+	public MorestachioDocumentResultPromise CreateAsync(object data)
 	{
-		return await CreateAsync(data, CancellationToken.None);
+		throw new NotImplementedException();
 	}
 
-	/// <summary>
-	///     Calls the Underlying Template Delegate and Produces a Stream
-	/// </summary>
-	/// <param name="source"></param>
-	/// <returns></returns>
-	[Obsolete("Please use the CreateRenderer().RenderAndStringifyAsync method")]
-	public async StringPromise CreateAndStringifyAsync(object source)
+	[Obsolete("Please use the CreateRenderer().RenderAndStringifyAsync method", true)]
+	public StringPromise CreateAndStringifyAsync(object source)
 	{
-		return await CreateAndStringifyAsync(source, CancellationToken.None);
+		throw new NotImplementedException();
 	}
 
-	/// <summary>
-	///     Calls the Underlying Template Delegate and Produces a Stream
-	/// </summary>
-	/// <param name="source"></param>
-	/// <param name="token"></param>
-	/// <returns></returns>
-	[Obsolete("Please use the CreateRenderer().RenderAndStringifyAsync method")]
-	public async StringPromise CreateAndStringifyAsync(object source, CancellationToken token)
+	[Obsolete("Please use the CreateRenderer().RenderAndStringifyAsync method", true)]
+	public StringPromise CreateAndStringifyAsync(object source, CancellationToken token)
 	{
-		using (var stream = (await CreateAsync(source, token)).Stream)
-		{
-			return stream.Stringify(true, ParserOptions.Encoding);
-		}
+		throw new NotImplementedException();
 	}
 
-	/// <summary>
-	///     Calls the Underlying Template Delegate and Produces a Stream
-	/// </summary>
-	/// <param name="source"></param>
-	/// <param name="token"></param>
-	/// <returns></returns>
-	[Obsolete("Please use the CreateRenderer().Render method")]
+	[Obsolete("Please use the CreateRenderer().Render method", true)]
 	public MorestachioDocumentResult Create(object source, CancellationToken token)
 	{
-		return CreateAsync(source, token).Await();
+		throw new NotImplementedException();
 	}
 
-	/// <summary>
-	///     Calls the Underlying Template Delegate and Produces a Stream
-	/// </summary>
-	/// <param name="source"></param>
-	/// <returns></returns>
-	[Obsolete("Please use the CreateRenderer().Render method")]
+	[Obsolete("Please use the CreateRenderer().Render method", true)]
 	public MorestachioDocumentResult Create(object source)
 	{
-		return Create(source, CancellationToken.None);
+		throw new NotImplementedException();
 	}
 
-	/// <summary>
-	///     Calls the Underlying Template Delegate and Produces a Stream
-	/// </summary>
-	/// <param name="source"></param>
-	/// <returns></returns>
-	[Obsolete("Please use the CreateRenderer().RenderAndStringify method")]
+	[Obsolete("Please use the CreateRenderer().RenderAndStringify method", true)]
 	public string CreateAndStringify(object source)
 	{
-		return CreateAndStringify(source, CancellationToken.None);
+		throw new NotImplementedException();
 	}
 
-	/// <summary>
-	///     Calls the Underlying Template Delegate and Produces a Stream
-	/// </summary>
-	/// <param name="source"></param>
-	/// <param name="token"></param>
-	/// <returns></returns>
-	[Obsolete("Please use the CreateRenderer().RenderAndStringify method")]
+	[Obsolete("Please use the CreateRenderer().RenderAndStringify method", true)]
 	public string CreateAndStringify(object source, CancellationToken token)
 	{
-		using (var stream = Create(source, token).Stream)
-		{
-			return stream.Stringify(true, ParserOptions.Encoding);
-		}
+		throw new NotImplementedException();
 	}
+#pragma warning restore CS1591
 }

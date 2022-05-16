@@ -255,3 +255,11 @@ public enum TokenType : long
 	/// </summary>
 	NoPrintClose = 1L << 50,
 }
+
+public static class TokenTypeExtensions
+{
+	public static bool HasFlagFast(this TokenType value, TokenType flag)
+	{
+		return (value & flag) != 0;
+	}
+}

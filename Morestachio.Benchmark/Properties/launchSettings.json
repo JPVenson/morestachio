@@ -3,6 +3,10 @@
     "Morestachio.Benchmark": {
       "commandName": "Project",
       //"commandLineArgs": "--filter *BenchPerfHarness*"
+    },
+    "char.Benchmark": {
+      "commandName": "Project",
+      "commandLineArgs": "--filter *TestCharWordTestPerfHarness*"
     }
   }
 }
