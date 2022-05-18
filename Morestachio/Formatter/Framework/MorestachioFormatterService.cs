@@ -334,24 +334,11 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 							.Select(e => e.CreateInstance())
 							.All(e => !e.CanConvert(typeToFormat, formatTemplateElement.InputType)))
 					{
-						if (!CheckGenericTypeForMatch(typeToFormat, formatTemplateElement))
+						if (!CheckGenericTypeForMatch(typeToFormat, formatTemplateElement.InputType))
 						{
-							var foundInterface = false;
-							//TODO cleanup this mess or rewrite the generic interface matching!
-							//foreach (var @interface in typeToFormat.GetInterfaces())
-							//{
-							//	if (CheckGenericTypeForMatch(@interface, formatTemplateElement))
-							//	{
-							//		foundInterface = true;
-							//	}
-							//}
-
-							if (!foundInterface)
-							{
-								Log(parserOptions, () =>
-									$"Exclude because formatter accepts '{formatTemplateElement.InputType}' is not assignable from '{typeToFormat}'");
-								continue;
-							}
+							Log(parserOptions, () =>
+								$"Exclude because formatter accepts '{formatTemplateElement.InputType}' is not assignable from '{typeToFormat}'");
+							continue;
 						}
 					}
 				}
@@ -401,30 +388,32 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		return Enumerable.Empty<MorestachioFormatterModel>();
 	}
 
-	private bool CheckGenericTypeForMatch(Type typeToFormat, MorestachioFormatterModel formatTemplateElement)
+	private bool CheckGenericTypeForMatch(Type inputType, Type targetType)
 	{
-		var typeToFormatGenerics = typeToFormat.GetTypeInfo().GetGenericArguments();
+		return IsAssignableToGenericType(inputType, targetType);
+		var inputGenerics = inputType.GetTypeInfo().GetGenericArguments();
 
 		//explicit check for array support
-		if (typeToFormat.HasElementType)
+		if (inputType.HasElementType)
 		{
-			var elementType = typeToFormat.GetElementType();
-			typeToFormatGenerics = typeToFormatGenerics.Concat(new[]
+			var elementType = inputType.GetElementType();
+			inputGenerics = inputGenerics.Concat(new[]
 			{
 				elementType
 			}).ToArray();
 		}
 
+
 		//the type check has maybe failed because of generic parameter. Check if both the formatter and the typ have generic arguments
 
-		var formatterGenerics = formatTemplateElement.InputType.GetTypeInfo().GetGenericArguments();
+		var targetGenerics = targetType.GetTypeInfo().GetGenericArguments();
 
-		if (typeToFormatGenerics.Length <= 0 || formatterGenerics.Length <= 0 ||
-			typeToFormatGenerics.Length != formatterGenerics.Length)
+		if (inputGenerics.Length <= 0 || targetGenerics.Length <= 0 ||
+			inputGenerics.Length != targetGenerics.Length)
 		{
 			return false;
 		}
-
+		
 		return true;
 	}
 
@@ -438,11 +427,20 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 	{
 		var interfaceTypes = givenType.GetInterfaces();
 
+		if (genericType.ContainsGenericParameters)
+		{
+			genericType = genericType.GetGenericTypeDefinition();
+		}
+
 		foreach (var it in interfaceTypes)
 		{
-			if (it.IsGenericType && it.GetGenericTypeDefinition() == genericType)
+			if (it.IsGenericType)
 			{
-				return true;
+				var genericTypeDefinition = it.GetGenericTypeDefinition();
+				if (genericTypeDefinition == genericType)
+				{
+					return true;
+				}
 			}
 		}
 
