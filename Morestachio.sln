@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29102.190
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32319.34
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{A77DD285-5579-4D79-BEE3-659AA9C4927C}"
 	ProjectSection(SolutionItems) = preProject
@@ -46,7 +46,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{5B530A98
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.Configuration.Transform", "Morestachio.Configuration.Transform\Morestachio.Configuration.Transform.csproj", "{EED26AB0-04FF-4461-9266-DCB192C7637A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morestachio.Configuration.Transform.Tests", "Morestachio.Configuration.Transform.Tests\Morestachio.Configuration.Transform.Tests.csproj", "{520B2AF3-8AF4-43B8-AAE7-97104624D244}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.Configuration.Transform.Tests", "Morestachio.Configuration.Transform.Tests\Morestachio.Configuration.Transform.Tests.csproj", "{520B2AF3-8AF4-43B8-AAE7-97104624D244}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morestachio.System.Text.Json", "Morestachio.System.Text.Json\Morestachio.System.Text.Json.csproj", "{082B342C-165B-4938-9015-E4DF70091F14}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -98,6 +100,10 @@ Global
 		{520B2AF3-8AF4-43B8-AAE7-97104624D244}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{520B2AF3-8AF4-43B8-AAE7-97104624D244}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{520B2AF3-8AF4-43B8-AAE7-97104624D244}.Release|Any CPU.Build.0 = Release|Any CPU
+		{082B342C-165B-4938-9015-E4DF70091F14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{082B342C-165B-4938-9015-E4DF70091F14}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{082B342C-165B-4938-9015-E4DF70091F14}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{082B342C-165B-4938-9015-E4DF70091F14}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

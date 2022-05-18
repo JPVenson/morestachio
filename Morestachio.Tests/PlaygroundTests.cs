@@ -271,7 +271,7 @@ namespace Morestachio.Tests
 
 			//compiledRenderTime.Stop();
 		}
-
+		#if NET5_0_OR_GREATER
 		[Test]
 		//[Explicit]
 		[Repeat(5)]
@@ -363,6 +363,7 @@ namespace Morestachio.Tests
 #endif
 			//PrintPerformanceGroup(profiler.SelectMany(f => f.))
 		}
+#endif
 
 //		[Test]
 //		[Explicit]

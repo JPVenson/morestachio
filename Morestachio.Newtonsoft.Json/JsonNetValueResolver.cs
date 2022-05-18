@@ -19,7 +19,7 @@ namespace Morestachio.Newtonsoft.Json
 		/// </summary>
 		/// <param name="optionsBuilder"></param>
 		/// <returns></returns>
-		public static IParserOptionsBuilder AddJsonValueResolver(this IParserOptionsBuilder optionsBuilder)
+		public static IParserOptionsBuilder WithJsonValueResolver(this IParserOptionsBuilder optionsBuilder)
 		{
 			return optionsBuilder.WithValueResolver(new JsonNetValueResolver());
 		}
@@ -62,7 +62,8 @@ namespace Morestachio.Newtonsoft.Json
 				case JArray jArr:
 					return EvalJToken(jArr);
 				default:
-					scopeData.ParserOptions.Logger?.LogWarn(nameof(JsonNetValueResolver), $"Could not resolve Json object path from type: {(value?.GetType().ToString() ?? "null")}");
+					scopeData.ParserOptions.Logger?.LogWarn(nameof(JsonNetValueResolver), 
+						$"Could not resolve Json object path from type: {(value?.GetType().ToString() ?? "null")}");
 					return value;
 			}
 		}

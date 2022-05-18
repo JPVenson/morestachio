@@ -36,13 +36,13 @@ namespace Morestachio.Tests
 				Is.EqualTo(collection.OrderBy(e => e).Select(e => e.ToString()).Aggregate((e, f) => e + "," + f) + ","));
 			Console.WriteLine(report);
 		}
-
+		
+#if NET5_0_OR_GREATER
 		public object ToValStr(object source, ReadOnlyMemory<char> var)
 		{
 			return source.ToString();
 		}
 
-#if NET5_0_OR_GREATER
 		public static ReadOnlyMemory<char> Truncate(ReadOnlyMemory<char> source, int length, string ellipsis = "...")
 		{
 			if (source.IsEmpty)

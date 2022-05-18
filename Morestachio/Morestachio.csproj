@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<PackageTags>Formatter, C#, Engine, NetStandard</PackageTags>
 		<Description>A powerfull c# infused templating engine.</Description>
-		<PackageReleaseNotes>Several Bugfixes and Formatter refactoring</PackageReleaseNotes>
+		<PackageReleaseNotes>See full changelog at https://github.com/JPVenson/morestachio/releases</PackageReleaseNotes>
 		<BuildPackage>true</BuildPackage>
 		<TargetFrameworks>netstandard2.0;netstandard2.1;net5.0;net6.0</TargetFrameworks>
 		<LangVersion>Latest</LangVersion>
