@@ -18,21 +18,22 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
-		[TestCase(1, 1, "1,0 b")]
+		[TestCase(1, 1, "1{SEP}0 b")]
 		[TestCase(1, 0, "1 b")]
 		[TestCase(0, 0, "0 b")]
-		[TestCase(-1, 1, "-1,0 b")]
+		[TestCase(-1, 1, "-1{SEP}0 b")]
 		[TestCase(-1, 0, "-1 b")]
 		[TestCase(-0, 0, "0 b")]
 
-		[TestCase(1024L * 1024L * 1024L * 1024L, 1, "1,0 TB")]
+		[TestCase(1024L * 1024L * 1024L * 1024L, 1, "1{SEP}0 TB")]
 		[TestCase(1024L * 1024L * 1024L * 1024L, 0, "1 TB")]
-		[TestCase(1024L * 1024L * 1024L * 1024L * -1, 1, "-1,0 TB")]
+		[TestCase(1024L * 1024L * 1024L * 1024L * -1, 1, "-1{SEP}0 TB")]
 		[TestCase(1024L * 1024L * 1024L * 1024L * -1, 0, "-1 TB")]
 		public void TestByteHumanization(long value, int precision, string expected)
 		{
+			expected = expected.Replace("{SEP}", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator);
 			var nr = new Number(value);
-			Assert.That(Number.ToBytes(nr, precision), Is.EqualTo(expected));
+			Assert.That(Number.ToBytes(nr, precision, CultureInfo.CurrentCulture.NumberFormat), Is.EqualTo(expected));
 		}
 
 		[Test]
@@ -158,14 +159,14 @@ namespace Morestachio.Tests
 			Assert.That(Number.TryParse(right, CultureInfo.InvariantCulture, out var numberRight), Is.True);
 			Assert.That(numberLeft.Modulo(numberRight).Value, Is.EqualTo(expected).And.TypeOf(expected.GetType()));
 		}
-		
+
 		[Test]
 		[TestCase("30.ToString('X2')", "1E")]
 		[TestCase("#VAR data = 30 + 50}}{{data.ToString('X2')", "50")]
 		[TestCase("30.ToString('F2')", "30.00")]
 		[TestCase("#VAR data = 30 + 50}}{{data.ToString('F2')", "80.00")]
 		public async Task CanFormatNumber(string templateData, string expected)
-		{			
+		{
 			var template = $"{{{{{templateData}}}}}";
 			var data = new
 			{

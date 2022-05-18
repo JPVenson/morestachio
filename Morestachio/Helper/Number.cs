@@ -468,7 +468,12 @@ public readonly struct Number :
 		{"b", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
 
 	[MorestachioFormatter("ToBytes", "Format a number to it's equivalent in bytes.")]
-	public static string ToBytes(Number value, Number? decimalPlaces = null)
+	public static string ToBytes(Number value, [ExternalData] ParserOptions parserOptions, Number? decimalPlaces = null)
+	{
+		return ToBytes(value, decimalPlaces, parserOptions.CultureInfo.NumberFormat);
+	}
+	
+	public static string ToBytes(Number value, Number? decimalPlaces = null, IFormatProvider formatProvider = null)
 	{
 		if (value == NaN || value.Equals(0L))
 		{
@@ -477,7 +482,7 @@ public readonly struct Number :
 
 		if (value < 0)
 		{
-			return "-" + ToBytes(value.Negate(), decimalPlaces);
+			return "-" + ToBytes(value.Negate(), decimalPlaces, formatProvider);
 		}
 
 		var precisionValue = (decimalPlaces ?? 0).ToInt32(null);
@@ -500,7 +505,7 @@ public readonly struct Number :
 			adjustedSize /= 1024;
 		}
 
-		return string.Format("{0:n" + precisionValue + "} {1}",
+		return string.Format(formatProvider, "{0:n" + precisionValue + "} {1}",
 			adjustedSize,
 			SizeSuffixes[mag]);
 
