@@ -934,7 +934,7 @@ public class Tokenizer
 
 		switch (upperCaseToken)
 		{
-			case "#IFELSE":		
+			case "#IFELSE":
 				parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId,
 					"IFELSE is considered obsolete and should no longer be used and has no effect. Use the #ELSE keyword instead",
 					new Dictionary<string, object>
@@ -1138,16 +1138,20 @@ public class Tokenizer
 				CloseScope(tokenValue, TokenType.CollectionOpen, TokenType.CollectionClose, "EACH ...", scopeStack,
 					tokens, context, tokenOptions);
 				break;
-			case "/WHILE":
+			case "/FOREACH":
 				CloseScope(tokenValue, TokenType.ForeachCollectionOpen, TokenType.ForeachCollectionClose, "FOREACH ...", scopeStack,
 					tokens, context, tokenOptions);
 				break;
+			case "/WHILE":
+				CloseScope(tokenValue, TokenType.WhileLoopOpen, TokenType.WhileLoopClose, "FOREACH ...", scopeStack,
+					tokens, context, tokenOptions);
+				break;
 			case "/DO":
-				CloseScope(tokenValue, TokenType.WhileLoopOpen, TokenType.WhileLoopClose, "WHILE ...", scopeStack,
+				CloseScope(tokenValue, TokenType.DoLoopOpen, TokenType.DoLoopClose, "WHILE ...", scopeStack,
 					tokens, context, tokenOptions);
 				break;
 			case "/REPEAT":
-				CloseScope(tokenValue, TokenType.DoLoopOpen, TokenType.DoLoopClose, "REPEAT ...", scopeStack,
+				CloseScope(tokenValue, TokenType.RepeatLoopOpen, TokenType.RepeatLoopClose, "REPEAT ...", scopeStack,
 					tokens, context, tokenOptions);
 				break;
 			case "/SWITCH":
