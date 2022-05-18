@@ -10,7 +10,7 @@ namespace Morestachio.Linq
 	/// <summary>
 	///     This class wraps the System.Linq.Dynamic.Core package for Morstachio
 	/// </summary>
-	[MorestachioExtensionSetup("Must be added via Nuget package 'Morestachio.Linq' and added via 'contextObject.Formatters.AddFromType(typeof(DynamicLinq))'")]
+	[MorestachioExtensionSetup("Must be added via Nuget package 'Morestachio.Linq' and added via 'ParserOptionsBuilder...WithFormatters(typeof(DynamicLinq))'")]
 	public static class DynamicLinq
 	{
 		[MorestachioFormatter("Where",

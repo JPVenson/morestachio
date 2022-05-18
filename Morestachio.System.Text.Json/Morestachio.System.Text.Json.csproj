@@ -7,13 +7,13 @@
         <PackageTags>Formatter, C#, Engine, NetStandard, Morestachio, Json</PackageTags>
         <BuildPackage>true</BuildPackage>
     </PropertyGroup>
-
     <ItemGroup>
         <None Include="..\Morestachio\Morestachio.png">
             <Pack>True</Pack>
             <PackagePath></PackagePath>
         </None>
     </ItemGroup>
+    <Import Project="../AfterDirectory.Build.props"></Import>
 
     <ItemGroup>
       <PackageReference Include="System.Text.Json" Version="6.0.4" />

@@ -176,9 +176,7 @@ public readonly struct Number :
 				nrType == typeof(double) ||
 				nrType == typeof(float);
 		}
-		return number is decimal ||
-			number is double ||
-			number is float;
+		return number is decimal or double or float;
 	}
 
 	/// <summary>
@@ -215,14 +213,7 @@ public readonly struct Number :
 				nrType == typeof(sbyte);
 		}
 
-		return number is ulong ||
-			number is long ||
-			number is uint ||
-			number is int ||
-			number is ushort ||
-			number is short ||
-			number is byte ||
-			number is sbyte;
+		return number is ulong or long or uint or int or ushort or short or byte or sbyte;
 	}
 
 	/// <summary>
