@@ -409,16 +409,13 @@ public class MorestachioExpression : IMorestachioExpression
 		}
 		//contextForPath.Value = await contextForPath.Format(FormatterName, argList, scopeData);
 
-		if (Cache == null)
-		{
-			Cache = contextForPath.PrepareFormatterCall(
-				contextForPath.Value?.GetType() ?? typeof(object),
-				FormatterName,
-				arguments,
-				scopeData);
-		}
+		Cache ??= contextForPath.PrepareFormatterCall(
+			contextForPath.Value?.GetType() ?? typeof(object),
+			FormatterName,
+			arguments,
+			scopeData);
 
-		if (Cache != null /* && !Equals(Cache.Value, default(FormatterCache))*/)
+		if (Cache != null)
 		{
 			contextForPath.Value = await scopeData.ParserOptions.Formatters.Execute(Cache, contextForPath.Value, scopeData.ParserOptions, arguments);
 			contextForPath.MakeSyntetic();

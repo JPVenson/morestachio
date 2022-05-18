@@ -18,7 +18,6 @@ namespace Morestachio.System.Text.Json
 		/// 		Sets or Adds the Json Value resolver
 		///  </summary>
 		///  <param name="optionsBuilder"></param>
-		///  <param name="lazyEvaluation">If set to true the resolver will return an <see cref="JsonElement"/> for arrays and objects instead of Dictionary and arrays</param>
 		///  <returns></returns>
 		public static IParserOptionsBuilder WithSystemTextJsonValueResolver(this IParserOptionsBuilder optionsBuilder)
 		{

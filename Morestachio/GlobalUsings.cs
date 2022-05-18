@@ -5,6 +5,7 @@ global using System.Linq;
 global using System.Runtime.CompilerServices;
 global using System.Runtime.Serialization;
 global using Morestachio.Helper;
+global using Morestachio.Util;
 
 #if ValueTask
 global using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
