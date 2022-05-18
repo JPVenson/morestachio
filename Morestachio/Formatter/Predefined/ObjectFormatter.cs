@@ -99,11 +99,11 @@ public static class ObjectFormatter
 	}
 
 	[MorestachioFormatter("Get", "Gets a specific property from an object or IDictionary")]
-	public static object Get(object source, string propertyName, [ExternalData] ParserOptions options)
+	public static object Get(object source, string propertyName, [ExternalData] ParserOptions options, [ExternalData] ScopeData scopeData)
 	{
-		if (options.ValueResolver?.CanResolve(source.GetType(), source, propertyName, null) == true)
+		if (options.ValueResolver?.CanResolve(source.GetType(), source, propertyName, null, scopeData) == true)
 		{
-			return options.ValueResolver.Resolve(source.GetType(), source, propertyName, null);
+			return options.ValueResolver.Resolve(source.GetType(), source, propertyName, null, scopeData);
 		}
 
 		if (!options.HandleDictionaryAsObject && source is IDictionary<string, object> dict)

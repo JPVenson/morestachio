@@ -151,9 +151,13 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	{
 		return WithValue(nameof(ParserOptions.PartialsStore), options =>
 		{
-			if (options.PartialsStore is PartialsStoreAggregator aggregator)
+			if (options.PartialsStore is PartialsStoreAggregator aggregator && value != null)
 			{
 				aggregator.PartialsStores.Add(value);
+			}
+			else if (value == null)
+			{
+				options.PartialsStore = null;
 			}
 			else
 			{
@@ -175,7 +179,17 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	/// <inheritdoc />
 	public IParserOptionsBuilder WithValueResolver(IValueResolver value)
 	{
-		return WithValue(nameof(ParserOptions.ValueResolver), options => options.ValueResolver = value);
+		return WithValue(nameof(ParserOptions.ValueResolver), options =>
+		{
+			if (options.ValueResolver is MultiValueResolver multiValueResolver && value != null)
+			{
+				multiValueResolver.Add(value);
+			}
+			else
+			{
+				options.ValueResolver = value;	
+			}
+		});
 	}
 
 	/// <inheritdoc />
@@ -321,9 +335,13 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	{
 		return WithValue(nameof(ParserOptions.PartialsStore), options =>
 		{
-			if (options.PartialsStore is PartialsStoreAggregator aggregator)
+			if (options.PartialsStore is PartialsStoreAggregator aggregator && value != null)
 			{
 				aggregator.PartialsStores.Add(value());
+			}
+			else if (value == null)
+			{
+				options.PartialsStore = null;
 			}
 			else
 			{
@@ -341,7 +359,21 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	/// <inheritdoc />
 	public IParserOptionsBuilder WithValueResolver(Func<IValueResolver> value)
 	{
-		return WithValue(nameof(ParserOptions.ValueResolver), options => options.ValueResolver = value());
+		return WithValue(nameof(ParserOptions.ValueResolver), options =>
+		{
+			if (options.ValueResolver is MultiValueResolver multiValueResolver && value != null)
+			{
+				multiValueResolver.Add(value());
+			}
+			else if (value == null)
+			{
+				options.ValueResolver = null;
+			}
+			else
+			{
+				options.ValueResolver = value();	
+			}
+		});
 	}
 
 	/// <inheritdoc />

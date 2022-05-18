@@ -1,24 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using Morestachio.Document;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Context.Resolver;
+using Morestachio.Helper.Logging;
 using Newtonsoft.Json.Linq;
 
 namespace Morestachio.Newtonsoft.Json
 {
+	/// <summary>
+	///		Extension method for adding the JsonValue Resolver
+	/// </summary>
 	public static class JsonNetValueResolverExtensions
 	{
-		public static void AddJsonValueResolver(this ParserOptions options)
+		/// <summary>
+		///		Sets or Adds the Json Value resolver
+		/// </summary>
+		/// <param name="optionsBuilder"></param>
+		/// <returns></returns>
+		public static IParserOptionsBuilder AddJsonValueResolver(this IParserOptionsBuilder optionsBuilder)
 		{
-			if (options.ValueResolver is IList<IValueResolver> listResolver)
-			{
-				listResolver.Add(new JsonNetValueResolver());
-			}
-			else
-			{
-				options.ValueResolver = new JsonNetValueResolver();
-			}
+			return optionsBuilder.WithValueResolver(new JsonNetValueResolver());
 		}
 	}
 
@@ -28,53 +31,55 @@ namespace Morestachio.Newtonsoft.Json
 	public class JsonNetValueResolver : IValueResolver
 	{
 		/// <inheritdoc />
-		public object Resolve(Type type, object value, string path, ContextObject context)
+		public object Resolve(
+			Type type,
+			object value,
+			string path,
+			ContextObject context,
+			ScopeData scopeData
+		)
 		{
-			return ResolveJObject(value, path);
+			return ResolveJObject(value, path, context, scopeData);
 		}
 
-		public static object ResolveJObject(object value, string path)
+		public static object ResolveJObject(object value, string path, ContextObject contextObject,
+											ScopeData scopeData)
 		{
-			if (value is JObject jValue)
+			switch (value)
 			{
-				var val = jValue.Value<object>(path);
-				if (val is JToken jToken)
-				{
-					return EvalJToken(jToken);
-				}
+				case JObject jValue:
+					{
+						var val = jValue.Value<object>(path);
+						if (val is JToken jToken)
+						{
+							return EvalJToken(jToken);
+						}
 
-				return val;
+						return val;
+					}
+				case JValue jVal:
+					return jVal.Value;
+				case JArray jArr:
+					return EvalJToken(jArr);
+				default:
+					scopeData.ParserOptions.Logger?.LogWarn(nameof(JsonNetValueResolver), $"Could not resolve Json object path from type: {(value?.GetType().ToString() ?? "null")}");
+					return value;
 			}
-
-			if (value is JValue jVal)
-			{
-				return jVal.Value;
-			}
-
-			if (value is JArray jArr)
-			{
-				return EvalJToken(jArr);
-			}
-
-			return value;
 		}
 
 		public static object EvalJToken(JToken token)
 		{
-			if (token is JValue jToken)
+			switch (token)
 			{
-				return jToken.Value;
+				case JValue jToken:
+					return jToken.Value;
+				case JArray jArray:
+					return EvalJArray(jArray);
+				case JObject jObject:
+					return EvalJObject(jObject);
+				default:
+					return null;
 			}
-			if (token is JArray jArray)
-			{
-				return EvalJArray(jArray);
-			}
-			if (token is JObject jObject)
-			{
-				return EvalJObject(jObject);
-			}
-
-			return null;
 		}
 
 		public static IDictionary<string, object> EvalJObject(JObject obj)
@@ -100,9 +105,15 @@ namespace Morestachio.Newtonsoft.Json
 		}
 
 		/// <inheritdoc />
-		public bool CanResolve(Type type, object value, string path, ContextObject context)
+		public bool CanResolve(
+			Type type,
+			object value,
+			string path,
+			ContextObject context,
+			ScopeData scopeData
+		)
 		{
-			return type == typeof(JObject) || type == typeof(JValue);
+			return type == typeof(JObject) || type == typeof(JValue) || type == typeof(JArray);
 		}
 
 		public bool IsSealed { get; private set; }

@@ -1,27 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Reflection;
 using Morestachio.Document;
 
 namespace Morestachio.Framework.Context.Resolver;
 
 /// <summary>
-///		Combines any number of value resolvers
+///		Can resolve fields from objects in addition to properties
 /// </summary>
-public class MultiValueResolver : List<IValueResolver>, IValueResolver
+public class FieldValueResolver : IValueResolver
 {
-	/// <inheritdoc />
-	public object Resolve(
-		Type type,
-		object value,
-		string path,
-		ContextObject context,
-		ScopeData scopeData
-	)
-	{
-		return this.First(f => f.CanResolve(type, value, path, context, scopeData)).Resolve(type, value, path, context, scopeData);
-	}
-
 	/// <inheritdoc />
 	public bool CanResolve(
 		Type type,
@@ -31,9 +17,21 @@ public class MultiValueResolver : List<IValueResolver>, IValueResolver
 		ScopeData scopeData
 	)
 	{
-		return this.Any(f => f.CanResolve(type, value, path, context, scopeData));
+		return type.GetField(path, BindingFlags.Public | BindingFlags.Instance) != null;
 	}
 		
+	/// <inheritdoc />
+	public object Resolve(
+		Type type,
+		object value,
+		string path,
+		ContextObject context,
+		ScopeData scopeData
+	)
+	{
+		return type.GetField(path, BindingFlags.Public | BindingFlags.Instance).GetValue(value);
+	}
+
 	/// <inheritdoc />
 	public bool IsSealed { get; private set; }
 

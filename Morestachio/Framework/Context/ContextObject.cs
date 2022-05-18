@@ -280,9 +280,9 @@ public class ContextObject
 						{
 							object value;
 
-							if (scopeData._parserOptions.ValueResolver?.CanResolve(type, _value, e.Name, null) == true)
+							if (scopeData._parserOptions.ValueResolver?.CanResolve(type, _value, e.Name, null, scopeData) == true)
 							{
-								value = scopeData._parserOptions.ValueResolver.Resolve(type, _value, e.Name, null);
+								value = scopeData._parserOptions.ValueResolver.Resolve(type, _value, e.Name, null, scopeData);
 							}
 							else
 							{
@@ -328,10 +328,10 @@ public class ContextObject
 			var type = _value.GetType();
 			var innerContext = scopeData._parserOptions.CreateContextObject(key, null, this);
 
-			if (scopeData._parserOptions.ValueResolver.CanResolve(type, _value, key, innerContext))
+			if (scopeData._parserOptions.ValueResolver.CanResolve(type, _value, key, innerContext, scopeData))
 			{
 				innerContext._value
-					= scopeData._parserOptions.ValueResolver.Resolve(type, _value, key, innerContext);
+					= scopeData._parserOptions.ValueResolver.Resolve(type, _value, key, innerContext, scopeData);
 				return innerContext;
 			}
 		}
