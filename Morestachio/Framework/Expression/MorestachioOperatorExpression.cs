@@ -284,9 +284,15 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 		{
 			get
 			{
-				var visitor = new ToParsableStringExpressionVisitor();
-				_exp.Accept(visitor);
-				return visitor.StringBuilder.ToString();
+				return _exp.AsStringExpression();
+			}
+		}
+
+		public string DbgView
+		{
+			get
+			{
+				return _exp.AsDebugExpression();
 			}
 		}
 

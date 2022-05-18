@@ -141,11 +141,11 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 			visitor.StringBuilder.Append(MorestachioLocalizationTagProvider.OpenTag);
 		}
 			
-		visitor.StringBuilder.Append(visitor.ReparseExpression(MorestachioExpression));
+		visitor.StringBuilder.Append(MorestachioExpression.AsStringExpression());
 		if (ExplicitCulture != null)
 		{
 			visitor.StringBuilder.Append(" #CULTURE ");
-			visitor.StringBuilder.Append(visitor.ReparseExpression(ExplicitCulture));
+			visitor.StringBuilder.Append(ExplicitCulture.AsStringExpression());
 		}
 		visitor.StringBuilder.Append("}}");
 

@@ -13,9 +13,17 @@ public class ToParsableStringExpressionVisitor : IMorestachioExpressionVisitor
 	/// <summary>
 	/// 
 	/// </summary>
-	public ToParsableStringExpressionVisitor()
+	public ToParsableStringExpressionVisitor() : this(new StringBuilder())
 	{
-		StringBuilder = new StringBuilder();
+		
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	public ToParsableStringExpressionVisitor(StringBuilder stringBuilder)
+	{
+		StringBuilder = stringBuilder;
 	}
 
 	/// <summary>

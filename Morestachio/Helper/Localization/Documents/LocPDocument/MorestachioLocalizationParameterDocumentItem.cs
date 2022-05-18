@@ -52,6 +52,6 @@ public class MorestachioLocalizationParameterDocumentItem : ExpressionDocumentIt
 	/// <inheritdoc />
 	public void Render(ToParsableStringDocumentVisitor visitor)
 	{
-		visitor.StringBuilder.Append("{{" + MorestachioLocalizationParamTagProvider.OpenTag + visitor.ReparseExpression(MorestachioExpression) + "}}");
+		visitor.StringBuilder.Append("{{" + MorestachioLocalizationParamTagProvider.OpenTag + MorestachioExpression.AsStringExpression() + "}}");
 	}
 }

@@ -539,12 +539,9 @@ public static class ExpressionParser
 					}
 					else
 					{
-						var visitor = new ToParsableStringExpressionVisitor();
-						morestachioExpression.Accept(visitor);
-
 						tokens.SyntaxError(context,
 							token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-								tokens.SourceExpression)), $"The argument {visitor.StringBuilder} is not in the correct format only single names without special characters and without path are supported");
+								tokens.SourceExpression)), $"The argument {morestachioExpression.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
 					}
 				}
 
@@ -556,12 +553,9 @@ public static class ExpressionParser
 				break;
 			default:
 			{
-				var visitor = new ToParsableStringExpressionVisitor();
-				argument.Accept(visitor);
-
 				tokens.SyntaxError(context,
 					token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-						tokens.SourceExpression)), $"The argument {visitor.StringBuilder} is not in the correct format only single names without special characters and without path are supported");
+						tokens.SourceExpression)), $"The argument {argument.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
 
 				break;
 			}
@@ -582,13 +576,10 @@ public static class ExpressionParser
 		{
 			return;
 		}
-
-		var visitor = new ToParsableStringExpressionVisitor();
-		argument.Accept(visitor);
-
+		
 		tokens.SyntaxError(context,
 			token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-				tokens.SourceExpression)), $"The argument {visitor.StringBuilder} is not in the correct format only single names without special characters and without path are supported");
+				tokens.SourceExpression)), $"The argument {argument.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
 	}
 
 	private static void ParseAndAddOperator(

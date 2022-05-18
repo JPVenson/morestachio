@@ -94,7 +94,8 @@ public class EachDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncC
 				string.Format(
 					"{1}'{0}' is used like an array by the template, but is a scalar value or object in your model." +
 					" Complete Expression until Error:{2}",
-					MorestachioExpression, ExpressionStart,
+					MorestachioExpression.AsStringExpression(), 
+					ExpressionStart,
 					(path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 		}
 

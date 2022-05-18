@@ -63,18 +63,6 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 	}
 
 	/// <summary>
-	///		Parses an expression for use in an original template
-	/// </summary>
-	/// <param name="expression"></param>
-	/// <returns></returns>
-	public string ReparseExpression(IMorestachioExpression expression)
-	{
-		var visitor = new ToParsableStringExpressionVisitor();
-		expression.Accept(visitor);
-		return visitor.StringBuilder.ToString();
-	}
-
-	/// <summary>
 	///		Loops through all the document items children
 	/// </summary>
 	/// <param name="documentItem"></param>
@@ -161,7 +149,7 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 		CheckForInlineTagLineBreakAtStart(documentItem);
 		StringBuilder.Append(cmdChar);
 		StringBuilder.Append(tag);
-		StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
+		StringBuilder.Append(documentItem.MorestachioExpression.AsStringExpression());
 		var aliasDocumentItem = documentItem.Children.FirstOrDefault() as AliasDocumentItem;
 		if (!(aliasDocumentItem is null))
 		{
@@ -247,7 +235,7 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 		StringBuilder.Append("#FOREACH ");
 		StringBuilder.Append(documentItem.ItemVariableName);
 		StringBuilder.Append(" IN ");
-		StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
+		StringBuilder.Append(documentItem.MorestachioExpression.AsStringExpression());
 		CheckForInlineTagLineBreakAtEnd(documentItem);
 		StringBuilder.Append("}}");
 
@@ -290,7 +278,7 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 		StringBuilder.Append(" ");
 		StringBuilder.Append(documentItem.Value);
 		StringBuilder.Append(" = ");
-		StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
+		StringBuilder.Append(documentItem.MorestachioExpression.AsStringExpression());
 		CheckForInlineTagLineBreakAtEnd(documentItem);
 		StringBuilder.Append("}}");
 	}
@@ -319,7 +307,7 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 		StringBuilder.Append("{{");
 		CheckForInlineTagLineBreakAtStart(documentItem);
 		StringBuilder.Append(prefix);
-		StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
+		StringBuilder.Append(documentItem.MorestachioExpression.AsStringExpression());
 		var children = documentItem.Children.ToList();
 		var aliasDocumentItem = children.FirstOrDefault() as AliasDocumentItem;
 		if (!(aliasDocumentItem is null))
@@ -343,7 +331,7 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 			}
 			else
 			{
-				StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
+				StringBuilder.Append(documentItem.MorestachioExpression.AsStringExpression());
 			}
 			CheckForInlineBlockLineBreakAtEnd(documentItem);
 			StringBuilder.Append("}}");
@@ -382,7 +370,7 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 		StringBuilder.Append("{{");
 		CheckForInlineTagLineBreakAtStart(documentItem);
 		StringBuilder.Append("#SWITCH ");
-		StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
+		StringBuilder.Append(documentItem.MorestachioExpression.AsStringExpression());
 		if (documentItem.ScopeToValue)
 		{
 			StringBuilder.Append(" #SCOPE");
@@ -455,7 +443,7 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 		if (documentItem.Context != null)
 		{
 			StringBuilder.Append(" WITH ");
-			StringBuilder.Append(ReparseExpression(documentItem.Context));
+			StringBuilder.Append(documentItem.Context.AsStringExpression());
 		}
 		CheckForInlineTagLineBreakAtEnd(documentItem);
 		StringBuilder.Append("}}");
@@ -467,11 +455,11 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 		StringBuilder.Append("{{");
 		CheckForInlineTagLineBreakAtStart(documentItem);
 		StringBuilder.Append("#IMPORT ");
-		StringBuilder.Append(ReparseExpression(documentItem.MorestachioExpression));
+		StringBuilder.Append(documentItem.MorestachioExpression.AsStringExpression());
 		if (documentItem.Context != null)
 		{
 			StringBuilder.Append(" #WITH ");
-			StringBuilder.Append(ReparseExpression(documentItem.Context));
+			StringBuilder.Append(documentItem.Context.AsStringExpression());
 		}
 		CheckForInlineTagLineBreakAtEnd(documentItem);
 		StringBuilder.Append("}}");
@@ -501,7 +489,7 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 		if (documentItem.Isolation.HasFlag(IsolationOptions.ScopeIsolation))
 		{
 			StringBuilder.Append(" #SCOPE ");
-			StringBuilder.Append(ReparseExpression(documentItem.ScopeIsolationExpression));
+			StringBuilder.Append(documentItem.ScopeIsolationExpression.AsStringExpression());
 		}
 
 		CheckForInlineTagLineBreakAtEnd(documentItem);

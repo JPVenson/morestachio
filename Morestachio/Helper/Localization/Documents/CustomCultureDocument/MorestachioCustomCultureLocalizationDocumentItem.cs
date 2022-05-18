@@ -149,7 +149,7 @@ public class MorestachioCustomCultureLocalizationDocumentItem : ExpressionDocume
 	/// <inheritdoc />
 	public void Render(ToParsableStringDocumentVisitor visitor)
 	{
-		visitor.StringBuilder.Append("{{" + MorestachioCustomCultureLocalizationBlockProvider.OpenTag + visitor.ReparseExpression(MorestachioExpression) + "}}");
+		visitor.StringBuilder.Append("{{" + MorestachioCustomCultureLocalizationBlockProvider.OpenTag + MorestachioExpression.AsStringExpression() + "}}");
 		visitor.VisitChildren(this);
 		visitor.StringBuilder.Append("{{" + MorestachioCustomCultureLocalizationBlockProvider.CloseTag + "}}");
 	}
