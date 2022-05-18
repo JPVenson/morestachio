@@ -16,11 +16,12 @@
     <ItemGroup>
         <ProjectReference Include="..\Morestachio.Linq\Morestachio.Linq.csproj" />
         <ProjectReference Include="..\Morestachio.Newtonsoft.Json\Morestachio.Newtonsoft.Json.csproj" />
+        <ProjectReference Include="..\Morestachio.System.Xml.Linq\Morestachio.System.Xml.Linq.csproj" />
         <ProjectReference Include="..\Morestachio\Morestachio.csproj" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' or $(TargetFramework) == 'net5.0' or $(TargetFramework) == 'net6.0'">
-        <PackageReference Include="System.Text.Json" Version="6.0.4"/>
+        <PackageReference Include="System.Text.Json" Version="6.0.4" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' or $(TargetFramework) == 'net5.0' or $(TargetFramework) == 'net6.0'">
