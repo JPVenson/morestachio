@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1;net5.0</TargetFrameworks>
-    <PackageTags>Formatter, C#, Engine, NetStandard, Configuration</PackageTags>
-    <Description>A adapter for using Morestachio with the IConfiguration system.</Description>
     <PackageReleaseNotes>Several Bugfixes and Formatter refactoring</PackageReleaseNotes>
     <BuildPackage>true</BuildPackage>
   </PropertyGroup>

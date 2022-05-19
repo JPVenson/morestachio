@@ -2,19 +2,12 @@
 
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;netstandard2.1;net5.0;net6.0</TargetFrameworks>
-        <RepositoryType>git</RepositoryType>
-        <PackageTags>Formatter, C#, Engine, NetStandard, Morestachio, Json</PackageTags>
+        <PackageTags>Formatter, C#, Engine, NetStandard, Morestachio, Xml</PackageTags>
         <BuildPackage>true</BuildPackage>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Morestachio\Morestachio.csproj" />
-    </ItemGroup>
-    <ItemGroup>
-        <None Include="..\Morestachio\Morestachio.png">
-            <Pack>True</Pack>
-            <PackagePath></PackagePath>
-        </None>
     </ItemGroup>
     <Import Project="../AfterDirectory.Build.props"></Import>
 

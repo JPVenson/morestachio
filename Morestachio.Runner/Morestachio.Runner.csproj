@@ -1,31 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>Net5.0</TargetFramework>
-    <PackageTags>Formatter, C#, Engine, NetStandard, Morestachio</PackageTags>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>Net5.0</TargetFramework>
+        <PackageTags>Formatter, C#, Engine, NetStandard, Morestachio</PackageTags>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+        <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Morestachio.Linq\Morestachio.Linq.csproj" />
-    <ProjectReference Include="..\Morestachio.Newtonsoft.Json\Morestachio.Newtonsoft.Json.csproj" />
-    <ProjectReference Include="..\Morestachio\Morestachio.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Morestachio.Linq\Morestachio.Linq.csproj" />
+        <ProjectReference Include="..\Morestachio.Newtonsoft.Json\Morestachio.Newtonsoft.Json.csproj" />
+        <ProjectReference Include="..\Morestachio\Morestachio.csproj" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <None Update="documentation.md">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Morestachio\Morestachio.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
-  <Import Project="../AfterDirectory.Build.props"></Import>
+    <ItemGroup>
+        <None Update="documentation.md">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+    <Import Project="../AfterDirectory.Build.props"></Import>
 
 </Project>
