@@ -108,7 +108,7 @@ public class MorestachioExpressionString : IMorestachioExpression
 	/// <inheritdoc />
 	public async ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
 	{
-		await Task.CompletedTask;
+		await Task.CompletedTask.ConfigureAwait(false);
 		return scopeData.ParserOptions.CreateContextObject(".",
 			string.Join("", StringParts.Select(f => f.PartText)),
 			contextObject);

@@ -45,10 +45,10 @@ public class InvertedExpressionScopeDocumentItem : ExpressionDocumentItemBase, I
 
 		return async (stream, context, scopeData) =>
 		{
-			var c = await expression(context, scopeData);
+			var c = await expression(context, scopeData).ConfigureAwait(false);
 			if (!c.Exists())
 			{
-				await children(stream, c, scopeData);
+				await children(stream, c, scopeData).ConfigureAwait(false);
 			}
 		};
 	}
@@ -57,7 +57,7 @@ public class InvertedExpressionScopeDocumentItem : ExpressionDocumentItemBase, I
 	public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 	{
 		//var c = await context.GetContextForPath(Value, scopeData);
-		var c = await MorestachioExpression.GetValue(context, scopeData);
+		var c = await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false);
 		if (!c.Exists())
 		{
 			return Children.WithScope(c);

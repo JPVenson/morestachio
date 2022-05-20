@@ -125,7 +125,7 @@ public static class AsyncHelper
 		{
 			if (!task.IsCompleted)
 			{
-				await task;
+				await task.ConfigureAwait(false);
 			}
 
 			if (task is Task<object> task2)
@@ -150,7 +150,7 @@ public static class AsyncHelper
 		{
 			if (!valTask.IsCompleted)
 			{
-				await valTask;
+				await valTask.ConfigureAwait(false);
 			}
 			var taskType = valTask.GetType();
 			if (taskType != typeof(ValueTask))
@@ -163,7 +163,7 @@ public static class AsyncHelper
 		}
 		if (maybeTask is ValueTask<object> objValTask)
 		{
-			return await objValTask;
+			return await objValTask.ConfigureAwait(false);
 		}
 #endif
 

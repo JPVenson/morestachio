@@ -93,14 +93,14 @@ public class PathDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncC
 		{
 			return async (outputStream, context, scopeData) =>
 			{
-				var contextObject = await expression(context, scopeData);
+				var contextObject = await expression(context, scopeData).ConfigureAwait(false);
 				outputStream.Write(HtmlEncodeString(contextObject.RenderToString(scopeData)));
 			};
 		}
 
 		return async (outputStream, context, scopeData) =>
 		{
-			var contextObject = await expression(context, scopeData);
+			var contextObject = await expression(context, scopeData).ConfigureAwait(false);
 			outputStream.Write(contextObject.RenderToString(scopeData));
 		};
 	}
@@ -109,7 +109,7 @@ public class PathDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncC
 	public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 	{
 		//try to locate the value in the context, if it exists, append it.
-		var contextObject = context != null ? (await MorestachioExpression.GetValue(context, scopeData)) : null;
+		var contextObject = context != null ? (await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false)) : null;
 		if (contextObject != null)
 		{
 			//await contextObject.EnsureValue();

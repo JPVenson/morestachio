@@ -95,7 +95,7 @@ public static class ObjectFormatter
 			options,
 			scopeData);
 		return await options.Formatters.Execute(formatterMatch, source, options,
-			argumentTypes);
+			argumentTypes).ConfigureAwait(false);
 	}
 
 	[MorestachioFormatter("Get", "Gets a specific property from an object or IDictionary")]

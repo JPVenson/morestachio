@@ -78,7 +78,7 @@ public class RemoveAliasDocumentItem : ValueDocumentItemBase, ISupportCustomAsyn
 		return async (stream, context, scopeData) =>
 		{
 			scopeData.RemoveVariable(Value, IdVariableScope);
-			await AsyncHelper.FakePromise();
+			await AsyncHelper.FakePromise().ConfigureAwait(false);
 		};
 	}
 

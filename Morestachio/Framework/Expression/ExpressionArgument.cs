@@ -87,7 +87,7 @@ public class ExpressionArgument : IEquatable<ExpressionArgument>, IMorestachioEx
 	/// <returns></returns>
 	public async ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
 	{
-		return await MorestachioExpression.GetValue(contextObject, scopeData);
+		return await MorestachioExpression.GetValue(contextObject, scopeData).ConfigureAwait(false);
 	}
 
 	/// <inheritdoc />

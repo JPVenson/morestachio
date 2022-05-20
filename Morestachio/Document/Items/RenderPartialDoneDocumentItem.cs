@@ -67,7 +67,7 @@ public class RenderPartialDoneDocumentItem : ValueDocumentItemBase, ISupportCust
 		return async (stream, context, scopeData) =>
 		{
 			CoreAction(scopeData);
-			await AsyncHelper.FakePromise();
+			await AsyncHelper.FakePromise().ConfigureAwait(false);
 		};
 	}
 }

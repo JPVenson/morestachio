@@ -237,7 +237,7 @@ public class Tokenizer
 
 		if (parserOptions.PartialsStore is IAsyncPartialsStore asyncPartialStore)
 		{
-			partialsNames = new List<string>(await asyncPartialStore.GetNamesAsync(parserOptions));
+			partialsNames = new List<string>(await asyncPartialStore.GetNamesAsync(parserOptions).ConfigureAwait(false));
 		}
 		else if (parserOptions.PartialsStore != null)
 		{
@@ -844,7 +844,7 @@ public class Tokenizer
 							break;
 						}
 
-						await context.SetOption(name, value, parserOptions);
+						await context.SetOption(name, value, parserOptions).ConfigureAwait(false);
 					}
 					else
 					{

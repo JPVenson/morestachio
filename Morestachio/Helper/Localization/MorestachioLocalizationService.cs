@@ -93,7 +93,7 @@ public class MorestachioLocalizationService : IMorestachioLocalizationService
 		var transformKey = TransformKey(key);
 		foreach (var translationResource in TranslationResources)
 		{
-			if (await translationResource.GetTranslation(transformKey, culture, out var translation))
+			if (await translationResource.GetTranslation(transformKey, culture, out var translation).ConfigureAwait(false))
 			{
 				return new TextResourceEntity(culture,transformKey,translation, key.Split('/')[0]);
 			}

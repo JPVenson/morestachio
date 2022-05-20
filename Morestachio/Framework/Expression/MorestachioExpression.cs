@@ -332,7 +332,7 @@ public class MorestachioExpression : IMorestachioExpression
 					object value;
 					if (formatterArgument.Value is CompiledExpression cex)
 					{
-						value = (await cex(naturalContext, scopeData))?.Value;
+						value = (await cex(naturalContext, scopeData).ConfigureAwait(false))?.Value;
 					}
 					else
 					{
@@ -354,7 +354,7 @@ public class MorestachioExpression : IMorestachioExpression
 
 			if (cache != null)
 			{
-				outputContext._value = await scopeData.ParserOptions.Formatters.Execute(cache, outputContext.Value, scopeData.ParserOptions, arguments);
+				outputContext._value = await scopeData.ParserOptions.Formatters.Execute(cache, outputContext.Value, scopeData.ParserOptions, arguments).ConfigureAwait(false);
 				outputContext.MakeSyntetic();
 			}
 		}
@@ -366,7 +366,7 @@ public class MorestachioExpression : IMorestachioExpression
 				var ctx = scopeData.ParserOptions.CreateContextObject("", contextObject.Value,
 					contextObject);
 				contextObject = contextObject.FindNextNaturalContextObject();
-				await CallFormatter(contextObject, ctx, scopeData);
+				await CallFormatter(contextObject, ctx, scopeData).ConfigureAwait(false);
 				return ctx;
 			};
 		}
@@ -374,7 +374,7 @@ public class MorestachioExpression : IMorestachioExpression
 		return async (contextObject, scopeData) =>
 		{
 			var ctx = getContext(contextObject, scopeData, this);
-			await CallFormatter(contextObject, ctx, scopeData);
+			await CallFormatter(contextObject, ctx, scopeData).ConfigureAwait(false);
 			return ctx;
 		};
 	}
@@ -385,7 +385,7 @@ public class MorestachioExpression : IMorestachioExpression
 		if (!PathParts.Any() && Formats.Count == 1 && FormatterName == "")
 		{
 			//indicates the usage of brackets
-			return await Formats[0].GetValue(contextObject, scopeData);
+			return await Formats[0].GetValue(contextObject, scopeData).ConfigureAwait(false);
 		}
 
 		var contextForPath = contextObject.GetContextForPath(PathParts, scopeData, this);
@@ -404,7 +404,7 @@ public class MorestachioExpression : IMorestachioExpression
 		for (var index = 0; index < Formats.Count; index++)
 		{
 			var formatterArgument = Formats[index];
-			var value = await formatterArgument.MorestachioExpression.GetValue(naturalValue, scopeData);
+			var value = await formatterArgument.MorestachioExpression.GetValue(naturalValue, scopeData).ConfigureAwait(false);
 			arguments[index] = new FormatterArgumentType(index, formatterArgument.Name, value?.Value, formatterArgument.MorestachioExpression);
 		}
 		//contextForPath.Value = await contextForPath.Format(FormatterName, argList, scopeData);
@@ -417,7 +417,7 @@ public class MorestachioExpression : IMorestachioExpression
 
 		if (Cache != null)
 		{
-			contextForPath.Value = await scopeData.ParserOptions.Formatters.Execute(Cache, contextForPath.Value, scopeData.ParserOptions, arguments);
+			contextForPath.Value = await scopeData.ParserOptions.Formatters.Execute(Cache, contextForPath.Value, scopeData.ParserOptions, arguments).ConfigureAwait(false);
 			contextForPath.MakeSyntetic();
 		}
 		return contextForPath;

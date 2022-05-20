@@ -135,7 +135,7 @@ public class TokenzierContext
 	///  <returns></returns>
 	public async Promise SetOption(string name, IMorestachioExpression value, ParserOptions parserOptions)
 	{
-		var val = (await value.GetValue(new ContextObject(".", null, new object()), new ScopeData(parserOptions)))
+		var val = (await value.GetValue(new ContextObject(".", null, new object()), new ScopeData(parserOptions)).ConfigureAwait(false))
 			.Value;
 
 		if (name.Equals("TrimTailing", StringComparison.OrdinalIgnoreCase))

@@ -64,11 +64,11 @@ public class ForEachDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsy
 		var children = compiler.Compile(Children, parserOptions);
 		return async (outputStream, context, scopeData) =>
 		{
-			await CoreAction(outputStream, await expression(context, scopeData), scopeData,
+			await CoreAction(outputStream, await expression(context, scopeData).ConfigureAwait(false), scopeData,
 				async o =>
 				{
-					await children(outputStream, o, scopeData);
-				});
+					await children(outputStream, o, scopeData).ConfigureAwait(false);
+				}).ConfigureAwait(false);
 		};
 	}
 
@@ -78,11 +78,11 @@ public class ForEachDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsy
 													ScopeData scopeData)
 	{
 		await CoreAction(outputStream,
-			await MorestachioExpression.GetValue(context, scopeData)
+			await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false)
 			, scopeData, async itemContext =>
 			{
-				await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, itemContext, scopeData);
-			});
+				await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, itemContext, scopeData).ConfigureAwait(false);
+			}).ConfigureAwait(false);
 		return Enumerable.Empty<DocumentItemExecution>();
 	}
 
@@ -117,11 +117,11 @@ public class ForEachDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsy
 
 		if (value is ICollection col)
 		{
-			await LoopCollection(outputStream, context, scopeData, onItem, col);
+			await LoopCollection(outputStream, context, scopeData, onItem, col).ConfigureAwait(false);
 		}
 		else
 		{
-			await LoopEnumerable(outputStream, context, scopeData, onItem, value);
+			await LoopEnumerable(outputStream, context, scopeData, onItem, value).ConfigureAwait(false);
 		}
 	}
 
@@ -144,7 +144,7 @@ public class ForEachDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsy
 			innerContext.Index = index;
 			innerContext.Last = index + 1 == value.Count;
 			innerContext.Value = item;
-			await onItem(parentContext);
+			await onItem(parentContext).ConfigureAwait(false);
 			index++;
 		}
 
@@ -175,7 +175,7 @@ public class ForEachDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsy
 			innerContext.Value = current;
 			innerContext.Index = index;
 			innerContext.Last = next == null;
-			await onItem(loopContext);
+			await onItem(loopContext).ConfigureAwait(false);
 			index++;
 			current = next;
 		} while (current != null && ContinueBuilding(outputStream, scopeData));

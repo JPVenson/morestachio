@@ -51,7 +51,7 @@ public class CompiledRenderer : Renderer
 	{
 		return await Render(data, cancellationToken, async (stream, context, scopeData) =>
 		{
-			await CompiledDocument(stream, context, scopeData);
-		}, targetStream);
+			await CompiledDocument(stream, context, scopeData).ConfigureAwait(false);
+		}, targetStream).ConfigureAwait(false);
 	}
 }

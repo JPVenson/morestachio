@@ -69,19 +69,19 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 			return Enumerable.Empty<DocumentItemExecution>();
 		}
 
-		var translationOrNull = await GetTranslation(context, scopeData, service);
+		var translationOrNull = await GetTranslation(context, scopeData, service).ConfigureAwait(false);
 		outputStream.Write(translationOrNull?.ToString());
 		return Enumerable.Empty<DocumentItemExecution>();
 	}
 
 	private async ObjectPromise GetTranslation(ContextObject context, ScopeData scopeData, IMorestachioLocalizationService service)
 	{
-		var valueContext = await MorestachioExpression.GetValue(context, scopeData);
+		var valueContext = await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false);
 		var culture = scopeData.ParserOptions.CultureInfo;
 
 		if (ExplicitCulture != null)
 		{
-			var cultureValue = (await ExplicitCulture.GetValue(context, scopeData)).Value;
+			var cultureValue = (await ExplicitCulture.GetValue(context, scopeData).ConfigureAwait(false)).Value;
 			if (cultureValue is CultureInfo cul)
 			{
 				culture = cul;
@@ -105,18 +105,18 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 			.Cast<ExpressionDocumentItemBase>()
 			.Select(f =>
 				new Func<ObjectPromise>(async () =>
-					(await f.MorestachioExpression.GetValue(context, scopeData)).Value))
+					(await f.MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false)).Value))
 			.Concat(Children
 				.OfType<MorestachioLocalizationDocumentItem>()
 				.Select(f =>
-					new Func<ObjectPromise>(async () => await f.GetTranslation(context, scopeData, service))))
+					new Func<ObjectPromise>(async () => await f.GetTranslation(context, scopeData, service).ConfigureAwait(false))))
 			.ToArray();
 
 		var arguments = new object[args.Length];
 		for (var index = 0; index < args.Length; index++)
 		{
 			var parameters = args[index];
-			arguments[index] = (await parameters());
+			arguments[index] = (await parameters().ConfigureAwait(false));
 		}
 
 		return service.GetTranslationOrNull(valueContext.RenderToString(scopeData).ToString(), culture, arguments);

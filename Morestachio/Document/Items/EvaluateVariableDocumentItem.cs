@@ -103,7 +103,7 @@ public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase, ISupport
 		var expression = MorestachioExpression.Compile(parserOptions);
 		return async (stream, context, scopeData) =>
 		{
-			context = await expression(context, scopeData);
+			context = await expression(context, scopeData).ConfigureAwait(false);
 			scopeData.AddVariable(Value, context, IdVariableScope);
 		};
 	}
@@ -111,7 +111,7 @@ public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase, ISupport
 	/// <inheritdoc />
 	public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 	{
-		context = await MorestachioExpression.GetValue(context, scopeData);
+		context = await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false);
 		scopeData.AddVariable(Value, context, IdVariableScope);
 		return Enumerable.Empty<DocumentItemExecution>();
 	}

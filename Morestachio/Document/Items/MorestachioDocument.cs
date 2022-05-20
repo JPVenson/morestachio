@@ -92,7 +92,7 @@ public sealed class MorestachioDocument : BlockDocumentItemBase,
 		var compilation = compiler.Compile(Children, parserOptions);
 		return async (stream, context, data) =>
 		{
-			await compilation(stream, context, data);
+			await compilation(stream, context, data).ConfigureAwait(false);
 		};
 	}
 
@@ -132,7 +132,7 @@ public sealed class MorestachioDocument : BlockDocumentItemBase,
 			while (processStack.Any() && ContinueBuilding(outputStream, scopeData))
 			{
 				var currentDocumentItem = processStack.Pop();//take the current branch
-				var next = await currentDocumentItem.DocumentItem.Render(outputStream, currentDocumentItem.ContextObject, scopeData);
+				var next = await currentDocumentItem.DocumentItem.Render(outputStream, currentDocumentItem.ContextObject, scopeData).ConfigureAwait(false);
 				foreach (var item in next.Reverse()) //we have to reverse the list as the logical first item returned must be the last inserted to be the next that pops out
 				{
 					processStack.Push(item);

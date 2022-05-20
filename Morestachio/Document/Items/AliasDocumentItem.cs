@@ -84,7 +84,7 @@ public class AliasDocumentItem : ValueDocumentItemBase, ISupportCustomAsyncCompi
 		return async (stream, context, scopeData) =>
 		{
 			CoreAction(context, scopeData);
-			await children(stream, context, scopeData);
+			await children(stream, context, scopeData).ConfigureAwait(false);
 		};
 	}
 

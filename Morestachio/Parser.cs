@@ -32,7 +32,7 @@ namespace Morestachio
 		{
 			var options = ParserOptionsBuilder.New().WithTemplate(template).Build();
 			var tokenzierContext = new TokenzierContext(new List<int>(), null);
-			await Tokenizer.Tokenize(options, tokenzierContext);
+			await Tokenizer.Tokenize(options, tokenzierContext).ConfigureAwait(false);
 			return tokenzierContext.Errors;
 		}
 
@@ -51,7 +51,7 @@ namespace Morestachio
 			parsingOptions.Logger?.LogDebug(LoggingFormatter.ParserEventId, "Parse new Template");
 
 			var tokenzierContext = new TokenzierContext(new List<int>(), parsingOptions.CultureInfo);
-			var tokenizerResult = await Tokenizer.Tokenize(parsingOptions, tokenzierContext);
+			var tokenizerResult = await Tokenizer.Tokenize(parsingOptions, tokenzierContext).ConfigureAwait(false);
 
 			parsingOptions.Logger?.LogDebug(LoggingFormatter.ParserEventId, "Template Parsed", new Dictionary<string, object>()
 			{

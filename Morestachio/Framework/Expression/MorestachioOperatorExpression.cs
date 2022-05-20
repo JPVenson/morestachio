@@ -174,13 +174,13 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 	/// <inheritdoc />
 	public async ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
 	{
-		var leftValue = await LeftExpression.GetValue(contextObject, scopeData);
+		var leftValue = await LeftExpression.GetValue(contextObject, scopeData).ConfigureAwait(false);
 		FormatterArgumentType[] arguments;
 		if (RightExpression != null)
 		{
 			arguments = new[]
 			{
-				new FormatterArgumentType(0, null, (await RightExpression.GetValue(contextObject, scopeData)).Value, RightExpression)
+				new FormatterArgumentType(0, null, (await RightExpression.GetValue(contextObject, scopeData).ConfigureAwait(false)).Value, RightExpression)
 			};
 		}
 		else
@@ -203,7 +203,7 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 		if (Cache != null/* && !Equals(Cache.Value, default(FormatterCache))*/)
 		{
 			return scopeData.ParserOptions.CreateContextObject(".",
-				await scopeData.ParserOptions.Formatters.Execute(Cache, leftValue.Value, scopeData.ParserOptions, arguments),
+				await scopeData.ParserOptions.Formatters.Execute(Cache, leftValue.Value, scopeData.ParserOptions, arguments).ConfigureAwait(false),
 				contextObject.Parent);
 		}
 
@@ -222,11 +222,11 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 		var operatorFormatterName = "op_" + Operator.OperatorType;
 		return async (contextObject, scopeData) =>
 		{
-			var leftValue = await left(contextObject, scopeData);
+			var leftValue = await left(contextObject, scopeData).ConfigureAwait(false);
 			var arguments = right != null
 				? new FormatterArgumentType[]
 				{
-					new(0, null, (await right(contextObject, scopeData)).Value, RightExpression),
+					new(0, null, (await right(contextObject, scopeData).ConfigureAwait(false)).Value, RightExpression),
 				}
 				: Array.Empty<FormatterArgumentType>();
 			if (Cache == null)
@@ -241,7 +241,7 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 			if (Cache != null /*&& !Equals(Cache.Value, default(FormatterCache))*/)
 			{
 				return scopeData.ParserOptions.CreateContextObject(".",
-					await scopeData.ParserOptions.Formatters.Execute(Cache, leftValue.Value, scopeData.ParserOptions, arguments),
+					await scopeData.ParserOptions.Formatters.Execute(Cache, leftValue.Value, scopeData.ParserOptions, arguments).ConfigureAwait(false),
 					contextObject.Parent);
 			}
 

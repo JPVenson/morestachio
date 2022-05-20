@@ -117,7 +117,7 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 		var cnxt = context;
 		if (Context != null)
 		{
-			cnxt = (await Context.GetValue(context, scopeData));
+			cnxt = (await Context.GetValue(context, scopeData).ConfigureAwait(false));
 		}
 
 		cnxt = cnxt.Copy().MakeNatural();
@@ -125,7 +125,7 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 		scopeData.AddVariable("$recursion",
 			(scope) => scopeData.ParserOptions.CreateContextObject("$recursion", scope.PartialDepth.Count, cnxt), 0);
 
-		if (await obtainPartialFromStore(partialName, cnxt))
+		if (await obtainPartialFromStore(partialName, cnxt).ConfigureAwait(false))
 		{
 			return null;
 		}
@@ -135,7 +135,7 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 			MorestachioDocumentInfo partialFromStore;
 			if (scopeData.ParserOptions.PartialsStore is IAsyncPartialsStore asyncPs)
 			{
-				partialFromStore = await asyncPs.GetPartialAsync(partialName, scopeData.ParserOptions);
+				partialFromStore = await asyncPs.GetPartialAsync(partialName, scopeData.ParserOptions).ConfigureAwait(false);
 			}
 			else
 			{
@@ -165,7 +165,7 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 		var expression = MorestachioExpression.Compile(parserOptions);
 		return async (stream, context, scopeData) =>
 		{
-			var partialName = (await expression(context, scopeData)).RenderToString(scopeData).ToString();
+			var partialName = (await expression(context, scopeData).ConfigureAwait(false)).RenderToString(scopeData).ToString();
 
 			if (partialName == null)
 			{
@@ -176,20 +176,20 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 			{
 				if (scopeData.CompiledPartials.TryGetValue(pn, out var partialWithContext))
 				{
-					await partialWithContext(stream, cnxt, scopeData);
-					await doneAction(stream, cnxt, scopeData);
+					await partialWithContext(stream, cnxt, scopeData).ConfigureAwait(false);
+					await doneAction(stream, cnxt, scopeData).ConfigureAwait(false);
 					return true;
 				}
 
 				return false;
-			}, partialName);
+			}, partialName).ConfigureAwait(false);
 			if (toExecute != null)
 			{
 				await compiler.Compile(new IDocumentItem[]
 				{
 					toExecute.Item1
-				}, parserOptions)(stream, toExecute.Item2, scopeData);
-				await doneAction(stream, toExecute.Item2, scopeData);
+				}, parserOptions)(stream, toExecute.Item2, scopeData).ConfigureAwait(false);
+				await doneAction(stream, toExecute.Item2, scopeData).ConfigureAwait(false);
 			}
 		};
 	}
@@ -202,7 +202,7 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 		Tuple<IDocumentItem, ContextObject> action = null;
 		Tuple<IDocumentItem, ContextObject> actiona = null;
 
-		var partialName = (await MorestachioExpression.GetValue(context, scopeData)).RenderToString(scopeData).ToString();
+		var partialName = (await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false)).RenderToString(scopeData).ToString();
 
 		if (partialName == null)
 		{
@@ -218,7 +218,7 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 			}
 
 			return false.ToPromise();
-		}, partialName);
+		}, partialName).ConfigureAwait(false);
 		action = action ?? actiona;
 		if (action != null)
 		{

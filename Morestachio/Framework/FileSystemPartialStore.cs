@@ -122,7 +122,7 @@ namespace Morestachio.Framework
 			var partialContent = File.ReadAllText(fileName, parserOptions.Encoding);
 			var option = parserOptions.Copy();
 			option.Template = new StringTemplateContainer(partialContent);
-			return await Parser.ParseWithOptionsAsync(option);
+			return await Parser.ParseWithOptionsAsync(option).ConfigureAwait(false);
 		}
 		
 		/// <inheritdoc />

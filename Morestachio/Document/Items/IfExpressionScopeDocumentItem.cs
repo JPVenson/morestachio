@@ -112,7 +112,7 @@ public class IfExpressionScopeDocumentItem : ExpressionDocumentItemBase, ISuppor
 													ContextObject context,
 													ScopeData scopeData)
 	{
-		var c = await MorestachioExpression.GetValue(context, scopeData);
+		var c = await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false);
 		context = context.IsNaturalContext || context.Parent == null ? context : context.Parent;
 
 		if (c.Exists() != Inverted)
@@ -126,7 +126,7 @@ public class IfExpressionScopeDocumentItem : ExpressionDocumentItemBase, ISuppor
 		{
 			foreach (var documentItem in elseBlocks)
 			{
-				var elseContext = await documentItem.MorestachioExpression.GetValue(context, scopeData);
+				var elseContext = await documentItem.MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false);
 				if (elseContext.Exists() != Inverted)
 				{
 					return documentItem.Children
@@ -170,31 +170,31 @@ public class IfExpressionScopeDocumentItem : ExpressionDocumentItemBase, ISuppor
 		var expression = MorestachioExpression.Compile(parserOptions);
 		return async (stream, context, scopeData) =>
 		{
-			var c = await expression(context, scopeData);
+			var c = await expression(context, scopeData).ConfigureAwait(false);
 
 			context = context.IsNaturalContext || context.Parent == null ? context : context.Parent;
 			if (c.Exists() != Inverted)
 			{
-				await children(stream, context, scopeData);
+				await children(stream, context, scopeData).ConfigureAwait(false);
 				return;
 			}
 			else if (elseChildren.Length > 0)
 			{
 				foreach (var ifExecutionContainer in elseChildren)
 				{
-					if ((await ifExecutionContainer.Expression(context, scopeData)).Exists() == Inverted)
+					if ((await ifExecutionContainer.Expression(context, scopeData).ConfigureAwait(false)).Exists() == Inverted)
 					{
 						continue;
 					}
 
-					await ifExecutionContainer.Callback(stream, context, scopeData);
+					await ifExecutionContainer.Callback(stream, context, scopeData).ConfigureAwait(false);
 					return;
 				}
 			}
 
 			if (elseBlock != null)
 			{
-				await elseBlock(stream, context, scopeData);
+				await elseBlock(stream, context, scopeData).ConfigureAwait(false);
 				return;
 			}
 		};

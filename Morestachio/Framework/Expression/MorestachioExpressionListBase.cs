@@ -61,7 +61,7 @@ public abstract class MorestachioExpressionListBase : IMorestachioExpression
 	{
 		foreach (var expression in Expressions)
 		{
-			contextObject = await expression.GetValue(contextObject, scopeData);
+			contextObject = await expression.GetValue(contextObject, scopeData).ConfigureAwait(false);
 		}
 
 		return contextObject;
@@ -76,7 +76,7 @@ public abstract class MorestachioExpressionListBase : IMorestachioExpression
 		{
 			foreach (var compiledExpression in exps)
 			{
-				contextObject = await compiledExpression(contextObject, data);
+				contextObject = await compiledExpression(contextObject, data).ConfigureAwait(false);
 			}
 
 			return contextObject;

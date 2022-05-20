@@ -65,7 +65,7 @@ namespace Morestachio.Framework
 			{
 				if (store is IAsyncPartialsStore asyncPartialsStore)
 				{
-					return await asyncPartialsStore.GetPartialAsync(name, parserOptions);
+					return await asyncPartialsStore.GetPartialAsync(name, parserOptions).ConfigureAwait(false);
 				}
 
 				return store.GetPartial(name, parserOptions);
@@ -88,7 +88,7 @@ namespace Morestachio.Framework
 				string[] names = null;
 				if (partialsStore is IAsyncPartialsStore asyncPartialsStore)
 				{
-					names = await asyncPartialsStore.GetNamesAsync(parserOptions);
+					names = await asyncPartialsStore.GetNamesAsync(parserOptions).ConfigureAwait(false);
 				}
 				else
 				{

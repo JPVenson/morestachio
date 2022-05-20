@@ -92,7 +92,7 @@ public static class RendererExtensions
 	/// </summary>
 	public static async StringPromise RenderAndStringifyAsync(this IRenderer renderer, object data, CancellationToken token)
 	{
-		using (var stream = (await renderer.RenderAsync(data, token)).Stream)
+		using (var stream = (await renderer.RenderAsync(data, token).ConfigureAwait(false)).Stream)
 		{
 			return stream.Stringify(true, renderer.ParserOptions.Encoding);
 		}

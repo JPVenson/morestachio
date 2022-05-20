@@ -54,7 +54,7 @@ public class BlockDocumentItemProvider : BlockDocumentItemProviderBase
 		/// <inheritdoc />
 		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
-			return await _action(outputStream, context, scopeData, Value, Children);
+			return await _action(outputStream, context, scopeData, Value, Children).ConfigureAwait(false);
 			//return Array.Empty<DocumentItemExecution>();
 		}
 

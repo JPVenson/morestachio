@@ -175,7 +175,7 @@ public class MorestachioTemplateExpression
 		return async () =>
 		{
 			var clone = _contextObject.CloneForEdit();
-			return (TResult)((await _expression.Expression.GetValue(clone, _scopeData)).Value);
+			return (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
 		};
 	}
 
@@ -446,7 +446,7 @@ public class MorestachioTemplateExpression
 		{
 			AddArguments(arg1);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
 			RemoveArguments();
 			return result;
 		};
@@ -462,7 +462,7 @@ public class MorestachioTemplateExpression
 		{
 			AddArguments(arg1, arg2);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
 			RemoveArguments();
 			return result;
 		};
@@ -478,7 +478,7 @@ public class MorestachioTemplateExpression
 		{
 			AddArguments(arg1, arg2, arg3);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
 			RemoveArguments();
 			return result;
 		};
@@ -494,7 +494,7 @@ public class MorestachioTemplateExpression
 		{
 			AddArguments(arg1, arg2, arg3, arg4);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
 			RemoveArguments();
 			return result;
 		};
@@ -510,7 +510,7 @@ public class MorestachioTemplateExpression
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
 			RemoveArguments();
 			return result;
 		};
@@ -526,7 +526,7 @@ public class MorestachioTemplateExpression
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
 			RemoveArguments();
 			return result;
 		};
@@ -542,7 +542,7 @@ public class MorestachioTemplateExpression
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
 			RemoveArguments();
 			return result;
 		};
@@ -558,7 +558,7 @@ public class MorestachioTemplateExpression
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
 			RemoveArguments();
 			return result;
 		};
@@ -574,7 +574,7 @@ public class MorestachioTemplateExpression
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
 			RemoveArguments();
 			return result;
 		};
@@ -590,7 +590,7 @@ public class MorestachioTemplateExpression
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
 			RemoveArguments();
 			return result;
 		};
@@ -606,7 +606,7 @@ public class MorestachioTemplateExpression
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
 			RemoveArguments();
 			return result;
 		};
@@ -622,7 +622,7 @@ public class MorestachioTemplateExpression
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
 			RemoveArguments();
 			return result;
 		};
@@ -638,7 +638,7 @@ public class MorestachioTemplateExpression
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
 			RemoveArguments();
 			return result;
 		};
@@ -654,7 +654,7 @@ public class MorestachioTemplateExpression
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
 			RemoveArguments();
 			return result;
 		};
@@ -670,7 +670,7 @@ public class MorestachioTemplateExpression
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
 			RemoveArguments();
 			return result;
 		};
@@ -686,7 +686,7 @@ public class MorestachioTemplateExpression
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
 			RemoveArguments();
 			return result;
 		};

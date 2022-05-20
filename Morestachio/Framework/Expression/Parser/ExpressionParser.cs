@@ -243,7 +243,7 @@ public static class ExpressionParser
 		}
 
 		var contextObject = new ContextObject("", null, context);
-		var value = await expression.GetValue(contextObject, new ScopeData(options));
+		var value = await expression.GetValue(contextObject, new ScopeData(options)).ConfigureAwait(false);
 
 		return value.Value;
 	}

@@ -77,7 +77,7 @@ public class PartialDocumentItem : BlockDocumentItemBase, IEquatable<PartialDocu
 		return async (stream, context, scopeData) =>
 		{
 			scopeData.CompiledPartials[PartialName] = children;
-			await AsyncHelper.FakePromise();
+			await AsyncHelper.FakePromise().ConfigureAwait(false);
 		};
 	}
 

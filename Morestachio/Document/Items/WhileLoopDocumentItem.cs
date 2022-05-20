@@ -46,10 +46,10 @@ public class WhileLoopDocumentItem : ExpressionDocumentItemBase, ISupportCustomA
 		var collectionContext = new ContextCollection(index, false, context.Key, context.Parent,
 			context.Value);
 
-		while (ContinueBuilding(outputStream, scopeData) && (await MorestachioExpression.GetValue(collectionContext, scopeData)).Exists())
+		while (ContinueBuilding(outputStream, scopeData) && (await MorestachioExpression.GetValue(collectionContext, scopeData).ConfigureAwait(false)).Exists())
 		{
 			//TODO get a way how to execute this on the caller
-			await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, collectionContext, scopeData);
+			await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, collectionContext, scopeData).ConfigureAwait(false);
 			collectionContext = new ContextCollection(++index, false, context.Key, context.Parent, context.Value);
 		}
 		return Enumerable.Empty<DocumentItemExecution>();
@@ -78,9 +78,9 @@ public class WhileLoopDocumentItem : ExpressionDocumentItemBase, ISupportCustomA
 				context.Value);
 
 			while (ContinueBuilding(outputStream, scopeData) &&
-					(await expression(collectionContext, scopeData)).Exists())
+					(await expression(collectionContext, scopeData).ConfigureAwait(false)).Exists())
 			{
-				await children(outputStream, collectionContext, scopeData);
+				await children(outputStream, collectionContext, scopeData).ConfigureAwait(false);
 				collectionContext = new ContextCollection(++index, false, context.Key,
 					context.Parent, context.Value);
 			}

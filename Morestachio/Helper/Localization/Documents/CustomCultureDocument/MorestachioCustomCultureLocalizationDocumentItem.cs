@@ -60,7 +60,7 @@ public class MorestachioCustomCultureLocalizationDocumentItem : ExpressionDocume
 				oldCulture = culInfo;
 			}
 
-			var expValue = (await expression(context, scopeData));
+			var expValue = (await expression(context, scopeData).ConfigureAwait(false));
 
 			CultureInfo requestedCulture;
 			if (expValue.Value is CultureInfo culture)
@@ -73,7 +73,7 @@ public class MorestachioCustomCultureLocalizationDocumentItem : ExpressionDocume
 			}
 
 			scopeData.CustomData[LocalizationCultureKey] = requestedCulture;
-			await children(outputStream, context, scopeData);
+			await children(outputStream, context, scopeData).ConfigureAwait(false);
 			scopeData.CustomData[LocalizationCultureKey] = oldCulture;
 		};
 	}
@@ -86,7 +86,7 @@ public class MorestachioCustomCultureLocalizationDocumentItem : ExpressionDocume
 			oldCulture = culInfo;
 		}
 
-		var expValue = (await MorestachioExpression.GetValue(context, scopeData));
+		var expValue = (await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false));
 
 		CultureInfo requestedCulture;
 		if (expValue.Value is CultureInfo culture)

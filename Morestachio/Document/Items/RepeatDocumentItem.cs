@@ -48,7 +48,7 @@ public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 		var expression = MorestachioExpression.Compile(parserOptions);
 		return async (stream, context, scopeData) =>
 		{
-			var c = await expression(context, scopeData);
+			var c = await expression(context, scopeData).ConfigureAwait(false);
 
 			if (!c.Exists())
 			{
@@ -77,7 +77,7 @@ public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 			for (int i = 0; i < nr; i++)
 			{
 				var contextCollection = new ContextCollection(i, i + 1 == nr, $"[{i}]", context, context.Value);
-				await children(stream, contextCollection, scopeData);
+				await children(stream, contextCollection, scopeData).ConfigureAwait(false);
 			}
 		};
 	}
@@ -85,7 +85,7 @@ public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 	/// <inheritdoc />
 	public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 	{
-		var c = await MorestachioExpression.GetValue(context, scopeData);
+		var c = await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false);
 
 		if (!c.Exists())
 		{

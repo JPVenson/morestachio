@@ -108,7 +108,7 @@ public class IsolationScopeDocumentItem : BlockDocumentItemBase, ISupportCustomA
 	{
 		if (ScopeIsolationExpression != null)
 		{
-			context = await ScopeIsolationExpression.GetValue(context, scopeData);
+			context = await ScopeIsolationExpression.GetValue(context, scopeData).ConfigureAwait(false);
 			context = new ContextObject(context.Key, null, context.Value);
 		}
 
@@ -132,9 +132,9 @@ public class IsolationScopeDocumentItem : BlockDocumentItemBase, ISupportCustomA
 			var compiledExpression = ScopeIsolationExpression.Compile(parserOptions);
 			return async (stream, context, data) =>
 			{
-				context = await compiledExpression(context, data);
+				context = await compiledExpression(context, data).ConfigureAwait(false);
 				context = new ContextObject(context.Key, null, context.Value);
-				await children(stream, context, data);
+				await children(stream, context, data).ConfigureAwait(false);
 			};
 		}
 

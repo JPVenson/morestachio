@@ -37,7 +37,7 @@ public class DocumentCompiler : IDocumentCompiler
 		{
 			if (action is CompilationAsync ca)
 			{
-				await ca(stream, context, data);
+				await ca(stream, context, data).ConfigureAwait(false);
 			}
 			else if (action is Compilation c)
 			{
@@ -88,7 +88,7 @@ public class DocumentCompiler : IDocumentCompiler
 					for (int i = 0; i < actions.Length; i++)
 					{
 						var action = (CompilationAsync)actions[i];
-						await action(stream, context, data);
+						await action(stream, context, data).ConfigureAwait(false);
 					}
 				}
 				else
@@ -100,7 +100,7 @@ public class DocumentCompiler : IDocumentCompiler
 							return;
 						}
 						var action = (CompilationAsync)actions[i];
-						await action(stream, context, data);
+						await action(stream, context, data).ConfigureAwait(false);
 					}	
 				}
 			};
@@ -115,7 +115,7 @@ public class DocumentCompiler : IDocumentCompiler
 					var action = actions[i];
 					if (action is CompilationAsync ca)
 					{
-						await ca(stream, context, data);
+						await ca(stream, context, data).ConfigureAwait(false);
 					}
 					else if (action is Compilation c)
 					{
@@ -134,7 +134,7 @@ public class DocumentCompiler : IDocumentCompiler
 					var action = actions[i];
 					if (action is CompilationAsync ca)
 					{
-						await ca(stream, context, data);
+						await ca(stream, context, data).ConfigureAwait(false);
 					}
 					else if (action is Compilation c)
 					{
@@ -161,14 +161,14 @@ public class DocumentCompiler : IDocumentCompiler
 											context,
 											scopeData) =>
 		{
-			var children = await document.Render(outputStream, context, scopeData);
+			var children = await document.Render(outputStream, context, scopeData).ConfigureAwait(false);
 
 			foreach (var documentItemExecution in children)
 			{
 				await MorestachioDocument.ProcessItemsAndChildren(new[]
 				{
 					documentItemExecution.DocumentItem
-				}, outputStream, documentItemExecution.ContextObject, scopeData);
+				}, outputStream, documentItemExecution.ContextObject, scopeData).ConfigureAwait(false);
 			}
 		}));
 	}

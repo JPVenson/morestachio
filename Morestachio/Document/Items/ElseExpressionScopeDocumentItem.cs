@@ -63,7 +63,7 @@ public class ElseExpressionScopeDocumentItem : BlockDocumentItemBase, ISupportCu
 
 		return async (stream, context, scopeData) =>
 		{
-			await children(stream, context, scopeData);
+			await children(stream, context, scopeData).ConfigureAwait(false);
 		};
 	}
 }

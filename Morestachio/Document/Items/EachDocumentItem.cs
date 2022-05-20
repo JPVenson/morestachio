@@ -47,8 +47,8 @@ public class EachDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncC
 		var children = compiler.Compile(Children, parserOptions);
 		return async (outputStream, context, scopeData) =>
 		{
-			await CoreAction(outputStream, await expression(context, scopeData), scopeData,
-				async o => { await children(outputStream, o, scopeData); });
+			await CoreAction(outputStream, await expression(context, scopeData).ConfigureAwait(false), scopeData,
+				async o => { await children(outputStream, o, scopeData).ConfigureAwait(false); }).ConfigureAwait(false);
 		};
 	}
 
@@ -59,12 +59,12 @@ public class EachDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncC
 													ScopeData scopeData)
 	{
 		await CoreAction(outputStream,
-			await MorestachioExpression.GetValue(context, scopeData)
+			await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false)
 			, scopeData, async itemContext =>
 			{
-				await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, itemContext, scopeData);
+				await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, itemContext, scopeData).ConfigureAwait(false);
 				//contexts.AddRange(Children.WithScope(itemContext));
-			});
+			}).ConfigureAwait(false);
 		return Enumerable.Empty<DocumentItemExecution>();
 	}
 
@@ -101,15 +101,15 @@ public class EachDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncC
 
 		if (value is IList lst)
 		{
-			await LoopList(outputStream, c, scopeData, onItem, lst);
+			await LoopList(outputStream, c, scopeData, onItem, lst).ConfigureAwait(false);
 		}
 		else if (value is ICollection col)
 		{
-			await LoopCollection(outputStream, c, scopeData, onItem, col);
+			await LoopCollection(outputStream, c, scopeData, onItem, col).ConfigureAwait(false);
 		}
 		else
 		{
-			await LoopEnumerable(outputStream, c, scopeData, onItem, value);
+			await LoopEnumerable(outputStream, c, scopeData, onItem, value).ConfigureAwait(false);
 		}
 	}
 
@@ -133,7 +133,7 @@ public class EachDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncC
 			innerContext.Index = i;
 			innerContext.Last = i + 1 == value.Count;
 			innerContext.Value = value[i];
-			await onItem(innerContext);
+			await onItem(innerContext).ConfigureAwait(false);
 		}
 	}
 
@@ -158,7 +158,7 @@ public class EachDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncC
 			innerContext.Index = index;
 			innerContext.Last = index + 1 == value.Count;
 			innerContext.Value = item;
-			await onItem(innerContext);
+			await onItem(innerContext).ConfigureAwait(false);
 			index++;
 		}
 	}
@@ -190,7 +190,7 @@ public class EachDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncC
 			innerContext.Value = current;
 			innerContext.Index = index;
 			innerContext.Last = next == null;
-			await onItem(innerContext);
+			await onItem(innerContext).ConfigureAwait(false);
 			index++;
 			current = next;
 		} while (current != null && ContinueBuilding(outputStream, scopeData));

@@ -57,7 +57,7 @@ public class TagDocumentItemProvider : TagDocumentItemProviderBase
 		/// <inheritdoc />
 		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
-			await _action(outputStream, context, scopeData, Value, TagKeyword);
+			await _action(outputStream, context, scopeData, Value, TagKeyword).ConfigureAwait(false);
 			return Array.Empty<DocumentItemExecution>();
 		}
 

@@ -65,8 +65,8 @@ public class Renderer : IRenderer
 		return await Render(data, cancellationToken, async (stream, context, scopeData) =>
 		{
 			await MorestachioDocument.ProcessItemsAndChildren(new[] { Document }, stream,
-				context, scopeData);
-		}, targetStream);
+				context, scopeData).ConfigureAwait(false);
+		}, targetStream).ConfigureAwait(false);
 	}
 
 	/// <summary>
@@ -103,7 +103,7 @@ public class Renderer : IRenderer
 					scopeData.Profiler = profiler = new PerformanceProfiler(true);
 				}
 
-				await executer(byteCounterStream, context, scopeData);
+				await executer(byteCounterStream, context, scopeData).ConfigureAwait(false);
 
 				if (timeoutCancellation.IsCancellationRequested)
 				{

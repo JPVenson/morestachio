@@ -66,17 +66,17 @@ public class SwitchDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 				return item;
 			}).ToArray();
 
-		var value = await MorestachioExpression.GetValue(context, scopeData);
+		var value = await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false);
 		if (ScopeToValue)
 		{
 			context = value;
 		}
 		var toBeExecuted = await CoreAction(outputStream, value, scopeData,
-			children);
+			children).ConfigureAwait(false);
 
 		if (toBeExecuted != null)
 		{
-			return await toBeExecuted.Document.Render(outputStream, context, scopeData);
+			return await toBeExecuted.Document.Render(outputStream, context, scopeData).ConfigureAwait(false);
 		}
 
 		return Enumerable.Empty<DocumentItemExecution>();
@@ -98,17 +98,17 @@ public class SwitchDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 
 		return async (outputStream, context, scopeData) =>
 		{
-			var value = await expression(context, scopeData);
+			var value = await expression(context, scopeData).ConfigureAwait(false);
 			if (ScopeToValue)
 			{
 				context = value;
 			}
 			var toBeExecuted = await CoreAction(outputStream, value, scopeData,
-				children);
+				children).ConfigureAwait(false);
 
 			if (toBeExecuted != null)
 			{
-				await toBeExecuted.Callback(outputStream, context, scopeData);
+				await toBeExecuted.Callback(outputStream, context, scopeData).ConfigureAwait(false);
 			}
 		};
 	}
@@ -137,7 +137,7 @@ public class SwitchDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 		T matchingCase = null;
 		foreach (var switchCaseDocumentItem in containers.Where(e => e.Expression != null))
 		{
-			var contextObject = await switchCaseDocumentItem.Expression(context, scopeData);
+			var contextObject = await switchCaseDocumentItem.Expression(context, scopeData).ConfigureAwait(false);
 			if (Equals(contextObject.Value, context.Value))
 			{
 				matchingCase = switchCaseDocumentItem;

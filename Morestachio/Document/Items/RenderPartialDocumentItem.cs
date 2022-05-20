@@ -114,7 +114,7 @@ public class RenderPartialDocumentItem : ValueDocumentItemBase
 
 		if (Context != null)
 		{
-			cnxt = (await Context.GetValue(context, scopeData));
+			cnxt = (await Context.GetValue(context, scopeData).ConfigureAwait(false));
 		}
 
 		scopeData.AddVariable("$recursion",
@@ -135,7 +135,7 @@ public class RenderPartialDocumentItem : ValueDocumentItemBase
 			MorestachioDocumentInfo partialFromStore;
 			if (scopeData.ParserOptions.PartialsStore is IAsyncPartialsStore asyncPs)
 			{
-				partialFromStore = await asyncPs.GetPartialAsync(partialName, scopeData.ParserOptions);
+				partialFromStore = await asyncPs.GetPartialAsync(partialName, scopeData.ParserOptions).ConfigureAwait(false);
 			}
 			else
 			{

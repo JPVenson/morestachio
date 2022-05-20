@@ -55,8 +55,8 @@ public class DoLoopDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 		{
 			await CoreAction(stream, context, scopeData, async (streamInner, o, data) =>
 			{
-				await children(streamInner, o, data);
-			});
+				await children(streamInner, o, data).ConfigureAwait(false);
+			}).ConfigureAwait(false);
 		};
 	}
 		
@@ -65,8 +65,8 @@ public class DoLoopDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 	{
 		await CoreAction(outputStream, context, scopeData, async (stream, o, data) =>
 		{
-			await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, o, scopeData);
-		});
+			await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, o, scopeData).ConfigureAwait(false);
+		}).ConfigureAwait(false);
 		return Array.Empty<DocumentItemExecution>();
 	}
 		
@@ -80,9 +80,9 @@ public class DoLoopDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 				context.Parent, context.Value);
 
 			//TODO get a way how to execute this on the caller
-			await action(outputStream, collectionContext, scopeData);
+			await action(outputStream, collectionContext, scopeData).ConfigureAwait(false);
 
-			if (!(await MorestachioExpression.GetValue(collectionContext, scopeData)).Exists())
+			if (!(await MorestachioExpression.GetValue(collectionContext, scopeData).ConfigureAwait(false)).Exists())
 			{
 				break;
 			}

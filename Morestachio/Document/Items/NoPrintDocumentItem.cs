@@ -47,7 +47,7 @@ namespace Morestachio.Document.Items
 		/// <inheritdoc />
 		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 		{
-			await MorestachioDocument.ProcessItemsAndChildren(Children, new NullStream(scopeData.ParserOptions), context, scopeData);
+			await MorestachioDocument.ProcessItemsAndChildren(Children, new NullStream(scopeData.ParserOptions), context, scopeData).ConfigureAwait(false);
 			return Enumerable.Empty<DocumentItemExecution>();
 		}
 
