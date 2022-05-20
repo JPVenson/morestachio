@@ -71,7 +71,7 @@ namespace Morestachio
 		/// <returns></returns>
 		public static MorestachioDocumentInfo ParseWithOptions(ParserOptions parsingOptions)
 		{
-			return ParseWithOptionsAsync(parsingOptions).Result;
+			return ParseWithOptionsAsync(parsingOptions).Await();
 		} 
 
 		/// <summary>
