@@ -258,6 +258,11 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		Log(parserOptions, () => $"Execute the formatter {formatter.Model.Name} with arguments",
 			() => args.ToDictionary(e => e.Name, e => (object)e));
 
+		if (formatter.Model.LinkFunctionTarget && sourceValue is null)
+		{
+			return AsyncHelper.EmptyPromise<object>();
+		}
+
 		var mappedValues = formatter.ValueBuffer;
 
 		var i = 0;

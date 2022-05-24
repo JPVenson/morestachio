@@ -350,7 +350,7 @@ public class ContextObject
 			}
 			case DynamicObject dynObject when dynObject.TryGetMember(new DynamicObjectBinder(key, false), out var val):
 				return scopeData._parserOptions.CreateContextObject(key, val, this);
-			case DynamicObject dynObject:
+			case DynamicObject:
 				scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression, key,
 					_value?.GetType()));
 
