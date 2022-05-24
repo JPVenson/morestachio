@@ -111,11 +111,10 @@ This links a c# function named "FormatterToCall".
 You can register delegates by using `ParserOptionsBuilder.WithFormatter(...)` or you can create a `public static class` that has methods attributed with the `MorestachioFormatterAttribute` and add them via the `ParserOptionsBuilder.WithFormatters<TType>` or you can use an instance method attributed with the `MorestachioFormatterAttribute`.
 
 The formatter CAN return a new object on wich you can call new Propertys or it can return a string.
-There are formatter prepaired for all Primitve types. That means per default you can call on an object hat contains a DateTime:
+There are formatter prepaired for types implementing the `IFormattable` interface. This includes all Primitve types. That means for example that you can call the `ToString` formatter on any `DateTime`:
 ```csharp
 {{MyObject.DateTime.ToString("D")}} <-- this will resolve a property "MyObject" and then "DateTime" and will call ToString on it with the argument "D"
 ```
-that will call the `IFormattable` interface on the DateTime. 
 
 **Formatter References** 
 Can be used to reference another property/key in the template and then use it in a Formatter. Everything that is not a string (ether prefixed and suffixed with " or ') will be threaded as an expression that also can contain formatter calls
