@@ -183,7 +183,7 @@ public class MorestachioExpression : IMorestachioExpression
 	{
 		if (!PathParts.HasValue && Formats.Count == 0 && FormatterName == null)
 		{
-			return (contextObject, data) => contextObject.ToPromise();
+			return (contextObject, _) => contextObject.ToPromise();
 		}
 		if (!PathParts.HasValue && Formats.Count == 1 && FormatterName == "")
 		{
@@ -194,7 +194,7 @@ public class MorestachioExpression : IMorestachioExpression
 		if (PathParts.Count == 1 && PathParts.Current.Value == PathType.Null)
 		{
 			var nullValue = parserOptions.CreateContextObject("x:null", null).ToPromise();
-			return (contextObject, scopeData) => nullValue;
+			return (_, _) => nullValue;
 		}
 
 		var pathParts = PathParts.ToArray();
@@ -227,37 +227,37 @@ public class MorestachioExpression : IMorestachioExpression
 						});
 						break;
 					case PathType.RootSelector:
-						pathQueue[idx++] = ((contextObject, scopeData, expression) =>
+						pathQueue[idx++] = ((contextObject, _, _) =>
 						{
 							return contextObject.ExecuteRootSelector();
 						});
 						break;
 					case PathType.ParentSelector:
-						pathQueue[idx++] = ((contextObject, scopeData, expression) =>
+						pathQueue[idx++] = ((contextObject, _, _) =>
 						{
 							var natContext = contextObject.FindNextNaturalContextObject();
 							return (natContext?.Parent ?? contextObject);
 						});
 						break;
 					case PathType.ObjectSelector:
-						pathQueue[idx++] = ((contextObject, scopeData, expression) =>
+						pathQueue[idx++] = ((contextObject, scopeData, _) =>
 						{
 							return contextObject.ExecuteObjectSelector(key, scopeData);
 						});
 						break;
 					case PathType.Null:
 						var nullValue = parserOptions.CreateContextObject("x:null", null);
-						pathQueue[idx++] = ((contextObject, scopeData, expression) => nullValue);
+						pathQueue[idx++] = ((_, _, _) => nullValue);
 						break;
 					case PathType.Boolean:
 						var booleanValue = key == "true";
 						var booleanContext = parserOptions.CreateContextObject(".", booleanValue);
 						booleanContext.IsNaturalContext = true;
-						pathQueue[idx++] = ((contextObject, scopeData, expression) => booleanContext);
+						pathQueue[idx++] = ((_, _, _) => booleanContext);
 						break;
 					case PathType.SelfAssignment:
 					case PathType.ThisPath:
-						pathQueue[idx++] = ((contextObject, scopeDate, expression) => contextObject);
+						pathQueue[idx++] = ((contextObject, _, _) => contextObject);
 						break;
 					default:
 						throw new ArgumentOutOfRangeException();
@@ -288,7 +288,7 @@ public class MorestachioExpression : IMorestachioExpression
 		{
 			if (getContext == null)
 			{
-				return (contextObject, data) => contextObject.ToPromise();
+				return (contextObject, _) => contextObject.ToPromise();
 			}
 
 			return (contextObject, data) => getContext(contextObject, data, this).ToPromise();
