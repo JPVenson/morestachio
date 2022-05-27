@@ -90,50 +90,48 @@ public class Renderer : IRenderer
 
 		PerformanceProfiler profiler = null;
 
-		using (var byteCounterStream
-				= targetStream ?? ParserOptions.StreamFactory.GetByteCounterStream(ParserOptions))
+		using var byteCounterStream
+			= targetStream ?? ParserOptions.StreamFactory.GetByteCounterStream(ParserOptions);
+		var context = ParserOptions.CreateContextObject("", data);
+		var scopeData = new ScopeData(ParserOptions, token);
+
+		try
 		{
-			var context = ParserOptions.CreateContextObject("", data);
-			var scopeData = new ScopeData(ParserOptions, token);
-
-			try
+			if (ParserOptions.ProfileExecution)
 			{
-				if (ParserOptions.ProfileExecution)
-				{
-					scopeData.Profiler = profiler = new PerformanceProfiler(true);
-				}
-
-				await executer(byteCounterStream, context, scopeData).ConfigureAwait(false);
-
-				if (timeoutCancellation.IsCancellationRequested)
-				{
-					throw new TimeoutException(
-						$"The requested timeout of '{ParserOptions.Timeout:g}' for template generation was reached.");
-				}
-
-				PostRender();
+				scopeData.Profiler = profiler = new PerformanceProfiler(true);
 			}
-			finally
+
+			await executer(byteCounterStream, context, scopeData).ConfigureAwait(false);
+
+			if (timeoutCancellation.IsCancellationRequested)
 			{
-				if (!CaptureVariables)
-				{
-					scopeData.Dispose();
-					scopeData.Variables.Clear();
-				}
+				throw new TimeoutException(
+					$"The requested timeout of '{ParserOptions.Timeout:g}' for template generation was reached.");
 			}
+
+			PostRender();
+		}
+		finally
+		{
+			if (!CaptureVariables)
+			{
+				scopeData.Dispose();
+				scopeData.Variables.Clear();
+			}
+		}
 			
-			if (CaptureVariables)
-			{
-				return new MorestachioDocumentResult(byteCounterStream,
-					profiler,
-					scopeData.Variables
-						.Where(e => !e.Key.StartsWith('$'))
-						.ToDictionary(e => e.Key, e => scopeData.GetFromVariable(null, e.Value)?.Value));
-			}
-
+		if (CaptureVariables)
+		{
 			return new MorestachioDocumentResult(byteCounterStream,
 				profiler,
-				null);
+				scopeData.Variables
+						.Where(e => !e.Key.StartsWith('$'))
+						.ToDictionary(e => e.Key, e => scopeData.GetFromVariable(null, e.Value)?.Value));
 		}
+
+		return new MorestachioDocumentResult(byteCounterStream,
+			profiler,
+			null);
 	}
 }

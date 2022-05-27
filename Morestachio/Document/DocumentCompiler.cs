@@ -33,40 +33,38 @@ public class DocumentCompiler : IDocumentCompiler
 	public CompilationAsync Compile(IDocumentItem document, ParserOptions parserOptions)
 	{
 		var action = CompileSingle(parserOptions, document);
-		return async (stream, context, data) =>
+
+		return action switch
 		{
-			if (action is CompilationAsync ca)
+			CompilationAsync ca => async (stream, context, data) =>
 			{
 				await ca(stream, context, data).ConfigureAwait(false);
-			}
-			else if (action is Compilation c)
+			},
+			Compilation c => (stream, context, data) =>
 			{
 				c(stream, context, data);
-			}
+
+				return AsyncHelper.FakePromise();
+			},
+			_ => throw new NotImplementedException()
 		};
 	}
 
 	/// <inheritdoc />
 	public CompilationAsync Compile(IList<IDocumentItem> documents, ParserOptions parserOptions)
 	{
-		if (documents.Count == 0)
+		return documents.Count switch
 		{
-			return NopAction;
-		}
-		if (documents.Count == 1)
-		{
-			return Compile(documents[0], parserOptions);
-		}
-
-		return CompileItemsAndChildren(documents, parserOptions);
+			0 => NopAction,
+			1 => Compile(documents[0], parserOptions),
+			_ => CompileItemsAndChildren(documents, parserOptions)
+		};
 	}
 
 	/// <summary>
 	///		Compiles all <see cref="IDocumentItem"/> and their children. If the <see cref="IDocumentItem"/> supports the <see cref="ISupportCustomAsyncCompilation"/> it is used otherwise
 	///		the items <see cref="IDocumentItem.Render"/> method is wrapped
 	/// </summary>
-	/// <param name="documentItems"></param>
-	/// <returns></returns>
 	public CompilationAsync CompileItemsAndChildren(IEnumerable<IDocumentItem> documentItems, ParserOptions parserOptions)
 	{
 		var docs = documentItems.ToArray();
@@ -75,8 +73,7 @@ public class DocumentCompiler : IDocumentCompiler
 		for (var index = 0; index < docs.Length; index++)
 		{
 			var documentItem = docs[index];
-			var document = documentItem;
-			actions[index] = CompileSingle(parserOptions, document);
+			actions[index] = CompileSingle(parserOptions, documentItem);
 		}
 
 		if (actions.All(e => e is CompilationAsync))
@@ -147,30 +144,20 @@ public class DocumentCompiler : IDocumentCompiler
 
 	private Delegate CompileSingle(ParserOptions parserOptions, IDocumentItem document)
 	{
-		if (document is ISupportCustomAsyncCompilation customAsyncCompilation)
+		return document switch
 		{
-			return (customAsyncCompilation.Compile(this, parserOptions));
-		}
-
-		if (document is ISupportCustomCompilation customCompilation)
-		{
-			return (customCompilation.Compile(this, parserOptions));
-		}
-
-		return new CompilationAsync((async (outputStream,
-											context,
-											scopeData) =>
-		{
-			var children = await document.Render(outputStream, context, scopeData).ConfigureAwait(false);
-
-			foreach (var documentItemExecution in children)
+			ISupportCustomAsyncCompilation customAsyncCompilation => (customAsyncCompilation.Compile(this, parserOptions)),
+			ISupportCustomCompilation customCompilation => (customCompilation.Compile(this, parserOptions)),
+			_ => new CompilationAsync((async (outputStream, context, scopeData) =>
 			{
-				await MorestachioDocument.ProcessItemsAndChildren(new[]
+				var children = await document.Render(outputStream, context, scopeData).ConfigureAwait(false);
+
+				foreach (var documentItemExecution in children)
 				{
-					documentItemExecution.DocumentItem
-				}, outputStream, documentItemExecution.ContextObject, scopeData).ConfigureAwait(false);
-			}
-		}));
+					await MorestachioDocument.ProcessItemsAndChildren(new[] { documentItemExecution.DocumentItem }, outputStream, documentItemExecution.ContextObject, scopeData).ConfigureAwait(false);
+				}
+			}))
+		};
 	}
 
 	/// <summary>

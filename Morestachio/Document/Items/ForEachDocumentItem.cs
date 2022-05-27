@@ -64,7 +64,8 @@ public class ForEachDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsy
 		var children = compiler.Compile(Children, parserOptions);
 		return async (outputStream, context, scopeData) =>
 		{
-			await CoreAction(outputStream, await expression(context, scopeData).ConfigureAwait(false), scopeData,
+			await CoreAction(outputStream, await expression(context, scopeData).ConfigureAwait(false),
+				scopeData,
 				async o =>
 				{
 					await children(outputStream, o, scopeData).ConfigureAwait(false);
@@ -78,11 +79,13 @@ public class ForEachDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsy
 													ScopeData scopeData)
 	{
 		await CoreAction(outputStream,
-			await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false)
-			, scopeData, async itemContext =>
-			{
-				await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, itemContext, scopeData).ConfigureAwait(false);
-			}).ConfigureAwait(false);
+				await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false), 
+				scopeData, 
+				async itemContext =>
+				{
+					await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, itemContext, scopeData).ConfigureAwait(false);
+				})
+			.ConfigureAwait(false);
 		return Enumerable.Empty<DocumentItemExecution>();
 	}
 
@@ -97,7 +100,7 @@ public class ForEachDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsy
 			return;
 		}
 
-		if (!(context.Value is IEnumerable value) || value is string || value is IDictionary<string, object>)
+		if (context.Value is not IEnumerable value || value is string or IDictionary<string, object>)
 		{
 			var path = new Stack<string>();
 			var parent = context.Parent;
