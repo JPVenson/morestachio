@@ -147,7 +147,7 @@ namespace Morestachio.Tests.PerfTests
 		}
 
 		[Test()]
-		[Explicit]
+		//[Explicit]
 		[TestCase("Model Depth", 100, 30000, 10, 5000)]
 		public async Task TestTokenizerTime(string variation, int modelDepth, int sizeOfTemplate, int inserts, int runs)
 		{
@@ -172,9 +172,9 @@ namespace Morestachio.Tests.PerfTests
 				stringMatchingTime.Start();
 				var tokens = options.Template.Matches(tokenzierContext).ToArray();
 				stringMatchingTime.Stop();
-				tokenizingTime.Start();
-				var tokenizerResult = await Tokenizer.Tokenize(options, tokenzierContext, tokens);
-				tokenizingTime.Stop();
+				//tokenizingTime.Start();
+				//var tokenizerResult = await Tokenizer.Tokenize(options, tokenzierContext, tokens);
+				//tokenizingTime.Stop();
 			}
 
 			Console.WriteLine($"Tokenizing time: {tokenizingTime.Elapsed:c}; Matching time: {stringMatchingTime.Elapsed:c}");
@@ -212,6 +212,7 @@ namespace Morestachio.Tests.PerfTests
 			var morestachioDocumentInfo = await Parser.ParseWithOptionsAsync(ParserFixture.TestBuilder()
 				.WithTemplate("asdf")
 				.WithTargetStream(Stream.Null)
+				.WithDisableContentEscaping(true)
 				.Build());
 			var docRenderer = morestachioDocumentInfo.CreateRenderer();
 			var compRenderer = morestachioDocumentInfo.CreateCompiledRenderer();

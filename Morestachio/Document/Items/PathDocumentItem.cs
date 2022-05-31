@@ -74,9 +74,9 @@ public class PathDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncC
 		return WebUtility.HtmlEncode(context);
 	}
 #if Span
-	private static ReadOnlyMemory<char> HtmlEncodeString(ReadOnlyMemory<char> context)
+	private static ReadOnlySpan<char> HtmlEncodeString(ReadOnlySpan<char> context)
 	{
-		return WebUtility.HtmlEncode(context.ToString()).AsMemory();
+		return WebUtility.HtmlEncode(context.ToString()).AsSpan();
 	}
 #endif
 

@@ -15,7 +15,7 @@ public class NullStream : IByteCounterStream
 	{
 		Options = options;
 	}
-	
+
 	/// <summary>
 	/// 
 	/// </summary>
@@ -24,7 +24,7 @@ public class NullStream : IByteCounterStream
 	/// <inheritdoc />
 	public void Dispose()
 	{
-		
+
 	}
 
 	/// <inheritdoc />
@@ -33,17 +33,21 @@ public class NullStream : IByteCounterStream
 	/// <inheritdoc />
 	public bool ReachedLimit { get; }
 #if Span
-/// <inheritdoc />
-	public void Write(ReadOnlyMemory<char> content)
+	/// <inheritdoc />
+	public void Write(in ReadOnlyMemory<char> content)
 	{
-		
+	}
+	/// <inheritdoc />
+	public void Write(in ReadOnlySpan<char> content)
+	{
+
 	}
 #endif
 
 	/// <inheritdoc />
 	public void Write(in string content)
 	{
-		
+
 	}
 
 	/// <inheritdoc />

@@ -31,8 +31,6 @@ public abstract class TemplateResource
 	/// <summary>
 	///		Returns a single character at index
 	/// </summary>
-	/// <param name="index"></param>
-	/// <returns></returns>
 	public abstract char this[int index]
 	{
 		get;

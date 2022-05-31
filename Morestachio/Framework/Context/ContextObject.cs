@@ -477,14 +477,14 @@ public class ContextObject
 	/// </summary>
 	/// <param name="scopeData"></param>
 	/// <returns></returns>
-	public virtual ReadOnlyMemory<char> RenderToString(ScopeData scopeData)
+	public virtual ReadOnlySpan<char> RenderToString(ScopeData scopeData)
 	{
 		return _value switch
 		{
-			ReadOnlyMemory<char> roSpan => roSpan,
-			string str => str.AsMemory(),
-			null => (scopeData.GetVariable(this, "$null")?._value?.ToString() ?? scopeData._parserOptions.Null).AsMemory(),
-			var _ => _value.ToString().AsMemory()
+			ReadOnlyMemory<char> roSpan => roSpan.Span,
+			string str => str.AsSpan(),
+			null => (scopeData.GetVariable(this, "$null")?._value?.ToString() ?? scopeData._parserOptions.Null).AsSpan(),
+			var _ => _value.ToString().AsSpan()
 		};
 	}
 #else

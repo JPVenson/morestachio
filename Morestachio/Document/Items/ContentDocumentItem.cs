@@ -50,9 +50,6 @@ public class ContentDocumentItem : ValueDocumentItemBase, ISupportCustomCompilat
 	/// <inheritdoc />
 	public Compilation Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
 	{
-		//return DocumentCompiler.NopAction;
-		//return (stream, context, scopeData) => {};
-
 		var value = Value;
 		foreach (var textEditDocumentItem in Children.OfType<TextEditDocumentItem>())
 		{

@@ -51,7 +51,12 @@ public class ByteCounterTextWriter : IByteCounterStream
 		
 #if Span
 	/// <inheritdoc />
-	public void Write(ReadOnlyMemory<char> content)
+	public void Write(in ReadOnlyMemory<char> content)
+	{
+		Write(content.Span);
+	}
+	/// <inheritdoc />
+	public void Write(in ReadOnlySpan<char> content)
 	{
 		if (Options.MaxSize == 0)
 		{
@@ -67,7 +72,7 @@ public class ByteCounterTextWriter : IByteCounterStream
 		}
 
 		//TODO this is a performance critical operation. As we might deal with variable-length encodings this cannot be compute initial
-		var cl = Options.Encoding.GetByteCount(content.Span);
+		var cl = Options.Encoding.GetByteCount(content);
 
 		var overflow = sourceCount + cl - Options.MaxSize;
 		if (overflow <= 0)

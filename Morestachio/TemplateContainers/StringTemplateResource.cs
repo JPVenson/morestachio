@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 
 namespace Morestachio.TemplateContainers;
 
@@ -7,7 +8,6 @@ namespace Morestachio.TemplateContainers;
 /// </summary>
 public class StringTemplateResource : TemplateResource
 {
-	private readonly string _template;
 
 	/// <summary>
 	///		Creates a new String based resource
@@ -18,47 +18,40 @@ public class StringTemplateResource : TemplateResource
 		_template = template;
 	}
 
+	private readonly string _template;
 	/// <inheritdoc />
 	public override int IndexOf(string token, int startIndex)
 	{
 		return _template.IndexOf(token, startIndex, StringComparison.Ordinal);
 	}
-		
+
 	/// <inheritdoc />
 	public override string Substring(int index, int length)
 	{
-		try
-		{
-			return _template.Substring(index, length);
-		}
-		catch (Exception e)
-		{
-			Console.WriteLine(e);
-			throw;
-		}
+		return _template.Substring(index, length);
 	}
-		
+
 	/// <inheritdoc />
 	public override string Substring(int index)
 	{
 		return _template.Substring(index);
 	}
-		
+
 	/// <inheritdoc />
 	public override char this[int index]
 	{
 		get { return _template[index]; }
 	}
-		
+
 	/// <inheritdoc />
 	public override int Length()
 	{
 		return _template.Length;
 	}
-		
+
 	/// <inheritdoc />
 	public override string ToString()
 	{
-		return _template;
+		return _template.ToString();
 	}
 }

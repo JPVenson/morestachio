@@ -59,47 +59,53 @@ public class ByteCounterStringBuilder : IByteCounterStream
 	public long BytesWritten { get; private set; }
 	/// <inheritdoc />
 	public bool ReachedLimit { get; private set; }
-		
+
 #if Span
-		/// <inheritdoc />
-		public void Write(ReadOnlyMemory<char> content)
+	/// <inheritdoc />
+	public void Write(in ReadOnlyMemory<char> content)
+	{
+		Write(content.Span);
+	}
+
+	/// <inheritdoc />
+	public void Write(in ReadOnlySpan<char> content)
+	{
+		if (Options.MaxSize == 0)
 		{
-			if (Options.MaxSize == 0)
-			{
-				_sb.Append(content);
-				return;
-			}
-
-			var sourceCount = BytesWritten;
-			if (sourceCount >= Options.MaxSize - 1)
-			{
-				ReachedLimit = true;
-				return;
-			}
-
-			//TODO this is a performance critical operation. As we might deal with variable-length encodings this cannot be compute initial
-			var bl = Options.Encoding.GetByteCount(content.Span);
-
-			var overflow = sourceCount + bl - Options.MaxSize;
-			if (overflow <= 0)
-			{
-				BytesWritten += bl;
-				_sb.Append(content);
-				return;
-			}
-
-			if (overflow < content.Length)
-			{
-				BytesWritten += bl - overflow;
-				//BaseWriter.Write(content.ToCharArray(0, (int)(cl - overflow)));
-				_sb.Append(content[0..((int)(bl - overflow))]);
-			}
-			else
-			{
-				BytesWritten += bl;
-				_sb.Append(content);
-			}
+			_sb.Append(content);
+			return;
 		}
+
+		var sourceCount = BytesWritten;
+		if (sourceCount >= Options.MaxSize - 1)
+		{
+			ReachedLimit = true;
+			return;
+		}
+
+		//TODO this is a performance critical operation. As we might deal with variable-length encodings this cannot be compute initial
+		var bl = Options.Encoding.GetByteCount(content);
+
+		var overflow = sourceCount + bl - Options.MaxSize;
+		if (overflow <= 0)
+		{
+			BytesWritten += bl;
+			_sb.Append(content);
+			return;
+		}
+
+		if (overflow < content.Length)
+		{
+			BytesWritten += bl - overflow;
+			//BaseWriter.Write(content.ToCharArray(0, (int)(cl - overflow)));
+			_sb.Append(content[0..((int)(bl - overflow))]);
+		}
+		else
+		{
+			BytesWritten += bl;
+			_sb.Append(content);
+		}
+	}
 #endif
 	/// <inheritdoc />
 	public void Write(in string content)

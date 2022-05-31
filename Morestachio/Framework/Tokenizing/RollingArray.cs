@@ -62,7 +62,7 @@ public class RollingArray<T> : IEnumerable<T>
 	}
 
 	/// <summary>
-	///		Gets the char at the natural index
+	///		Gets the element at the natural index
 	/// </summary>
 	/// <param name="index"></param>
 	/// <returns></returns>
@@ -77,17 +77,7 @@ public class RollingArray<T> : IEnumerable<T>
 		}
 		return Buffer[inx];
 	}
-
-	///// <summary>
-	/////		Translates a natural index 0-Length to a real index depending on the current writer index
-	///// </summary>
-	///// <param name="index"></param>
-	///// <returns></returns>
-	//internal int Translate(int index)
-	//{
-			
-	//}
-
+	
 	/// <summary>
 	///		Returns the contents of the array
 	/// </summary>
@@ -189,7 +179,7 @@ public class RollingArray<T> : IEnumerable<T>
 			_startIndex = _array._writerIndex;
 			_index = 0;
 		}
-			
+
 		/// <inheritdoc />
 		public bool MoveNext()
 		{
@@ -207,34 +197,34 @@ public class RollingArray<T> : IEnumerable<T>
 			Current = _array[_index];
 			return true;
 		}
-			
+
 		/// <inheritdoc />
 		public void Reset()
 		{
 			_index = 0;
 		}
-			
+
 		/// <inheritdoc />
 		public T Current { get; private set; }
-			
+
 		/// <inheritdoc />
 		object IEnumerator.Current
 		{
 			get { return Current; }
 		}
-			
+
 		/// <inheritdoc />
 		public void Dispose()
 		{
 		}
 	}
-		
+
 	/// <inheritdoc />
 	public IEnumerator<T> GetEnumerator()
 	{
 		return new RollingArrayEnumerator(this);
 	}
-		
+
 	/// <inheritdoc />
 	IEnumerator IEnumerable.GetEnumerator()
 	{
