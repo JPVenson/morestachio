@@ -34,21 +34,22 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.Benchmark", "Mo
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{5B530A98-F019-4649-B82F-BE04727948F9}"
 	ProjectSection(SolutionItems) = preProject
-		_config.yml = _config.yml
 		AfterDirectory.Build.props = AfterDirectory.Build.props
 		Directory.Build.props = Directory.Build.props
+		Directory.Build.targets = Directory.Build.targets
 		LICENSE = LICENSE
 		mustachio@2x.png = mustachio@2x.png
 		nuget.config = nuget.config
 		README.md = README.md
 		Build\updateVersion.ps1 = Build\updateVersion.ps1
+		_config.yml = _config.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.Configuration.Transform", "Morestachio.Configuration.Transform\Morestachio.Configuration.Transform.csproj", "{EED26AB0-04FF-4461-9266-DCB192C7637A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.Configuration.Transform.Tests", "Morestachio.Configuration.Transform.Tests\Morestachio.Configuration.Transform.Tests.csproj", "{520B2AF3-8AF4-43B8-AAE7-97104624D244}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morestachio.System.Text.Json", "Morestachio.System.Text.Json\Morestachio.System.Text.Json.csproj", "{082B342C-165B-4938-9015-E4DF70091F14}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.System.Text.Json", "Morestachio.System.Text.Json\Morestachio.System.Text.Json.csproj", "{082B342C-165B-4938-9015-E4DF70091F14}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ValueConverter", "ValueConverter", "{C53CDDBD-02A7-4E8B-86F5-3CFE59E64C7D}"
 EndProject
@@ -56,7 +57,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Formatter", "Formatter", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Integrations", "Integrations", "{06546FA1-27F0-47C1-8460-367770FB4C98}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morestachio.System.Xml.Linq", "Morestachio.System.Xml.Linq\Morestachio.System.Xml.Linq.csproj", "{E514EE96-F61E-4584-9617-09B51DE2F5CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.System.Xml.Linq", "Morestachio.System.Xml.Linq\Morestachio.System.Xml.Linq.csproj", "{E514EE96-F61E-4584-9617-09B51DE2F5CA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
