@@ -28,7 +28,7 @@ public class MorestachioSyntaxError : MorestachioErrorBase
 	/// Initializes a new instance of the <see cref="MorestachioSyntaxError"/> class.
 	/// </summary>
 	/// <param name="location">The location.</param>
-	public MorestachioSyntaxError(CharacterLocationExtended location,
+	public MorestachioSyntaxError(TextRange location,
 								string operation,
 								string tokenOccured,
 								string syntaxExpected,
@@ -41,10 +41,10 @@ public class MorestachioSyntaxError : MorestachioErrorBase
 										string tokenOccured,
 										string syntaxExpected,
 										string extra,
-										CharacterLocationExtended location)
+										TextRange location)
 	{
 		return $"line:char " +
-			$"'{location.Line}:{location.Character}' " +
+			$"'{location.ToString()}' " +
 			$"- " +
 			$"The syntax to " +
 			$"{operation} the '{tokenOccured}' " +

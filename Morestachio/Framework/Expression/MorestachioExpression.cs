@@ -7,6 +7,7 @@ using Morestachio.Formatter.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.Visitors;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework.Expression;
 
@@ -23,7 +24,7 @@ public class MorestachioExpression : IMorestachioExpression
 		Formats = new List<ExpressionArgument>();
 	}
 
-	internal MorestachioExpression(in CharacterLocation location) : this()
+	internal MorestachioExpression(in TextRange location) : this()
 	{
 		Location = location;
 	}
@@ -39,7 +40,7 @@ public class MorestachioExpression : IMorestachioExpression
 		Formats = info.GetValue(nameof(Formats), typeof(IList<ExpressionArgument>))
 			as IList<ExpressionArgument>;
 		FormatterName = info.GetString(nameof(FormatterName));
-		Location = CharacterLocation.FromFormatString(info.GetString(nameof(Location)));
+		Location = TextRange.FromFormatString(info.GetString(nameof(Location)));
 		EndsWithDelimiter = info.GetBoolean(nameof(EndsWithDelimiter));
 	}
 
@@ -62,7 +63,7 @@ public class MorestachioExpression : IMorestachioExpression
 	/// <inheritdoc />
 	public void ReadXml(XmlReader reader)
 	{
-		Location = CharacterLocation.FromFormatString(reader.GetAttribute(nameof(Location)));
+		Location = TextRange.FromFormatString(reader.GetAttribute(nameof(Location)));
 		EndsWithDelimiter = reader.GetAttribute(nameof(EndsWithDelimiter)) == bool.TrueString;
 		var pathParts = new List<KeyValuePair<string, PathType>>();
 		reader.ReadStartElement();//Path
@@ -165,7 +166,7 @@ public class MorestachioExpression : IMorestachioExpression
 	public string FormatterName { get; internal set; }
 
 	/// <inheritdoc />
-	public CharacterLocation Location { get; private set; }
+	public TextRange Location { get; private set; }
 
 	/// <summary>
 	///		The prepared call for an formatter

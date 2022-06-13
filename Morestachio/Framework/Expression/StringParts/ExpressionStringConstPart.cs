@@ -1,4 +1,5 @@
 ﻿using System;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework.Expression.StringParts;
 
@@ -15,7 +16,7 @@ public class ExpressionStringConstPart : IEquatable<ExpressionStringConstPart>
 	/// <summary>
 	/// 
 	/// </summary>
-	public ExpressionStringConstPart(string textPart, CharacterLocation location)
+	public ExpressionStringConstPart(string textPart, TextRange location)
 	{
 		Location = location;
 		PartText = textPart;
@@ -29,7 +30,7 @@ public class ExpressionStringConstPart : IEquatable<ExpressionStringConstPart>
 	/// <summary>
 	///		Where in the string is this part located
 	/// </summary>
-	public CharacterLocation Location { get; set; }
+	public TextRange Location { get; set; }
 
 	/// <inheritdoc />
 	public bool Equals(ExpressionStringConstPart other)

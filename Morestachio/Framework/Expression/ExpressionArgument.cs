@@ -5,6 +5,7 @@ using Morestachio.Document;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.Expression.Visitors;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework.Expression;
 
@@ -21,7 +22,7 @@ public class ExpressionArgument : IEquatable<ExpressionArgument>, IMorestachioEx
 
 	/// <summary>
 	/// </summary>
-	public ExpressionArgument(CharacterLocation location, IMorestachioExpression expression, string name)
+	public ExpressionArgument(TextRange location, IMorestachioExpression expression, string name)
 	{
 		Location = location;
 		MorestachioExpression = expression;
@@ -38,7 +39,7 @@ public class ExpressionArgument : IEquatable<ExpressionArgument>, IMorestachioEx
 		Name = info.GetString(nameof(Name));
 		MorestachioExpression =
 			info.GetValue(nameof(MorestachioExpression), typeof(IMorestachioExpression)) as IMorestachioExpression;
-		Location = CharacterLocation.FromFormatString(info.GetString(nameof(Location)));
+		Location = TextRange.FromFormatString(info.GetString(nameof(Location)));
 	}
 
 	/// <summary>
@@ -78,7 +79,7 @@ public class ExpressionArgument : IEquatable<ExpressionArgument>, IMorestachioEx
 	/// <summary>
 	///     The Location within the Template
 	/// </summary>
-	public CharacterLocation Location { get; private set; }
+	public TextRange Location { get; private set; }
 
 	/// <summary>
 	/// </summary>
@@ -125,7 +126,7 @@ public class ExpressionArgument : IEquatable<ExpressionArgument>, IMorestachioEx
 	/// <inheritdoc />
 	public void ReadXml(XmlReader reader)
 	{
-		Location = CharacterLocation.FromFormatString(reader.GetAttribute(nameof(Location)));
+		Location = TextRange.FromFormatString(reader.GetAttribute(nameof(Location)));
 		Name = reader.GetAttribute(nameof(Name));
 		reader.ReadStartElement();
 

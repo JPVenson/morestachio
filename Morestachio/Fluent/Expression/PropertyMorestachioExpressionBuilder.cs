@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Morestachio.Framework;
 using Morestachio.Framework.Expression;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Fluent.Expression;
 
@@ -33,7 +34,7 @@ public class PropertyMorestachioExpressionBuilder : MorestachioExpressionBuilder
 		}
 		else
 		{
-			targetExpression = new MorestachioExpression(CharacterLocation.Unknown);
+			targetExpression = new MorestachioExpression(TextRange.Unknown);
 			targetExpression.FormatterName = functionName;
 			ExpressionParts.Add(targetExpression);
 		}
@@ -42,7 +43,7 @@ public class PropertyMorestachioExpressionBuilder : MorestachioExpressionBuilder
 		{
 			foreach (var argument in arguments(new MorestachioArgumentExpressionBuilder()).Arguments)
 			{
-				targetExpression.Formats.Add(new ExpressionArgument(CharacterLocation.Unknown, argument.Value, argument.Key));
+				targetExpression.Formats.Add(new ExpressionArgument(TextRange.Unknown, argument.Value, argument.Key));
 			}
 		}
 

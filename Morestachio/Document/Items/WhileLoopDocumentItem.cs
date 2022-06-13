@@ -6,6 +6,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -24,7 +25,7 @@ public class WhileLoopDocumentItem : ExpressionDocumentItemBase, ISupportCustomA
 	}
 
 	/// <inheritdoc />
-	public WhileLoopDocumentItem(CharacterLocation location,
+	public WhileLoopDocumentItem(TextRange location,
 								IMorestachioExpression value,
 								IEnumerable<ITokenOption> tagCreationOptions) : base(location, value, tagCreationOptions)
 	{

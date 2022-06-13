@@ -1,4 +1,5 @@
 ﻿using Morestachio.Framework.Expression.Framework;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.TemplateContainers;
 
@@ -10,28 +11,18 @@ public readonly struct TokenMatch
 	/// <summary>
 	///		Creates a new Match
 	/// </summary>
-	/// <param name="index"></param>
-	/// <param name="value"></param>
-	/// <param name="preText"></param>
-	/// <param name="length"></param>
-	/// <param name="contentToken"></param>
-	public TokenMatch(int index, string value, string preText, int length, bool contentToken)
+	public TokenMatch(TextRange range, string value, string preText, bool contentToken)
 	{
-		Index = index;
+		Range = range;
 		Value = value;
 		PreText = preText;
 		ContentToken = contentToken;
-		Length = length;
 	}
 
 	/// <summary>
 	///		The index within the template where this token occurs
 	/// </summary>
-	public int Index { get; }
-	/// <summary>
-	///		The length of the Value. Should differ as value omits the <see cref="TokenzierContext.PrefixToken"/> and <see cref="TokenzierContext.SuffixToken"/>
-	/// </summary>
-	public int Length { get; }
+	public TextRange Range { get; }
 
 	/// <summary>
 	///		The Tokens value excluding <see cref="TokenzierContext.PrefixToken"/> and <see cref="TokenzierContext.SuffixToken"/>

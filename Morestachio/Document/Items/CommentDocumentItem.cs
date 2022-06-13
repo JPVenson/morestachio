@@ -13,6 +13,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -38,7 +39,7 @@ public class CommentDocumentItem : ValueDocumentItemBase
 	/// <param name="content"></param>
 	/// <param name="tagCreationOptions"></param>
 	/// <param name="isBlockComment"></param>
-	public CommentDocumentItem(CharacterLocation location, string content,
+	public CommentDocumentItem(TextRange location, string content,
 								IEnumerable<ITokenOption> tagCreationOptions, bool isBlockComment) : base(location, content, tagCreationOptions)
 	{
 		IsBlockComment = isBlockComment;

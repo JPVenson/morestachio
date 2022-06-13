@@ -6,6 +6,7 @@ using Morestachio.Formatter.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.Expression.Visitors;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework.Expression;
 
@@ -46,7 +47,7 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 	/// <param name="context"></param>
 	protected MorestachioOperatorExpression(SerializationInfo info, StreamingContext context)
 	{
-		Location = CharacterLocation.FromFormatString(info.GetString(nameof(Location)));
+		Location = TextRange.FromFormatString(info.GetString(nameof(Location)));
 		var opText = info.GetString(nameof(Operator));
 		Operator = MorestachioOperator.Yield().First(f => f.OperatorText.Equals(opText));
 		LeftExpression =
@@ -60,7 +61,7 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 	/// </summary>
 	/// <param name="operator"></param>
 	/// <param name="location"></param>
-	public MorestachioOperatorExpression(MorestachioOperator @operator, IMorestachioExpression leftExpression, CharacterLocation location)
+	public MorestachioOperatorExpression(MorestachioOperator @operator, IMorestachioExpression leftExpression, TextRange location)
 	{
 		Operator = @operator;
 		Location = location;
@@ -87,7 +88,7 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 	{
 		var opText = reader.GetAttribute(nameof(Operator));
 		Operator = MorestachioOperator.Yield().First(f => f.OperatorText.Equals(opText));
-		Location = CharacterLocation.FromFormatString(reader.GetAttribute(nameof(Location)));
+		Location = TextRange.FromFormatString(reader.GetAttribute(nameof(Location)));
 		reader.ReadStartElement();
 		var leftSubTree = reader.ReadSubtree();
 		LeftExpression = leftSubTree.ParseExpressionFromKind();
@@ -164,7 +165,7 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 	}
 
 	/// <inheritdoc />
-	public CharacterLocation Location { get; private set; }
+	public TextRange Location { get; private set; }
 
 	/// <summary>
 	///		If the operator was called once this contains the exact formatter match that was executed and can be reused for execution

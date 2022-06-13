@@ -1,4 +1,6 @@
-﻿namespace Morestachio.Framework.Expression.Framework;
+﻿using Morestachio.Parsing.ParserErrors;
+
+namespace Morestachio.Framework.Expression.Framework;
 
 /// <summary>
 ///     Defines a Match of Arguments for a Formatter
@@ -15,7 +17,7 @@ internal class HeaderTokenMatch
 	public string ArgumentName { get; set; }
 
 	public IMorestachioExpression Value { get; set; }
-	public CharacterLocation TokenLocation { get; set; }
+	public TextRange TokenLocation { get; set; }
 
 	internal TokenState State { get; set; }
 	internal int BracketsCounter { get; set; }

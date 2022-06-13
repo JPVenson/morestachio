@@ -8,6 +8,7 @@ using Morestachio.Framework;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items.Base;
 
@@ -24,7 +25,7 @@ public abstract class ExpressionDocumentItemBase : BlockDocumentItemBase, IEquat
 
 	/// <param name="location"></param>
 	/// <inheritdoc />
-	protected ExpressionDocumentItemBase(in CharacterLocation location,
+	protected ExpressionDocumentItemBase(in TextRange location,
 										IMorestachioExpression expression,
 										IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
 	{

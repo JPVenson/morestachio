@@ -11,6 +11,7 @@ using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -29,7 +30,7 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 	}
 
 	/// <inheritdoc />
-	public ImportPartialDocumentItem(CharacterLocation location,
+	public ImportPartialDocumentItem(TextRange location,
 									IMorestachioExpression value,
 									IMorestachioExpression context,
 									IEnumerable<ITokenOption> tagCreationOptions)

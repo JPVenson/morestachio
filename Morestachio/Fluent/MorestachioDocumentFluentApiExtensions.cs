@@ -6,6 +6,7 @@ using Morestachio.Fluent.Expression;
 using Morestachio.Framework;
 using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Fluent;
 
@@ -19,7 +20,7 @@ public static class MorestachioDocumentFluentApiExtensions
 	/// </summary>
 	public static MorestachioDocumentFluentApi AddContent(this MorestachioDocumentFluentApi api, string content)
 	{
-		return api.AddChild(f => new ContentDocumentItem(CharacterLocation.Unknown, content, Enumerable.Empty<ITokenOption>()));
+		return api.AddChild(f => new ContentDocumentItem(TextRange.Unknown, content, Enumerable.Empty<ITokenOption>()));
 	}
 
 	/// <summary>
@@ -28,7 +29,7 @@ public static class MorestachioDocumentFluentApiExtensions
 	public static MorestachioDocumentFluentApi AddDoLoopAndEnter(this MorestachioDocumentFluentApi api,
 																Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> condition)
 	{
-		return api.AddChildAndEnter(builder => new DoLoopDocumentItem(CharacterLocation.Unknown, condition(builder).Compile(), Enumerable.Empty<ITokenOption>()));
+		return api.AddChildAndEnter(builder => new DoLoopDocumentItem(TextRange.Unknown, condition(builder).Compile(), Enumerable.Empty<ITokenOption>()));
 	}
 
 	/// <summary>
@@ -37,7 +38,7 @@ public static class MorestachioDocumentFluentApiExtensions
 	public static MorestachioDocumentFluentApi AddEachLoopAndEnter(this MorestachioDocumentFluentApi api,
 																	Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> condition)
 	{
-		return api.AddChildAndEnter(builder => new EachDocumentItem(CharacterLocation.Unknown, condition(builder).Compile(), Enumerable.Empty<ITokenOption>()));
+		return api.AddChildAndEnter(builder => new EachDocumentItem(TextRange.Unknown, condition(builder).Compile(), Enumerable.Empty<ITokenOption>()));
 	}
 
 	/// <summary>
@@ -56,7 +57,7 @@ public static class MorestachioDocumentFluentApiExtensions
 																string name,
 																Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> condition)
 	{
-		return api.AddChild(builder => new EvaluateVariableDocumentItem(CharacterLocation.Unknown, name, condition(builder).Compile(), Enumerable.Empty<ITokenOption>()));
+		return api.AddChild(builder => new EvaluateVariableDocumentItem(TextRange.Unknown, name, condition(builder).Compile(), Enumerable.Empty<ITokenOption>()));
 	}
 
 	/// <summary>
@@ -65,7 +66,7 @@ public static class MorestachioDocumentFluentApiExtensions
 	public static MorestachioDocumentFluentApi AddScopeAndEnter(this MorestachioDocumentFluentApi api,
 																Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> condition)
 	{
-		return api.AddChildAndEnter(builder => new ExpressionScopeDocumentItem(CharacterLocation.Unknown, condition(builder).Compile(), Enumerable.Empty<ITokenOption>()));
+		return api.AddChildAndEnter(builder => new ExpressionScopeDocumentItem(TextRange.Unknown, condition(builder).Compile(), Enumerable.Empty<ITokenOption>()));
 	}
 
 	/// <summary>
@@ -74,7 +75,7 @@ public static class MorestachioDocumentFluentApiExtensions
 	public static MorestachioDocumentFluentApi AddIfAndEnter(this MorestachioDocumentFluentApi api,
 															Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> condition)
 	{
-		return api.AddChildAndEnter(builder => new IfExpressionScopeDocumentItem(CharacterLocation.Unknown, condition(builder).Compile(), Enumerable.Empty<ITokenOption>(), false));
+		return api.AddChildAndEnter(builder => new IfExpressionScopeDocumentItem(TextRange.Unknown, condition(builder).Compile(), Enumerable.Empty<ITokenOption>(), false));
 	}
 
 	/// <summary>
@@ -83,7 +84,7 @@ public static class MorestachioDocumentFluentApiExtensions
 	public static MorestachioDocumentFluentApi AddInvertedIfAndEnter(this MorestachioDocumentFluentApi api,
 																	Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> condition)
 	{
-		return api.AddChildAndEnter(builder => new IfExpressionScopeDocumentItem(CharacterLocation.Unknown, condition(builder).Compile(), Enumerable.Empty<ITokenOption>(), true));
+		return api.AddChildAndEnter(builder => new IfExpressionScopeDocumentItem(TextRange.Unknown, condition(builder).Compile(), Enumerable.Empty<ITokenOption>(), true));
 	}
 
 	/// <summary>
@@ -92,7 +93,7 @@ public static class MorestachioDocumentFluentApiExtensions
 	public static MorestachioDocumentFluentApi AddInvertedScopeAndEnter(this MorestachioDocumentFluentApi api,
 																		Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> condition)
 	{
-		return api.AddChildAndEnter(builder => new InvertedExpressionScopeDocumentItem(CharacterLocation.Unknown, condition(builder).Compile(), Enumerable.Empty<ITokenOption>()));
+		return api.AddChildAndEnter(builder => new InvertedExpressionScopeDocumentItem(TextRange.Unknown, condition(builder).Compile(), Enumerable.Empty<ITokenOption>()));
 	}
 
 	/// <summary>
@@ -102,7 +103,7 @@ public static class MorestachioDocumentFluentApiExtensions
 														string name,
 														Func<MorestachioDocumentFluentApi, MorestachioDocumentFluentApi> factory)
 	{
-		return api.AddChild(builder => new PartialDocumentItem(CharacterLocation.Unknown, name, Enumerable.Empty<ITokenOption>())
+		return api.AddChild(builder => new PartialDocumentItem(TextRange.Unknown, name, Enumerable.Empty<ITokenOption>())
 		{
 			Children =
 			{
@@ -119,7 +120,7 @@ public static class MorestachioDocumentFluentApiExtensions
 														Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> condition,
 														bool escapeValue = true)
 	{
-		return api.AddChild(builder => new PathDocumentItem(CharacterLocation.Unknown, condition(builder).Compile(), escapeValue, Enumerable.Empty<ITokenOption>()));
+		return api.AddChild(builder => new PathDocumentItem(TextRange.Unknown, condition(builder).Compile(), escapeValue, Enumerable.Empty<ITokenOption>()));
 	}
 
 	/// <summary>
@@ -130,7 +131,7 @@ public static class MorestachioDocumentFluentApiExtensions
 														string name,
 														Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> condition = null)
 	{
-		return api.AddChild(builder => new RenderPartialDocumentItem(CharacterLocation.Unknown, name, condition?.Invoke(builder).Compile(), Enumerable.Empty<ITokenOption>()));
+		return api.AddChild(builder => new RenderPartialDocumentItem(TextRange.Unknown, name, condition?.Invoke(builder).Compile(), Enumerable.Empty<ITokenOption>()));
 	}
 
 	/// <summary>
@@ -139,7 +140,7 @@ public static class MorestachioDocumentFluentApiExtensions
 	public static MorestachioDocumentFluentApi AddTextModification(this MorestachioDocumentFluentApi api,
 																	ITextOperation textOperation)
 	{
-		return api.AddChild(builder => new TextEditDocumentItem(CharacterLocation.Unknown, textOperation, EmbeddedInstructionOrigin.Self, Enumerable.Empty<ITokenOption>()));
+		return api.AddChild(builder => new TextEditDocumentItem(TextRange.Unknown, textOperation, EmbeddedInstructionOrigin.Self, Enumerable.Empty<ITokenOption>()));
 	}
 
 	/// <summary>
@@ -148,6 +149,6 @@ public static class MorestachioDocumentFluentApiExtensions
 	public static MorestachioDocumentFluentApi AddWhileLoopAndEnter(this MorestachioDocumentFluentApi api,
 																	Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> condition)
 	{
-		return api.AddChildAndEnter(builder => new WhileLoopDocumentItem(CharacterLocation.Unknown, condition(builder).Compile(), Enumerable.Empty<ITokenOption>()));
+		return api.AddChildAndEnter(builder => new WhileLoopDocumentItem(TextRange.Unknown, condition(builder).Compile(), Enumerable.Empty<ITokenOption>()));
 	}
 }

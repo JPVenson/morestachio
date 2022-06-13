@@ -7,6 +7,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -29,7 +30,7 @@ public class RemoveAliasDocumentItem : ValueDocumentItemBase, ISupportCustomAsyn
 	/// </summary>
 	/// <param name="aliasName"></param>
 	/// <param name="scopeVariableScopeNumber"></param>
-	public RemoveAliasDocumentItem(CharacterLocation location,  string aliasName, int scopeVariableScopeNumber,
+	public RemoveAliasDocumentItem(TextRange location,  string aliasName, int scopeVariableScopeNumber,
 									IEnumerable<ITokenOption> tagCreationOptions) 
 		: base(location, aliasName,tagCreationOptions)
 	{

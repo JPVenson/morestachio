@@ -9,6 +9,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Helper.Localization.Documents.CustomCultureDocument;
 
@@ -30,7 +31,7 @@ public class MorestachioCustomCultureLocalizationDocumentItem : ExpressionDocume
 	}
 
 	/// <inheritdoc />
-	public MorestachioCustomCultureLocalizationDocumentItem(CharacterLocation location,
+	public MorestachioCustomCultureLocalizationDocumentItem(TextRange location,
 															IMorestachioExpression expression,
 															IEnumerable<ITokenOption> tagCreationOptions) 
 		: base(location, expression, tagCreationOptions)
@@ -120,7 +121,7 @@ public class MorestachioCustomCultureLocalizationDocumentItem : ExpressionDocume
 		}
 
 		/// <inheritdoc />
-		public ResetCultureDocumentItem(CharacterLocation location, CultureInfo culture,
+		public ResetCultureDocumentItem(TextRange location, CultureInfo culture,
 										IEnumerable<ITokenOption> tagCreationOptions) : base(location, (IEnumerable<ITokenOption>) tagCreationOptions)
 		{
 			_culture = culture;

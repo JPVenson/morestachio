@@ -5,6 +5,7 @@ using Morestachio.Document;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.Expression.Visitors;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework.Expression;
 
@@ -23,7 +24,7 @@ public abstract class MorestachioExpressionListBase : IMorestachioExpression
 	/// <summary>
 	/// 
 	/// </summary>
-	public MorestachioExpressionListBase(CharacterLocation location)
+	public MorestachioExpressionListBase(TextRange location)
 	{
 		Location = location;
 		Expressions = new List<IMorestachioExpression>();
@@ -32,7 +33,7 @@ public abstract class MorestachioExpressionListBase : IMorestachioExpression
 	/// <summary>
 	///	
 	/// </summary>
-	public MorestachioExpressionListBase(IList<IMorestachioExpression> expressions, CharacterLocation location)
+	public MorestachioExpressionListBase(IList<IMorestachioExpression> expressions, TextRange location)
 	{
 		Expressions = expressions;
 		Location = location;
@@ -45,7 +46,7 @@ public abstract class MorestachioExpressionListBase : IMorestachioExpression
 	/// <param name="context"></param>
 	protected MorestachioExpressionListBase(SerializationInfo info, StreamingContext context)
 	{
-		Location = CharacterLocation.FromFormatString(info.GetString(nameof(Location)));
+		Location = TextRange.FromFormatString(info.GetString(nameof(Location)));
 		Expressions = (IMorestachioExpression[])info.GetValue(nameof(Expressions), typeof(IMorestachioExpression[]));
 	}
 
@@ -55,7 +56,7 @@ public abstract class MorestachioExpressionListBase : IMorestachioExpression
 	public IList<IMorestachioExpression> Expressions { get; private set; }
 
 	/// <inheritdoc />
-	public CharacterLocation Location { get; private set; }
+	public TextRange Location { get; private set; }
 	/// <inheritdoc />
 	public async ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
 	{
@@ -86,7 +87,7 @@ public abstract class MorestachioExpressionListBase : IMorestachioExpression
 	/// <inheritdoc />
 	public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
 	{
-		info.AddValue(nameof(Location), Location.ToFormatString());
+		info.AddValue(nameof(Location), Location);
 		info.AddValue(nameof(Expressions), Expressions.ToArray());
 	}
 
@@ -99,7 +100,7 @@ public abstract class MorestachioExpressionListBase : IMorestachioExpression
 	/// <inheritdoc />
 	public virtual void ReadXml(XmlReader reader)
 	{
-		Location = CharacterLocation.FromFormatString(reader.GetAttribute(nameof(Location)));
+		Location = TextRange.FromFormatString(reader.GetAttribute(nameof(Location)));
 		if (reader.IsEmptyElement)
 		{
 			return;

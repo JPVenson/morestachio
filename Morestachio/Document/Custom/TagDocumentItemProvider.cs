@@ -5,6 +5,7 @@ using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Custom;
 
@@ -39,7 +40,7 @@ public class TagDocumentItemProvider : TagDocumentItemProviderBase
 		}
 
 		/// <inheritdoc />
-		public TagDocumentItem(CharacterLocation location,
+		public TagDocumentItem(TextRange location,
 								TagDocumentProviderFunction action,
 								string tagKeyword,
 								string value,
@@ -87,6 +88,6 @@ public class TagDocumentItemProvider : TagDocumentItemProviderBase
 	public override IDocumentItem CreateDocumentItem(string tagKeyword, string value, TokenPair token,
 													ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions)
 	{
-		return new TagDocumentItem(token.TokenLocation, _action, tagKeyword, value, tagCreationOptions);
+		return new TagDocumentItem(token.TokenRange, _action, tagKeyword, value, tagCreationOptions);
 	}
 }

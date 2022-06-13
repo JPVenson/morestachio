@@ -10,6 +10,7 @@ using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -26,7 +27,7 @@ public class IsolationScopeDocumentItem : BlockDocumentItemBase, ISupportCustomA
 	}
 		
 	/// <inheritdoc />
-	public IsolationScopeDocumentItem(CharacterLocation location, IsolationOptions isolationOptions,
+	public IsolationScopeDocumentItem(TextRange location, IsolationOptions isolationOptions,
 									IMorestachioExpression morestachioExpression,
 									IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
 	{

@@ -12,6 +12,7 @@ using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper.Localization.Documents.CustomCultureDocument;
 using Morestachio.Helper.Localization.Documents.LocPDocument;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Helper.Localization.Documents.LocDocument;
 
@@ -29,7 +30,7 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 	}
 
 	/// <inheritdoc />
-	public MorestachioLocalizationDocumentItem(CharacterLocation location,
+	public MorestachioLocalizationDocumentItem(TextRange location,
 												IMorestachioExpression value,
 												IMorestachioExpression explicitCulture,
 												IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)

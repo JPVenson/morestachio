@@ -9,6 +9,7 @@ using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -36,7 +37,7 @@ public class TextEditDocumentItem : DocumentItemBase, ISupportCustomCompilation
 	/// <summary>
 	/// 
 	/// </summary>
-	public TextEditDocumentItem(CharacterLocation location,
+	public TextEditDocumentItem(TextRange location,
 								ITextOperation operation,
 								EmbeddedInstructionOrigin embeddedInstructionOrigin,
 								IEnumerable<ITokenOption> tagCreationOptions)

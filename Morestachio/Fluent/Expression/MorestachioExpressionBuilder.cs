@@ -5,6 +5,7 @@ using Morestachio.Framework;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Fluent.Expression;
 
@@ -50,7 +51,7 @@ public class MorestachioExpressionBuilder
 		}
 		else
 		{
-			var morestachioExpression = new MorestachioExpression(CharacterLocation.Unknown);
+			var morestachioExpression = new MorestachioExpression(TextRange.Unknown);
 			morestachioExpression.PathParts = new Traversable(pathParts.GetList());
 			ExpressionParts.Add(morestachioExpression);
 		}
@@ -73,7 +74,7 @@ public class MorestachioExpressionBuilder
 		}
 		else
 		{
-			var morestachioExpression = new MorestachioExpression(CharacterLocation.Unknown);
+			var morestachioExpression = new MorestachioExpression(TextRange.Unknown);
 			morestachioExpression.PathParts = new Traversable(new []
 			{
 				new KeyValuePair<string, PathType>(null, PathType.ObjectSelector), 
@@ -91,7 +92,7 @@ public class MorestachioExpressionBuilder
 	{
 		if (ExpressionParts.Count > 1)
 		{
-			return new MorestachioMultiPartExpressionList(ExpressionParts, CharacterLocation.Unknown);
+			return new MorestachioMultiPartExpressionList(ExpressionParts, TextRange.Unknown);
 		}
 
 		return ExpressionParts.FirstOrDefault();

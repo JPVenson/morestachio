@@ -4,6 +4,7 @@ using System.Runtime.Serialization;
 using System.Xml;
 using Morestachio.Framework;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items.Base;
 
@@ -20,7 +21,7 @@ public abstract class ValueDocumentItemBase : BlockDocumentItemBase, IEquatable<
 	/// <summary>
 	/// 
 	/// </summary>
-	protected ValueDocumentItemBase(in CharacterLocation location, string value,
+	protected ValueDocumentItemBase(in TextRange location, string value,
 									IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
 	{
 		Value = value;

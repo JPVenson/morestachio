@@ -12,6 +12,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -33,7 +34,7 @@ public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase, ISupport
 	/// <param name="value"></param>
 	/// <param name="morestachioExpression"></param>
 	/// <param name="idVariableScope"></param>
-	public EvaluateVariableDocumentItem(CharacterLocation location,
+	public EvaluateVariableDocumentItem(TextRange location,
 										string value,
 										IMorestachioExpression morestachioExpression,
 										int idVariableScope,
@@ -49,7 +50,7 @@ public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase, ISupport
 	/// </summary>
 	/// <param name="value"></param>
 	/// <param name="morestachioExpression"></param>
-	public EvaluateVariableDocumentItem(CharacterLocation location, string value, IMorestachioExpression morestachioExpression,
+	public EvaluateVariableDocumentItem(TextRange location, string value, IMorestachioExpression morestachioExpression,
 										IEnumerable<ITokenOption> tagCreationOptions)
 		: base(location, morestachioExpression, tagCreationOptions)
 	{
@@ -164,7 +165,7 @@ public class EvaluateLetVariableDocumentItem : EvaluateVariableDocumentItem
 	/// <param name="value"></param>
 	/// <param name="morestachioExpression"></param>
 	/// <param name="idVariableScope"></param>
-	public EvaluateLetVariableDocumentItem(CharacterLocation location,
+	public EvaluateLetVariableDocumentItem(TextRange location,
 											string value,
 											IMorestachioExpression morestachioExpression,
 											int idVariableScope,

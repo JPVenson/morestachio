@@ -47,7 +47,7 @@ public class MorestachioLocalizationTagProvider : TagDocumentItemProviderBase
 	public override IDocumentItem CreateDocumentItem(string tagKeyword, string value, TokenPair token,
 													ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions)
 	{
-		return new MorestachioLocalizationDocumentItem(token.TokenLocation, 
+		return new MorestachioLocalizationDocumentItem(token.TokenRange, 
 			token.MorestachioExpression, 
 			token.FindOption<IMorestachioExpression>("Culture"),
 			tagCreationOptions);

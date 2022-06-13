@@ -7,6 +7,7 @@ using System.Xml;
 using Morestachio.Document.Contracts;
 using Morestachio.Framework;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items.Base;
 
@@ -23,7 +24,7 @@ public abstract class BlockDocumentItemBase : DocumentItemBase, IBlockDocumentIt
 	/// <summary>
 	///		Creates a new base object for encapsulating document items
 	/// </summary>
-	protected BlockDocumentItemBase(in CharacterLocation location,
+	protected BlockDocumentItemBase(in TextRange location,
 									IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
 	{
 		Children = new List<IDocumentItem>();

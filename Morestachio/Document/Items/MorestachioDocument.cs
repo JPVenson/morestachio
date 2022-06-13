@@ -7,6 +7,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -37,7 +38,7 @@ public sealed class MorestachioDocument : BlockDocumentItemBase,
 	/// <summary>
 	///		Used for XML Serialization
 	/// </summary>
-	public MorestachioDocument(CharacterLocation location,
+	public MorestachioDocument(TextRange location,
 								IEnumerable<ITokenOption> tagCreationOptions) : base(location,tagCreationOptions)
 	{
 		MorestachioVersion = GetMorestachioVersion();

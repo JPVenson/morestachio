@@ -6,6 +6,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -25,7 +26,7 @@ public class InvertedExpressionScopeDocumentItem : ExpressionDocumentItemBase, I
 	}
 
 	/// <inheritdoc />
-	public InvertedExpressionScopeDocumentItem(CharacterLocation location, IMorestachioExpression value,
+	public InvertedExpressionScopeDocumentItem(TextRange location, IMorestachioExpression value,
 												IEnumerable<ITokenOption> tagCreationOptions) : base(location, value,tagCreationOptions)
 	{
 	}

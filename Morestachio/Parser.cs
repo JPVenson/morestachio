@@ -96,14 +96,14 @@ namespace Morestachio
 				var currentDocumentItem = buildStack.Peek(); //get the latest document
 				if (currentToken.Type.Equals(TokenType.Content))
 				{
-					var contentDocumentItem = new ContentDocumentItem(currentToken.TokenLocation, currentToken.Value, GetPublicOptions(currentToken));
+					var contentDocumentItem = new ContentDocumentItem(currentToken.TokenRange, currentToken.Value, GetPublicOptions(currentToken));
 					TryAdd(currentDocumentItem.Document, contentDocumentItem);
 
 					if (tokenizerResult.Previous.HasValue)
 					{
 						if (tokenizerResult.Previous.Value.FindOption<bool>("Embedded.TrimTailing"))
 						{
-							TryAdd(contentDocumentItem, new TextEditDocumentItem(tokenizerResult.Previous.Value.TokenLocation, new TrimLineBreakTextOperation()
+							TryAdd(contentDocumentItem, new TextEditDocumentItem(tokenizerResult.Previous.Value.TokenRange, new TrimLineBreakTextOperation()
 							{
 								LineBreaks = 0,
 								LineBreakTrimDirection = LineBreakTrimDirection.Begin
@@ -111,7 +111,7 @@ namespace Morestachio
 						}
 						if (tokenizerResult.Previous.Value.FindOption<bool>("Embedded.TrimAllTailing"))
 						{
-							TryAdd(contentDocumentItem, new TextEditDocumentItem(tokenizerResult.Previous.Value.TokenLocation, new TrimLineBreakTextOperation()
+							TryAdd(contentDocumentItem, new TextEditDocumentItem(tokenizerResult.Previous.Value.TokenRange, new TrimLineBreakTextOperation()
 							{
 								LineBreaks = -1,
 								LineBreakTrimDirection = LineBreakTrimDirection.Begin
@@ -123,7 +123,7 @@ namespace Morestachio
 					{
 						if (tokenizerResult.Next.Value.FindOption<bool>("Embedded.TrimLeading"))
 						{
-							TryAdd(contentDocumentItem, new TextEditDocumentItem(tokenizerResult.Next.Value.TokenLocation, new TrimLineBreakTextOperation()
+							TryAdd(contentDocumentItem, new TextEditDocumentItem(tokenizerResult.Next.Value.TokenRange, new TrimLineBreakTextOperation()
 							{
 								LineBreaks = 0,
 								LineBreakTrimDirection = LineBreakTrimDirection.End
@@ -131,7 +131,7 @@ namespace Morestachio
 						}
 						if (tokenizerResult.Next.Value.FindOption<bool>("Embedded.TrimAllLeading"))
 						{
-							TryAdd(contentDocumentItem, new TextEditDocumentItem(tokenizerResult.Next.Value.TokenLocation, new TrimLineBreakTextOperation()
+							TryAdd(contentDocumentItem, new TextEditDocumentItem(tokenizerResult.Next.Value.TokenRange, new TrimLineBreakTextOperation()
 							{
 								LineBreaks = -1,
 								LineBreakTrimDirection = LineBreakTrimDirection.End
@@ -147,21 +147,21 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.If))
 				{
-					var nestedDocument = new IfExpressionScopeDocumentItem(currentToken.TokenLocation,
+					var nestedDocument = new IfExpressionScopeDocumentItem(currentToken.TokenRange,
 						currentToken.MorestachioExpression, GetPublicOptions(currentToken), false);
 					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					TryAdd(currentDocumentItem.Document, nestedDocument);
 				}
 				else if (currentToken.Type.Equals(TokenType.IfNot))
 				{
-					var nestedDocument = new IfExpressionScopeDocumentItem(currentToken.TokenLocation,
+					var nestedDocument = new IfExpressionScopeDocumentItem(currentToken.TokenRange,
 						currentToken.MorestachioExpression, GetPublicOptions(currentToken), true);
 					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					TryAdd(currentDocumentItem.Document, nestedDocument);
 				}
 				else if (currentToken.Type.Equals(TokenType.Else))
 				{
-					var nestedDocument = new ElseExpressionScopeDocumentItem(currentToken.TokenLocation, GetPublicOptions(currentToken));
+					var nestedDocument = new ElseExpressionScopeDocumentItem(currentToken.TokenRange, GetPublicOptions(currentToken));
 					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					if (currentDocumentItem.Document is IfExpressionScopeDocumentItem ifDocument)
 					{
@@ -170,7 +170,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.ElseIf))
 				{
-					var nestedDocument = new ElseIfExpressionScopeDocumentItem(currentToken.TokenLocation,
+					var nestedDocument = new ElseIfExpressionScopeDocumentItem(currentToken.TokenRange,
 						currentToken.MorestachioExpression,
 						GetPublicOptions(currentToken));
 
@@ -184,13 +184,13 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.CollectionOpen))
 				{
-					var nestedDocument = new EachDocumentItem(currentToken.TokenLocation, currentToken.MorestachioExpression, GetPublicOptions(currentToken));
+					var nestedDocument = new EachDocumentItem(currentToken.TokenRange, currentToken.MorestachioExpression, GetPublicOptions(currentToken));
 					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					TryAdd(currentDocumentItem.Document, nestedDocument);
 				}
 				else if (currentToken.Type.Equals(TokenType.ForeachCollectionOpen))
 				{
-					var nestedDocument = new ForEachDocumentItem(currentToken.TokenLocation, 
+					var nestedDocument = new ForEachDocumentItem(currentToken.TokenRange, 
 						currentToken.MorestachioExpression, 
 						currentToken.FindOption<string>("Alias"),
 						GetPublicOptions(currentToken));
@@ -199,7 +199,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.SwitchOpen))
 				{
-					var nestedDocument = new SwitchDocumentItem(currentToken.TokenLocation,
+					var nestedDocument = new SwitchDocumentItem(currentToken.TokenRange,
 						currentToken.MorestachioExpression,
 						currentToken.FindOption<bool>("ScopeTo"), GetPublicOptions(currentToken));
 					buildStack.Push(new DocumentScope(nestedDocument, getScope));
@@ -207,43 +207,43 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.SwitchCaseOpen))
 				{
-					var nestedDocument = new SwitchCaseDocumentItem(currentToken.TokenLocation, currentToken.MorestachioExpression, GetPublicOptions(currentToken));
+					var nestedDocument = new SwitchCaseDocumentItem(currentToken.TokenRange, currentToken.MorestachioExpression, GetPublicOptions(currentToken));
 					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					TryAdd(currentDocumentItem.Document, nestedDocument);
 				}
 				else if (currentToken.Type.Equals(TokenType.SwitchDefaultOpen))
 				{
-					var nestedDocument = new SwitchDefaultDocumentItem(currentToken.TokenLocation, GetPublicOptions(currentToken));
+					var nestedDocument = new SwitchDefaultDocumentItem(currentToken.TokenRange, GetPublicOptions(currentToken));
 					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					TryAdd(currentDocumentItem.Document, nestedDocument);
 				}
 				else if (currentToken.Type.Equals(TokenType.WhileLoopOpen))
 				{
-					var nestedDocument = new WhileLoopDocumentItem(currentToken.TokenLocation, currentToken.MorestachioExpression, GetPublicOptions(currentToken));
+					var nestedDocument = new WhileLoopDocumentItem(currentToken.TokenRange, currentToken.MorestachioExpression, GetPublicOptions(currentToken));
 					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					TryAdd(currentDocumentItem.Document, nestedDocument);
 				}
 				else if (currentToken.Type.Equals(TokenType.DoLoopOpen))
 				{
-					var nestedDocument = new DoLoopDocumentItem(currentToken.TokenLocation, currentToken.MorestachioExpression, GetPublicOptions(currentToken));
+					var nestedDocument = new DoLoopDocumentItem(currentToken.TokenRange, currentToken.MorestachioExpression, GetPublicOptions(currentToken));
 					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					TryAdd(currentDocumentItem.Document, nestedDocument);
 				}
 				else if (currentToken.Type.Equals(TokenType.ElementOpen))
 				{
-					var nestedDocument = new ExpressionScopeDocumentItem(currentToken.TokenLocation, currentToken.MorestachioExpression, GetPublicOptions(currentToken));
+					var nestedDocument = new ExpressionScopeDocumentItem(currentToken.TokenRange, currentToken.MorestachioExpression, GetPublicOptions(currentToken));
 					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					TryAdd(currentDocumentItem.Document, nestedDocument);
 				}
 				else if (currentToken.Type.Equals(TokenType.RepeatLoopOpen))
 				{
-					var nestedDocument = new RepeatDocumentItem(currentToken.TokenLocation, currentToken.MorestachioExpression, GetPublicOptions(currentToken));
+					var nestedDocument = new RepeatDocumentItem(currentToken.TokenRange, currentToken.MorestachioExpression, GetPublicOptions(currentToken));
 					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					TryAdd(currentDocumentItem.Document, nestedDocument);
 				}
 				else if (currentToken.Type.Equals(TokenType.InvertedElementOpen))
 				{
-					var nestedDocument = new InvertedExpressionScopeDocumentItem(currentToken.TokenLocation,
+					var nestedDocument = new InvertedExpressionScopeDocumentItem(currentToken.TokenRange,
 						currentToken.MorestachioExpression, GetPublicOptions(currentToken));
 					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 					TryAdd(currentDocumentItem.Document, nestedDocument);
@@ -269,7 +269,7 @@ namespace Morestachio
 				else if (currentToken.Type.Equals(TokenType.EscapedSingleValue) ||
 						currentToken.Type.Equals(TokenType.UnescapedSingleValue))
 				{
-					var nestedDocument = new PathDocumentItem(currentToken.TokenLocation,
+					var nestedDocument = new PathDocumentItem(currentToken.TokenRange,
 						currentToken.MorestachioExpression,
 						currentToken.Type.Equals(TokenType.EscapedSingleValue), GetPublicOptions(currentToken));
 					TryAdd(currentDocumentItem.Document, nestedDocument);
@@ -279,7 +279,7 @@ namespace Morestachio
 					// currently same named partials will override each other
 					// to allow recursive calls of partials we first have to declare the partial and then load it as we would parse
 					// -the partial as a whole and then add it to the list would lead to unknown calls of partials inside the partial
-					var partialDocumentItem = new PartialDocumentItem(currentToken.TokenLocation,
+					var partialDocumentItem = new PartialDocumentItem(currentToken.TokenRange,
 						currentToken.Value,
 						GetPublicOptions(currentToken));
 
@@ -290,14 +290,14 @@ namespace Morestachio
 				else if (currentToken.Type.Equals(TokenType.RenderPartial))
 				{
 #pragma warning disable CS0618
-					TryAdd(currentDocumentItem.Document, new RenderPartialDocumentItem(currentToken.TokenLocation,
+					TryAdd(currentDocumentItem.Document, new RenderPartialDocumentItem(currentToken.TokenRange,
 #pragma warning restore CS0618
 						currentToken.Value,
 						currentToken.MorestachioExpression, GetPublicOptions(currentToken)));
 				}
 				else if (currentToken.Type.Equals(TokenType.ImportPartial))
 				{
-					TryAdd(currentDocumentItem.Document, new ImportPartialDocumentItem(currentToken.TokenLocation,
+					TryAdd(currentDocumentItem.Document, new ImportPartialDocumentItem(currentToken.TokenRange,
 						currentToken.MorestachioExpression,
 						currentToken.FindOption<IMorestachioExpression>("Context"),
 						GetPublicOptions(currentToken)));
@@ -305,7 +305,7 @@ namespace Morestachio
 				else if (currentToken.Type.Equals(TokenType.IsolationScopeOpen))
 				{
 					var nestedDocument =
-						new IsolationScopeDocumentItem(currentToken.TokenLocation,
+						new IsolationScopeDocumentItem(currentToken.TokenRange,
 							currentToken.FindOption<IsolationOptions>("IsolationType"),
 							currentToken.FindOption<IMorestachioExpression>("IsolationScopeArg"),
 							GetPublicOptions(currentToken));
@@ -315,7 +315,7 @@ namespace Morestachio
 				else if (currentToken.Type.Equals(TokenType.Alias))
 				{
 					var scope = GetVariableScope(buildStack);
-					var nestedDocument = new AliasDocumentItem(currentToken.TokenLocation,
+					var nestedDocument = new AliasDocumentItem(currentToken.TokenRange,
 						currentToken.Value,
 						scope.VariableScopeNumber,
 						GetPublicOptions(currentToken));
@@ -330,7 +330,7 @@ namespace Morestachio
 																		 doc.Isolation.HasFlag(IsolationOptions.VariableIsolation));
 					if (isolationParent != null)
 					{
-						nestedDocument = new EvaluateVariableDocumentItem(currentToken.TokenLocation,
+						nestedDocument = new EvaluateVariableDocumentItem(currentToken.TokenRange,
 							currentToken.Value,
 							currentToken.MorestachioExpression,
 							isolationParent.VariableScopeNumber,
@@ -339,7 +339,7 @@ namespace Morestachio
 					}
 					else
 					{
-						nestedDocument = new EvaluateVariableDocumentItem(currentToken.TokenLocation,
+						nestedDocument = new EvaluateVariableDocumentItem(currentToken.TokenRange,
 							currentToken.Value,
 							currentToken.MorestachioExpression, GetPublicOptions(currentToken));
 					}
@@ -354,7 +354,7 @@ namespace Morestachio
 						scope = GetVariableScope(buildStack)
 							.VariableScopeNumber;
 					}
-					var nestedDocument = new EvaluateLetVariableDocumentItem(currentToken.TokenLocation,
+					var nestedDocument = new EvaluateLetVariableDocumentItem(currentToken.TokenRange,
 						currentToken.Value,
 						currentToken.MorestachioExpression, scope, GetPublicOptions(currentToken));
 
@@ -366,13 +366,13 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.WriteLineBreak))
 				{
-					TryAdd(currentDocumentItem.Document, new TextEditDocumentItem(currentToken.TokenLocation,
+					TryAdd(currentDocumentItem.Document, new TextEditDocumentItem(currentToken.TokenRange,
 						new AppendLineBreakTextOperation(),
 						currentToken.IsEmbeddedToken, GetPublicOptions(currentToken)));
 				}
 				else if (currentToken.Type.Equals(TokenType.TrimLineBreak))
 				{
-					textEdits.Add(new TextEditDocumentItem(currentToken.TokenLocation,
+					textEdits.Add(new TextEditDocumentItem(currentToken.TokenRange,
 						new TrimLineBreakTextOperation()
 						{
 							LineBreaks = 1,
@@ -381,7 +381,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.TrimLineBreaks))
 				{
-					textEdits.Add(new TextEditDocumentItem(currentToken.TokenLocation,
+					textEdits.Add(new TextEditDocumentItem(currentToken.TokenRange,
 						new TrimLineBreakTextOperation()
 						{
 							LineBreaks = currentToken.FindOption<bool>("All") ? -1 : 0,
@@ -390,7 +390,7 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.TrimPrependedLineBreaks))
 				{
-					textEdits.Add(new TextEditDocumentItem(currentToken.TokenLocation,
+					textEdits.Add(new TextEditDocumentItem(currentToken.TokenRange,
 						new TrimLineBreakTextOperation()
 						{
 							LineBreaks = currentToken.FindOption<bool>("All") ? -1 : 0,
@@ -399,13 +399,13 @@ namespace Morestachio
 				}
 				else if (currentToken.Type.Equals(TokenType.TrimEverything))
 				{
-					textEdits.Add(new TextEditDocumentItem(currentToken.TokenLocation,
+					textEdits.Add(new TextEditDocumentItem(currentToken.TokenRange,
 						new TrimAllWhitespacesTextOperation(),
 						currentToken.IsEmbeddedToken, GetPublicOptions(currentToken)));
 				}
 				else if (currentToken.Type.Equals(TokenType.NoPrintOpen))
 				{
-					var nestedDocument = new NoPrintDocumentItem(currentToken.TokenLocation, GetPublicOptions(currentToken));
+					var nestedDocument = new NoPrintDocumentItem(currentToken.TokenRange, GetPublicOptions(currentToken));
 					TryAdd(currentDocumentItem.Document, nestedDocument);
 					buildStack.Push(new DocumentScope(nestedDocument, getScope));
 				}
@@ -415,7 +415,7 @@ namespace Morestachio
 					if (options.TokenizeComments)
 					{
 						TryAdd(currentDocumentItem.Document,
-							new CommentDocumentItem(currentToken.TokenLocation, currentToken.Value,
+							new CommentDocumentItem(currentToken.TokenRange, currentToken.Value,
 								GetPublicOptions(currentToken), currentToken.Type.Equals(TokenType.BlockComment)));
 					}
 				}
@@ -435,7 +435,7 @@ namespace Morestachio
 			if (buildStack.Count > 1)
 			{
 				//var invalidScopedElements = buildStack
-				//throw new MorestachioSyntaxError(new Tokenizer.CharacterLocation(){Character = }, );
+				//throw new MorestachioSyntaxError(new Tokenizer.TextRange(){Character = }, );
 				throw new InvalidOperationException(
 					"There is an Error with the Parser. The Parser still contains unscoped builds: " +
 					buildStack.Select(e => e.Document.GetType().Name).Aggregate((e, f) => e + ", " + f));
@@ -444,7 +444,7 @@ namespace Morestachio
 			if (buildStack.Count == 0)
 			{
 				//var invalidScopedElements = buildStack
-				//throw new MorestachioSyntaxError(new Tokenizer.CharacterLocation(){Character = }, );
+				//throw new MorestachioSyntaxError(new Tokenizer.TextRange(){Character = }, );
 				throw new InvalidOperationException(
 					"There is an Error with the Parser. The Parser still closed the root scope prematurely");
 			}
@@ -458,7 +458,7 @@ namespace Morestachio
 			if (!(scope.Document is IBlockDocumentItem blockDocument))
 			{
 				throw new InvalidOperationException(
-					$"Closing an token '{currentToken.Type}' at '{currentToken.TokenLocation}'" +
+					$"Closing an token '{currentToken.Type}' at '{currentToken.TokenRange}'" +
 					$" that is not of type '{typeof(IBlockDocumentItem)}' is not possible.");
 			}
 
@@ -468,7 +468,7 @@ namespace Morestachio
 			{
 				foreach (var scopeLocalVariable in scope.LocalVariables)
 				{
-					TryAdd(currentDocumentItem.Document, new RemoveAliasDocumentItem(currentToken.TokenLocation,
+					TryAdd(currentDocumentItem.Document, new RemoveAliasDocumentItem(currentToken.TokenRange,
 						scopeLocalVariable,
 						scope.VariableScopeNumber, null));
 				}

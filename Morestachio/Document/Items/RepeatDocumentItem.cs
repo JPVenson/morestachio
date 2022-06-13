@@ -27,7 +27,7 @@ public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 	///		Creates a new repeat document item
 	/// </summary>
 	/// <param name="value"></param>
-	public RepeatDocumentItem(CharacterLocation location, IMorestachioExpression value,
+	public RepeatDocumentItem(TextRange location, IMorestachioExpression value,
 							IEnumerable<ITokenOption> tagCreationOptions) : base(location, value,tagCreationOptions)
 	{
 	}
@@ -65,7 +65,7 @@ public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 					parent = parent.Parent;
 				}
 
-				throw new IndexedParseException(CharacterLocationExtended.Empty,
+				throw new IndexedParseException(TextRangeExtended.Empty,
 					string.Format(
 						"{1}'{0}' is expected to return a integral number but did not." +
 						" Complete Expression until Error:{2}",
@@ -102,7 +102,7 @@ public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 				parent = parent.Parent;
 			}
 
-			throw new IndexedParseException(CharacterLocationExtended.Empty, 
+			throw new IndexedParseException(TextRangeExtended.Empty, 
 				string.Format("{1}'{0}' is expected to return a integral number but did not." + " Complete Expression until Error:{2}",
 					MorestachioExpression, ExpressionStart, (path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 		}

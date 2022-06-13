@@ -1516,47 +1516,47 @@
             </summary>
             <seealso cref="T:System.IDisposable" />
         </member>
-        <member name="T:Morestachio.Framework.CharacterLocation">
+        <member name="T:Morestachio.Framework.TextRange">
             <summary>
             	Describes an Position within the Template
             </summary>
         </member>
-        <member name="P:Morestachio.Framework.CharacterLocation.Line">
+        <member name="P:Morestachio.Framework.TextRange.Line">
             <summary>
             	The line of the Template
             </summary>
         </member>
-        <member name="P:Morestachio.Framework.CharacterLocation.Character">
+        <member name="P:Morestachio.Framework.TextRange.Character">
             <summary>
-            	The Character at the <see cref="P:Morestachio.Framework.CharacterLocation.Line"/>
+            	The Character at the <see cref="P:Morestachio.Framework.TextRange.Line"/>
             </summary>
         </member>
-        <member name="M:Morestachio.Framework.CharacterLocation.ToFormatString">
+        <member name="M:Morestachio.Framework.TextRange.ToFormatString">
             <summary>
             	Formats the Character Location into a readable string
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Morestachio.Framework.CharacterLocation.FromFormatString(System.String)">
+        <member name="M:Morestachio.Framework.TextRange.FromFormatString(System.String)">
             <summary>
             	Parses the result of ToFormatString
             </summary>
             <param name="formatString"></param>
             <returns></returns>
         </member>
-        <member name="M:Morestachio.Framework.CharacterLocation.ToString">
+        <member name="M:Morestachio.Framework.TextRange.ToString">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.CharacterLocation.Equals(Morestachio.Framework.CharacterLocation)">
+        <member name="M:Morestachio.Framework.TextRange.Equals(Morestachio.Framework.TextRange)">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.CharacterLocation.Equals(System.Object)">
+        <member name="M:Morestachio.Framework.TextRange.Equals(System.Object)">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.CharacterLocation.GetHashCode">
+        <member name="M:Morestachio.Framework.TextRange.GetHashCode">
             <inheritdoc />
         </member>
-        <member name="M:Morestachio.Framework.CharacterLocation.Offset(System.Int32)">
+        <member name="M:Morestachio.Framework.TextRange.Offset(System.Int32)">
             <summary>
             	Creates a copy that is length chars advanced to this location
             </summary>
@@ -1793,7 +1793,7 @@
             	Defines an Argument used within a formatter
             </summary>
         </member>
-        <member name="M:Morestachio.Framework.Expression.ExpressionArgument.#ctor(Morestachio.Framework.CharacterLocation)">
+        <member name="M:Morestachio.Framework.Expression.ExpressionArgument.#ctor(Morestachio.Framework.TextRange)">
             <summary>
             
             </summary>
@@ -2216,7 +2216,7 @@
                 The token that has been lexed out of template content.
             </summary>
         </member>
-        <member name="M:Morestachio.Framework.TokenPair.#ctor(Morestachio.Framework.TokenType,System.String,Morestachio.Framework.CharacterLocation)">
+        <member name="M:Morestachio.Framework.TokenPair.#ctor(Morestachio.Framework.TokenType,System.String,Morestachio.Framework.TextRange)">
             <summary>
             	Creates a new Token Pair
             </summary>
@@ -2772,19 +2772,19 @@
             <param name="tokens">The tokens.</param>
             <returns></returns>
         </member>
-        <member name="T:Morestachio.ParsingErrors.CharacterLocationExtended">
+        <member name="T:Morestachio.ParsingErrors.TextRangeExtended">
             <summary>
             	Defines a line within the template and the char that should be marked
             </summary>
         </member>
-        <member name="P:Morestachio.ParsingErrors.CharacterLocationExtended.Line">
+        <member name="P:Morestachio.ParsingErrors.TextRangeExtended.Line">
             <summary>
             	The line of the Template
             </summary>
         </member>
-        <member name="P:Morestachio.ParsingErrors.CharacterLocationExtended.Character">
+        <member name="P:Morestachio.ParsingErrors.TextRangeExtended.Character">
             <summary>
-            	The Character at the <see cref="P:Morestachio.ParsingErrors.CharacterLocationExtended.Line"/>
+            	The Character at the <see cref="P:Morestachio.ParsingErrors.TextRangeExtended.Line"/>
             </summary>
         </member>
         <member name="P:Morestachio.ParsingErrors.CharacterSnippedLocation.Line">
@@ -2834,7 +2834,7 @@
             The token.
             </value>
         </member>
-        <member name="M:Morestachio.ParsingErrors.InvalidPathSyntaxError.#ctor(Morestachio.ParsingErrors.CharacterLocationExtended,System.String)">
+        <member name="M:Morestachio.ParsingErrors.InvalidPathSyntaxError.#ctor(Morestachio.ParsingErrors.TextRangeExtended,System.String)">
             <inheritdoc />
         </member>
         <member name="M:Morestachio.ParsingErrors.InvalidPathSyntaxError.GetException">
@@ -2851,7 +2851,7 @@
             	Defines an error that occured when parsing the template that has an invalid token
             </summary>
         </member>
-        <member name="M:Morestachio.ParsingErrors.MorestachioSyntaxError.#ctor(Morestachio.ParsingErrors.CharacterLocationExtended,System.String,System.String,System.String,System.String)">
+        <member name="M:Morestachio.ParsingErrors.MorestachioSyntaxError.#ctor(Morestachio.ParsingErrors.TextRangeExtended,System.String,System.String,System.String,System.String)">
             <summary>
             Initializes a new instance of the <see cref="T:Morestachio.ParsingErrors.MorestachioSyntaxError"/> class.
             </summary>
@@ -2874,7 +2874,7 @@
             	Defines an error that occured when parsing the template that has an invalid token
             </summary>
         </member>
-        <member name="M:Morestachio.ParsingErrors.MorestachioUnopendScopeError.#ctor(Morestachio.ParsingErrors.CharacterLocationExtended,System.String,System.String,System.String)">
+        <member name="M:Morestachio.ParsingErrors.MorestachioUnopendScopeError.#ctor(Morestachio.ParsingErrors.TextRangeExtended,System.String,System.String,System.String)">
             <summary>
             Initializes a new instance of the <see cref="T:Morestachio.ParsingErrors.MorestachioSyntaxError"/> class.
             </summary>

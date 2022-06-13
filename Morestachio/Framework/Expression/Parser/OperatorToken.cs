@@ -1,20 +1,22 @@
-﻿namespace Morestachio.Framework.Expression.Parser;
+﻿using Morestachio.Parsing.ParserErrors;
+
+namespace Morestachio.Framework.Expression.Parser;
 
 internal readonly struct LambdaExpressionToken : IExpressionToken
 {
-	public LambdaExpressionToken(CharacterLocation location)
+	public LambdaExpressionToken(TextRange location)
 	{
 		Location = location;
 		TokenType = ExpressionTokenType.LambdaOperator;
 	}
 
 	public ExpressionTokenType TokenType { get; }
-	public CharacterLocation Location { get; }
+	public TextRange Location { get; }
 }
 
 internal readonly struct OperatorToken : IExpressionToken
 {
-	public OperatorToken(OperatorTypes value, CharacterLocation location)
+	public OperatorToken(OperatorTypes value, TextRange location)
 	{
 		TokenType = ExpressionTokenType.Operator;
 		Value = value;
@@ -23,5 +25,5 @@ internal readonly struct OperatorToken : IExpressionToken
 
 	public ExpressionTokenType TokenType { get; }
 	public OperatorTypes Value { get; }
-	public CharacterLocation Location { get; }
+	public TextRange Location { get; }
 }

@@ -8,6 +8,7 @@ using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -25,7 +26,7 @@ public class IfExpressionScopeDocumentItem : ExpressionDocumentItemBase, ISuppor
 	}
 
 	/// <inheritdoc />
-	public IfExpressionScopeDocumentItem(in CharacterLocation location, IMorestachioExpression value,
+	public IfExpressionScopeDocumentItem(in TextRange location, IMorestachioExpression value,
 										IEnumerable<ITokenOption> tagCreationOptions,
 										bool inverted)
 		: base(location, value, tagCreationOptions)

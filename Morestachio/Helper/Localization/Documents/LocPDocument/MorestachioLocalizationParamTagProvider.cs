@@ -33,6 +33,6 @@ public class MorestachioLocalizationParamTagProvider : TagDocumentItemProviderBa
 	public override IDocumentItem CreateDocumentItem(string tagKeyword, string value, TokenPair token,
 													ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions)
 	{
-		return new MorestachioLocalizationParameterDocumentItem(token.TokenLocation, token.MorestachioExpression, tagCreationOptions);
+		return new MorestachioLocalizationParameterDocumentItem(token.TokenRange, token.MorestachioExpression, tagCreationOptions);
 	}
 }

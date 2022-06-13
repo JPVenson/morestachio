@@ -6,6 +6,7 @@ using Morestachio.Document;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression.StringParts;
 using Morestachio.Framework.Expression.Visitors;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework.Expression;
 
@@ -25,7 +26,7 @@ public class MorestachioExpressionString : IMorestachioExpression
 	/// 
 	/// </summary>
 	/// <param name="location"></param>
-	public MorestachioExpressionString(CharacterLocation location, char delimiter)
+	public MorestachioExpressionString(TextRange location, char delimiter)
 	{
 		Location = location;
 		Delimiter = delimiter;
@@ -40,7 +41,7 @@ public class MorestachioExpressionString : IMorestachioExpression
 	protected MorestachioExpressionString(SerializationInfo info, StreamingContext context)
 	{
 		StringParts = (IList<ExpressionStringConstPart>)info.GetValue(nameof(StringParts), typeof(IList<ExpressionStringConstPart>));
-		Location = CharacterLocation.FromFormatString(info.GetString(nameof(Location)));
+		Location = TextRange.FromFormatString(info.GetString(nameof(Location)));
 		Delimiter = info.GetChar(nameof(Delimiter));
 	}
 
@@ -53,7 +54,7 @@ public class MorestachioExpressionString : IMorestachioExpression
 	/// <inheritdoc />
 	public void ReadXml(XmlReader reader)
 	{
-		Location = CharacterLocation.FromFormatString(reader.GetAttribute(nameof(Location)));
+		Location = TextRange.FromFormatString(reader.GetAttribute(nameof(Location)));
 		if (reader.IsEmptyElement)
 		{
 			return;
@@ -61,7 +62,7 @@ public class MorestachioExpressionString : IMorestachioExpression
 		reader.ReadStartElement();
 		while (reader.Name == nameof(ExpressionStringConstPart) && reader.NodeType != XmlNodeType.EndElement)
 		{
-			var strLocation = CharacterLocation.FromFormatString(reader.GetAttribute(nameof(Location)));
+			var strLocation = TextRange.FromFormatString(reader.GetAttribute(nameof(Location)));
 			var constStrPartText = reader.ReadElementContentAsString();
 			Delimiter = constStrPartText[0];
 			var strPartText = constStrPartText.Substring(1, constStrPartText.Length - 2);
@@ -98,7 +99,7 @@ public class MorestachioExpressionString : IMorestachioExpression
 	public IList<ExpressionStringConstPart> StringParts { get; set; }
 
 	/// <inheritdoc />
-	public CharacterLocation Location { get; set; }
+	public TextRange Location { get; set; }
 
 	/// <summary>
 	///		The original Delimiter

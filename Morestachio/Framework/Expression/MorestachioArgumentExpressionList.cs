@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework.Expression;
 
@@ -17,12 +18,12 @@ public class MorestachioArgumentExpressionList : MorestachioExpressionListBase
 	}
 		
 	/// <inheritdoc />
-	public MorestachioArgumentExpressionList(CharacterLocation location) : base(location)
+	public MorestachioArgumentExpressionList(TextRange location) : base(location)
 	{
 	}
 
 	/// <inheritdoc />
-	public MorestachioArgumentExpressionList(IList<IMorestachioExpression> expressions, CharacterLocation location) : base(expressions, location)
+	public MorestachioArgumentExpressionList(IList<IMorestachioExpression> expressions, TextRange location) : base(expressions, location)
 	{
 	}
 		

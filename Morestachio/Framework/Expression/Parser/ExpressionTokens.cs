@@ -159,7 +159,7 @@ public class ExpressionTokens
 
 	internal void SyntaxError(
 		TokenzierContext context,
-		CharacterLocationExtended location,
+		TextRange location,
 		string helpText)
 	{
 		context.Errors.Add(new InvalidPathSyntaxError(location, SourceExpression, helpText));

@@ -303,7 +303,7 @@ namespace Morestachio.Tests.SerilalizerTests
 		[Test]
 		public void Alias()
 		{
-			var alias = new AliasDocumentItem(CharacterLocation.Unknown, "Alias", 101, null);
+			var alias = new AliasDocumentItem(TextRange.Unknown, "Alias", 101, null);
 			SerializeAndDeserialize(alias);
 		}
 	}

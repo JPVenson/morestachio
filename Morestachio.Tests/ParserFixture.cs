@@ -176,7 +176,7 @@ namespace Morestachio.Tests
 			var api = documentInfo
 					.Fluent()
 					.SearchForward(f => !(f is MorestachioDocument));
-			var lastLocation = new CharacterLocation(0, -1, -1);
+			var lastLocation = new TextRange(0, -1, -1);
 			var visitor = new ToParsableStringDocumentVisitor(documentInfo.ParserOptions);
 
 			while (api.Context.OperationStatus)
@@ -210,9 +210,9 @@ namespace Morestachio.Tests
 			}
 		}
 
-		private static CharacterLocation TestExpressionLocationsInOrderInternal(
+		private static TextRange TestExpressionLocationsInOrderInternal(
 			ExpressionDocumentItemBase expDoc,
-			CharacterLocation lastLocation
+			TextRange lastLocation
 		)
 		{
 			var exp = expDoc.MorestachioExpression;
@@ -929,7 +929,7 @@ namespace Morestachio.Tests
 		//[TestCase("xzyhj{{#company.address_line_1}}\nasdf{{dsadskl-sasa@}}\n{{/each}}", 2)]
 		//[TestCase("fff{{#each company.address_line_1}}\n{{dsadskl-sasa@}}\n{{/each}}", 1)]
 		//[TestCase("a{{name}}dd\ndd{{/each}}dd", 1)]
-		//public void ParserShouldThrowWithCharacterLocationInformation(string template, int expectedErrorCount)
+		//public void ParserShouldThrowWithTextRangeInformation(string template, int expectedErrorCount)
 		//{
 		//	Assert.That(Parser.ParseWithOptions(new ParserOptions(template)).Errors,
 		//		Is.Not.Empty.And.Count.EqualTo(expectedErrorCount));

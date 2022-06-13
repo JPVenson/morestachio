@@ -5,6 +5,7 @@ using Morestachio.Document;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.Expression.Visitors;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework.Expression;
 
@@ -20,7 +21,7 @@ public class MorestachioLambdaExpression : IMorestachioExpression
 	/// </summary>
 	/// <param name="parameters"></param>
 	/// <param name="location"></param>
-	public MorestachioLambdaExpression(IMorestachioExpression parameters, CharacterLocation location)
+	public MorestachioLambdaExpression(IMorestachioExpression parameters, TextRange location)
 	{
 		Parameters = parameters;
 		Location = location;
@@ -33,7 +34,7 @@ public class MorestachioLambdaExpression : IMorestachioExpression
 	/// <param name="context"></param>
 	public MorestachioLambdaExpression(SerializationInfo info, StreamingContext context)
 	{
-		Location = CharacterLocation.FromFormatString(info.GetString(nameof(Location)));
+		Location = TextRange.FromFormatString(info.GetString(nameof(Location)));
 		Expression = info.GetValue(nameof(Expression), typeof(IMorestachioExpression)) as IMorestachioExpression;
 		Parameters = info.GetValue(nameof(Parameters), typeof(IMorestachioExpression)) as IMorestachioExpression;
 	}
@@ -55,7 +56,7 @@ public class MorestachioLambdaExpression : IMorestachioExpression
 	/// <inheritdoc />
 	public void ReadXml(XmlReader reader)
 	{
-		Location = CharacterLocation.FromFormatString(reader.GetAttribute(nameof(Location)));
+		Location = TextRange.FromFormatString(reader.GetAttribute(nameof(Location)));
 		if (reader.IsEmptyElement)
 		{
 			return;
@@ -82,7 +83,7 @@ public class MorestachioLambdaExpression : IMorestachioExpression
 	}
 
 	/// <inheritdoc />
-	public CharacterLocation Location { get; private set; }
+	public TextRange Location { get; private set; }
 
 	/// <summary>
 	///		The Lambda expression

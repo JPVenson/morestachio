@@ -4,85 +4,89 @@ namespace Morestachio.Parsing.ParserErrors;
 
 internal static class ErrorSerializationHelper
 {
-	public static CharacterLocationExtended ReadCharacterLocationExtendedFromXml(XmlReader reader)
+	public static TextRange ReadTextRangeFromXml(XmlReader reader)
 	{
-		var line = reader.GetAttribute(nameof(CharacterLocationExtended.Line));
-		var character = reader.GetAttribute(nameof(CharacterLocationExtended.Character));
 		reader.ReadStartElement();
-		var snipped = ReadCharacterSnippedLocationFromXml(reader);
-
-		if (!reader.IsEmptyElement)
-		{
-			reader.ReadEndElement();
-		}
-		return new CharacterLocationExtended(int.Parse(line), int.Parse(character), snipped);
+		reader.ReadStartElement();
+		var rangeStart = ReadTextIndexFromXml(reader);
+		reader.ReadStartElement();
+		var rangeEnd = ReadTextIndexFromXml(reader);
+		reader.ReadEndElement();
+		return new TextRange(rangeStart, rangeEnd);
 	}
 
-	public static CharacterSnippedLocation ReadCharacterSnippedLocationFromXml(XmlReader reader)
+	public static TextIndex ReadTextIndexFromXml(XmlReader reader)
 	{
-		var line = reader.GetAttribute(nameof(CharacterSnippedLocation.Line));
-		var character = reader.GetAttribute(nameof(CharacterSnippedLocation.Character));
-		var snipped = reader.GetAttribute(nameof(CharacterSnippedLocation.Snipped));
-		return new CharacterSnippedLocation(int.Parse(line), int.Parse(character), snipped);
+		var index = reader.GetAttribute(nameof(TextIndex.Index));
+		var row = reader.GetAttribute(nameof(TextIndex.Row));
+		var column = reader.GetAttribute(nameof(TextIndex.Column));
+
+		return new TextIndex(int.Parse(index), int.Parse(row), int.Parse(column));
 	}
 
-	public static void WriteCharacterLocationExtendedFromXml(XmlWriter writer, CharacterLocationExtended location)
+	public static void WriteTextRangeToXml(XmlWriter writer, TextRange range)
 	{
-		writer.WriteAttributeString(nameof(CharacterLocationExtended.Line), location.Line.ToString());
-		writer.WriteAttributeString(nameof(CharacterLocationExtended.Character), location.Character.ToString());
-		writer.WriteStartElement(nameof(CharacterLocationExtended.Snipped));
-		WriteCharacterSnippedLocationFromXml(writer, location.Snipped);
+		writer.WriteStartElement(nameof(TextRange));
+		writer.WriteStartElement(nameof(range.RangeStart));
+		WriteTextIndexToXml(writer, range.RangeStart);
+		writer.WriteEndElement();
+		writer.WriteStartElement(nameof(range.RangeEnd));
+		WriteTextIndexToXml(writer, range.RangeStart);
+		writer.WriteEndElement();
 		writer.WriteEndElement();
 	}
 
-	public static void WriteCharacterSnippedLocationFromXml(XmlWriter writer, CharacterSnippedLocation snipped)
+	public static void WriteTextIndexToXml(XmlWriter writer, TextIndex index)
 	{
-		writer.WriteAttributeString(nameof(CharacterSnippedLocation.Line), snipped.Line.ToString());
-		writer.WriteAttributeString(nameof(CharacterSnippedLocation.Character), snipped.Character.ToString());
-		writer.WriteAttributeString(nameof(CharacterSnippedLocation.Snipped), snipped.Snipped.ToString());
+		writer.WriteAttributeString(nameof(TextRange.RangeStart.Index), index.Index.ToString());
+		writer.WriteAttributeString(nameof(TextRange.RangeStart.Row), index.Row.ToString());
+		writer.WriteAttributeString(nameof(TextRange.RangeStart.Column), index.Column.ToString());
 	}
 
-	private class CharacterLocationFassade
+	private class TextRangeFassade
 	{
-		public int Line { get; set; }
-		public int Character { get; set; }
-		public CharacterLocationSnippedFassade Snipped { get; set; }
+		public TextIndexFassade RangeStart { get; }
+		public TextIndexFassade RangeEnd { get; }
 
-		public CharacterLocationExtended AsLocation()
+		public TextRange AsRange()
 		{
-			return new CharacterLocationExtended(Line, Character, Snipped.AsSnipped());
+			return new TextRange(RangeStart.AsTextIndex(), RangeEnd.AsTextIndex());
 		}
 	}
 
-	private class CharacterLocationSnippedFassade
+	private class TextIndexFassade
 	{
-		public int Line { get; set; }
-		public int Character { get; set; }
-		public string Snipped { get; set; }
+		public int Index { get; set; }
+		public int Row { get; set; }
+		public int Column { get; set; }
 
-		public CharacterSnippedLocation AsSnipped()
+		public TextIndex AsTextIndex()
 		{
-			return new CharacterSnippedLocation(Line, Character, Snipped);
+			return new TextIndex(Index, Row, Column);
 		}
 	}
 
-	public static CharacterLocationExtended ReadCharacterLocationExtendedFromBinary(SerializationInfo info, StreamingContext c)
+	public static TextRange ReadTextRangeFromBinary(SerializationInfo info, StreamingContext c)
 	{
-		var fassade = info.GetValue(nameof(CharacterLocationExtended), typeof(CharacterLocationFassade)) as CharacterLocationFassade;
-		return fassade.AsLocation();
+		var fassade = info.GetValue(nameof(TextRange), typeof(TextRangeFassade)) as TextRangeFassade;
+		return fassade.AsRange();
 	}
 
-	public static void WriteCharacterLocationExtendedToBinary(SerializationInfo info, StreamingContext context, CharacterLocationExtended location)
+	public static void WriteTextRangeExtendedToBinary(SerializationInfo info, StreamingContext context, TextRange textRange)
 	{
-		info.AddValue(nameof(CharacterLocationExtended), new CharacterLocationFassade()
+		info.AddValue(nameof(TextRangeExtended), new TextRangeFassade()
 		{
-			Line = location.Line,
-			Character = location.Character,
-			Snipped = new CharacterLocationSnippedFassade()
+			RangeStart =
 			{
-				Character = location.Snipped.Character,
-				Line = location.Snipped.Line,
-				Snipped = location.Snipped.Snipped
+				Index = textRange.RangeStart.Index,
+				Row = textRange.RangeStart.Row,
+				Column = textRange.RangeStart.Column,
+			},
+			RangeEnd =
+			{
+				Index = textRange.RangeEnd.Index,
+				Row = textRange.RangeEnd.Row,
+				Column = textRange.RangeEnd.Column,
 			}
 		});
 	}

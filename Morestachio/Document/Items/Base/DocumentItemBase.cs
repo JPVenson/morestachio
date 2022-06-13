@@ -8,6 +8,7 @@ using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items.Base;
 
@@ -20,13 +21,13 @@ public abstract class DocumentItemBase : IMorestachioDocument,
 {
 	internal DocumentItemBase()
 	{
-		this.ExpressionStart = CharacterLocation.Unknown;
+		this.ExpressionStart = TextRange.Unknown;
 	}
 
 	/// <summary>
 	///		Creates a new base object for encapsulating document items
 	/// </summary>
-	protected DocumentItemBase(in CharacterLocation location, IEnumerable<ITokenOption> tagCreationOptions)
+	protected DocumentItemBase(in TextRange location, IEnumerable<ITokenOption> tagCreationOptions)
 	{
 		ExpressionStart = location;
 		TagCreationOptions = tagCreationOptions;
@@ -42,7 +43,7 @@ public abstract class DocumentItemBase : IMorestachioDocument,
 		var expStartLocation = info.GetString(nameof(ExpressionStart));
 		if (!string.IsNullOrWhiteSpace(expStartLocation))
 		{
-			ExpressionStart = CharacterLocation.FromFormatString(expStartLocation);
+			ExpressionStart = TextRange.FromFormatString(expStartLocation);
 		}
 
 		TagCreationOptions =
@@ -81,7 +82,7 @@ public abstract class DocumentItemBase : IMorestachioDocument,
 												ScopeData scopeData);
 
 	/// <inheritdoc />
-	public CharacterLocation ExpressionStart { get; private set; }
+	public TextRange ExpressionStart { get; private set; }
 
 	/// <inheritdoc />
 	public IEnumerable<ITokenOption> TagCreationOptions { get; set; }
@@ -123,7 +124,7 @@ public abstract class DocumentItemBase : IMorestachioDocument,
 		var charLoc = reader.GetAttribute(nameof(ExpressionStart));
 		if (charLoc != null)
 		{
-			ExpressionStart = CharacterLocation.FromFormatString(charLoc);
+			ExpressionStart = TextRange.FromFormatString(charLoc);
 		}
 		if (!reader.IsEmptyElement)
 		{

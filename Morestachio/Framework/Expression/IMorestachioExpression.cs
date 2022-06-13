@@ -2,6 +2,7 @@
 using Morestachio.Document;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression.Visitors;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework.Expression;
 
@@ -13,7 +14,7 @@ public interface IMorestachioExpression : ISerializable, IXmlSerializable, IEqua
 	/// <summary>
 	///		Where in the original template was this expression located
 	/// </summary>
-	CharacterLocation Location { get; }
+	TextRange Location { get; }
 
 	/// <summary>
 	///		The method for obtaining the Value

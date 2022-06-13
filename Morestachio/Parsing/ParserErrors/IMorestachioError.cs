@@ -15,7 +15,7 @@ public interface IMorestachioError : IXmlSerializable, ISerializable, IEquatable
 	/// <summary>
 	///		The location within the Template where the error occured
 	/// </summary>
-	CharacterLocationExtended Location { get; }
+	TextRange Location { get; }
 
 	/// <summary>
 	/// Gets the exception.
@@ -53,7 +53,7 @@ public abstract class MorestachioErrorBase : IMorestachioError
 	/// </summary>
 	/// <param name="location"></param>
 	/// <param name="helpText"></param>
-	protected MorestachioErrorBase(CharacterLocationExtended location, string helpText = null)
+	protected MorestachioErrorBase(TextRange location, string helpText = null)
 	{
 		Location = location;
 		HelpText = helpText;
@@ -67,7 +67,7 @@ public abstract class MorestachioErrorBase : IMorestachioError
 	protected MorestachioErrorBase(SerializationInfo info, StreamingContext c)
 	{
 		HelpText = info.GetString(nameof(HelpText));
-		Location = ErrorSerializationHelper.ReadCharacterLocationExtendedFromBinary(info, c);
+		Location = ErrorSerializationHelper.ReadTextRangeFromBinary(info, c);
 	}
 
 	/// <inheritdoc />
@@ -81,7 +81,7 @@ public abstract class MorestachioErrorBase : IMorestachioError
 	{
 		HelpText = reader.GetAttribute(nameof(HelpText));
 		reader.ReadStartElement();
-		Location = ErrorSerializationHelper.ReadCharacterLocationExtendedFromXml(reader);
+		Location = ErrorSerializationHelper.ReadTextRangeFromXml(reader);
 		
 		if (!reader.IsEmptyElement)
 		{
@@ -94,7 +94,7 @@ public abstract class MorestachioErrorBase : IMorestachioError
 	{
 		writer.WriteAttributeString(nameof(HelpText), HelpText);
 		writer.WriteStartElement(nameof(Location));
-		ErrorSerializationHelper.WriteCharacterLocationExtendedFromXml(writer, Location);
+		ErrorSerializationHelper.WriteTextRangeToXml(writer, Location);
 		writer.WriteEndElement();
 	}
 
@@ -103,11 +103,11 @@ public abstract class MorestachioErrorBase : IMorestachioError
 	{
 		info.AddValue(nameof(HelpText), HelpText);
 		info.AddValue(nameof(Location), Location);
-		ErrorSerializationHelper.WriteCharacterLocationExtendedToBinary(info, context, Location);
+		ErrorSerializationHelper.WriteTextRangeExtendedToBinary(info, context, Location);
 	}
 
 	/// <inheritdoc />
-	public CharacterLocationExtended Location { get; private set; }
+	public TextRange Location { get; private set; }
 
 	/// <inheritdoc />
 	public string HelpText { get; private set; }

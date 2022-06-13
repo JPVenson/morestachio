@@ -1,4 +1,6 @@
-﻿namespace Morestachio.Framework.Expression.Parser;
+﻿using Morestachio.Parsing.ParserErrors;
+
+namespace Morestachio.Framework.Expression.Parser;
 
 /// <summary>
 ///		Represents a Expression token
@@ -13,5 +15,5 @@ public interface IExpressionToken
 	/// <summary>
 	///		Defines the location within the template of this token
 	/// </summary>
-	CharacterLocation Location { get; }
+	TextRange Location { get; }
 }

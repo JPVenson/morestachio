@@ -12,6 +12,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -32,7 +33,7 @@ public class ContentDocumentItem : ValueDocumentItemBase, ISupportCustomCompilat
 	/// <summary>
 	///		Creates a new ContentDocumentItem that represents some static content
 	/// </summary>
-	public ContentDocumentItem(in CharacterLocation location, 
+	public ContentDocumentItem(in TextRange location, 
 								string content,
 								IEnumerable<ITokenOption> tagCreationOptions) 
 		: base(location, content, tagCreationOptions)

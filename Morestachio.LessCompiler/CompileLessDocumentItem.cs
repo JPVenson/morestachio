@@ -32,7 +32,7 @@ namespace Morestachio.LessCompiler
 	/// <summary>
 	///		Binary serialization ctor
 	/// </summary>
-	internal CompileLessDocumentItem() : base(CharacterLocation.Unknown, null)
+	internal CompileLessDocumentItem() : base(TextRange.Unknown, null)
 	{
 
 	}
@@ -42,7 +42,7 @@ namespace Morestachio.LessCompiler
 	/// </summary>
 	/// <param name="location"></param>
 	/// <param name="tagTokenOptions"></param>
-	public CompileLessDocumentItem(CharacterLocation location, IEnumerable<ITokenOption> tagTokenOptions) 
+	public CompileLessDocumentItem(TextRange location, IEnumerable<ITokenOption> tagTokenOptions) 
 		: base(location, tagTokenOptions)
 	{
 

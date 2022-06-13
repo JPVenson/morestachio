@@ -48,6 +48,6 @@ public class MorestachioCustomCultureLocalizationBlockProvider : BlockDocumentIt
 	public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token,
 													ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions)
 	{
-		return new MorestachioCustomCultureLocalizationDocumentItem(token.TokenLocation, token.MorestachioExpression, tagCreationOptions);
+		return new MorestachioCustomCultureLocalizationDocumentItem(token.TokenRange, token.MorestachioExpression, tagCreationOptions);
 	}
 }

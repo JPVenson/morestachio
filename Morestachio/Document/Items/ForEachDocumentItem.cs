@@ -34,7 +34,7 @@ public class ForEachDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsy
 	}
 
 	/// <inheritdoc />
-	public ForEachDocumentItem(CharacterLocation location,
+	public ForEachDocumentItem(TextRange location,
 								IMorestachioExpression value,
 								string itemVariableName,
 								IEnumerable<ITokenOption> tagCreationOptions)
@@ -110,7 +110,7 @@ public class ForEachDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsy
 				parent = parent.Parent;
 			}
 
-			throw new IndexedParseException(CharacterLocationExtended.Empty,
+			throw new IndexedParseException(TextRangeExtended.Empty,
 				string.Format(
 					"{1}'{0}' is used like an array by the template, but is a scalar value or object in your model." +
 					" Complete Expression until Error:{2}",

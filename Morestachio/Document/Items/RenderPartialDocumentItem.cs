@@ -10,6 +10,7 @@ using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -28,7 +29,7 @@ public class RenderPartialDocumentItem : ValueDocumentItemBase
 	}
 
 	/// <inheritdoc />
-	public RenderPartialDocumentItem(CharacterLocation location,  string value,  IMorestachioExpression context,
+	public RenderPartialDocumentItem(TextRange location,  string value,  IMorestachioExpression context,
 									IEnumerable<ITokenOption> tagCreationOptions)
 		: base(location, value,tagCreationOptions)
 	{

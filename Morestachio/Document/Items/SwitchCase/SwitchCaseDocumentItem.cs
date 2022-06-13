@@ -6,6 +6,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items.SwitchCase;
 
@@ -25,7 +26,7 @@ public class SwitchCaseDocumentItem : ExpressionDocumentItemBase
 	}
 
 	/// <inheritdoc />
-	public SwitchCaseDocumentItem(CharacterLocation location, 
+	public SwitchCaseDocumentItem(TextRange location, 
 								IMorestachioExpression value,
 								IEnumerable<ITokenOption> tagCreationOptions) : base(location, value, tagCreationOptions)
 	{

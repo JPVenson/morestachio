@@ -7,6 +7,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -28,7 +29,7 @@ public class PartialDocumentItem : BlockDocumentItemBase, IEquatable<PartialDocu
 	/// Initializes a new instance of the <see cref="PartialDocumentItem"/> class.
 	/// </summary>
 	/// <param name="partialName">The partial name.</param>
-	public PartialDocumentItem(CharacterLocation location,  
+	public PartialDocumentItem(TextRange location,  
 								string partialName,  
 								IEnumerable<ITokenOption> tagCreationOptions) 
 		: base(location, tagCreationOptions)
