@@ -62,9 +62,6 @@ public static class LoggingFormatter
 	/// <summary>
 	///		Logs an Specific event
 	/// </summary>
-	/// <param name="logLevel"></param>
-	/// <param name="eventId"></param>
-	/// <param name="message"></param>
 	[MorestachioGlobalFormatter("Log", "Logs an Specific event")]
 	public static void Log(string logLevel, string eventId, string message, [ExternalData] ParserOptions options)
 	{
@@ -74,8 +71,6 @@ public static class LoggingFormatter
 	/// <summary>
 	///		Logs an Specific event
 	/// </summary>
-	/// <param name="eventId"></param>
-	/// <param name="message"></param>
 	[MorestachioGlobalFormatter("LogWarn", "Logs an Specific event")]
 	public static void LogWarn(string eventId, string message, [ExternalData] ParserOptions options)
 	{
@@ -85,8 +80,6 @@ public static class LoggingFormatter
 	/// <summary>
 	///		Logs an Specific event
 	/// </summary>
-	/// <param name="eventId"></param>
-	/// <param name="message"></param>
 	[MorestachioGlobalFormatter("LogCritical", "Logs an Specific event")]
 	public static void LogCritical(string eventId, string message, [ExternalData] ParserOptions options)
 	{
@@ -96,8 +89,6 @@ public static class LoggingFormatter
 	/// <summary>
 	///		Logs an Specific event
 	/// </summary>
-	/// <param name="eventId"></param>
-	/// <param name="message"></param>
 	[MorestachioGlobalFormatter("LogDebug", "Logs an Specific event")]
 	public static void LogDebug(string eventId, string message, [ExternalData] ParserOptions options)
 	{
@@ -107,8 +98,6 @@ public static class LoggingFormatter
 	/// <summary>
 	///		Logs an Specific event
 	/// </summary>
-	/// <param name="eventId"></param>
-	/// <param name="message"></param>
 	[MorestachioGlobalFormatter("LogError", "Logs an Specific event")]
 	public static void LogError(string eventId, string message, [ExternalData] ParserOptions options)
 	{
@@ -118,8 +107,6 @@ public static class LoggingFormatter
 	/// <summary>
 	///		Logs an Specific event
 	/// </summary>
-	/// <param name="eventId"></param>
-	/// <param name="message"></param>
 	[MorestachioGlobalFormatter("LogInfo", "Logs an Specific event")]
 	public static void LogInfo(string eventId, string message, [ExternalData] ParserOptions options)
 	{
@@ -129,8 +116,6 @@ public static class LoggingFormatter
 	/// <summary>
 	///		Logs an Specific event
 	/// </summary>
-	/// <param name="eventId"></param>
-	/// <param name="message"></param>
 	[MorestachioGlobalFormatter("LogTrace", "Logs an Specific event")]
 	public static void LogTrace(string eventId, string message, [ExternalData] ParserOptions options)
 	{
@@ -140,9 +125,7 @@ public static class LoggingFormatter
 	/// <summary>
 	///		Logs an Specific event
 	/// </summary>
-	/// <param name="eventId"></param>
-	/// <param name="message"></param>
-	public static void LogWarn(this ILogger logger, string eventId, string message, IDictionary<string, object> data = null)
+	public static void LogWarn(this ILogger logger, string eventId, string message, IDictionary<string, object> data)
 	{
 		logger?.Log("Warning", eventId, message, data);
 	}
@@ -150,9 +133,7 @@ public static class LoggingFormatter
 	/// <summary>
 	///		Logs an Specific event
 	/// </summary>
-	/// <param name="eventId"></param>
-	/// <param name="message"></param>
-	public static void LogCritical(this ILogger logger, string eventId, string message, IDictionary<string, object> data = null)
+	public static void LogCritical(this ILogger logger, string eventId, string message, IDictionary<string, object> data)
 	{
 		logger?.Log("Critical", eventId, message, data);
 	}
@@ -160,9 +141,7 @@ public static class LoggingFormatter
 	/// <summary>
 	///		Logs an Specific event
 	/// </summary>
-	/// <param name="eventId"></param>
-	/// <param name="message"></param>
-	public static void LogDebug(this ILogger logger, string eventId, string message, IDictionary<string, object> data = null)
+	public static void LogDebug(this ILogger logger, string eventId, string message, IDictionary<string, object> data)
 	{
 		logger?.Log("Debug", eventId, message, data);
 	}
@@ -170,9 +149,7 @@ public static class LoggingFormatter
 	/// <summary>
 	///		Logs an Specific event
 	/// </summary>
-	/// <param name="eventId"></param>
-	/// <param name="message"></param>
-	public static void LogError(this ILogger logger, string eventId, string message, IDictionary<string, object> data = null)
+	public static void LogError(this ILogger logger, string eventId, string message, IDictionary<string, object> data)
 	{
 		logger?.Log("Error", eventId, message, data);
 	}
@@ -180,9 +157,7 @@ public static class LoggingFormatter
 	/// <summary>
 	///		Logs an Specific event
 	/// </summary>
-	/// <param name="eventId"></param>
-	/// <param name="message"></param>
-	public static void LogInfo(this ILogger logger, string eventId, string message, IDictionary<string, object> data = null)
+	public static void LogInfo(this ILogger logger, string eventId, string message, IDictionary<string, object> data)
 	{
 		logger?.Log("Info", eventId, message, data);
 	}
@@ -190,10 +165,127 @@ public static class LoggingFormatter
 	/// <summary>
 	///		Logs an Specific event
 	/// </summary>
-	/// <param name="eventId"></param>
-	/// <param name="message"></param>
-	public static void LogTrace(this ILogger logger, string eventId, string message, IDictionary<string, object> data = null)
+	public static void LogTrace(this ILogger logger, string eventId, string message, IDictionary<string, object> data)
 	{
 		logger?.Log("Trace", eventId, message, data);
 	}
+
+	/// <summary>
+	///		Logs an Specific event
+	/// </summary>
+	public static void LogWarn(this ILogger logger, string eventId, string message)
+	{
+		logger?.Log("Warning", eventId, message);
+	}
+
+	/// <summary>
+	///		Logs an Specific event
+	/// </summary>
+	public static void LogCritical(this ILogger logger, string eventId, string message)
+	{
+		logger?.Log("Critical", eventId, message);
+	}
+
+	/// <summary>
+	///		Logs an Specific event
+	/// </summary>
+	public static void LogDebug(this ILogger logger, string eventId, string message)
+	{
+		logger?.Log("Debug", eventId, message);
+	}
+
+	/// <summary>
+	///		Logs an Specific event
+	/// </summary>
+	public static void LogError(this ILogger logger, string eventId, string message)
+	{
+		logger?.Log("Error", eventId, message);
+	}
+
+	/// <summary>
+	///		Logs an Specific event
+	/// </summary>
+	public static void LogInfo(this ILogger logger, string eventId, string message)
+	{
+		logger?.Log("Info", eventId, message);
+	}
+
+	/// <summary>
+	///		Logs an Specific event
+	/// </summary>
+	public static void LogTrace(this ILogger logger, string eventId, string message)
+	{
+		logger?.Log("Trace", eventId, message);
+	}
+#if NET6_0_OR_GREATER
+	
+
+	/// <summary>
+	///		Logs an Specific event
+	/// </summary>
+	public static void LogMessage(this ILogger logger, string loglevel, string eventId,
+								[InterpolatedStringHandlerArgument("logger")] LogInterpolatedStringHandler message)
+	{
+		if (!logger.Enabled)
+		{
+			return;
+		}
+
+		logger.Log(loglevel, eventId, message.GetFormattedText());
+	}
+
+	/// <summary>
+	///		Logs an Specific event
+	/// </summary>
+	public static void LogWarn(this ILogger logger, string eventId,
+								[InterpolatedStringHandlerArgument("logger")] LogInterpolatedStringHandler message)
+	{
+		logger?.LogMessage("Warning", eventId, message);
+	}
+
+	/// <summary>
+	///		Logs an Specific event
+	/// </summary>
+	public static void LogCritical(this ILogger logger, string eventId,
+									[InterpolatedStringHandlerArgument("logger")] LogInterpolatedStringHandler message)
+	{
+		logger?.LogMessage("Critical", eventId, message);
+	}
+
+	/// <summary>
+	///		Logs an Specific event
+	/// </summary>
+	public static void LogDebug(this ILogger logger, string eventId,
+								[InterpolatedStringHandlerArgument("logger")] LogInterpolatedStringHandler message)
+	{
+		logger?.LogMessage("Debug", eventId, message);
+	}
+
+	/// <summary>
+	///		Logs an Specific event
+	/// </summary>
+	public static void LogError(this ILogger logger, string eventId,
+								[InterpolatedStringHandlerArgument("logger")] LogInterpolatedStringHandler message)
+	{
+		logger?.LogMessage("Error", eventId, message);
+	}
+
+	/// <summary>
+	///		Logs an Specific event
+	/// </summary>
+	public static void LogInfo(this ILogger logger, string eventId,
+								[InterpolatedStringHandlerArgument("logger")] LogInterpolatedStringHandler message)
+	{
+		logger?.LogMessage("Info", eventId, message);
+	}
+
+	/// <summary>
+	///		Logs an Specific event
+	/// </summary>
+	public static void LogTrace(this ILogger logger, string eventId,
+								[InterpolatedStringHandlerArgument("logger")] LogInterpolatedStringHandler message)
+	{
+		logger?.LogMessage("Trace", eventId, message);
+	}
+#endif
 }

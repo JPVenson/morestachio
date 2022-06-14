@@ -1,12 +1,10 @@
 ﻿using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Morestachio.Document;
 using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Formatter.Framework.Converter;
 using Morestachio.Framework.Expression;
-using Morestachio.Helper;
 using Morestachio.Helper.Logging;
 using Morestachio.Util.Sealing;
 
@@ -154,7 +152,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 			new MultiFormatterInfoCollection(arguments),
 			!morestachioFormatterAttribute.IsSourceObjectAware,
 			morestachioFormatterAttribute.LinkFunctionTarget);
-		name = name ?? "{NULL}";
+		name ??= "{NULL}";
 
 		if (!Formatters.TryGetValue(name, out var formatters))
 		{
@@ -171,24 +169,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 	/// </summary>
 
 	public IDictionary<FormatterCacheCompareKey, FormatterCache> Cache { get; set; }
-
-	/// <summary>
-	///     Writes the specified log.
-	/// </summary>
-	[Conditional("LOG")]
-	public void Log(ParserOptions parserOptions, Func<string> log)
-	{
-		parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId, log());
-	}
-	/// <summary>
-	///     Writes the specified log.
-	/// </summary>
-	[Conditional("LOG")]
-	public void Log(ParserOptions parserOptions, Func<string> log, Func<IDictionary<string, object>> getValues)
-	{
-		parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId, log(), getValues());
-	}
-
+	
 	/// <inheritdoc />
 	public FormatterCache PrepareCallMostMatchingFormatter(
 		Type type,
@@ -199,14 +180,17 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 	{
 		if (Cache != null && Cache.TryGetValue(new FormatterCacheCompareKey(type, arguments, name), out var cacheItem))
 		{
+			parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId, $"Provide formatter {name} from cache.");
 			return cacheItem;
 		}
+
 		var hasFormatter = PrepareGetMatchingFormatterOn(type, arguments, parserOptions, name)
-			.Where(e => e != null)
-			.ToArray();
+							.Where(e => e != null)
+							.ToArray();
 
 		if (!hasFormatter.Any())
 		{
+			parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId, $"Could not find logger {name} in {GetType()}. Ask Parent {Parent?.GetType()}");
 			return Parent?.PrepareCallMostMatchingFormatter(type,
 				arguments,
 				name,
@@ -243,6 +227,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 			return cache;
 		}
 
+		parserOptions.Logger?.LogError(LoggingFormatter.FormatterServiceId, $"Could not find logger {name} in {GetType()}.");
 		return null;
 	}
 
@@ -255,11 +240,13 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		ParserOptions parserOptions,
 		FormatterArgumentType[] args)
 	{
-		Log(parserOptions, () => $"Execute the formatter {formatter.Model.Name} with arguments",
-			() => args.ToDictionary(e => e.Name, e => (object)e));
+		parserOptions.Logger?
+			.LogTrace(LoggingFormatter.FormatterServiceId, $"Execute the formatter {formatter.Model.Name} with arguments. {args.Select(f => string.Join("\t", f.Index, f.Name, f.Type, f.Expression.AsStringExpression(), f.Value))}");
 
 		if (formatter.Model.LinkFunctionTarget && sourceValue is null)
 		{
+			parserOptions.Logger?
+				.LogError(LoggingFormatter.FormatterServiceId, $"Tried to execute formatter {formatter.Model.Name} but did not provide a reference to execute on.");
 			return AsyncHelper.EmptyPromise<object>();
 		}
 
@@ -292,6 +279,8 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		}
 		catch (Exception e)
 		{
+			parserOptions.Logger?
+				.LogError(LoggingFormatter.FormatterServiceId, $"Error while executing formatter {formatter.Model.Name}. Handle as {ExceptionHandling}. Exception {e}");
 			if (ExceptionHandling == FormatterServiceExceptionHandling.IgnoreSilently)
 			{
 				return AsyncHelper.EmptyPromise<object>();
@@ -315,18 +304,18 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		ParserOptions parserOptions,
 		string name)
 	{
-		Log(parserOptions, () => $"Lookup formatter for type {typeToFormat} with name {name}", () => arguments.ToDictionary(e => e.Name, e => (object)e));
+		parserOptions.Logger?.LogTrace(LoggingFormatter.FormatterServiceId, $"Lookup formatter for type {typeToFormat} with name {name}. {arguments.Select(f => string.Join("\t", f.Index, f.Name, f.Type, f.Expression.AsStringExpression()))}");
 
 		if (!Formatters.TryGetValue(name ?? "{NULL}", out var formatters))
 		{
-			Log(parserOptions, () => $"There are no formatters for the name {name}");
+			parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId, $"There are no formatters for the name {name}");
 			return Enumerable.Empty<MorestachioFormatterModel>();
 		}
 
 		var filteredSourceList = new List<KeyValuePair<MorestachioFormatterModel, ulong>>();
 		foreach (var formatTemplateElement in formatters)
 		{
-			Log(parserOptions, () => $"Test formatter input type: '{formatTemplateElement.InputType}' on formatter named '{formatTemplateElement.Function.Name}'");
+			parserOptions.Logger?.LogTrace(LoggingFormatter.FormatterServiceId, $"Test formatter input type: '{formatTemplateElement.InputType}' on formatter named '{formatTemplateElement.Function.Name}'");
 
 			//this checks only for source type equality
 			if (formatTemplateElement.InputType != typeToFormat
@@ -341,7 +330,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 					{
 						if (!CheckGenericTypeForMatch(typeToFormat, formatTemplateElement.InputType))
 						{
-							Log(parserOptions, () =>
+							parserOptions.Logger?.LogTrace(LoggingFormatter.FormatterServiceId,
 								$"Exclude because formatter accepts '{formatTemplateElement.InputType}' is not assignable from '{typeToFormat}'");
 							continue;
 						}
@@ -355,13 +344,8 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 			if (formatTemplateElement.MetaData.MandetoryArguments.Count > arguments.Length)
 			//if there are less arguments excluding rest then parameters
 			{
-				Log(parserOptions, () =>
-					"Exclude because formatter has " +
-					$"'{formatTemplateElement.MetaData.MandetoryArguments.Count}' " +
-					"parameter and " +
-					$"'{formatTemplateElement.MetaData.Count(e => e.IsRestObject)}' " +
-					"rest parameter but needs less or equals" +
-					$"'{arguments.Length}'.");
+				parserOptions.Logger?.LogTrace(LoggingFormatter.FormatterServiceId,
+					$"Exclude because formatter has '{formatTemplateElement.MetaData.MandetoryArguments.Count}' parameter and '{formatTemplateElement.MetaData.Count(e => e.IsRestObject)}' rest parameter but needs less or equals'{arguments.Length}'.");
 				continue;
 			}
 
@@ -373,7 +357,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 			}
 
 			score += (ulong)(arguments.Length - formatTemplateElement.MetaData.MandetoryArguments.Count);
-			Log(parserOptions, () =>
+			parserOptions.Logger?.LogTrace(LoggingFormatter.FormatterServiceId,
 				$"Take filter: '{formatTemplateElement.InputType} : {formatTemplateElement.Function}' Score {score}");
 			filteredSourceList.Add(
 				new KeyValuePair<MorestachioFormatterModel, ulong>(formatTemplateElement, score));
@@ -389,7 +373,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 
 			return formatter;
 		}
-		Log(parserOptions, () => "No formatter matches");
+		parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId, $"No formatter matches");
 		return Enumerable.Empty<MorestachioFormatterModel>();
 	}
 
@@ -418,7 +402,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		{
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -490,7 +474,8 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 			var returnGeneric = GetGenericTypeLookup(method.ReturnType, method.ReturnType, genericArgument);
 			if (method.ReturnType == genericArgument || returnGeneric != null)
 			{
-				Log(parserOptions, () => $"Cannot evaluate generic '{genericArgument}' of method '{method}'. Substitute with typeof(object).");
+				parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId, 
+					$"Cannot evaluate generic '{genericArgument}' of method '{method}'. Substitute with typeof(object).");
 				generics.Add(typeof(object));
 				continue;
 			}
@@ -579,7 +564,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 																		FormatterArgumentType[] templateArguments,
 																		ParserOptions parserOptions)
 	{
-		Log(parserOptions, () =>
+		parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId,
 			$"Compose values for object '{sourceType}' with formatter '{formatter.InputType}' targets '{formatter.Function.Name}'");
 
 		var matched = new Dictionary<MultiFormatterInfo, FormatterArgumentMap>();
@@ -587,14 +572,14 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		for (var i = 0; i < formatter.MetaData.NonParamsArguments.Count; i++)
 		{
 			var parameter = formatter.MetaData.NonParamsArguments[i];
-			Log(parserOptions, () => $"Match parameter '{parameter.ParameterType}' [{parameter.Name}]");
+			parserOptions.Logger?.LogTrace(LoggingFormatter.FormatterServiceId, $"Match parameter '{parameter.ParameterType}' [{parameter.Name}]");
 
 			//set ether the source object or the value from the given arguments
 
 			FormatterArgumentType match;
 			if (parameter.IsSourceObject)
 			{
-				Log(parserOptions, () => "Is Source object");
+				parserOptions.Logger?.LogTrace(LoggingFormatter.FormatterServiceId, "Is Source object");
 
 				matched[parameter] = new FormatterArgumentMap(i, null)
 				{
@@ -607,12 +592,13 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 				if (parameter.IsInjected)
 				{
 					//match by index or name
-					Log(parserOptions, () => "Get the injected service");
+					parserOptions.Logger?.LogTrace(LoggingFormatter.FormatterServiceId, "Get the injected service");
 					if (services.TryGetService(parameter.ParameterType, out var service))
 					{
 						if (!parameter.ParameterType.IsInstanceOfType(service))
 						{
-							Log(parserOptions, () => $"Expected service of type '{parameter.ParameterType}' but got '{service}'");
+							parserOptions.Logger?
+								.LogError(LoggingFormatter.FormatterServiceId, $"Expected service of type '{parameter.ParameterType}' but got '{service}'");
 							return default;
 						}
 						matched[parameter] = new FormatterArgumentMap(i, null)
@@ -623,14 +609,15 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 					}
 					else
 					{
-						Log(parserOptions, () => $"Requested service of type {parameter.ParameterType} is not present");
+						parserOptions.Logger?
+							.LogError(LoggingFormatter.FormatterServiceId, $"Requested service of type {parameter.ParameterType} is not present");
 						return default;
 					}
 				}
 				else
 				{
 					//match by index or name
-					Log(parserOptions, () => "Try Match by Name");
+					parserOptions.Logger?.LogTrace(LoggingFormatter.FormatterServiceId, "Try Match by Name");
 					//match by name
 					var index = 0;
 					match = templateArguments.FirstOrDefault(e =>
@@ -657,7 +644,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 					}
 					else
 					{
-						Log(parserOptions, () => "Try Match by Index");
+						parserOptions.Logger?.LogTrace(LoggingFormatter.FormatterServiceId, "Try Match by Index");
 						//match by index
 						index = 0;
 						match = templateArguments.FirstOrDefault(g => index++ == parameter.Index);
@@ -689,7 +676,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 							}
 							else
 							{
-								Log(parserOptions, () => $"Skip: Could not match the parameter at index '{parameter.Index}' nether by name nor by index");
+								parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId, $"Skip: Could not match the parameter at index '{parameter.Index}' nether by name nor by index");
 								return default;
 							}
 						}
@@ -743,7 +730,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		}
 
 
-		Log(parserOptions, () => $"Match Rest argument '{hasRest.ParameterType}'");
+		parserOptions.Logger?.LogTrace(LoggingFormatter.FormatterServiceId, $"Match Rest argument '{hasRest.ParameterType}'");
 		//return default;
 
 		//{{"test", Buffer.X, "1"}}
@@ -814,7 +801,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		}
 		else
 		{
-			Log(parserOptions, () => $"Skip: Match is Invalid because '{hasRest.ParameterType}' is no supported rest parameter. Only params object[] is supported as an rest parameter");
+			parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId, $"Skip: Match is Invalid because '{hasRest.ParameterType}' is no supported rest parameter. Only params object[] is supported as an rest parameter");
 			//unknown type in params argument cannot call
 			return default;
 		}
@@ -917,11 +904,14 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 				{
 					try
 					{
+						//do not use the parameters ParserOptions here as the Culture might have been changed.
 						return (o as IConvertible).ToType(parameterParameterType,
 							services.GetRequiredService<ParserOptions>().CultureInfo);
 					}
-					catch
+					catch (Exception ex)
 					{
+						parserOptions.Logger?
+							.LogError(LoggingFormatter.FormatterServiceId, $"Tried to convert {o} into {parameterParameterType} but was not successfully because {ex}");
 						//this might just not work
 						return null;
 					}
@@ -929,7 +919,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 			}
 			else
 			{
-				Log(parserOptions, () =>
+				parserOptions.Logger?.LogTrace(LoggingFormatter.FormatterServiceId,
 					$"Skip: Match is Invalid because type at {argumentIndex} of '{parameterParameterType.Name}' was not expected. Abort.");
 				//The type in the template and the type defined in the formatter do not match. Abort	
 

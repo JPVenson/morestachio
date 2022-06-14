@@ -84,6 +84,15 @@ namespace Morestachio.Tests
 					Assert.Fail($"{logLevel}:{eventId}:{message}");
 				}
 			}
+
+			/// <inheritdoc />
+			public void Log(string logLevel, string eventId, string message)
+			{
+				if (eventId == LoggingFormatter.TokenizerEventId)
+				{
+					Assert.Fail($"{logLevel}:{eventId}:{message}");
+				}
+			}
 		}
 
 		public static async Task<IByteCounterStream> CreateAndParseWithOptionsStream(

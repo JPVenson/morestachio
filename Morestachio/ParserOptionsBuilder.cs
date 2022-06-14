@@ -291,7 +291,17 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	/// <inheritdoc />
 	public IParserOptionsBuilder WithLogger(ILogger value)
 	{
-		return WithValue(nameof(ParserOptions.Logger), options => options.Logger = value);
+		return WithValue(nameof(ParserOptions.Logger), options =>
+		{
+			if (options.Logger is ListLogger listLogger)
+			{
+				listLogger.Add(value);
+			}
+			else
+			{
+				options.Logger = value;	
+			}
+		});
 	}
 
 	/// <inheritdoc />
@@ -469,7 +479,17 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	/// <inheritdoc />
 	public IParserOptionsBuilder WithLogger(Func<ILogger> value)
 	{
-		return WithValue(nameof(ParserOptions.Logger), options => options.Logger = value());
+		return WithValue(nameof(ParserOptions.Logger), options =>
+		{
+			if (options.Logger is ListLogger listLogger)
+			{
+				listLogger.Add(value());
+			}
+			else
+			{
+				options.Logger = value();	
+			}
+		});
 	}
 
 	/// <inheritdoc />

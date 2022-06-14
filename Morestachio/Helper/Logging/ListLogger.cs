@@ -23,4 +23,18 @@ public class ListLogger : List<ILogger>, ILogger
 			logger.Log(logLevel, eventId, message, data);
 		}
 	}
+
+	/// <inheritdoc />
+	public void Log(string logLevel, string eventId, string message)
+	{
+		if (!Enabled)
+		{
+			return;
+		}
+
+		foreach (var logger in this)
+		{
+			logger.Log(logLevel, eventId, message);
+		}
+	}
 }

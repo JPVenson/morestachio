@@ -59,6 +59,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Integrations", "Integration
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morestachio.System.Xml.Linq", "Morestachio.System.Xml.Linq\Morestachio.System.Xml.Linq.csproj", "{E514EE96-F61E-4584-9617-09B51DE2F5CA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morestachio.Extensions.Logging", "Morestachio.Extensions.Logging\Morestachio.Extensions.Logging.csproj", "{E78C69C0-2537-48E9-A35E-C8578F971C38}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -117,6 +119,10 @@ Global
 		{E514EE96-F61E-4584-9617-09B51DE2F5CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E514EE96-F61E-4584-9617-09B51DE2F5CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E514EE96-F61E-4584-9617-09B51DE2F5CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E78C69C0-2537-48E9-A35E-C8578F971C38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E78C69C0-2537-48E9-A35E-C8578F971C38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E78C69C0-2537-48E9-A35E-C8578F971C38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E78C69C0-2537-48E9-A35E-C8578F971C38}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -132,6 +138,7 @@ Global
 		{520B2AF3-8AF4-43B8-AAE7-97104624D244} = {06546FA1-27F0-47C1-8460-367770FB4C98}
 		{082B342C-165B-4938-9015-E4DF70091F14} = {C53CDDBD-02A7-4E8B-86F5-3CFE59E64C7D}
 		{E514EE96-F61E-4584-9617-09B51DE2F5CA} = {C53CDDBD-02A7-4E8B-86F5-3CFE59E64C7D}
+		{E78C69C0-2537-48E9-A35E-C8578F971C38} = {06546FA1-27F0-47C1-8460-367770FB4C98}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {96AB97D9-9D65-41D3-8164-800A5C9CE961}
