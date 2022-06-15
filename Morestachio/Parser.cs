@@ -53,10 +53,7 @@ namespace Morestachio
 			var tokenzierContext = new TokenzierContext(new List<int>(), parsingOptions.CultureInfo);
 			var tokenizerResult = await Tokenizer.Tokenize(parsingOptions, tokenzierContext).ConfigureAwait(false);
 
-			parsingOptions.Logger?.LogDebug(LoggingFormatter.ParserEventId, "Template Parsed", new Dictionary<string, object>()
-			{
-				{"Errors", tokenzierContext.Errors}
-			});
+			parsingOptions.Logger?.LogError(LoggingFormatter.ParserEventId, $"Template Parsed. {string.Join("\r\n", tokenzierContext.Errors.Select(f => f.AsFormatted()))}");
 			//if there are any errors do not parse the template
 			var documentInfo = new MorestachioDocumentInfo(parsingOptions,
 				tokenzierContext.Errors.Any() ? null : Parse(tokenizerResult, parsingOptions), tokenzierContext.Errors);

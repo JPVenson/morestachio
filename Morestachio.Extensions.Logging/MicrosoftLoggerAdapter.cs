@@ -70,7 +70,7 @@ public class MicrosoftLoggerAdapter : ILogger
 		_logger.Log(ParseLogLevel(logLevel), new EventId(_eventId, eventId), new LogEntry(message, null), null, FormatMessage);
 	}
 
-	private string FormatMessage(LogEntry entry, Exception? arg2)
+	private string FormatMessage(LogEntry entry, Exception arg2)
 	{
 		if (_format != null)
 		{
