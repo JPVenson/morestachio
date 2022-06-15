@@ -1,4 +1,5 @@
-﻿using Morestachio.Formatter.Framework;
+﻿using System.ComponentModel.Design;
+using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Framework.Converter;
 using Morestachio.Framework;
 
@@ -14,10 +15,7 @@ public static class ParserOptionsDefaultPartialStoreExtensions
 	/// </summary>
 	public static IParserOptionsBuilder WithDefaultPartialStore(this IParserOptionsBuilder builder, Func<DefaultPartialsStore, DefaultPartialsStore> config)
 	{
-		return builder.WithPartialsStore(() =>
-		{
-			return config(new DefaultPartialsStore());
-		});
+		return builder.WithPartialsStore(() => config(new DefaultPartialsStore()));
 	}
 
 	/// <summary>
@@ -124,6 +122,19 @@ public static class ParserOptionsBuilderFormatterExtensions
 		return builder.WithConfig(c =>
 		{
 			c.Formatters.Services.AddService<TServiceType>(value);
+			return c;
+		});
+	}
+
+	/// <summary>
+	///		Adds a new <see cref="IServiceProvider"/> 
+	/// </summary>
+	public static IParserOptionsBuilder WithServiceProvider(this IParserOptionsBuilder builder,
+															IServiceProvider subContainer)
+	{
+		return builder.WithConfig(c =>
+		{
+			c.Formatters.Services.AddSubProvider(subContainer);
 			return c;
 		});
 	}

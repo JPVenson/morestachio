@@ -9,6 +9,7 @@ public class ServiceCollection : IServiceContainer
 {
 	private readonly IDictionary<Type, object> _localSource;
 	private readonly ServiceCollection _parentProvider;
+	private readonly IList<IServiceProvider> _subContainer;
 
 	/// <summary>
 	///     Creates a new Top level Service collection
@@ -22,7 +23,7 @@ public class ServiceCollection : IServiceContainer
 	public ServiceCollection(ServiceCollection parentProvider)
 	{
 		_parentProvider = parentProvider;
-
+		_subContainer = new List<IServiceProvider>();
 		_localSource = new Dictionary<Type, object>
 		{
 			{ typeof(ServiceCollection), this },
@@ -72,7 +73,6 @@ public class ServiceCollection : IServiceContainer
 	{
 		_localSource.Remove(serviceType);
 	}
-
 
 	/// <summary>
 	///     Enumerates all services known
@@ -142,6 +142,15 @@ public class ServiceCollection : IServiceContainer
 	}
 
 	/// <summary>
+	///		Adds an <see cref="IServiceContainer"/> to the Collection of services.
+	/// </summary>
+	/// <param name="subContainer"></param>
+	public void AddSubProvider(IServiceProvider subContainer)
+	{
+		_subContainer.Add(subContainer);
+	}
+
+	/// <summary>
 	///     Gets the service if present
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
@@ -204,18 +213,22 @@ public class ServiceCollection : IServiceContainer
 			return true;
 		}
 
-		if (_parentProvider == null)
+		if (_parentProvider != null)
 		{
-			return false;
+			service = _parentProvider.GetService(serviceType);
+
+			if (service is Delegate factory)
+			{
+				service = factory.DynamicInvoke();
+			}
+
+			if (service != null)
+			{
+				return true;
+			}
 		}
 
-		service = _parentProvider.GetService(serviceType);
-
-		if (service is Delegate factory)
-		{
-			service = factory.DynamicInvoke();
-		}
-
+		service = _subContainer.Select(c => c.GetService(serviceType)).FirstOrDefault();
 		return service != null;
 	}
 
