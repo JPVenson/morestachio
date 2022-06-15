@@ -7,10 +7,9 @@ namespace Morestachio.Helper.Logging;
 /// <summary>
 ///		Contains formatter calls for access to the ILogger interface
 /// </summary>
-[MorestachioExtensionSetup("Must be first setup by setting the ParserOptions.Logger property")]
+[MorestachioExtensionSetup("Must be added manually or by using the ParserOptionsBuilder.WithFormatter<LoggingFormatter> extension method")]
 public static class LoggingFormatter
 {
-
 	/// <summary>
 	///		The event ID for an obsolete formatter 
 	/// </summary>
@@ -65,7 +64,7 @@ public static class LoggingFormatter
 	[MorestachioGlobalFormatter("Log", "Logs an Specific event")]
 	public static void Log(string logLevel, string eventId, string message, [ExternalData] ParserOptions options)
 	{
-		options.Logger?.Log(logLevel, eventId, message, null);
+		options.Logger?.Log(logLevel, eventId, message);
 	}
 
 	/// <summary>
@@ -74,7 +73,7 @@ public static class LoggingFormatter
 	[MorestachioGlobalFormatter("LogWarn", "Logs an Specific event")]
 	public static void LogWarn(string eventId, string message, [ExternalData] ParserOptions options)
 	{
-		options.Logger?.LogWarn(eventId, message, null);
+		options.Logger?.LogWarn(eventId, message);
 	}
 
 	/// <summary>
@@ -83,7 +82,7 @@ public static class LoggingFormatter
 	[MorestachioGlobalFormatter("LogCritical", "Logs an Specific event")]
 	public static void LogCritical(string eventId, string message, [ExternalData] ParserOptions options)
 	{
-		options.Logger?.LogCritical(eventId, message, null);
+		options.Logger?.LogCritical(eventId, message);
 	}
 
 	/// <summary>
@@ -92,7 +91,7 @@ public static class LoggingFormatter
 	[MorestachioGlobalFormatter("LogDebug", "Logs an Specific event")]
 	public static void LogDebug(string eventId, string message, [ExternalData] ParserOptions options)
 	{
-		options.Logger?.LogDebug(eventId, message, null);
+		options.Logger?.LogDebug(eventId, message);
 	}
 
 	/// <summary>
@@ -101,7 +100,7 @@ public static class LoggingFormatter
 	[MorestachioGlobalFormatter("LogError", "Logs an Specific event")]
 	public static void LogError(string eventId, string message, [ExternalData] ParserOptions options)
 	{
-		options.Logger?.LogError(eventId, message, null);
+		options.Logger?.LogError(eventId, message);
 	}
 
 	/// <summary>
@@ -110,7 +109,7 @@ public static class LoggingFormatter
 	[MorestachioGlobalFormatter("LogInfo", "Logs an Specific event")]
 	public static void LogInfo(string eventId, string message, [ExternalData] ParserOptions options)
 	{
-		options.Logger?.LogInfo(eventId, message, null);
+		options.Logger?.LogInfo(eventId, message);
 	}
 
 	/// <summary>
@@ -119,12 +118,13 @@ public static class LoggingFormatter
 	[MorestachioGlobalFormatter("LogTrace", "Logs an Specific event")]
 	public static void LogTrace(string eventId, string message, [ExternalData] ParserOptions options)
 	{
-		options.Logger?.LogTrace(eventId, message, null);
+		options.Logger?.LogTrace(eventId, message);
 	}
 
 	/// <summary>
 	///		Logs an Specific event
 	/// </summary>
+	[Obsolete("The data argument is obsolete and should be embedded into the message by the caller.")]
 	public static void LogWarn(this ILogger logger, string eventId, string message, IDictionary<string, object> data)
 	{
 		logger?.Log("Warning", eventId, message, data);
@@ -133,6 +133,7 @@ public static class LoggingFormatter
 	/// <summary>
 	///		Logs an Specific event
 	/// </summary>
+	[Obsolete("The data argument is obsolete and should be embedded into the message by the caller.")]
 	public static void LogCritical(this ILogger logger, string eventId, string message, IDictionary<string, object> data)
 	{
 		logger?.Log("Critical", eventId, message, data);
@@ -141,6 +142,7 @@ public static class LoggingFormatter
 	/// <summary>
 	///		Logs an Specific event
 	/// </summary>
+	[Obsolete("The data argument is obsolete and should be embedded into the message by the caller.")]
 	public static void LogDebug(this ILogger logger, string eventId, string message, IDictionary<string, object> data)
 	{
 		logger?.Log("Debug", eventId, message, data);
@@ -149,6 +151,7 @@ public static class LoggingFormatter
 	/// <summary>
 	///		Logs an Specific event
 	/// </summary>
+	[Obsolete("The data argument is obsolete and should be embedded into the message by the caller.")]
 	public static void LogError(this ILogger logger, string eventId, string message, IDictionary<string, object> data)
 	{
 		logger?.Log("Error", eventId, message, data);
@@ -157,6 +160,7 @@ public static class LoggingFormatter
 	/// <summary>
 	///		Logs an Specific event
 	/// </summary>
+	[Obsolete("The data argument is obsolete and should be embedded into the message by the caller.")]
 	public static void LogInfo(this ILogger logger, string eventId, string message, IDictionary<string, object> data)
 	{
 		logger?.Log("Info", eventId, message, data);
@@ -165,6 +169,7 @@ public static class LoggingFormatter
 	/// <summary>
 	///		Logs an Specific event
 	/// </summary>
+	[Obsolete("The data argument is obsolete and should be embedded into the message by the caller.")]
 	public static void LogTrace(this ILogger logger, string eventId, string message, IDictionary<string, object> data)
 	{
 		logger?.Log("Trace", eventId, message, data);

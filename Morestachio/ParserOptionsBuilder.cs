@@ -19,10 +19,10 @@ namespace Morestachio;
 /// </summary>
 public class ParserOptionsBuilder : IParserOptionsBuilder
 {
-	private ParserOptionsBuilder() 
+	private ParserOptionsBuilder()
 		: this(new Dictionary<string, Func<ParserOptions, ParserOptions>>())
 	{
-		
+
 	}
 
 	/// <summary>
@@ -104,7 +104,7 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	public ParserOptions Apply(ParserOptions options)
 	{
 		var parserOptions = _builders.Aggregate(options, (current, builder) => builder.Value(current));
-		
+
 		//if (_builders.TryGetValue("Config", out var actions))
 		//{
 		//	parserOptions = actions(parserOptions);
@@ -161,7 +161,7 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 			}
 			else
 			{
-				options.PartialsStore = value;	
+				options.PartialsStore = value;
 			}
 		});
 	}
@@ -187,7 +187,7 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 			}
 			else
 			{
-				options.ValueResolver = value;	
+				options.ValueResolver = value;
 			}
 		});
 	}
@@ -293,13 +293,13 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	{
 		return WithValue(nameof(ParserOptions.Logger), options =>
 		{
-			if (options.Logger is ListLogger listLogger)
+			if (options.Logger is ListLogger listLogger && value is not null)
 			{
 				listLogger.Add(value);
 			}
 			else
 			{
-				options.Logger = value;	
+				options.Logger = value;
 			}
 		});
 	}
@@ -355,7 +355,7 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 			}
 			else
 			{
-				options.PartialsStore = value();	
+				options.PartialsStore = value();
 			}
 		});
 	}
@@ -381,7 +381,7 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 			}
 			else
 			{
-				options.ValueResolver = value();	
+				options.ValueResolver = value();
 			}
 		});
 	}
@@ -485,9 +485,13 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 			{
 				listLogger.Add(value());
 			}
+			else if (value is null)
+			{
+				options.Logger = null;
+			}
 			else
 			{
-				options.Logger = value();	
+				options.Logger = value();
 			}
 		});
 	}
