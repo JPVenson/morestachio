@@ -3,7 +3,6 @@ using System.Text;
 
 namespace Morestachio.Helper.Logging;
 
-#if NET6_0_OR_GREATER
 #pragma warning disable CS1591
 [InterpolatedStringHandler]
 public readonly ref struct LogInterpolatedStringHandler
