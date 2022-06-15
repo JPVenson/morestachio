@@ -380,30 +380,6 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 	private bool CheckGenericTypeForMatch(Type inputType, Type targetType)
 	{
 		return IsAssignableToGenericType(inputType, targetType);
-		var inputGenerics = inputType.GetTypeInfo().GetGenericArguments();
-
-		//explicit check for array support
-		if (inputType.HasElementType)
-		{
-			var elementType = inputType.GetElementType();
-			inputGenerics = inputGenerics.Concat(new[]
-			{
-				elementType
-			}).ToArray();
-		}
-
-
-		//the type check has maybe failed because of generic parameter. Check if both the formatter and the typ have generic arguments
-
-		var targetGenerics = targetType.GetTypeInfo().GetGenericArguments();
-
-		if (inputGenerics.Length <= 0 || targetGenerics.Length <= 0 ||
-			inputGenerics.Length != targetGenerics.Length)
-		{
-			return false;
-		}
-
-		return true;
 	}
 
 	/// <summary>

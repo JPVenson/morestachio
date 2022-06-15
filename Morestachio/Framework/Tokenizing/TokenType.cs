@@ -256,8 +256,17 @@ public enum TokenType : long
 	NoPrintClose = 1L << 50,
 }
 
+/// <summary>
+///		Helper Methods for enum type <see cref="TokenType"/>
+/// </summary>
 public static class TokenTypeExtensions
 {
+	/// <summary>
+	///		Checks for flag presence in value
+	/// </summary>
+	/// <param name="value"></param>
+	/// <param name="flag"></param>
+	/// <returns></returns>
 	public static bool HasFlagFast(this TokenType value, TokenType flag)
 	{
 		return (value & flag) != 0;
