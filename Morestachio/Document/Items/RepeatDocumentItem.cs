@@ -26,7 +26,6 @@ public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 	/// <summary>
 	///		Creates a new repeat document item
 	/// </summary>
-	/// <param name="value"></param>
 	public RepeatDocumentItem(CharacterLocation location, IMorestachioExpression value,
 							IEnumerable<ITokenOption> tagCreationOptions) : base(location, value,tagCreationOptions)
 	{
@@ -55,7 +54,7 @@ public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 				return;
 			}
 
-			if (!(Number.IsIntegralNumber(c.Value)))
+			if (c.Value is not Number || !(Number.IsIntegralNumber(c.Value)))
 			{
 				var path = new Stack<string>();
 				var parent = context.Parent;
@@ -73,7 +72,7 @@ public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 						(path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 			}
 
-			var nr = new Number(c.Value as IConvertible);
+			var nr = c.Value is Number value ? value : new Number(c.Value as IConvertible);
 			for (int i = 0; i < nr; i++)
 			{
 				var contextCollection = new ContextCollection(i, i + 1 == nr, $"[{i}]", context, context.Value);
@@ -91,8 +90,8 @@ public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 		{
 			return Array.Empty<DocumentItemExecution>();
 		}
-
-		if (!(Number.IsIntegralNumber(c.Value)))
+		
+		if (c.Value is not Number || !(Number.IsIntegralNumber(c.Value)))
 		{
 			var path = new Stack<string>();
 			var parent = context.Parent;
@@ -106,8 +105,8 @@ public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 				string.Format("{1}'{0}' is expected to return a integral number but did not." + " Complete Expression until Error:{2}",
 					MorestachioExpression, ExpressionStart, (path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 		}
-
-		var nr = new Number(c.Value as IConvertible);
+		
+		var nr = c.Value is Number value ? value : new Number(c.Value as IConvertible);
 		var scopes = new List<DocumentItemExecution>();
 		for (int i = 0; i < nr; i++)
 		{
