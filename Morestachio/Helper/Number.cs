@@ -464,6 +464,18 @@ public readonly struct Number :
 		return left.IsNaN();
 	}
 
+	[MorestachioFormatter("[MethodName]", "Returns the largest integral value less than or equal to the specified decimal number.")]
+	public static Number Floor(Number left)
+	{
+		return left.Floor();
+	}
+
+	[MorestachioFormatter("[MethodName]", "Returns the smallest integral value that is greater than or equal to the specified decimal number.")]
+	public static Number Ceiling(Number left)
+	{
+		return left.Ceiling();
+	}
+
 	private static readonly string[] SizeSuffixes =
 		{"b", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
 
@@ -722,7 +734,7 @@ public readonly struct Number :
 	}
 
 	/// <summary>
-	///		Returns the smallest integral value that is greater than or equal to the specified decimal number.
+	///		Returns the largest integral value less than or equal to the specified decimal number.
 	/// </summary>
 	/// <returns></returns>
 	public Number Floor()
