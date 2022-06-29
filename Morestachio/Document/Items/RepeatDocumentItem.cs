@@ -54,7 +54,7 @@ public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 				return;
 			}
 
-			if (c.Value is not Number || !(Number.IsIntegralNumber(c.Value)))
+			if (c.Value is not Number && !(Number.IsIntegralNumber(c.Value)))
 			{
 				var path = new Stack<string>();
 				var parent = context.Parent;
@@ -68,7 +68,8 @@ public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 					string.Format(
 						"{1}'{0}' is expected to return a integral number but did not." +
 						" Complete Expression until Error:{2}",
-						MorestachioExpression, base.ExpressionStart,
+						MorestachioExpression.AsStringExpression(), 
+						base.ExpressionStart,
 						(path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 			}
 
@@ -91,7 +92,7 @@ public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 			return Array.Empty<DocumentItemExecution>();
 		}
 		
-		if (c.Value is not Number || !(Number.IsIntegralNumber(c.Value)))
+		if (c.Value is not Number && !(Number.IsIntegralNumber(c.Value)))
 		{
 			var path = new Stack<string>();
 			var parent = context.Parent;
@@ -103,7 +104,9 @@ public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 
 			throw new IndexedParseException(CharacterLocationExtended.Empty, 
 				string.Format("{1}'{0}' is expected to return a integral number but did not." + " Complete Expression until Error:{2}",
-					MorestachioExpression, ExpressionStart, (path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
+					MorestachioExpression.AsStringExpression(),
+					ExpressionStart,
+					(path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 		}
 		
 		var nr = c.Value is Number value ? value : new Number(c.Value as IConvertible);
