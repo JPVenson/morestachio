@@ -32,6 +32,7 @@ public static class DefaultFormatterService
 		defaultFormatter.AddFromType(typeof(Number));
 		defaultFormatter.AddFromType(typeof(BooleanFormatter));
 		defaultFormatter.AddFromType(typeof(DateFormatter));
+		defaultFormatter.AddFromType(typeof(ConditionalFormatter));
 		defaultFormatter.AddFromType(typeof(EqualityFormatter));
 		defaultFormatter.AddFromType(typeof(LinqFormatter));
 		defaultFormatter.AddFromType(typeof(ListExtensions));

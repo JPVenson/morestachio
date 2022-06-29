@@ -180,16 +180,6 @@ public readonly struct Number :
 	}
 
 	/// <summary>
-	///		checks if the <see cref="Number"/> represents an floating point number
-	/// </summary>
-	/// <param name="number"></param>
-	/// <returns></returns>
-	public static bool IsFloatingPointNumber(Number number)
-	{
-		return IsFloatingPointNumber(number._value);
-	}
-
-	/// <summary>
 	///		checks if the object is ether an instance of <see cref="Number"/> or an .net build in integral number
 	/// </summary>
 	/// <param name="number"></param>
@@ -214,16 +204,6 @@ public readonly struct Number :
 		}
 
 		return number is ulong or long or uint or int or ushort or short or byte or sbyte;
-	}
-
-	/// <summary>
-	///		checks if the <see cref="Number"/> represents an integral number
-	/// </summary>
-	/// <param name="number"></param>
-	/// <returns></returns>
-	public static bool IsIntegralNumber(Number number)
-	{
-		return IsIntegralNumber(number._value);
 	}
 
 	/// <summary>
@@ -311,6 +291,55 @@ public readonly struct Number :
 
 	#region MorestachioFormatter
 #pragma warning disable CS1591
+
+	/// <summary>
+	///		checks if the <see cref="Number"/> represents an integral number
+	/// </summary>
+	/// <param name="number"></param>
+	/// <returns></returns>
+	[MorestachioFormatter("[MethodName]", "checks if the Number represents an integral number")]
+	public static bool IsIntegralNumber(Number number)
+	{
+		return IsIntegralNumber(number._value);
+	}
+
+	/// <summary>
+	///		checks if the <see cref="Number"/> represents an floating point number
+	/// </summary>
+	/// <param name="number"></param>
+	/// <returns></returns>
+	[MorestachioFormatter("[MethodName]", "checks if the Number represents an floating point number")]
+	public static bool IsFloatingPointNumber(Number number)
+	{
+		return IsFloatingPointNumber(number._value);
+	}
+
+	/// <summary>
+	///		Converts an Integral number to a Floating Point Number.
+	/// </summary>
+	/// <param name="number"></param>
+	/// <returns></returns>
+	[MorestachioFormatter("[MethodName]", "checks if the Number represents an floating point number")]
+	public static Number AsFloatingPointNumber(Number number)
+	{
+		if (IsFloatingPointNumber(number._value))
+		{
+			return number;
+		}
+
+		switch (number._value)
+		{
+			case ulong or long:
+				return new Number(number.ToDecimal(null));
+			case uint or int: 
+				return new Number(number.ToDouble(null));
+			case short or ushort: 
+				return new Number(number.ToSingle(null));
+			case byte or sbyte: 
+				return new Number(number.ToSingle(null));
+		}
+		return new Number(number.ToDecimal(null));
+	}
 
 	[MorestachioFormatter("Add", "Adds two numbers")]
 	[MorestachioFormatter("Plus", "Adds two numbers")]
@@ -464,6 +493,84 @@ public readonly struct Number :
 		return left.IsNaN();
 	}
 
+	[MorestachioFormatter("[MethodName]", "Returns the largest integral value less than or equal to the specified decimal number.")]
+	public static Number Floor(Number left)
+	{
+		return left.Floor();
+	}
+
+	[MorestachioFormatter("[MethodName]", "Returns the smallest integral value that is greater than or equal to the specified decimal number.")]
+	public static Number Ceiling(Number left)
+	{
+		return left.Ceiling();
+	}
+
+	[MorestachioFormatter("[MethodName]", "Calculates the integral part of a specified number.")]
+	public static Number Truncate(Number left)
+	{
+		return left.Truncate();
+	}
+
+	[MorestachioFormatter("[MethodName]", "Returns the hyperbolic cosine of the specified angle.")]
+	public static Number Atan2(Number left, Number right)
+	{
+		return left.Atan2(right);
+	}
+
+	[MorestachioFormatter("[MethodName]", "Returns the angle whose sine is the specified number.")]
+	public static Number Asin(Number left)
+	{
+		return left.Asin();
+	}
+
+	[MorestachioFormatter("[MethodName]", "Returns the hyperbolic cosine of the specified angle.")]
+	public static Number Cosh(Number left)
+	{
+		return left.Cosh();
+	}
+
+	[MorestachioFormatter("[MethodName]", "Returns the cosine of the specified angle.")]
+	public static Number Cos(Number left)
+	{
+		return left.Cos();
+	}
+
+	[MorestachioFormatter("[MethodName]", "Returns the angle whose cosine is the specified number.")]
+	public static Number Acos(Number left)
+	{
+		return left.Acos();
+	}
+
+	[MorestachioFormatter("[MethodName]", "Returns the hyperbolic tangent of the specified angle.")]
+	public static Number Tanh(Number left)
+	{
+		return left.Tanh();
+	}
+
+	[MorestachioFormatter("[MethodName]", "Returns the square root of the current value.")]
+	public static Number Sqrt(Number left)
+	{
+		return left.Sqrt();
+	}
+
+	[MorestachioFormatter("[MethodName]", "Returns the hyperbolic sine of the current angle.")]
+	public static Number Sinh(Number left)
+	{
+		return left.Sinh();
+	}
+
+	[MorestachioFormatter("[MethodName]", "Returns the sine of the current angle.")]
+	public static Number Sin(Number left)
+	{
+		return left.Sin();
+	}
+
+	[MorestachioFormatter("[MethodName]", "Gets the Absolute value.")]
+	public static Number Log10(Number left)
+	{
+		return left.Log10();
+	}
+
 	private static readonly string[] SizeSuffixes =
 		{"b", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
 
@@ -472,7 +579,7 @@ public readonly struct Number :
 	{
 		return ToBytes(value, decimalPlaces, parserOptions.CultureInfo.NumberFormat);
 	}
-	
+
 	public static string ToBytes(Number value, Number? decimalPlaces = null, IFormatProvider formatProvider = null)
 	{
 		if (value == NaN || value.Equals(0L))
@@ -722,7 +829,7 @@ public readonly struct Number :
 	}
 
 	/// <summary>
-	///		Returns the smallest integral value that is greater than or equal to the specified decimal number.
+	///		Returns the largest integral value less than or equal to the specified decimal number.
 	/// </summary>
 	/// <returns></returns>
 	public Number Floor()
@@ -843,7 +950,7 @@ public readonly struct Number :
 	{
 		return Round(other, MidpointRounding.ToEven);
 	}
-		
+
 	/// <summary>
 	///		Rounds a decimal value to a specified number of fractional digits.
 	/// </summary>

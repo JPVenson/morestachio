@@ -11,6 +11,7 @@ public class ListLogger : List<ILogger>, ILogger
 	public bool Enabled { get; set; }
 
 	/// <inheritdoc />
+	[Obsolete("The data argument is obsolete and should be embedded into the message by the caller.")]
 	public void Log(string logLevel, string eventId, string message, IDictionary<string, object> data)
 	{
 		if (!Enabled)
@@ -21,6 +22,20 @@ public class ListLogger : List<ILogger>, ILogger
 		foreach (var logger in this)
 		{
 			logger.Log(logLevel, eventId, message, data);
+		}
+	}
+
+	/// <inheritdoc />
+	public void Log(string logLevel, string eventId, string message)
+	{
+		if (!Enabled)
+		{
+			return;
+		}
+
+		foreach (var logger in this)
+		{
+			logger.Log(logLevel, eventId, message);
 		}
 	}
 }

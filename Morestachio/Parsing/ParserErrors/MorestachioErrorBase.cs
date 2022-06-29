@@ -1,36 +1,9 @@
-﻿using System;
-using System.Text;
-using System.Xml.Serialization;
+﻿using System.Text;
+using System.Xml;
+using System.Xml.Schema;
+using Morestachio.Framework.Error;
 
 namespace Morestachio.Parsing.ParserErrors;
-
-/// <summary>
-///		Defines a Error while parsing a Template
-/// </summary>
-public interface IMorestachioError : IXmlSerializable, ISerializable, IEquatable<IMorestachioError>
-{
-	/// <summary>
-	///		The location within the Template where the error occured
-	/// </summary>
-	TextRange Location { get; }
-
-	/// <summary>
-	/// Gets the exception.
-	/// </summary>
-	/// <returns></returns>
-	Exception GetException();
-
-	/// <summary>
-	///		Gets a string that describes the Error
-	/// </summary>
-	string HelpText { get; }
-
-	/// <summary>
-	///		Formats the contents of the error into an <see cref="StringBuilder"/>
-	/// </summary>
-	/// <param name="sb"></param>
-	void Format(StringBuilder sb);
-}
 
 /// <summary>
 ///		Base class for morestachio errors that support serialization
@@ -50,7 +23,7 @@ public abstract class MorestachioErrorBase : IMorestachioError
 	/// </summary>
 	/// <param name="location"></param>
 	/// <param name="helpText"></param>
-	protected MorestachioErrorBase(TextRange location, string helpText = null)
+	protected MorestachioErrorBase(CharacterLocationExtended location, string helpText = null)
 	{
 		Location = location;
 		HelpText = helpText;
@@ -64,7 +37,7 @@ public abstract class MorestachioErrorBase : IMorestachioError
 	protected MorestachioErrorBase(SerializationInfo info, StreamingContext c)
 	{
 		HelpText = info.GetString(nameof(HelpText));
-		Location = ErrorSerializationHelper.ReadTextRangeFromBinary(info, c);
+		Location = ErrorSerializationHelper.ReadCharacterLocationExtendedFromBinary(info, c);
 	}
 
 	/// <inheritdoc />
@@ -78,7 +51,7 @@ public abstract class MorestachioErrorBase : IMorestachioError
 	{
 		HelpText = reader.GetAttribute(nameof(HelpText));
 		reader.ReadStartElement();
-		Location = ErrorSerializationHelper.ReadTextRangeFromXml(reader);
+		Location = ErrorSerializationHelper.ReadCharacterLocationExtendedFromXml(reader);
 		
 		if (!reader.IsEmptyElement)
 		{
@@ -91,7 +64,7 @@ public abstract class MorestachioErrorBase : IMorestachioError
 	{
 		writer.WriteAttributeString(nameof(HelpText), HelpText);
 		writer.WriteStartElement(nameof(Location));
-		ErrorSerializationHelper.WriteTextRangeToXml(writer, Location);
+		ErrorSerializationHelper.WriteCharacterLocationExtendedFromXml(writer, Location);
 		writer.WriteEndElement();
 	}
 
@@ -100,11 +73,11 @@ public abstract class MorestachioErrorBase : IMorestachioError
 	{
 		info.AddValue(nameof(HelpText), HelpText);
 		info.AddValue(nameof(Location), Location);
-		ErrorSerializationHelper.WriteTextRangeExtendedToBinary(info, context, Location);
+		ErrorSerializationHelper.WriteCharacterLocationExtendedToBinary(info, context, Location);
 	}
 
 	/// <inheritdoc />
-	public TextRange Location { get; private set; }
+	public CharacterLocationExtended Location { get; private set; }
 
 	/// <inheritdoc />
 	public string HelpText { get; private set; }

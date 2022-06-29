@@ -19,10 +19,10 @@ namespace Morestachio;
 /// </summary>
 public class ParserOptionsBuilder : IParserOptionsBuilder
 {
-	private ParserOptionsBuilder() 
+	private ParserOptionsBuilder()
 		: this(new Dictionary<string, Func<ParserOptions, ParserOptions>>())
 	{
-		
+
 	}
 
 	/// <summary>
@@ -104,7 +104,7 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	public ParserOptions Apply(ParserOptions options)
 	{
 		var parserOptions = _builders.Aggregate(options, (current, builder) => builder.Value(current));
-		
+
 		//if (_builders.TryGetValue("Config", out var actions))
 		//{
 		//	parserOptions = actions(parserOptions);
@@ -161,7 +161,7 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 			}
 			else
 			{
-				options.PartialsStore = value;	
+				options.PartialsStore = value;
 			}
 		});
 	}
@@ -187,7 +187,7 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 			}
 			else
 			{
-				options.ValueResolver = value;	
+				options.ValueResolver = value;
 			}
 		});
 	}
@@ -291,7 +291,17 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	/// <inheritdoc />
 	public IParserOptionsBuilder WithLogger(ILogger value)
 	{
-		return WithValue(nameof(ParserOptions.Logger), options => options.Logger = value);
+		return WithValue(nameof(ParserOptions.Logger), options =>
+		{
+			if (options.Logger is ListLogger listLogger && value is not null)
+			{
+				listLogger.Add(value);
+			}
+			else
+			{
+				options.Logger = value;
+			}
+		});
 	}
 
 	/// <inheritdoc />
@@ -345,7 +355,7 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 			}
 			else
 			{
-				options.PartialsStore = value();	
+				options.PartialsStore = value();
 			}
 		});
 	}
@@ -371,7 +381,7 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 			}
 			else
 			{
-				options.ValueResolver = value();	
+				options.ValueResolver = value();
 			}
 		});
 	}
@@ -469,7 +479,21 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	/// <inheritdoc />
 	public IParserOptionsBuilder WithLogger(Func<ILogger> value)
 	{
-		return WithValue(nameof(ParserOptions.Logger), options => options.Logger = value());
+		return WithValue(nameof(ParserOptions.Logger), options =>
+		{
+			if (options.Logger is ListLogger listLogger)
+			{
+				listLogger.Add(value());
+			}
+			else if (value is null)
+			{
+				options.Logger = null;
+			}
+			else
+			{
+				options.Logger = value();
+			}
+		});
 	}
 
 	/// <inheritdoc />

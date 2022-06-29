@@ -147,7 +147,7 @@ namespace Morestachio.Tests.PerfTests
 		}
 
 		[Test()]
-		//[Explicit]
+		[Explicit]
 		[TestCase("Model Depth", 100, 30000, 10, 5000)]
 		public async Task TestTokenizerTime(string variation, int modelDepth, int sizeOfTemplate, int inserts, int runs)
 		{
