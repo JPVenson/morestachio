@@ -47,12 +47,12 @@ public abstract class BlockRegexDocumentItemProviderBase : CustomDocumentItemPro
 		if (TagOpen.IsMatch(trim))
 		{
 			var match = TagOpen.Match(trim);
-			yield return new TokenPair(match.Value, trim, token.TokenizerContext.CurrentLocation);
+			yield return new TokenPair(match.Value, trim, token.Location);
 		}
 		if (TagClose.IsMatch(trim))
 		{
 			var match = TagClose.Match(trim);
-			yield return new TokenPair(match.Value, trim, token.TokenizerContext.CurrentLocation);
+			yield return new TokenPair(match.Value, trim, token.Location);
 		}
 	}
 

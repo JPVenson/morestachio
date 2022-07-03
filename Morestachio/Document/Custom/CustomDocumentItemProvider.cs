@@ -33,11 +33,15 @@ public abstract class CustomDocumentItemProvider
 	{
 		internal TokenInfo(string token,
 							TokenzierContext context,
-							Stack<Tokenizer.ScopeStackItem> scopeStack, IList<ITokenOption> tokenOptions)
+							Stack<Tokenizer.ScopeStackItem> scopeStack,
+							IList<ITokenOption> tokenOptions,
+							TextRange location
+		)
 		{
 			TokenizerContext = context;
 			ScopeStack = scopeStack;
 			TokenOptions = tokenOptions;
+			Location = location;
 			Token = token;
 			Errors = new List<IMorestachioError>();
 		}
@@ -66,6 +70,11 @@ public abstract class CustomDocumentItemProvider
 		///		Can be filled to return errors that occured in the formatting process
 		/// </summary>
 		public ICollection<IMorestachioError> Errors { get; }
+
+		/// <summary>
+		///		Can be filled to return errors that occured in the formatting process
+		/// </summary>
+		public TextRange Location { get; }
 	}
 
 	/// <summary>

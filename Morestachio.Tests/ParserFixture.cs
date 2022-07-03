@@ -184,8 +184,8 @@ namespace Morestachio.Tests
 		{
 			var api = documentInfo
 					.Fluent()
-					.SearchForward(f => !(f is MorestachioDocument));
-			var lastLocation = new TextRange(0, -1, -1);
+					.SearchForward(f => !(f is MorestachioDocument), true);
+			var lastLocation = TextIndex.Unknown;
 			var visitor = new ToParsableStringDocumentVisitor(documentInfo.ParserOptions);
 
 			while (api.Context.OperationStatus)
@@ -197,23 +197,22 @@ namespace Morestachio.Tests
 					continue;
 				}
 
-				if (api.Context.CurrentNode.Item is RemoveAliasDocumentItem)
+				if (api.Context.CurrentNode.Item is RemoveAliasDocumentItem removeAlias)
 				{
-					Assert.That(api.Context.CurrentNode.Item.ExpressionStart, Is.GreaterThan(lastLocation), () => "");
+					var ancestorItem = api.Context.CurrentNode.Ancestor.Item as BlockDocumentItemBase;
+					Assert.That(removeAlias.Location.RangeStart, Is.EqualTo(ancestorItem.BlockLocation.RangeStart), () => "");
+				}
+				else if (api.Context.CurrentNode.Item is AliasDocumentItem)
+				{
+					Assert.That(api.Context.CurrentNode.Item.Location.RangeStart, Is.LessThan(lastLocation), () => "");
 				}
 				else
 				{
-					Assert.That(api.Context.CurrentNode.Item.ExpressionStart, Is.GreaterThan(lastLocation), () => "Positions dont match");
-					lastLocation = api.Context.CurrentNode.Item.ExpressionStart;
+					Assert.That(api.Context.CurrentNode.Item.Location.RangeStart, Is.GreaterThan(lastLocation), 
+						() => $"Positions dont match. Expected last known '{lastLocation}' to be greater then '{api.Context.CurrentNode.Item.Location.RangeEnd}'");
+					lastLocation = api.Context.CurrentNode.Item.Location.RangeEnd;
 				}
 
-				//if (api.Context.CurrentNode.Item is ExpressionDocumentItemBase expDoc)
-				//{
-				//	lastLocation = TestExpressionLocationsInOrderInternal(expDoc, lastLocation);
-				//}
-				//else
-				//{
-				//}
 				visitor.StringBuilder.Clear();
 				api.SearchForward(f => true);
 			}
@@ -280,12 +279,15 @@ namespace Morestachio.Tests
 		{
 			var context = TokenzierContext.FromText(expression);
 			var expr = new List<IMorestachioExpression>();
-			var parsedBy = 0;
-			var location = 0;
+			var textIndex = TextRange.RangeIndex(context, 0, 0);
+			var endIndex = TextIndex.End(expression);
 
-			while ((location = context.CurrentLocation.ToPosition(context)) < expression.Length)
+			while (!textIndex.Includes(endIndex))
 			{
-				expr.Add(ExpressionParser.ParseExpression(expression, context, out parsedBy, parsedBy));
+				var expressionParserResult = ExpressionParser
+					.ParseExpression(expression, context, new TextRange(textIndex.RangeEnd, endIndex));
+				textIndex = expressionParserResult.SourceBoundary;
+				expr.Add(expressionParserResult.Expression);
 			}
 
 			Assert.That(context.Errors, Is.Empty);
@@ -366,7 +368,7 @@ namespace Morestachio.Tests
 		public void TestExpressionParser(string query)
 		{
 			var context = TokenzierContext.FromText(query);
-			var expressions = ExpressionParser.ParseExpression(query, context);
+			var expressions = ExpressionParser.ParseExpression(query, context).Expression;
 			Assert.That(expressions, Is.Not.Null, () => context.Errors.GetErrorText());
 			var visitor = new ToParsableStringExpressionVisitor();
 			expressions.Accept(visitor);
@@ -379,7 +381,7 @@ namespace Morestachio.Tests
 		public void TestExpressionParserDbg(string query)
 		{
 			var context = TokenzierContext.FromText(query);
-			var expressions = ExpressionParser.ParseExpression(query, context);
+			var expressions = ExpressionParser.ParseExpression(query, context).Expression;
 			Assert.That(expressions, Is.Not.Null);
 			var visitor = new ToParsableStringExpressionVisitor();
 			expressions.Accept(visitor);
@@ -452,7 +454,7 @@ namespace Morestachio.Tests
 		public async Task TestExpressionCanParseOperators(string query, object valExp, params object[] args)
 		{
 			var context = TokenzierContext.FromText(query);
-			var expressions = ExpressionParser.ParseExpression(query, context);
+			var expressions = ExpressionParser.ParseExpression(query, context).Expression;
 			Assert.That(expressions, Is.Not.Null, () => context.Errors.GetErrorText());
 			Assert.That(context.Errors, Is.Empty, () => context.Errors.GetErrorText());
 			var visitor = new ToParsableStringExpressionVisitor();
@@ -1891,7 +1893,7 @@ Static
 				return options.WithValueResolver(new FieldValueResolver()).WithFormatter<object, string>((obj) =>
 				{
 					Assert.That(data, Is.EqualTo(obj));
-					data = new 
+					data = new
 					{
 						data = 777,
 						Called = true

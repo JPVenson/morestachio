@@ -68,21 +68,24 @@ public abstract class ExpressionDocumentItemBase : BlockDocumentItemBase, IEquat
 	}
 
 	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
+	protected override void SerializeXmlBodyCore(XmlWriter writer)
 	{
+		base.SerializeXmlBodyCore(writer);
 		writer.WriteExpressionToXml(MorestachioExpression);
-		base.SerializeXml(writer);
 	}
 
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
+	protected override void DeSerializeXmlBodyCore(XmlReader reader)
 	{
-		reader.ReadStartElement();
-		var subtree = reader.ReadSubtree();
-		subtree.Read();
-		MorestachioExpression = subtree.ParseExpressionFromKind();
-		reader.Skip();
-		base.DeSerializeXml(reader);
+		base.DeSerializeXmlBodyCore(reader);
+
+		if (reader.NodeType == XmlNodeType.Element)
+		{
+			var subtree = reader.ReadSubtree();
+			subtree.Read();
+			MorestachioExpression = subtree.ParseExpressionFromKind();
+			reader.Skip();
+		}
 	}
 
 	/// <inheritdoc />

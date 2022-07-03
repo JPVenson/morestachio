@@ -28,19 +28,18 @@ public class MorestachioLocalizationTagProvider : TagDocumentItemProviderBase
 	public override IEnumerable<TokenPair> Tokenize(TokenInfo token, ParserOptions options)
 	{
 		var locToken = token.Token.Remove(0, OpenTag.Length).Trim(Tokenizer.GetWhitespaceDelimiters());
-		var pre = token.TokenizerContext.Character;
-		var locExpression = ExpressionParser.ParseExpression(locToken, token.TokenizerContext, out var consumed);
+		var locExpression = ExpressionParser.ParseExpression(locToken, token.TokenizerContext);
 		var tokenOptions = new List<ITokenOption>();
 
-		locToken = locToken.Substring(consumed).Trim(Tokenizer.GetWhitespaceDelimiters());
+		locToken = locToken.Substring(locExpression.SourceBoundary.RangeEnd.Index).Trim(Tokenizer.GetWhitespaceDelimiters());
 		if (locToken.StartsWith("#CULTURE ", StringComparison.OrdinalIgnoreCase))
 		{
 			locToken = locToken.Substring("#CULTURE ".Length);
-			tokenOptions.Add(new TokenOption("Culture", ExpressionParser.ParseExpression(locToken, token.TokenizerContext)));
+			tokenOptions.Add(new TokenOption("Culture", ExpressionParser.ParseExpression(locToken, token.TokenizerContext).Expression));
 		}
 
 		yield return new TokenPair(OpenTag.Trim(), 
-			token.TokenizerContext.CurrentLocation, locExpression, tokenOptions);
+			token.Location, locExpression.Expression, tokenOptions);
 	}
 
 	/// <inheritdoc />

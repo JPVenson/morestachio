@@ -47,7 +47,7 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 	/// <param name="context"></param>
 	protected MorestachioOperatorExpression(SerializationInfo info, StreamingContext context)
 	{
-		Location = TextRange.FromFormatString(info.GetString(nameof(Location)));
+		Location = TextRangeSerializationHelper.ReadTextRangeFromBinary(info.GetString(nameof(Location)), info, context);
 		var opText = info.GetString(nameof(Operator));
 		Operator = MorestachioOperator.Yield().First(f => f.OperatorText.Equals(opText));
 		LeftExpression =
@@ -72,7 +72,7 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 	public void GetObjectData(SerializationInfo info, StreamingContext context)
 	{
 		info.AddValue(nameof(Operator), Operator.OperatorText);
-		info.AddValue(nameof(Location), Location.ToFormatString());
+		TextRangeSerializationHelper.WriteTextRangeExtendedToBinary(nameof(Location), info, context, Location);
 		info.AddValue(nameof(LeftExpression), LeftExpression);
 		info.AddValue(nameof(RightExpression), RightExpression);
 	}
@@ -88,7 +88,7 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 	{
 		var opText = reader.GetAttribute(nameof(Operator));
 		Operator = MorestachioOperator.Yield().First(f => f.OperatorText.Equals(opText));
-		Location = TextRange.FromFormatString(reader.GetAttribute(nameof(Location)));
+		Location = TextRangeSerializationHelper.ReadTextRangeFromXml(reader, "Location");
 		reader.ReadStartElement();
 		var leftSubTree = reader.ReadSubtree();
 		LeftExpression = leftSubTree.ParseExpressionFromKind();
@@ -103,7 +103,7 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 	public void WriteXml(XmlWriter writer)
 	{
 		writer.WriteAttributeString(nameof(Operator), Operator.OperatorText);
-		writer.WriteAttributeString(nameof(Location), Location.ToFormatString());
+		TextRangeSerializationHelper.WriteTextRangeToXml(writer, Location, "Location");
 		writer.WriteStartElement(nameof(LeftExpression));
 		writer.WriteExpressionToXml(LeftExpression);
 		writer.WriteEndElement();//LeftExpression
@@ -295,6 +295,11 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 			{
 				return _exp.AsDebugExpression();
 			}
+		}
+
+		public TextRange Location
+		{
+			get { return _exp.Location; }
 		}
 
 		public string Operator

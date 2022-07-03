@@ -23,9 +23,9 @@ public class IsolationScopeDocumentItem : BlockDocumentItemBase, ISupportCustomA
 	/// <inheritdoc />
 	public IsolationScopeDocumentItem()
 	{
-			
+
 	}
-		
+
 	/// <inheritdoc />
 	public IsolationScopeDocumentItem(TextRange location, IsolationOptions isolationOptions,
 									IMorestachioExpression morestachioExpression,
@@ -42,10 +42,10 @@ public class IsolationScopeDocumentItem : BlockDocumentItemBase, ISupportCustomA
 	/// <param name="c"></param>
 	protected IsolationScopeDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
-		Isolation = (IsolationOptions) info.GetValue(nameof(Isolation), typeof(IsolationOptions));
-		ScopeIsolationExpression = (IMorestachioExpression) info.GetValue(nameof(ScopeIsolationExpression), typeof(IMorestachioExpression));
+		Isolation = (IsolationOptions)info.GetValue(nameof(Isolation), typeof(IsolationOptions));
+		ScopeIsolationExpression = (IMorestachioExpression)info.GetValue(nameof(ScopeIsolationExpression), typeof(IMorestachioExpression));
 	}
-		
+
 	/// <inheritdoc />
 	protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
 	{
@@ -53,15 +53,35 @@ public class IsolationScopeDocumentItem : BlockDocumentItemBase, ISupportCustomA
 		info.AddValue(nameof(ScopeIsolationExpression), ScopeIsolationExpression);
 		base.SerializeBinaryCore(info, context);
 	}
-		
+
 	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
+	protected override void SerializeXmlHeaderCore(XmlWriter writer)
 	{
+		base.SerializeXmlHeaderCore(writer);
 		foreach (var flag in Isolation.GetFlags())
 		{
 			writer.WriteAttributeString(flag.ToString(), "true");
 		}
-		base.SerializeXml(writer);
+	}
+
+	/// <inheritdoc />
+	protected override void DeSerializeXmlHeaderCore(XmlReader reader)
+	{
+		base.DeSerializeXmlHeaderCore(reader);
+
+		foreach (IsolationOptions option in Enum.GetValues(typeof(IsolationOptions)))
+		{
+			if (reader.GetAttribute(option.ToString()) == "true")
+			{
+				Isolation |= option;
+			}
+		}
+	}
+
+	/// <inheritdoc />
+	protected override void SerializeXmlBodyCore(XmlWriter writer)
+	{
+		base.SerializeXmlBodyCore(writer);
 
 		if (ScopeIsolationExpression != null)
 		{
@@ -70,18 +90,11 @@ public class IsolationScopeDocumentItem : BlockDocumentItemBase, ISupportCustomA
 			writer.WriteEndElement();
 		}
 	}
-		
+
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
+	protected override void DeSerializeXmlBodyCore(XmlReader reader)
 	{
-		foreach (IsolationOptions option in Enum.GetValues(typeof(IsolationOptions)))
-		{
-			if (reader.GetAttribute(option.ToString()) == "true")
-			{
-				Isolation |= option;
-			}
-		}
-		base.DeSerializeXml(reader);
+		base.DeSerializeXmlBodyCore(reader);
 
 		if (reader.Name == nameof(ScopeIsolationExpression))
 		{
@@ -115,7 +128,7 @@ public class IsolationScopeDocumentItem : BlockDocumentItemBase, ISupportCustomA
 
 		return Children.WithScope(context);
 	}
-		
+
 	/// <inheritdoc />
 	public override void Accept(IDocumentItemVisitor visitor)
 	{
@@ -139,7 +152,7 @@ public class IsolationScopeDocumentItem : BlockDocumentItemBase, ISupportCustomA
 			};
 		}
 
-			
+
 		return children;
 	}
 }

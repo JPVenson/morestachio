@@ -6,16 +6,33 @@ namespace Morestachio.Parsing.ParserErrors;
 /// <summary>
 ///		Defines a range of characters within an template
 /// </summary>
-public struct TextRange
+public readonly struct TextRange
 {
+	/// <summary>
+	///		Creates a new Range within a text template
+	/// </summary>
+	/// <param name="rangeStart"></param>
+	/// <param name="rangeEnd"></param>
 	public TextRange(TextIndex rangeStart, TextIndex rangeEnd)
 	{
 		RangeStart = rangeStart;
 		RangeEnd = rangeEnd;
 	}
 
+	/// <summary>
+	///		The index where the range starts
+	/// </summary>
 	public TextIndex RangeStart { get; }
+
+	/// <summary>
+	///		The index where the range end
+	/// </summary>
 	public TextIndex RangeEnd { get; }
+
+	/// <summary>
+	///		Defines an unknown text range
+	/// </summary>
+	public static readonly TextRange Unknown = new TextRange(TextIndex.Unknown, TextIndex.Unknown);
 
 	internal static TextRange Range(TokenzierContext context, int index, int length)
 	{
@@ -47,15 +64,41 @@ public struct TextRange
 		return new TextRange(TextIndex.GetIndex(lines, startIndex), TextIndex.GetIndex(lines, endIndex));
 	}
 
+	internal static TextRange RangeIndex(TokenzierContext context, int startIndex, int endIndex, TextRange within)
+	{
+		return RangeIndex(context.Lines, startIndex, endIndex, within);
+	}
+
+	internal static TextRange RangeIndex(List<int> lines, int startIndex, int endIndex, TextRange within)
+	{
+		return new TextRange(TextIndex.GetIndex(lines, within.RangeStart.Index + startIndex), TextIndex.GetIndex(lines, within.RangeStart.Index + endIndex));
+	}
+
 	/// <inheritdoc />
 	public override string ToString()
 	{
-		return $"{RangeStart} / {RangeEnd}";
+		return $"{RangeStart}|{RangeEnd}";
 	}
 
+	/// <summary>
+	///		Helper to create a text range that spans the whole string provided
+	/// </summary>
+	/// <param name="text"></param>
+	/// <returns></returns>
 	public static TextRange All(string text)
 	{
 		return new TextRange(TextIndex.Start, TextIndex.End(text));
+	}
+
+
+	/// <summary>
+	///		Checks wherever the index is in this range.
+	/// </summary>
+	public bool Includes(TextIndex index)
+	{
+		return 
+			RangeStart.Index <= index.Index &&
+			RangeEnd.Index >= index.Index;
 	}
 }
 /// <summary>
@@ -63,20 +106,49 @@ public struct TextRange
 /// </summary>
 public struct TextRangeContent
 {
+	/// <summary>
+	///		Creates a new TextRange with its defining content
+	/// </summary>
+	/// <param name="textRange"></param>
+	/// <param name="text"></param>
 	public TextRangeContent(TextRange textRange, string text)
 	{
 		TextRange = textRange;
 		Text = text;
 	}
 
+	/// <summary>
+	///		The Range within the source string
+	/// </summary>
 	public TextRange TextRange { get; }
+
+	/// <summary>
+	///		The text within the range provided by the source template
+	/// </summary>
 	public string Text { get; }
 }
 
-public struct TextIndex
+/// <summary>
+///		Defines an index within a text
+/// </summary>
+public readonly struct TextIndex : IComparable<TextIndex>
 {
+	/// <summary>
+	///		Defines an unknown index within a template
+	/// </summary>
+	public static readonly TextIndex Unknown = new TextIndex(-1, -1, -1);
+
+	/// <summary>
+	///		The static reference for the start of text within a string 0,0,0
+	/// </summary>
 	public static readonly TextIndex Start = new TextIndex(0, 0, 0);
 
+	/// <summary>
+	///		Creates a new Text index
+	/// </summary>
+	/// <param name="index"></param>
+	/// <param name="row"></param>
+	/// <param name="column"></param>
 	public TextIndex(int index, int row, int column)
 	{
 		Index = index;
@@ -84,8 +156,19 @@ public struct TextIndex
 		Column = column;
 	}
 
+	/// <summary>
+	///		The index within the source text.
+	/// </summary>
 	public int Index { get; }
+
+	/// <summary>
+	///		The calculated row within the source text.
+	/// </summary>
 	public int Row { get; }
+
+	/// <summary>
+	///		The calculated column in the given <see cref="Row"/> within the source text.
+	/// </summary>
 	public int Column { get; }
 
 	internal static TextIndex GetIndex(TokenzierContext context, int index)
@@ -115,9 +198,14 @@ public struct TextIndex
 	/// <inheritdoc />
 	public override string ToString()
 	{
-		return $"{Row}:{Column}-{Index}";
+		return $"{Index}:{Row}:{Column}";
 	}
 
+	/// <summary>
+	///		Calculates an Index that is set at the end of the text.
+	/// </summary>
+	/// <param name="text"></param>
+	/// <returns></returns>
 	public static TextIndex End(string text)
 	{
 		if (text.IndexOf('\n') == -1)
@@ -126,5 +214,11 @@ public struct TextIndex
 		}
 
 		return GetIndex(Tokenizer.FindNewLines(text), text.Length);
+	}
+
+	/// <inheritdoc />
+	public int CompareTo(TextIndex other)
+	{
+		return Index.CompareTo(other.Index);
 	}
 }

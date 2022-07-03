@@ -54,19 +54,19 @@ public class PartialDocumentItem : BlockDocumentItemBase, IEquatable<PartialDocu
 		info.AddValue(nameof(PartialName), PartialName);
 		base.SerializeBinaryCore(info, context);
 	}
-		
+
 	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
+	protected override void SerializeXmlHeaderCore(XmlWriter writer)
 	{
+		base.SerializeXmlHeaderCore(writer);
 		writer.WriteAttributeString(nameof(PartialName), PartialName);
-		base.SerializeXml(writer);
 	}
-		
+
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
+	protected override void DeSerializeXmlHeaderCore(XmlReader reader)
 	{
+		base.DeSerializeXmlHeaderCore(reader);
 		PartialName = reader.GetAttribute(nameof(PartialName));
-		base.DeSerializeXml(reader);
 	}
 
 	/// <param name="compiler"></param>
@@ -86,7 +86,7 @@ public class PartialDocumentItem : BlockDocumentItemBase, IEquatable<PartialDocu
 	public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
 												ScopeData scopeData)
 	{
-		scopeData.Partials[PartialName] = new MorestachioDocument(ExpressionStart, Enumerable.Empty<ITokenOption>())
+		scopeData.Partials[PartialName] = new MorestachioDocument(Location, Enumerable.Empty<ITokenOption>())
 		{
 			Children = Children
 		};

@@ -295,15 +295,30 @@ public static class ExpressionParser
 		return ParseExpression(expression, context, TextRange.All(expression));
 	}
 
+	/// <summary>
+	///		Defines the result of an expression parsing operation
+	/// </summary>
 	public ref struct ExpressionParserResult
 	{
+		/// <summary>
+		///		Creates a new Parsing result
+		/// </summary>
+		/// <param name="expression"></param>
+		/// <param name="sourceBoundary"></param>
 		public ExpressionParserResult(IMorestachioExpression expression, TextRange sourceBoundary)
 		{
 			Expression = expression;
 			SourceBoundary = sourceBoundary;
 		}
 
+		/// <summary>
+		///		The created expression
+		/// </summary>
 		public IMorestachioExpression Expression { get; }
+
+		/// <summary>
+		///		The range of chars within the source template
+		/// </summary>
 		public TextRange SourceBoundary { get; }
 	}
 
@@ -434,7 +449,7 @@ public static class ExpressionParser
 					break;
 				case ExpressionTokenType.ArgumentSeperator:
 				default:
-					tokens.SyntaxError(context, token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length, tokens.SourceExpression)), "Unexpected use of an argument seperator");
+					tokens.SyntaxError(context, token.Location, "Unexpected use of an argument seperator");
 
 					return false;
 			}
@@ -460,8 +475,7 @@ public static class ExpressionParser
 			if (parentBracket.Expressions.Count == 0)
 			{
 				tokens.SyntaxError(context,
-					token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-						tokens.SourceExpression)), "Invalid use of lambda operator without an list of parameters to its left");
+					token.Location, "Invalid use of lambda operator without an list of parameters to its left");
 
 				return;
 			}
@@ -476,8 +490,7 @@ public static class ExpressionParser
 			if (exp.Formats.Count == 0)
 			{
 				tokens.SyntaxError(context,
-					token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-						tokens.SourceExpression)), "Invalid use of lambda operator without an list of parameters to its left");
+					token.Location, "Invalid use of lambda operator without an list of parameters to its left");
 
 				return;
 			}
@@ -489,8 +502,7 @@ public static class ExpressionParser
 		else
 		{
 			tokens.SyntaxError(context,
-				token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-					tokens.SourceExpression)), "Invalid use of a Lambda expression. A Lambda expression can only be used as an argument for an Formatter");
+				token.Location, "Invalid use of a Lambda expression. A Lambda expression can only be used as an argument for an Formatter");
 
 			return;
 		}
@@ -498,8 +510,7 @@ public static class ExpressionParser
 		if (tokens.Count == 0)
 		{
 			tokens.SyntaxError(context,
-				token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-					tokens.SourceExpression)), "Expected a 2nd expression for the used binary operator");
+				token.Location, "Expected a 2nd expression for the used binary operator");
 
 			return;
 		}
@@ -531,8 +542,7 @@ public static class ExpressionParser
 					else
 					{
 						tokens.SyntaxError(context,
-							token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-								tokens.SourceExpression)), $"The argument {morestachioExpression.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
+							token.Location, $"The argument {morestachioExpression.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
 					}
 				}
 
@@ -545,8 +555,7 @@ public static class ExpressionParser
 			default:
 			{
 				tokens.SyntaxError(context,
-					token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-						tokens.SourceExpression)), $"The argument {argument.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
+					token.Location, $"The argument {argument.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
 
 				break;
 			}
@@ -569,8 +578,7 @@ public static class ExpressionParser
 		}
 		
 		tokens.SyntaxError(context,
-			token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-				tokens.SourceExpression)), $"The argument {argument.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
+			token.Location, $"The argument {argument.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
 	}
 
 	private static void ParseAndAddOperator(
@@ -594,8 +602,7 @@ public static class ExpressionParser
 				if (parentBracket.Expressions.Count == 0)
 				{
 					tokens.SyntaxError(context,
-						token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-							tokens.SourceExpression)), "Invalid use of right hand operator without an expression to its left");
+						token.Location, "Invalid use of right hand operator without an expression to its left");
 
 					return;
 				}
@@ -609,8 +616,7 @@ public static class ExpressionParser
 				if (exp.Formats.Count == 0)
 				{
 					tokens.SyntaxError(context,
-						token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-							tokens.SourceExpression)), "Invalid use of right hand operator without an expression to its left");
+						token.Location, "Invalid use of right hand operator without an expression to its left");
 
 					return;
 				}
@@ -628,8 +634,7 @@ public static class ExpressionParser
 			else
 			{
 				tokens.SyntaxError(context,
-					token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-						tokens.SourceExpression)), "Invalid use of a Binary operator on an unsupported expression type");
+					token.Location, "Invalid use of a Binary operator on an unsupported expression type");
 
 				return;
 			}
@@ -639,8 +644,7 @@ public static class ExpressionParser
 				if (tokens.Count == 0)
 				{
 					tokens.SyntaxError(context,
-						token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-							tokens.SourceExpression)), "Expected a 2nd expression for the used binary operator");
+						token.Location, "Expected a 2nd expression for the used binary operator");
 
 					return;
 				}
@@ -656,7 +660,7 @@ public static class ExpressionParser
 		{
 			//the operator is placed on the left hand of the expression so it must be an unary operator
 			//it can only accept one argument
-			var operatorExp = new MorestachioOperatorExpression(op, null, context.CurrentLocation);
+			var operatorExp = new MorestachioOperatorExpression(op, null, token.Location);
 			AddToParent(operatorExp, topParent);
 			operatorExp.LeftExpression = ParseAnyExpression(tokens, context, subToken =>
 			{
@@ -707,8 +711,7 @@ public static class ExpressionParser
 		tokens.TryDequeue(() =>
 		{
 			tokens.SyntaxError(context,
-				token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-					tokens.SourceExpression)), "Expected a )");
+				token.Location, "Expected a )");
 		}); //dequeue )
 		AddToParent(exp, topParent);
 	}
@@ -761,8 +764,7 @@ public static class ExpressionParser
 			tokens.TryDequeue(() =>
 			{
 				tokens.SyntaxError(context,
-					token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-						tokens.SourceExpression)), "Expected a (");
+					token.Location, "Expected a (");
 			});
 
 			bool Condition(IExpressionToken innerToken)
@@ -790,8 +792,7 @@ public static class ExpressionParser
 				if (next == null)
 				{
 					tokens.SyntaxError(context,
-						token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-							tokens.SourceExpression)), "Unexpected end of expression. Expected ether a argument seperator ',' or a closing bracket ')'");
+						token.Location, "Unexpected end of expression. Expected ether a argument seperator ',' or a closing bracket ')'");
 				}
 
 				if (next?.TokenType != ExpressionTokenType.ArgumentSeperator)
@@ -809,9 +810,7 @@ public static class ExpressionParser
 
 			tokens.TryDequeue(() =>
 			{
-				tokens.SyntaxError(context,
-					token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-						tokens.SourceExpression)), "Expected a )");
+				tokens.SyntaxError(context, token.Location, "Expected a )");
 			});
 		}
 		else

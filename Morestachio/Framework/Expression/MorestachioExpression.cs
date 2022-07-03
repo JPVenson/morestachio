@@ -40,7 +40,7 @@ public class MorestachioExpression : IMorestachioExpression
 		Formats = info.GetValue(nameof(Formats), typeof(IList<ExpressionArgument>))
 			as IList<ExpressionArgument>;
 		FormatterName = info.GetString(nameof(FormatterName));
-		Location = TextRange.FromFormatString(info.GetString(nameof(Location)));
+		Location = TextRangeSerializationHelper.ReadTextRangeFromBinary(nameof(Location), info, context);
 		EndsWithDelimiter = info.GetBoolean(nameof(EndsWithDelimiter));
 	}
 
@@ -50,7 +50,7 @@ public class MorestachioExpression : IMorestachioExpression
 		info.AddValue(nameof(PathParts), PathParts.ToArray());
 		info.AddValue(nameof(Formats), Formats);
 		info.AddValue(nameof(FormatterName), FormatterName);
-		info.AddValue(nameof(Location), Location.ToFormatString());
+		TextRangeSerializationHelper.WriteTextRangeExtendedToBinary(nameof(Location), info, context, Location);
 		info.AddValue(nameof(EndsWithDelimiter), EndsWithDelimiter);
 	}
 
@@ -63,7 +63,7 @@ public class MorestachioExpression : IMorestachioExpression
 	/// <inheritdoc />
 	public void ReadXml(XmlReader reader)
 	{
-		Location = TextRange.FromFormatString(reader.GetAttribute(nameof(Location)));
+		Location = TextRangeSerializationHelper.ReadTextRangeFromXml(reader, "Location");
 		EndsWithDelimiter = reader.GetAttribute(nameof(EndsWithDelimiter)) == bool.TrueString;
 		var pathParts = new List<KeyValuePair<string, PathType>>();
 		reader.ReadStartElement();//Path
@@ -121,7 +121,7 @@ public class MorestachioExpression : IMorestachioExpression
 	/// <inheritdoc />
 	public void WriteXml(XmlWriter writer)
 	{
-		writer.WriteAttributeString(nameof(Location), Location.ToFormatString());
+		TextRangeSerializationHelper.WriteTextRangeToXml(writer, Location, "Location");
 		if (EndsWithDelimiter)
 		{
 			writer.WriteAttributeString(nameof(EndsWithDelimiter), bool.TrueString);
@@ -586,6 +586,11 @@ public class MorestachioExpression : IMorestachioExpression
 		public string FormatterName
 		{
 			get { return _exp.FormatterName; }
+		}
+
+		public TextRange Location
+		{
+			get { return _exp.Location; }
 		}
 
 		public string Expression

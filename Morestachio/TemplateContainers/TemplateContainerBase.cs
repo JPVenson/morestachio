@@ -41,7 +41,7 @@ public abstract class TemplateContainerBase : ITemplateContainer
 		public readonly char Delimiter;
 		public readonly int Index;
 	}
-
+	
 	/// <inheritdoc />
 	public virtual IEnumerable<TokenMatch> Matches(TokenzierContext context)
 	{
@@ -66,16 +66,25 @@ public abstract class TemplateContainerBase : ITemplateContainer
 
 			var preText = templateString.Substring(preLastIndex, index - context._prefixToken.Length - preLastIndex);
 
+			if (preText.Length > 0)
+			{
+				yield return TokenMatch
+					.CreateContentToken(TextRange.Range(context, preLastIndex, preText.Length - 1), preText);
+				
+				var nlsIdx = 0;
+				//iterrate all newlines for character humanization
+				while ((nlsIdx = preText.IndexOf('\n', nlsIdx)) != -1)
+				{
+					context.Lines.Add(nlsIdx + preLastIndex);
+					nlsIdx += 1;
+				}
+				preLastIndex += preText.Length;
+				preText = string.Empty;
+			}
+
 			var startOfTokenContent = index;
 			var tokenCount = 0;
 
-			var nlsIdx = 0;
-			//iterrate all newlines for character humanization
-			while ((nlsIdx = preText.IndexOf('\n', nlsIdx)) != -1)
-			{
-				context.Lines.Add(nlsIdx + preLastIndex);
-				nlsIdx += 1;
-			}
 			while (index < templateString.Length())
 			{
 				var c = templateString[index];
@@ -118,17 +127,23 @@ public abstract class TemplateContainerBase : ITemplateContainer
 						//it's a comment drop this on the floor, no need to even yield it.
 						if (tokenContent[0] == '!')
 						{
-							if (preText != string.Empty)
+							if (preText.Length > 0)
 							{
-								yield return new TokenMatch(TextRange.RangeIndex(context, preLastIndex, startOfToken),
-									preText,
-									null,
-									true);
+								yield return TokenMatch
+									.CreateContentToken(TextRange.RangeIndex(context, preLastIndex, startOfToken), preText);
 							}
 
 							if (tokenContent.IsEquals('!'))
 							{
 								context.CommentIntend++;
+
+								if (context.TokenizeComments)
+								{
+									yield return TokenMatch.CreateExpressionToken(
+										TextRange.Range(context, index, 4),
+										"{{!}}");
+								}
+
 								while (context.CommentIntend > 0)
 								{
 									var nextCommentIndex =
@@ -152,8 +167,10 @@ public abstract class TemplateContainerBase : ITemplateContainer
 										if (context.TokenizeComments && context.CommentIntend == 0)
 										{
 											var comment = templateString.Substring(index, commentCloseIndex - index);
-											yield return new TokenMatch(TextRange.RangeIndex(context, startOfToken, commentCloseIndex),
-												comment, null, false);
+											yield return TokenMatch
+												.CreateContentToken(TextRange.RangeIndex(context, startOfToken, commentCloseIndex), comment);
+											yield return TokenMatch
+												.CreateExpressionToken(TextRange.Range(context, commentCloseIndex, 6), "{{/!}}");
 										}
 										index = commentCloseIndex + "{{/!}}".Length - 1;
 									}
@@ -167,33 +184,37 @@ public abstract class TemplateContainerBase : ITemplateContainer
 								if (nextCommentCloseIndex == -1)
 								{
 									preText = templateString.Substring(index + 1);
-									yield return new TokenMatch(TextRange.Range(context, preLastIndex, preText.Length),
-										preText, null, true);
+									
+									yield return TokenMatch
+										.CreateContentToken(TextRange.Range(context, preLastIndex, preText.Length - 1), preText);
 									yield break;
 								}
 								preText = templateString.Substring(index + 1, nextCommentCloseIndex - index - 1);
 								index = nextCommentCloseIndex + "{{/!?}}".Length - 1;
-								yield return new TokenMatch(TextRange.RangeIndex(context, preLastIndex, index), preText, null, true);
+								
+								yield return TokenMatch
+									.CreateContentToken(TextRange.RangeIndex(context, preLastIndex, index), preText);
 							}
 							else if (tokenContent.StartsWith("!="))
 							{
 								preText = prefixToken
 									+ tokenContent.Substring("!=".Length)
 									+ new string(context.SuffixToken);
-								yield return new TokenMatch(TextRange.Range(context, preLastIndex, preText.Length), preText, null, true);
+								
+								yield return TokenMatch
+									.CreateContentToken(TextRange.RangeIndex(context, preLastIndex, index), preText);
 							}
 							else if (context.TokenizeComments)
 							{
-								yield return new TokenMatch(TextRange.Range(context, index, tokenContent.Length), tokenContent, null, false);
+								yield return TokenMatch
+									.CreateExpressionToken(TextRange.RangeIndex(context, startOfToken, index), tokenContent);
 							}
 							//intentionally do nothing to drop all tags with leading ! as they are considered comments
 						}
 						else
 						{
-							yield return new TokenMatch(TextRange.Range(context, startOfToken, index), 
-								tokenContent,
-								preText,
-								false);
+							yield return TokenMatch
+								.CreateExpressionToken(TextRange.RangeIndex(context, startOfToken, index), tokenContent);
 						}
 						break;
 					}
@@ -233,13 +254,14 @@ public abstract class TemplateContainerBase : ITemplateContainer
 				isInString.Delimiter.ToString(), 
 				isInString.Delimiter.ToString(), 
 				"Expected an closing string delimiter"));
-
-
-			yield return new TokenMatch(TextRange.Range(context, preLastIndex, substring.Length), substring, null, false);
+			
+			yield return TokenMatch
+				.CreateExpressionToken(TextRange.Range(context, preLastIndex, substring.Length - 1), substring);
 		}
 		else
 		{
-			yield return new TokenMatch(TextRange.Range(context, preLastIndex, substring.Length), substring, null, true);
+			yield return TokenMatch
+				.CreateContentToken(TextRange.Range(context, preLastIndex, substring.Length - 1), substring);
 		}
 	}
 //#endif

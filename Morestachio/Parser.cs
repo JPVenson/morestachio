@@ -460,12 +460,14 @@ namespace Morestachio
 			}
 
 			blockDocument.BlockClosingOptions = GetPublicOptions(currentToken);
+			blockDocument.BlockLocation = currentToken.TokenRange;
 
 			if (scope.HasAlias) //are we in a alias then remove it
 			{
 				foreach (var scopeLocalVariable in scope.LocalVariables)
 				{
-					TryAdd(currentDocumentItem.Document, new RemoveAliasDocumentItem(currentToken.TokenRange,
+					TryAdd(currentDocumentItem.Document, 
+						new RemoveAliasDocumentItem(currentToken.TokenRange,
 						scopeLocalVariable,
 						scope.VariableScopeNumber, null));
 				}

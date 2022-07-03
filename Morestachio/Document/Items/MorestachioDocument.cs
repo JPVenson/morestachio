@@ -59,8 +59,17 @@ public sealed class MorestachioDocument : BlockDocumentItemBase,
 	}
 
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
+	protected override void SerializeXmlHeaderCore(XmlWriter writer)
 	{
+		base.SerializeXmlHeaderCore(writer);
+		writer.WriteAttributeString(nameof(MorestachioVersion), MorestachioVersion.ToString());
+	}
+
+	/// <inheritdoc />
+	protected override void DeSerializeXmlHeaderCore(XmlReader reader)
+	{
+		base.DeSerializeXmlHeaderCore(reader);
+		
 		var versionAttribute = reader.GetAttribute(nameof(MorestachioVersion));
 
 		if (!Version.TryParse(versionAttribute, out var version))
@@ -70,14 +79,6 @@ public sealed class MorestachioDocument : BlockDocumentItemBase,
 		}
 
 		MorestachioVersion = version;
-		base.DeSerializeXml(reader);
-	}
-
-	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
-	{
-		writer.WriteAttributeString(nameof(MorestachioVersion), MorestachioVersion.ToString());
-		base.SerializeXml(writer);
 	}
 
 	/// <summary>

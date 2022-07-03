@@ -160,11 +160,33 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 		visitor.StringBuilder.Append(MorestachioLocalizationBlockProvider.CloseTag);
 		visitor.StringBuilder.Append("}}");
 	}
-		
+
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
+	protected override void SerializeXmlBodyCore(XmlWriter writer)
 	{
-		reader.ReadStartElement();//Path
+		base.SerializeXmlBodyCore(writer);
+		writer.WriteStartElement("Path");
+		writer.WriteExpressionToXml(MorestachioExpression);
+		writer.WriteEndElement();
+
+		if (ExplicitCulture == null)
+		{
+			return;
+		}
+		writer.WriteStartElement("ExplicitCulture");
+		writer.WriteExpressionToXml(ExplicitCulture);
+		writer.WriteEndElement();
+	}
+
+	/// <inheritdoc />
+	protected override void DeSerializeXmlBodyCore(XmlReader reader)
+	{
+		base.DeSerializeXmlBodyCore(reader);
+
+		if (reader.NodeType == XmlNodeType.Element && reader.Name == GetSerializedMarkerName(GetType()))
+		{
+			reader.ReadStartElement(); //Path
+		}
 		var subTree = reader.ReadSubtree();
 		subTree.ReadStartElement();
 		MorestachioExpression = subTree.ParseExpressionFromKind();
@@ -172,32 +194,13 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 		//reader.ReadEndElement();//Path
 		if (reader.Name == nameof(ExplicitCulture))
 		{
-			reader.ReadStartElement();//nameof(ExplicitCulture)
+			reader.ReadStartElement(); //nameof(ExplicitCulture)
 			var subtree = reader.ReadSubtree();
 			subtree.Read();
 			ExplicitCulture = subtree.ParseExpressionFromKind();
 			reader.Skip();
-			reader.ReadEndElement();//nameof(ExplicitCulture)
+			reader.ReadEndElement(); //nameof(ExplicitCulture)
 		}
-		base.DeSerializeXml(reader);
-	}
-		
-	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
-	{
-		writer.WriteStartElement("Path");
-		writer.WriteExpressionToXml(MorestachioExpression);
-		writer.WriteEndElement();
-
-		if (ExplicitCulture == null)
-		{
-			base.SerializeXml(writer);
-			return;
-		}
-		writer.WriteStartElement("ExplicitCulture");
-		writer.WriteExpressionToXml(ExplicitCulture);
-		writer.WriteEndElement();
-		base.SerializeXml(writer);
 	}
 		
 	/// <inheritdoc />

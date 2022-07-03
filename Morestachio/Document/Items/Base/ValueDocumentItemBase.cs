@@ -44,10 +44,11 @@ public abstract class ValueDocumentItemBase : BlockDocumentItemBase, IEquatable<
 		base.SerializeBinaryCore(info, context);
 		info.AddValue(nameof(Value), Value);
 	}
-		
+
 	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
+	protected override void SerializeXmlBodyCore(XmlWriter writer)
 	{
+		base.SerializeXmlBodyCore(writer);
 		if (string.IsNullOrEmpty(Value))
 		{
 			return;
@@ -57,23 +58,30 @@ public abstract class ValueDocumentItemBase : BlockDocumentItemBase, IEquatable<
 		writer.WriteString(Value);
 		writer.WriteEndElement();
 	}
-		
+
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
+	protected override void DeSerializeXmlBodyCore(XmlReader reader)
 	{
-		reader.ReadStartElement();
-		if (reader.Name == nameof(Value))
+		base.DeSerializeXmlBodyCore(reader);
+
+		if (!reader.IsEmptyElement)
 		{
-			if (reader.IsEmptyElement)
+			if (reader.NodeType == XmlNodeType.Element && reader.Name == GetSerializedMarkerName(GetType()))
 			{
-				return;
+				reader.ReadStartElement();
 			}
-			//reader.ReadToFollowing(nameof(Value));
-			Value = reader.ReadString();
-			reader.ReadEndElement();
+			if (reader.Name == nameof(Value))
+			{
+				if (reader.IsEmptyElement)
+				{
+					return;
+				}
+				Value = reader.ReadString();
+				reader.ReadEndElement();
+			}
 		}
 	}
-		
+
 	/// <inheritdoc />
 	public bool Equals(ValueDocumentItemBase other)
 	{

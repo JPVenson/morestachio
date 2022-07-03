@@ -41,7 +41,8 @@ public class MorestachioExpressionString : IMorestachioExpression
 	protected MorestachioExpressionString(SerializationInfo info, StreamingContext context)
 	{
 		StringParts = (IList<ExpressionStringConstPart>)info.GetValue(nameof(StringParts), typeof(IList<ExpressionStringConstPart>));
-		Location = TextRange.FromFormatString(info.GetString(nameof(Location)));
+
+		Location = TextRangeSerializationHelper.ReadTextRangeFromBinary(nameof(Location), info, context);
 		Delimiter = info.GetChar(nameof(Delimiter));
 	}
 
@@ -54,7 +55,7 @@ public class MorestachioExpressionString : IMorestachioExpression
 	/// <inheritdoc />
 	public void ReadXml(XmlReader reader)
 	{
-		Location = TextRange.FromFormatString(reader.GetAttribute(nameof(Location)));
+		Location = TextRangeSerializationHelper.ReadTextRangeFromXml(reader, "Location");
 		if (reader.IsEmptyElement)
 		{
 			return;
@@ -62,7 +63,7 @@ public class MorestachioExpressionString : IMorestachioExpression
 		reader.ReadStartElement();
 		while (reader.Name == nameof(ExpressionStringConstPart) && reader.NodeType != XmlNodeType.EndElement)
 		{
-			var strLocation = TextRange.FromFormatString(reader.GetAttribute(nameof(Location)));
+			var strLocation = TextRangeSerializationHelper.ReadTextRangeFromXml(reader, "Location");
 			var constStrPartText = reader.ReadElementContentAsString();
 			Delimiter = constStrPartText[0];
 			var strPartText = constStrPartText.Substring(1, constStrPartText.Length - 2);
@@ -75,11 +76,11 @@ public class MorestachioExpressionString : IMorestachioExpression
 	/// <inheritdoc />
 	public void WriteXml(XmlWriter writer)
 	{
-		writer.WriteAttributeString(nameof(Location), Location.ToFormatString());
+		TextRangeSerializationHelper.WriteTextRangeToXml(writer, Location, "Location");
 		foreach (var expressionStringConstPart in StringParts.Where(e => !(e.PartText is null)))
 		{
 			writer.WriteStartElement(expressionStringConstPart.GetType().Name);
-			writer.WriteAttributeString(nameof(Location), expressionStringConstPart.Location.ToFormatString());
+			TextRangeSerializationHelper.WriteTextRangeToXml(writer, expressionStringConstPart.Location, "Location");
 			writer.WriteString(Delimiter + expressionStringConstPart.PartText + Delimiter);
 			writer.WriteEndElement();
 		}
@@ -89,7 +90,7 @@ public class MorestachioExpressionString : IMorestachioExpression
 	public void GetObjectData(SerializationInfo info, StreamingContext context)
 	{
 		info.AddValue(nameof(StringParts), StringParts);
-		info.AddValue(nameof(Location), Location.ToFormatString());
+		TextRangeSerializationHelper.WriteTextRangeExtendedToBinary(nameof(Location), info, context, Location);
 		info.AddValue(nameof(Delimiter), Delimiter);
 	}
 
@@ -228,6 +229,11 @@ public class MorestachioExpressionString : IMorestachioExpression
 			{
 				return _exp.AsDebugExpression();
 			}
+		}
+
+		public TextRange Location
+		{
+			get { return _exp.Location; }
 		}
 
 		public char Delimiter

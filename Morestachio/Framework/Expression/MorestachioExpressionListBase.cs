@@ -46,7 +46,7 @@ public abstract class MorestachioExpressionListBase : IMorestachioExpression
 	/// <param name="context"></param>
 	protected MorestachioExpressionListBase(SerializationInfo info, StreamingContext context)
 	{
-		Location = TextRange.FromFormatString(info.GetString(nameof(Location)));
+		Location = TextRangeSerializationHelper.ReadTextRangeFromBinary(nameof(Location), info, context);
 		Expressions = (IMorestachioExpression[])info.GetValue(nameof(Expressions), typeof(IMorestachioExpression[]));
 	}
 
@@ -87,7 +87,7 @@ public abstract class MorestachioExpressionListBase : IMorestachioExpression
 	/// <inheritdoc />
 	public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
 	{
-		info.AddValue(nameof(Location), Location);
+		TextRangeSerializationHelper.WriteTextRangeExtendedToBinary(nameof(Location), info, context, Location);
 		info.AddValue(nameof(Expressions), Expressions.ToArray());
 	}
 
@@ -100,7 +100,7 @@ public abstract class MorestachioExpressionListBase : IMorestachioExpression
 	/// <inheritdoc />
 	public virtual void ReadXml(XmlReader reader)
 	{
-		Location = TextRange.FromFormatString(reader.GetAttribute(nameof(Location)));
+		Location = TextRangeSerializationHelper.ReadTextRangeFromXml(reader, "Location");
 		if (reader.IsEmptyElement)
 		{
 			return;
@@ -121,7 +121,7 @@ public abstract class MorestachioExpressionListBase : IMorestachioExpression
 	/// <inheritdoc />
 	public virtual void WriteXml(XmlWriter writer)
 	{
-		writer.WriteAttributeString(nameof(Location), Location.ToFormatString());
+		TextRangeSerializationHelper.WriteTextRangeToXml(writer, Location, "Location");
 		foreach (var expression in Expressions)
 		{
 			writer.WriteExpressionToXml(expression);

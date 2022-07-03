@@ -34,7 +34,7 @@ public class MorestachioLambdaExpression : IMorestachioExpression
 	/// <param name="context"></param>
 	public MorestachioLambdaExpression(SerializationInfo info, StreamingContext context)
 	{
-		Location = TextRange.FromFormatString(info.GetString(nameof(Location)));
+		Location = TextRangeSerializationHelper.ReadTextRangeFromBinary(info.GetString(nameof(Location)), info, context);
 		Expression = info.GetValue(nameof(Expression), typeof(IMorestachioExpression)) as IMorestachioExpression;
 		Parameters = info.GetValue(nameof(Parameters), typeof(IMorestachioExpression)) as IMorestachioExpression;
 	}
@@ -42,7 +42,7 @@ public class MorestachioLambdaExpression : IMorestachioExpression
 	/// <inheritdoc />
 	public void GetObjectData(SerializationInfo info, StreamingContext context)
 	{
-		info.AddValue(nameof(Location), Location.ToFormatString());
+		TextRangeSerializationHelper.WriteTextRangeExtendedToBinary(nameof(Location), info, context, Location);
 		info.AddValue(nameof(Expression), Expression);
 		info.AddValue(nameof(Parameters), Parameters);
 	}
@@ -56,7 +56,7 @@ public class MorestachioLambdaExpression : IMorestachioExpression
 	/// <inheritdoc />
 	public void ReadXml(XmlReader reader)
 	{
-		Location = TextRange.FromFormatString(reader.GetAttribute(nameof(Location)));
+		Location = TextRangeSerializationHelper.ReadTextRangeFromXml(reader, "Location");
 		if (reader.IsEmptyElement)
 		{
 			return;
@@ -73,6 +73,7 @@ public class MorestachioLambdaExpression : IMorestachioExpression
 	/// <inheritdoc />
 	public void WriteXml(XmlWriter writer)
 	{
+		TextRangeSerializationHelper.WriteTextRangeToXml(writer, Location, "Location");
 		writer.WriteStartElement(nameof(Expression));
 		writer.WriteExpressionToXml(Expression);
 		writer.WriteEndElement();
@@ -149,6 +150,11 @@ public class MorestachioLambdaExpression : IMorestachioExpression
 			{
 				return _exp.AsDebugExpression();
 			}
+		}
+
+		public TextRange Location
+		{
+			get { return _exp.Location; }
 		}
 
 		/// <inheritdoc />

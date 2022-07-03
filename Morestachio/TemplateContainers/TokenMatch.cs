@@ -11,12 +11,21 @@ public readonly struct TokenMatch
 	/// <summary>
 	///		Creates a new Match
 	/// </summary>
-	public TokenMatch(TextRange range, string value, string preText, bool contentToken)
+	public TokenMatch(TextRange range, string value, bool contentToken)
 	{
 		Range = range;
 		Value = value;
-		PreText = preText;
 		ContentToken = contentToken;
+	}
+
+	public static TokenMatch CreateContentToken(TextRange range, string value)
+	{
+		return new TokenMatch(range, value, true);
+	}
+
+	public static TokenMatch CreateExpressionToken(TextRange range, string value)
+	{
+		return new TokenMatch(range, value, false);
 	}
 
 	/// <summary>
@@ -28,11 +37,6 @@ public readonly struct TokenMatch
 	///		The Tokens value excluding <see cref="TokenzierContext.PrefixToken"/> and <see cref="TokenzierContext.SuffixToken"/>
 	/// </summary>
 	public string Value { get; }
-
-	/// <summary>
-	///		If present, any preciding text
-	/// </summary>
-	public string PreText { get; }
 
 	/// <summary>
 	///		<value>true</value> if this is a dedicated content token

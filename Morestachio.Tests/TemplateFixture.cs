@@ -506,7 +506,7 @@ This is an partial included: ({{#IMPORT 'PartialA' #WITH other}}) with an set co
 			{
 				Assert.That(info.Errors
 								.OfType<MorestachioSyntaxError>()
-								.FirstOrDefault(e => e.Location.Equals(TextRange.FromFormatString("1:38,38"))), Is.Not.Null);
+								.FirstOrDefault(e => e.Location.ToString() == "35:0:35|43:0:43"), Is.Not.Null);
 			});
 		}
 

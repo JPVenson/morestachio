@@ -1,18 +1,24 @@
-﻿using System.Xml;
+﻿using System.Text;
+using System.Xml;
 
 namespace Morestachio.Parsing.ParserErrors;
 
-internal static class ErrorSerializationHelper
+internal static class TextRangeSerializationHelper
 {
-	public static TextRange ReadTextRangeFromXml(XmlReader reader)
+	public static TextRange ReadTextRangeFromXml(XmlReader reader, string name)
 	{
-		reader.ReadStartElement();
-		reader.ReadStartElement();
-		var rangeStart = ReadTextIndexFromXml(reader);
-		reader.ReadStartElement();
-		var rangeEnd = ReadTextIndexFromXml(reader);
-		reader.ReadEndElement();
-		return new TextRange(rangeStart, rangeEnd);
+		var text = reader.GetAttribute(name);
+
+		var ranges = text.Split('|')
+						.Select(f => f.Split(':').ToArray())
+						.ToArray();
+
+		return new TextRange(BuildIndex(ranges[0]), BuildIndex(ranges[1]));
+	}
+
+	private static TextIndex BuildIndex(IReadOnlyList<string> range)
+	{
+		return new TextIndex(int.Parse(range[0]), int.Parse(range[1]), int.Parse(range[2]));
 	}
 
 	public static TextIndex ReadTextIndexFromXml(XmlReader reader)
@@ -24,16 +30,9 @@ internal static class ErrorSerializationHelper
 		return new TextIndex(int.Parse(index), int.Parse(row), int.Parse(column));
 	}
 
-	public static void WriteTextRangeToXml(XmlWriter writer, TextRange range)
+	public static void WriteTextRangeToXml(XmlWriter writer, TextRange range, string name)
 	{
-		writer.WriteStartElement(nameof(TextRange));
-		writer.WriteStartElement(nameof(range.RangeStart));
-		WriteTextIndexToXml(writer, range.RangeStart);
-		writer.WriteEndElement();
-		writer.WriteStartElement(nameof(range.RangeEnd));
-		WriteTextIndexToXml(writer, range.RangeStart);
-		writer.WriteEndElement();
-		writer.WriteEndElement();
+		writer.WriteAttributeString(name, range.ToString());
 	}
 
 	public static void WriteTextIndexToXml(XmlWriter writer, TextIndex index)
@@ -45,6 +44,12 @@ internal static class ErrorSerializationHelper
 
 	private class TextRangeFassade
 	{
+		public TextRangeFassade()
+		{
+			RangeEnd = new TextIndexFassade();
+			RangeStart = new TextIndexFassade();
+		}
+
 		public TextIndexFassade RangeStart { get; }
 		public TextIndexFassade RangeEnd { get; }
 
@@ -66,15 +71,15 @@ internal static class ErrorSerializationHelper
 		}
 	}
 
-	public static TextRange ReadTextRangeFromBinary(SerializationInfo info, StreamingContext c)
+	public static TextRange ReadTextRangeFromBinary(string name, SerializationInfo info, StreamingContext c)
 	{
-		var fassade = info.GetValue(nameof(TextRange), typeof(TextRangeFassade)) as TextRangeFassade;
+		var fassade = info.GetValue(name ?? nameof(TextRange), typeof(TextRangeFassade)) as TextRangeFassade;
 		return fassade.AsRange();
 	}
 
-	public static void WriteTextRangeExtendedToBinary(SerializationInfo info, StreamingContext context, TextRange textRange)
+	public static void WriteTextRangeExtendedToBinary(string name, SerializationInfo info, StreamingContext context, TextRange textRange)
 	{
-		info.AddValue(nameof(TextRangeExtended), new TextRangeFassade()
+		var textRangeFassade = new TextRangeFassade()
 		{
 			RangeStart =
 			{
@@ -88,6 +93,7 @@ internal static class ErrorSerializationHelper
 				Row = textRange.RangeEnd.Row,
 				Column = textRange.RangeEnd.Column,
 			}
-		});
+		};
+		info.AddValue(name ?? nameof(TextRange), textRangeFassade);
 	}
 }

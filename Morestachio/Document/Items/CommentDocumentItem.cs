@@ -62,19 +62,19 @@ public class CommentDocumentItem : ValueDocumentItemBase
 		info.AddValue(nameof(IsBlockComment), IsBlockComment);
 		base.SerializeBinaryCore(info, context);
 	}
-	
+
 	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
+	protected override void SerializeXmlHeaderCore(XmlWriter writer)
 	{
+		base.SerializeXmlHeaderCore(writer);
 		writer.WriteAttributeString(nameof(IsBlockComment), IsBlockComment.ToString());
-		base.SerializeXml(writer);
 	}
-	
+
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
+	protected override void DeSerializeXmlHeaderCore(XmlReader reader)
 	{
+		base.DeSerializeXmlHeaderCore(reader);
 		IsBlockComment = reader.GetAttribute(nameof(IsBlockComment)) == bool.TrueString;
-		base.DeSerializeXml(reader);
 	}
 
 	/// <inheritdoc />

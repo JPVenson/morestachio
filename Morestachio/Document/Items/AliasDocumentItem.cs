@@ -57,15 +57,17 @@ public class AliasDocumentItem : ValueDocumentItemBase, ISupportCustomAsyncCompi
 	}
 
 	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
+	protected override void SerializeXmlHeaderCore(XmlWriter writer)
 	{
+		base.SerializeXmlHeaderCore(writer);
 		writer.WriteAttributeString(nameof(IdVariableScope), IdVariableScope.ToString());
-		base.SerializeXml(writer);
 	}
 
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
+	protected override void DeSerializeXmlHeaderCore(XmlReader reader)
 	{
+		base.DeSerializeXmlHeaderCore(reader);
+		
 		var varScope = reader.GetAttribute(nameof(IdVariableScope));
 		if (!int.TryParse(varScope, out var intVarScope))
 		{
@@ -73,9 +75,8 @@ public class AliasDocumentItem : ValueDocumentItemBase, ISupportCustomAsyncCompi
 				$"The value for '{nameof(IdVariableScope)}' is expected to be an integer.");
 		}
 		IdVariableScope = intVarScope;
-		base.DeSerializeXml(reader);
 	}
-
+	
 	/// <param name="compiler"></param>
 	/// <param name="parserOptions"></param>
 	/// <inheritdoc />

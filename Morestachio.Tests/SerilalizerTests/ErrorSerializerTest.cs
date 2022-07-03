@@ -38,7 +38,7 @@ namespace Morestachio.Tests.SerilalizerTests
 		[Test]
 		public void InvalidInvalidPathSyntaxError()
 		{
-			var error = new InvalidPathSyntaxError(new TextRangeExtended(510, 12, new CharacterSnippedLocation(5, 1, "noaaa")),
+			var error = new InvalidPathSyntaxError(new TextRange(TextIndex.Start, new TextIndex(510, 2, 8)),
 				"invalid.path.noaaa", "Help me obi wan.");
 			SerializeAndDeserialize(error);
 		}
@@ -46,7 +46,7 @@ namespace Morestachio.Tests.SerilalizerTests
 		[Test]
 		public void InvalidMorestachioSyntaxError()
 		{
-			var error = new MorestachioSyntaxError(new TextRangeExtended(510, 12, new CharacterSnippedLocation(5, 1, "noaaa")),
+			var error = new MorestachioSyntaxError(new TextRange(TextIndex.Start, new TextIndex(510, 2, 8)),
 				"any op",
 				"No op",
 				"Foo op",
@@ -57,7 +57,7 @@ namespace Morestachio.Tests.SerilalizerTests
 		[Test]
 		public void InvalidMorestachioUnclosedScopeError()
 		{
-			var error = new MorestachioUnclosedScopeError(new TextRangeExtended(510, 12, new CharacterSnippedLocation(5, 1, "noaaa")),
+			var error = new MorestachioUnclosedScopeError(new TextRange(TextIndex.Start, new TextIndex(510, 2, 8)),
 				"any op",
 				"Help me obi wan.");
 			SerializeAndDeserialize(error);
@@ -66,7 +66,7 @@ namespace Morestachio.Tests.SerilalizerTests
 		[Test]
 		public void InvalidMorestachioUnopendScopeError()
 		{
-			var error = new MorestachioUnopendScopeError(new TextRangeExtended(510, 12, new CharacterSnippedLocation(5, 1, "noaaa")),
+			var error = new MorestachioUnopendScopeError(new TextRange(TextIndex.Start, new TextIndex(510, 2, 8)),
 				"any op",
 				"Help me obi wan.");
 			SerializeAndDeserialize(error);

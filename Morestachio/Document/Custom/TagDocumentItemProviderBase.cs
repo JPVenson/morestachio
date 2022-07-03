@@ -31,7 +31,7 @@ public abstract class TagDocumentItemProviderBase : CustomDocumentItemProvider
 	/// <inheritdoc />
 	public override IEnumerable<TokenPair> Tokenize(TokenInfo token, ParserOptions options)
 	{
-		yield return new TokenPair(_tagKeyword, token.Token, token.TokenizerContext.CurrentLocation);
+		yield return new TokenPair(_tagKeyword, token.Token, token.Location);
 	}
 		
 	/// <inheritdoc />

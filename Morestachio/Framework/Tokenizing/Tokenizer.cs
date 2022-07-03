@@ -335,10 +335,10 @@ public class Tokenizer
 				}
 
 				//yield front content.
-				if (match.PreText != null)
-				{
-					tokens.Add(new TokenPair(TokenType.Content, match.PreText, match.Range));
-				}
+				//if (!string.IsNullOrEmpty(match.PreText))
+				//{
+				//	tokens.Add(new TokenPair(TokenType.Content, match.PreText, match.Range));
+				//}
 
 				//context.SetLocation(match.Range + context._prefixToken.Length);
 
@@ -419,7 +419,7 @@ public class Tokenizer
 					else if (StartsWith(trimmedToken, "#each "))
 					{
 						var token = TrimToken(trimmedToken, "each");
-						TryParseStringOption(ref token, context, GetAsKeyword(), out var alias);
+						TryParseStringOption(ref token, context, GetAsKeyword(), out var alias, in match);
 						scopestack.Push(new ScopeStackItem(TokenType.CollectionOpen, alias.Text ?? token, match.Range));
 
 						if (token.Trim() != "")
@@ -493,7 +493,7 @@ public class Tokenizer
 					else if (StartsWith(trimmedToken, "#while "))
 					{
 						var token = TrimToken(trimmedToken, "while");
-						TryParseStringOption(ref token, context, GetAsKeyword(), out var alias);
+						TryParseStringOption(ref token, context, GetAsKeyword(), out var alias, in match);
 						scopestack.Push(new ScopeStackItem(TokenType.WhileLoopOpen, token, match.Range));
 
 						if (token.Trim() != "")
@@ -522,7 +522,7 @@ public class Tokenizer
 					else if (StartsWith(trimmedToken, "#do "))
 					{
 						var token = TrimToken(trimmedToken, "do");
-						TryParseStringOption(ref token, context, GetAsKeyword(), out var alias);
+						TryParseStringOption(ref token, context, GetAsKeyword(), out var alias, in match);
 						scopestack.Push(new ScopeStackItem(TokenType.DoLoopOpen, token, match.Range));
 
 						if (token.Trim() != "")
@@ -551,7 +551,7 @@ public class Tokenizer
 					else if (StartsWith(trimmedToken, "#repeat "))
 					{
 						var token = TrimToken(trimmedToken, "repeat");
-						TryParseStringOption(ref token, context, GetAsKeyword(), out var alias);
+						TryParseStringOption(ref token, context, GetAsKeyword(), out var alias, in match);
 						scopestack.Push(new ScopeStackItem(TokenType.RepeatLoopOpen, token, match.Range));
 
 						if (token.Trim() != "")
@@ -582,7 +582,7 @@ public class Tokenizer
 						var token = TrimToken(trimmedToken, "switch");
 						var shouldScope = TryParseFlagOption(ref token, "#SCOPE");
 
-						if (TryParseStringOption(ref token, context, GetAsKeyword(), out var alias))
+						if (TryParseStringOption(ref token, context, GetAsKeyword(), out _, in match))
 						{
 							context.Errors.Add(new MorestachioSyntaxError(
 								match.Range,
@@ -612,7 +612,7 @@ public class Tokenizer
 					{
 						var token = TrimToken(trimmedToken, "case");
 						
-						if (TryParseStringOption(ref token, context, GetAsKeyword(), out var alias))
+						if (TryParseStringOption(ref token, context, GetAsKeyword(), out _, in match))
 						{
 							context.Errors.Add(new MorestachioSyntaxError(
 								match.Range, "#case", "AS",
@@ -640,7 +640,7 @@ public class Tokenizer
 					{
 						var token = TrimToken(trimmedToken, "if");
 						
-						if (TryParseStringOption(ref token, context, GetAsKeyword(), out var alias))
+						if (TryParseStringOption(ref token, context, GetAsKeyword(), out _, in match))
 						{
 							context.Errors.Add(new MorestachioSyntaxError(match.Range, "^if", "AS",
 								"No Alias"));
@@ -674,7 +674,7 @@ public class Tokenizer
 						{
 							var token = TrimToken(trimmedToken, "elseif");
 							
-							if (TryParseStringOption(ref token, context, GetAsKeyword(), out var alias))
+							if (TryParseStringOption(ref token, context, GetAsKeyword(), out _, in match))
 							{
 								context.Errors.Add(new MorestachioSyntaxError(
 									match.Range, "^elseif", "AS",
@@ -718,7 +718,7 @@ public class Tokenizer
 					else if (StartsWith(trimmedToken, "#scope "))
 					{
 						var token = TrimToken(trimmedToken, "scope ");
-						TryParseStringOption(ref token, context, GetAsKeyword(), out var alias);
+						TryParseStringOption(ref token, context, GetAsKeyword(), out var alias, in match);
 						scopestack.Push(new ScopeStackItem(TokenType.ElementOpen, alias.Text ?? token, match.Range));
 
 						if (token.Trim() != "")
@@ -949,7 +949,7 @@ public class Tokenizer
 			case "#DEFAULT":
 				var token = TrimToken(trimmedToken, "default");
 				
-				if (TryParseStringOption(ref token, context, GetAsKeyword(), out var alias))
+				if (TryParseStringOption(ref token, context, GetAsKeyword(), out _, in match))
 				{
 					context.Errors.Add(new MorestachioSyntaxError(
 						match.Range, "#default", "AS",
@@ -1015,7 +1015,7 @@ public class Tokenizer
 		{
 			var token = TrimToken(trimmedToken, "if", '^');
 
-			if (TryParseStringOption(ref token, context, GetAsKeyword(), out var alias))
+			if (TryParseStringOption(ref token, context, GetAsKeyword(), out _, in match))
 			{
 				context.Errors.Add(new MorestachioSyntaxError(
 					match.Range, "^if", "AS",
@@ -1043,7 +1043,7 @@ public class Tokenizer
 		{
 			//open inverted group
 			var token = TrimToken(trimmedToken, "scope ", '^');
-			TryParseStringOption(ref token, context, GetAsKeyword(), out var alias);
+			TryParseStringOption(ref token, context, GetAsKeyword(), out var alias, in match);
 
 			scopeStack.Push(new ScopeStackItem(TokenType.InvertedElementOpen, alias.Text ?? token,
 				match.Range));
@@ -1072,7 +1072,7 @@ public class Tokenizer
 				});
 			//open inverted group
 			var token = trimmedToken.TrimStart('^').Trim();
-			TryParseStringOption(ref token, context, GetAsKeyword(), out var alias);
+			TryParseStringOption(ref token, context, GetAsKeyword(), out var alias, in match);
 
 			scopeStack.Push(new ScopeStackItem(TokenType.InvertedElementOpen, alias.Text ?? token,
 				match.Range));
@@ -1182,7 +1182,8 @@ public class Tokenizer
 		ref string token,
 		TokenzierContext context,
 		in string optionName,
-		out TextRangeContent expression
+		out TextRangeContent expression,
+		in TokenMatch match
 	)
 	{
 		var optionIndex = token.IndexOf(optionName, StringComparison.OrdinalIgnoreCase);
@@ -1202,7 +1203,7 @@ public class Tokenizer
 				endOfNameIndex = token.Length;
 			}
 
-			expression = new TextRangeContent(TextRange.RangeIndex(context, optionIndex, endOfNameIndex),
+			expression = new TextRangeContent(TextRange.RangeIndex(context, optionIndex, endOfNameIndex, match.Range),
 				token.Substring(optionIndex, endOfNameIndex - optionIndex));
 			token = token.Remove(optionIndex, endOfNameIndex - optionIndex);
 
@@ -1221,8 +1222,7 @@ public class Tokenizer
 		if (optionIndex != -1)
 		{
 			token = token.Remove(optionIndex, optionName.Length);
-
-			expression = ExpressionParser.ParseExpression(token, TokenzierContext.FromText(token), optionIndex).Expression;
+			expression = ExpressionParser.ParseExpression(token, TokenzierContext.FromText(token)).Expression;
 
 			return true;
 		}
@@ -1248,11 +1248,10 @@ public class Tokenizer
 
 	private static IMorestachioExpression ExtractExpression(ref string token, TokenzierContext context)
 	{
-		var pre = context.Character;
 		var expression = ExpressionParser.ParseExpression(token, context);
-		token = token.Remove(0, context.Character - pre);
+		token = token.Remove(0, expression.SourceBoundary.RangeEnd.Index);
 
-		return expression;
+		return expression.Expression;
 	}
 
 	private static string TrimToken(string token, in string keyword, in char key = '#')
@@ -1331,7 +1330,7 @@ public class Tokenizer
 		if (customDocumentProvider != null)
 		{
 			var tokenPairs = customDocumentProvider
-				.Tokenize(new CustomDocumentItemProvider.TokenInfo(tokenName, context, scopeStack, tokenOptions), parserOptions);
+				.Tokenize(new CustomDocumentItemProvider.TokenInfo(tokenName, context, scopeStack, tokenOptions, match.Range), parserOptions);
 			tokens.AddRange(tokenPairs);
 		}
 		else if (tokenName.StartsWith('#'))
@@ -1355,7 +1354,8 @@ public class Tokenizer
 			var token = tokenName.Trim();
 
 			tokens.Add(new TokenPair(TokenType.EscapedSingleValue,
-				token, match.Range, ExpressionParser.ParseExpression(token, context),
+				token, match.Range,
+				ExpressionParser.ParseExpression(token, context).Expression,
 				tokenOptions));
 		}
 	}

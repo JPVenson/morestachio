@@ -136,13 +136,15 @@ public class TokenzierContext
 		{
 			if (val == null)
 			{
-				Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
-					"SET OPTION", "VALUE", $"The expression returned null for option '{name}' that does not accept a null value"));
+				Errors.Add(new MorestachioSyntaxError(value.Location,
+					"SET OPTION", 
+					"VALUE", 
+					$"The expression returned null for option '{name}' that does not accept a null value"));
 				return;
 			}
 			if (!(val is bool valBool))
 			{
-				Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+				Errors.Add(new MorestachioSyntaxError(value.Location,
 					"SET OPTION", "VALUE", $"The expression returned '{val.GetType()}' for option '{name}' but expected and value of type '{typeof(bool)}'"));
 				return;
 			}
@@ -152,13 +154,13 @@ public class TokenzierContext
 		{
 			if (val == null)
 			{
-				Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+				Errors.Add(new MorestachioSyntaxError(value.Location,
 					"SET OPTION", "VALUE", $"The expression returned null for option '{name}' that does not accept a null value"));
 				return;
 			}
 			if (!(val is bool valBool))
 			{
-				Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+				Errors.Add(new MorestachioSyntaxError(value.Location,
 					"SET OPTION", "VALUE", $"The expression returned '{val.GetType()}' for option '{name}' but expected and value of type '{typeof(bool)}'"));
 				return;
 			}
@@ -168,13 +170,13 @@ public class TokenzierContext
 		{
 			if (val == null)
 			{
-				Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+				Errors.Add(new MorestachioSyntaxError(value.Location,
 					"SET OPTION", "VALUE", $"The expression returned null for option '{name}' that does not accept a null value"));
 				return;
 			}
 			if (!(val is bool valBool))
 			{
-				Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+				Errors.Add(new MorestachioSyntaxError(value.Location,
 					"SET OPTION", "VALUE", $"The expression returned '{val.GetType()}' for option '{name}' but expected and value of type '{typeof(bool)}'"));
 				return;
 			}
@@ -184,13 +186,13 @@ public class TokenzierContext
 		{
 			if (val == null)
 			{
-				Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+				Errors.Add(new MorestachioSyntaxError(value.Location,
 					"SET OPTION", "VALUE", $"The expression returned null for option '{name}' that does not accept a null value"));
 				return;
 			}
 			if (!(val is bool valBool))
 			{
-				Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+				Errors.Add(new MorestachioSyntaxError(value.Location,
 					"SET OPTION", "VALUE", $"The expression returned '{val.GetType()}' for option '{name}' but expected and value of type '{typeof(bool)}'"));
 				return;
 			}

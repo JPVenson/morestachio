@@ -5,6 +5,7 @@ using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper.Localization;
+using Morestachio.Parsing.ParserErrors;
 using Morestachio.TemplateContainers;
 using Morestachio.Tests.SerilalizerTests.Strategies;
 using NUnit.Framework;

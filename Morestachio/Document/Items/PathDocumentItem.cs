@@ -49,17 +49,17 @@ public class PathDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncC
 	}
 
 	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
+	protected override void SerializeXmlHeaderCore(XmlWriter writer)
 	{
+		base.SerializeXmlHeaderCore(writer);
 		writer.WriteAttributeString(nameof(EscapeValue), EscapeValue.ToString());
-		base.SerializeXml(writer);
 	}
 
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
+	protected override void DeSerializeXmlHeaderCore(XmlReader reader)
 	{
+		base.DeSerializeXmlHeaderCore(reader);
 		EscapeValue = reader.GetAttribute(nameof(EscapeValue)) == bool.TrueString;
-		base.DeSerializeXml(reader);
 	}
 		
 	/// <summary>

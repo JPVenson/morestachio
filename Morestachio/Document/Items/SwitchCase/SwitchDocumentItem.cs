@@ -155,17 +155,17 @@ public class SwitchDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 	}
 
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
+	protected override void SerializeXmlHeaderCore(XmlWriter writer)
 	{
-		ScopeToValue = reader.GetAttribute(nameof(ScopeToValue)) == bool.TrueString;
-		base.DeSerializeXml(reader);
+		base.SerializeXmlHeaderCore(writer);
+		writer.WriteAttributeString(nameof(ScopeToValue), ScopeToValue.ToString());
 	}
 
 	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
+	protected override void DeSerializeXmlHeaderCore(XmlReader reader)
 	{
-		writer.WriteAttributeString(nameof(ScopeToValue), ScopeToValue.ToString());
-		base.SerializeXml(writer);
+		base.DeSerializeXmlHeaderCore(reader);
+		ScopeToValue = reader.GetAttribute(nameof(ScopeToValue)) == bool.TrueString;
 	}
 
 	/// <inheritdoc />

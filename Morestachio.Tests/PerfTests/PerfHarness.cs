@@ -87,7 +87,7 @@ namespace Morestachio.Tests.PerfTests
 			for (var i = 0; i < runs; i++)
 			{
 				morestachioExpression = ExpressionParser.ParseExpression(expression.Item1,
-					TokenzierContext.FromText(expression.Item1));
+					TokenzierContext.FromText(expression.Item1)).Expression;
 			}
 
 			parseTime.Stop();

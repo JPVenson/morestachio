@@ -186,6 +186,11 @@ public readonly struct TokenPair
 			get { return _pair.Type.ToString(); }
 		}
 
+		public TextRange Range
+		{
+			get { return _pair.TokenRange; }
+		}
+
 		public string Value
 		{
 			get { return _pair.Value; }

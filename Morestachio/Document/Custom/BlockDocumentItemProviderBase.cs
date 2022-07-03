@@ -45,11 +45,11 @@ public abstract class BlockDocumentItemProviderBase : CustomDocumentItemProvider
 		var trim = token.Token;
 		if (trim == TagOpen)
 		{
-			yield return new TokenPair(TagOpen, trim, token.TokenizerContext.CurrentLocation);
+			yield return new TokenPair(TagOpen, trim, token.Location);
 		}
 		if (trim == TagClose)
 		{
-			yield return new TokenPair(TagClose, trim, token.TokenizerContext.CurrentLocation);
+			yield return new TokenPair(TagClose, trim, token.Location);
 		}
 	}
 

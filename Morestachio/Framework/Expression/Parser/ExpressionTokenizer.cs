@@ -170,7 +170,7 @@ public class ExpressionTokenizer
 		}
 
 		return new StringToken(StringBuilderCache.GetStringAndRelease(stringContents), delimiter,
-			TextRange.Range(context, textIndex.Index + index, consumed));
+			TextRange.RangeIndex(context, textIndex.Index, index));
 	}
 
 	private static IExpressionToken TokenizeArgument(
@@ -276,7 +276,7 @@ public class ExpressionTokenizer
 				continue;
 			}
 
-			if (!pathTokenizer.Add(c, context, index, out var err))
+			if (!pathTokenizer.Add(c, context, index, out Func<TextRange, IMorestachioError> err))
 			{
 				if (!Tokenizer.IsExpressionPathChar(c) || Tokenizer.IsOperationChar(c))
 				{
@@ -288,17 +288,23 @@ public class ExpressionTokenizer
 						//the only char that can follow on a expression is ether an bracket or an argument seperator or an operator
 					{
 						//consume everything before that current char!
-						return (new ExpressionToken(pathTokenizer, TextRange.Range(context, sourceIndex + textIndex.Index, sourceIndex - index)), index - 1);
+						return (new ExpressionToken(pathTokenizer, TextRange.RangeIndex(context,
+									sourceIndex + textIndex.Index,
+									index)), index - 1);
 					}
 				}
 
-				context.Errors.Add(err());
-				return (new ExpressionToken(pathTokenizer, TextRange.Range(context, sourceIndex + textIndex.Index, sourceIndex - index)), index);
+				context.Errors.Add(err(TextRange.Range(context, index, text.Length)));
+				return (new ExpressionToken(pathTokenizer, TextRange.RangeIndex(context,
+							sourceIndex,
+							index)), index);
 			}
 		}
 
 		//decrement the index by one as the for loop will always add one after running out
-		return (new ExpressionToken(pathTokenizer, TextRange.Range(context, sourceIndex + textIndex.Index, sourceIndex - index - 1)), index - 1);
+		return (new ExpressionToken(pathTokenizer, TextRange.RangeIndex(context,
+					sourceIndex,
+					index)), index - 1);
 	}
 
 	private static IExpressionToken TokenizeNumber(

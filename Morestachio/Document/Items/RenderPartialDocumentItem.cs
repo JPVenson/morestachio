@@ -56,21 +56,21 @@ public class RenderPartialDocumentItem : ValueDocumentItemBase
 	}
 
 	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
+	protected override void SerializeXmlBodyCore(XmlWriter writer)
 	{
-		base.SerializeXml(writer);
+		base.SerializeXmlBodyCore(writer);
 		if (Context != null)
 		{
 			writer.WriteStartElement("With");
 			writer.WriteExpressionToXml(Context);
-			writer.WriteEndElement();//</with>
+			writer.WriteEndElement(); //</with>
 		}
 	}
 
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
+	protected override void DeSerializeXmlBodyCore(XmlReader reader)
 	{
-		base.DeSerializeXml(reader);
+		base.DeSerializeXmlBodyCore(reader);
 		if (reader.Name == "With")
 		{
 			reader.ReadStartElement();

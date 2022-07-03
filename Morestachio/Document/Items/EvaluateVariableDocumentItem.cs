@@ -75,16 +75,17 @@ public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase, ISupport
 	}
 
 	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
+	protected override void SerializeXmlHeaderCore(XmlWriter writer)
 	{
+		base.SerializeXmlHeaderCore(writer);
 		writer.WriteAttributeString(nameof(Value), Value);
 		writer.WriteAttributeString(nameof(IdVariableScope), IdVariableScope.ToString());
-		base.SerializeXml(writer);
 	}
 
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
+	protected override void DeSerializeXmlHeaderCore(XmlReader reader)
 	{
+		base.DeSerializeXmlHeaderCore(reader);
 		Value = reader.GetAttribute(nameof(Value));
 		var varScope = reader.GetAttribute(nameof(IdVariableScope));
 		if (!int.TryParse(varScope, out var intVarScope))
@@ -93,7 +94,6 @@ public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase, ISupport
 				$" The value for '{nameof(IdVariableScope)}' is expected to be an integer.");
 		}
 		IdVariableScope = intVarScope;
-		base.DeSerializeXml(reader);
 	}
 
 	/// <param name="compiler"></param>

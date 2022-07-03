@@ -135,21 +135,19 @@ internal class PathTokenizer
 		return _currentPart[offset] == text;
 	}
 
-	public bool Add(char c, TokenzierContext context, int index, out Func<IMorestachioError> errProducer)
+	public bool Add(char c, TokenzierContext context, int index, out Func<TextRange, IMorestachioError> errProducer)
 	{
 		if (!Tokenizer.IsExpressionPathChar(c))
 		{
 			var text = _currentPart.ToString();
-			errProducer = () => new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-				.AddWindow(new CharacterSnippedLocation(1, index, text)), text);
+			errProducer = (range) => new InvalidPathSyntaxError(range, text);
 			return false;
 		}
 
 		if (PathParts.IsNullValue)
 		{
 			var text = _currentPart.ToString();
-			errProducer = () => new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-					.AddWindow(new CharacterSnippedLocation(1, index, text)),
+			errProducer = (range) => new InvalidPathSyntaxError(range,
 				text,
 				"Nothing can follow on a null");
 			return false;
@@ -162,8 +160,8 @@ internal class PathTokenizer
 				if (PathParts.Any && !PathParts.HasParentSelector)
 				{
 					var text = _currentPart.ToString();
-					errProducer = () => new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-							.AddWindow(new CharacterSnippedLocation(1, index, text)),
+
+					errProducer = (range) => new InvalidPathSyntaxError(range,
 						text,
 						"An Parent selector '..\\' can only follow on another parent selector like and never on an root or an data selector");
 
@@ -175,8 +173,7 @@ internal class PathTokenizer
 				return true;
 			}
 			var errText = _currentPart.ToString();
-			errProducer = () => new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-					.AddWindow(new CharacterSnippedLocation(1, index, errText)),
+			errProducer = (range) => new InvalidPathSyntaxError(range,
 				errText,
 				"Unexpected '/'. Expected ether the start of an expression or an './'");
 			return false;
@@ -187,8 +184,8 @@ internal class PathTokenizer
 			if (_currentPart.Length > 0 || PathParts.Any)
 			{
 				var text = _currentPart.ToString();
-				errProducer = () => new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-						.AddWindow(new CharacterSnippedLocation(1, index, text)),
+
+				errProducer = (range) => new InvalidPathSyntaxError(range,
 					text,
 					"An root selector '~' must be at the start of an expression");
 
@@ -240,16 +237,15 @@ internal class PathTokenizer
 		return true;
 	}
 
-	private bool ComputeCurrentPart(TokenzierContext context, int index, out Func<IMorestachioError> errProducer)
+	private bool ComputeCurrentPart(TokenzierContext context, int index, out Func<TextRange, IMorestachioError> errProducer)
 	{
 		errProducer = null;
 		var checkPathPart = CheckPathPart();
 		if (checkPathPart != -1)
 		{
 			var text = _currentPart.ToString();
-			errProducer = () => (
-				new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-						.AddWindow(new CharacterSnippedLocation(1, checkPathPart, text)),
+			errProducer = (range) => (
+				new InvalidPathSyntaxError(range,
 					text));
 
 			return false;
@@ -260,9 +256,8 @@ internal class PathTokenizer
 			if (PathParts.Any)
 			{
 				var text = _currentPart.ToString();
-				errProducer = () => (
-					new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-							.AddWindow(new CharacterSnippedLocation(1, index, text)),
+				errProducer = (range) => (
+					new InvalidPathSyntaxError(range,
 						text,
 						"An null must be at the start of an expression"));
 
@@ -277,9 +272,8 @@ internal class PathTokenizer
 			if (PathParts.Any)
 			{
 				var text = _currentPart.ToString();
-				errProducer = () => (
-					new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-							.AddWindow(new CharacterSnippedLocation(1, index, text)),
+				errProducer = (range) => (
+					new InvalidPathSyntaxError(range,
 						text,
 						"An 'this' must be at the start of an expression"));
 
@@ -294,9 +288,8 @@ internal class PathTokenizer
 			if (PathParts.Any)
 			{
 				var text = _currentPart.ToString();
-				errProducer = () => (
-					new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-							.AddWindow(new CharacterSnippedLocation(1, index, text)),
+				errProducer = (range) => (
+					new InvalidPathSyntaxError(range,
 						text,
 						"An '.' must be at the start of an expression"));
 
@@ -311,9 +304,8 @@ internal class PathTokenizer
 			if (PathParts.Any)
 			{
 				var text = _currentPart.ToString();
-				errProducer = () => (
-					new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-							.AddWindow(new CharacterSnippedLocation(1, index, text)),
+				errProducer = (range) => (
+					new InvalidPathSyntaxError(range,
 						text,
 						"An boolean must be at the start of an expression"));
 
@@ -452,9 +444,9 @@ internal class PathTokenizer
 			if (!ComputeCurrentPart(context, index, out var errProducer))
 			{
 				var text = _currentPart.ToString();
-				errProducer();
-				context.Errors.Add(new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-						.AddWindow(new CharacterSnippedLocation(1, index, text)),
+				var location = TextRange.Range(context, index, 1);
+				errProducer(location);
+				context.Errors.Add(new InvalidPathSyntaxError(location,
 					text,
 					"Invalid character"));
 				return default;
@@ -475,8 +467,7 @@ internal class PathTokenizer
 			
 		var errText = _currentPart.ToString();
 		context.Errors.Add(
-			new InvalidPathSyntaxError(context.CurrentLocation.Offset(index)
-					.AddWindow(new CharacterSnippedLocation(1, index, errText)),
+			new InvalidPathSyntaxError(TextRange.Range(context, index, 1),
 				errText,
 				"Invalid character"));
 		return null;

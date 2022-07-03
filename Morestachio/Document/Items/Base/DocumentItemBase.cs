@@ -21,7 +21,7 @@ public abstract class DocumentItemBase : IMorestachioDocument,
 {
 	internal DocumentItemBase()
 	{
-		this.ExpressionStart = TextRange.Unknown;
+		this.Location = TextRange.Unknown;
 	}
 
 	/// <summary>
@@ -29,7 +29,7 @@ public abstract class DocumentItemBase : IMorestachioDocument,
 	/// </summary>
 	protected DocumentItemBase(in TextRange location, IEnumerable<ITokenOption> tagCreationOptions)
 	{
-		ExpressionStart = location;
+		Location = location;
 		TagCreationOptions = tagCreationOptions;
 	}
 
@@ -40,12 +40,7 @@ public abstract class DocumentItemBase : IMorestachioDocument,
 	/// <param name="c"></param>
 	protected DocumentItemBase(SerializationInfo info, StreamingContext c)
 	{
-		var expStartLocation = info.GetString(nameof(ExpressionStart));
-		if (!string.IsNullOrWhiteSpace(expStartLocation))
-		{
-			ExpressionStart = TextRange.FromFormatString(expStartLocation);
-		}
-
+		Location = TextRangeSerializationHelper.ReadTextRangeFromBinary(nameof(Location), info, c);
 		TagCreationOptions =
 			info.GetValue(nameof(TagCreationOptions), typeof(IEnumerable<ITokenOption>)) as IEnumerable<ITokenOption>;
 	}
@@ -64,7 +59,7 @@ public abstract class DocumentItemBase : IMorestachioDocument,
 			return true;
 		}
 
-		if (!ExpressionStart.Equals(other.ExpressionStart))
+		if (!Location.Equals(other.Location))
 		{
 			return false;
 		}
@@ -82,7 +77,7 @@ public abstract class DocumentItemBase : IMorestachioDocument,
 												ScopeData scopeData);
 
 	/// <inheritdoc />
-	public TextRange ExpressionStart { get; private set; }
+	public TextRange Location { get; private set; }
 
 	/// <inheritdoc />
 	public IEnumerable<ITokenOption> TagCreationOptions { get; set; }
@@ -90,7 +85,7 @@ public abstract class DocumentItemBase : IMorestachioDocument,
 	/// <inheritdoc />
 	public void GetObjectData(SerializationInfo info, StreamingContext context)
 	{
-		info.AddValue(nameof(ExpressionStart), ExpressionStart.ToFormatString());
+		TextRangeSerializationHelper.WriteTextRangeExtendedToBinary(nameof(Location), info, context, Location);
 		info.AddValue(nameof(TagCreationOptions), TagCreationOptions);
 		SerializeBinaryCore(info, context);
 	}
@@ -104,40 +99,49 @@ public abstract class DocumentItemBase : IMorestachioDocument,
 	{
 		return type.Name;
 	}
+	
+	protected virtual void SerializeXmlHeaderCore(XmlWriter writer)
+	{
+		TextRangeSerializationHelper.WriteTextRangeToXml(writer, Location, "Location");
+	}
+	
+	protected virtual void DeSerializeXmlHeaderCore(XmlReader reader)
+	{
+		Location = TextRangeSerializationHelper.ReadTextRangeFromXml(reader, "Location");
+	}
+	
+	protected virtual void SerializeXmlBodyCore(XmlWriter writer)
+	{
+		writer.WriteOptions(TagCreationOptions, nameof(TagCreationOptions));
+	}
+	
+	protected virtual void DeSerializeXmlBodyCore(XmlReader reader)
+	{
+		if (!reader.IsEmptyElement)
+		{
+			reader.ReadStartElement();
+			TagCreationOptions = reader.ReadOptions(nameof(TagCreationOptions));
+		}
+	}
 
-	/// <inheritdoc />
-	void IDocumentItem.SerializeXmlCore(XmlWriter writer)
+	void IDocumentItem.SerializeToXml(XmlWriter writer)
 	{
 		writer.WriteStartElement(GetSerializedMarkerName(GetType()));
-		writer.WriteAttributeString(nameof(ExpressionStart), ExpressionStart.ToFormatString() ?? string.Empty);
-		SerializeXml(writer);
-		writer.WriteOptions(TagCreationOptions, nameof(TagCreationOptions));
-
+		SerializeXmlHeaderCore(writer);
+		SerializeXmlBodyCore(writer);
 		writer.WriteEndElement(); //GetType().Name
 	}
 
-	/// <inheritdoc />
-	void IDocumentItem.DeSerializeXmlCore(XmlReader reader)
+	void IDocumentItem.DeserializeFromXml(XmlReader reader)
 	{
-		AssertElement(reader, GetSerializedMarkerName(GetType()));
-
-		var charLoc = reader.GetAttribute(nameof(ExpressionStart));
-		if (charLoc != null)
+		var serializedMarkerName = GetSerializedMarkerName(GetType());
+		AssertElement(reader, serializedMarkerName);
+		DeSerializeXmlHeaderCore(reader);
+		DeSerializeXmlBodyCore(reader);
+		if (reader.NodeType == XmlNodeType.EndElement && reader.Name.Equals(serializedMarkerName))
 		{
-			ExpressionStart = TextRange.FromFormatString(charLoc);
-		}
-		if (!reader.IsEmptyElement)
-		{
-			var readSubtree = reader.ReadSubtree();
-			readSubtree.Read();
-			DeSerializeXml(readSubtree);
-			TagCreationOptions = reader.ReadOptions(nameof(TagCreationOptions));
-
-			if (reader.NodeType == XmlNodeType.EndElement && reader.Name.Equals(GetSerializedMarkerName(GetType())))
-			{
-				//there are no children and we have reached the end of the document
-				reader.ReadEndElement(); //GetType().Name
-			}
+			//there are no children and we have reached the end of the document
+			reader.ReadEndElement(); //GetType().Name
 		}
 	}
 
@@ -158,12 +162,13 @@ public abstract class DocumentItemBase : IMorestachioDocument,
 		xmlReaderSettings.IgnoreProcessingInstructions = true;
 		var xmlReader = XmlReader.Create(reader, xmlReaderSettings);
 		xmlReader.Read();
-		((IDocumentItem)this).DeSerializeXmlCore(xmlReader);
+		((IDocumentItem)this).DeserializeFromXml(xmlReader);
 	}
 
 	void IXmlSerializable.WriteXml(XmlWriter writer)
 	{
-		SerializeXml(writer);
+		SerializeXmlHeaderCore(writer);
+		SerializeXmlBodyCore(writer);
 	}
 
 	/// <summary>
@@ -184,26 +189,6 @@ public abstract class DocumentItemBase : IMorestachioDocument,
 	/// <param name="info"></param>
 	/// <param name="context"></param>
 	protected virtual void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
-	{
-	}
-
-
-	/// <summary>
-	///     Should be overwritten when using custom properties in deviated document items to add the necessary xml information.
-	///     When using this method it is ensured that there is already a distinct XML node present. You should not close this
-	///     node and always exit before leaving it.
-	///     This method will be called right after writing the document node and before writing the children of this node
-	/// </summary>
-	/// <param name="writer"></param>
-	protected virtual void SerializeXml(XmlWriter writer)
-	{
-	}
-
-	/// <summary>
-	///     Will be called to deserialize custom properties. See <see cref="SerializeXml" /> for further info.
-	/// </summary>
-	/// <param name="reader"></param>
-	protected virtual void DeSerializeXml(XmlReader reader)
 	{
 	}
 
@@ -246,7 +231,7 @@ public abstract class DocumentItemBase : IMorestachioDocument,
 	{
 		unchecked
 		{
-			int hashCode = ExpressionStart.GetHashCode();
+			int hashCode = Location.GetHashCode();
 			hashCode = (hashCode * 397) ^ (TagCreationOptions.Any() ? TagCreationOptions.Select(f => f.GetHashCode()).Aggregate((e, f) => e ^ f) : 0);
 			return hashCode;
 		}

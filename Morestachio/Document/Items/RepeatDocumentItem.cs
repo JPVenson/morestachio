@@ -64,12 +64,12 @@ public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 					parent = parent.Parent;
 				}
 
-				throw new IndexedParseException(TextRangeExtended.Empty,
+				throw new IndexedParseException(Location,
 					string.Format(
 						"{1}'{0}' is expected to return a integral number but did not." +
 						" Complete Expression until Error:{2}",
 						MorestachioExpression.AsStringExpression(), 
-						base.ExpressionStart,
+						base.Location,
 						(path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 			}
 
@@ -102,10 +102,10 @@ public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 				parent = parent.Parent;
 			}
 
-			throw new IndexedParseException(TextRangeExtended.Empty, 
+			throw new IndexedParseException(Location, 
 				string.Format("{1}'{0}' is expected to return a integral number but did not." + " Complete Expression until Error:{2}",
 					MorestachioExpression.AsStringExpression(),
-					ExpressionStart,
+					Location,
 					(path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 		}
 		

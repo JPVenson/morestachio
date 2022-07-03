@@ -26,7 +26,9 @@ public class MorestachioExpressionBuilderBaseRootApi : MorestachioExpressionBuil
 	/// <returns></returns>
 	public MorestachioExpressionBuilder Parse(string expression)
 	{
-		ExpressionParts.Add(ExpressionParser.ParseExpression(expression, TokenzierContext.FromText(expression), out _));
+		var expressionParserResult = ExpressionParser.ParseExpression(expression, TokenzierContext.FromText(expression));
+		ExpressionParts.Add(expressionParserResult.Expression);
+		Column += expressionParserResult.SourceBoundary.RangeEnd.Index;
 		return this;
 	}
 
@@ -37,7 +39,7 @@ public class MorestachioExpressionBuilderBaseRootApi : MorestachioExpressionBuil
 	/// <returns></returns>
 	public MorestachioExpressionBuilder Number(Number number)
 	{
-		ExpressionParts.Add(new MorestachioExpressionNumber(number, new TextRange(0, Column, Column)));
+		ExpressionParts.Add(new MorestachioExpressionNumber(number, TextRange.Unknown));
 		Column += number.AsParsableString().Length;
 		return this;
 	}
@@ -47,11 +49,11 @@ public class MorestachioExpressionBuilderBaseRootApi : MorestachioExpressionBuil
 	/// </summary>
 	public MorestachioExpressionBuilder String(string text)
 	{
-		ExpressionParts.Add(new MorestachioExpressionString(new TextRange(0, Column, Column), '\"')
+		ExpressionParts.Add(new MorestachioExpressionString(TextRange.Unknown, '\"')
 		{
 			StringParts =
 			{
-				new ExpressionStringConstPart(text, new TextRange(0, Column, Column))
+				new ExpressionStringConstPart(text, TextRange.Unknown)
 			}
 		});
 		Column += text.Length;

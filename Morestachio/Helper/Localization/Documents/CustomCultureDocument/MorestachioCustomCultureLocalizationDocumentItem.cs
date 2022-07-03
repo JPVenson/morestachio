@@ -102,7 +102,7 @@ public class MorestachioCustomCultureLocalizationDocumentItem : ExpressionDocume
 		scopeData.CustomData[LocalizationCultureKey] = requestedCulture;
 
 		var childs = Children.ToList();
-		childs.Add(new ResetCultureDocumentItem(base.ExpressionStart, oldCulture, TagCreationOptions));
+		childs.Add(new ResetCultureDocumentItem(base.Location, oldCulture, TagCreationOptions));
 		return childs.WithScope(context);
 	}
 

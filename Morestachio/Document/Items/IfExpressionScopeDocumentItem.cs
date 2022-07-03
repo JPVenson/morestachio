@@ -46,25 +46,22 @@ public class IfExpressionScopeDocumentItem : ExpressionDocumentItemBase, ISuppor
 		base.SerializeBinaryCore(info, context);
 		info.AddValue(nameof(Inverted), Inverted);
 	}
-		
+
 	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
+	protected override void SerializeXmlHeaderCore(XmlWriter writer)
 	{
+		base.SerializeXmlHeaderCore(writer);
 		if (Inverted)
 		{
 			writer.WriteAttributeString(nameof(Inverted), bool.TrueString);
 		}
-		base.SerializeXml(writer);
 	}
-		
+
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
+	protected override void DeSerializeXmlHeaderCore(XmlReader reader)
 	{
-		if (reader.GetAttribute(nameof(Inverted)) == bool.TrueString)
-		{
-			Inverted = true;
-		}
-		base.DeSerializeXml(reader);
+		base.DeSerializeXmlHeaderCore(reader);
+		Inverted = reader.GetAttribute(nameof(Inverted)) == bool.TrueString;
 	}
 		
 	/// <summary>
