@@ -4,6 +4,7 @@ using System.Text;
 using Morestachio.Document.Contracts;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Parser;
+using Morestachio.Helper.Serialization;
 using Morestachio.Parsing.ParserErrors;
 using Newtonsoft.Json;
 
@@ -24,6 +25,7 @@ public static class JsonSerializationExtensions
 		jsonSerializerOptions.Converters.Add(new ObjectWithTypeDiscriminatorConverter<IMorestachioExpression>(ExpressionSerializationHelper.ExpressionTypeLookup));
 		jsonSerializerOptions.Converters.Add(new ObjectWithTypeDiscriminatorConverter<IMorestachioError>(ErrorSerializationHelper.ErrorTypeLookup));
 		jsonSerializerOptions.Converters.Add(new ObjectWithTypeDiscriminatorConverter<IDocumentItem>(SerializationHelper.GetDocumentItemType, SerializationHelper.GetDocumentItemName));
+		jsonSerializerOptions.Converters.Add(new SerializableConverter());
 		
 		return jsonSerializerOptions;
 	}

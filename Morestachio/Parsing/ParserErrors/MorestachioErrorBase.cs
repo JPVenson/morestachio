@@ -2,6 +2,7 @@
 using System.Xml;
 using System.Xml.Schema;
 using Morestachio.Framework.Error;
+using Morestachio.Helper.Serialization;
 
 namespace Morestachio.Parsing.ParserErrors;
 

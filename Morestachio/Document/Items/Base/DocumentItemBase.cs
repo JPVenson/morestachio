@@ -8,6 +8,7 @@ using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Helper.Serialization;
 using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items.Base;
@@ -41,10 +42,8 @@ public abstract class DocumentItemBase : IMorestachioDocument,
 	protected DocumentItemBase(SerializationInfo info, StreamingContext c)
 	{
 		Location = TextRangeSerializationHelper.ReadTextRange(nameof(Location), info, c);
-		TagCreationOptions =
-			info.GetValue(nameof(TagCreationOptions), typeof(IEnumerable<ITokenOption>)) as IEnumerable<ITokenOption>;
+		TagCreationOptions = info.GetValueOrDefault<ITokenOption[]>(c, nameof(TagCreationOptions), () => null);
 	}
-
 
 	/// <inheritdoc />
 	public virtual bool Equals(DocumentItemBase other)
@@ -99,22 +98,22 @@ public abstract class DocumentItemBase : IMorestachioDocument,
 	{
 		return type.Name;
 	}
-	
+
 	protected virtual void SerializeXmlHeaderCore(XmlWriter writer)
 	{
 		TextRangeSerializationHelper.WriteTextRangeToXml(writer, Location, "Location");
 	}
-	
+
 	protected virtual void DeSerializeXmlHeaderCore(XmlReader reader)
 	{
 		Location = TextRangeSerializationHelper.ReadTextRangeFromXml(reader, "Location");
 	}
-	
+
 	protected virtual void SerializeXmlBodyCore(XmlWriter writer)
 	{
 		writer.WriteOptions(TagCreationOptions, nameof(TagCreationOptions));
 	}
-	
+
 	protected virtual void DeSerializeXmlBodyCore(XmlReader reader)
 	{
 		if (!reader.IsEmptyElement)

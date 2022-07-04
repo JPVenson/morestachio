@@ -4,6 +4,7 @@ using System.Runtime.Serialization;
 using System.Xml;
 using Morestachio.Framework;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Helper.Serialization;
 using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items.Base;
@@ -35,7 +36,7 @@ public abstract class ValueDocumentItemBase : BlockDocumentItemBase, IEquatable<
 	/// <inheritdoc />
 	protected ValueDocumentItemBase(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
-		Value = info.GetString(nameof(Value));
+		Value = info.GetValueOrDefault<string>(c, nameof(Value));
 	}
 		
 	/// <inheritdoc />

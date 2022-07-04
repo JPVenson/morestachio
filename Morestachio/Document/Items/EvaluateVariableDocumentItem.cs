@@ -59,7 +59,6 @@ public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase, ISupport
 	}
 
 	/// <inheritdoc />
-
 	protected EvaluateVariableDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
 		Value = info.GetString(nameof(Value));

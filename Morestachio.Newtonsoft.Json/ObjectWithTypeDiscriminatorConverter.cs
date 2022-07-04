@@ -42,4 +42,30 @@ namespace Morestachio.Newtonsoft.Json
 			return WithTypeDiscriminatorHelper<TInterface>.Read(reader, objectType, serializer, _typeLookup);
 		}
 	}
+	
+	/// <summary>
+	///		Serialization for <see cref="ISerializable"/>
+	/// </summary>
+	public class SerializableConverter : JsonConverter<ISerializable>
+	{
+		/// <inheritdoc />
+		public override void WriteJson(JsonWriter writer, ISerializable value, JsonSerializer serializer)
+		{
+			WithTypeDiscriminatorHelper<ISerializable>.Write(writer, value, serializer, null);
+		}
+
+		/// <inheritdoc />
+		public override ISerializable ReadJson(
+			JsonReader reader,
+			Type objectType,
+			ISerializable existingValue,
+			bool hasExistingValue,
+			JsonSerializer serializer
+		)
+		{
+			var serializationInfo = WithTypeDiscriminatorHelper<ISerializable>.GetSerializationInfoFromJson(reader, serializer);
+			serializationInfo.serializationInfo.SetType(objectType);
+			return WithTypeDiscriminatorHelper<ISerializable>.ConstructFromSerializationInfo(serializationInfo, objectType);
+		}
+	}
 }

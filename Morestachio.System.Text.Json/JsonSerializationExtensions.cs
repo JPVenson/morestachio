@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using Morestachio.Document.Contracts;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Parser;
+using Morestachio.Helper.Serialization;
 using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.System.Text.Json;

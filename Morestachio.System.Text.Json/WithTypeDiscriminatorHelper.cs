@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using Morestachio.Helper.Serialization;
 
 namespace Morestachio.System.Text.Json;
 
@@ -22,7 +26,7 @@ public static class WithTypeDiscriminatorHelper<TObject>
 	{
 		return typeof(TObject).IsAssignableFrom(typeToConvert);
 	}
-	
+
 	/// <summary>
 	///		Constructs a <see cref="SerializationInfo"/> from the current json object and will create a new type based on the Type Discriminator
 	/// </summary>
@@ -35,7 +39,7 @@ public static class WithTypeDiscriminatorHelper<TObject>
 	public static TObject Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options, Func<string, Type> produceAbsoluteType)
 	{
 		var serializationInfo = GetSerializationInfoFromJson(ref reader, options);
-		var typeName = serializationInfo.GetString(TypePropertyName);
+		var typeName = serializationInfo.serializationInfo.GetString(TypePropertyName);
 
 		if (string.IsNullOrWhiteSpace(typeName))
 		{
@@ -43,7 +47,7 @@ public static class WithTypeDiscriminatorHelper<TObject>
 		}
 
 		var documentType = produceAbsoluteType(typeName);
-		serializationInfo.SetType(documentType);
+		serializationInfo.serializationInfo.SetType(documentType);
 
 		return ConstructFromSerializationInfo(serializationInfo, documentType);
 	}
@@ -54,12 +58,12 @@ public static class WithTypeDiscriminatorHelper<TObject>
 	/// <param name="serializationInfo"></param>
 	/// <param name="documentType"></param>
 	/// <returns></returns>
-	public static TObject ConstructFromSerializationInfo(SerializationInfo serializationInfo, Type documentType)
+	public static TObject ConstructFromSerializationInfo((SerializationInfo serializationInfo, StreamingContext streamingContext) serializationInfo, Type documentType)
 	{
 		var parameter = new object[]
 		{
-			serializationInfo,
-			new StreamingContext()
+			serializationInfo.serializationInfo,
+			serializationInfo.streamingContext
 		};
 
 		var ctor = documentType.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance,
@@ -86,9 +90,10 @@ public static class WithTypeDiscriminatorHelper<TObject>
 	/// <param name="options"></param>
 	/// <returns></returns>
 	/// <exception cref="JsonException"></exception>
-	public static SerializationInfo GetSerializationInfoFromJson(ref Utf8JsonReader reader, JsonSerializerOptions options)
+	public static (SerializationInfo serializationInfo, StreamingContext streamingContext) GetSerializationInfoFromJson(ref Utf8JsonReader reader, JsonSerializerOptions options)
 	{
-		var serializationInfo = new SerializationInfo(typeof(object), new JsonTypeFormatter(options));
+		var jsonTypeFormatter = new JsonTypeFormatter(options);
+		var serializationInfo = new SerializationInfo(typeof(object), jsonTypeFormatter);
 
 		while (reader.Read())
 		{
@@ -103,7 +108,7 @@ public static class WithTypeDiscriminatorHelper<TObject>
 			}
 
 			var name = reader.GetString();
-			
+
 			if (name == null)
 			{
 				throw new JsonException("Expected to read a property name but got null");
@@ -113,7 +118,7 @@ public static class WithTypeDiscriminatorHelper<TObject>
 			serializationInfo.AddValue(name, value);
 		}
 
-		return serializationInfo;
+		return (serializationInfo, new StreamingContext(StreamingContextStates.All, new MorestachioSerializationContext(jsonTypeFormatter)));
 	}
 
 	/// <summary>
@@ -123,9 +128,9 @@ public static class WithTypeDiscriminatorHelper<TObject>
 	/// <param name="value"></param>
 	/// <param name="options"></param>
 	/// <param name="produceTypeDiscriminator"></param>
-	public static void Write(Utf8JsonWriter writer, 
-							TObject value, 
-							JsonSerializerOptions options, 
+	public static void Write(Utf8JsonWriter writer,
+							TObject value,
+							JsonSerializerOptions options,
 							Func<Type, string> produceTypeDiscriminator)
 	{
 		writer.WriteStartObject();
@@ -134,7 +139,7 @@ public static class WithTypeDiscriminatorHelper<TObject>
 		{
 			writer.WriteString(TypePropertyName, produceTypeDiscriminator.Invoke(value.GetType()));
 		}
-		
+
 		WriteISerializableJson(writer, value, options);
 		writer.WriteEndObject();
 	}
@@ -152,6 +157,13 @@ public static class WithTypeDiscriminatorHelper<TObject>
 		while (values.MoveNext())
 		{
 			var current = values.Current;
+
+			if (current.Value is null || current.Value is IList { Count: 0 } or Array { Length: 0 } 
+				&& options.DefaultIgnoreCondition is not JsonIgnoreCondition.Never)
+			{
+				continue;
+			}
+
 			writer.WritePropertyName(current.Name);
 			JsonSerializer.SerializeToElement(current.Value, current.ObjectType, options).WriteTo(writer);
 		}

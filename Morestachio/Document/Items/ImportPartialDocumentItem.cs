@@ -11,6 +11,7 @@ using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
+using Morestachio.Helper.Serialization;
 using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
@@ -43,7 +44,7 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 		
 	protected ImportPartialDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
-		Context = info.GetValue(nameof(Context), typeof(IMorestachioExpression)) as IMorestachioExpression;
+		Context = info.GetValueOrDefault<IMorestachioExpression>(c, nameof(Context));
 	}
 
 	/// <summary>

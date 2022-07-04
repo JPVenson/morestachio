@@ -1,4 +1,6 @@
-﻿namespace Morestachio.Parsing.ParserErrors;
+﻿using Morestachio.Parsing.ParserErrors;
+
+namespace Morestachio.Helper.Serialization;
 
 /// <summary>
 ///		Contains helper methods for serializing <see cref="IMorestachioError"/>

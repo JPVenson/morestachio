@@ -12,6 +12,7 @@ using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper.Localization.Documents.CustomCultureDocument;
 using Morestachio.Helper.Localization.Documents.LocPDocument;
+using Morestachio.Helper.Serialization;
 using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Helper.Localization.Documents.LocDocument;
@@ -42,7 +43,7 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 	/// <inheritdoc />
 	protected MorestachioLocalizationDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
-		ExplicitCulture = info.GetValue(nameof(ExplicitCulture), typeof(IMorestachioExpression)) as IMorestachioExpression;
+		ExplicitCulture = info.GetValueOrDefault<IMorestachioExpression>(c, nameof(ExplicitCulture));
 	}
 
 	/// <summary>

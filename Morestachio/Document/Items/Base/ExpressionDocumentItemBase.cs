@@ -8,6 +8,7 @@ using Morestachio.Framework;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Helper.Serialization;
 using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items.Base;
@@ -35,8 +36,7 @@ public abstract class ExpressionDocumentItemBase : BlockDocumentItemBase, IEquat
 	/// <inheritdoc />
 	protected ExpressionDocumentItemBase(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
-		MorestachioExpression =
-			info.GetValue(nameof(MorestachioExpression), typeof(IMorestachioExpression)) as IMorestachioExpression;
+		MorestachioExpression = info.GetValueOrDefault<IMorestachioExpression>(c, nameof(MorestachioExpression));
 	}
 
 	/// <summary>

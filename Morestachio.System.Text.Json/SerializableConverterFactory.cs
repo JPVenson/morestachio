@@ -48,7 +48,7 @@ public class SerializableConverterFactory : JsonConverterFactory
 		public override TSerializable Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 		{
 			var serializationInfo = WithTypeDiscriminatorHelper<TSerializable>.GetSerializationInfoFromJson(ref reader, options);
-			serializationInfo.SetType(typeToConvert);
+			serializationInfo.serializationInfo.SetType(typeToConvert);
 			return WithTypeDiscriminatorHelper<TSerializable>.ConstructFromSerializationInfo(serializationInfo, typeToConvert);
 		}
 

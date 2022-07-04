@@ -1,6 +1,5 @@
 ﻿using System.Security.Permissions;
 using System.Xml;
-using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework;
@@ -10,6 +9,7 @@ using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Helper.Serialization;
 using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
@@ -43,7 +43,7 @@ public class IsolationScopeDocumentItem : BlockDocumentItemBase, ISupportCustomA
 	protected IsolationScopeDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
 		Isolation = (IsolationOptions)info.GetValue(nameof(Isolation), typeof(IsolationOptions));
-		ScopeIsolationExpression = (IMorestachioExpression)info.GetValue(nameof(ScopeIsolationExpression), typeof(IMorestachioExpression));
+		ScopeIsolationExpression = info.GetValueOrDefault<IMorestachioExpression>(c, nameof(ScopeIsolationExpression));
 	}
 
 	/// <inheritdoc />

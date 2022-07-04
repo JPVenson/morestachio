@@ -5,6 +5,7 @@ using Morestachio.Document;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.Expression.Visitors;
+using Morestachio.Helper.Serialization;
 using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework.Expression;
@@ -36,7 +37,7 @@ public class ExpressionArgument : IEquatable<ExpressionArgument>, IMorestachioEx
 	/// <param name="context"></param>
 	protected ExpressionArgument(SerializationInfo info, StreamingContext context)
 	{
-		Name = info.GetString(nameof(Name));
+		Name = info.GetValueOrDefault<string>(context, nameof(Name));
 		MorestachioExpression = info.GetValue(nameof(MorestachioExpression), typeof(IMorestachioExpression)) as IMorestachioExpression;
 		Location = TextRangeSerializationHelper.ReadTextRange(nameof(Location), info, context);
 	}

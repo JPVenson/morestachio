@@ -13,6 +13,7 @@ namespace Morestachio.Tests.SerilalizerTests.Strategies
 			jsonSerializerSettings = new JsonSerializerSettings()
 				.AddMorestachioSerializationExtensions();
 			jsonSerializerSettings.Formatting = Formatting.Indented;
+			jsonSerializerSettings.NullValueHandling = NullValueHandling.Ignore;
 		}
 
 		JsonSerializerSettings jsonSerializerSettings;

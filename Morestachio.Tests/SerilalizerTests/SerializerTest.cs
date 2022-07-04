@@ -180,7 +180,7 @@ public class SerializerTest
 			"{{#DECLARE PartialA}}" +
 			"I am <Text> {{Data.data('test')}}" +
 			"{{/DECLARE}}" +
-			"{{#IMPORT 'PartialA}'}}";
+			"{{#IMPORT 'PartialA'}}";
 		TestSerializableDocument(template);
 	}
 

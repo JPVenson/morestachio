@@ -7,6 +7,7 @@ using Morestachio.Formatter.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.Visitors;
+using Morestachio.Helper.Serialization;
 using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework.Expression;
@@ -37,11 +38,12 @@ public class MorestachioExpression : IMorestachioExpression
 	protected MorestachioExpression(SerializationInfo info, StreamingContext context)
 	{
 		PathParts = new Traversable(info.GetValue(nameof(PathParts), typeof(KeyValuePair<string, PathType>[])) as KeyValuePair<string, PathType>[]);
-		Formats = (info.GetValue(nameof(Formats), typeof(IMorestachioExpression[]))
-			as IList<IMorestachioExpression>).OfType<ExpressionArgument>().ToArray();
-		FormatterName = info.GetString(nameof(FormatterName));
+		Formats = info.GetValueOrEmpty<IMorestachioExpression>(context, nameof(Formats))
+					.OfType<ExpressionArgument>()
+					.ToArray();
+		FormatterName = info.GetValueOrDefault<string>(context, nameof(FormatterName));
 		Location = TextRangeSerializationHelper.ReadTextRange(nameof(Location), info, context);
-		EndsWithDelimiter = info.GetBoolean(nameof(EndsWithDelimiter));
+		EndsWithDelimiter = info.GetValueOrDefault<bool>(context, nameof(EndsWithDelimiter));
 	}
 
 	/// <inheritdoc />

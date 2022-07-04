@@ -7,6 +7,7 @@ using System.Xml;
 using Morestachio.Document.Contracts;
 using Morestachio.Framework;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Helper.Serialization;
 using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items.Base;
@@ -40,10 +41,8 @@ public abstract class BlockDocumentItemBase : DocumentItemBase,
 	/// <param name="c"></param>
 	protected BlockDocumentItemBase(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
-		var documentItemBases = info.GetValue(nameof(Children), typeof(IDocumentItem[])) as IDocumentItem[];
-		Children = new List<IDocumentItem>(documentItemBases ?? throw new InvalidOperationException());
-			
-		BlockClosingOptions = info.GetValue(nameof(BlockClosingOptions), typeof(ITokenOption[])) as IEnumerable<ITokenOption>;
+		Children = new List<IDocumentItem>(info.GetValueOrEmpty<IDocumentItem>(c, nameof(Children)));
+		BlockClosingOptions = info.GetValueOrDefault<ITokenOption[]>(c, nameof(BlockClosingOptions), () => null);
 		BlockLocation = TextRangeSerializationHelper.ReadTextRange(nameof(BlockLocation), info, c);
 	}
 	/// <inheritdoc />

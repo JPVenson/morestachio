@@ -6,6 +6,7 @@ using Morestachio.Document;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression.StringParts;
 using Morestachio.Framework.Expression.Visitors;
+using Morestachio.Helper.Serialization;
 using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework.Expression;

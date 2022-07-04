@@ -1,7 +1,8 @@
-﻿using System.Text;
+﻿using Morestachio.Parsing.ParserErrors;
+using System.Text;
 using System.Xml;
 
-namespace Morestachio.Parsing.ParserErrors;
+namespace Morestachio.Helper.Serialization;
 
 /// <summary>
 ///		Contains methods for serializing <see cref="TextRange"/>
@@ -75,13 +76,13 @@ public static class TextRangeSerializationHelper
 			info.AddValue(nameof(RangeEnd), RangeEnd);
 		}
 	}
-	
+
 	[Serializable]
 	private class TextIndexFassade : ISerializable
 	{
 		public TextIndexFassade()
 		{
-			
+
 		}
 
 		public TextIndexFassade(SerializationInfo serializationInfo, StreamingContext context)
@@ -110,8 +111,7 @@ public static class TextRangeSerializationHelper
 
 	public static TextRange ReadTextRange(string name, SerializationInfo info, StreamingContext c)
 	{
-		var fassade = info.GetValue(name ?? nameof(TextRange), typeof(TextRangeFassade)) as TextRangeFassade;
-		return fassade.AsRange();
+		return info.GetValueOrDefault<TextRangeFassade>(c, name ?? nameof(TextRange))?.AsRange() ?? default;
 	}
 
 	public static void WriteTextRangeToBinary(string name, SerializationInfo info, StreamingContext context, TextRange textRange)

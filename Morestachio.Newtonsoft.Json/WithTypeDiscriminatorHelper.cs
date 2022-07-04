@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.Serialization;
+using Morestachio.Helper.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -16,11 +17,11 @@ public static class WithTypeDiscriminatorHelper<TObject>
 	/// </summary>
 	/// <returns></returns>
 	/// <exception cref="JsonException"></exception>
-	public static SerializationInfo GetSerializationInfoFromJson(JsonReader reader,
-																JsonSerializer serializer)
+	public static (SerializationInfo serializationInfo, StreamingContext streamingContext) GetSerializationInfoFromJson(JsonReader reader,
+																														JsonSerializer serializer)
 	{
-		var serializationInfo = new SerializationInfo(typeof(object), new JsonTypeFormatter(serializer));
-			
+		var jsonTypeFormatter = new JsonTypeFormatter(serializer);
+		var serializationInfo = new SerializationInfo(typeof(object), jsonTypeFormatter);
 		while (reader.Read())
 		{
 			if (reader.TokenType == JsonToken.EndObject)
@@ -44,7 +45,7 @@ public static class WithTypeDiscriminatorHelper<TObject>
 			serializationInfo.AddValue(name, value);
 		}
 
-		return serializationInfo;
+		return (serializationInfo, new StreamingContext(StreamingContextStates.All, new MorestachioSerializationContext(jsonTypeFormatter)));
 	}
 	
 	/// <summary>
@@ -59,7 +60,7 @@ public static class WithTypeDiscriminatorHelper<TObject>
 	public static TObject Read(JsonReader reader, Type typeToConvert, JsonSerializer serializer, Func<string, Type> produceAbsoluteType)
 	{
 		var serializationInfo = GetSerializationInfoFromJson(reader, serializer);
-		var typeName = serializationInfo.GetString(TypePropertyName);
+		var typeName = serializationInfo.serializationInfo.GetString(TypePropertyName);
 
 		if (string.IsNullOrWhiteSpace(typeName))
 		{
@@ -67,7 +68,7 @@ public static class WithTypeDiscriminatorHelper<TObject>
 		}
 
 		var documentType = produceAbsoluteType(typeName);
-		serializationInfo.SetType(documentType);
+		serializationInfo.serializationInfo.SetType(documentType);
 
 		return ConstructFromSerializationInfo(serializationInfo, documentType);
 	}
@@ -78,12 +79,12 @@ public static class WithTypeDiscriminatorHelper<TObject>
 	/// <param name="serializationInfo"></param>
 	/// <param name="documentType"></param>
 	/// <returns></returns>
-	public static TObject ConstructFromSerializationInfo(SerializationInfo serializationInfo, Type documentType)
+	public static TObject ConstructFromSerializationInfo((SerializationInfo serializationInfo, StreamingContext streamingContext) serializationInfo, Type documentType)
 	{
 		var parameter = new object[]
 		{
-			serializationInfo,
-			new StreamingContext()
+			serializationInfo.serializationInfo,
+			serializationInfo.streamingContext
 		};
 
 		var ctor = documentType.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance,
@@ -140,6 +141,11 @@ public static class WithTypeDiscriminatorHelper<TObject>
 		while (values.MoveNext())
 		{
 			var current = values.Current;
+
+			if (current.Value is null && serializer.NullValueHandling is NullValueHandling.Ignore)
+			{
+				continue;
+			}
 			writer.WritePropertyName(current.Name);
 			serializer.Serialize(writer, current.Value, current.ObjectType);
 		}

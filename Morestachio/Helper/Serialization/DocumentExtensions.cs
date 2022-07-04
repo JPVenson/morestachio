@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Morestachio.Document.Contracts;
 using Morestachio.Framework.Context;
 
-namespace Morestachio.Document.Contracts;
+namespace Morestachio.Helper.Serialization;
 
 /// <summary>
 ///		Contains helper for serialization and deserialization
