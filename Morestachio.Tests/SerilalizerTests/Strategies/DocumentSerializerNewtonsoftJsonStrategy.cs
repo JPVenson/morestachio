@@ -1,5 +1,6 @@
 ﻿using System;
 using Morestachio.Document.Contracts;
+using Morestachio.Newtonsoft.Json;
 using Morestachio.Parsing.ParserErrors;
 using Newtonsoft.Json;
 
@@ -9,9 +10,9 @@ namespace Morestachio.Tests.SerilalizerTests.Strategies
 	{
 		public DocumentSerializerNewtonsoftJsonStrategy()
 		{
-			jsonSerializerSettings = new JsonSerializerSettings();
+			jsonSerializerSettings = new JsonSerializerSettings()
+				.AddMorestachioSerializationExtensions();
 			jsonSerializerSettings.Formatting = Formatting.Indented;
-			jsonSerializerSettings.TypeNameHandling = TypeNameHandling.Objects;
 		}
 
 		JsonSerializerSettings jsonSerializerSettings;
