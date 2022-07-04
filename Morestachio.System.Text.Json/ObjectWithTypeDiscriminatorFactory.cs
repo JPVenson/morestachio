@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,16 +9,30 @@ using Morestachio.Document.Contracts;
 
 namespace Morestachio.System.Text.Json
 {
+	/// <summary>
+	///		Adds support for polymorphic serialization.
+	/// </summary>
+	/// <typeparam name="TInterface"></typeparam>
 	public class ObjectWithTypeDiscriminatorFactory<TInterface> : JsonConverterFactory
 	{
 		private readonly Func<string, Type> _typeLookup;
 		private readonly Func<Type, string> _keyLookup;
+
+		/// <summary>
+		///		Creates a new <see cref="ObjectWithTypeDiscriminatorConverter"/> that can serialize and deserialize from a static dictionary of types.
+		/// </summary>
+		/// <param name="lookup"></param>
 		public ObjectWithTypeDiscriminatorFactory(IDictionary<string, Type> lookup)
 		{
 			_typeLookup = s => lookup[s];
 			_keyLookup = s => lookup.First(e => e.Value == s).Key;
 		}
 
+		/// <summary>
+		///		Creates a new <see cref="ObjectWithTypeDiscriminatorConverter"/> that can serialize and deserialize objects dynamically via the provided callbacks.
+		/// </summary>
+		/// <param name="typeLookup"></param>
+		/// <param name="keyLookup"></param>
 		public ObjectWithTypeDiscriminatorFactory(Func<string, Type> typeLookup, Func<Type, string> keyLookup)
 		{
 			_typeLookup = typeLookup;
@@ -67,40 +82,6 @@ namespace Morestachio.System.Text.Json
 			{
 				WithTypeDiscriminatorHelper<TInterface>.Write(writer, value, options, _keyLookup);
 			}
-		}
-	}
-
-	/// <summary>
-	///		Defines a converter that will add a <see cref="WithTypeDiscriminatorHelper{TObject}.TypePropertyName"/> to serialize the <see cref="IDocumentItem"/>
-	/// </summary>
-	public class DocumentItemWithTypeDiscriminatorConverter : JsonConverter<IDocumentItem> 
-	{
-		/// <summary>
-		///		The shared converter instance
-		/// </summary>
-		public static readonly JsonConverter<IDocumentItem> Instance = new DocumentItemWithTypeDiscriminatorConverter();
-		
-		private static Type ProduceAbsoluteType(string typeDiscriminator)
-		{
-			return SerializationHelper.GetDocumentItemType(typeDiscriminator);
-		}
-
-		/// <inheritdoc />
-		public override bool CanConvert(Type typeToConvert)
-		{
-			return WithTypeDiscriminatorHelper<IDocumentItem>.CanConvert(typeToConvert);
-		}
-
-		/// <inheritdoc />
-		public override IDocumentItem Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-		{
-			return WithTypeDiscriminatorHelper<IDocumentItem>.Read(ref reader, typeToConvert, options, ProduceAbsoluteType);
-		}
-
-		/// <inheritdoc />
-		public override void Write(Utf8JsonWriter writer, IDocumentItem value, JsonSerializerOptions options)
-		{
-			WithTypeDiscriminatorHelper<IDocumentItem>.Write(writer, value, options, type => type.ToString());
 		}
 	}
 }

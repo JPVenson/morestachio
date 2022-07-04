@@ -22,7 +22,7 @@ public static class WithTypeDiscriminatorHelper<TObject>
 	{
 		return typeof(TObject).IsAssignableFrom(typeToConvert);
 	}
-
+	
 	/// <summary>
 	///		Constructs a <see cref="SerializationInfo"/> from the current json object and will create a new type based on the Type Discriminator
 	/// </summary>
@@ -71,6 +71,11 @@ public static class WithTypeDiscriminatorHelper<TObject>
 				new[] { typeof(SerializationInfo), typeof(StreamingContext) },
 				null);
 
+		if (ctor == null)
+		{
+			throw new JsonException($"To deserialize {documentType} the object must have a public or protected constructor that takes an {typeof(SerializationInfo)} and {typeof(StreamingContext)}");
+		}
+
 		return (TObject)ctor.Invoke(parameter);
 	}
 
@@ -94,10 +99,15 @@ public static class WithTypeDiscriminatorHelper<TObject>
 
 			if (reader.TokenType != JsonTokenType.PropertyName)
 			{
-				throw new JsonException("Invalid json");
+				throw new JsonException($"Expected to read a property but got '{reader.TokenType}' instead.");
 			}
 
 			var name = reader.GetString();
+			
+			if (name == null)
+			{
+				throw new JsonException("Expected to read a property name but got null");
+			}
 			reader.Read();
 			var value = JsonElement.ParseValue(ref reader);
 			serializationInfo.AddValue(name, value);
@@ -131,13 +141,11 @@ public static class WithTypeDiscriminatorHelper<TObject>
 
 	private static void WriteISerializableJson(Utf8JsonWriter writer, TObject value, JsonSerializerOptions options)
 	{
-		var serializationInfo = new SerializationInfo(value.GetType(), new FormatterConverter());
-		var serializable = (value as ISerializable);
-
-		if (serializable is null)
+		if (value is not ISerializable serializable)
 		{
-			throw new JsonException($"Expected type {typeof(TObject)} to implement {typeof(ISerializable)}");
+			throw new JsonException($"Expected type '{typeof(TObject)}' to implement '{typeof(ISerializable)}'");
 		}
+		var serializationInfo = new SerializationInfo(value.GetType(), new FormatterConverter());
 		serializable.GetObjectData(serializationInfo, new StreamingContext());
 		var values = serializationInfo.GetEnumerator();
 

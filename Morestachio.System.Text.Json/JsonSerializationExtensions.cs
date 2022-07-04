@@ -8,8 +8,16 @@ using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.System.Text.Json;
 
-public static class DocumentItemWithTypeDiscriminatorConverterExtensions
+/// <summary>
+///		Contains extensions for setup of System.Text.Json serialization of DocumentItems and Errors
+/// </summary>
+public static class JsonSerializationExtensions
 {
+	/// <summary>
+	///		Adds support for Serialization of the Morestachio document tree.
+	/// </summary>
+	/// <param name="jsonSerializerOptions"></param>
+	/// <returns></returns>
 	public static JsonSerializerOptions AddMorestachioSerializationExtensions(this JsonSerializerOptions jsonSerializerOptions)
 	{
 		jsonSerializerOptions.Converters.Add(new ObjectWithTypeDiscriminatorFactory<IMorestachioExpression>(ExpressionSerializationHelper.ExpressionTypeLookup));
