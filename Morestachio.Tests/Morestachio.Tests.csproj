@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="JetBrains.DotMemoryUnit" Version="3.1.20200127.214830" />
+        <!--<PackageReference Include="JetBrains.DotMemoryUnit" Version="3.1.20200127.214830" />-->
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
         <PackageReference Include="NUnit" Version="3.13.3" />
@@ -21,7 +21,7 @@
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' or $(TargetFramework) == 'net5.0' or $(TargetFramework) == 'net6.0'">
-        <PackageReference Include="System.Text.Json" Version="6.0.4" />
+        <PackageReference Include="System.Text.Json" Version="6.0.5" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' or $(TargetFramework) == 'net5.0' or $(TargetFramework) == 'net6.0'">

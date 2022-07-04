@@ -40,7 +40,7 @@ public abstract class DocumentItemBase : IMorestachioDocument,
 	/// <param name="c"></param>
 	protected DocumentItemBase(SerializationInfo info, StreamingContext c)
 	{
-		Location = TextRangeSerializationHelper.ReadTextRangeFromBinary(nameof(Location), info, c);
+		Location = TextRangeSerializationHelper.ReadTextRange(nameof(Location), info, c);
 		TagCreationOptions =
 			info.GetValue(nameof(TagCreationOptions), typeof(IEnumerable<ITokenOption>)) as IEnumerable<ITokenOption>;
 	}
@@ -85,7 +85,7 @@ public abstract class DocumentItemBase : IMorestachioDocument,
 	/// <inheritdoc />
 	public void GetObjectData(SerializationInfo info, StreamingContext context)
 	{
-		TextRangeSerializationHelper.WriteTextRangeExtendedToBinary(nameof(Location), info, context, Location);
+		TextRangeSerializationHelper.WriteTextRangeToBinary(nameof(Location), info, context, Location);
 		info.AddValue(nameof(TagCreationOptions), TagCreationOptions);
 		SerializeBinaryCore(info, context);
 	}

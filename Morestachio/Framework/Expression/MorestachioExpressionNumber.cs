@@ -46,14 +46,14 @@ public class MorestachioExpressionNumber : IMorestachioExpression
 		Number.TryParse(info.GetValue(nameof(Number), typeof(string)).ToString(), CultureInfo.CurrentCulture,
 			out var nr);
 		Number = nr;
-		Location = TextRangeSerializationHelper.ReadTextRangeFromBinary(nameof(Location), info, context);
+		Location = TextRangeSerializationHelper.ReadTextRange(nameof(Location), info, context);
 	}
 
 	/// <inheritdoc />
 	public void GetObjectData(SerializationInfo info, StreamingContext context)
 	{
 		info.AddValue(nameof(Number), Number.AsParsableString());
-		TextRangeSerializationHelper.WriteTextRangeExtendedToBinary(nameof(Location), info, context, Location);
+		TextRangeSerializationHelper.WriteTextRangeToBinary(nameof(Location), info, context, Location);
 	}
 
 	/// <inheritdoc />

@@ -37,9 +37,8 @@ public class ExpressionArgument : IEquatable<ExpressionArgument>, IMorestachioEx
 	protected ExpressionArgument(SerializationInfo info, StreamingContext context)
 	{
 		Name = info.GetString(nameof(Name));
-		MorestachioExpression =
-			info.GetValue(nameof(MorestachioExpression), typeof(IMorestachioExpression)) as IMorestachioExpression;
-		Location = TextRangeSerializationHelper.ReadTextRangeFromBinary(nameof(Location), info, context);
+		MorestachioExpression = info.GetValue(nameof(MorestachioExpression), typeof(IMorestachioExpression)) as IMorestachioExpression;
+		Location = TextRangeSerializationHelper.ReadTextRange(nameof(Location), info, context);
 	}
 
 	/// <summary>
@@ -119,7 +118,7 @@ public class ExpressionArgument : IEquatable<ExpressionArgument>, IMorestachioEx
 	public void GetObjectData(SerializationInfo info, StreamingContext context)
 	{
 		info.AddValue(nameof(Name), Name);
-		TextRangeSerializationHelper.WriteTextRangeExtendedToBinary(nameof(Location), info, context, Location);
+		TextRangeSerializationHelper.WriteTextRangeToBinary(nameof(Location), info, context, Location);
 		info.AddValue(nameof(MorestachioExpression), MorestachioExpression);
 	}
 

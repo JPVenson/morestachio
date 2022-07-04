@@ -37,10 +37,10 @@ public class MorestachioExpression : IMorestachioExpression
 	protected MorestachioExpression(SerializationInfo info, StreamingContext context)
 	{
 		PathParts = new Traversable(info.GetValue(nameof(PathParts), typeof(KeyValuePair<string, PathType>[])) as KeyValuePair<string, PathType>[]);
-		Formats = info.GetValue(nameof(Formats), typeof(IList<ExpressionArgument>))
-			as IList<ExpressionArgument>;
+		Formats = (info.GetValue(nameof(Formats), typeof(IMorestachioExpression[]))
+			as IList<IMorestachioExpression>).OfType<ExpressionArgument>().ToArray();
 		FormatterName = info.GetString(nameof(FormatterName));
-		Location = TextRangeSerializationHelper.ReadTextRangeFromBinary(nameof(Location), info, context);
+		Location = TextRangeSerializationHelper.ReadTextRange(nameof(Location), info, context);
 		EndsWithDelimiter = info.GetBoolean(nameof(EndsWithDelimiter));
 	}
 
@@ -48,9 +48,9 @@ public class MorestachioExpression : IMorestachioExpression
 	public void GetObjectData(SerializationInfo info, StreamingContext context)
 	{
 		info.AddValue(nameof(PathParts), PathParts.ToArray());
-		info.AddValue(nameof(Formats), Formats);
+		info.AddValue(nameof(Formats), Formats.ToArray(), typeof(IMorestachioExpression[]));
 		info.AddValue(nameof(FormatterName), FormatterName);
-		TextRangeSerializationHelper.WriteTextRangeExtendedToBinary(nameof(Location), info, context, Location);
+		TextRangeSerializationHelper.WriteTextRangeToBinary(nameof(Location), info, context, Location);
 		info.AddValue(nameof(EndsWithDelimiter), EndsWithDelimiter);
 	}
 

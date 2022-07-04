@@ -37,7 +37,7 @@ public abstract class MorestachioErrorBase : IMorestachioError
 	protected MorestachioErrorBase(SerializationInfo info, StreamingContext c)
 	{
 		HelpText = info.GetString(nameof(HelpText));
-		Location = TextRangeSerializationHelper.ReadTextRangeFromBinary(nameof(Location), info, c);
+		Location = TextRangeSerializationHelper.ReadTextRange(nameof(Location), info, c);
 	}
 
 	/// <inheritdoc />
@@ -69,7 +69,7 @@ public abstract class MorestachioErrorBase : IMorestachioError
 	public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
 	{
 		info.AddValue(nameof(HelpText), HelpText);
-		TextRangeSerializationHelper.WriteTextRangeExtendedToBinary(nameof(Location), info, context, Location);
+		TextRangeSerializationHelper.WriteTextRangeToBinary(nameof(Location), info, context, Location);
 	}
 
 	/// <inheritdoc />

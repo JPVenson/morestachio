@@ -44,13 +44,13 @@ public abstract class BlockDocumentItemBase : DocumentItemBase,
 		Children = new List<IDocumentItem>(documentItemBases ?? throw new InvalidOperationException());
 			
 		BlockClosingOptions = info.GetValue(nameof(BlockClosingOptions), typeof(ITokenOption[])) as IEnumerable<ITokenOption>;
-		BlockLocation = TextRangeSerializationHelper.ReadTextRangeFromBinary(nameof(BlockLocation), info, c);
+		BlockLocation = TextRangeSerializationHelper.ReadTextRange(nameof(BlockLocation), info, c);
 	}
 	/// <inheritdoc />
 	protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
 	{
 		base.SerializeBinaryCore(info, context);
-		TextRangeSerializationHelper.WriteTextRangeExtendedToBinary(nameof(BlockLocation), info, context, BlockLocation);
+		TextRangeSerializationHelper.WriteTextRangeToBinary(nameof(BlockLocation), info, context, BlockLocation);
 		info.AddValue(nameof(Children), Children.ToArray(), typeof(IDocumentItem[]));
 		info.AddValue(nameof(BlockClosingOptions), BlockClosingOptions?.ToArray(), typeof(ITokenOption[]));
 	}
@@ -96,7 +96,7 @@ public abstract class BlockDocumentItemBase : DocumentItemBase,
 			reader.ReadStartElement(); //nameof(Children)
 			while (!reader.Name.Equals(nameof(Children)) && reader.NodeType != XmlNodeType.EndElement)
 			{
-				var child = DocumentExtensions.CreateDocumentItemInstance(reader.Name);
+				var child = SerializationHelper.CreateDocumentItemInstance(reader.Name);
 
 				var childTree = reader.ReadSubtree();
 				childTree.Read();

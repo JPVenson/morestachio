@@ -40,9 +40,9 @@ public class MorestachioExpressionString : IMorestachioExpression
 	/// <param name="context"></param>
 	protected MorestachioExpressionString(SerializationInfo info, StreamingContext context)
 	{
-		StringParts = (IList<ExpressionStringConstPart>)info.GetValue(nameof(StringParts), typeof(IList<ExpressionStringConstPart>));
+		StringParts = (ExpressionStringConstPart[])info.GetValue(nameof(StringParts), typeof(ExpressionStringConstPart[]));
 
-		Location = TextRangeSerializationHelper.ReadTextRangeFromBinary(nameof(Location), info, context);
+		Location = TextRangeSerializationHelper.ReadTextRange(nameof(Location), info, context);
 		Delimiter = info.GetChar(nameof(Delimiter));
 	}
 
@@ -89,8 +89,8 @@ public class MorestachioExpressionString : IMorestachioExpression
 	/// <inheritdoc />
 	public void GetObjectData(SerializationInfo info, StreamingContext context)
 	{
-		info.AddValue(nameof(StringParts), StringParts);
-		TextRangeSerializationHelper.WriteTextRangeExtendedToBinary(nameof(Location), info, context, Location);
+		info.AddValue(nameof(StringParts), StringParts.ToArray(), typeof(ExpressionStringConstPart[]));
+		TextRangeSerializationHelper.WriteTextRangeToBinary(nameof(Location), info, context, Location);
 		info.AddValue(nameof(Delimiter), Delimiter);
 	}
 

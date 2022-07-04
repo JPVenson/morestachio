@@ -64,7 +64,7 @@ public abstract class ExpressionDocumentItemBase : BlockDocumentItemBase, IEquat
 	protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
 	{
 		base.SerializeBinaryCore(info, context);
-		info.AddValue(nameof(MorestachioExpression), MorestachioExpression);
+		info.AddValue(nameof(MorestachioExpression), MorestachioExpression, typeof(IMorestachioExpression));
 	}
 
 	/// <inheritdoc />

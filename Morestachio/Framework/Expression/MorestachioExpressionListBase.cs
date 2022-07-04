@@ -46,7 +46,7 @@ public abstract class MorestachioExpressionListBase : IMorestachioExpression
 	/// <param name="context"></param>
 	protected MorestachioExpressionListBase(SerializationInfo info, StreamingContext context)
 	{
-		Location = TextRangeSerializationHelper.ReadTextRangeFromBinary(nameof(Location), info, context);
+		Location = TextRangeSerializationHelper.ReadTextRange(nameof(Location), info, context);
 		Expressions = (IMorestachioExpression[])info.GetValue(nameof(Expressions), typeof(IMorestachioExpression[]));
 	}
 
@@ -87,7 +87,7 @@ public abstract class MorestachioExpressionListBase : IMorestachioExpression
 	/// <inheritdoc />
 	public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
 	{
-		TextRangeSerializationHelper.WriteTextRangeExtendedToBinary(nameof(Location), info, context, Location);
+		TextRangeSerializationHelper.WriteTextRangeToBinary(nameof(Location), info, context, Location);
 		info.AddValue(nameof(Expressions), Expressions.ToArray());
 	}
 

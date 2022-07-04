@@ -47,7 +47,7 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 	/// <param name="context"></param>
 	protected MorestachioOperatorExpression(SerializationInfo info, StreamingContext context)
 	{
-		Location = TextRangeSerializationHelper.ReadTextRangeFromBinary(info.GetString(nameof(Location)), info, context);
+		Location = TextRangeSerializationHelper.ReadTextRange(info.GetString(nameof(Location)), info, context);
 		var opText = info.GetString(nameof(Operator));
 		Operator = MorestachioOperator.Yield().First(f => f.OperatorText.Equals(opText));
 		LeftExpression =
@@ -72,7 +72,7 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 	public void GetObjectData(SerializationInfo info, StreamingContext context)
 	{
 		info.AddValue(nameof(Operator), Operator.OperatorText);
-		TextRangeSerializationHelper.WriteTextRangeExtendedToBinary(nameof(Location), info, context, Location);
+		TextRangeSerializationHelper.WriteTextRangeToBinary(nameof(Location), info, context, Location);
 		info.AddValue(nameof(LeftExpression), LeftExpression);
 		info.AddValue(nameof(RightExpression), RightExpression);
 	}

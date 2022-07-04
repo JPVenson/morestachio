@@ -6,7 +6,8 @@ namespace Morestachio.Parsing.ParserErrors;
 /// <summary>
 ///		Defines a range of characters within an template
 /// </summary>
-public readonly struct TextRange
+[Serializable]
+public readonly struct TextRange : ISerializable
 {
 	/// <summary>
 	///		Creates a new Range within a text template
@@ -19,6 +20,12 @@ public readonly struct TextRange
 		RangeEnd = rangeEnd;
 	}
 
+	public TextRange(SerializationInfo serializationInfo, StreamingContext context)
+	{
+		RangeEnd = (TextIndex)serializationInfo.GetValue(nameof(RangeEnd), typeof(TextIndex));
+		RangeStart = (TextIndex)serializationInfo.GetValue(nameof(RangeStart), typeof(TextIndex));
+	}
+
 	/// <summary>
 	///		The index where the range starts
 	/// </summary>
@@ -28,6 +35,13 @@ public readonly struct TextRange
 	///		The index where the range end
 	/// </summary>
 	public TextIndex RangeEnd { get; }
+
+	/// <inheritdoc />
+	public void GetObjectData(SerializationInfo info, StreamingContext context)
+	{
+		info.AddValue(nameof(RangeStart), RangeStart);
+		info.AddValue(nameof(RangeEnd), RangeEnd);
+	}
 
 	/// <summary>
 	///		Defines an unknown text range
@@ -131,7 +145,8 @@ public struct TextRangeContent
 /// <summary>
 ///		Defines an index within a text
 /// </summary>
-public readonly struct TextIndex : IComparable<TextIndex>
+[Serializable]
+public readonly struct TextIndex : IComparable<TextIndex>, ISerializable
 {
 	/// <summary>
 	///		Defines an unknown index within a template
@@ -154,6 +169,21 @@ public readonly struct TextIndex : IComparable<TextIndex>
 		Index = index;
 		Row = row;
 		Column = column;
+	}
+
+	public TextIndex(SerializationInfo serializationInfo, StreamingContext context)
+	{
+		Index = serializationInfo.GetInt32(nameof(Index));
+		Row = serializationInfo.GetInt32(nameof(Row));;
+		Column = serializationInfo.GetInt32(nameof(Column));;
+	}
+
+	/// <inheritdoc />
+	public void GetObjectData(SerializationInfo info, StreamingContext context)
+	{
+		info.AddValue(nameof(Index), Index);
+		info.AddValue(nameof(Row), Row);
+		info.AddValue(nameof(Column), Column);
 	}
 
 	/// <summary>

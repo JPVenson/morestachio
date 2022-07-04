@@ -3,7 +3,10 @@ using System.Xml;
 
 namespace Morestachio.Parsing.ParserErrors;
 
-internal static class TextRangeSerializationHelper
+/// <summary>
+///		Contains methods for serializing <see cref="TextRange"/>
+/// </summary>
+public static class TextRangeSerializationHelper
 {
 	public static TextRange ReadTextRangeFromXml(XmlReader reader, string name)
 	{
@@ -42,7 +45,8 @@ internal static class TextRangeSerializationHelper
 		writer.WriteAttributeString(nameof(TextRange.RangeStart.Column), index.Column.ToString());
 	}
 
-	private class TextRangeFassade
+	[Serializable]
+	private class TextRangeFassade : ISerializable
 	{
 		public TextRangeFassade()
 		{
@@ -50,17 +54,42 @@ internal static class TextRangeSerializationHelper
 			RangeStart = new TextIndexFassade();
 		}
 
-		public TextIndexFassade RangeStart { get; }
-		public TextIndexFassade RangeEnd { get; }
+		public TextRangeFassade(SerializationInfo serializationInfo, StreamingContext context)
+		{
+			RangeEnd = serializationInfo.GetValue(nameof(RangeEnd), typeof(TextIndexFassade)) as TextIndexFassade;
+			RangeStart = serializationInfo.GetValue(nameof(RangeStart), typeof(TextIndexFassade)) as TextIndexFassade;
+		}
+
+		public TextIndexFassade RangeStart { get; set; }
+		public TextIndexFassade RangeEnd { get; set; }
 
 		public TextRange AsRange()
 		{
 			return new TextRange(RangeStart.AsTextIndex(), RangeEnd.AsTextIndex());
 		}
-	}
 
-	private class TextIndexFassade
+		/// <inheritdoc />
+		public void GetObjectData(SerializationInfo info, StreamingContext context)
+		{
+			info.AddValue(nameof(RangeStart), RangeStart);
+			info.AddValue(nameof(RangeEnd), RangeEnd);
+		}
+	}
+	
+	[Serializable]
+	private class TextIndexFassade : ISerializable
 	{
+		public TextIndexFassade()
+		{
+			
+		}
+
+		public TextIndexFassade(SerializationInfo serializationInfo, StreamingContext context)
+		{
+			Index = serializationInfo.GetInt32(nameof(Index));
+			Row = serializationInfo.GetInt32(nameof(Row));
+			Column = serializationInfo.GetInt32(nameof(Column));
+		}
 		public int Index { get; set; }
 		public int Row { get; set; }
 		public int Column { get; set; }
@@ -69,15 +98,23 @@ internal static class TextRangeSerializationHelper
 		{
 			return new TextIndex(Index, Row, Column);
 		}
+
+		/// <inheritdoc />
+		public void GetObjectData(SerializationInfo info, StreamingContext context)
+		{
+			info.AddValue(nameof(Index), Index);
+			info.AddValue(nameof(Row), Row);
+			info.AddValue(nameof(Column), Column);
+		}
 	}
 
-	public static TextRange ReadTextRangeFromBinary(string name, SerializationInfo info, StreamingContext c)
+	public static TextRange ReadTextRange(string name, SerializationInfo info, StreamingContext c)
 	{
 		var fassade = info.GetValue(name ?? nameof(TextRange), typeof(TextRangeFassade)) as TextRangeFassade;
 		return fassade.AsRange();
 	}
 
-	public static void WriteTextRangeExtendedToBinary(string name, SerializationInfo info, StreamingContext context, TextRange textRange)
+	public static void WriteTextRangeToBinary(string name, SerializationInfo info, StreamingContext context, TextRange textRange)
 	{
 		var textRangeFassade = new TextRangeFassade()
 		{

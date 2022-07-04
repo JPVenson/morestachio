@@ -13,6 +13,7 @@ using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 #if ValueTask
 using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 using Promise = System.Threading.Tasks.ValueTask;

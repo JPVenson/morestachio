@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Xml;
 using Morestachio.Document;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression.Framework;
@@ -18,89 +17,6 @@ public static class ExpressionParser
 {
 	internal const string ExpressionNodeName = "Expression";
 	internal const string ExpressionKindNodeName = "ExpressionKind";
-
-	internal static IMorestachioExpression ParseExpressionFromKind(this XmlReader reader)
-	{
-		IMorestachioExpression exp = null;
-
-		switch (reader.Name)
-		{
-			case "Expression":
-				exp = new MorestachioExpression();
-
-				break;
-			case "ExpressionMultiPart":
-				exp = new MorestachioMultiPartExpressionList();
-
-				break;
-			case "ExpressionArgList":
-				exp = new MorestachioArgumentExpressionList();
-
-				break;
-			case "ExpressionString":
-				exp = new MorestachioExpressionString();
-
-				break;
-			case "ExpressionNumber":
-				exp = new MorestachioExpressionNumber();
-
-				break;
-			case "ExpressionOperator":
-				exp = new MorestachioOperatorExpression();
-
-				break;
-			case "ExpressionBracket":
-				exp = new MorestachioBracketExpression();
-
-				break;
-			default:
-				throw new ArgumentOutOfRangeException(nameof(ExpressionKindNodeName));
-		}
-
-		exp.ReadXml(reader);
-
-		return exp;
-	}
-
-	internal static void WriteExpressionToXml(this XmlWriter writer, IMorestachioExpression morestachioExpression)
-	{
-		switch (morestachioExpression)
-		{
-			case MorestachioExpression _:
-				writer.WriteStartElement("Expression");
-
-				break;
-			case MorestachioBracketExpression _:
-				writer.WriteStartElement("ExpressionBracket");
-
-				break;
-			case MorestachioArgumentExpressionList _:
-				writer.WriteStartElement("ExpressionArgList");
-
-				break;
-			case MorestachioMultiPartExpressionList _:
-				writer.WriteStartElement("ExpressionMultiPart");
-
-				break;
-			case MorestachioExpressionString _:
-				writer.WriteStartElement("ExpressionString");
-
-				break;
-			case MorestachioExpressionNumber _:
-				writer.WriteStartElement("ExpressionNumber");
-
-				break;
-			case MorestachioOperatorExpression _:
-				writer.WriteStartElement("ExpressionOperator");
-
-				break;
-			default:
-				throw new ArgumentOutOfRangeException(nameof(morestachioExpression));
-		}
-
-		morestachioExpression.WriteXml(writer);
-		writer.WriteEndElement();
-	}
 
 	internal static string StringifyVariableAssignmentType(TokenType type)
 	{

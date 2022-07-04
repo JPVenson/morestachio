@@ -34,7 +34,7 @@ public class MorestachioLambdaExpression : IMorestachioExpression
 	/// <param name="context"></param>
 	public MorestachioLambdaExpression(SerializationInfo info, StreamingContext context)
 	{
-		Location = TextRangeSerializationHelper.ReadTextRangeFromBinary(info.GetString(nameof(Location)), info, context);
+		Location = TextRangeSerializationHelper.ReadTextRange(info.GetString(nameof(Location)), info, context);
 		Expression = info.GetValue(nameof(Expression), typeof(IMorestachioExpression)) as IMorestachioExpression;
 		Parameters = info.GetValue(nameof(Parameters), typeof(IMorestachioExpression)) as IMorestachioExpression;
 	}
@@ -42,7 +42,7 @@ public class MorestachioLambdaExpression : IMorestachioExpression
 	/// <inheritdoc />
 	public void GetObjectData(SerializationInfo info, StreamingContext context)
 	{
-		TextRangeSerializationHelper.WriteTextRangeExtendedToBinary(nameof(Location), info, context, Location);
+		TextRangeSerializationHelper.WriteTextRangeToBinary(nameof(Location), info, context, Location);
 		info.AddValue(nameof(Expression), Expression);
 		info.AddValue(nameof(Parameters), Parameters);
 	}
