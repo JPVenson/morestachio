@@ -63,7 +63,7 @@ public class Tokenizer
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	internal static bool IsStringDelimiter(char formatChar)
+	internal static bool IsStringDelimiter(in char formatChar)
 	{
 		return formatChar is '\'' or '\"';
 	}
@@ -75,19 +75,19 @@ public class Tokenizer
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	internal static bool IsEndOfExpression(char formatChar)
+	internal static bool IsEndOfExpression(in char formatChar)
 	{
-		return IsEndOfWholeExpression(formatChar) || IsEndOfExpressionSection(formatChar);
+		return IsEndOfWholeExpression(in formatChar) || IsEndOfExpressionSection(in formatChar);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	internal static bool IsEndOfExpressionSection(char formatChar)
+	internal static bool IsEndOfExpressionSection(in char formatChar)
 	{
 		return formatChar == '#';
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	internal static bool IsEndOfWholeExpression(char formatChar)
+	internal static bool IsEndOfWholeExpression(in char formatChar)
 	{
 		return formatChar == ';';
 	}
@@ -99,51 +99,51 @@ public class Tokenizer
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	internal static bool IsWhiteSpaceDelimiter(char formatChar)
+	internal static bool IsWhiteSpaceDelimiter(in char formatChar)
 	{
 		return formatChar is '\r' or '\n' or '\t' or ' ';
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	internal static bool IsExpressionPathChar(char formatChar)
+	internal static bool IsExpressionPathChar(in char formatChar)
 	{
-		return formatChar is '?' or '/' || IsStartOfExpressionPathChar(formatChar);
+		return formatChar is '?' or '/' || IsStartOfExpressionPathChar(in formatChar);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	internal static bool IsStartOfExpressionPathChar(char formatChar)
+	internal static bool IsStartOfExpressionPathChar(in char formatChar)
 	{
-		return formatChar is '$' or '?' || IsSingleExpressionPathChar(formatChar);
+		return formatChar is '$' or '?' || IsSingleExpressionPathChar(in formatChar);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	internal static bool IsSingleExpressionPathChar(char formatChar)
+	internal static bool IsSingleExpressionPathChar(in char formatChar)
 	{
-		return formatChar is '.' or '~' || IsExpressionDataPathChar(formatChar);
+		return formatChar is '.' or '~' || IsExpressionDataPathChar(in formatChar);
 		//|| IsCharRegex.IsMatch(formatChar.ToString());
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	internal static bool IsExpressionDataPathChar(char formatChar)
+	internal static bool IsExpressionDataPathChar(in char formatChar)
 	{
 		return char.IsLetterOrDigit(formatChar) || formatChar == '_';
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	internal static bool IsNumberExpressionChar(char formatChar)
+	internal static bool IsNumberExpressionChar(in char formatChar)
 	{
 		return char.IsDigit(formatChar);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	internal static bool IsExpressionChar(char formatChar)
+	internal static bool IsExpressionChar(in char formatChar)
 	{
-		return IsExpressionPathChar(formatChar) ||
+		return IsExpressionPathChar(in formatChar) ||
 			formatChar is '(' or ')';
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	internal static bool IsPathDelimiterChar(char formatChar)
+	internal static bool IsPathDelimiterChar(in char formatChar)
 	{
 		return formatChar == ',';
 	}
@@ -155,7 +155,7 @@ public class Tokenizer
 	/// <param name="formatChar"></param>
 	/// <returns></returns>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	internal static bool IsOperationChar(char formatChar)
+	internal static bool IsOperationChar(in char formatChar)
 	{
 		return
 			formatChar is '+'
@@ -181,7 +181,7 @@ public class Tokenizer
 	/// <param name="operatorText"></param>
 	/// <returns></returns>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	internal static bool IsOperationString(string operatorText)
+	internal static bool IsOperationString(in string operatorText)
 	{
 		return
 			operatorText is "+"
@@ -207,7 +207,7 @@ public class Tokenizer
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	internal static bool IsEndOfFormatterArgument(char? formatChar)
+	internal static bool IsEndOfFormatterArgument(in char? formatChar)
 	{
 		return formatChar is ',' or '.' or ')';
 	}

@@ -34,13 +34,13 @@ public class Traversable //: IEnumerator<KeyValuePair<string, PathType>>
 		}
 
 		node.HasValue = true;
-		node.Current = values[0];
+		node._current = values[0];
 		node.Count = values.Length - 1;
 
 		for (var index = 1; index < values.Length; index++)
 		{
-			var keyValuePair = values[index];
-			node._next = new Traversable(keyValuePair, values.Length - index - 1);
+			ref var keyValuePair = ref values[index];
+			node._next = new Traversable(ref keyValuePair, values.Length - index - 1);
 			node._next.HasValue = true;
 			node = node._next;
 		}
@@ -49,9 +49,9 @@ public class Traversable //: IEnumerator<KeyValuePair<string, PathType>>
 	/// <summary>
 	/// 
 	/// </summary>
-	private Traversable(KeyValuePair<string, PathType> value, int count)
+	private Traversable(ref KeyValuePair<string, PathType> value, int count)
 	{
-		Current = value;
+		_current = value;
 		Count = count;
 	}
 
@@ -88,13 +88,20 @@ public class Traversable //: IEnumerator<KeyValuePair<string, PathType>>
 		private set;
 	}
 
+	private static KeyValuePair<string, PathType> _noNode = default;
+
 	/// <summary>
 	///		Gets the next element
 	/// </summary>
 	/// <returns></returns>
-	public KeyValuePair<string, PathType> Peek()
+	public ref KeyValuePair<string, PathType> Peek()
 	{
-		return _next?.Current ?? default;
+		if (_next == null)
+		{
+			return ref _noNode;
+		}
+
+		return ref _next.Current;
 	}
 
 	/// <summary>
@@ -115,13 +122,14 @@ public class Traversable //: IEnumerator<KeyValuePair<string, PathType>>
 		return _next;
 	}
 
+	private KeyValuePair<string, PathType> _current;
+
 	/// <summary>
 	///		Gets the current node value
 	/// </summary>
-	public KeyValuePair<string, PathType> Current
+	public ref KeyValuePair<string, PathType> Current
 	{
-		get;
-		private set;
+		get { return ref _current; }
 	}
 
 	/// <summary>

@@ -5,7 +5,7 @@ namespace Morestachio.Framework.Expression.Parser;
 
 internal readonly struct ExpressionToken : IExpressionToken
 {
-	public ExpressionToken(PathTokenizer value, TextRange location)
+	public ExpressionToken(PathTokenizer value, in TextRange location)
 	{
 		TokenType = ExpressionTokenType.Path;
 		Value = value;

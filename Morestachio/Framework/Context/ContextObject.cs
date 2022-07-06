@@ -52,9 +52,9 @@ public class ContextObject
 	///     Initializes a new instance of the <see cref="ContextObject" /> class.
 	/// </summary>
 	public ContextObject(
-		string key,
-		ContextObject parent,
-		object value
+		in string key,
+		in ContextObject parent,
+		in object value
 	)
 	{
 		Key = key;
@@ -164,7 +164,7 @@ public class ContextObject
 	/// </summary>
 	/// <returns></returns>
 	public virtual ContextObject HandlePathContext(
-		PathPartElement currentElement,
+		ref PathPartElement currentElement,
 		IMorestachioExpression morestachioExpression,
 		ScopeData scopeData
 	)
@@ -185,7 +185,7 @@ public class ContextObject
 			return retval;
 		}
 
-		var preHandeld = HandlePathContext(elements.Current, morestachioExpression, scopeData);
+		var preHandeld = HandlePathContext(ref elements.Current, morestachioExpression, scopeData);
 
 		if (preHandeld != null)
 		{

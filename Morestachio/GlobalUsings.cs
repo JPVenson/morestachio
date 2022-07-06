@@ -14,6 +14,7 @@ global using BooleanPromise = System.Threading.Tasks.ValueTask<bool>;
 global using ObjectPromise = System.Threading.Tasks.ValueTask<object>;
 global using StringPromise = System.Threading.Tasks.ValueTask<string>;
 global using ContextObjectPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.Context.ContextObject>;
+global using FormatterCachePromise = System.Threading.Tasks.ValueTask<Morestachio.Formatter.Framework.FormatterCache>;
 
 global using CoreActionPromise = System.Threading.Tasks.ValueTask<System.Tuple<Morestachio.Document.Contracts.IDocumentItem, Morestachio.Framework.Context.ContextObject>>;
 global using TokenizerResultPromise = System.Threading.Tasks.ValueTask<Morestachio.Framework.Tokenizing.TokenizerResult>;
@@ -26,6 +27,7 @@ global using BooleanPromise = System.Threading.Tasks.Task<bool>;
 global using ObjectPromise = System.Threading.Tasks.Task<object>;
 global using StringPromise = System.Threading.Tasks.Task<string>;
 global using ContextObjectPromise = System.Threading.Tasks.Task<Morestachio.Framework.Context.ContextObject>;
+global using FormatterCachePromise = System.Threading.Tasks.Task<Morestachio.Formatter.Framework.FormatterCache>;
 
 global using CoreActionPromise = System.Threading.Tasks.Task<System.Tuple<Morestachio.Document.Contracts.IDocumentItem, Morestachio.Framework.Context.ContextObject>>;
 global using TokenizerResultPromise = System.Threading.Tasks.Task<Morestachio.Framework.Tokenizing.TokenizerResult>;

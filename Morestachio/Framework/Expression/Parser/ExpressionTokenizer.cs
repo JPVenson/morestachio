@@ -276,15 +276,11 @@ public class ExpressionTokenizer
 				continue;
 			}
 
-			if (!pathTokenizer.Add(c, context, index, out Func<TextRange, IMorestachioError> err))
+			if (!pathTokenizer.Add(in c, out Func<TextRange, IMorestachioError> err))
 			{
 				if (!Tokenizer.IsExpressionPathChar(c) || Tokenizer.IsOperationChar(c))
 				{
-					if (c == '('
-						|| c == ')'
-						|| Tokenizer.IsPathDelimiterChar(c)
-						|| Tokenizer.IsEndOfExpression(c)
-						|| Tokenizer.IsOperationChar(c))
+					if (c is '(' or ')' || Tokenizer.IsPathDelimiterChar(c) || Tokenizer.IsEndOfExpression(c) || Tokenizer.IsOperationChar(c))
 						//the only char that can follow on a expression is ether an bracket or an argument seperator or an operator
 					{
 						//consume everything before that current char!

@@ -97,7 +97,7 @@ internal class PathTokenizer
 	private StringBuilder _currentPart;
 	public bool LastCharWasDelimiter { get; set; }
 
-	private bool PartEquals(string text, int offset = 0)
+	private bool PartEquals(in string text, int offset = 0)
 	{
 		if (_currentPart.Length != text.Length)
 		{
@@ -115,7 +115,7 @@ internal class PathTokenizer
 		return true;
 	}
 
-	private bool PartEquals(char text, int offset = 0)
+	private bool PartEquals(in char text, int offset = 0)
 	{
 		if (_currentPart.Length != 1)
 		{
@@ -125,7 +125,7 @@ internal class PathTokenizer
 		return _currentPart[offset] == text;
 	}
 
-	private bool PartStartsWith(char text, int offset = 0)
+	private bool PartStartsWith(in char text, int offset = 0)
 	{
 		if (_currentPart.Length < 1)
 		{
@@ -135,7 +135,7 @@ internal class PathTokenizer
 		return _currentPart[offset] == text;
 	}
 
-	public bool Add(char c, TokenzierContext context, int index, out Func<TextRange, IMorestachioError> errProducer)
+	public bool Add(in char c, out Func<TextRange, IMorestachioError> errProducer)
 	{
 		if (!Tokenizer.IsExpressionPathChar(c))
 		{
@@ -221,7 +221,7 @@ internal class PathTokenizer
 
 		if (_currentPart.Length > 0 && !PartEquals('.') && c == '.')
 		{
-			if (!ComputeCurrentPart(context, index, out errProducer))
+			if (!ComputeCurrentPart(out errProducer))
 			{
 				return false;
 			}
@@ -237,7 +237,7 @@ internal class PathTokenizer
 		return true;
 	}
 
-	private bool ComputeCurrentPart(TokenzierContext context, int index, out Func<TextRange, IMorestachioError> errProducer)
+	private bool ComputeCurrentPart(out Func<TextRange, IMorestachioError> errProducer)
 	{
 		errProducer = null;
 		var checkPathPart = CheckPathPart();
@@ -441,7 +441,7 @@ internal class PathTokenizer
 		}
 		else if (_currentPart.Length > 0 /*.Trim() != string.Empty*/)
 		{
-			if (!ComputeCurrentPart(context, index, out var errProducer))
+			if (!ComputeCurrentPart(out var errProducer))
 			{
 				var text = _currentPart.ToString();
 				var location = TextRange.Range(context, index, 1);

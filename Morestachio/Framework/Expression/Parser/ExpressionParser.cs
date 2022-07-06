@@ -200,15 +200,31 @@ public static class ExpressionParser
 	/// <summary>
 	///     Parses the given text to ether an expression or an string
 	/// </summary>
-	/// <param name="expression"></param>
-	/// <param name="context"></param>
+	/// <param name="expression">the text expression that should be parsed until ether EOEX or ; or #</param>
+	/// <param name="context">the context describing the whole document</param>
 	/// <returns></returns>
 	public static ExpressionParserResult ParseExpression(
 		string expression,
 		TokenzierContext context
 	)
 	{
-		return ParseExpression(expression, context, TextRange.All(expression));
+		return ParseExpression(expression, context, default);
+	}
+
+	/// <summary>
+	///     Parses the given text to ether an expression or an string
+	/// </summary>
+	/// <param name="expression">the text expression that should be parsed until ether EOEX or ; or #</param>
+	/// <param name="context">the context describing the whole document</param>
+	/// <param name="index">the index of the global template where this token is located. Can be null if there is no global template.</param>
+	/// <returns></returns>
+	public static ExpressionParserResult ParseExpression(
+		string expression,
+		TokenzierContext context,
+		TextIndex index
+	)
+	{
+		return ParseExpression(expression, context, TextRange.All(expression), index);
 	}
 
 	/// <summary>
@@ -244,6 +260,7 @@ public static class ExpressionParser
 	/// <param name="text">the text expression that should be parsed until ether EOEX or ; or #</param>
 	/// <param name="context">the context describing the whole document</param>
 	/// <param name="textBoundary">defines the area within text that should be processed</param>
+	/// <param name="index">the index of the global template where this token is located. Can be null if there is no global template.</param>
 	/// <returns></returns>
 	public static ExpressionParserResult ParseExpression(
 		string text,
@@ -254,12 +271,12 @@ public static class ExpressionParser
 	{
 		if (text.Length == 0)
 		{
-			context.Errors.Add(new MorestachioSyntaxError(new TextRange(index, TextIndex.GetIndex(context, index.Index + textBoundary.RangeEnd.Index)), 
+			context.Errors.Add(new MorestachioSyntaxError(new TextRange(index, TextIndex.GetIndex(context, index.Index + textBoundary.RangeEnd.Index)),
 				"", "", "", "expected ether an path expression or an string value"));
 
 			return default;
 		}
-		
+
 		var tokenize = ExpressionTokenizer.TokenizeExpression(text, context, textBoundary, index);
 
 		if (context.Errors.Any())
@@ -448,33 +465,33 @@ public static class ExpressionParser
 		switch (argument)
 		{
 			case MorestachioBracketExpression bracket:
-			{
-				foreach (var morestachioExpression in bracket.Expressions)
 				{
-					if (morestachioExpression is MorestachioExpression exp)
+					foreach (var morestachioExpression in bracket.Expressions)
 					{
-						ValidateArgumentItem(exp, tokens, context, token);
+						if (morestachioExpression is MorestachioExpression exp)
+						{
+							ValidateArgumentItem(exp, tokens, context, token);
+						}
+						else
+						{
+							tokens.SyntaxError(context,
+								token.Location, $"The argument {morestachioExpression.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
+						}
 					}
-					else
-					{
-						tokens.SyntaxError(context,
-							token.Location, $"The argument {morestachioExpression.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
-					}
-				}
 
-				break;
-			}
+					break;
+				}
 			case MorestachioExpression exp:
 				ValidateArgumentItem(exp, tokens, context, token);
 
 				break;
 			default:
-			{
-				tokens.SyntaxError(context,
-					token.Location, $"The argument {argument.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
+				{
+					tokens.SyntaxError(context,
+						token.Location, $"The argument {argument.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
 
-				break;
-			}
+					break;
+				}
 		}
 	}
 
@@ -485,14 +502,14 @@ public static class ExpressionParser
 		LambdaExpressionToken token
 	)
 	{
-		if (argument.FormatterName == null 
-			&& argument.PathParts.HasValue 
-			&& argument.PathParts.Count <= 1 
+		if (argument.FormatterName == null
+			&& argument.PathParts.HasValue
+			&& argument.PathParts.Count <= 1
 			&& argument.PathParts.Current.Value == PathType.DataPath)
 		{
 			return;
 		}
-		
+
 		tokens.SyntaxError(context,
 			token.Location, $"The argument {argument.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
 	}
