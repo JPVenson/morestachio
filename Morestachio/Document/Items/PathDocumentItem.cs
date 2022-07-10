@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Xml;
+using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework;
@@ -16,7 +17,7 @@ namespace Morestachio.Document.Items;
 ///		An single Value expression
 /// </summary>
 [Serializable]
-public class PathDocumentItem : BlockExpressionDocumentItemBase, ISupportCustomAsyncCompilation
+public class PathDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 {
 	/// <summary>
 	///		Used for XML Serialization
@@ -123,8 +124,8 @@ public class PathDocumentItem : BlockExpressionDocumentItemBase, ISupportCustomA
 				outputStream.Write(contextObject.RenderToString(scopeData));
 			}
 		}
-			
-		return Children.WithScope(contextObject);
+
+		return Enumerable.Empty<DocumentItemExecution>();
 	}
 		
 	/// <inheritdoc />

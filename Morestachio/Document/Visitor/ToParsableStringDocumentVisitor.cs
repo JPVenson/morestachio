@@ -188,6 +188,23 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 	}
 
 	/// <summary>
+	///		Writes the tag with the leading char as well as all of the documentItems children
+	/// </summary>
+	/// <param name="documentItem"></param>
+	/// <param name="tag"></param>
+	/// <param name="cmdChar"></param>
+	public void Visit(ExpressionDocumentItemBase documentItem, string tag, string cmdChar = "#")
+	{
+		StringBuilder.Append("{{");
+		CheckForInlineTagLineBreakAtStart(documentItem);
+		StringBuilder.Append(cmdChar);
+		StringBuilder.Append(tag);
+		StringBuilder.Append(documentItem.MorestachioExpression.AsStringExpression());
+		CheckForInlineTagLineBreakAtEnd(documentItem);
+		StringBuilder.Append("}}");
+	}
+
+	/// <summary>
 	///		Writes the Tag and all of the documentItems children
 	/// </summary>
 	/// <param name="documentItem"></param>

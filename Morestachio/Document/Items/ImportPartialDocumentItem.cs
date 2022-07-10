@@ -20,7 +20,7 @@ namespace Morestachio.Document.Items;
 ///		Prints a partial
 /// </summary>
 [Serializable]
-public class ImportPartialDocumentItem : BlockExpressionDocumentItemBase, ISupportCustomAsyncCompilation
+public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 {
 	/// <summary>
 	///		Used for XML Serialization
