@@ -6,6 +6,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -24,7 +25,7 @@ public class RenderPartialDoneDocumentItem : ValueDocumentItemBase, ISupportCust
 	}
 
 	/// <inheritdoc />
-	public RenderPartialDoneDocumentItem(CharacterLocation location,  string partialName,
+	public RenderPartialDoneDocumentItem(TextRange location,  string partialName,
 										IEnumerable<ITokenOption> tagCreationOptions) : base(location, partialName,tagCreationOptions)
 	{
 	}

@@ -22,7 +22,7 @@ public class BlockRegexDocumentItemProvider : BlockRegexDocumentItemProviderBase
 	public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token, ParserOptions options,
 													IEnumerable<ITokenOption> tagCreationOptions)
 	{
-		return new BlockDocumentItemProvider.BlockDocumentItem(token.TokenLocation, _action, value,
+		return new BlockDocumentItemProvider.BlockDocumentItem(token.TokenRange, _action, value,
 			tagCreationOptions);
 	}
 }

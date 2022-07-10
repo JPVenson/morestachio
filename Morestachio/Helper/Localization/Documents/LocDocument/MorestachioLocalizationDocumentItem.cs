@@ -12,6 +12,8 @@ using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper.Localization.Documents.CustomCultureDocument;
 using Morestachio.Helper.Localization.Documents.LocPDocument;
+using Morestachio.Helper.Serialization;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Helper.Localization.Documents.LocDocument;
 
@@ -29,7 +31,7 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 	}
 
 	/// <inheritdoc />
-	public MorestachioLocalizationDocumentItem(CharacterLocation location,
+	public MorestachioLocalizationDocumentItem(TextRange location,
 												IMorestachioExpression value,
 												IMorestachioExpression explicitCulture,
 												IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
@@ -41,7 +43,7 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 	/// <inheritdoc />
 	protected MorestachioLocalizationDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
-		ExplicitCulture = info.GetValue(nameof(ExplicitCulture), typeof(IMorestachioExpression)) as IMorestachioExpression;
+		ExplicitCulture = info.GetValueOrDefault<IMorestachioExpression>(c, nameof(ExplicitCulture));
 	}
 
 	/// <summary>
@@ -102,7 +104,7 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 			
 		var args = Children
 			.OfType<MorestachioLocalizationParameterDocumentItem>()
-			.Cast<ExpressionDocumentItemBase>()
+			.Cast<BlockExpressionDocumentItemBase>()
 			.Select(f =>
 				new Func<ObjectPromise>(async () =>
 					(await f.MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false)).Value))
@@ -159,11 +161,33 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 		visitor.StringBuilder.Append(MorestachioLocalizationBlockProvider.CloseTag);
 		visitor.StringBuilder.Append("}}");
 	}
-		
+
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
+	protected override void SerializeXmlBodyCore(XmlWriter writer)
 	{
-		reader.ReadStartElement();//Path
+		base.SerializeXmlBodyCore(writer);
+		writer.WriteStartElement("Path");
+		writer.WriteExpressionToXml(MorestachioExpression);
+		writer.WriteEndElement();
+
+		if (ExplicitCulture == null)
+		{
+			return;
+		}
+		writer.WriteStartElement("ExplicitCulture");
+		writer.WriteExpressionToXml(ExplicitCulture);
+		writer.WriteEndElement();
+	}
+
+	/// <inheritdoc />
+	protected override void DeSerializeXmlBodyCore(XmlReader reader)
+	{
+		base.DeSerializeXmlBodyCore(reader);
+
+		if (reader.NodeType == XmlNodeType.Element && reader.Name == GetSerializedMarkerName(GetType()))
+		{
+			reader.ReadStartElement(); //Path
+		}
 		var subTree = reader.ReadSubtree();
 		subTree.ReadStartElement();
 		MorestachioExpression = subTree.ParseExpressionFromKind();
@@ -171,32 +195,13 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 		//reader.ReadEndElement();//Path
 		if (reader.Name == nameof(ExplicitCulture))
 		{
-			reader.ReadStartElement();//nameof(ExplicitCulture)
+			reader.ReadStartElement(); //nameof(ExplicitCulture)
 			var subtree = reader.ReadSubtree();
 			subtree.Read();
 			ExplicitCulture = subtree.ParseExpressionFromKind();
 			reader.Skip();
-			reader.ReadEndElement();//nameof(ExplicitCulture)
+			reader.ReadEndElement(); //nameof(ExplicitCulture)
 		}
-		base.DeSerializeXml(reader);
-	}
-		
-	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
-	{
-		writer.WriteStartElement("Path");
-		writer.WriteExpressionToXml(MorestachioExpression);
-		writer.WriteEndElement();
-
-		if (ExplicitCulture == null)
-		{
-			base.SerializeXml(writer);
-			return;
-		}
-		writer.WriteStartElement("ExplicitCulture");
-		writer.WriteExpressionToXml(ExplicitCulture);
-		writer.WriteEndElement();
-		base.SerializeXml(writer);
 	}
 		
 	/// <inheritdoc />

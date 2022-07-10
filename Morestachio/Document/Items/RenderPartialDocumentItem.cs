@@ -10,6 +10,7 @@ using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -28,7 +29,7 @@ public class RenderPartialDocumentItem : ValueDocumentItemBase
 	}
 
 	/// <inheritdoc />
-	public RenderPartialDocumentItem(CharacterLocation location,  string value,  IMorestachioExpression context,
+	public RenderPartialDocumentItem(TextRange location,  string value,  IMorestachioExpression context,
 									IEnumerable<ITokenOption> tagCreationOptions)
 		: base(location, value,tagCreationOptions)
 	{
@@ -55,21 +56,21 @@ public class RenderPartialDocumentItem : ValueDocumentItemBase
 	}
 
 	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
+	protected override void SerializeXmlBodyCore(XmlWriter writer)
 	{
-		base.SerializeXml(writer);
+		base.SerializeXmlBodyCore(writer);
 		if (Context != null)
 		{
 			writer.WriteStartElement("With");
 			writer.WriteExpressionToXml(Context);
-			writer.WriteEndElement();//</with>
+			writer.WriteEndElement(); //</with>
 		}
 	}
 
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
+	protected override void DeSerializeXmlBodyCore(XmlReader reader)
 	{
-		base.DeSerializeXml(reader);
+		base.DeSerializeXmlBodyCore(reader);
 		if (reader.Name == "With")
 		{
 			reader.ReadStartElement();

@@ -36,7 +36,7 @@ namespace Morestachio.Tests.FormatterFunctionTests
 		public async Task TestSelectMany()
 		{
 			var list = new List<(int, char[])>() { (1, new char[] { 'A', 'B' }), (2, new char[] { 'C', 'D' }) };
-			var callFormatter = await CallFormatter<IEnumerable<char>>("this.SelectMany(e => e.Item2)", list);
+			var callFormatter = (await CallFormatter<IEnumerable<char>>("this.SelectMany(e => e.Item2)", list)).ToArray();
 			Assert.That(callFormatter, Is.Not.Null);
 			Assert.That(callFormatter, Has.Length.EqualTo(4));
 			Assert.That(callFormatter, Contains.Item("A").And.Contain("B").And.Contain("C").And.Contain("D"));
@@ -46,7 +46,7 @@ namespace Morestachio.Tests.FormatterFunctionTests
 		public async Task TestTakeWhile()
 		{
 			var list = new List<(int, string)>() { (1, "A"), (2, "B"), (3, "C") };
-			var callFormatter = await CallFormatter<IEnumerable<(int, string)>>("this.TakeWhile(e => e.Item1 < 2)", list);
+			var callFormatter = (await CallFormatter<IEnumerable<(int, string)>>("this.TakeWhile(e => e.Item1 < 2)", list)).ToArray();
 			Assert.That(callFormatter, Is.Not.Null);
 			Assert.That(callFormatter, Has.Length.EqualTo(1));
 			Assert.That(callFormatter, Contains.Item(list[0]));
@@ -56,7 +56,7 @@ namespace Morestachio.Tests.FormatterFunctionTests
 		public async Task TestSkipWhile()
 		{
 			var list = new List<(int, string)>() { (1, "A"), (2, "B"), (3, "C") };
-			var callFormatter = await CallFormatter<IEnumerable<(int, string)>>("this.SkipWhile(e => e.Item1 < 2)", list);
+			var callFormatter = (await CallFormatter<IEnumerable<(int, string)>>("this.SkipWhile(e => e.Item1 < 2)", list)).ToArray();
 			Assert.That(callFormatter, Is.Not.Null);
 			Assert.That(callFormatter, Has.Length.EqualTo(2));
 			Assert.That(callFormatter, Contains.Item(list[1]).And.Contain(list[2]));

@@ -7,6 +7,8 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
+using Morestachio.Helper.Serialization;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -37,7 +39,7 @@ public sealed class MorestachioDocument : BlockDocumentItemBase,
 	/// <summary>
 	///		Used for XML Serialization
 	/// </summary>
-	public MorestachioDocument(CharacterLocation location,
+	public MorestachioDocument(TextRange location,
 								IEnumerable<ITokenOption> tagCreationOptions) : base(location,tagCreationOptions)
 	{
 		MorestachioVersion = GetMorestachioVersion();
@@ -58,8 +60,17 @@ public sealed class MorestachioDocument : BlockDocumentItemBase,
 	}
 
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
+	protected override void SerializeXmlHeaderCore(XmlWriter writer)
 	{
+		base.SerializeXmlHeaderCore(writer);
+		writer.WriteAttributeString(nameof(MorestachioVersion), MorestachioVersion.ToString());
+	}
+
+	/// <inheritdoc />
+	protected override void DeSerializeXmlHeaderCore(XmlReader reader)
+	{
+		base.DeSerializeXmlHeaderCore(reader);
+		
 		var versionAttribute = reader.GetAttribute(nameof(MorestachioVersion));
 
 		if (!Version.TryParse(versionAttribute, out var version))
@@ -69,14 +80,6 @@ public sealed class MorestachioDocument : BlockDocumentItemBase,
 		}
 
 		MorestachioVersion = version;
-		base.DeSerializeXml(reader);
-	}
-
-	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
-	{
-		writer.WriteAttributeString(nameof(MorestachioVersion), MorestachioVersion.ToString());
-		base.SerializeXml(writer);
 	}
 
 	/// <summary>

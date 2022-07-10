@@ -1,11 +1,14 @@
 ﻿using System;
+using Morestachio.Helper.Serialization;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework.Expression.StringParts;
 
 /// <summary>
 ///		A constant part of an string
 /// </summary>
-public class ExpressionStringConstPart : IEquatable<ExpressionStringConstPart>
+[Serializable]
+public class ExpressionStringConstPart : IEquatable<ExpressionStringConstPart>, ISerializable
 {
 	internal ExpressionStringConstPart()
 	{
@@ -15,10 +18,21 @@ public class ExpressionStringConstPart : IEquatable<ExpressionStringConstPart>
 	/// <summary>
 	/// 
 	/// </summary>
-	public ExpressionStringConstPart(string textPart, CharacterLocation location)
+	public ExpressionStringConstPart(string partText, TextRange location)
 	{
 		Location = location;
-		PartText = textPart;
+		PartText = partText;
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="info"></param>
+	/// <param name="c"></param>
+	protected ExpressionStringConstPart(SerializationInfo info, StreamingContext c)
+	{
+		PartText = info.GetString(nameof(PartText));
+		Location = TextRangeSerializationHelper.ReadTextRange(nameof(Location), info, c);
 	}
 
 	/// <summary>
@@ -29,7 +43,14 @@ public class ExpressionStringConstPart : IEquatable<ExpressionStringConstPart>
 	/// <summary>
 	///		Where in the string is this part located
 	/// </summary>
-	public CharacterLocation Location { get; set; }
+	public TextRange Location { get; set; }
+
+	/// <inheritdoc />
+	public void GetObjectData(SerializationInfo info, StreamingContext context)
+	{
+		info.AddValue(nameof(PartText), PartText);
+		TextRangeSerializationHelper.WriteTextRangeToBinary(nameof(Location), info, context, Location);
+	}
 
 	/// <inheritdoc />
 	public bool Equals(ExpressionStringConstPart other)

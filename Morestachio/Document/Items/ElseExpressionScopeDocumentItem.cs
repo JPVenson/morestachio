@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using Morestachio.Document.Contracts;
 using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework;
@@ -10,6 +9,8 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
+using Morestachio.Helper.Serialization;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -30,7 +31,7 @@ public class ElseExpressionScopeDocumentItem : BlockDocumentItemBase, ISupportCu
 	/// <summary>
 	///		Used for XML Serialization
 	/// </summary>
-	internal ElseExpressionScopeDocumentItem(CharacterLocation location,
+	internal ElseExpressionScopeDocumentItem(TextRange location,
 											IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
 	{
 

@@ -20,7 +20,6 @@ public class TokenzierContext
 	{
 		Lines = lines;
 		Errors = new MorestachioErrorCollection();
-		Character = 0;
 		Culture = culture;
 	}
 
@@ -30,9 +29,7 @@ public class TokenzierContext
 	/// <returns></returns>
 	public static TokenzierContext FromText(string expression, CultureInfo culture = null)
 	{
-		var tokenzierContext = new TokenzierContext(
-			Tokenizer.FindNewLines(expression), culture);
-		tokenzierContext.SetLocation(0);
+		var tokenzierContext = new TokenzierContext(Tokenizer.FindNewLines(expression), culture);
 		return tokenzierContext;
 	}
 
@@ -41,20 +38,15 @@ public class TokenzierContext
 	/// </summary>
 	public CultureInfo Culture { get; private set; }
 
-	/// <summary>
-	///		The current total character
-	/// </summary>
-	public int Character { get; private set; }
+	///// <summary>
+	/////		The current total character
+	///// </summary>
+	//public int Character { get; private set; }
 
 	/// <summary>
 	///		Indexes of new lines
 	/// </summary>
 	public List<int> Lines { get; private set; }
-
-	/// <summary>
-	///		The current location responding to the Character
-	/// </summary>
-	public CharacterLocation CurrentLocation { get; private set; }
 
 	/// <summary>
 	///		The list of all tokenizer errors
@@ -103,28 +95,28 @@ public class TokenzierContext
 	/// </summary>
 	public bool TrimAllTailing { get; set; }
 
-	internal CharacterLocation Location(int chars)
-	{
-		return Tokenizer.HumanizeCharacterLocation(chars, Lines);
-	}
+	//internal TextRange Location(int chars)
+	//{
+	//	return Tokenizer.HumanizeTextRange(chars, Lines);
+	//}
 
-	/// <summary>
-	///		Advances the current location by the number of chars
-	/// </summary>
-	public void AdvanceLocation(int chars)
-	{
-		Character += chars;
-		CurrentLocation = Tokenizer.HumanizeCharacterLocation(Character, Lines);
-	}
+	///// <summary>
+	/////		Advances the current location by the number of chars
+	///// </summary>
+	//public void AdvanceLocation(int chars)
+	//{
+	//	Character += chars;
+	//	CurrentLocation = Tokenizer.HumanizeTextRange(Character, Lines);
+	//}
 
-	/// <summary>
-	///		sets the current location
-	/// </summary>
-	public void SetLocation(int chars)
-	{
-		Character = chars;
-		CurrentLocation = Tokenizer.HumanizeCharacterLocation(Character, Lines);
-	}
+	///// <summary>
+	/////		sets the current location
+	///// </summary>
+	//public void SetLocation(int chars)
+	//{
+	//	Character = chars;
+	//	CurrentLocation = Tokenizer.HumanizeTextRange(Character, Lines);
+	//}
 
 	///  <summary>
 	/// 		Sets an Option that was requested from template
@@ -133,7 +125,9 @@ public class TokenzierContext
 	///  <param name="value"></param>
 	///  <param name="parserOptions"></param>
 	///  <returns></returns>
-	public async Promise SetOption(string name, IMorestachioExpression value, ParserOptions parserOptions)
+	public async Promise SetOption(string name, 
+									IMorestachioExpression value, 
+									ParserOptions parserOptions)
 	{
 		var val = (await value.GetValue(new ContextObject(".", null, new object()), new ScopeData(parserOptions)).ConfigureAwait(false))
 			.Value;
@@ -142,13 +136,15 @@ public class TokenzierContext
 		{
 			if (val == null)
 			{
-				Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
-					"SET OPTION", "VALUE", $"The expression returned null for option '{name}' that does not accept a null value"));
+				Errors.Add(new MorestachioSyntaxError(value.Location,
+					"SET OPTION", 
+					"VALUE", 
+					$"The expression returned null for option '{name}' that does not accept a null value"));
 				return;
 			}
 			if (!(val is bool valBool))
 			{
-				Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+				Errors.Add(new MorestachioSyntaxError(value.Location,
 					"SET OPTION", "VALUE", $"The expression returned '{val.GetType()}' for option '{name}' but expected and value of type '{typeof(bool)}'"));
 				return;
 			}
@@ -158,13 +154,13 @@ public class TokenzierContext
 		{
 			if (val == null)
 			{
-				Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+				Errors.Add(new MorestachioSyntaxError(value.Location,
 					"SET OPTION", "VALUE", $"The expression returned null for option '{name}' that does not accept a null value"));
 				return;
 			}
 			if (!(val is bool valBool))
 			{
-				Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+				Errors.Add(new MorestachioSyntaxError(value.Location,
 					"SET OPTION", "VALUE", $"The expression returned '{val.GetType()}' for option '{name}' but expected and value of type '{typeof(bool)}'"));
 				return;
 			}
@@ -174,13 +170,13 @@ public class TokenzierContext
 		{
 			if (val == null)
 			{
-				Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+				Errors.Add(new MorestachioSyntaxError(value.Location,
 					"SET OPTION", "VALUE", $"The expression returned null for option '{name}' that does not accept a null value"));
 				return;
 			}
 			if (!(val is bool valBool))
 			{
-				Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+				Errors.Add(new MorestachioSyntaxError(value.Location,
 					"SET OPTION", "VALUE", $"The expression returned '{val.GetType()}' for option '{name}' but expected and value of type '{typeof(bool)}'"));
 				return;
 			}
@@ -190,13 +186,13 @@ public class TokenzierContext
 		{
 			if (val == null)
 			{
-				Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+				Errors.Add(new MorestachioSyntaxError(value.Location,
 					"SET OPTION", "VALUE", $"The expression returned null for option '{name}' that does not accept a null value"));
 				return;
 			}
 			if (!(val is bool valBool))
 			{
-				Errors.Add(new MorestachioSyntaxError(CurrentLocation.AddWindow(new CharacterSnippedLocation()),
+				Errors.Add(new MorestachioSyntaxError(value.Location,
 					"SET OPTION", "VALUE", $"The expression returned '{val.GetType()}' for option '{name}' but expected and value of type '{typeof(bool)}'"));
 				return;
 			}

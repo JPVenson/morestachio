@@ -6,6 +6,8 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Helper.Serialization;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -14,7 +16,7 @@ namespace Morestachio.Document.Items;
 /// </summary>
 /// <seealso cref="ExpressionScopeDocumentItem"/>
 [Serializable]
-public class InvertedExpressionScopeDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
+public class InvertedExpressionScopeDocumentItem : BlockExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 {
 	/// <summary>
 	///		Used for XML Serialization
@@ -25,7 +27,7 @@ public class InvertedExpressionScopeDocumentItem : ExpressionDocumentItemBase, I
 	}
 
 	/// <inheritdoc />
-	public InvertedExpressionScopeDocumentItem(CharacterLocation location, IMorestachioExpression value,
+	public InvertedExpressionScopeDocumentItem(TextRange location, IMorestachioExpression value,
 												IEnumerable<ITokenOption> tagCreationOptions) : base(location, value,tagCreationOptions)
 	{
 	}

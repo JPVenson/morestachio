@@ -11,6 +11,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -18,7 +19,7 @@ namespace Morestachio.Document.Items;
 ///		Emits the template as long as the condition is true
 /// </summary>
 [Serializable]
-public class DoLoopDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
+public class DoLoopDocumentItem : BlockExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 {
 	/// <summary>
 	///		Used for XML Serialization
@@ -32,7 +33,7 @@ public class DoLoopDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 	///		Creates a new DoLoop DocumentItem that will render its children as long as the value expression meets the <see cref="ContextObject.DefinitionOfFalse"/>
 	/// </summary>
 	/// <param name="value"></param>
-	public DoLoopDocumentItem(CharacterLocation location,
+	public DoLoopDocumentItem(TextRange location,
 							IMorestachioExpression value,
 							IEnumerable<ITokenOption> tagCreationOptions) : base(location, value, tagCreationOptions)
 	{

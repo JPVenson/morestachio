@@ -24,7 +24,7 @@ public class MorestachioUnclosedScopeError : MorestachioErrorBase
 	/// Initializes a new instance of the <see cref="MorestachioSyntaxError"/> class.
 	/// </summary>
 	/// <param name="location">The location.</param>
-	public MorestachioUnclosedScopeError(CharacterLocationExtended location,
+	public MorestachioUnclosedScopeError(TextRange location,
 										string tokenOccured,
 										string syntaxExpected,
 										string helpText = null)
@@ -35,8 +35,8 @@ public class MorestachioUnclosedScopeError : MorestachioErrorBase
 	private static string FormatHelpText(string tokenOccured,
 										string syntaxExpected,
 										string helpText,
-										CharacterLocationExtended location)
+										TextRange location)
 	{
-		return $"line:char '{location.Line}:{location.Character}' - An '{tokenOccured}' block is being opened, but no corresponding opening element '{syntaxExpected}' was detected.{helpText}";
+		return $"line:char '{location}' - An '{tokenOccured}' block is being opened, but no corresponding opening element '{syntaxExpected}' was detected.{helpText}";
 	}
 }

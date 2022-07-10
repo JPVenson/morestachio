@@ -9,6 +9,8 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Helper.Serialization;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Helper.Localization.Documents.CustomCultureDocument;
 
@@ -16,7 +18,7 @@ namespace Morestachio.Helper.Localization.Documents.CustomCultureDocument;
 ///		Will try to get the culture declared by the value and sets the <see cref="LocalizationCultureKey"/> in the <see cref="ScopeData.CustomData"/>
 /// </summary>
 [System.Serializable]
-public class MorestachioCustomCultureLocalizationDocumentItem : ExpressionDocumentItemBase,
+public class MorestachioCustomCultureLocalizationDocumentItem : BlockExpressionDocumentItemBase,
 																ToParsableStringDocumentVisitor.IStringVisitor, ISupportCustomAsyncCompilation
 {
 	internal MorestachioCustomCultureLocalizationDocumentItem()
@@ -30,7 +32,7 @@ public class MorestachioCustomCultureLocalizationDocumentItem : ExpressionDocume
 	}
 
 	/// <inheritdoc />
-	public MorestachioCustomCultureLocalizationDocumentItem(CharacterLocation location,
+	public MorestachioCustomCultureLocalizationDocumentItem(TextRange location,
 															IMorestachioExpression expression,
 															IEnumerable<ITokenOption> tagCreationOptions) 
 		: base(location, expression, tagCreationOptions)
@@ -101,7 +103,7 @@ public class MorestachioCustomCultureLocalizationDocumentItem : ExpressionDocume
 		scopeData.CustomData[LocalizationCultureKey] = requestedCulture;
 
 		var childs = Children.ToList();
-		childs.Add(new ResetCultureDocumentItem(base.ExpressionStart, oldCulture, TagCreationOptions));
+		childs.Add(new ResetCultureDocumentItem(base.Location, oldCulture, TagCreationOptions));
 		return childs.WithScope(context);
 	}
 
@@ -120,7 +122,7 @@ public class MorestachioCustomCultureLocalizationDocumentItem : ExpressionDocume
 		}
 
 		/// <inheritdoc />
-		public ResetCultureDocumentItem(CharacterLocation location, CultureInfo culture,
+		public ResetCultureDocumentItem(TextRange location, CultureInfo culture,
 										IEnumerable<ITokenOption> tagCreationOptions) : base(location, (IEnumerable<ITokenOption>) tagCreationOptions)
 		{
 			_culture = culture;

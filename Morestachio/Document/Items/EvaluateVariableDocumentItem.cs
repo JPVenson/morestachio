@@ -12,6 +12,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -33,7 +34,7 @@ public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase, ISupport
 	/// <param name="value"></param>
 	/// <param name="morestachioExpression"></param>
 	/// <param name="idVariableScope"></param>
-	public EvaluateVariableDocumentItem(CharacterLocation location,
+	public EvaluateVariableDocumentItem(TextRange location,
 										string value,
 										IMorestachioExpression morestachioExpression,
 										int idVariableScope,
@@ -49,7 +50,7 @@ public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase, ISupport
 	/// </summary>
 	/// <param name="value"></param>
 	/// <param name="morestachioExpression"></param>
-	public EvaluateVariableDocumentItem(CharacterLocation location, string value, IMorestachioExpression morestachioExpression,
+	public EvaluateVariableDocumentItem(TextRange location, string value, IMorestachioExpression morestachioExpression,
 										IEnumerable<ITokenOption> tagCreationOptions)
 		: base(location, morestachioExpression, tagCreationOptions)
 	{
@@ -58,7 +59,6 @@ public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase, ISupport
 	}
 
 	/// <inheritdoc />
-
 	protected EvaluateVariableDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
 		Value = info.GetString(nameof(Value));
@@ -74,16 +74,17 @@ public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase, ISupport
 	}
 
 	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
+	protected override void SerializeXmlHeaderCore(XmlWriter writer)
 	{
+		base.SerializeXmlHeaderCore(writer);
 		writer.WriteAttributeString(nameof(Value), Value);
 		writer.WriteAttributeString(nameof(IdVariableScope), IdVariableScope.ToString());
-		base.SerializeXml(writer);
 	}
 
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
+	protected override void DeSerializeXmlHeaderCore(XmlReader reader)
 	{
+		base.DeSerializeXmlHeaderCore(reader);
 		Value = reader.GetAttribute(nameof(Value));
 		var varScope = reader.GetAttribute(nameof(IdVariableScope));
 		if (!int.TryParse(varScope, out var intVarScope))
@@ -92,7 +93,6 @@ public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase, ISupport
 				$" The value for '{nameof(IdVariableScope)}' is expected to be an integer.");
 		}
 		IdVariableScope = intVarScope;
-		base.DeSerializeXml(reader);
 	}
 
 	/// <param name="compiler"></param>
@@ -164,7 +164,7 @@ public class EvaluateLetVariableDocumentItem : EvaluateVariableDocumentItem
 	/// <param name="value"></param>
 	/// <param name="morestachioExpression"></param>
 	/// <param name="idVariableScope"></param>
-	public EvaluateLetVariableDocumentItem(CharacterLocation location,
+	public EvaluateLetVariableDocumentItem(TextRange location,
 											string value,
 											IMorestachioExpression morestachioExpression,
 											int idVariableScope,

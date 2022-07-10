@@ -143,7 +143,7 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 		}
 	}
 
-	private void RenderExpressionTagHead(ExpressionDocumentItemBase documentItem, string tag, string cmdChar = "#")
+	private void RenderExpressionTagHead(BlockExpressionDocumentItemBase documentItem, string tag, string cmdChar = "#")
 	{
 		StringBuilder.Append("{{");
 		CheckForInlineTagLineBreakAtStart(documentItem);
@@ -177,7 +177,7 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 	/// <param name="documentItem"></param>
 	/// <param name="tag"></param>
 	/// <param name="cmdChar"></param>
-	public void Visit(ExpressionDocumentItemBase documentItem, string tag, string cmdChar = "#")
+	public void Visit(BlockExpressionDocumentItemBase documentItem, string tag, string cmdChar = "#")
 	{
 		RenderExpressionTagHead(documentItem, tag, cmdChar);
 		if (documentItem.Children.Any())
@@ -185,6 +185,23 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 			VisitChildren(documentItem);
 			RenderBlockFooter(documentItem, tag);
 		}
+	}
+
+	/// <summary>
+	///		Writes the tag with the leading char as well as all of the documentItems children
+	/// </summary>
+	/// <param name="documentItem"></param>
+	/// <param name="tag"></param>
+	/// <param name="cmdChar"></param>
+	public void Visit(ExpressionDocumentItemBase documentItem, string tag, string cmdChar = "#")
+	{
+		StringBuilder.Append("{{");
+		CheckForInlineTagLineBreakAtStart(documentItem);
+		StringBuilder.Append(cmdChar);
+		StringBuilder.Append(tag);
+		StringBuilder.Append(documentItem.MorestachioExpression.AsStringExpression());
+		CheckForInlineTagLineBreakAtEnd(documentItem);
+		StringBuilder.Append("}}");
 	}
 
 	/// <summary>
@@ -302,7 +319,7 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 		}
 	}
 
-	private void VisitExpressionScope(ExpressionDocumentItemBase documentItem, char prefix)
+	private void VisitExpressionScope(BlockExpressionDocumentItemBase documentItem, char prefix)
 	{
 		StringBuilder.Append("{{");
 		CheckForInlineTagLineBreakAtStart(documentItem);

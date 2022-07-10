@@ -4,6 +4,7 @@ using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Contracts;
 
@@ -31,23 +32,14 @@ public interface IDocumentItem
 	/// <summary>
 	///		If this is a Natural Document item this defines the Position within the Template where the DocumentItem is parsed from
 	/// </summary>
-	CharacterLocation ExpressionStart { get; }
-
-	/// <summary>
-	///		Can be used to allow custom data to be serialized for XML serialization
-	/// </summary>
-	/// <param name="writer"></param>
-	void SerializeXmlCore(XmlWriter writer);
-
-	/// <summary>
-	///		Can be used to allow custom data to be deserialized for XML serialization
-	/// </summary>
-	/// <param name="writer"></param>
-	void DeSerializeXmlCore(XmlReader writer);
+	TextRange Location { get; }
 
 	/// <summary>
 	///		Visits this DocumentItem
 	/// </summary>
 	/// <param name="visitor"></param>
 	void Accept(IDocumentItemVisitor visitor);
+
+	void SerializeToXml(XmlWriter writer);
+	void DeserializeFromXml(XmlReader reader);
 }

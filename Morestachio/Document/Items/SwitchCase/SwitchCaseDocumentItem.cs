@@ -1,11 +1,12 @@
-﻿using Morestachio.Document.Contracts;
-using Morestachio.Document.Items.Base;
+﻿using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Helper.Serialization;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items.SwitchCase;
 
@@ -14,7 +15,7 @@ namespace Morestachio.Document.Items.SwitchCase;
 ///		If used outside a <see cref="SwitchDocumentItem"/>, it will unconditionally render its items
 /// </summary>
 [Serializable]
-public class SwitchCaseDocumentItem : ExpressionDocumentItemBase
+public class SwitchCaseDocumentItem : BlockExpressionDocumentItemBase
 {
 	/// <summary>
 	///		Used for XML Serialization
@@ -25,7 +26,7 @@ public class SwitchCaseDocumentItem : ExpressionDocumentItemBase
 	}
 
 	/// <inheritdoc />
-	public SwitchCaseDocumentItem(CharacterLocation location, 
+	public SwitchCaseDocumentItem(TextRange location, 
 								IMorestachioExpression value,
 								IEnumerable<ITokenOption> tagCreationOptions) : base(location, value, tagCreationOptions)
 	{

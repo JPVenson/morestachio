@@ -6,6 +6,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -13,7 +14,7 @@ namespace Morestachio.Document.Items;
 ///		Emits the template as long as the condition is true
 /// </summary>
 [Serializable]
-public class WhileLoopDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
+public class WhileLoopDocumentItem : BlockExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 {
 	/// <summary>
 	///		Used for XML Serialization
@@ -24,7 +25,7 @@ public class WhileLoopDocumentItem : ExpressionDocumentItemBase, ISupportCustomA
 	}
 
 	/// <inheritdoc />
-	public WhileLoopDocumentItem(CharacterLocation location,
+	public WhileLoopDocumentItem(TextRange location,
 								IMorestachioExpression value,
 								IEnumerable<ITokenOption> tagCreationOptions) : base(location, value, tagCreationOptions)
 	{

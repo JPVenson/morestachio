@@ -61,7 +61,7 @@ namespace Morestachio.Tests
 		{
 			//var testExpression = "test.data.value(data)";
 			var tokenzierContext = TokenzierContext.FromText(testExpression);
-			var parsedExpression = ExpressionParser.ParseExpression(testExpression, tokenzierContext);
+			var parsedExpression = ExpressionParser.ParseExpression(testExpression, tokenzierContext).Expression;
 
 			var builder = new ToParsableStringExpressionVisitor();
 			parsedExpression.Accept(builder);

@@ -10,6 +10,7 @@ using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.IO.SingleStream;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items
 {
@@ -32,7 +33,7 @@ namespace Morestachio.Document.Items
 		/// <summary>
 		///		Creates a new NoPrint DocumentItem
 		/// </summary>
-		public NoPrintDocumentItem(CharacterLocation location,
+		public NoPrintDocumentItem(TextRange location,
 									IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
 		{
 		}

@@ -7,13 +7,18 @@ using System.Xml;
 using Morestachio.Document.Contracts;
 using Morestachio.Framework;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Helper.Serialization;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items.Base;
 
 /// <summary>
 ///		Defines a Document item that contains an opening tag and an closing tag
 /// </summary>
-public abstract class BlockDocumentItemBase : DocumentItemBase, IBlockDocumentItem, IEquatable<BlockDocumentItemBase>, IReportUsage
+public abstract class BlockDocumentItemBase : DocumentItemBase, 
+											IBlockDocumentItem, 
+											IEquatable<BlockDocumentItemBase>,
+											IReportUsage
 {
 	internal BlockDocumentItemBase()
 	{
@@ -23,7 +28,7 @@ public abstract class BlockDocumentItemBase : DocumentItemBase, IBlockDocumentIt
 	/// <summary>
 	///		Creates a new base object for encapsulating document items
 	/// </summary>
-	protected BlockDocumentItemBase(in CharacterLocation location,
+	protected BlockDocumentItemBase(in TextRange location,
 									IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
 	{
 		Children = new List<IDocumentItem>();
@@ -36,18 +41,82 @@ public abstract class BlockDocumentItemBase : DocumentItemBase, IBlockDocumentIt
 	/// <param name="c"></param>
 	protected BlockDocumentItemBase(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
-		var documentItemBases = info.GetValue(nameof(Children), typeof(IDocumentItem[])) as IDocumentItem[];
-		Children = new List<IDocumentItem>(documentItemBases ?? throw new InvalidOperationException());
-			
-		BlockClosingOptions =
-			info.GetValue(nameof(BlockClosingOptions), typeof(ITokenOption[])) as IEnumerable<ITokenOption>;
+		Children = new List<IDocumentItem>(info.GetValueOrEmpty<IDocumentItem>(c, nameof(Children)));
+		BlockClosingOptions = info.GetValueOrDefault<ITokenOption[]>(c, nameof(BlockClosingOptions), () => null);
+		BlockLocation = TextRangeSerializationHelper.ReadTextRange(nameof(BlockLocation), info, c);
+	}
+	/// <inheritdoc />
+	protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
+	{
+		base.SerializeBinaryCore(info, context);
+		TextRangeSerializationHelper.WriteTextRangeToBinary(nameof(BlockLocation), info, context, BlockLocation);
+		info.AddValue(nameof(Children), Children.ToArray(), typeof(IDocumentItem[]));
+		info.AddValue(nameof(BlockClosingOptions), BlockClosingOptions?.ToArray(), typeof(ITokenOption[]));
 	}
 
+	/// <inheritdoc />
+	protected override void SerializeXmlHeaderCore(XmlWriter writer)
+	{
+		base.SerializeXmlHeaderCore(writer);
+		TextRangeSerializationHelper.WriteTextRangeToXml(writer, BlockLocation, nameof(BlockLocation));
+	}
+
+	/// <inheritdoc />
+	protected override void SerializeXmlBodyCore(XmlWriter writer)
+	{
+		base.SerializeXmlBodyCore(writer);
+		if (Children.Any())
+		{
+			writer.WriteStartElement(nameof(Children));
+			foreach (var documentItem in Children)
+			{
+				documentItem.SerializeToXml(writer);
+			}
+
+			writer.WriteEndElement(); //nameof(Children)	
+		}
+
+		writer.WriteOptions(BlockClosingOptions, nameof(BlockClosingOptions));
+	}
+
+	/// <inheritdoc />
+	protected override void DeSerializeXmlHeaderCore(XmlReader reader)
+	{
+		base.DeSerializeXmlHeaderCore(reader);
+		BlockLocation = TextRangeSerializationHelper.ReadTextRangeFromXml(reader, nameof(BlockLocation));
+	}
+
+	/// <inheritdoc />
+	protected override void DeSerializeXmlBodyCore(XmlReader reader)
+	{
+		base.DeSerializeXmlBodyCore(reader);
+		if (reader.Name == nameof(Children))
+		{
+			reader.ReadStartElement(); //nameof(Children)
+			while (!reader.Name.Equals(nameof(Children)) && reader.NodeType != XmlNodeType.EndElement)
+			{
+				var child = SerializationHelper.CreateDocumentItemInstance(reader.Name);
+
+				var childTree = reader.ReadSubtree();
+				childTree.Read();
+				child.DeserializeFromXml(childTree);
+				reader.Skip();
+				Children.Add(child);
+			}
+
+			reader.ReadEndElement(); //nameof(Children)
+		}
+		BlockClosingOptions = reader.ReadOptions(nameof(BlockClosingOptions));
+	}
+	
 	/// <inheritdoc />
 	public IList<IDocumentItem> Children { get; internal set; }
 
 	/// <inheritdoc />
 	public IEnumerable<ITokenOption> BlockClosingOptions { get; set; }
+
+	/// <inheritdoc />
+	public TextRange BlockLocation { get; set; }
 
 	/// <inheritdoc />
 	public virtual bool Equals(BlockDocumentItemBase other)
@@ -77,6 +146,11 @@ public abstract class BlockDocumentItemBase : DocumentItemBase, IBlockDocumentIt
 			return true;
 		}
 
+		if (Equals(BlockLocation, other.BlockLocation))
+		{
+			return true;
+		}
+
 		return (BlockClosingOptions?.SequenceEqual(other.BlockClosingOptions) ?? false);
 	}
 
@@ -91,64 +165,12 @@ public abstract class BlockDocumentItemBase : DocumentItemBase, IBlockDocumentIt
 	}
 
 	/// <inheritdoc />
-	protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
-	{
-		base.SerializeBinaryCore(info, context);
-		info.AddValue(nameof(Children), Children.ToArray(), typeof(IDocumentItem[]));
-		info.AddValue(nameof(BlockClosingOptions), BlockClosingOptions?.ToArray(), typeof(ITokenOption[]));
-	}
-
-	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
-	{
-		base.SerializeXml(writer);
-		if (Children.Any())
-		{
-			writer.WriteStartElement(nameof(Children));
-			foreach (var documentItem in Children)
-			{
-				documentItem.SerializeXmlCore(writer);
-			}
-
-			writer.WriteEndElement(); //nameof(Children)	
-		}
-
-		writer.WriteOptions(BlockClosingOptions, nameof(BlockClosingOptions));
-	}
-
-	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
-	{
-		base.DeSerializeXml(reader);
-		if (reader.NodeType == XmlNodeType.Element && reader.Name == GetSerializedMarkerName(GetType()))
-		{
-			reader.ReadStartElement();
-		}
-		if (reader.Name == "Children")
-		{
-			reader.ReadStartElement(); //nameof(Children)
-			while (!reader.Name.Equals(nameof(Children)) && reader.NodeType != XmlNodeType.EndElement)
-			{
-				var child = DocumentExtensions.CreateDocumentItemInstance(reader.Name);
-
-				var childTree = reader.ReadSubtree();
-				childTree.Read();
-				child.DeSerializeXmlCore(childTree);
-				reader.Skip();
-				Children.Add(child);
-			}
-
-			reader.ReadEndElement(); //nameof(Children)
-		}
-		BlockClosingOptions = reader.ReadOptions(nameof(BlockClosingOptions));
-	}
-
-	/// <inheritdoc />
 	public override int GetHashCode()
 	{
 		unchecked
 		{
 			int hashCode = base.GetHashCode();
+			hashCode = (hashCode * 397) ^ BlockLocation.GetHashCode();
 			hashCode = (hashCode * 397) ^ (Children.Any() ? Children.Select(f => f.GetHashCode()).Aggregate((e, f) => e ^ f) : 0);
 			hashCode = (hashCode * 397) ^ (BlockClosingOptions.Any() ? BlockClosingOptions.Select(f => f.GetHashCode()).Aggregate((e, f) => e ^ f) : 0);
 			return hashCode;

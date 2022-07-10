@@ -11,6 +11,8 @@ using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
+using Morestachio.Helper.Serialization;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -29,7 +31,7 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 	}
 
 	/// <inheritdoc />
-	public ImportPartialDocumentItem(CharacterLocation location,
+	public ImportPartialDocumentItem(TextRange location,
 									IMorestachioExpression value,
 									IMorestachioExpression context,
 									IEnumerable<ITokenOption> tagCreationOptions)
@@ -42,7 +44,7 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 		
 	protected ImportPartialDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
-		Context = info.GetValue(nameof(Context), typeof(IMorestachioExpression)) as IMorestachioExpression;
+		Context = info.GetValueOrDefault<IMorestachioExpression>(c, nameof(Context));
 	}
 
 	/// <summary>
@@ -58,21 +60,21 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 	}
 
 	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
+	protected override void SerializeXmlBodyCore(XmlWriter writer)
 	{
-		base.SerializeXml(writer);
+		base.SerializeXmlBodyCore(writer);
 		if (Context != null)
 		{
 			writer.WriteStartElement("With");
 			writer.WriteExpressionToXml(Context);
-			writer.WriteEndElement();//</with>
+			writer.WriteEndElement(); //</with>
 		}
 	}
 
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
+	protected override void DeSerializeXmlBodyCore(XmlReader reader)
 	{
-		base.DeSerializeXml(reader);
+		base.DeSerializeXmlBodyCore(reader);
 		if (reader.Name == "With")
 		{
 			reader.ReadStartElement();
@@ -83,7 +85,7 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 			reader.ReadEndElement();
 		}
 	}
-
+	
 	private async CoreActionPromise CoreAction(
 		ContextObject context,
 		ScopeData scopeData,

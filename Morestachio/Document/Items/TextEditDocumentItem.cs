@@ -9,6 +9,7 @@ using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -36,7 +37,7 @@ public class TextEditDocumentItem : DocumentItemBase, ISupportCustomCompilation
 	/// <summary>
 	/// 
 	/// </summary>
-	public TextEditDocumentItem(CharacterLocation location,
+	public TextEditDocumentItem(TextRange location,
 								ITextOperation operation,
 								EmbeddedInstructionOrigin embeddedInstructionOrigin,
 								IEnumerable<ITokenOption> tagCreationOptions)
@@ -97,21 +98,22 @@ public class TextEditDocumentItem : DocumentItemBase, ISupportCustomCompilation
 	}
 
 	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
+	protected override void SerializeXmlBodyCore(XmlWriter writer)
 	{
-		base.SerializeXml(writer);
+		base.SerializeXmlBodyCore(writer);
 		writer.WriteStartElement("TextOperation");
 		writer.WriteAttributeString(nameof(ITextOperation.TextOperationType), Operation.TextOperationType.ToString());
 		writer.WriteAttributeString(nameof(EmbeddedInstructionOrigin), EmbeddedInstructionOrigin.ToString());
 		Operation.WriteXml(writer);
-		writer.WriteEndElement();//</TextOperation>
+		writer.WriteEndElement(); //</TextOperation>
 	}
 
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
+	protected override void DeSerializeXmlBodyCore(XmlReader reader)
 	{
-		base.DeSerializeXml(reader);
-		reader.ReadStartElement();//<TextOperation>
+		base.DeSerializeXmlBodyCore(reader);
+		
+		reader.ReadStartElement(); //<TextOperation>
 		AssertElement(reader, "TextOperation");
 		var embeddedState = reader.GetAttribute(nameof(EmbeddedInstructionOrigin));
 		if (!string.IsNullOrEmpty(embeddedState))
@@ -133,8 +135,9 @@ public class TextEditDocumentItem : DocumentItemBase, ISupportCustomCompilation
 		}
 
 		Operation.ReadXml(reader);
-		reader.ReadEndElement();//</TextOperation>
+		reader.ReadEndElement(); //</TextOperation>
 	}
+	
 
 	/// <inheritdoc />
 	public override void Accept(IDocumentItemVisitor visitor)

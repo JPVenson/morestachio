@@ -7,6 +7,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -29,7 +30,7 @@ public class RemoveAliasDocumentItem : ValueDocumentItemBase, ISupportCustomAsyn
 	/// </summary>
 	/// <param name="aliasName"></param>
 	/// <param name="scopeVariableScopeNumber"></param>
-	public RemoveAliasDocumentItem(CharacterLocation location,  string aliasName, int scopeVariableScopeNumber,
+	public RemoveAliasDocumentItem(TextRange location,  string aliasName, int scopeVariableScopeNumber,
 									IEnumerable<ITokenOption> tagCreationOptions) 
 		: base(location, aliasName,tagCreationOptions)
 	{
@@ -49,17 +50,18 @@ public class RemoveAliasDocumentItem : ValueDocumentItemBase, ISupportCustomAsyn
 		base.SerializeBinaryCore(info, context);
 		info.AddValue(nameof(IdVariableScope), IdVariableScope);
 	}
-		
+
 	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
+	protected override void SerializeXmlHeaderCore(XmlWriter writer)
 	{
+		base.SerializeXmlHeaderCore(writer);
 		writer.WriteAttributeString(nameof(IdVariableScope), IdVariableScope.ToString());
-		base.SerializeXml(writer);
 	}
-		
+
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
-	{			
+	protected override void DeSerializeXmlHeaderCore(XmlReader reader)
+	{
+		base.DeSerializeXmlHeaderCore(reader);
 		var varScope = reader.GetAttribute(nameof(IdVariableScope));
 		if (!int.TryParse(varScope, out var intVarScope))
 		{
@@ -67,7 +69,6 @@ public class RemoveAliasDocumentItem : ValueDocumentItemBase, ISupportCustomAsyn
 				$"The value for '{nameof(IdVariableScope)}' is expected to be an integer.");
 		}
 		IdVariableScope = intVarScope;
-		base.DeSerializeXml(reader);
 	}
 
 	/// <param name="compiler"></param>

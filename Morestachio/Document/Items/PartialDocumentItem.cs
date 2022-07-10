@@ -7,6 +7,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -28,7 +29,7 @@ public class PartialDocumentItem : BlockDocumentItemBase, IEquatable<PartialDocu
 	/// Initializes a new instance of the <see cref="PartialDocumentItem"/> class.
 	/// </summary>
 	/// <param name="partialName">The partial name.</param>
-	public PartialDocumentItem(CharacterLocation location,  
+	public PartialDocumentItem(TextRange location,  
 								string partialName,  
 								IEnumerable<ITokenOption> tagCreationOptions) 
 		: base(location, tagCreationOptions)
@@ -53,19 +54,19 @@ public class PartialDocumentItem : BlockDocumentItemBase, IEquatable<PartialDocu
 		info.AddValue(nameof(PartialName), PartialName);
 		base.SerializeBinaryCore(info, context);
 	}
-		
+
 	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
+	protected override void SerializeXmlHeaderCore(XmlWriter writer)
 	{
+		base.SerializeXmlHeaderCore(writer);
 		writer.WriteAttributeString(nameof(PartialName), PartialName);
-		base.SerializeXml(writer);
 	}
-		
+
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
+	protected override void DeSerializeXmlHeaderCore(XmlReader reader)
 	{
+		base.DeSerializeXmlHeaderCore(reader);
 		PartialName = reader.GetAttribute(nameof(PartialName));
-		base.DeSerializeXml(reader);
 	}
 
 	/// <param name="compiler"></param>
@@ -85,7 +86,7 @@ public class PartialDocumentItem : BlockDocumentItemBase, IEquatable<PartialDocu
 	public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
 												ScopeData scopeData)
 	{
-		scopeData.Partials[PartialName] = new MorestachioDocument(ExpressionStart, Enumerable.Empty<ITokenOption>())
+		scopeData.Partials[PartialName] = new MorestachioDocument(Location, Enumerable.Empty<ITokenOption>())
 		{
 			Children = Children
 		};

@@ -16,7 +16,7 @@ namespace Morestachio.Document.Items;
 ///     Emits N items that are in the collection
 /// </summary>
 [Serializable]
-public class EachDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
+public class EachDocumentItem : BlockExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 {
 	/// <summary>
 	///     Used for XML Serialization
@@ -26,7 +26,7 @@ public class EachDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncC
 	}
 
 	/// <inheritdoc />
-	public EachDocumentItem(CharacterLocation location,
+	public EachDocumentItem(TextRange location,
 							IMorestachioExpression value,
 							IEnumerable<ITokenOption> tagCreationOptions)
 		: base(location, value, tagCreationOptions)
@@ -90,12 +90,12 @@ public class EachDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncC
 				parent = parent.Parent;
 			}
 
-			throw new IndexedParseException(CharacterLocationExtended.Empty,
+			throw new IndexedParseException(Location, 
 				string.Format(
 					"{1}'{0}' is used like an array by the template, but is a scalar value or object in your model." +
 					" Complete Expression until Error:{2}",
 					MorestachioExpression.AsStringExpression(), 
-					ExpressionStart,
+					Location,
 					(path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 		}
 

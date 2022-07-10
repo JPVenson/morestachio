@@ -12,6 +12,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -19,7 +20,7 @@ namespace Morestachio.Document.Items;
 ///		Defines a area that has no morestachio keywords and can be rendered as is
 /// </summary>
 [Serializable]
-public class ContentDocumentItem : ValueDocumentItemBase, ISupportCustomCompilation
+public class ContentDocumentItem : BlockValueDocumentItemBase, ISupportCustomCompilation
 {
 	/// <summary>
 	///		Used for XML Serialization
@@ -32,7 +33,7 @@ public class ContentDocumentItem : ValueDocumentItemBase, ISupportCustomCompilat
 	/// <summary>
 	///		Creates a new ContentDocumentItem that represents some static content
 	/// </summary>
-	public ContentDocumentItem(in CharacterLocation location, 
+	public ContentDocumentItem(in TextRange location, 
 								string content,
 								IEnumerable<ITokenOption> tagCreationOptions) 
 		: base(location, content, tagCreationOptions)

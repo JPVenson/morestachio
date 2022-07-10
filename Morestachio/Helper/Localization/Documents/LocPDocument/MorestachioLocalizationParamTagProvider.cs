@@ -25,14 +25,17 @@ public class MorestachioLocalizationParamTagProvider : TagDocumentItemProviderBa
 	/// <inheritdoc />
 	public override IEnumerable<TokenPair> Tokenize(TokenInfo token, ParserOptions options)
 	{
-		yield return new TokenPair(OpenTag.Trim(), token.Token, token.TokenizerContext.CurrentLocation, ExpressionParser.ParseExpression(token.Token.Remove(0, OpenTag.Length).Trim(),
-			token.TokenizerContext));
+		yield return new TokenPair(OpenTag.Trim(), token.Token, token.Location,
+			ExpressionParser.ParseExpression(token.Token.Remove(0, OpenTag.Length).Trim(),
+								token.TokenizerContext,
+								token.Location.RangeStart)
+							.Expression);
 	}
 		
 	/// <inheritdoc />
 	public override IDocumentItem CreateDocumentItem(string tagKeyword, string value, TokenPair token,
 													ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions)
 	{
-		return new MorestachioLocalizationParameterDocumentItem(token.TokenLocation, token.MorestachioExpression, tagCreationOptions);
+		return new MorestachioLocalizationParameterDocumentItem(token.TokenRange, token.MorestachioExpression, tagCreationOptions);
 	}
 }

@@ -11,6 +11,8 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Helper.Serialization;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -18,7 +20,7 @@ namespace Morestachio.Document.Items;
 ///		Defines the start of a Scope
 /// </summary>
 [Serializable]
-public class ExpressionScopeDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
+public class ExpressionScopeDocumentItem : BlockExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 {
 	/// <summary>
 	///		Used for XML Serialization
@@ -29,7 +31,7 @@ public class ExpressionScopeDocumentItem : ExpressionDocumentItemBase, ISupportC
 	}
 
 	/// <inheritdoc />
-	public ExpressionScopeDocumentItem(CharacterLocation location,
+	public ExpressionScopeDocumentItem(TextRange location,
 										IMorestachioExpression value,
 										IEnumerable<ITokenOption> tagCreationOptions) : base(location, value, tagCreationOptions)
 	{

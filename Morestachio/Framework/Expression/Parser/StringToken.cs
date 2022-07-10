@@ -1,8 +1,10 @@
-﻿namespace Morestachio.Framework.Expression.Parser;
+﻿using Morestachio.Parsing.ParserErrors;
+
+namespace Morestachio.Framework.Expression.Parser;
 
 internal readonly struct StringToken : IExpressionToken
 {
-	public StringToken(string value, char delimiter, CharacterLocation location)
+	public StringToken(string value, char delimiter, TextRange location)
 	{
 		TokenType = ExpressionTokenType.String;
 		Value = value;
@@ -12,6 +14,6 @@ internal readonly struct StringToken : IExpressionToken
 
 	public ExpressionTokenType TokenType { get; }
 	public string Value { get; }
-	public CharacterLocation Location { get; }
+	public TextRange Location { get; }
 	public char Delimiter { get; }
 }

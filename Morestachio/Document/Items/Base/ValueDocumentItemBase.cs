@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.Xml;
-using Morestachio.Framework;
+﻿using System.Xml;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Helper.Serialization;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items.Base;
 
@@ -11,7 +9,7 @@ namespace Morestachio.Document.Items.Base;
 ///		A common base class for emitting a single string value
 /// </summary>
 [Serializable]
-public abstract class ValueDocumentItemBase : BlockDocumentItemBase, IEquatable<ValueDocumentItemBase>
+public abstract class ValueDocumentItemBase : DocumentItemBase, IEquatable<ValueDocumentItemBase>
 {
 	internal ValueDocumentItemBase()
 	{
@@ -20,7 +18,7 @@ public abstract class ValueDocumentItemBase : BlockDocumentItemBase, IEquatable<
 	/// <summary>
 	/// 
 	/// </summary>
-	protected ValueDocumentItemBase(in CharacterLocation location, string value,
+	protected ValueDocumentItemBase(in TextRange location, string value,
 									IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
 	{
 		Value = value;
@@ -34,7 +32,7 @@ public abstract class ValueDocumentItemBase : BlockDocumentItemBase, IEquatable<
 	/// <inheritdoc />
 	protected ValueDocumentItemBase(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
-		Value = info.GetString(nameof(Value));
+		Value = info.GetValueOrDefault<string>(c, nameof(Value));
 	}
 		
 	/// <inheritdoc />
@@ -43,10 +41,11 @@ public abstract class ValueDocumentItemBase : BlockDocumentItemBase, IEquatable<
 		base.SerializeBinaryCore(info, context);
 		info.AddValue(nameof(Value), Value);
 	}
-		
+
 	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
+	protected override void SerializeXmlBodyCore(XmlWriter writer)
 	{
+		base.SerializeXmlBodyCore(writer);
 		if (string.IsNullOrEmpty(Value))
 		{
 			return;
@@ -56,23 +55,30 @@ public abstract class ValueDocumentItemBase : BlockDocumentItemBase, IEquatable<
 		writer.WriteString(Value);
 		writer.WriteEndElement();
 	}
-		
+
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
+	protected override void DeSerializeXmlBodyCore(XmlReader reader)
 	{
-		reader.ReadStartElement();
-		if (reader.Name == nameof(Value))
+		base.DeSerializeXmlBodyCore(reader);
+
+		if (!reader.IsEmptyElement)
 		{
-			if (reader.IsEmptyElement)
+			if (reader.NodeType == XmlNodeType.Element && reader.Name == GetSerializedMarkerName(GetType()))
 			{
-				return;
+				reader.ReadStartElement();
 			}
-			//reader.ReadToFollowing(nameof(Value));
-			Value = reader.ReadString();
-			reader.ReadEndElement();
+			if (reader.Name == nameof(Value))
+			{
+				if (reader.IsEmptyElement)
+				{
+					return;
+				}
+				Value = reader.ReadString();
+				reader.ReadEndElement();
+			}
 		}
 	}
-		
+
 	/// <inheritdoc />
 	public bool Equals(ValueDocumentItemBase other)
 	{

@@ -5,6 +5,7 @@ using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.Expression.StringParts;
 using Morestachio.Helper;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Fluent.Expression;
 
@@ -25,7 +26,9 @@ public class MorestachioExpressionBuilderBaseRootApi : MorestachioExpressionBuil
 	/// <returns></returns>
 	public MorestachioExpressionBuilder Parse(string expression)
 	{
-		ExpressionParts.Add(ExpressionParser.ParseExpression(expression, TokenzierContext.FromText(expression), out _));
+		var expressionParserResult = ExpressionParser.ParseExpression(expression, TokenzierContext.FromText(expression));
+		ExpressionParts.Add(expressionParserResult.Expression);
+		Column += expressionParserResult.SourceBoundary.RangeEnd.Index;
 		return this;
 	}
 
@@ -36,7 +39,7 @@ public class MorestachioExpressionBuilderBaseRootApi : MorestachioExpressionBuil
 	/// <returns></returns>
 	public MorestachioExpressionBuilder Number(Number number)
 	{
-		ExpressionParts.Add(new MorestachioExpressionNumber(number, new CharacterLocation(0, Column, Column)));
+		ExpressionParts.Add(new MorestachioExpressionNumber(number, TextRange.Unknown));
 		Column += number.AsParsableString().Length;
 		return this;
 	}
@@ -46,11 +49,11 @@ public class MorestachioExpressionBuilderBaseRootApi : MorestachioExpressionBuil
 	/// </summary>
 	public MorestachioExpressionBuilder String(string text)
 	{
-		ExpressionParts.Add(new MorestachioExpressionString(new CharacterLocation(0, Column, Column), '\"')
+		ExpressionParts.Add(new MorestachioExpressionString(TextRange.Unknown, '\"')
 		{
 			StringParts =
 			{
-				new ExpressionStringConstPart(text, new CharacterLocation(0, Column, Column))
+				new ExpressionStringConstPart(text, TextRange.Unknown)
 			}
 		});
 		Column += text.Length;
@@ -63,7 +66,7 @@ public class MorestachioExpressionBuilderBaseRootApi : MorestachioExpressionBuil
 	/// <returns></returns>
 	public MorestachioExpressionBuilder Null()
 	{
-		var morestachioExpression = new MorestachioExpression(CharacterLocation.Unknown);
+		var morestachioExpression = new MorestachioExpression(TextRange.Unknown);
 		morestachioExpression.PathParts = new Traversable(new[]
 		{
 			new KeyValuePair<string, PathType>(null, PathType.Null)
@@ -79,7 +82,7 @@ public class MorestachioExpressionBuilderBaseRootApi : MorestachioExpressionBuil
 	/// <returns></returns>
 	public MorestachioExpressionBuilder GoToRoot()
 	{
-		var morestachioExpression = new MorestachioExpression(CharacterLocation.Unknown);
+		var morestachioExpression = new MorestachioExpression(TextRange.Unknown);
 		morestachioExpression.PathParts = new Traversable(new[]
 		{
 			new KeyValuePair<string, PathType>(null, PathType.RootSelector)
@@ -94,7 +97,7 @@ public class MorestachioExpressionBuilderBaseRootApi : MorestachioExpressionBuil
 	/// <returns></returns>
 	public MorestachioParentPathExpressionBuilder GoToParent()
 	{
-		var morestachioExpression = new MorestachioExpression(CharacterLocation.Unknown);
+		var morestachioExpression = new MorestachioExpression(TextRange.Unknown);
 		morestachioExpression.PathParts = new Traversable(new[]
 		{
 			new KeyValuePair<string, PathType>(null, PathType.ParentSelector)

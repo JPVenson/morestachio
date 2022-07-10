@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using Morestachio.Framework.Context.Options;
 using Morestachio.Framework.Expression;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework.Tokenizing;
 
@@ -18,10 +19,10 @@ public readonly struct TokenPair
 	/// </summary>
 	public TokenPair(IComparable type,
 					string value,
-					CharacterLocation tokenLocation,
+					TextRange tokenRange,
 					IEnumerable<ITokenOption> tokenOptions,
 					EmbeddedInstructionOrigin isEmbeddedToken = EmbeddedInstructionOrigin.Self)
-		: this(type, value, tokenLocation, null, tokenOptions, isEmbeddedToken)
+		: this(type, value, tokenRange, null, tokenOptions, isEmbeddedToken)
 	{
 	}
 
@@ -30,7 +31,7 @@ public readonly struct TokenPair
 	///		Creates a new Token Pair
 	/// </summary>
 	public TokenPair(IComparable type,
-					CharacterLocation tokenLocation,
+					TextRange tokenLocation,
 					IMorestachioExpression expression,
 					IEnumerable<ITokenOption> tokenOptions,
 					EmbeddedInstructionOrigin isEmbeddedToken = EmbeddedInstructionOrigin.Self)
@@ -44,7 +45,7 @@ public readonly struct TokenPair
 	/// </summary>
 	public TokenPair(IComparable type,
 					string value,
-					CharacterLocation tokenLocation,
+					TextRange tokenRange,
 					IMorestachioExpression expression,
 					IEnumerable<ITokenOption> tokenOptions,
 					EmbeddedInstructionOrigin isEmbeddedToken = EmbeddedInstructionOrigin.Self)
@@ -62,7 +63,7 @@ public readonly struct TokenPair
 		}
 			
 		IsEmbeddedToken = isEmbeddedToken;
-		TokenLocation = tokenLocation;
+		TokenRange = tokenRange;
 		Value = value;
 	}
 
@@ -71,9 +72,9 @@ public readonly struct TokenPair
 	/// </summary>
 	public TokenPair(IComparable type,
 					string value,
-					CharacterLocation tokenLocation,
+					TextRange tokenRange,
 					EmbeddedInstructionOrigin isEmbeddedToken = EmbeddedInstructionOrigin.Self)
-		: this(type, value, tokenLocation, null, null, isEmbeddedToken)
+		: this(type, value, tokenRange, null, null, isEmbeddedToken)
 	{
 	}
 
@@ -82,7 +83,7 @@ public readonly struct TokenPair
 	///		Creates a new Token Pair
 	/// </summary>
 	public TokenPair(IComparable type,
-					CharacterLocation tokenLocation,
+					TextRange tokenLocation,
 					IMorestachioExpression expression,
 					EmbeddedInstructionOrigin isEmbeddedToken = EmbeddedInstructionOrigin.Self)
 		: this(type, null, tokenLocation, expression, null, isEmbeddedToken)
@@ -95,10 +96,10 @@ public readonly struct TokenPair
 	/// </summary>
 	public TokenPair(IComparable type,
 					string value,
-					CharacterLocation tokenLocation,
+					TextRange tokenRange,
 					IMorestachioExpression expression,
 					EmbeddedInstructionOrigin isEmbeddedToken = EmbeddedInstructionOrigin.Self)
-		: this(type, value, tokenLocation, expression, null, isEmbeddedToken)
+		: this(type, value, tokenRange, expression, null, isEmbeddedToken)
 	{
 	}
 
@@ -108,7 +109,7 @@ public readonly struct TokenPair
 	public EmbeddedInstructionOrigin IsEmbeddedToken { get; }
 
 	/// <summary>
-	///		The type of this Token
+	///		The type of this Token. Can be anything for custom tokens but it is recommended to use a string.
 	/// </summary>
 	public IComparable Type { get; }
 
@@ -131,7 +132,7 @@ public readonly struct TokenPair
 	/// <summary>
 	///		Where does this token occure in the Template
 	/// </summary>
-	public CharacterLocation TokenLocation { get; }
+	public TextRange TokenRange { get; }
 
 	/// <summary>
 	///		Searches in the TokenOptions and returns the value if found
@@ -183,6 +184,11 @@ public readonly struct TokenPair
 		public string Type
 		{
 			get { return _pair.Type.ToString(); }
+		}
+
+		public TextRange Range
+		{
+			get { return _pair.TokenRange; }
 		}
 
 		public string Value

@@ -8,6 +8,8 @@ using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Helper.Serialization;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -15,7 +17,7 @@ namespace Morestachio.Document.Items;
 ///		Defines the start of a Scope
 /// </summary>
 [Serializable]
-public class IfExpressionScopeDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
+public class IfExpressionScopeDocumentItem : BlockExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 {
 	/// <summary>
 	///		Used for XML Serialization
@@ -25,7 +27,7 @@ public class IfExpressionScopeDocumentItem : ExpressionDocumentItemBase, ISuppor
 	}
 
 	/// <inheritdoc />
-	public IfExpressionScopeDocumentItem(in CharacterLocation location, IMorestachioExpression value,
+	public IfExpressionScopeDocumentItem(in TextRange location, IMorestachioExpression value,
 										IEnumerable<ITokenOption> tagCreationOptions,
 										bool inverted)
 		: base(location, value, tagCreationOptions)
@@ -45,25 +47,22 @@ public class IfExpressionScopeDocumentItem : ExpressionDocumentItemBase, ISuppor
 		base.SerializeBinaryCore(info, context);
 		info.AddValue(nameof(Inverted), Inverted);
 	}
-		
+
 	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
+	protected override void SerializeXmlHeaderCore(XmlWriter writer)
 	{
+		base.SerializeXmlHeaderCore(writer);
 		if (Inverted)
 		{
 			writer.WriteAttributeString(nameof(Inverted), bool.TrueString);
 		}
-		base.SerializeXml(writer);
 	}
-		
+
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
+	protected override void DeSerializeXmlHeaderCore(XmlReader reader)
 	{
-		if (reader.GetAttribute(nameof(Inverted)) == bool.TrueString)
-		{
-			Inverted = true;
-		}
-		base.DeSerializeXml(reader);
+		base.DeSerializeXmlHeaderCore(reader);
+		Inverted = reader.GetAttribute(nameof(Inverted)) == bool.TrueString;
 	}
 		
 	/// <summary>

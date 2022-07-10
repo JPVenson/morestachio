@@ -7,6 +7,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Helper.Localization.Documents.LocPDocument;
 
@@ -14,7 +15,7 @@ namespace Morestachio.Helper.Localization.Documents.LocPDocument;
 ///		Allows the usage of {{#loc expression}} in combination with an <see cref="IMorestachioLocalizationService"/>
 /// </summary>
 [System.Serializable]
-public class MorestachioLocalizationParameterDocumentItem : ExpressionDocumentItemBase,
+public class MorestachioLocalizationParameterDocumentItem : BlockExpressionDocumentItemBase,
 															ToParsableStringDocumentVisitor.IStringVisitor
 {
 	internal MorestachioLocalizationParameterDocumentItem()
@@ -23,7 +24,7 @@ public class MorestachioLocalizationParameterDocumentItem : ExpressionDocumentIt
 	}
 
 	/// <inheritdoc />
-	public MorestachioLocalizationParameterDocumentItem(CharacterLocation location, IMorestachioExpression value,
+	public MorestachioLocalizationParameterDocumentItem(TextRange location, IMorestachioExpression value,
 														IEnumerable<ITokenOption> tagCreationOptions) 
 		: base(location, value, tagCreationOptions)
 	{

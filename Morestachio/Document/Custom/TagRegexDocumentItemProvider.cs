@@ -26,6 +26,6 @@ public class TagRegexDocumentItemProvider : TagRegexDocumentItemProviderBase
 	public override IDocumentItem CreateDocumentItem(string tagKeyword, string value, TokenPair token,
 													ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions)
 	{
-		return new TagDocumentItemProvider.TagDocumentItem(token.TokenLocation, _action, tagKeyword, value, tagCreationOptions);
+		return new TagDocumentItemProvider.TagDocumentItem(token.TokenRange, _action, tagKeyword, value, tagCreationOptions);
 	}
 }

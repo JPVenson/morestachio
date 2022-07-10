@@ -5,6 +5,7 @@ using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Custom;
 
@@ -30,7 +31,7 @@ public class BlockDocumentItemProvider : BlockDocumentItemProviderBase
 	/// <summary>
 	///		The General purpose block
 	/// </summary>
-	public class BlockDocumentItem : ValueDocumentItemBase
+	public class BlockDocumentItem : BlockValueDocumentItemBase
 	{
 		private readonly BlockDocumentProviderFunction _action;
 
@@ -43,7 +44,7 @@ public class BlockDocumentItemProvider : BlockDocumentItemProviderBase
 		}
 
 		/// <inheritdoc />
-		public BlockDocumentItem(CharacterLocation location, 
+		public BlockDocumentItem(TextRange location, 
 								BlockDocumentProviderFunction action, 
 								string value,
 								IEnumerable<ITokenOption> tagCreationOptions) : base(location, value, tagCreationOptions)
@@ -72,6 +73,6 @@ public class BlockDocumentItemProvider : BlockDocumentItemProviderBase
 													 ParserOptions options, 
 													 IEnumerable<ITokenOption> tagCreationOptions)
 	{
-		return new BlockDocumentItem(token.TokenLocation, _action, value, tagCreationOptions);
+		return new BlockDocumentItem(token.TokenRange, _action, value, tagCreationOptions);
 	}
 }

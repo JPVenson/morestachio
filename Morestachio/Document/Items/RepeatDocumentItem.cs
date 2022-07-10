@@ -8,6 +8,7 @@ using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper;
+using Morestachio.Helper.Serialization;
 using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
@@ -16,7 +17,7 @@ namespace Morestachio.Document.Items;
 ///		Repeats the template a number of times
 /// </summary>
 [Serializable]
-public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
+public class RepeatDocumentItem : BlockExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 {
 	internal RepeatDocumentItem()
 	{
@@ -26,7 +27,7 @@ public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 	/// <summary>
 	///		Creates a new repeat document item
 	/// </summary>
-	public RepeatDocumentItem(CharacterLocation location, IMorestachioExpression value,
+	public RepeatDocumentItem(TextRange location, IMorestachioExpression value,
 							IEnumerable<ITokenOption> tagCreationOptions) : base(location, value,tagCreationOptions)
 	{
 	}
@@ -64,12 +65,12 @@ public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 					parent = parent.Parent;
 				}
 
-				throw new IndexedParseException(CharacterLocationExtended.Empty,
+				throw new IndexedParseException(Location,
 					string.Format(
 						"{1}'{0}' is expected to return a integral number but did not." +
 						" Complete Expression until Error:{2}",
 						MorestachioExpression.AsStringExpression(), 
-						base.ExpressionStart,
+						base.Location,
 						(path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 			}
 
@@ -102,10 +103,10 @@ public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 				parent = parent.Parent;
 			}
 
-			throw new IndexedParseException(CharacterLocationExtended.Empty, 
+			throw new IndexedParseException(Location, 
 				string.Format("{1}'{0}' is expected to return a integral number but did not." + " Complete Expression until Error:{2}",
 					MorestachioExpression.AsStringExpression(),
-					ExpressionStart,
+					Location,
 					(path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 		}
 		

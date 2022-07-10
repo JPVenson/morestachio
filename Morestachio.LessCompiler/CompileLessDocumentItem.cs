@@ -13,6 +13,7 @@ using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 #if ValueTask
 using ItemExecutionPromise = System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<Morestachio.Document.Contracts.DocumentItemExecution>>;
 using Promise = System.Threading.Tasks.ValueTask;
@@ -32,7 +33,7 @@ namespace Morestachio.LessCompiler
 	/// <summary>
 	///		Binary serialization ctor
 	/// </summary>
-	internal CompileLessDocumentItem() : base(CharacterLocation.Unknown, null)
+	internal CompileLessDocumentItem() : base(TextRange.Unknown, null)
 	{
 
 	}
@@ -42,7 +43,7 @@ namespace Morestachio.LessCompiler
 	/// </summary>
 	/// <param name="location"></param>
 	/// <param name="tagTokenOptions"></param>
-	public CompileLessDocumentItem(CharacterLocation location, IEnumerable<ITokenOption> tagTokenOptions) 
+	public CompileLessDocumentItem(TextRange location, IEnumerable<ITokenOption> tagTokenOptions) 
 		: base(location, tagTokenOptions)
 	{
 

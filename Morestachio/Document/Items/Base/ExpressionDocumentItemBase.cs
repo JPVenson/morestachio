@@ -1,32 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.Xml;
+﻿using System.Xml;
 using Morestachio.Analyzer.DataAccess;
 using Morestachio.Document.Contracts;
-using Morestachio.Framework;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Helper.Serialization;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items.Base;
 
 /// <summary>
-///     A common base class for emitting a single string value
+///     A common base class for emitting a single string value for a Tag.
 /// </summary>
 [Serializable]
-public abstract class ExpressionDocumentItemBase : BlockDocumentItemBase, IEquatable<ExpressionDocumentItemBase>
+public abstract class ExpressionDocumentItemBase
+	: DocumentItemBase,
+	IEquatable<ExpressionDocumentItemBase>,
+	IReportUsage
 {
 	internal ExpressionDocumentItemBase()
 	{
-			
 	}
 
 	/// <param name="location"></param>
 	/// <inheritdoc />
-	protected ExpressionDocumentItemBase(in CharacterLocation location,
-										IMorestachioExpression expression,
-										IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
+	protected ExpressionDocumentItemBase(
+		in TextRange location,
+		IMorestachioExpression expression,
+		IEnumerable<ITokenOption> tagCreationOptions
+	) : base(location, tagCreationOptions)
 	{
 		MorestachioExpression = expression;
 	}
@@ -34,8 +36,7 @@ public abstract class ExpressionDocumentItemBase : BlockDocumentItemBase, IEquat
 	/// <inheritdoc />
 	protected ExpressionDocumentItemBase(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
-		MorestachioExpression =
-			info.GetValue(nameof(MorestachioExpression), typeof(IMorestachioExpression)) as IMorestachioExpression;
+		MorestachioExpression = info.GetValueOrDefault<IMorestachioExpression>(c, nameof(MorestachioExpression));
 	}
 
 	/// <summary>
@@ -60,28 +61,40 @@ public abstract class ExpressionDocumentItemBase : BlockDocumentItemBase, IEquat
 	}
 
 	/// <inheritdoc />
+	public virtual IEnumerable<string> Usage(UsageData data)
+	{
+		foreach (var usage in MorestachioExpression.InferExpressionUsage(data))
+		{
+			yield return usage;
+		}
+	}
+
+	/// <inheritdoc />
 	protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
 	{
 		base.SerializeBinaryCore(info, context);
-		info.AddValue(nameof(MorestachioExpression), MorestachioExpression);
+		info.AddValue(nameof(MorestachioExpression), MorestachioExpression, typeof(IMorestachioExpression));
 	}
 
 	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
+	protected override void SerializeXmlBodyCore(XmlWriter writer)
 	{
+		base.SerializeXmlBodyCore(writer);
 		writer.WriteExpressionToXml(MorestachioExpression);
-		base.SerializeXml(writer);
 	}
 
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
+	protected override void DeSerializeXmlBodyCore(XmlReader reader)
 	{
-		reader.ReadStartElement();
-		var subtree = reader.ReadSubtree();
-		subtree.Read();
-		MorestachioExpression = subtree.ParseExpressionFromKind();
-		reader.Skip();
-		base.DeSerializeXml(reader);
+		base.DeSerializeXmlBodyCore(reader);
+
+		if (reader.NodeType == XmlNodeType.Element)
+		{
+			var subtree = reader.ReadSubtree();
+			subtree.Read();
+			MorestachioExpression = subtree.ParseExpressionFromKind();
+			reader.Skip();
+		}
 	}
 
 	/// <inheritdoc />
@@ -102,7 +115,7 @@ public abstract class ExpressionDocumentItemBase : BlockDocumentItemBase, IEquat
 			return false;
 		}
 
-		return Equals((ExpressionDocumentItemBase) obj);
+		return Equals((ExpressionDocumentItemBase)obj);
 	}
 
 	/// <inheritdoc />
@@ -110,20 +123,7 @@ public abstract class ExpressionDocumentItemBase : BlockDocumentItemBase, IEquat
 	{
 		var hashCode = base.GetHashCode();
 		hashCode = (hashCode * 397) ^ MorestachioExpression.GetHashCode();
+
 		return hashCode;
-	}
-
-	/// <inheritdoc />
-	public override IEnumerable<string> Usage(UsageData data)
-	{
-		foreach (var usage in MorestachioExpression.InferExpressionUsage(data))
-		{
-			yield return usage;
-		}
-
-		foreach (var usage in base.Usage(data))
-		{
-			yield return usage;
-		}
 	}
 }

@@ -32,7 +32,7 @@ public abstract class TagRegexDocumentItemProviderBase : CustomDocumentItemProvi
 	public override IEnumerable<TokenPair> Tokenize(TokenInfo token, ParserOptions options)
 	{
 		var tag = _tagRegex.Match(token.Token).Value;
-		yield return new TokenPair(tag, token.Token, token.TokenizerContext.CurrentLocation);
+		yield return new TokenPair(tag, token.Token, token.Location);
 	}
 		
 	/// <inheritdoc />

@@ -33,7 +33,7 @@ namespace Morestachio.Tests
 				.Aggregate((e, f) => e + "\r\n-------------" + f));
 			Assert.That(result, Is.TypeOf<MorestachioExpressionString>());
 			var expressionString = (result as MorestachioExpressionString);
-			Assert.That(expressionString.Location.ToFormatString(), Is.EqualTo("1:1,1"));
+			Assert.That(expressionString.Location.ToString(), Is.EqualTo("0:0:0|6:0:6"));
 			Assert.That(expressionString.StringParts.Count, Is.EqualTo(1));
 			Assert.That((await expressionString.GetValue(StringTestContext(), new ScopeData(ParserFixture.TestBuilder().Build()))).Value, Is.EqualTo("test"));
 		}
@@ -56,7 +56,7 @@ namespace Morestachio.Tests
 
 			Assert.That(result, Is.TypeOf<MorestachioExpressionString>());
 			var expressionString = (result as MorestachioExpressionString);
-			Assert.That(expressionString.Location.ToFormatString(), Is.EqualTo("1:1,1"));
+			Assert.That(expressionString.Location.ToString(), Is.EqualTo("0:0:0|88:0:88"));
 			Assert.That(expressionString.StringParts.Count, Is.EqualTo(1));
 			Assert.That((await expressionString.GetValue(StringTestContext(), new ScopeData(ParserFixture.TestBuilder().Build()))).Value, Is.EqualTo("a string, with a comma, and other {[]}{§$%& stuff. also a escaped \" and \\\" and so on"));
 		}

@@ -1,10 +1,11 @@
-﻿using Morestachio.Document.Contracts;
-using Morestachio.Document.Items.Base;
+﻿using Morestachio.Document.Items.Base;
 using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Helper.Serialization;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items.SwitchCase;
 
@@ -26,7 +27,7 @@ public class SwitchDefaultDocumentItem : BlockDocumentItemBase
 	/// <summary>
 	///		Used for XML Serialization
 	/// </summary>
-	public SwitchDefaultDocumentItem(CharacterLocation location,
+	public SwitchDefaultDocumentItem(TextRange location,
 									IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
 	{
 

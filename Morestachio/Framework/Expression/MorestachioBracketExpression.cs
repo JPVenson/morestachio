@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Morestachio.Framework.Expression.Visitors;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework.Expression;
 
@@ -15,7 +16,7 @@ public class MorestachioBracketExpression : MorestachioMultiPartExpressionList
 
 	}
 
-	internal MorestachioBracketExpression(CharacterLocation location) : base(location)
+	internal MorestachioBracketExpression(TextRange location) : base(location)
 	{
 	}
 
@@ -53,7 +54,7 @@ public class MorestachioBracketExpression : MorestachioMultiPartExpressionList
 			}
 		}
 
-		public CharacterLocation Location
+		public TextRange Location
 		{
 			get { return _exp.Location; }
 		}

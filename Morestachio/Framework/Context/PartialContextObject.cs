@@ -17,7 +17,7 @@ public class PartialContextObject : ContextObject
 	}
 
 	/// <inheritdoc />
-	public override ContextObject HandlePathContext(KeyValuePair<string, PathType> currentElement,
+	public override ContextObject HandlePathContext(ref KeyValuePair<string, PathType> currentElement,
 													IMorestachioExpression morestachioExpression,
 													ScopeData scopeData)
 	{

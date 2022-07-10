@@ -6,6 +6,8 @@ using Morestachio.Formatter.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression.Parser;
 using Morestachio.Framework.Expression.Visitors;
+using Morestachio.Helper.Serialization;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework.Expression;
 
@@ -46,7 +48,7 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 	/// <param name="context"></param>
 	protected MorestachioOperatorExpression(SerializationInfo info, StreamingContext context)
 	{
-		Location = CharacterLocation.FromFormatString(info.GetString(nameof(Location)));
+		Location = TextRangeSerializationHelper.ReadTextRange(info.GetString(nameof(Location)), info, context);
 		var opText = info.GetString(nameof(Operator));
 		Operator = MorestachioOperator.Yield().First(f => f.OperatorText.Equals(opText));
 		LeftExpression =
@@ -60,7 +62,7 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 	/// </summary>
 	/// <param name="operator"></param>
 	/// <param name="location"></param>
-	public MorestachioOperatorExpression(MorestachioOperator @operator, IMorestachioExpression leftExpression, CharacterLocation location)
+	public MorestachioOperatorExpression(MorestachioOperator @operator, IMorestachioExpression leftExpression, TextRange location)
 	{
 		Operator = @operator;
 		Location = location;
@@ -71,7 +73,7 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 	public void GetObjectData(SerializationInfo info, StreamingContext context)
 	{
 		info.AddValue(nameof(Operator), Operator.OperatorText);
-		info.AddValue(nameof(Location), Location.ToFormatString());
+		TextRangeSerializationHelper.WriteTextRangeToBinary(nameof(Location), info, context, Location);
 		info.AddValue(nameof(LeftExpression), LeftExpression);
 		info.AddValue(nameof(RightExpression), RightExpression);
 	}
@@ -87,7 +89,7 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 	{
 		var opText = reader.GetAttribute(nameof(Operator));
 		Operator = MorestachioOperator.Yield().First(f => f.OperatorText.Equals(opText));
-		Location = CharacterLocation.FromFormatString(reader.GetAttribute(nameof(Location)));
+		Location = TextRangeSerializationHelper.ReadTextRangeFromXml(reader, "Location");
 		reader.ReadStartElement();
 		var leftSubTree = reader.ReadSubtree();
 		LeftExpression = leftSubTree.ParseExpressionFromKind();
@@ -102,7 +104,7 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 	public void WriteXml(XmlWriter writer)
 	{
 		writer.WriteAttributeString(nameof(Operator), Operator.OperatorText);
-		writer.WriteAttributeString(nameof(Location), Location.ToFormatString());
+		TextRangeSerializationHelper.WriteTextRangeToXml(writer, Location, "Location");
 		writer.WriteStartElement(nameof(LeftExpression));
 		writer.WriteExpressionToXml(LeftExpression);
 		writer.WriteEndElement();//LeftExpression
@@ -164,7 +166,7 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 	}
 
 	/// <inheritdoc />
-	public CharacterLocation Location { get; private set; }
+	public TextRange Location { get; private set; }
 
 	/// <summary>
 	///		If the operator was called once this contains the exact formatter match that was executed and can be reused for execution
@@ -294,6 +296,11 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 			{
 				return _exp.AsDebugExpression();
 			}
+		}
+
+		public TextRange Location
+		{
+			get { return _exp.Location; }
 		}
 
 		public string Operator

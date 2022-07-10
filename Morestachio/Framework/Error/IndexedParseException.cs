@@ -9,14 +9,12 @@ namespace Morestachio.Framework.Error;
 /// </summary>
 public class IndexedParseException : MorestachioException
 {
-	internal static string FormatMessage(string message, CharacterLocationExtended location)
+	internal static string FormatMessage(string message, TextRange location)
 	{
-		return $"{location.Line}:{location.Character} {message}" +
-			Environment.NewLine +
-			location.Render();
+		return $"{location.RangeStart.ToString()} {message}";
 	}
 
-	internal IndexedParseException(CharacterLocationExtended location, string message)
+	internal IndexedParseException(TextRange location, string message)
 		: base(FormatMessage(message, location))
 	{
 		Location = location;
@@ -25,7 +23,7 @@ public class IndexedParseException : MorestachioException
 	/// <summary>
 	///		The location of the error within the original template
 	/// </summary>
-	public CharacterLocationExtended Location { get; set; }
+	public TextRange Location { get; set; }
 }
 
 /// <summary>

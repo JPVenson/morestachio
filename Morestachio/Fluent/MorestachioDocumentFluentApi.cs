@@ -33,36 +33,41 @@ public class MorestachioDocumentFluentApi
 	/// <returns></returns>
 	public static MorestachioNode CreateNodes(MorestachioNode parent, IDocumentItem document, out List<MorestachioNode> nodes)
 	{
-		nodes = new List<MorestachioNode>();
-		var stack = new Stack<Tuple<IDocumentItem, IDocumentItem>>();
-		stack.Push(new Tuple<IDocumentItem, IDocumentItem>(parent?.Item, document));
-		var rootNode = new MorestachioNode(parent, document);
-
-		while (stack.Any())
+		var nodesList = new List<MorestachioNode>();
+		var stack = new Stack<Tuple<MorestachioNode, IDocumentItem>>();
+		
+		void PushNode(MorestachioNode node)
 		{
-			var item = stack.Pop();
-			var parentNode = nodes.Find(f => f.Item == item.Item2) ?? rootNode;
+			nodesList.Add(node);
+			node.Ancestor?.Leafs.Add(node);
 
-			var morestachioNode = new MorestachioNode(parentNode, item.Item2);
-			nodes.Add(morestachioNode);
-			parentNode.Leafs.Add(morestachioNode);
-			if (item.Item2 is IBlockDocumentItem blockDocument)
+			if (node.Item is IBlockDocumentItem blockDocument)
 			{
 				foreach (var documentItem in blockDocument.Children.Reverse())
 				{
-					stack.Push(new Tuple<IDocumentItem, IDocumentItem>(item.Item2, documentItem));
+					stack.Push(new Tuple<MorestachioNode, IDocumentItem>(node, documentItem));
 				}
 			}
 		}
 
+		var rootNode = new MorestachioNode(parent, document);
+		PushNode(rootNode);
+
+		while (stack.Any())
+		{
+			var item = stack.Pop();
+			PushNode(new MorestachioNode(item.Item1, item.Item2));
+		}
+
 		var prevNode = rootNode;
-		foreach (var morestachioNode in nodes.Skip(1))
+		foreach (var morestachioNode in nodesList.Skip(1))
 		{
 			prevNode.Next = morestachioNode;
 			morestachioNode.Previous = prevNode;
 			prevNode = morestachioNode;
 		}
 
+		nodes = nodesList;
 		return rootNode;
 	}
 

@@ -5,6 +5,7 @@ using Morestachio.Document.Visitor;
 using Morestachio.Framework;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -25,7 +26,7 @@ public class ElseIfExpressionScopeDocumentItem : IfExpressionScopeDocumentItem, 
 	/// <summary>
 	///		Used for XML Serialization
 	/// </summary>
-	internal ElseIfExpressionScopeDocumentItem(CharacterLocation location,
+	internal ElseIfExpressionScopeDocumentItem(TextRange location,
 												IMorestachioExpression expression,
 												IEnumerable<ITokenOption> tagCreationOptions) : base(location, expression, tagCreationOptions, false)
 	{

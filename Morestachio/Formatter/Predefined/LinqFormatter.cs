@@ -239,4 +239,88 @@ public static class LinqFormatter
 	{
 		return sourceCollection.Skip(arguments.ToInt32(null));
 	}
+
+	[MorestachioFormatter("Where", "Filteres the collection based on the predicate")]
+	public static IEnumerable<T> Where<T>(IEnumerable<T> items, MorestachioTemplateExpression expression)
+	{
+		return items.Where(expression.AsFunc<T, bool>()).ToArray();
+	}
+
+	[MorestachioFormatter("Select", "Selects items from the collection based on the predicate")]
+	public static IEnumerable<TE> Select<T, TE>(IEnumerable<T> items, MorestachioTemplateExpression expression)
+	{
+		return items.Select(expression.AsFunc<T, TE>()).ToArray();
+	}
+
+	[MorestachioFormatter("SelectMany", "Selects a list of items from the collection based on the predicate and flattens them")]
+	public static IEnumerable<TE> SelectMany<T, TE>(IEnumerable<T> items, MorestachioTemplateExpression expression)
+	{
+		return items.SelectMany(expression.AsFunc<T, IEnumerable<TE>>()).ToArray();
+	}
+	
+	[MorestachioFormatter("OrderBy", "Orders the list descending")]
+	public static IEnumerable<T> OrderBy<T>(IEnumerable<T> items, MorestachioTemplateExpression expression)
+	{
+		return items.OrderBy(expression.AsFunc<T, object>()).ToArray();
+	}
+
+	[MorestachioFormatter("OrderBy", "Orders the list descending")]
+	public static IEnumerable<T> OrderBy<T>(IEnumerable<T> items)
+	{
+		return items.OrderBy(e => e).ToArray();
+	}
+
+	[MorestachioFormatter("ThenBy", "Orders the list descending")]
+	public static IEnumerable<T> ThenBy<T>(IOrderedEnumerable<T> items)
+	{
+		return items.ThenBy(e => e).ToArray();
+	}
+
+	[MorestachioFormatter("ThenBy", "Orders the list descending")]
+	public static IEnumerable<T> ThenBy<T>(IOrderedEnumerable<T> items, MorestachioTemplateExpression expression)
+	{
+		return items.ThenBy(expression.AsFunc<T, bool>());
+	}
+
+	[MorestachioFormatter("GroupBy", "Groups a list")]
+	public static IEnumerable<IGrouping<TE, T>> GroupBy<T, TE>(IEnumerable<T> items, MorestachioTemplateExpression expression)
+	{
+		return items.GroupBy(expression.AsFunc<T, TE>()).ToArray();
+	}
+
+	[MorestachioFormatter("SingleOrDefault", "Gets the only item in the list that matches the predicate")]
+	public static T SingleOrDefault<T>(IEnumerable<T> items)
+	{
+		return items.SingleOrDefault();
+	}
+
+	[MorestachioFormatter("SingleOrDefault", "Gets the only item in the list that matches the predicate")]
+	public static T SingleOrDefault<T>(IEnumerable<T> items, MorestachioTemplateExpression expression)
+	{
+		return items.SingleOrDefault(expression.AsFunc<T, bool>());
+	}
+
+	[MorestachioFormatter("Any", "returns if Any elements in the collection matches the condition")]
+	public static bool Any<T>(IEnumerable<T> items, MorestachioTemplateExpression expression)
+	{
+		return items.Any(expression.AsFunc<T, bool>());
+	}
+
+	[MorestachioFormatter("All", "returns if All elements in the collection matches the condition")]
+	public static bool All<T>(IEnumerable<T> items, MorestachioTemplateExpression expression)
+	{
+		return items.All(expression.AsFunc<T, bool>());
+	}
+
+	[MorestachioFormatter("Count", "Counts all items that matches the predicate")]
+	public static int Count<T>(IEnumerable<T> items, MorestachioTemplateExpression expression)
+	{
+		return items.Count(expression.AsFunc<T, bool>());
+	}
+
+	[MorestachioFormatter("Aggregate", "Counts all items that matches the predicate")]
+	public static T Aggregate<T>(IEnumerable<T> items, MorestachioTemplateExpression expression)
+	{
+		return items.Aggregate(expression.AsFunc<T, T, T>());
+	}
 }

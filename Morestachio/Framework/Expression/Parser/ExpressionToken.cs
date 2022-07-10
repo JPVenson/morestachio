@@ -1,10 +1,11 @@
 ﻿using Morestachio.Framework.Expression.Framework;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework.Expression.Parser;
 
 internal readonly struct ExpressionToken : IExpressionToken
 {
-	public ExpressionToken(PathTokenizer value, CharacterLocation location)
+	public ExpressionToken(PathTokenizer value, in TextRange location)
 	{
 		TokenType = ExpressionTokenType.Path;
 		Value = value;
@@ -13,5 +14,5 @@ internal readonly struct ExpressionToken : IExpressionToken
 
 	public ExpressionTokenType TokenType { get; }
 	public PathTokenizer Value { get; }
-	public CharacterLocation Location { get; }
+	public TextRange Location { get; }
 }

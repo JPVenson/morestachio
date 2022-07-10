@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework.Expression;
 
@@ -18,12 +19,12 @@ public class MorestachioMultiPartExpressionList : MorestachioExpressionListBase
 	}
 
 	/// <inheritdoc />
-	public MorestachioMultiPartExpressionList(CharacterLocation location) : base(location)
+	public MorestachioMultiPartExpressionList(TextRange location) : base(location)
 	{
 	}
 		
 	/// <inheritdoc />
-	public MorestachioMultiPartExpressionList(IList<IMorestachioExpression> expressions, CharacterLocation location) : base(expressions, location)
+	public MorestachioMultiPartExpressionList(IList<IMorestachioExpression> expressions, TextRange location) : base(expressions, location)
 	{
 	}
 		

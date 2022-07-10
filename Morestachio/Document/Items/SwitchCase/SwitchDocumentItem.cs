@@ -8,6 +8,7 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items.SwitchCase;
 
@@ -15,7 +16,7 @@ namespace Morestachio.Document.Items.SwitchCase;
 ///		The document item for a switch block
 /// </summary>
 [Serializable]
-public class SwitchDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
+public class SwitchDocumentItem : BlockExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 {
 	/// <summary>
 	///		Used for XML Serialization
@@ -26,7 +27,7 @@ public class SwitchDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 	}
 
 	/// <inheritdoc />
-	public SwitchDocumentItem(CharacterLocation location,
+	public SwitchDocumentItem(TextRange location,
 							IMorestachioExpression value,
 							bool shouldScopeToValue,
 							IEnumerable<ITokenOption> tagCreationOptions)
@@ -154,17 +155,17 @@ public class SwitchDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyn
 	}
 
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
+	protected override void SerializeXmlHeaderCore(XmlWriter writer)
 	{
-		ScopeToValue = reader.GetAttribute(nameof(ScopeToValue)) == bool.TrueString;
-		base.DeSerializeXml(reader);
+		base.SerializeXmlHeaderCore(writer);
+		writer.WriteAttributeString(nameof(ScopeToValue), ScopeToValue.ToString());
 	}
 
 	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
+	protected override void DeSerializeXmlHeaderCore(XmlReader reader)
 	{
-		writer.WriteAttributeString(nameof(ScopeToValue), ScopeToValue.ToString());
-		base.SerializeXml(writer);
+		base.DeSerializeXmlHeaderCore(reader);
+		ScopeToValue = reader.GetAttribute(nameof(ScopeToValue)) == bool.TrueString;
 	}
 
 	/// <inheritdoc />

@@ -23,18 +23,18 @@ public class InvalidPathSyntaxError : MorestachioErrorBase
 	}
 	
 	/// <inheritdoc />
-	public InvalidPathSyntaxError(CharacterLocationExtended location, string token, string helpText = null)
+	public InvalidPathSyntaxError(TextRange location, string token, string helpText = null)
 		: base(location, FormatHelpText(location, token, helpText))
 	{
 		Token = token;
 	}
 
-	private static string FormatHelpText(CharacterLocationExtended location,
+	private static string FormatHelpText(TextRange location,
 										string token,
 										string userHelpText)
 	{
 		var helpText =
-			$"line:char '{location.Line}:{location.Character}' - The path '{token}' is not valid. Please see documentation for examples of valid paths.";
+			$"line:char '{location}' - The path '{token}' is not valid. Please see documentation for examples of valid paths.";
 		if (userHelpText != null)
 		{
 			helpText += "\r\n" + userHelpText;

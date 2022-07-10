@@ -7,6 +7,8 @@ using Morestachio.Formatter.Framework;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.Visitors;
+using Morestachio.Helper.Serialization;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework.Expression;
 
@@ -23,7 +25,7 @@ public class MorestachioExpression : IMorestachioExpression
 		Formats = new List<ExpressionArgument>();
 	}
 
-	internal MorestachioExpression(in CharacterLocation location) : this()
+	internal MorestachioExpression(in TextRange location) : this()
 	{
 		Location = location;
 	}
@@ -36,20 +38,21 @@ public class MorestachioExpression : IMorestachioExpression
 	protected MorestachioExpression(SerializationInfo info, StreamingContext context)
 	{
 		PathParts = new Traversable(info.GetValue(nameof(PathParts), typeof(KeyValuePair<string, PathType>[])) as KeyValuePair<string, PathType>[]);
-		Formats = info.GetValue(nameof(Formats), typeof(IList<ExpressionArgument>))
-			as IList<ExpressionArgument>;
-		FormatterName = info.GetString(nameof(FormatterName));
-		Location = CharacterLocation.FromFormatString(info.GetString(nameof(Location)));
-		EndsWithDelimiter = info.GetBoolean(nameof(EndsWithDelimiter));
+		Formats = info.GetValueOrEmpty<IMorestachioExpression>(context, nameof(Formats))
+					.OfType<ExpressionArgument>()
+					.ToArray();
+		FormatterName = info.GetValueOrDefault<string>(context, nameof(FormatterName));
+		Location = TextRangeSerializationHelper.ReadTextRange(nameof(Location), info, context);
+		EndsWithDelimiter = info.GetValueOrDefault<bool>(context, nameof(EndsWithDelimiter));
 	}
 
 	/// <inheritdoc />
 	public void GetObjectData(SerializationInfo info, StreamingContext context)
 	{
 		info.AddValue(nameof(PathParts), PathParts.ToArray());
-		info.AddValue(nameof(Formats), Formats);
+		info.AddValue(nameof(Formats), Formats.ToArray(), typeof(IMorestachioExpression[]));
 		info.AddValue(nameof(FormatterName), FormatterName);
-		info.AddValue(nameof(Location), Location.ToFormatString());
+		TextRangeSerializationHelper.WriteTextRangeToBinary(nameof(Location), info, context, Location);
 		info.AddValue(nameof(EndsWithDelimiter), EndsWithDelimiter);
 	}
 
@@ -62,7 +65,7 @@ public class MorestachioExpression : IMorestachioExpression
 	/// <inheritdoc />
 	public void ReadXml(XmlReader reader)
 	{
-		Location = CharacterLocation.FromFormatString(reader.GetAttribute(nameof(Location)));
+		Location = TextRangeSerializationHelper.ReadTextRangeFromXml(reader, "Location");
 		EndsWithDelimiter = reader.GetAttribute(nameof(EndsWithDelimiter)) == bool.TrueString;
 		var pathParts = new List<KeyValuePair<string, PathType>>();
 		reader.ReadStartElement();//Path
@@ -120,7 +123,7 @@ public class MorestachioExpression : IMorestachioExpression
 	/// <inheritdoc />
 	public void WriteXml(XmlWriter writer)
 	{
-		writer.WriteAttributeString(nameof(Location), Location.ToFormatString());
+		TextRangeSerializationHelper.WriteTextRangeToXml(writer, Location, "Location");
 		if (EndsWithDelimiter)
 		{
 			writer.WriteAttributeString(nameof(EndsWithDelimiter), bool.TrueString);
@@ -165,7 +168,7 @@ public class MorestachioExpression : IMorestachioExpression
 	public string FormatterName { get; internal set; }
 
 	/// <inheritdoc />
-	public CharacterLocation Location { get; private set; }
+	public TextRange Location { get; private set; }
 
 	/// <summary>
 	///		The prepared call for an formatter
@@ -181,14 +184,16 @@ public class MorestachioExpression : IMorestachioExpression
 	/// <inheritdoc />
 	public CompiledExpression Compile(ParserOptions parserOptions)
 	{
-		if (!PathParts.HasValue && Formats.Count == 0 && FormatterName == null)
+		var expressionArguments = Formats.ToArray();
+
+		if (!PathParts.HasValue && expressionArguments.Length == 0 && FormatterName == null)
 		{
 			return (contextObject, _) => contextObject.ToPromise();
 		}
-		if (!PathParts.HasValue && Formats.Count == 1 && FormatterName == "")
+		if (!PathParts.HasValue && expressionArguments.Length == 1 && FormatterName == "")
 		{
 			//this enables the usage of brackets. A formatter that has no name and one argument e.g ".(data + 1)" or "(data + 1)" should be considered a bracket
-			return (contextObject, data) => Formats[0].GetValue(contextObject, data);
+			return (contextObject, data) => expressionArguments[0].GetValue(contextObject, data);
 		}
 
 		if (PathParts.Count == 1 && PathParts.Current.Value == PathType.Null)
@@ -205,18 +210,22 @@ public class MorestachioExpression : IMorestachioExpression
 		{
 			var pathQueue = new Func<ContextObject, ScopeData, IMorestachioExpression, ContextObject>[pathParts.Length];
 			var idx = 0;
-			if (pathParts.Length > 0 && pathParts.First().Value == PathType.DataPath)
+			if (pathParts.Length > 0)
 			{
-				var key = pathParts[0].Key;
-				pathQueue[idx++] = ((context, scopeData, expression) =>
+				ref var keyValuePair = ref pathParts[0];
+				if (keyValuePair.Value == PathType.DataPath)
 				{
-					return scopeData.GetVariable(context, key) ?? context.ExecuteDataPath(key, expression, scopeData);
-				});
+					var key = keyValuePair.Key;
+					pathQueue[idx++] = ((context, scopeData, expression) =>
+					{
+						return scopeData.GetVariable(context, key) ?? context.ExecuteDataPath(key, expression, scopeData);
+					});
+				}
 			}
 
 			for (; idx < pathQueue.Length;)
 			{
-				var pathPart = pathParts[idx];
+				ref var pathPart = ref pathParts[idx];
 				var key = pathPart.Key;
 				switch (pathPart.Value)
 				{
@@ -275,7 +284,7 @@ public class MorestachioExpression : IMorestachioExpression
 					{
 						for (var index = 0; index < pathQueue.Length; index++)
 						{
-							var func = pathQueue[index];
+							ref var func = ref pathQueue[index];
 							contextObject = func(contextObject, data, expression);
 						}
 
@@ -284,7 +293,7 @@ public class MorestachioExpression : IMorestachioExpression
 			}
 		}
 
-		if (!Formats.Any() && FormatterName == null)
+		if (!expressionArguments.Any() && FormatterName == null)
 		{
 			if (getContext == null)
 			{
@@ -294,70 +303,32 @@ public class MorestachioExpression : IMorestachioExpression
 			return (contextObject, data) => getContext(contextObject, data, this).ToPromise();
 		}
 
-		var formatsCompiled = Formats.ToDictionary(f => f, f =>
-		{
-			if (f.IsCompileTimeEval())
-			{
-				return f.GetCompileTimeValue();
-			}
+		var formatsCompiled = new (ExpressionArgument argument, object value)[expressionArguments.Length];
 
-			return f.Compile(parserOptions);
-		}).ToArray();
+		bool allConstants = true;
+		for (int i = 0; i < formatsCompiled.Length; i++)
+		{
+			ref var f = ref expressionArguments[i];
+			var isCompileTimeEval = f.IsCompileTimeEval();
+			allConstants = allConstants && isCompileTimeEval;
+			formatsCompiled[i] = (f, (isCompileTimeEval) ? f.GetCompileTimeValue() : f.Compile(parserOptions));
+		}
 
 		var arguments = new FormatterArgumentType[formatsCompiled.Length];
-		var allConstants = formatsCompiled.All(e => e.Key.IsCompileTimeEval());
 
 		if (allConstants)
 		{
 			for (var index = 0; index < formatsCompiled.Length; index++)
 			{
-				var keyValuePair = formatsCompiled[index];
-				arguments[index] = new FormatterArgumentType(index, keyValuePair.Key.Name, keyValuePair.Value, keyValuePair.Key.MorestachioExpression);
+				ref var keyValuePair = ref formatsCompiled[index];
+				arguments[index] = new FormatterArgumentType(index,
+					keyValuePair.argument.Name,
+					keyValuePair.value,
+					keyValuePair.argument.MorestachioExpression);
 			}
 		}
 
 		FormatterCache cache = null;
-
-		async Promise CallFormatter(
-			ContextObject naturalContext,
-			ContextObject outputContext,
-			ScopeData scopeData)
-		{
-			if (!allConstants)
-			{
-				for (var index = 0; index < formatsCompiled.Length; index++)
-				{
-					var formatterArgument = formatsCompiled[index];
-
-					object value;
-					if (formatterArgument.Value is CompiledExpression cex)
-					{
-						value = (await cex(naturalContext, scopeData).ConfigureAwait(false))?.Value;
-					}
-					else
-					{
-						value = formatterArgument.Value;
-					}
-
-					arguments[index] = new FormatterArgumentType(index, formatterArgument.Key.Name, value, formatterArgument.Key.MorestachioExpression);
-				}
-			}
-
-			if (cache == null)
-			{
-				cache = outputContext.PrepareFormatterCall(
-					outputContext.Value?.GetType() ?? typeof(object),
-					FormatterName,
-					arguments,
-					scopeData);
-			}
-
-			if (cache != null)
-			{
-				outputContext._value = await scopeData.ParserOptions.Formatters.Execute(cache, outputContext.Value, scopeData.ParserOptions, arguments).ConfigureAwait(false);
-				outputContext.MakeSyntetic();
-			}
-		}
 
 		if (getContext == null)
 		{
@@ -366,7 +337,14 @@ public class MorestachioExpression : IMorestachioExpression
 				var ctx = scopeData.ParserOptions.CreateContextObject("", contextObject.Value,
 					contextObject);
 				contextObject = contextObject.FindNextNaturalContextObject();
-				await CallFormatter(contextObject, ctx, scopeData).ConfigureAwait(false);
+				cache = await 
+					CallFormatter(allConstants, 
+						formatsCompiled, 
+						contextObject, 
+						scopeData, 
+						arguments,
+						ctx,
+						cache).ConfigureAwait(false);
 				return ctx;
 			};
 		}
@@ -374,9 +352,64 @@ public class MorestachioExpression : IMorestachioExpression
 		return async (contextObject, scopeData) =>
 		{
 			var ctx = getContext(contextObject, scopeData, this);
-			await CallFormatter(contextObject, ctx, scopeData).ConfigureAwait(false);
+			cache = await 
+				CallFormatter(allConstants, 
+					formatsCompiled, 
+					contextObject, 
+					scopeData, 
+					arguments,
+					ctx,
+					cache).ConfigureAwait(false);
 			return ctx;
 		};
+	}
+
+	private async FormatterCachePromise CallFormatter(
+		bool allConstants,
+		(ExpressionArgument argument, object value)[] formatsCompiled,
+		ContextObject naturalContext,
+		ScopeData scopeData,
+		FormatterArgumentType[] arguments,
+		ContextObject outputContext,
+		FormatterCache cache
+	)
+	{
+		if (!allConstants)
+		{
+			for (var index = 0; index < formatsCompiled.Length; index++)
+			{
+				var formatterArgument = formatsCompiled[index];
+				object value;
+
+				if (formatterArgument.value is CompiledExpression cex)
+				{
+					value = (await cex(naturalContext, scopeData).ConfigureAwait(false))?.Value;
+				}
+				else
+				{
+					value = formatterArgument.value;
+				}
+
+				arguments[index] = new FormatterArgumentType(index, 
+					formatterArgument.argument.Name,
+					value,
+					formatterArgument.argument.MorestachioExpression);
+			}
+		}
+
+		cache ??= outputContext.PrepareFormatterCall(
+			outputContext.Value?.GetType() ?? typeof(object),
+			FormatterName,
+			arguments,
+			scopeData);
+
+		if (cache != null)
+		{
+			outputContext._value = await scopeData.ParserOptions.Formatters.Execute(cache, outputContext.Value, scopeData.ParserOptions, arguments).ConfigureAwait(false);
+			outputContext.MakeSyntetic();
+		}
+
+		return cache;
 	}
 
 	/// <inheritdoc />
@@ -585,6 +618,11 @@ public class MorestachioExpression : IMorestachioExpression
 		public string FormatterName
 		{
 			get { return _exp.FormatterName; }
+		}
+
+		public TextRange Location
+		{
+			get { return _exp.Location; }
 		}
 
 		public string Expression

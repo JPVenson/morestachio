@@ -8,6 +8,8 @@ using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.IO;
 using Morestachio.Framework.Tokenizing;
+using Morestachio.Helper.Serialization;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Document.Items;
 
@@ -26,7 +28,7 @@ public class PathDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncC
 	}
 
 	/// <inheritdoc />
-	public PathDocumentItem(CharacterLocation location,  IMorestachioExpression value, bool escapeValue,
+	public PathDocumentItem(TextRange location,  IMorestachioExpression value, bool escapeValue,
 							IEnumerable<ITokenOption> tagCreationOptions) 
 		: base(location, value,tagCreationOptions)
 	{
@@ -48,17 +50,17 @@ public class PathDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncC
 	}
 
 	/// <inheritdoc />
-	protected override void SerializeXml(XmlWriter writer)
+	protected override void SerializeXmlHeaderCore(XmlWriter writer)
 	{
+		base.SerializeXmlHeaderCore(writer);
 		writer.WriteAttributeString(nameof(EscapeValue), EscapeValue.ToString());
-		base.SerializeXml(writer);
 	}
 
 	/// <inheritdoc />
-	protected override void DeSerializeXml(XmlReader reader)
+	protected override void DeSerializeXmlHeaderCore(XmlReader reader)
 	{
+		base.DeSerializeXmlHeaderCore(reader);
 		EscapeValue = reader.GetAttribute(nameof(EscapeValue)) == bool.TrueString;
-		base.DeSerializeXml(reader);
 	}
 		
 	/// <summary>
@@ -122,8 +124,8 @@ public class PathDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncC
 				outputStream.Write(contextObject.RenderToString(scopeData));
 			}
 		}
-			
-		return Children.WithScope(contextObject);
+
+		return Enumerable.Empty<DocumentItemExecution>();
 	}
 		
 	/// <inheritdoc />

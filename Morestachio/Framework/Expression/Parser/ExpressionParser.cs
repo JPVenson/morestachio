@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Xml;
 using Morestachio.Document;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression.Framework;
@@ -7,6 +6,7 @@ using Morestachio.Framework.Expression.StringParts;
 using Morestachio.Framework.Expression.Visitors;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Parsing.ParserErrors;
+using Morestachio.TemplateContainers;
 
 namespace Morestachio.Framework.Expression.Parser;
 
@@ -17,89 +17,6 @@ public static class ExpressionParser
 {
 	internal const string ExpressionNodeName = "Expression";
 	internal const string ExpressionKindNodeName = "ExpressionKind";
-
-	internal static IMorestachioExpression ParseExpressionFromKind(this XmlReader reader)
-	{
-		IMorestachioExpression exp = null;
-
-		switch (reader.Name)
-		{
-			case "Expression":
-				exp = new MorestachioExpression();
-
-				break;
-			case "ExpressionMultiPart":
-				exp = new MorestachioMultiPartExpressionList();
-
-				break;
-			case "ExpressionArgList":
-				exp = new MorestachioArgumentExpressionList();
-
-				break;
-			case "ExpressionString":
-				exp = new MorestachioExpressionString();
-
-				break;
-			case "ExpressionNumber":
-				exp = new MorestachioExpressionNumber();
-
-				break;
-			case "ExpressionOperator":
-				exp = new MorestachioOperatorExpression();
-
-				break;
-			case "ExpressionBracket":
-				exp = new MorestachioBracketExpression();
-
-				break;
-			default:
-				throw new ArgumentOutOfRangeException(nameof(ExpressionKindNodeName));
-		}
-
-		exp.ReadXml(reader);
-
-		return exp;
-	}
-
-	internal static void WriteExpressionToXml(this XmlWriter writer, IMorestachioExpression morestachioExpression)
-	{
-		switch (morestachioExpression)
-		{
-			case MorestachioExpression _:
-				writer.WriteStartElement("Expression");
-
-				break;
-			case MorestachioBracketExpression _:
-				writer.WriteStartElement("ExpressionBracket");
-
-				break;
-			case MorestachioArgumentExpressionList _:
-				writer.WriteStartElement("ExpressionArgList");
-
-				break;
-			case MorestachioMultiPartExpressionList _:
-				writer.WriteStartElement("ExpressionMultiPart");
-
-				break;
-			case MorestachioExpressionString _:
-				writer.WriteStartElement("ExpressionString");
-
-				break;
-			case MorestachioExpressionNumber _:
-				writer.WriteStartElement("ExpressionNumber");
-
-				break;
-			case MorestachioOperatorExpression _:
-				writer.WriteStartElement("ExpressionOperator");
-
-				break;
-			default:
-				throw new ArgumentOutOfRangeException(nameof(morestachioExpression));
-		}
-
-		morestachioExpression.WriteXml(writer);
-		writer.WriteEndElement();
-	}
 
 	internal static string StringifyVariableAssignmentType(TokenType type)
 	{
@@ -118,11 +35,10 @@ public static class ExpressionParser
 		string tokenValue,
 		TokenzierContext context,
 		TokenType type,
-		IEnumerable<ITokenOption> options
+		IEnumerable<ITokenOption> options,
+		TokenMatch tokenMatch
 	)
 	{
-		var startOfExpression = context.CurrentLocation;
-
 		switch (type)
 		{
 			case TokenType.VariableLet:
@@ -131,7 +47,7 @@ public static class ExpressionParser
 				break;
 			default:
 				context.Errors.Add(new MorestachioSyntaxError(
-					context.CurrentLocation.AddWindow(new CharacterSnippedLocation(0, 0, tokenValue)),
+					tokenMatch.Range,
 					"#var", "", "#var name", "Expected #var or #let"));
 
 				break;
@@ -143,23 +59,20 @@ public static class ExpressionParser
 		if (variableNameIndex != 0)
 		{
 			context.Errors.Add(new MorestachioSyntaxError(
-				context.CurrentLocation.AddWindow(new CharacterSnippedLocation(0, 0, tokenValue)),
+				tokenMatch.Range,
 				strVarType, "", strVarType + "name", "Expected " + strVarType));
 
 			return default;
 		}
 
 		tokenValue = tokenValue.Substring(strVarType.Length);
-		context.AdvanceLocation(strVarType.Length);
+		//context.AdvanceLocation(strVarType.Length);
 		string variableName = null;
 
 		if (strVarType.Length < 3)
 		{
 			context.Errors.Add(new MorestachioSyntaxError(
-				context
-					.CurrentLocation
-					.Offset(0)
-					.AddWindow(new CharacterSnippedLocation(0, 0, tokenValue)),
+				tokenMatch.Range,
 				strVarType, "", strVarType + "name", "Invalid character detected. Expected only spaces or letters."));
 
 			return default;
@@ -189,24 +102,19 @@ public static class ExpressionParser
 				}
 
 				context.Errors.Add(new MorestachioSyntaxError(
-					context
-						.CurrentLocation
-						.Offset(i)
-						.AddWindow(new CharacterSnippedLocation(0, i, tokenValue)),
+					tokenMatch.Range,
 					strVarType, "", strVarType + "name", "Invalid character detected. Expected only spaces or letters."));
 
 				return default;
 			}
 		}
 
-		context.AdvanceLocation(lengthToExpression);
+		//context.AdvanceLocation(lengthToExpression);
 
 		if (variableName == null)
 		{
 			context.Errors.Add(new MorestachioSyntaxError(
-				context
-					.CurrentLocation
-					.AddWindow(new CharacterSnippedLocation(0, strVarType.Length, tokenValue)),
+				tokenMatch.Range,
 				strVarType, "", strVarType + "name", "expected variable name"));
 		}
 
@@ -215,14 +123,18 @@ public static class ExpressionParser
 		if (string.IsNullOrEmpty(expression))
 		{
 			context.Errors.Add(new MorestachioSyntaxError(
-				context.CurrentLocation
-						.AddWindow(new CharacterSnippedLocation(0, strVarType.Length, tokenValue)),
+				tokenMatch.Range,
 				strVarType, "", strVarType + "name = ", "expected ether an path expression or an string value"));
 
 			return default;
 		}
 
-		return new TokenPair(type, variableName, startOfExpression, ParseExpression(expression, context), options);
+		return new TokenPair(type, 
+			variableName, 
+			tokenMatch.Range, 
+			ParseExpression(expression, context, tokenMatch.Range.RangeStart)
+				.Expression,
+			options);
 	}
 
 	/// <summary>
@@ -235,7 +147,7 @@ public static class ExpressionParser
 		TokenzierContext tokenzierContext
 	)
 	{
-		var expression = ParseExpression(expressionText, tokenzierContext);
+		var expression = ParseExpression(expressionText, tokenzierContext).Expression;
 
 		if (expression == null)
 		{
@@ -293,15 +205,58 @@ public static class ExpressionParser
 	/// <summary>
 	///     Parses the given text to ether an expression or an string
 	/// </summary>
-	/// <param name="expression"></param>
-	/// <param name="context"></param>
+	/// <param name="expression">the text expression that should be parsed until ether EOEX or ; or #</param>
+	/// <param name="context">the context describing the whole document</param>
 	/// <returns></returns>
-	public static IMorestachioExpression ParseExpression(
+	public static ExpressionParserResult ParseExpression(
 		string expression,
 		TokenzierContext context
 	)
 	{
-		return ParseExpression(expression, context, out _);
+		return ParseExpression(expression, context, default);
+	}
+
+	/// <summary>
+	///     Parses the given text to ether an expression or an string
+	/// </summary>
+	/// <param name="expression">the text expression that should be parsed until ether EOEX or ; or #</param>
+	/// <param name="context">the context describing the whole document</param>
+	/// <param name="index">the index of the global template where this token is located. Can be null if there is no global template.</param>
+	/// <returns></returns>
+	public static ExpressionParserResult ParseExpression(
+		string expression,
+		TokenzierContext context,
+		TextIndex index
+	)
+	{
+		return ParseExpression(expression, context, TextRange.All(expression), index);
+	}
+
+	/// <summary>
+	///		Defines the result of an expression parsing operation
+	/// </summary>
+	public ref struct ExpressionParserResult
+	{
+		/// <summary>
+		///		Creates a new Parsing result
+		/// </summary>
+		/// <param name="expression"></param>
+		/// <param name="sourceBoundary"></param>
+		public ExpressionParserResult(IMorestachioExpression expression, TextRange sourceBoundary)
+		{
+			Expression = expression;
+			SourceBoundary = sourceBoundary;
+		}
+
+		/// <summary>
+		///		The created expression
+		/// </summary>
+		public IMorestachioExpression Expression { get; }
+
+		/// <summary>
+		///		The range of chars within the source template of the text handed to the <see cref="ExpressionParser.ParseExpression(string,Morestachio.Framework.Expression.Framework.TokenzierContext)"/> method.
+		/// </summary>
+		public TextRange SourceBoundary { get; }
 	}
 
 	/// <summary>
@@ -309,40 +264,34 @@ public static class ExpressionParser
 	/// </summary>
 	/// <param name="text">the text expression that should be parsed until ether EOEX or ; or #</param>
 	/// <param name="context">the context describing the whole document</param>
-	/// <param name="parsedUntil">outputs the number of chars consumed by the parser</param>
-	/// <param name="index">the index within text from where to start the parsing</param>
+	/// <param name="textBoundary">defines the area within text that should be processed</param>
+	/// <param name="index">the index of the global template where this token is located. Can be null if there is no global template.</param>
 	/// <returns></returns>
-	public static IMorestachioExpression ParseExpression(
+	public static ExpressionParserResult ParseExpression(
 		string text,
 		TokenzierContext context,
-		out int parsedUntil,
-		int index = 0
+		TextRange textBoundary,
+		TextIndex index = default
 	)
 	{
-		parsedUntil = 0;
-
 		if (text.Length == 0)
 		{
-			context.Errors.Add(new MorestachioSyntaxError(
-				context.CurrentLocation.AddWindow(new CharacterSnippedLocation(0, 0, text)),
+			context.Errors.Add(new MorestachioSyntaxError(new TextRange(index, textBoundary.RangeEnd.Add(context, index)),
 				"", "", "", "expected ether an path expression or an string value"));
 
-			return null;
+			return default;
 		}
 
-		var oldStartIndex = context.CurrentLocation.ToPosition(context);
-		var tokenize = ExpressionTokenizer.TokenizeExpression(text, context, index);
+		var tokenize = ExpressionTokenizer.TokenizeExpression(text, context, textBoundary, index);
 
 		if (context.Errors.Any())
 		{
-			return null;
+			return default;
 		}
 
-		tokenize.Reset();
-		var morestachioExpression = ParseExpressionRoot(tokenize, context);
-		parsedUntil = index + (context.CurrentLocation.ToPosition(context) - oldStartIndex);
-
-		return morestachioExpression;
+		tokenize.Item1.Reset();
+		var morestachioExpression = ParseExpressionRoot(tokenize.Item1, context);
+		return new ExpressionParserResult(morestachioExpression, TextRange.RangeIndex(context, index.Index, tokenize.Item2.Index));
 	}
 
 	/// <summary>
@@ -358,12 +307,8 @@ public static class ExpressionParser
 		CultureInfo cultureInfo = null
 	)
 	{
-		context =
-			new TokenzierContext(Tokenizer.FindNewLines(expression), cultureInfo ?? CultureInfo.CurrentCulture);
-		context.SetLocation(0);
-
-		return ParseExpression(expression,
-			context);
+		context = new TokenzierContext(Tokenizer.FindNewLines(expression), cultureInfo ?? CultureInfo.CurrentCulture);
+		return ParseExpression(expression, context, TextRange.All(expression)).Expression;
 	}
 
 	private static IMorestachioExpression ParseExpressionRoot(
@@ -385,8 +330,7 @@ public static class ExpressionParser
 					return true;
 				default:
 					tokens.SyntaxError(context,
-						token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-							tokens.SourceExpression)), "Expected an expression, opening bracket, number, string or operator but got an argument name or argument seperator instead.");
+						token.Location, "Expected an expression, opening bracket, number, string or operator but got an argument name or argument seperator instead.");
 
 					return false;
 			}
@@ -443,7 +387,7 @@ public static class ExpressionParser
 					break;
 				case ExpressionTokenType.ArgumentSeperator:
 				default:
-					tokens.SyntaxError(context, token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length, tokens.SourceExpression)), "Unexpected use of an argument seperator");
+					tokens.SyntaxError(context, token.Location, "Unexpected use of an argument seperator");
 
 					return false;
 			}
@@ -469,8 +413,7 @@ public static class ExpressionParser
 			if (parentBracket.Expressions.Count == 0)
 			{
 				tokens.SyntaxError(context,
-					token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-						tokens.SourceExpression)), "Invalid use of lambda operator without an list of parameters to its left");
+					token.Location, "Invalid use of lambda operator without an list of parameters to its left");
 
 				return;
 			}
@@ -485,8 +428,7 @@ public static class ExpressionParser
 			if (exp.Formats.Count == 0)
 			{
 				tokens.SyntaxError(context,
-					token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-						tokens.SourceExpression)), "Invalid use of lambda operator without an list of parameters to its left");
+					token.Location, "Invalid use of lambda operator without an list of parameters to its left");
 
 				return;
 			}
@@ -498,8 +440,7 @@ public static class ExpressionParser
 		else
 		{
 			tokens.SyntaxError(context,
-				token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-					tokens.SourceExpression)), "Invalid use of a Lambda expression. A Lambda expression can only be used as an argument for an Formatter");
+				token.Location, "Invalid use of a Lambda expression. A Lambda expression can only be used as an argument for an Formatter");
 
 			return;
 		}
@@ -507,8 +448,7 @@ public static class ExpressionParser
 		if (tokens.Count == 0)
 		{
 			tokens.SyntaxError(context,
-				token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-					tokens.SourceExpression)), "Expected a 2nd expression for the used binary operator");
+				token.Location, "Expected a 2nd expression for the used binary operator");
 
 			return;
 		}
@@ -530,35 +470,33 @@ public static class ExpressionParser
 		switch (argument)
 		{
 			case MorestachioBracketExpression bracket:
-			{
-				foreach (var morestachioExpression in bracket.Expressions)
 				{
-					if (morestachioExpression is MorestachioExpression exp)
+					foreach (var morestachioExpression in bracket.Expressions)
 					{
-						ValidateArgumentItem(exp, tokens, context, token);
+						if (morestachioExpression is MorestachioExpression exp)
+						{
+							ValidateArgumentItem(exp, tokens, context, token);
+						}
+						else
+						{
+							tokens.SyntaxError(context,
+								token.Location, $"The argument {morestachioExpression.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
+						}
 					}
-					else
-					{
-						tokens.SyntaxError(context,
-							token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-								tokens.SourceExpression)), $"The argument {morestachioExpression.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
-					}
-				}
 
-				break;
-			}
+					break;
+				}
 			case MorestachioExpression exp:
 				ValidateArgumentItem(exp, tokens, context, token);
 
 				break;
 			default:
-			{
-				tokens.SyntaxError(context,
-					token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-						tokens.SourceExpression)), $"The argument {argument.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
+				{
+					tokens.SyntaxError(context,
+						token.Location, $"The argument {argument.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
 
-				break;
-			}
+					break;
+				}
 		}
 	}
 
@@ -569,17 +507,16 @@ public static class ExpressionParser
 		LambdaExpressionToken token
 	)
 	{
-		if (argument.FormatterName == null 
-			&& argument.PathParts.HasValue 
-			&& argument.PathParts.Count <= 1 
+		if (argument.FormatterName == null
+			&& argument.PathParts.HasValue
+			&& argument.PathParts.Count <= 1
 			&& argument.PathParts.Current.Value == PathType.DataPath)
 		{
 			return;
 		}
-		
+
 		tokens.SyntaxError(context,
-			token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-				tokens.SourceExpression)), $"The argument {argument.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
+			token.Location, $"The argument {argument.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
 	}
 
 	private static void ParseAndAddOperator(
@@ -603,8 +540,7 @@ public static class ExpressionParser
 				if (parentBracket.Expressions.Count == 0)
 				{
 					tokens.SyntaxError(context,
-						token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-							tokens.SourceExpression)), "Invalid use of right hand operator without an expression to its left");
+						token.Location, "Invalid use of right hand operator without an expression to its left");
 
 					return;
 				}
@@ -618,8 +554,7 @@ public static class ExpressionParser
 				if (exp.Formats.Count == 0)
 				{
 					tokens.SyntaxError(context,
-						token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-							tokens.SourceExpression)), "Invalid use of right hand operator without an expression to its left");
+						token.Location, "Invalid use of right hand operator without an expression to its left");
 
 					return;
 				}
@@ -637,8 +572,7 @@ public static class ExpressionParser
 			else
 			{
 				tokens.SyntaxError(context,
-					token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-						tokens.SourceExpression)), "Invalid use of a Binary operator on an unsupported expression type");
+					token.Location, "Invalid use of a Binary operator on an unsupported expression type");
 
 				return;
 			}
@@ -648,8 +582,7 @@ public static class ExpressionParser
 				if (tokens.Count == 0)
 				{
 					tokens.SyntaxError(context,
-						token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-							tokens.SourceExpression)), "Expected a 2nd expression for the used binary operator");
+						token.Location, "Expected a 2nd expression for the used binary operator");
 
 					return;
 				}
@@ -665,7 +598,7 @@ public static class ExpressionParser
 		{
 			//the operator is placed on the left hand of the expression so it must be an unary operator
 			//it can only accept one argument
-			var operatorExp = new MorestachioOperatorExpression(op, null, context.CurrentLocation);
+			var operatorExp = new MorestachioOperatorExpression(op, null, token.Location);
 			AddToParent(operatorExp, topParent);
 			operatorExp.LeftExpression = ParseAnyExpression(tokens, context, subToken =>
 			{
@@ -716,8 +649,7 @@ public static class ExpressionParser
 		tokens.TryDequeue(() =>
 		{
 			tokens.SyntaxError(context,
-				token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-					tokens.SourceExpression)), "Expected a )");
+				token.Location, "Expected a )");
 		}); //dequeue )
 		AddToParent(exp, topParent);
 	}
@@ -770,8 +702,7 @@ public static class ExpressionParser
 			tokens.TryDequeue(() =>
 			{
 				tokens.SyntaxError(context,
-					token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-						tokens.SourceExpression)), "Expected a (");
+					token.Location, "Expected a (");
 			});
 
 			bool Condition(IExpressionToken innerToken)
@@ -799,8 +730,7 @@ public static class ExpressionParser
 				if (next == null)
 				{
 					tokens.SyntaxError(context,
-						token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-							tokens.SourceExpression)), "Unexpected end of expression. Expected ether a argument seperator ',' or a closing bracket ')'");
+						token.Location, "Unexpected end of expression. Expected ether a argument seperator ',' or a closing bracket ')'");
 				}
 
 				if (next?.TokenType != ExpressionTokenType.ArgumentSeperator)
@@ -818,9 +748,7 @@ public static class ExpressionParser
 
 			tokens.TryDequeue(() =>
 			{
-				tokens.SyntaxError(context,
-					token.Location.AddWindow(new CharacterSnippedLocation(1, tokens.SourceExpression.Length,
-						tokens.SourceExpression)), "Expected a )");
+				tokens.SyntaxError(context, token.Location, "Expected a )");
 			});
 		}
 		else

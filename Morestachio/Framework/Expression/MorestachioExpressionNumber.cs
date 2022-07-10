@@ -5,6 +5,8 @@ using System.Xml.Schema;
 using Morestachio.Document;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Expression.Visitors;
+using Morestachio.Helper.Serialization;
+using Morestachio.Parsing.ParserErrors;
 
 namespace Morestachio.Framework.Expression;
 
@@ -23,7 +25,7 @@ public class MorestachioExpressionNumber : IMorestachioExpression
 	/// <summary>
 	/// 
 	/// </summary>
-	public MorestachioExpressionNumber(in Number number, CharacterLocation location)
+	public MorestachioExpressionNumber(in Number number, TextRange location)
 	{
 		Number = number;
 		Location = location;
@@ -35,7 +37,7 @@ public class MorestachioExpressionNumber : IMorestachioExpression
 	public Number Number { get; private set; }
 
 	/// <inheritdoc />
-	public CharacterLocation Location { get; private set; }
+	public TextRange Location { get; private set; }
 
 	/// <summary>
 	/// 
@@ -45,14 +47,14 @@ public class MorestachioExpressionNumber : IMorestachioExpression
 		Number.TryParse(info.GetValue(nameof(Number), typeof(string)).ToString(), CultureInfo.CurrentCulture,
 			out var nr);
 		Number = nr;
-		Location = CharacterLocation.FromFormatString(info.GetString(nameof(Location)));
+		Location = TextRangeSerializationHelper.ReadTextRange(nameof(Location), info, context);
 	}
 
 	/// <inheritdoc />
 	public void GetObjectData(SerializationInfo info, StreamingContext context)
 	{
 		info.AddValue(nameof(Number), Number.AsParsableString());
-		info.AddValue(nameof(Location), Location.ToFormatString());
+		TextRangeSerializationHelper.WriteTextRangeToBinary(nameof(Location), info, context, Location);
 	}
 
 	/// <inheritdoc />
@@ -64,7 +66,7 @@ public class MorestachioExpressionNumber : IMorestachioExpression
 	/// <inheritdoc />
 	public void ReadXml(XmlReader reader)
 	{
-		Location = CharacterLocation.FromFormatString(reader.GetAttribute(nameof(Location)));
+		Location = TextRangeSerializationHelper.ReadTextRangeFromXml(reader, "Location");
 		Number.TryParse(reader.GetAttribute(nameof(Number)), CultureInfo.CurrentCulture, out var nr);
 		Number = nr;
 	}
@@ -72,7 +74,7 @@ public class MorestachioExpressionNumber : IMorestachioExpression
 	/// <inheritdoc />
 	public void WriteXml(XmlWriter writer)
 	{
-		writer.WriteAttributeString(nameof(Location), Location.ToFormatString());
+		TextRangeSerializationHelper.WriteTextRangeToXml(writer, Location, "Location");
 		writer.WriteAttributeString(nameof(Number), Number.AsParsableString());
 	}
 
@@ -188,6 +190,11 @@ public class MorestachioExpressionNumber : IMorestachioExpression
 			{
 				return _exp.AsDebugExpression();
 			}
+		}
+
+		public TextRange Location
+		{
+			get { return _exp.Location; }
 		}
 
 		public Number Number

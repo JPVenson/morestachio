@@ -70,17 +70,13 @@ namespace Morestachio.Newtonsoft.Json
 
 		public static object EvalJToken(JToken token)
 		{
-			switch (token)
+			return token switch
 			{
-				case JValue jToken:
-					return jToken.Value;
-				case JArray jArray:
-					return EvalJArray(jArray);
-				case JObject jObject:
-					return EvalJObject(jObject);
-				default:
-					return null;
-			}
+				JValue jToken => jToken.Value,
+				JArray jArray => EvalJArray(jArray),
+				JObject jObject => EvalJObject(jObject),
+				_ => null
+			};
 		}
 
 		public static IDictionary<string, object> EvalJObject(JObject obj)

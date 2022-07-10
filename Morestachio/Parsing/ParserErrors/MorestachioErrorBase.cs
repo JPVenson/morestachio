@@ -2,6 +2,7 @@
 using System.Xml;
 using System.Xml.Schema;
 using Morestachio.Framework.Error;
+using Morestachio.Helper.Serialization;
 
 namespace Morestachio.Parsing.ParserErrors;
 
@@ -23,7 +24,7 @@ public abstract class MorestachioErrorBase : IMorestachioError
 	/// </summary>
 	/// <param name="location"></param>
 	/// <param name="helpText"></param>
-	protected MorestachioErrorBase(CharacterLocationExtended location, string helpText = null)
+	protected MorestachioErrorBase(TextRange location, string helpText = null)
 	{
 		Location = location;
 		HelpText = helpText;
@@ -37,7 +38,7 @@ public abstract class MorestachioErrorBase : IMorestachioError
 	protected MorestachioErrorBase(SerializationInfo info, StreamingContext c)
 	{
 		HelpText = info.GetString(nameof(HelpText));
-		Location = ErrorSerializationHelper.ReadCharacterLocationExtendedFromBinary(info, c);
+		Location = TextRangeSerializationHelper.ReadTextRange(nameof(Location), info, c);
 	}
 
 	/// <inheritdoc />
@@ -50,8 +51,7 @@ public abstract class MorestachioErrorBase : IMorestachioError
 	public virtual void ReadXml(XmlReader reader)
 	{
 		HelpText = reader.GetAttribute(nameof(HelpText));
-		reader.ReadStartElement();
-		Location = ErrorSerializationHelper.ReadCharacterLocationExtendedFromXml(reader);
+		Location = TextRangeSerializationHelper.ReadTextRangeFromXml(reader, "Location");
 		
 		if (!reader.IsEmptyElement)
 		{
@@ -63,21 +63,18 @@ public abstract class MorestachioErrorBase : IMorestachioError
 	public virtual void WriteXml(XmlWriter writer)
 	{
 		writer.WriteAttributeString(nameof(HelpText), HelpText);
-		writer.WriteStartElement(nameof(Location));
-		ErrorSerializationHelper.WriteCharacterLocationExtendedFromXml(writer, Location);
-		writer.WriteEndElement();
+		TextRangeSerializationHelper.WriteTextRangeToXml(writer, Location, "Location");
 	}
 
 	/// <inheritdoc />
 	public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
 	{
 		info.AddValue(nameof(HelpText), HelpText);
-		info.AddValue(nameof(Location), Location);
-		ErrorSerializationHelper.WriteCharacterLocationExtendedToBinary(info, context, Location);
+		TextRangeSerializationHelper.WriteTextRangeToBinary(nameof(Location), info, context, Location);
 	}
 
 	/// <inheritdoc />
-	public CharacterLocationExtended Location { get; private set; }
+	public TextRange Location { get; private set; }
 
 	/// <inheritdoc />
 	public string HelpText { get; private set; }

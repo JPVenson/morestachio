@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using System.Xml.Serialization;
 
 namespace Morestachio.Parsing.ParserErrors;
@@ -12,7 +11,7 @@ public interface IMorestachioError : IXmlSerializable, ISerializable, IEquatable
 	/// <summary>
 	///		The location within the Template where the error occured
 	/// </summary>
-	CharacterLocationExtended Location { get; }
+	TextRange Location { get; }
 
 	/// <summary>
 	/// Gets the exception.
