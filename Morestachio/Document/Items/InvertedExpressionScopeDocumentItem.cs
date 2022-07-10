@@ -16,7 +16,7 @@ namespace Morestachio.Document.Items;
 /// </summary>
 /// <seealso cref="ExpressionScopeDocumentItem"/>
 [Serializable]
-public class InvertedExpressionScopeDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
+public class InvertedExpressionScopeDocumentItem : BlockExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 {
 	/// <summary>
 	///		Used for XML Serialization

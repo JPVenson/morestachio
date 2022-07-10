@@ -18,7 +18,7 @@ namespace Morestachio.Helper.Localization.Documents.CustomCultureDocument;
 ///		Will try to get the culture declared by the value and sets the <see cref="LocalizationCultureKey"/> in the <see cref="ScopeData.CustomData"/>
 /// </summary>
 [System.Serializable]
-public class MorestachioCustomCultureLocalizationDocumentItem : ExpressionDocumentItemBase,
+public class MorestachioCustomCultureLocalizationDocumentItem : BlockExpressionDocumentItemBase,
 																ToParsableStringDocumentVisitor.IStringVisitor, ISupportCustomAsyncCompilation
 {
 	internal MorestachioCustomCultureLocalizationDocumentItem()

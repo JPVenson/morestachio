@@ -109,7 +109,7 @@ public readonly struct TokenPair
 	public EmbeddedInstructionOrigin IsEmbeddedToken { get; }
 
 	/// <summary>
-	///		The type of this Token
+	///		The type of this Token. Can be anything for custom tokens but it is recommended to use a string.
 	/// </summary>
 	public IComparable Type { get; }
 

@@ -16,7 +16,7 @@ namespace Morestachio.Document.Items.SwitchCase;
 ///		The document item for a switch block
 /// </summary>
 [Serializable]
-public class SwitchDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
+public class SwitchDocumentItem : BlockExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 {
 	/// <summary>
 	///		Used for XML Serialization

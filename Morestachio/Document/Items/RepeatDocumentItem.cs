@@ -17,7 +17,7 @@ namespace Morestachio.Document.Items;
 ///		Repeats the template a number of times
 /// </summary>
 [Serializable]
-public class RepeatDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
+public class RepeatDocumentItem : BlockExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 {
 	internal RepeatDocumentItem()
 	{

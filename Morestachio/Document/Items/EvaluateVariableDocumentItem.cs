@@ -20,7 +20,7 @@ namespace Morestachio.Document.Items;
 ///		Evaluates a variable expression and then stores it into the set alias
 /// </summary>
 [Serializable]
-public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
+public class EvaluateVariableDocumentItem : BlockExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 {
 
 	internal EvaluateVariableDocumentItem()

@@ -16,7 +16,7 @@ namespace Morestachio.Document.Items;
 ///		An single Value expression
 /// </summary>
 [Serializable]
-public class PathDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
+public class PathDocumentItem : BlockExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 {
 	/// <summary>
 	///		Used for XML Serialization

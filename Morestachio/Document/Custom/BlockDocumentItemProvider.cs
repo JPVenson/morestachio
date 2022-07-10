@@ -31,7 +31,7 @@ public class BlockDocumentItemProvider : BlockDocumentItemProviderBase
 	/// <summary>
 	///		The General purpose block
 	/// </summary>
-	public class BlockDocumentItem : ValueDocumentItemBase
+	public class BlockDocumentItem : BlockValueDocumentItemBase
 	{
 		private readonly BlockDocumentProviderFunction _action;
 

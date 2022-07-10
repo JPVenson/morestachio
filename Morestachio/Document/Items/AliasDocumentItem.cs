@@ -19,11 +19,13 @@ namespace Morestachio.Document.Items;
 /// <summary>
 ///		Creates an alias 
 /// </summary>
-[System.Serializable]
-public class AliasDocumentItem : ValueDocumentItemBase, ISupportCustomAsyncCompilation
+[Serializable]
+public class AliasDocumentItem : ValueDocumentItemBase, 
+								ISupportCustomAsyncCompilation,
+								IReportUsage
 {
 	/// <summary>
-	///		Used for XML Serialization
+	///		Used for Serialization
 	/// </summary>
 	internal AliasDocumentItem()
 	{
@@ -83,11 +85,10 @@ public class AliasDocumentItem : ValueDocumentItemBase, ISupportCustomAsyncCompi
 	/// <inheritdoc />
 	public CompilationAsync Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
 	{			
-		var children = compiler.Compile(Children, parserOptions);
-		return async (stream, context, scopeData) =>
+		return (stream, context, scopeData) =>
 		{
 			CoreAction(context, scopeData);
-			await children(stream, context, scopeData).ConfigureAwait(false);
+			return AsyncHelper.FakePromise();
 		};
 	}
 
@@ -95,7 +96,7 @@ public class AliasDocumentItem : ValueDocumentItemBase, ISupportCustomAsyncCompi
 	public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
 	{
 		CoreAction(context, scopeData);
-		return Children.WithScope(context).ToPromise();
+		return Enumerable.Empty<DocumentItemExecution>().ToPromise();
 	}
 		
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -116,9 +117,9 @@ public class AliasDocumentItem : ValueDocumentItemBase, ISupportCustomAsyncCompi
 	}
 
 	/// <inheritdoc />
-	public override IEnumerable<string> Usage(UsageData data)
+	public IEnumerable<string> Usage(UsageData data)
 	{
 		data.VariableSource[Value] = data.CurrentPath;
-		return base.Usage(data);
+		yield break;
 	}
 }

@@ -219,7 +219,7 @@ namespace Morestachio.Tests
 		}
 
 		private static TextRange TestExpressionLocationsInOrderInternal(
-			ExpressionDocumentItemBase expDoc,
+			BlockExpressionDocumentItemBase expDoc,
 			TextRange lastLocation
 		)
 		{

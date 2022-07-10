@@ -14,7 +14,7 @@ namespace Morestachio.Document.Items;
 ///		Emits the template as long as the condition is true
 /// </summary>
 [Serializable]
-public class WhileLoopDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
+public class WhileLoopDocumentItem : BlockExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 {
 	/// <summary>
 	///		Used for XML Serialization

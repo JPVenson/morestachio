@@ -15,7 +15,7 @@ namespace Morestachio.Document.Items.SwitchCase;
 ///		If used outside a <see cref="SwitchDocumentItem"/>, it will unconditionally render its items
 /// </summary>
 [Serializable]
-public class SwitchCaseDocumentItem : ExpressionDocumentItemBase
+public class SwitchCaseDocumentItem : BlockExpressionDocumentItemBase
 {
 	/// <summary>
 	///		Used for XML Serialization

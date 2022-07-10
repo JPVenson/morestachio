@@ -104,7 +104,7 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 			
 		var args = Children
 			.OfType<MorestachioLocalizationParameterDocumentItem>()
-			.Cast<ExpressionDocumentItemBase>()
+			.Cast<BlockExpressionDocumentItemBase>()
 			.Select(f =>
 				new Func<ObjectPromise>(async () =>
 					(await f.MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false)).Value))

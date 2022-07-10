@@ -17,7 +17,7 @@ namespace Morestachio.Document.Items;
 ///		Defines the start of a Scope
 /// </summary>
 [Serializable]
-public class IfExpressionScopeDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
+public class IfExpressionScopeDocumentItem : BlockExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 {
 	/// <summary>
 	///		Used for XML Serialization

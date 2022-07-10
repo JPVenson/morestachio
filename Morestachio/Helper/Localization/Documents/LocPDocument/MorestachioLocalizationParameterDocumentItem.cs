@@ -15,7 +15,7 @@ namespace Morestachio.Helper.Localization.Documents.LocPDocument;
 ///		Allows the usage of {{#loc expression}} in combination with an <see cref="IMorestachioLocalizationService"/>
 /// </summary>
 [System.Serializable]
-public class MorestachioLocalizationParameterDocumentItem : ExpressionDocumentItemBase,
+public class MorestachioLocalizationParameterDocumentItem : BlockExpressionDocumentItemBase,
 															ToParsableStringDocumentVisitor.IStringVisitor
 {
 	internal MorestachioLocalizationParameterDocumentItem()

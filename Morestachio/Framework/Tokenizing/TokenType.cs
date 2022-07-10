@@ -56,12 +56,13 @@ public enum TokenType : long
 	/// <summary>
 	///     Contains information about the formatting of the values. Must be followed by PrintFormatted or CollectionOpen
 	/// </summary>
+	[Obsolete("This TokenType is no longer used.", true)]
 	Format = 1 << 10,
 
 	/// <summary>
 	///     Is used to "print" the current formatted value to the output
 	/// </summary>
-	Print = 1 << 11,
+	[Obsolete("This TokenType is no longer used.", true)]Print = 1 << 11,
 
 	/// <summary>
 	///		A Partial that is inserted into the one or multiple places in the Template
@@ -86,7 +87,7 @@ public enum TokenType : long
 	/// <summary>
 	///		Defines the context an import should be set to
 	/// </summary>
-	ImportPartialContext = 1 << 16,
+	[Obsolete("This TokenType is no longer used.", true)] ImportPartialContext = 1 << 16,
 
 	/// <summary>
 	///		Defines the current Context as the be accessed by an alias

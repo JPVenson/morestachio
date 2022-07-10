@@ -10,21 +10,18 @@ using Morestachio.Parsing.ParserErrors;
 namespace Morestachio.Document.Items.Base;
 
 /// <summary>
-///     A common base class for emitting a single string value for a Tag.
+///     A common base class for emitting a single string value for a Block.
 /// </summary>
 [Serializable]
-public abstract class ExpressionDocumentItemBase
-	: DocumentItemBase,
-	IEquatable<ExpressionDocumentItemBase>,
-	IReportUsage
+public abstract class BlockExpressionDocumentItemBase : BlockDocumentItemBase, IEquatable<BlockExpressionDocumentItemBase>
 {
-	internal ExpressionDocumentItemBase()
+	internal BlockExpressionDocumentItemBase()
 	{
 	}
 
 	/// <param name="location"></param>
 	/// <inheritdoc />
-	protected ExpressionDocumentItemBase(
+	protected BlockExpressionDocumentItemBase(
 		in TextRange location,
 		IMorestachioExpression expression,
 		IEnumerable<ITokenOption> tagCreationOptions
@@ -34,7 +31,7 @@ public abstract class ExpressionDocumentItemBase
 	}
 
 	/// <inheritdoc />
-	protected ExpressionDocumentItemBase(SerializationInfo info, StreamingContext c) : base(info, c)
+	protected BlockExpressionDocumentItemBase(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
 		MorestachioExpression = info.GetValueOrDefault<IMorestachioExpression>(c, nameof(MorestachioExpression));
 	}
@@ -45,7 +42,7 @@ public abstract class ExpressionDocumentItemBase
 	public IMorestachioExpression MorestachioExpression { get; protected set; }
 
 	/// <inheritdoc />
-	public bool Equals(ExpressionDocumentItemBase other)
+	public bool Equals(BlockExpressionDocumentItemBase other)
 	{
 		if (ReferenceEquals(null, other))
 		{
@@ -58,15 +55,6 @@ public abstract class ExpressionDocumentItemBase
 		}
 
 		return base.Equals(other) && MorestachioExpression.Equals(other.MorestachioExpression);
-	}
-
-	/// <inheritdoc />
-	public IEnumerable<string> Usage(UsageData data)
-	{
-		foreach (var usage in MorestachioExpression.InferExpressionUsage(data))
-		{
-			yield return usage;
-		}
 	}
 
 	/// <inheritdoc />
@@ -115,7 +103,7 @@ public abstract class ExpressionDocumentItemBase
 			return false;
 		}
 
-		return Equals((ExpressionDocumentItemBase)obj);
+		return Equals((BlockExpressionDocumentItemBase)obj);
 	}
 
 	/// <inheritdoc />
@@ -125,5 +113,19 @@ public abstract class ExpressionDocumentItemBase
 		hashCode = (hashCode * 397) ^ MorestachioExpression.GetHashCode();
 
 		return hashCode;
+	}
+
+	/// <inheritdoc />
+	public override IEnumerable<string> Usage(UsageData data)
+	{
+		foreach (var usage in MorestachioExpression.InferExpressionUsage(data))
+		{
+			yield return usage;
+		}
+
+		foreach (var usage in base.Usage(data))
+		{
+			yield return usage;
+		}
 	}
 }

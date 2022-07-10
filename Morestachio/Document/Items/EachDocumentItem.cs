@@ -16,7 +16,7 @@ namespace Morestachio.Document.Items;
 ///     Emits N items that are in the collection
 /// </summary>
 [Serializable]
-public class EachDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
+public class EachDocumentItem : BlockExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 {
 	/// <summary>
 	///     Used for XML Serialization

@@ -20,7 +20,7 @@ namespace Morestachio.Document.Items;
 ///		Defines a area that has no morestachio keywords and can be rendered as is
 /// </summary>
 [Serializable]
-public class ContentDocumentItem : ValueDocumentItemBase, ISupportCustomCompilation
+public class ContentDocumentItem : BlockValueDocumentItemBase, ISupportCustomCompilation
 {
 	/// <summary>
 	///		Used for XML Serialization

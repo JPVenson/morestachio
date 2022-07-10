@@ -19,7 +19,7 @@ namespace Morestachio.Document.Items;
 ///		Emits the template as long as the condition is true
 /// </summary>
 [Serializable]
-public class DoLoopDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
+public class DoLoopDocumentItem : BlockExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 {
 	/// <summary>
 	///		Used for XML Serialization

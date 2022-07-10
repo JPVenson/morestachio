@@ -1,4 +1,8 @@
-﻿using System.Xml;
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Xml;
+using Morestachio.Framework;
 using Morestachio.Framework.Tokenizing;
 using Morestachio.Helper.Serialization;
 using Morestachio.Parsing.ParserErrors;
@@ -9,16 +13,16 @@ namespace Morestachio.Document.Items.Base;
 ///		A common base class for emitting a single string value
 /// </summary>
 [Serializable]
-public abstract class ValueDocumentItemBase : DocumentItemBase, IEquatable<ValueDocumentItemBase>
+public abstract class BlockValueDocumentItemBase : BlockDocumentItemBase, IEquatable<BlockValueDocumentItemBase>
 {
-	internal ValueDocumentItemBase()
+	internal BlockValueDocumentItemBase()
 	{
 
 	}
 	/// <summary>
 	/// 
 	/// </summary>
-	protected ValueDocumentItemBase(in TextRange location, string value,
+	protected BlockValueDocumentItemBase(in TextRange location, string value,
 									IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
 	{
 		Value = value;
@@ -30,7 +34,7 @@ public abstract class ValueDocumentItemBase : DocumentItemBase, IEquatable<Value
 	public string Value { get; private set; }
 		
 	/// <inheritdoc />
-	protected ValueDocumentItemBase(SerializationInfo info, StreamingContext c) : base(info, c)
+	protected BlockValueDocumentItemBase(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
 		Value = info.GetValueOrDefault<string>(c, nameof(Value));
 	}
@@ -80,7 +84,7 @@ public abstract class ValueDocumentItemBase : DocumentItemBase, IEquatable<Value
 	}
 
 	/// <inheritdoc />
-	public bool Equals(ValueDocumentItemBase other)
+	public bool Equals(BlockValueDocumentItemBase other)
 	{
 		if (ReferenceEquals(null, other))
 		{
@@ -123,7 +127,7 @@ public abstract class ValueDocumentItemBase : DocumentItemBase, IEquatable<Value
 			return false;
 		}
 
-		return Equals((ValueDocumentItemBase)obj);
+		return Equals((BlockValueDocumentItemBase)obj);
 	}
 
 	/// <inheritdoc />
