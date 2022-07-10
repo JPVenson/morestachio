@@ -171,6 +171,11 @@ public readonly struct TextIndex : IComparable<TextIndex>, ISerializable
 		Column = column;
 	}
 
+	/// <summary>
+	///		Constructor used for serializing
+	/// </summary>
+	/// <param name="serializationInfo"></param>
+	/// <param name="context"></param>
 	public TextIndex(SerializationInfo serializationInfo, StreamingContext context)
 	{
 		Index = serializationInfo.GetInt32(nameof(Index));
@@ -201,6 +206,29 @@ public readonly struct TextIndex : IComparable<TextIndex>, ISerializable
 	/// </summary>
 	public int Column { get; }
 
+	/// <summary>
+	///		Adds the other <see cref="TextIndex"/> to the invoking one.
+	/// </summary>
+	/// <param name="context"></param>
+	/// <param name="other"></param>
+	/// <returns></returns>
+	public TextIndex Add(TokenzierContext context, TextIndex other)
+	{
+		return GetIndex(context, Index + other.Index);
+	}
+
+	/// <inheritdoc />
+	public override string ToString()
+	{
+		return $"{Index}:{Row}:{Column}";
+	}
+
+	/// <inheritdoc />
+	public int CompareTo(TextIndex other)
+	{
+		return Index.CompareTo(other.Index);
+	}
+
 	internal static TextIndex GetIndex(TokenzierContext context, int index)
 	{
 		return GetIndex(context.Lines, index);
@@ -225,12 +253,6 @@ public readonly struct TextIndex : IComparable<TextIndex>, ISerializable
 		return new TextIndex(index, line, charIdx);
 	}
 
-	/// <inheritdoc />
-	public override string ToString()
-	{
-		return $"{Index}:{Row}:{Column}";
-	}
-
 	/// <summary>
 	///		Calculates an Index that is set at the end of the text.
 	/// </summary>
@@ -244,11 +266,5 @@ public readonly struct TextIndex : IComparable<TextIndex>, ISerializable
 		}
 
 		return GetIndex(Tokenizer.FindNewLines(text), text.Length);
-	}
-
-	/// <inheritdoc />
-	public int CompareTo(TextIndex other)
-	{
-		return Index.CompareTo(other.Index);
 	}
 }

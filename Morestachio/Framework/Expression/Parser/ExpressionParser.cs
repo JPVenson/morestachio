@@ -271,7 +271,7 @@ public static class ExpressionParser
 	{
 		if (text.Length == 0)
 		{
-			context.Errors.Add(new MorestachioSyntaxError(new TextRange(index, TextIndex.GetIndex(context, index.Index + textBoundary.RangeEnd.Index)),
+			context.Errors.Add(new MorestachioSyntaxError(new TextRange(index, textBoundary.RangeEnd.Add(context, index)),
 				"", "", "", "expected ether an path expression or an string value"));
 
 			return default;
