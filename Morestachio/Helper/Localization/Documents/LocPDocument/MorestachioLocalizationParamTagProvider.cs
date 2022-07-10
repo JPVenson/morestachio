@@ -26,7 +26,10 @@ public class MorestachioLocalizationParamTagProvider : TagDocumentItemProviderBa
 	public override IEnumerable<TokenPair> Tokenize(TokenInfo token, ParserOptions options)
 	{
 		yield return new TokenPair(OpenTag.Trim(), token.Token, token.Location,
-			ExpressionParser.ParseExpression(token.Token.Remove(0, OpenTag.Length).Trim(), token.TokenizerContext).Expression);
+			ExpressionParser.ParseExpression(token.Token.Remove(0, OpenTag.Length).Trim(),
+								token.TokenizerContext,
+								token.Location.RangeStart)
+							.Expression);
 	}
 		
 	/// <inheritdoc />

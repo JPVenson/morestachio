@@ -214,7 +214,18 @@ public readonly struct TextIndex : IComparable<TextIndex>, ISerializable
 	/// <returns></returns>
 	public TextIndex Add(TokenzierContext context, TextIndex other)
 	{
-		return GetIndex(context, Index + other.Index);
+		return Add(context, other.Index);
+	}
+
+	/// <summary>
+	///		Creates a new Index that is advanced by the number of characters
+	/// </summary>
+	/// <param name="context"></param>
+	/// <param name="other"></param>
+	/// <returns></returns>
+	public TextIndex Add(TokenzierContext context, int other)
+	{
+		return GetIndex(context, Index + other);
 	}
 
 	/// <inheritdoc />

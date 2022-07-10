@@ -392,7 +392,7 @@ public class Tokenizer
 
 							if (!string.IsNullOrWhiteSpace(partialContext))
 							{
-								exp = ExpressionParser.ParseExpression(partialContext, context).Expression;
+								exp = ExpressionParser.ParseExpression(partialContext, context, match.Range.RangeStart).Expression;
 							}
 
 							tokens.Add(new TokenPair(TokenType.RenderPartial, partialName, match.Range,
@@ -405,9 +405,9 @@ public class Tokenizer
 						var token = trimmedToken.TrimStart('#')
 												.Substring("import".Length)
 												.Trim(GetWhitespaceDelimiters());
-						var tokenNameExpression = ExtractExpression(ref token, context);
+						var tokenNameExpression = ExtractExpression(ref token, context, match.Range.RangeStart);
 
-						if (TryParseExpressionOption(ref token, "#WITH", out var withExpression))
+						if (TryParseExpressionOption(ref token, "#WITH", match.Range.RangeStart, context, out var withExpression))
 						{
 							tokenOptions.Add(new TokenOption("Context", withExpression));
 						}
@@ -429,7 +429,7 @@ public class Tokenizer
 							tokens.Add(new TokenPair(TokenType.CollectionOpen,
 								token, 
 								match.Range, 
-								ExpressionParser.ParseExpression(token, context).Expression,
+								ExpressionParser.ParseExpression(token, context, match.Range.RangeStart).Expression,
 								tokenOptions));
 						}
 						else
@@ -480,7 +480,7 @@ public class Tokenizer
 									tokens.Add(new TokenPair(TokenType.ForeachCollectionOpen,
 										token,
 										match.Range,
-										ExpressionParser.ParseExpression(expression, context).Expression,
+										ExpressionParser.ParseExpression(expression, context, match.Range.RangeStart).Expression,
 										tokenOptions));
 								}
 								else
@@ -503,7 +503,7 @@ public class Tokenizer
 							tokens.Add(new TokenPair(TokenType.WhileLoopOpen,
 								token, 
 								match.Range, 
-								ExpressionParser.ParseExpression(token, context).Expression,
+								ExpressionParser.ParseExpression(token, context, match.Range.RangeStart).Expression,
 								tokenOptions));
 						}
 						else
@@ -532,7 +532,7 @@ public class Tokenizer
 							tokens.Add(new TokenPair(TokenType.DoLoopOpen,
 								token, 
 								match.Range, 
-								ExpressionParser.ParseExpression(token, context).Expression,
+								ExpressionParser.ParseExpression(token, context, match.Range.RangeStart).Expression,
 								tokenOptions));
 						}
 						else
@@ -561,7 +561,7 @@ public class Tokenizer
 							tokens.Add(new TokenPair(TokenType.RepeatLoopOpen,
 								token, 
 								match.Range, 
-								ExpressionParser.ParseExpression(token, context).Expression,
+								ExpressionParser.ParseExpression(token, context, match.Range.RangeStart).Expression,
 								tokenOptions));
 						}
 						else
@@ -600,7 +600,7 @@ public class Tokenizer
 
 							tokens.Add(new TokenPair(TokenType.SwitchOpen,
 								match.Range,
-								ExpressionParser.ParseExpression(token, context).Expression,
+								ExpressionParser.ParseExpression(token, context, match.Range.RangeStart).Expression,
 								tokenOptions));
 						}
 						else
@@ -628,7 +628,7 @@ public class Tokenizer
 							tokens.Add(new TokenPair(TokenType.SwitchCaseOpen,
 								token, 
 								match.Range, 
-								ExpressionParser.ParseExpression(token, context).Expression,
+								ExpressionParser.ParseExpression(token, context, match.Range.RangeStart).Expression,
 								tokenOptions));
 						}
 						else
@@ -654,7 +654,7 @@ public class Tokenizer
 
 							tokens.Add(new TokenPair(TokenType.If,
 								token, match.Range,
-								ExpressionParser.ParseExpression(token, context).Expression,
+								ExpressionParser.ParseExpression(token, context, match.Range.RangeStart).Expression,
 								tokenOptions));
 						}
 						else
@@ -685,7 +685,7 @@ public class Tokenizer
 
 							tokens.Add(new TokenPair(TokenType.ElseIf,
 								match.Range,
-								ExpressionParser.ParseExpression(token, context).Expression, 
+								ExpressionParser.ParseExpression(token, context, match.Range.RangeStart).Expression, 
 								tokenOptions));
 						}
 						else
@@ -727,7 +727,7 @@ public class Tokenizer
 
 							tokens.Add(new TokenPair(TokenType.ElementOpen,
 								token, match.Range,
-								ExpressionParser.ParseExpression(token, context).Expression,
+								ExpressionParser.ParseExpression(token, context, match.Range.RangeStart).Expression,
 								tokenOptions));
 						}
 						else
@@ -753,7 +753,10 @@ public class Tokenizer
 							scope |= IsolationOptions.VariableIsolation;
 						}
 
-						if (TryParseExpressionOption(ref token, "#SCOPE ", out var scopeExpression))
+						if (TryParseExpressionOption(ref token, "#SCOPE ",
+								match.Range.RangeStart,
+								context,
+								out var scopeExpression))
 						{
 							tokenOptions.Add(new TokenOption("IsolationScopeArg", scopeExpression));
 							scope |= IsolationOptions.ScopeIsolation;
@@ -800,8 +803,8 @@ public class Tokenizer
 								{
 									name = token.Substring(0, i - 1).Trim();
 
-									value = ExpressionParser.ParseExpression(token.Substring(i + 1).Trim(),
-										context).Expression;
+									value = ExpressionParser.ParseExpression(token.Substring(i + 1).Trim(), context, match.Range.RangeStart)
+															.Expression;
 
 									break;
 								}
@@ -862,7 +865,7 @@ public class Tokenizer
 					tokens.Add(new TokenPair(TokenType.UnescapedSingleValue,
 						token,
 						match.Range, 
-						ExpressionParser.ParseExpression(token, context).Expression,
+						ExpressionParser.ParseExpression(token, context, match.Range.RangeStart).Expression,
 						tokenOptions));
 				}
 				else
@@ -1031,7 +1034,7 @@ public class Tokenizer
 				tokens.Add(new TokenPair(TokenType.IfNot,
 					token,
 					match.Range, 
-					ExpressionParser.ParseExpression(token, context).Expression,
+					ExpressionParser.ParseExpression(token, context, match.Range.RangeStart).Expression,
 					tokenOptions));
 			}
 			else
@@ -1051,7 +1054,7 @@ public class Tokenizer
 			tokens.Add(new TokenPair(TokenType.InvertedElementOpen,
 				token, 
 				match.Range, 
-				ExpressionParser.ParseExpression(token, context).Expression,
+				ExpressionParser.ParseExpression(token, context, match.Range.RangeStart).Expression,
 				tokenOptions));
 
 			if (!string.IsNullOrWhiteSpace(alias.Text))
@@ -1081,7 +1084,7 @@ public class Tokenizer
 			tokens.Add(new TokenPair(TokenType.InvertedElementOpen,
 				token, 
 				match.Range, 
-				ExpressionParser.ParseExpression(token, context).Expression,
+				ExpressionParser.ParseExpression(token, context, match.Range.RangeStart).Expression,
 				tokenOptions));
 
 			if (string.IsNullOrWhiteSpace(alias.Text))
@@ -1215,14 +1218,21 @@ public class Tokenizer
 		return false;
 	}
 
-	private static bool TryParseExpressionOption(ref string token, in string optionName, out IMorestachioExpression expression)
+	private static bool TryParseExpressionOption(
+		ref string token,
+		in string optionName,
+		TextIndex index,
+		TokenzierContext context,
+		out IMorestachioExpression expression
+	)
 	{
 		var optionIndex = token.IndexOf(optionName, StringComparison.OrdinalIgnoreCase);
 
 		if (optionIndex != -1)
 		{
 			token = token.Remove(optionIndex, optionName.Length);
-			expression = ExpressionParser.ParseExpression(token, TokenzierContext.FromText(token)).Expression;
+			expression = ExpressionParser.ParseExpression(token, TokenzierContext.FromText(token), index.Add(context, optionIndex))
+										.Expression;
 
 			return true;
 		}
@@ -1246,9 +1256,9 @@ public class Tokenizer
 		return true;
 	}
 
-	private static IMorestachioExpression ExtractExpression(ref string token, TokenzierContext context)
+	private static IMorestachioExpression ExtractExpression(ref string token, TokenzierContext context, TextIndex index)
 	{
-		var expression = ExpressionParser.ParseExpression(token, context);
+		var expression = ExpressionParser.ParseExpression(token, context, index);
 		token = token.Remove(0, expression.SourceBoundary.RangeEnd.Index);
 
 		return expression.Expression;
@@ -1355,7 +1365,7 @@ public class Tokenizer
 
 			tokens.Add(new TokenPair(TokenType.EscapedSingleValue,
 				token, match.Range,
-				ExpressionParser.ParseExpression(token, context).Expression,
+				ExpressionParser.ParseExpression(token, context, match.Range.RangeStart).Expression,
 				tokenOptions));
 		}
 	}

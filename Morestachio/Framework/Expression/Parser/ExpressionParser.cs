@@ -129,7 +129,12 @@ public static class ExpressionParser
 			return default;
 		}
 
-		return new TokenPair(type, variableName, tokenMatch.Range, ParseExpression(expression, context).Expression, options);
+		return new TokenPair(type, 
+			variableName, 
+			tokenMatch.Range, 
+			ParseExpression(expression, context, tokenMatch.Range.RangeStart)
+				.Expression,
+			options);
 	}
 
 	/// <summary>
@@ -249,7 +254,7 @@ public static class ExpressionParser
 		public IMorestachioExpression Expression { get; }
 
 		/// <summary>
-		///		The range of chars within the source template
+		///		The range of chars within the source template of the text handed to the <see cref="ExpressionParser.ParseExpression(string,Morestachio.Framework.Expression.Framework.TokenzierContext)"/> method.
 		/// </summary>
 		public TextRange SourceBoundary { get; }
 	}

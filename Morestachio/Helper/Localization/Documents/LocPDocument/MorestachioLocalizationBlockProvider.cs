@@ -37,7 +37,7 @@ public class MorestachioLocalizationBlockProvider : BlockDocumentItemProviderBas
 		if (trim.StartsWith(TagOpen, StringComparison.OrdinalIgnoreCase))
 		{
 			yield return new TokenPair(TagOpen.Trim(), token.Location, 
-				ExpressionParser.ParseExpression(trim.Remove(0, OpenTag.Length).Trim(), token.TokenizerContext).Expression);
+				ExpressionParser.ParseExpression(trim.Remove(0, OpenTag.Length).Trim(), token.TokenizerContext, token.Location.RangeStart).Expression);
 		}
 		if (string.Equals(trim, TagClose, StringComparison.OrdinalIgnoreCase))
 		{

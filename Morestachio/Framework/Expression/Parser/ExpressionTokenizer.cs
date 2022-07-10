@@ -99,9 +99,9 @@ public class ExpressionTokenizer
 					//also consume the ; token
 					cursorIndex += 1;
 				}
-					
-				//context.AdvanceLocation(cursorIndex - oldIndex);
-				return (queue, TextIndex.GetIndex(context, cursorIndex + textIndex.Index));
+
+				//the returning index should only refer to the index within the given text
+				return (queue, TextIndex.GetIndex(context, cursorIndex));
 			}
 			else if (Tokenizer.IsWhiteSpaceDelimiter(c))
 			{
@@ -113,7 +113,8 @@ public class ExpressionTokenizer
 				break;
 			}
 		}
-		return (queue, TextIndex.GetIndex(context, cursorIndex + textIndex.Index));
+		//the returning index should only refer to the index within the given text
+		return (queue, TextIndex.GetIndex(context, cursorIndex));
 	}
 
 	private static IExpressionToken TokenizeString(string textPart, 
@@ -170,7 +171,7 @@ public class ExpressionTokenizer
 		}
 
 		return new StringToken(StringBuilderCache.GetStringAndRelease(stringContents), delimiter,
-			TextRange.RangeIndex(context, textIndex.Index, index));
+			TextRange.RangeIndex(context, textIndex.Index, textIndex.Index + index));
 	}
 
 	private static IExpressionToken TokenizeArgument(
@@ -285,22 +286,22 @@ public class ExpressionTokenizer
 					{
 						//consume everything before that current char!
 						return (new ExpressionToken(pathTokenizer, TextRange.RangeIndex(context,
-									sourceIndex + textIndex.Index,
-									index)), index - 1);
+									textIndex.Index + sourceIndex,
+									textIndex.Index + index)), index - 1);
 					}
 				}
 
-				context.Errors.Add(err(TextRange.Range(context, index, text.Length)));
+				context.Errors.Add(err(TextRange.Range(context, textIndex.Index + index, text.Length)));
 				return (new ExpressionToken(pathTokenizer, TextRange.RangeIndex(context,
-							sourceIndex,
-							index)), index);
+							textIndex.Index + sourceIndex,
+							textIndex.Index + index)), index);
 			}
 		}
 
 		//decrement the index by one as the for loop will always add one after running out
 		return (new ExpressionToken(pathTokenizer, TextRange.RangeIndex(context,
-					sourceIndex,
-					index)), index - 1);
+					textIndex.Index + sourceIndex,
+					textIndex.Index + index)), textIndex.Index + index - 1);
 	}
 
 	private static IExpressionToken TokenizeNumber(
