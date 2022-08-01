@@ -14,7 +14,7 @@ namespace Morestachio.LessCompiler
 		}
 
 		/// <inheritdoc />
-		public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token, ParserOptions options, IEnumerable<ITokenOption> tagTokenOptions)
+		public override IBlockDocumentItem CreateDocumentItem(string tag, string value, TokenPair token, ParserOptions options, IEnumerable<ITokenOption> tagTokenOptions)
 		{
 			return new CompileLessDocumentItem(token.TokenRange, tagTokenOptions);
 		}
