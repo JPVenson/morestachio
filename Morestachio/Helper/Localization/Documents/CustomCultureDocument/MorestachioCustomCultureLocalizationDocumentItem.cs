@@ -19,7 +19,8 @@ namespace Morestachio.Helper.Localization.Documents.CustomCultureDocument;
 /// </summary>
 [System.Serializable]
 public class MorestachioCustomCultureLocalizationDocumentItem : BlockExpressionDocumentItemBase,
-																ToParsableStringDocumentVisitor.IStringVisitor, ISupportCustomAsyncCompilation
+																ToParsableStringDocumentVisitor.IStringVisitor, 
+																ISupportCustomAsyncCompilation
 {
 	internal MorestachioCustomCultureLocalizationDocumentItem()
 	{

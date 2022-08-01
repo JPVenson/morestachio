@@ -180,6 +180,10 @@ namespace Morestachio.Tests
 			return document;
 		}
 
+		/// <summary>
+		///		Tests all children of the document to be correctly ordered
+		/// </summary>
+		/// <param name="documentInfo"></param>
 		public static void TestLocationsInOrder(MorestachioDocumentInfo documentInfo)
 		{
 			var api = documentInfo
@@ -190,13 +194,14 @@ namespace Morestachio.Tests
 
 			while (api.Context.OperationStatus)
 			{
+				//TextEdit Documents are virtual because they are translated from multiple sources
 				if (api.Context.CurrentNode.Item is TextEditDocumentItem txtEdit)
 				{
 					api.SearchForward(f => true);
-
 					continue;
 				}
 
+				//RemoveAlias Documents must be handled separately as they are virtually added to the end of a block when LET variables are used
 				if (api.Context.CurrentNode.Item is RemoveAliasDocumentItem removeAlias)
 				{
 					var ancestorItem = api.Context.CurrentNode.Ancestor.Item as BlockDocumentItemBase;
@@ -210,6 +215,12 @@ namespace Morestachio.Tests
 				{
 					Assert.That(api.Context.CurrentNode.Item.Location.RangeStart, Is.GreaterThan(lastLocation), 
 						() => $"Positions dont match. Expected last known '{lastLocation}' to be greater then '{api.Context.CurrentNode.Item.Location.RangeEnd}'");
+					Assert.That(api.Context.CurrentNode.Ancestor.Item, Is.InstanceOf<IBlockDocumentItem>());
+					var parentBlock = api.Context.CurrentNode.Ancestor.Item as IBlockDocumentItem;
+					Assert.That(new TextRange(parentBlock.Location.RangeStart, parentBlock.BlockLocation.RangeEnd)
+								.Includes(parentBlock.Location), Is.True, () => $"The item {api.Context.CurrentNode.Ancestor.Item} " +
+						$"with its location of {api.Context.CurrentNode.Ancestor.Item.Location} does not seem to be wholly located within its parent" +
+						$"of {parentBlock} and location {new TextRange(parentBlock.Location.RangeStart, parentBlock.BlockLocation.RangeEnd)}");
 					lastLocation = api.Context.CurrentNode.Item.Location.RangeEnd;
 				}
 

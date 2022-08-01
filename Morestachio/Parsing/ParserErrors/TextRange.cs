@@ -104,15 +104,57 @@ public readonly struct TextRange : ISerializable
 		return new TextRange(TextIndex.Start, TextIndex.End(text));
 	}
 
-
 	/// <summary>
-	///		Checks wherever the index is in this range.
+	///		Checks wherever the <see cref="TextIndex"/> is in this range.
 	/// </summary>
 	public bool Includes(TextIndex index)
 	{
 		return 
 			RangeStart.Index <= index.Index &&
 			RangeEnd.Index >= index.Index;
+	}
+
+	/// <summary>
+	///		Checks wherever the <see cref="TextRange"/> is in this range.
+	/// </summary>
+	public bool Includes(TextRange range)
+	{
+		return Includes(range.RangeStart) 
+			&& Includes(range.RangeEnd);
+	}
+
+	/// <summary>
+	///		Checks wherever the <see cref="TextRange"/> intercepts
+	/// </summary>
+	public bool Intercepts(TextRange range)
+	{
+		/*
+		 * 1st check is parameters range end in range
+		 *	   rs			 re
+		 *		|------------|
+		 * |---------|
+		 *r.rs		r.re
+		 *
+		 * 2nd check if start is contained in range
+		 *	   rs			 re
+		 *		|------------|
+		 *				|---------|
+		 *				r.rs	  r.re
+		 * 1st and 2nd check also catch total inclusion as range.start is included in range
+		 *	   rs			 re
+		 *		|------------|
+		 *		  |--------|
+		 *        r.rs	   r.re
+		 * 3nd check check for outer inclusion
+		 *	   rs			 re
+		 *		|------------|
+		 *	|---------------------|
+		 *  r.rs				  r.re
+		 */
+
+		return Includes(range.RangeStart)
+			|| Includes(range.RangeEnd)
+			|| range.Includes(RangeStart);
 	}
 }
 /// <summary>
