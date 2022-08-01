@@ -16,7 +16,7 @@ public abstract class BlockDocumentItemProviderBase : CustomDocumentItemProvider
 	/// </summary>
 	protected readonly string TagOpen;
 
-		
+
 	/// <summary>
 	///		Defines the closing tag
 	/// </summary>
@@ -46,10 +46,12 @@ public abstract class BlockDocumentItemProviderBase : CustomDocumentItemProvider
 	public override IEnumerable<TokenPair> Tokenize(TokenInfo token, ParserOptions options)
 	{
 		var trim = token.Token;
+
 		if (trim == TagOpen)
 		{
 			yield return new TokenPair(TagOpen, trim, token.Location);
 		}
+
 		if (trim == TagClose)
 		{
 			yield return new TokenPair(TagClose, trim, token.Location);
@@ -57,18 +59,23 @@ public abstract class BlockDocumentItemProviderBase : CustomDocumentItemProvider
 	}
 
 	/// <inheritdoc />
-	public override bool ShouldParse(TokenPair token, ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions)
+	public override bool ShouldParse(TokenPair token,
+									ParserOptions options,
+									IEnumerable<ITokenOption> tagCreationOptions)
 	{
 		return token.Type.Equals(TagOpen.Trim()) || token.Type.Equals(TagClose);
 	}
 
 	/// <inheritdoc />
-	public override IDocumentItem Parse(TokenPair token, ParserOptions options, Stack<DocumentScope> buildStack,
-										Func<int> getScope, IEnumerable<ITokenOption> tagCreationOptions)
+	public override IDocumentItem Parse(TokenPair token,
+										ParserOptions options,
+										Stack<DocumentScope> buildStack,
+										Func<int> getScope,
+										IEnumerable<ITokenOption> tagCreationOptions)
 	{
 		if (Equals(token.Type, TagOpen.Trim()))
 		{
-			var blockDocumentItem = CreateDocumentItem(TagOpen, 
+			var blockDocumentItem = CreateDocumentItem(TagOpen,
 				token.Value?.Remove(0, TagOpen.Length).Trim(),
 				token, options, tagCreationOptions);
 			blockDocumentItem.BlockLocation = token.TokenRange;
@@ -80,6 +87,7 @@ public abstract class BlockDocumentItemProviderBase : CustomDocumentItemProvider
 		{
 			buildStack.Pop();
 		}
+
 		return null;
 	}
 

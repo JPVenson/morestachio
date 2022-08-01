@@ -40,20 +40,22 @@ public class BlockDocumentItemProvider : BlockDocumentItemProviderBase
 		/// </summary>
 		public BlockDocumentItem()
 		{
-
 		}
 
 		/// <inheritdoc />
-		public BlockDocumentItem(TextRange location, 
-								BlockDocumentProviderFunction action, 
+		public BlockDocumentItem(TextRange location,
+								BlockDocumentProviderFunction action,
 								string value,
-								IEnumerable<ITokenOption> tagCreationOptions) : base(location, value, tagCreationOptions)
+								IEnumerable<ITokenOption> tagCreationOptions) : base(location, value,
+			tagCreationOptions)
 		{
 			_action = action;
 		}
-			
+
 		/// <inheritdoc />
-		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+		public override async ItemExecutionPromise Render(IByteCounterStream outputStream,
+														ContextObject context,
+														ScopeData scopeData)
 		{
 			return await _action(outputStream, context, scopeData, Value, Children).ConfigureAwait(false);
 			//return Array.Empty<DocumentItemExecution>();
@@ -67,11 +69,11 @@ public class BlockDocumentItemProvider : BlockDocumentItemProviderBase
 	}
 
 	/// <inheritdoc />
-	public override IBlockDocumentItem CreateDocumentItem(string tag, 
-													 string value, 
-													 TokenPair token,
-													 ParserOptions options, 
-													 IEnumerable<ITokenOption> tagCreationOptions)
+	public override IBlockDocumentItem CreateDocumentItem(string tag,
+														string value,
+														TokenPair token,
+														ParserOptions options,
+														IEnumerable<ITokenOption> tagCreationOptions)
 	{
 		return new BlockDocumentItem(token.TokenRange, _action, value, tagCreationOptions);
 	}
