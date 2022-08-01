@@ -47,8 +47,8 @@ namespace Morestachio.Tests
 		public static IParserOptionsBuilder TestBuilder()
 		{
 			return ParserOptionsBuilder.New()
-										.WithEncoding(DefaultEncoding)
-										.WithCultureInfo(DefaultCulture);
+				.WithEncoding(DefaultEncoding)
+				.WithCultureInfo(DefaultCulture);
 		}
 
 		public static Encoding DefaultEncoding { get; set; } = new UnicodeEncoding(true, false, false);
@@ -147,8 +147,8 @@ namespace Morestachio.Tests
 		)
 		{
 			var parserOptionsBuilder = TestBuilder()
-										.WithTemplate(template)
-										.WithLogger(() => !opt.HasFlag(ParserOptionTypes.NoLoggingTest) ? new TestLogger() : null);
+				.WithTemplate(template)
+				.WithLogger(() => !opt.HasFlag(ParserOptionTypes.NoLoggingTest) ? new TestLogger() : null);
 			parserOptionsBuilder = option?.Invoke(parserOptionsBuilder) ?? parserOptionsBuilder;
 
 			var parsingOptions = parserOptionsBuilder
@@ -187,8 +187,8 @@ namespace Morestachio.Tests
 		public static void TestLocationsInOrder(MorestachioDocumentInfo documentInfo)
 		{
 			var api = documentInfo
-					.Fluent()
-					.SearchForward(f => !(f is MorestachioDocument), true);
+				.Fluent()
+				.SearchForward(f => !(f is MorestachioDocument), true);
 			var lastLocation = TextIndex.Unknown;
 			var visitor = new ToParsableStringDocumentVisitor(documentInfo.ParserOptions);
 
@@ -205,7 +205,8 @@ namespace Morestachio.Tests
 				if (api.Context.CurrentNode.Item is RemoveAliasDocumentItem removeAlias)
 				{
 					var ancestorItem = api.Context.CurrentNode.Ancestor.Item as BlockDocumentItemBase;
-					Assert.That(removeAlias.Location.RangeStart, Is.EqualTo(ancestorItem.BlockLocation.RangeStart), () => "");
+					Assert.That(removeAlias.Location.RangeStart, Is.EqualTo(ancestorItem.BlockLocation.RangeStart),
+						() => "");
 				}
 				else if (api.Context.CurrentNode.Item is AliasDocumentItem)
 				{
@@ -213,14 +214,17 @@ namespace Morestachio.Tests
 				}
 				else
 				{
-					Assert.That(api.Context.CurrentNode.Item.Location.RangeStart, Is.GreaterThan(lastLocation), 
-						() => $"Positions dont match. Expected last known '{lastLocation}' to be greater then '{api.Context.CurrentNode.Item.Location.RangeEnd}'");
+					Assert.That(api.Context.CurrentNode.Item.Location.RangeStart, Is.GreaterThan(lastLocation),
+						() =>
+							$"Positions dont match. Expected last known '{lastLocation}' to be greater then '{api.Context.CurrentNode.Item.Location.RangeEnd}'");
 					Assert.That(api.Context.CurrentNode.Ancestor.Item, Is.InstanceOf<IBlockDocumentItem>());
 					var parentBlock = api.Context.CurrentNode.Ancestor.Item as IBlockDocumentItem;
 					Assert.That(new TextRange(parentBlock.Location.RangeStart, parentBlock.BlockLocation.RangeEnd)
-								.Includes(parentBlock.Location), Is.True, () => $"The item {api.Context.CurrentNode.Ancestor.Item} " +
-						$"with its location of {api.Context.CurrentNode.Ancestor.Item.Location} does not seem to be wholly located within its parent" +
-						$"of {parentBlock} and location {new TextRange(parentBlock.Location.RangeStart, parentBlock.BlockLocation.RangeEnd)}");
+							.Includes(parentBlock.Location),
+						Is.True,
+						() => $"The item {api.Context.CurrentNode.Ancestor.Item} " +
+							$"with its location of {api.Context.CurrentNode.Ancestor.Item.Location} does not seem to be wholly located within its parent" +
+							$"of {parentBlock} and location {new TextRange(parentBlock.Location.RangeStart, parentBlock.BlockLocation.RangeEnd)}");
 					lastLocation = api.Context.CurrentNode.Item.Location.RangeEnd;
 				}
 
@@ -562,7 +566,11 @@ namespace Morestachio.Tests
 			{
 				{ "data", dataValue }
 			};
-			var result = await CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatter((string value, int nr) => { return value.PadLeft(nr); }, "PadLeft"); });
+			var result = await CreateAndParseWithOptions(template, data, _options,
+				options =>
+				{
+					return options.WithFormatter((string value, int nr) => { return value.PadLeft(nr); }, "PadLeft");
+				});
 			Assert.That(result, Is.EqualTo("|" + dataValue.ToString("G", DefaultCulture).PadLeft(123)));
 		}
 
@@ -648,7 +656,12 @@ namespace Morestachio.Tests
 			{
 				{ "data", dataValue }
 			};
-			var result = await CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatter((string value, int nr) => { return value.PadLeft(nr); }, "PadLeft").WithNull("{NULL}"); });
+			var result = await CreateAndParseWithOptions(template, data, _options,
+				options =>
+				{
+					return options.WithFormatter((string value, int nr) => { return value.PadLeft(nr); }, "PadLeft")
+						.WithNull("{NULL}");
+				});
 			Assert.That(result, Is.EqualTo("{NULL}"));
 		}
 
@@ -663,7 +676,8 @@ namespace Morestachio.Tests
 			{
 				{ "data", "dataValue" }
 			};
-			var result = await CreateAndParseWithOptions(template, data, _options, options => { return options.WithNull("{NULL}"); });
+			var result = await CreateAndParseWithOptions(template, data, _options,
+				options => { return options.WithNull("{NULL}"); });
 			Assert.That(result, Is.EqualTo("{NULL}DD"));
 		}
 
@@ -679,7 +693,11 @@ namespace Morestachio.Tests
 			{
 				{ "data", dataValue }
 			};
-			var result = await CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatter((string value, int nr) => { return value.PadLeft(nr); }, "PadLeft"); });
+			var result = await CreateAndParseWithOptions(template, data, _options,
+				options =>
+				{
+					return options.WithFormatter((string value, int nr) => { return value.PadLeft(nr); }, "PadLeft");
+				});
 			Assert.That(result, Is.EqualTo("Test".PadLeft(123)));
 		}
 
@@ -695,7 +713,12 @@ namespace Morestachio.Tests
 			{
 				{ "data", dataValue }
 			};
-			var result = await CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatter((string value, int nr) => { return value.PadLeft(nr); }, "PadLeft").WithDisableContentEscaping(true); });
+			var result = await CreateAndParseWithOptions(template, data, _options,
+				options =>
+				{
+					return options.WithFormatter((string value, int nr) => { return value.PadLeft(nr); }, "PadLeft")
+						.WithDisableContentEscaping(true);
+				});
 			Assert.That(result, Is.EqualTo("Te'st".PadLeft(123)));
 		}
 
@@ -710,7 +733,11 @@ namespace Morestachio.Tests
 			{
 				{ "data", dataValue }
 			};
-			var result = await CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatter((string value, int nr) => { return value.PadLeft(nr); }, "PadLeft"); });
+			var result = await CreateAndParseWithOptions(template, data, _options,
+				options =>
+				{
+					return options.WithFormatter((string value, int nr) => { return value.PadLeft(nr); }, "PadLeft");
+				});
 			Assert.That(result, Is.EqualTo("".PadLeft(123)));
 		}
 
@@ -733,7 +760,8 @@ namespace Morestachio.Tests
 				{ "valueB", "_" },
 				{ "valueC", "World" }
 			};
-			var result = await CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest);
+			var result = await CreateAndParseWithOptions(template, data,
+				_options | ParserOptionTypes.NoRerenderingTest);
 			Assert.That(result, Is.EqualTo("Hello,{{valueA}}_,World"));
 		}
 
@@ -747,7 +775,8 @@ namespace Morestachio.Tests
 				{ "data", null },
 				{ "extData", "Test" }
 			};
-			var result = await CreateAndParseWithOptions(template, data, _options, options => { return options.WithNull("IAmTheLaw!"); });
+			var result = await CreateAndParseWithOptions(template, data, _options,
+				options => { return options.WithNull("IAmTheLaw!"); });
 			Assert.That(result, Is.EqualTo("ShouldBe: IAmTheLaw!, ButNot: Test"));
 		}
 
@@ -769,7 +798,11 @@ namespace Morestachio.Tests
 			{
 				{ "f", "F5" }
 			};
-			var result = await CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatter(new Func<string, int, string>((e, f) => f.ToString(e)), "Format"); });
+			var result = await CreateAndParseWithOptions(template, data, _options,
+				options =>
+				{
+					return options.WithFormatter(new Func<string, int, string>((e, f) => f.ToString(e)), "Format");
+				});
 			Assert.That(result, Is.EqualTo(123.ToString("F5")));
 		}
 
@@ -778,7 +811,8 @@ namespace Morestachio.Tests
 		{
 			var template = "{{1.123.ToString('F5')}}";
 			var data = new Dictionary<string, object>();
-			var result = await CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest);
+			var result = await CreateAndParseWithOptions(template, data,
+				_options | ParserOptionTypes.NoRerenderingTest);
 			Assert.That(result, Is.EqualTo(1.123.ToString("F5", DefaultCulture)));
 		}
 
@@ -809,7 +843,12 @@ namespace Morestachio.Tests
 					}
 				}
 			};
-			var result = await CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatters(typeof(DynamicLinq)).WithFormatters(typeof(FormatterTests.NumberFormatter)); });
+			var result = await CreateAndParseWithOptions(template, data, _options,
+				options =>
+				{
+					return options.WithFormatters(typeof(DynamicLinq))
+						.WithFormatters(typeof(FormatterTests.NumberFormatter));
+				});
 			Assert.AreEqual("2 = 2 = 2", result);
 		}
 
@@ -822,7 +861,8 @@ namespace Morestachio.Tests
 			{
 				{ "data", 2 }
 			};
-			var result = await CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatters(typeof(NumberFormatter)); });
+			var result = await CreateAndParseWithOptions(template, data, _options,
+				options => { return options.WithFormatters(typeof(NumberFormatter)); });
 			Assert.That(result, Is.EqualTo("8"));
 		}
 
@@ -851,7 +891,8 @@ namespace Morestachio.Tests
 			var template = "{{#SCOPE data}}{{ToString(\"" + dtFormat + "\")}}{{/SCOPE}},{{data}}";
 			var dataValue = DateTime.UtcNow;
 			var data = new Dictionary<string, object> { { "data", dataValue } };
-			var result = await CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatters(typeof(NumberFormatter)); });
+			var result = await CreateAndParseWithOptions(template, data, _options,
+				options => { return options.WithFormatters(typeof(NumberFormatter)); });
 			Assert.That(result, Is.EqualTo(dataValue.ToString(dtFormat, DefaultCulture) + "," + dataValue));
 		}
 
@@ -863,14 +904,16 @@ namespace Morestachio.Tests
 		[TestCase("{{data.F(arg}}", 1)]
 		[TestCase("{{data.F(arg, 'test'}}", 1)]
 		[TestCase("{{data.F(arg, 'test)}}", 1)]
-		[TestCase("{{data.F(arg, )}}", 1, Ignore = "This is currently auto corrected as the missing argument is interpreted as not existing")]
+		[TestCase("{{data.F(arg, )}}", 1,
+			Ignore = "This is currently auto corrected as the missing argument is interpreted as not existing")]
 		public void ParserThrowsAnExceptionWhenFormatIsMismatched(string invalidTemplate, int expectedNoOfExceptions)
 		{
 			IEnumerable<IMorestachioError> errors;
 
 			Assert.That(errors = Parser.ParseWithOptions(TestBuilder().WithTemplate(invalidTemplate).Build()).Errors,
 				Is.Not.Empty,
-				() => errors.Select(e => e.HelpText).DefaultIfEmpty("").Aggregate((e, f) => e + Environment.NewLine + f));
+				() => errors.Select(e => e.HelpText).DefaultIfEmpty("")
+					.Aggregate((e, f) => e + Environment.NewLine + f));
 		}
 
 		[Test]
@@ -880,7 +923,8 @@ namespace Morestachio.Tests
 		[TestCase("{{/each}}")]
 		public void ParserThrowsAnExceptionWhenEachIsMismatched(string invalidTemplate)
 		{
-			Assert.That(Parser.ParseWithOptions(TestBuilder().WithTemplate(invalidTemplate).Build()).Errors, Is.Not.Empty);
+			Assert.That(Parser.ParseWithOptions(TestBuilder().WithTemplate(invalidTemplate).Build()).Errors,
+				Is.Not.Empty);
 		}
 
 		[Test]
@@ -970,7 +1014,8 @@ namespace Morestachio.Tests
 			{
 				{ "content", content }
 			};
-			var result = await CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatters(typeof(NumberFormatter)); });
+			var result = await CreateAndParseWithOptions(template, data, _options,
+				options => { return options.WithFormatters(typeof(NumberFormatter)); });
 			Assert.That(result, Is.EqualTo(expected));
 		}
 
@@ -983,7 +1028,11 @@ namespace Morestachio.Tests
 			{
 				{ "content", content }
 			};
-			var result = await CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatters(typeof(NumberFormatter)).WithDisableContentEscaping(true); });
+			var result = await CreateAndParseWithOptions(template, data, _options,
+				options =>
+				{
+					return options.WithFormatters(typeof(NumberFormatter)).WithDisableContentEscaping(true);
+				});
 			Assert.That(result, Is.EqualTo(expected));
 		}
 
@@ -1288,12 +1337,14 @@ namespace Morestachio.Tests
 
 			var morestachioDocumentInfo = Parser.ParseWithOptions(
 				TestBuilder().WithTemplate(template).Build());
-			Assert.That(morestachioDocumentInfo.Errors, Is.Empty, () => morestachioDocumentInfo.Errors.Select(e => e.HelpText).Aggregate((e, f) => e + f));
+			Assert.That(morestachioDocumentInfo.Errors, Is.Empty,
+				() => morestachioDocumentInfo.Errors.Select(e => e.HelpText).Aggregate((e, f) => e + f));
 			template = "{{~Data.Data(\"e\")}}";
 
 			morestachioDocumentInfo = Parser.ParseWithOptions(
 				TestBuilder().WithTemplate(template).Build());
-			Assert.That(morestachioDocumentInfo.Errors, Is.Empty, () => morestachioDocumentInfo.Errors.Select(e => e.HelpText).Aggregate((e, f) => e + f));
+			Assert.That(morestachioDocumentInfo.Errors, Is.Empty,
+				() => morestachioDocumentInfo.Errors.Select(e => e.HelpText).Aggregate((e, f) => e + f));
 		}
 
 		//[Test]
@@ -1307,9 +1358,11 @@ namespace Morestachio.Tests
 		{
 			Assert.That(() =>
 			{
-				var template = "{{#Collection}}Collection has elements{{/Collection}}{{^Collection}}Collection doesn't have elements{{/Collection}}";
+				var template
+					= "{{#Collection}}Collection has elements{{/Collection}}{{^Collection}}Collection doesn't have elements{{/Collection}}";
 				Parser.ParseWithOptions(TestBuilder().WithTemplate(template).Build());
-				template = "{{^Collection}}Collection doesn't have elements{{/Collection}}{{#Collection}}Collection has elements{{/Collection}}";
+				template
+					= "{{^Collection}}Collection doesn't have elements{{/Collection}}{{#Collection}}Collection has elements{{/Collection}}";
 				Parser.ParseWithOptions(TestBuilder().WithTemplate(template).Build());
 			}, Throws.Nothing);
 		}
@@ -1329,7 +1382,8 @@ namespace Morestachio.Tests
 			var template = @"{{^Collection}}Collection doesn't have
 							elements{{#Collection}}Collection has
 						elements{{/Collection}}{{/Collection}}";
-			Assert.That(() => { Parser.ParseWithOptions(TestBuilder().WithTemplate(template).Build()); }, Throws.Nothing);
+			Assert.That(() => { Parser.ParseWithOptions(TestBuilder().WithTemplate(template).Build()); },
+				Throws.Nothing);
 		}
 
 		[Test]
@@ -1390,20 +1444,21 @@ namespace Morestachio.Tests
 			var template = "{{#PI 3}}";
 			var data = new Dictionary<string, object>();
 
-			var result = await CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest, options =>
-			{
-				return options.AddCustomDocument(new TagDocumentItemProvider("#PI", async (
-					outputStream,
-					context,
-					scopeData,
-					value,
-					tag
-				) =>
+			var result = await CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest,
+				options =>
 				{
-					outputStream.Write((Math.PI * int.Parse(value)).ToString());
-					await Task.CompletedTask;
-				}));
-			});
+					return options.AddCustomDocument(new TagDocumentItemProvider("#PI", async (
+						outputStream,
+						context,
+						scopeData,
+						value,
+						tag
+					) =>
+					{
+						outputStream.Write((Math.PI * int.Parse(value)).ToString());
+						await Task.CompletedTask;
+					}));
+				});
 			Assert.That(result, Is.EqualTo((Math.PI * 3).ToString()));
 		}
 
@@ -1413,23 +1468,24 @@ namespace Morestachio.Tests
 			var data = new Dictionary<string, object>();
 			var template = @"{{#PI}}3{{/PI}}";
 
-			var result = await CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest, options =>
-			{
-				return options.AddCustomDocument(new BlockDocumentItemProvider("#PI", "/PI",
-					(
-						outputStream,
-						context,
-						scopeData,
-						value,
-						children
-					) =>
-					{
-						var firstOrDefault = children.OfType<ContentDocumentItem>().FirstOrDefault();
-						outputStream.Write((Math.PI * int.Parse(firstOrDefault.Value)).ToString());
+			var result = await CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest,
+				options =>
+				{
+					return options.AddCustomDocument(new BlockDocumentItemProvider("#PI", "/PI",
+						(
+							outputStream,
+							context,
+							scopeData,
+							value,
+							children
+						) =>
+						{
+							var firstOrDefault = children.OfType<ContentDocumentItem>().FirstOrDefault();
+							outputStream.Write((Math.PI * int.Parse(firstOrDefault.Value)).ToString());
 
-						return Enumerable.Empty<DocumentItemExecution>().ToPromise();
-					}));
-			});
+							return Enumerable.Empty<DocumentItemExecution>().ToPromise();
+						}));
+				});
 			Assert.That(result, Is.EqualTo((Math.PI * 3).ToString()));
 		}
 
@@ -1506,7 +1562,8 @@ namespace Morestachio.Tests
 				},
 				RootValue = "FAILED"
 			};
-			var result = await CreateAndParseWithOptions(template, data, _options, options => { return options.WithNull("NULL"); });
+			var result = await CreateAndParseWithOptions(template, data, _options,
+				options => { return options.WithNull("NULL"); });
 			Assert.That(result, Is.EqualTo("Success - SUCCESS == NULL && NULL != Success"));
 		}
 
@@ -1570,7 +1627,8 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task TestStoredCollectionContext()
 		{
-			var template = "{{#FOREACH item IN data}}{{item.$index}},{{item.$first}},{{item.$middel}},{{item.$last}},{{item.$odd}},{{item.$even}}.{{/FOREACH}}";
+			var template
+				= "{{#FOREACH item IN data}}{{item.$index}},{{item.$first}},{{item.$middel}},{{item.$last}},{{item.$odd}},{{item.$even}}.{{/FOREACH}}";
 
 			var elementdata = new List<CollectionContextInfo>
 			{
@@ -1627,7 +1685,8 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task TestRepeatContext()
 		{
-			var template = "{{#repeat data.Count}}{{$index}},{{$first}},{{$middel}},{{$last}},{{$odd}},{{$even}}.{{/repeat}}";
+			var template
+				= "{{#repeat data.Count}}{{$index}},{{$first}},{{$middel}},{{$last}},{{$odd}},{{$even}}.{{/repeat}}";
 
 			var elementdata = new List<CollectionContextInfo>
 			{
@@ -1688,7 +1747,8 @@ namespace Morestachio.Tests
 				"{{$index}}," +
 				"{{/REPEAT}}";
 			var data = new Dictionary<string, object>();
-			var result = await CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatters(typeof(EqualityFormatter)); });
+			var result = await CreateAndParseWithOptions(template, data, _options,
+				options => { return options.WithFormatters(typeof(EqualityFormatter)); });
 			Assert.That(result, Is.EqualTo("0,1,2,3,4,"));
 		}
 
@@ -1703,7 +1763,8 @@ namespace Morestachio.Tests
 {{--| /REPEAT}})
 {{--| /REPEAT}}";
 			var data = new Dictionary<string, object>();
-			var result = await CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatters(typeof(EqualityFormatter)); });
+			var result = await CreateAndParseWithOptions(template, data, _options,
+				options => { return options.WithFormatters(typeof(EqualityFormatter)); });
 			Assert.That(result, Is.EqualTo("0(0,1,2,)1(0,1,2,)"));
 		}
 
@@ -1714,7 +1775,8 @@ namespace Morestachio.Tests
 						   {{-| $index}},
 						   {{-| /WHILE}}";
 			var data = new Dictionary<string, object>();
-			var result = await CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatters(typeof(EqualityFormatter)); });
+			var result = await CreateAndParseWithOptions(template, data, _options,
+				options => { return options.WithFormatters(typeof(EqualityFormatter)); });
 			Assert.That(result, Is.EqualTo("0,1,2,3,4,"));
 		}
 
@@ -1725,7 +1787,8 @@ namespace Morestachio.Tests
 							 {{-| $index}},
 							 {{-| /DO}}";
 			var data = new Dictionary<string, object>();
-			var result = await CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatters(typeof(EqualityFormatter)); });
+			var result = await CreateAndParseWithOptions(template, data, _options,
+				options => { return options.WithFormatters(typeof(EqualityFormatter)); });
 			Assert.That(result, Is.EqualTo("0,1,2,3,4,5,"));
 		}
 
@@ -1736,7 +1799,8 @@ namespace Morestachio.Tests
 
 Test{{#NL}}";
 			var data = new Dictionary<string, object>();
-			var result = await CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatters(typeof(EqualityFormatter)); });
+			var result = await CreateAndParseWithOptions(template, data, _options,
+				options => { return options.WithFormatters(typeof(EqualityFormatter)); });
 
 			Assert.That(result, Is.EqualTo(@"Test
 "));
@@ -1754,7 +1818,8 @@ Static
 			{
 				data = "World"
 			};
-			var result = await CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatters(typeof(EqualityFormatter)); });
+			var result = await CreateAndParseWithOptions(template, data, _options,
+				options => { return options.WithFormatters(typeof(EqualityFormatter)); });
 			Assert.That(result, Is.EqualTo(@"WorldStaticWorld"));
 		}
 
@@ -1768,7 +1833,8 @@ Static
 			{
 				other = "World"
 			};
-			var result = await CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatters(typeof(EqualityFormatter)); });
+			var result = await CreateAndParseWithOptions(template, data, _options,
+				options => { return options.WithFormatters(typeof(EqualityFormatter)); });
 			Assert.That(result, Is.EqualTo(@" Other exists,"));
 		}
 
@@ -1784,7 +1850,8 @@ Static
 			{
 				data = "World"
 			};
-			var result = await CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest, options => { return options.WithFormatters(typeof(EqualityFormatter)); });
+			var result = await CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest,
+				options => { return options.WithFormatters(typeof(EqualityFormatter)); });
 			Assert.That(result, Is.EqualTo(@"WorldStaticWorld"));
 		}
 
@@ -1855,7 +1922,8 @@ Static
 			{
 				data = new DirectLinkedFormatter()
 			};
-			var result = await CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatters<DirectLinkedFormatter>(); });
+			var result = await CreateAndParseWithOptions(template, data, _options,
+				options => { return options.WithFormatters<DirectLinkedFormatter>(); });
 			Assert.That(result, Is.EqualTo(@"V: 0|1|0"));
 		}
 
@@ -1885,7 +1953,8 @@ Static
 			{
 				data = 777
 			};
-			var result = await CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatters<BoundExpressionFormatter>(); });
+			var result = await CreateAndParseWithOptions(template, data, _options,
+				options => { return options.WithFormatters<BoundExpressionFormatter>(); });
 			Assert.That(result, Is.EqualTo(@"Data: 123|data.value.test"));
 		}
 

@@ -36,8 +36,11 @@ public abstract class BlockDocumentItemProviderBase : CustomDocumentItemProvider
 	/// <summary>
 	///		Will be called to produce an Document item that must be executed
 	/// </summary>
-	public abstract IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token,
-													ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions);
+	public abstract IBlockDocumentItem CreateDocumentItem(string tag,
+														string value,
+														TokenPair token,
+														ParserOptions options,
+														IEnumerable<ITokenOption> tagCreationOptions);
 
 	/// <inheritdoc />
 	public override IEnumerable<TokenPair> Tokenize(TokenInfo token, ParserOptions options)
@@ -65,11 +68,13 @@ public abstract class BlockDocumentItemProviderBase : CustomDocumentItemProvider
 	{
 		if (Equals(token.Type, TagOpen.Trim()))
 		{
-			var tagDocumentItem = CreateDocumentItem(TagOpen, 
+			var blockDocumentItem = CreateDocumentItem(TagOpen, 
 				token.Value?.Remove(0, TagOpen.Length).Trim(),
 				token, options, tagCreationOptions);
-			buildStack.Push(new DocumentScope(tagDocumentItem, getScope));
-			return tagDocumentItem;
+			blockDocumentItem.BlockLocation = token.TokenRange;
+
+			buildStack.Push(new DocumentScope(blockDocumentItem, getScope));
+			return blockDocumentItem;
 		}
 		else if (Equals(token.Type, TagClose))
 		{

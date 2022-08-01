@@ -18,13 +18,13 @@ public class MorestachioCustomCultureLocalizationBlockProvider : BlockDocumentIt
 	public MorestachioCustomCultureLocalizationBlockProvider() : base(OpenTag, CloseTag)
 	{
 	}
-		
+
 	/// <summary>
 	///		The opening tag of <see cref="MorestachioCustomCultureLocalizationDocumentItem"/>
 	/// </summary>
 	public const string OpenTag = "#LocCulture ";
 
-		
+
 	/// <summary>
 	///		The closing tag of <see cref="MorestachioCustomCultureLocalizationDocumentItem"/>
 	/// </summary>
@@ -46,9 +46,11 @@ public class MorestachioCustomCultureLocalizationBlockProvider : BlockDocumentIt
 	}
 
 	/// <inheritdoc />
-	public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token,
-													ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions)
+	public override IBlockDocumentItem CreateDocumentItem(string tag, string value, TokenPair token,
+														ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions)
 	{
-		return new MorestachioCustomCultureLocalizationDocumentItem(token.TokenRange, token.MorestachioExpression, tagCreationOptions);
+		return new MorestachioCustomCultureLocalizationDocumentItem(token.TokenRange,
+			token.MorestachioExpression,
+			tagCreationOptions);
 	}
 }

@@ -67,7 +67,7 @@ public class BlockDocumentItemProvider : BlockDocumentItemProviderBase
 	}
 
 	/// <inheritdoc />
-	public override IDocumentItem CreateDocumentItem(string tag, 
+	public override IBlockDocumentItem CreateDocumentItem(string tag, 
 													 string value, 
 													 TokenPair token,
 													 ParserOptions options, 

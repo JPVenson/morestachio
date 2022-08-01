@@ -46,8 +46,8 @@ public class MorestachioLocalizationBlockProvider : BlockDocumentItemProviderBas
 	}
 
 	/// <inheritdoc />
-	public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token,
-													ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions)
+	public override IBlockDocumentItem CreateDocumentItem(string tag, string value, TokenPair token,
+														ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions)
 	{
 		return new MorestachioLocalizationDocumentItem(token.TokenRange, token.MorestachioExpression, null, tagCreationOptions);
 	}
