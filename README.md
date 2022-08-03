@@ -4,9 +4,15 @@
 [![Converage](https://img.shields.io/azure-devops/coverage/jeanpierrebachmann/Morestachio/3?label=Test%20Coverage)](https://jeanpierrebachmann.visualstudio.com/Morestachio/_build?definitionId=3&view=ms.vss-pipelineanalytics-web.new-build-definition-pipeline-analytics-view-cardmetrics)
 ![tests](https://img.shields.io/azure-devops/tests/jeanpierrebachmann/Morestachio/3)
 
+
 ![Icon](https://github.com/JPVenson/morestachio/blob/master/Morestachio/Morestachio%20248x248.png?raw=true)
 
 A Lightweight, powerful, flavorful, templating engine for C# and other .net-based languages. Its a fork of Mustachio.
+
+
+## Need help?
+Need general help? open a [Discussion](https://github.com/JPVenson/morestachio/discussions/new)   
+Found a bug? open a [Bug](https://github.com/JPVenson/morestachio/issues/new?assignees=&labels=&template=bug_report.md)   
 
 #### Installing Morestachio:
 
