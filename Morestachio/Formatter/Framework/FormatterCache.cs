@@ -15,6 +15,11 @@ public class FormatterCache
 		ValueBuffer = new object[TestedTypes.Arguments.Count];
 	}
 
+	private FormatterCache()
+	{
+
+	}
+
 	internal readonly object[] ValueBuffer;
 
 	/// <summary>
@@ -26,4 +31,14 @@ public class FormatterCache
 	///		The cs function and arguments map
 	/// </summary>
 	public PrepareFormatterComposingResult TestedTypes { get; }
+}
+
+public class SelfInvokingFormatterCache : FormatterCache
+{
+	/// <inheritdoc />
+	public SelfInvokingFormatterCache(string name) : base(new MorestachioFormatterModel(name, null, null, null, null, null, null, false, false),
+		null)
+	{
+
+	}
 }

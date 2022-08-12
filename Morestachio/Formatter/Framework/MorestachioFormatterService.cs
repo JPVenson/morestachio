@@ -184,9 +184,15 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 			return cacheItem;
 		}
 
+		if (typeof(IFormatterInvoker).IsAssignableFrom(type))
+		{
+			//the source object should try to handle the testing on its own so we must obtain it prematurely.
+			return new SelfInvokingFormatterCache(name);
+		}
+
 		var hasFormatter = PrepareGetMatchingFormatterOn(type, arguments, parserOptions, name)
-							.Where(e => e != null)
-							.ToArray();
+			.Where(e => e != null)
+			.ToArray();
 
 		if (!hasFormatter.Any())
 		{
@@ -240,6 +246,28 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		ParserOptions parserOptions,
 		FormatterArgumentType[] args)
 	{
+		if (formatter is SelfInvokingFormatterCache selfInvoking)
+		{
+			parserOptions.Logger?
+				.LogTrace(LoggingFormatter.FormatterServiceId, $"Execute the self invoking formatter for {selfInvoking.Model.Name} with {args.Select(f => string.Join("\t", f.Index, f.Name, f.Type, f.Expression.AsStringExpression(), f.Value))}");
+
+			if (sourceValue is not IFormatterInvoker formatterInvoker)
+			{
+				parserOptions.Logger?
+					.LogError(LoggingFormatter.FormatterServiceId, $"Expected {sourceValue} to implement {typeof(IFormatterInvoker)} but did not.");
+				return AsyncHelper.EmptyPromise<object>();
+			}
+
+			if (formatterInvoker.CanInvokeAsync(args, formatter.Model.Name, parserOptions))
+			{
+				return formatterInvoker.InvokeAsync(args, formatter.Model.Name, parserOptions);
+			}
+
+			parserOptions.Logger?
+				.LogTrace(LoggingFormatter.FormatterServiceId, $"Self invoking formatter did not report to be able to execute formatter {formatter.Model.Name}");
+			return AsyncHelper.EmptyPromise<object>();
+		}
+
 		parserOptions.Logger?
 			.LogTrace(LoggingFormatter.FormatterServiceId, $"Execute the formatter {formatter.Model.Name} with arguments. {args.Select(f => string.Join("\t", f.Index, f.Name, f.Type, f.Expression.AsStringExpression(), f.Value))}");
 
