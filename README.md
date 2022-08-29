@@ -39,7 +39,7 @@ Try it out, without consequenses. The Morestachio Online editor allows you to cr
 
 ```csharp
 // Your Template
-var sourceTemplate = "Dear {{name}}, this is definitely a personalized note to you. Very truly yours, {{sender}}"
+var sourceTemplate = "Dear {{name}}, this is definitely a personalized note to you. Very truly yours, {{sender}}";
 
 // Parse the Template into the Document Tree. 
 var document = await ParserOptionsBuilder
@@ -56,7 +56,7 @@ IDictionary model = new Dictionary<string, object>();
 model["name"] = "John";
 model["sender"] = "Sally";
 //or with any other object
-var model = new {name= "John", sender= "Sally"}
+var model = new {name= "John", sender= "Sally"};
 
 // Combine the model with the template to get content:
 var content = document.CreateRenderer().RenderAndStringify(model); // Dear John, this is definitely a personalized note to you. Very truly yours, Sally
