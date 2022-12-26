@@ -8,7 +8,7 @@ namespace Morestachio.Formatter.Framework;
 
 /// <summary>
 /// </summary>
-public class PrepareFormatterComposingResult
+public class PrepareFormatterComposingResult : IPrepareFormatterComposingResult
 {
 	/// <summary>
 	/// 
@@ -47,7 +47,13 @@ public class PrepareFormatterComposingResult
 		return (_callCache, _methodInfo);
 	}
 
-	internal static Func<object, object[], object> BuildCaller(MethodInfo method, object[] arguments)
+	/// <summary>
+	///		Build an defined delegate type to invoke the requested formatter method.
+	/// </summary>
+	/// <param name="method"></param>
+	/// <param name="arguments"></param>
+	/// <returns></returns>
+	public static Func<object, object[], object> BuildCaller(MethodInfo method, object[] arguments)
 	{
 		try
 		{
@@ -114,10 +120,6 @@ public class PrepareFormatterComposingResult
 			return method.Invoke;
 		}
 	}
-
-	/// <summary>
-	///     The list of arguments for the <see cref="MethodInfo" />
-	/// </summary>
 
 	public IDictionary<MultiFormatterInfo, FormatterArgumentMap> Arguments { get; }
 }

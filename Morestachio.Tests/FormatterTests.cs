@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Morestachio.Document;
+using Morestachio.Formatter.Framework;
 using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Formatter.Predefined.Accounting;
 using Morestachio.Helper.FileSystem;
@@ -1150,6 +1152,41 @@ namespace Morestachio.Tests
 			};
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts);
 			Assert.That(result, Is.EqualTo("B"));
+		}
+
+		[Test]
+		public async Task TestDynamicFormatterCall()
+		{
+			var template = "This is {{data.Test('A')}}";
+			var data = new
+			{
+				data = new DynamicFormatterTestObject()
+			};
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts);
+			Assert.That(result, Is.EqualTo("This is A Test"));
+		}
+	}
+
+	public class DynamicFormatterTestObject : DynamicFormatterProviderBase
+	{
+		/// <inheritdoc />
+		public override Func<object> GetDynamicFormatterUnsafe(Type type,
+																FormatterArgumentType[] arguments,
+																string name,
+																ParserOptions parserOptions,
+																ScopeData scopeData)
+		{
+			if (name != "Test")
+			{
+				return null;
+			}
+
+			return () => AppendTextFormatter(arguments[0].Value as string);
+		}
+
+		private string AppendTextFormatter(string text)
+		{
+			return text + " Test";
 		}
 	}
 }

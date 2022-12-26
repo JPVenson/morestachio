@@ -8,7 +8,7 @@ public class FormatterCache
 	/// <summary>
 	/// 
 	/// </summary>
-	public FormatterCache(MorestachioFormatterModel model, PrepareFormatterComposingResult testedTypes)
+	public FormatterCache(MorestachioFormatterModel model, IPrepareFormatterComposingResult testedTypes)
 	{
 		Model = model;
 		TestedTypes = testedTypes;
@@ -30,15 +30,5 @@ public class FormatterCache
 	/// <summary>
 	///		The cs function and arguments map
 	/// </summary>
-	public PrepareFormatterComposingResult TestedTypes { get; }
-}
-
-public class SelfInvokingFormatterCache : FormatterCache
-{
-	/// <inheritdoc />
-	public SelfInvokingFormatterCache(string name) : base(new MorestachioFormatterModel(name, null, null, null, null, null, null, false, false),
-		null)
-	{
-
-	}
+	public IPrepareFormatterComposingResult TestedTypes { get; }
 }

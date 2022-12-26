@@ -182,7 +182,7 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 		{
 			arguments = new[]
 			{
-				new FormatterArgumentType(0, null, (await RightExpression.GetValue(contextObject, scopeData).ConfigureAwait(false)).Value, RightExpression)
+				new FormatterArgumentType(0, null, ref (await RightExpression.GetValue(contextObject, scopeData).ConfigureAwait(false)).Value, RightExpression)
 			};
 		}
 		else
@@ -193,14 +193,12 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 
 		var operatorFormatterName = "op_" + Operator.OperatorType;
 
-		if (Cache == null)
-		{
-			Cache = leftValue.PrepareFormatterCall(
-				leftValue.Value?.GetType() ?? typeof(object),
-				operatorFormatterName,
-				arguments,
-				scopeData);
-		}
+		Cache ??= leftValue.PrepareFormatterCall(
+			ref leftValue.Value,
+			leftValue.Value?.GetType() ?? typeof(object),
+			operatorFormatterName,
+			arguments,
+			scopeData);
 
 		if (Cache != null/* && !Equals(Cache.Value, default(FormatterCache))*/)
 		{
@@ -228,17 +226,16 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 			var arguments = right != null
 				? new FormatterArgumentType[]
 				{
-					new(0, null, (await right(contextObject, scopeData).ConfigureAwait(false)).Value, RightExpression),
+					new(0, null, ref (await right(contextObject, scopeData).ConfigureAwait(false)).Value, RightExpression),
 				}
 				: Array.Empty<FormatterArgumentType>();
-			if (Cache == null)
-			{
-				Cache = leftValue.PrepareFormatterCall(
-					leftValue.Value?.GetType() ?? typeof(object),
-					operatorFormatterName,
-					arguments,
-					scopeData);
-			}
+
+			Cache ??= leftValue.PrepareFormatterCall(
+				ref leftValue.Value,
+				leftValue.Value?.GetType() ?? typeof(object),
+				operatorFormatterName,
+				arguments,
+				scopeData);
 
 			if (Cache != null /*&& !Equals(Cache.Value, default(FormatterCache))*/)
 			{

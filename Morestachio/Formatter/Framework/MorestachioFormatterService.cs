@@ -137,21 +137,9 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 	/// <inheritdoc />
 	public virtual MorestachioFormatterModel Add(MethodInfo method, IMorestachioFormatterDescriptor morestachioFormatterAttribute)
 	{
-		morestachioFormatterAttribute.ValidateFormatter(method);
-		var arguments = morestachioFormatterAttribute.GetParameters(method);
+		var name = morestachioFormatterAttribute.GetFormatterName(method);
+		var morestachioFormatterModel = ModelFromMethodInfo(method, morestachioFormatterAttribute);
 
-		var name = morestachioFormatterAttribute.GetFormatterName(method); ;
-		var morestachioFormatterModel = new MorestachioFormatterModel(name,
-			morestachioFormatterAttribute.Description,
-			arguments.FirstOrDefault(e => e.IsSourceObject)?.ParameterType ?? typeof(object),
-			morestachioFormatterAttribute.OutputType ?? method.ReturnType,
-			method.GetCustomAttributes<MorestachioFormatterInputAttribute>()
-				.Select(e => new InputDescription(e.Description, e.OutputType, e.Example)).ToArray(),
-			morestachioFormatterAttribute.ReturnHint,
-			method,
-			new MultiFormatterInfoCollection(arguments),
-			!morestachioFormatterAttribute.IsSourceObjectAware,
-			morestachioFormatterAttribute.LinkFunctionTarget);
 		name ??= "{NULL}";
 
 		if (!Formatters.TryGetValue(name, out var formatters))
@@ -165,6 +153,32 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 	}
 
 	/// <summary>
+	///		Creates a new <see cref="MorestachioFormatterModel"/> from a method and a <see cref="IMorestachioFormatterDescriptor"/>.
+	/// </summary>
+	/// <param name="methodInfo"></param>
+	/// <param name="morestachioFormatterAttribute"></param>
+	/// <returns></returns>
+	public static MorestachioFormatterModel ModelFromMethodInfo(MethodInfo methodInfo,
+																IMorestachioFormatterDescriptor morestachioFormatterAttribute)
+	{
+
+		morestachioFormatterAttribute.ValidateFormatter(methodInfo);
+		var arguments = morestachioFormatterAttribute.GetParameters(methodInfo);
+		var name = morestachioFormatterAttribute.GetFormatterName(methodInfo);
+		return new MorestachioFormatterModel(name,
+			morestachioFormatterAttribute.Description,
+			arguments.FirstOrDefault(e => e.IsSourceObject)?.ParameterType ?? typeof(object),
+			morestachioFormatterAttribute.OutputType ?? methodInfo.ReturnType,
+			methodInfo.GetCustomAttributes<MorestachioFormatterInputAttribute>()
+				.Select(e => new InputDescription(e.Description, e.OutputType, e.Example)).ToArray(),
+			morestachioFormatterAttribute.ReturnHint,
+			methodInfo,
+			new MultiFormatterInfoCollection(arguments),
+			!morestachioFormatterAttribute.IsSourceObjectAware,
+			morestachioFormatterAttribute.LinkFunctionTarget);
+	}
+
+	/// <summary>
 	///		The cache for Formatter calls
 	/// </summary>
 
@@ -172,6 +186,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 	
 	/// <inheritdoc />
 	public FormatterCache PrepareCallMostMatchingFormatter(
+		ref object value,
 		Type type,
 		FormatterArgumentType[] arguments,
 		string name,
@@ -184,10 +199,14 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 			return cacheItem;
 		}
 
-		if (typeof(IFormatterInvoker).IsAssignableFrom(type))
+		if (value is IDynamicFormatterProvider dynamicProvider)
 		{
-			//the source object should try to handle the testing on its own so we must obtain it prematurely.
-			return new SelfInvokingFormatterCache(name);
+			var dynamicFormatter = dynamicProvider.GetFormatter(this, type, arguments, name, parserOptions, scope);
+
+			if (dynamicFormatter is not null)
+			{
+				return dynamicFormatter;
+			}
 		}
 
 		var hasFormatter = PrepareGetMatchingFormatterOn(type, arguments, parserOptions, name)
@@ -197,7 +216,9 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		if (!hasFormatter.Any())
 		{
 			parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId, $"Could not find logger {name} in {GetType()}. Ask Parent {Parent?.GetType()}");
-			return Parent?.PrepareCallMostMatchingFormatter(type,
+			return Parent?.PrepareCallMostMatchingFormatter(
+				ref value,
+				type,
 				arguments,
 				name,
 				parserOptions,
@@ -246,28 +267,6 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		ParserOptions parserOptions,
 		FormatterArgumentType[] args)
 	{
-		if (formatter is SelfInvokingFormatterCache selfInvoking)
-		{
-			parserOptions.Logger?
-				.LogTrace(LoggingFormatter.FormatterServiceId, $"Execute the self invoking formatter for {selfInvoking.Model.Name} with {args.Select(f => string.Join("\t", f.Index, f.Name, f.Type, f.Expression.AsStringExpression(), f.Value))}");
-
-			if (sourceValue is not IFormatterInvoker formatterInvoker)
-			{
-				parserOptions.Logger?
-					.LogError(LoggingFormatter.FormatterServiceId, $"Expected {sourceValue} to implement {typeof(IFormatterInvoker)} but did not.");
-				return AsyncHelper.EmptyPromise<object>();
-			}
-
-			if (formatterInvoker.CanInvokeAsync(args, formatter.Model.Name, parserOptions))
-			{
-				return formatterInvoker.InvokeAsync(args, formatter.Model.Name, parserOptions);
-			}
-
-			parserOptions.Logger?
-				.LogTrace(LoggingFormatter.FormatterServiceId, $"Self invoking formatter did not report to be able to execute formatter {formatter.Model.Name}");
-			return AsyncHelper.EmptyPromise<object>();
-		}
-
 		parserOptions.Logger?
 			.LogTrace(LoggingFormatter.FormatterServiceId, $"Execute the formatter {formatter.Model.Name} with arguments. {args.Select(f => string.Join("\t", f.Index, f.Name, f.Type, f.Expression.AsStringExpression(), f.Value))}");
 
@@ -298,12 +297,14 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 			var callerWrapper = formatter.TestedTypes.PrepareInvoke(mappedValues);
 
 			//if this is an instance method use the source type as the target for invoking the method
-			if (formatter.Model.LinkFunctionTarget && !callerWrapper.Item2.IsStatic && callerWrapper.Item2.DeclaringType.IsInstanceOfType(sourceValue))
+			if (formatter.Model.LinkFunctionTarget 
+				&& !callerWrapper.methodInfo.IsStatic 
+				&& callerWrapper.methodInfo.DeclaringType?.IsInstanceOfType(sourceValue) == true)
 			{
 				functionTarget = sourceValue;
 			}
 
-			return callerWrapper.Item1(functionTarget, mappedValues).UnpackFormatterTask();
+			return callerWrapper.method(functionTarget, mappedValues).UnpackFormatterTask();
 		}
 		catch (Exception e)
 		{
@@ -587,7 +588,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 
 				matched[parameter] = new FormatterArgumentMap(i, null)
 				{
-					ObtainValue = (source, args) => source
+					ObtainValue = (source, _) => source
 				};
 				match = new FormatterArgumentType(i, (string)null, sourceType);
 			}
@@ -607,7 +608,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 						}
 						matched[parameter] = new FormatterArgumentMap(i, null)
 						{
-							ObtainValue = (source, args) => service
+							ObtainValue = (_, _) => service
 						};
 						match = default;
 					}
@@ -635,14 +636,14 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 						{
 							matched[parameter] = new FormatterArgumentMap(i, index - 1)
 							{
-								ObtainValue = (source, args) => args[index - 1].Expression
+								ObtainValue = (_, args) => args[index - 1].Expression
 							};
 						}
 						else
 						{
 							matched[parameter] = new FormatterArgumentMap(i, index - 1)
 							{
-								ObtainValue = (source, args) => args[index - 1].Value
+								ObtainValue = (_, args) => args[index - 1].Value
 							};
 						}
 					}
@@ -651,21 +652,21 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 						parserOptions.Logger?.LogTrace(LoggingFormatter.FormatterServiceId, "Try Match by Index");
 						//match by index
 						index = 0;
-						match = templateArguments.FirstOrDefault(g => index++ == parameter.Index);
+						match = templateArguments.FirstOrDefault(_ => index++ == parameter.Index);
 						if (!Equals(match, default(FormatterArgumentType)))//a match by index
 						{
 							if (parameter.ParameterType == typeof(IMorestachioExpression))
 							{
 								matched[parameter] = new FormatterArgumentMap(i, index - 1)
 								{
-									ObtainValue = (source, args) => args[index - 1].Expression
+									ObtainValue = (_, args) => args[index - 1].Expression
 								};
 							}
 							else
 							{
 								matched[parameter] = new FormatterArgumentMap(i, index - 1)
 								{
-									ObtainValue = (source, args) => args[index - 1].Value
+									ObtainValue = (_, args) => args[index - 1].Value
 								};
 							}
 						}
@@ -675,7 +676,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 							{
 								matched[parameter] = new FormatterArgumentMap(i, null)
 								{
-									ObtainValue = (source, args) => null
+									ObtainValue = (_, _) => null
 								};
 							}
 							else
@@ -724,7 +725,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		}
 		else
 		{
-			methodCallback = (arguments) => method;
+			methodCallback = (_) => method;
 		}
 
 		var hasRest = formatter.MetaData.ParamsArgument;
@@ -758,7 +759,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 			//keep the name value pairs
 			matched[hasRest] = new FormatterArgumentMap(formatter.MetaData.NonParamsArguments.Count, -1)
 			{
-				ObtainValue = (source, values) =>
+				ObtainValue = (_, values) =>
 				{
 					var vals = new FormatterParameter[idxSource.Count];
 					for (var index = 0; index < idxSource.Count; index++)
@@ -791,7 +792,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 			//keep the name value pairs
 			matched[hasRest] = new FormatterArgumentMap(formatter.MetaData.NonParamsArguments.Count, null)
 			{
-				ObtainValue = (source, values) =>
+				ObtainValue = (_, values) =>
 				{
 					var vals = new object[idxSource.Count];
 					for (var index = 0; index < idxSource.Count; index++)

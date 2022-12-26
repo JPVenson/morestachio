@@ -24,9 +24,16 @@ namespace Morestachio.Tests
 			morestachioFormatterService.AddFromType<GenericsParsingFixture>();
 
 			var parserOptions = ParserFixture.TestBuilder().Build();
-			var types = values.Select((e, i) => new FormatterArgumentType(i, e.Key, e.Value, new MorestachioExpression())).ToArray();
+			var types = values.Select((e, i) =>
+			{
+				var val = e.Value;
+				return new FormatterArgumentType(i, e.Key, ref val, new MorestachioExpression());
+			}).ToArray();
 
-			var cache = morestachioFormatterService.PrepareCallMostMatchingFormatter(GetType(),
+			object genericsParsingFixture = this;
+			var cache = morestachioFormatterService.PrepareCallMostMatchingFormatter(
+				ref genericsParsingFixture,
+				GetType(),
 				types,
 				methodName,
 				parserOptions,

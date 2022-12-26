@@ -88,8 +88,10 @@ public static class ObjectFormatter
 										[ExternalData] ScopeData scopeData,
 										[RestParameter] params object[] arguments)
 	{
-		var argumentTypes = arguments.Select((item, index) => new FormatterArgumentType(index, null, item, null)).ToArray();
-		var formatterMatch = options.Formatters.PrepareCallMostMatchingFormatter(source.GetType(),
+		var argumentTypes = arguments.Select((item, index) => new FormatterArgumentType(index, null, ref item, null)).ToArray();
+		var formatterMatch = options.Formatters.PrepareCallMostMatchingFormatter(
+			ref source,
+			source.GetType(),
 			argumentTypes,
 			formatterName,
 			options,

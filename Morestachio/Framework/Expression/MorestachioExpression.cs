@@ -323,7 +323,7 @@ public class MorestachioExpression : IMorestachioExpression
 				ref var keyValuePair = ref formatsCompiled[index];
 				arguments[index] = new FormatterArgumentType(index,
 					keyValuePair.argument.Name,
-					keyValuePair.value,
+					ref keyValuePair.value,
 					keyValuePair.argument.MorestachioExpression);
 			}
 		}
@@ -392,12 +392,13 @@ public class MorestachioExpression : IMorestachioExpression
 
 				arguments[index] = new FormatterArgumentType(index, 
 					formatterArgument.argument.Name,
-					value,
+					ref value,
 					formatterArgument.argument.MorestachioExpression);
 			}
 		}
 
 		cache ??= outputContext.PrepareFormatterCall(
+			ref outputContext.Value,
 			outputContext.Value?.GetType() ?? typeof(object),
 			FormatterName,
 			arguments,
@@ -405,7 +406,7 @@ public class MorestachioExpression : IMorestachioExpression
 
 		if (cache != null)
 		{
-			outputContext._value = await scopeData.ParserOptions.Formatters.Execute(cache, outputContext.Value, scopeData.ParserOptions, arguments).ConfigureAwait(false);
+			outputContext.InternalValue = await scopeData.ParserOptions.Formatters.Execute(cache, outputContext.Value, scopeData.ParserOptions, arguments).ConfigureAwait(false);
 			outputContext.MakeSyntetic();
 		}
 
@@ -438,11 +439,12 @@ public class MorestachioExpression : IMorestachioExpression
 		{
 			var formatterArgument = Formats[index];
 			var value = await formatterArgument.MorestachioExpression.GetValue(naturalValue, scopeData).ConfigureAwait(false);
-			arguments[index] = new FormatterArgumentType(index, formatterArgument.Name, value?.Value, formatterArgument.MorestachioExpression);
+			arguments[index] = new FormatterArgumentType(index, formatterArgument.Name, ref value.Value, formatterArgument.MorestachioExpression);
 		}
 		//contextForPath.Value = await contextForPath.Format(FormatterName, argList, scopeData);
 
 		Cache ??= contextForPath.PrepareFormatterCall(
+			ref contextForPath.Value,
 			contextForPath.Value?.GetType() ?? typeof(object),
 			FormatterName,
 			arguments,
@@ -450,7 +452,7 @@ public class MorestachioExpression : IMorestachioExpression
 
 		if (Cache != null)
 		{
-			contextForPath.Value = await scopeData.ParserOptions.Formatters.Execute(Cache, contextForPath.Value, scopeData.ParserOptions, arguments).ConfigureAwait(false);
+			contextForPath.InternalValue = await scopeData.ParserOptions.Formatters.Execute(Cache, contextForPath.Value, scopeData.ParserOptions, arguments).ConfigureAwait(false);
 			contextForPath.MakeSyntetic();
 		}
 		return contextForPath;
