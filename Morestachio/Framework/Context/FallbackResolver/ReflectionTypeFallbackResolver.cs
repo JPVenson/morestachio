@@ -24,7 +24,7 @@ internal class CachedReflectionTypeFallbackResolver : IFallbackValueResolver
 						ScopeData scopeData,
 						IMorestachioExpression morestachioExpression)
 	{
-		var sourceValue = source._value;
+		var sourceValue = source.InternalValue;
 		var type = sourceValue.GetType();
 			
 		var typeCache = _cache.GetOrAdd(type, (key) => new TypeCache(key.GetTypeInfo()));

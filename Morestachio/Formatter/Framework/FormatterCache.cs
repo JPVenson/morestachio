@@ -8,11 +8,16 @@ public class FormatterCache
 	/// <summary>
 	/// 
 	/// </summary>
-	public FormatterCache(MorestachioFormatterModel model, PrepareFormatterComposingResult testedTypes)
+	public FormatterCache(MorestachioFormatterModel model, IPrepareFormatterComposingResult testedTypes)
 	{
 		Model = model;
 		TestedTypes = testedTypes;
 		ValueBuffer = new object[TestedTypes.Arguments.Count];
+	}
+
+	private FormatterCache()
+	{
+
 	}
 
 	internal readonly object[] ValueBuffer;
@@ -25,5 +30,5 @@ public class FormatterCache
 	/// <summary>
 	///		The cs function and arguments map
 	/// </summary>
-	public PrepareFormatterComposingResult TestedTypes { get; }
+	public IPrepareFormatterComposingResult TestedTypes { get; }
 }

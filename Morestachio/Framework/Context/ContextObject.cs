@@ -29,7 +29,8 @@ public class ContextObject
 
 	private static Func<object, bool> _definitionOfFalse;
 
-	internal object _value;
+	internal object InternalValue;
+
 	private readonly ContextObject _parent;
 	private bool _isNaturalContext;
 
@@ -59,7 +60,7 @@ public class ContextObject
 	{
 		Key = key;
 		_parent = parent;
-		_value = value;
+		InternalValue = value;
 		_isNaturalContext = _parent?._isNaturalContext ?? true;
 	}
 
@@ -101,10 +102,10 @@ public class ContextObject
 	///     The evaluated value of the expression
 	/// </summary>
 	// ReSharper disable once ConvertToAutoPropertyWhenPossible
-	public object Value
+	public ref object Value
 	{
-		get { return _value; }
-		set { _value = value; }
+		get { return ref InternalValue; }
+		//set { InternalValue = value; }
 	}
 
 	///// <summary>
@@ -203,19 +204,19 @@ public class ContextObject
 			case PathType.ParentSelector:
 				return this;
 			//enumerate ether an IDictionary, an cs object or an IEnumerable to a KeyValuePair array
-			case PathType.ObjectSelector when _value is null:
+			case PathType.ObjectSelector when InternalValue is null:
 				return scopeData._parserOptions.CreateContextObject("x:null", null);
 			//ALWAYS return the context, even if the value is null.
 			case PathType.ObjectSelector:
 				return ExecuteObjectSelector(elements.Current.Key, scopeData);
 			case PathType.Boolean when elements.Current.Key is "true" or "false":
-			{
-				var booleanContext =
-					scopeData._parserOptions.CreateContextObject(".", elements.Current.Key == "true", this);
-				booleanContext.IsNaturalContext = IsNaturalContext;
+				{
+					var booleanContext =
+						scopeData._parserOptions.CreateContextObject(".", elements.Current.Key == "true", this);
+					booleanContext.IsNaturalContext = IsNaturalContext;
 
-				return booleanContext;
-			}
+					return booleanContext;
+				}
 			case PathType.Boolean:
 				return this;
 			case PathType.Null:
@@ -233,15 +234,15 @@ public class ContextObject
 	{
 		ContextObject innerContext = null;
 
-		if (!scopeData._parserOptions.HandleDictionaryAsObject && _value is IDictionary<string, object> dictList)
+		if (!scopeData._parserOptions.HandleDictionaryAsObject && InternalValue is IDictionary<string, object> dictList)
 		{
 			innerContext = scopeData._parserOptions.CreateContextObject(key, dictList.Select(e => e), this);
 		}
 		else
 		{
-			if (_value != null)
+			if (InternalValue != null)
 			{
-				var type = _value.GetType();
+				var type = InternalValue.GetType();
 
 				innerContext = scopeData._parserOptions.CreateContextObject(key, type
 																				.GetTypeInfo()
@@ -251,9 +252,9 @@ public class ContextObject
 																				{
 																					object value;
 
-																					if (scopeData._parserOptions.ValueResolver?.CanResolve(type, _value, e.Name, null, scopeData) == true)
+																					if (scopeData._parserOptions.ValueResolver?.CanResolve(type, InternalValue, e.Name, null, scopeData) == true)
 																					{
-																						value = scopeData._parserOptions.ValueResolver.Resolve(type, _value, e.Name, null, scopeData);
+																						value = scopeData._parserOptions.ValueResolver.Resolve(type, InternalValue, e.Name, null, scopeData);
 																					}
 																					else
 																					{
@@ -275,10 +276,10 @@ public class ContextObject
 		ScopeData scopeData
 	)
 	{
-		if (_value is null)
+		if (InternalValue is null)
 		{
 			scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
-				key, _value?.GetType()));
+				key, InternalValue?.GetType()));
 
 			return scopeData._parserOptions.CreateContextObject("x:null", null);
 		}
@@ -299,60 +300,60 @@ public class ContextObject
 		//A value resolver should always be checked first to allow overwriting of all other logic
 		if (scopeData._parserOptions.ValueResolver != null)
 		{
-			var type = _value.GetType();
+			var type = InternalValue.GetType();
 			var innerContext = scopeData._parserOptions.CreateContextObject(key, null, this);
 
-			if (scopeData._parserOptions.ValueResolver.CanResolve(type, _value, key, innerContext, scopeData))
+			if (scopeData._parserOptions.ValueResolver.CanResolve(type, InternalValue, key, innerContext, scopeData))
 			{
-				innerContext._value
-					= scopeData._parserOptions.ValueResolver.Resolve(type, _value, key, innerContext, scopeData);
+				innerContext.InternalValue
+					= scopeData._parserOptions.ValueResolver.Resolve(type, InternalValue, key, innerContext, scopeData);
 
 				return innerContext;
 			}
 		}
-		
-		if (!scopeData._parserOptions.HandleDictionaryAsObject && _value is IDictionary<string, object> ctx)
+
+		if (!scopeData._parserOptions.HandleDictionaryAsObject && InternalValue is IDictionary<string, object> ctx)
 		{
 			if (!ctx.TryGetValue(key, out var o))
 			{
 				scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
-					key, _value?.GetType()));
+					key, InternalValue?.GetType()));
 			}
 
 			return scopeData._parserOptions.CreateContextObject(key, o, this);
 		}
 
-		switch (_value)
+		switch (InternalValue)
 		{
 			case IMorestachioPropertyResolver cResolver:
-			{
-				if (!cResolver.TryGetValue(key, out var o))
 				{
-					scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
-						key, _value?.GetType()));
-				}
+					if (!cResolver.TryGetValue(key, out var o))
+					{
+						scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+							key, InternalValue?.GetType()));
+					}
 
-				return scopeData._parserOptions.CreateContextObject(key, o, this);
-			}
+					return scopeData._parserOptions.CreateContextObject(key, o, this);
+				}
 			case ICustomTypeDescriptor descriptor:
-			{
-				var propertyDescriptor = descriptor.GetProperties().Find(key, false);
-
-				if (propertyDescriptor != null)
 				{
-					return scopeData._parserOptions.CreateContextObject(key, propertyDescriptor.GetValue(_value), this);
+					var propertyDescriptor = descriptor.GetProperties().Find(key, false);
+
+					if (propertyDescriptor != null)
+					{
+						return scopeData._parserOptions.CreateContextObject(key, propertyDescriptor.GetValue(InternalValue), this);
+					}
+
+					scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression, key,
+						InternalValue?.GetType()));
+
+					return scopeData._parserOptions.CreateContextObject(key, null, this);
 				}
-
-				scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression, key,
-					_value?.GetType()));
-
-				return scopeData._parserOptions.CreateContextObject(key, null, this);
-			}
 			case DynamicObject dynObject when dynObject.TryGetMember(new DynamicObjectBinder(key, false), out var val):
 				return scopeData._parserOptions.CreateContextObject(key, val, this);
 			case DynamicObject:
 				scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression, key,
-					_value?.GetType()));
+					InternalValue?.GetType()));
 
 				return scopeData._parserOptions.CreateContextObject(key, null, this);
 		}
@@ -468,7 +469,7 @@ public class ContextObject
 	/// <returns></returns>
 	public virtual bool Exists()
 	{
-		return DefinitionOfFalse(_value);
+		return DefinitionOfFalse(InternalValue);
 	}
 
 #if Span
@@ -479,36 +480,37 @@ public class ContextObject
 	/// <returns></returns>
 	public virtual ReadOnlySpan<char> RenderToString(ScopeData scopeData)
 	{
-		return _value switch
+		return InternalValue switch
 		{
 			ReadOnlyMemory<char> roSpan => roSpan.Span,
 			string str => str.AsSpan(),
-			null => (scopeData.GetVariable(this, "$null")?._value?.ToString() ?? scopeData._parserOptions.Null).AsSpan(),
-			var _ => _value.ToString().AsSpan()
+			null => (scopeData.GetVariable(this, "$null")?.InternalValue?.ToString() ?? scopeData._parserOptions.Null).AsSpan(),
+			var _ => InternalValue.ToString().AsSpan()
 		};
 	}
 #else
-		/// <summary>
-		///     Renders the Current value to a string or if null to the Null placeholder in the Options
-		/// </summary>
-		/// <param name="scopeData"></param>
-		/// <returns></returns>
-		public virtual string RenderToString(ScopeData scopeData)
+	/// <summary>
+	///     Renders the Current value to a string or if null to the Null placeholder in the Options
+	/// </summary>
+	/// <param name="scopeData"></param>
+	/// <returns></returns>
+	public virtual string RenderToString(ScopeData scopeData)
+	{
+		if (InternalValue is string str)
 		{
-			if (_value is string str)
-			{
-				return str;
-			}
-
-			return (_value?.ToString() ??
-				scopeData.GetVariable(this, "$null")?._value?.ToString() ?? scopeData._parserOptions.Null);
+			return str;
 		}
+
+		return (InternalValue?.ToString() ??
+			scopeData.GetVariable(this, "$null")?.InternalValue?.ToString() ?? scopeData._parserOptions.Null);
+	}
 #endif
 
 	/// <summary>
 	///     Gets an FormatterCache from ether the custom formatter or the global one
 	/// </summary>
 	public virtual FormatterCache PrepareFormatterCall(
+		ref object value,
 		Type type,
 		string name,
 		FormatterArgumentType[] arguments,
@@ -521,7 +523,7 @@ public class ContextObject
 		}
 
 		//call formatters that are given by the Options for this run
-		return scopeData._parserOptions.Formatters.PrepareCallMostMatchingFormatter(type, arguments, name, scopeData._parserOptions, scopeData);
+		return scopeData._parserOptions.Formatters.PrepareCallMostMatchingFormatter(ref value, type, arguments, name, scopeData._parserOptions, scopeData);
 	}
 
 	/// <summary>
@@ -531,7 +533,7 @@ public class ContextObject
 	public virtual ContextObject CloneForEdit()
 	{
 		//note: Parent must be the original context so we can traverse up to an unmodified context
-		var contextClone = new ContextObject(Key, this, _value)
+		var contextClone = new ContextObject(Key, this, InternalValue)
 		{
 			_isNaturalContext = false
 		};
@@ -561,7 +563,7 @@ public class ContextObject
 	public virtual ContextObject Copy()
 	{
 		//note: Parent must be the original context so we can traverse up to an unmodified context
-		var contextClone = new ContextObject(Key, _parent, _value)
+		var contextClone = new ContextObject(Key, _parent, InternalValue)
 		{
 			_isNaturalContext = true
 		};

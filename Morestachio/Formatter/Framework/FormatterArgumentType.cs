@@ -16,18 +16,18 @@ public class FormatterArgumentType : IEquatable<FormatterArgumentType>
 		Index = index;
 		Name = name;
 		Type = value;
-		Value = null;
+		InternalValue = null;
 	}
 		
 	/// <summary>
 	///		Is used to declare a formatter argument
 	/// </summary>
-	public FormatterArgumentType(int index, string name, object value, IMorestachioExpression expression)
+	public FormatterArgumentType(int index, string name, ref object value, IMorestachioExpression expression)
 	{
 		Index = index;
 		Name = name;
 		Type = value?.GetType();
-		Value = value;
+		InternalValue = value;
 		Expression = expression;
 	}
 
@@ -46,10 +46,12 @@ public class FormatterArgumentType : IEquatable<FormatterArgumentType>
 	/// </summary>
 	public Type Type { get; }
 
+	internal object InternalValue;
+
 	/// <summary>
 	///		if present, the known value
 	/// </summary>
-	public object Value { get; }
+	public ref object Value => ref InternalValue;
 
 	/// <summary>
 	///		Defines the expression that value originates from

@@ -46,6 +46,7 @@ public interface IMorestachioFormatterService : ISealed
 	///     call an optimized formatter multiple times
 	/// </summary>
 	FormatterCache PrepareCallMostMatchingFormatter(
+		ref object value,
 		Type type,
 		FormatterArgumentType[] arguments,
 		string name,
