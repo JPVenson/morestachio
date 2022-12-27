@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Morestachio.Document.Contracts;
@@ -34,11 +35,11 @@ public class DataAccessAnalyzer
 		if (_document is IReportUsage reportUsage)
 		{
 			var data = new UsageData();
-			var usages = reportUsage.Usage(data).Distinct().ToArray();
+			reportUsage.ReportUsage(data);
 
 			return new UsageResult()
 			{
-				UsedProperties = new HashSet<string>(usages)
+				UseTree = data.Root
 			};
 		}
 
@@ -54,7 +55,46 @@ public class UsageResult
 	/// <summary>
 	///		The paths
 	/// </summary>
-	public HashSet<string> UsedProperties { get; set; }
+	public UsageDataItem UseTree { get; set; }
+
+	/// <summary>
+	///		Provides a Text display of all usage data.
+	///		Property access is separated by a dot "."
+	///		Array access is indicated by a pair of brackets "[]"
+	/// </summary>
+	/// <returns></returns>
+	public string[] AsText()
+	{
+		var hashMap = new HashSet<string>();
+		var lookupStack = new Stack<UsageDataItem>();
+		lookupStack.Push(UseTree);
+
+		UsageDataItem current;
+		while (lookupStack.Any())
+		{
+			current = lookupStack.Pop();
+
+			if (current.Dependents.Count == 0)
+			{
+				var formatItem = FormatItem(current);
+				if (!string.IsNullOrWhiteSpace(formatItem))
+				{
+					hashMap.Add(formatItem);
+				}
+			}
+
+			foreach (var currentDependent in current.Dependents)
+			{
+				lookupStack.Push(currentDependent);
+			}
+		}
+		return hashMap.ToArray();
+	}
+
+	private string FormatItem(UsageDataItem current)
+	{
+		return current.RenderPath();
+	}
 }
 
 /// <summary>
@@ -68,53 +108,64 @@ public static class DataAccessAnalyzerGenerationExtensions
 	/// <param name="expression"></param>
 	/// <param name="usageData"></param>
 	/// <returns></returns>
-	public static IEnumerable<string> InferExpressionUsage(this IMorestachioExpression expression,
-															UsageData usageData)
+	public static UsageDataItem GetInferedExpressionUsage(this IMorestachioExpression expression,
+														UsageData usageData)
 	{
 		var visitor = new DataAccessExpressionVisitor(usageData);
 		visitor.Visit(expression);
-		return visitor.Parts;
+		return visitor.UsageDataItem;
 	}
 }
 
 internal class DataAccessExpressionVisitor : MorestachioExpressionVisitorBase
 {
 	private readonly UsageData _usageData;
+	public UsageDataItem UsageDataItem { get; private set; }
 
 	public DataAccessExpressionVisitor(UsageData usageData)
 	{
 		_usageData = usageData;
-		Parts = new HashSet<string>();
 	}
-
-	public HashSet<string> Parts { get; set; }
 		
 	public override void Visit(MorestachioExpression expression)
 	{
-		var pathParts = expression.PathParts.ToArray().Where(e => e.Value == PathType.DataPath).ToArray();
+		var source = _usageData.CurrentPath with { };
+
+		var pathParts = expression.PathParts.ToArray();
+
 		if (pathParts.Any())
 		{
-			string path;
+			var index = 0;
 			if (_usageData.VariableSource.TryGetValue(pathParts[0].Key, out var variable))
 			{
-				if (variable == null)
+				var variableItem = variable.Peek();
+				if (variableItem is null)
 				{
 					return;
 				}
+				source = variableItem with { };
+				index = 1;
+			}
+			for (; index < pathParts.Length; index++)
+			{
+				var pathPart = pathParts[index];
 
-				path = variable;
-				if (pathParts.Length > 1)
+				switch (pathPart.Value)
 				{
-					path = path.Trim('.') + "." + pathParts.Skip(1).Select(f => f.Key).Aggregate((e, f) => e + "." + f);
+					case PathType.RootSelector:
+						source = _usageData.Root with { };
+						break;
+					case PathType.ParentSelector:
+						source = source.Parent;
+						break;
+					case PathType.DataPath:
+						source = source.AddDependent(new UsageDataItem(pathPart.Key, UsageDataItemTypes.DataPath, source));
+						break;
 				}
 			}
-			else
-			{
-				path = _usageData.CurrentPath + pathParts.Select(f => f.Key).Aggregate((e, f) => e + "." + f);	
-			}
-			Parts.Add(path);
 		}
-			
+
+		UsageDataItem = source;
 		foreach (var expressionArgument in expression.Formats)
 		{
 			Visit(expressionArgument);

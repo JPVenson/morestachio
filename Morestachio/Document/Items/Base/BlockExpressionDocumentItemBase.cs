@@ -116,16 +116,9 @@ public abstract class BlockExpressionDocumentItemBase : BlockDocumentItemBase, I
 	}
 
 	/// <inheritdoc />
-	public override IEnumerable<string> Usage(UsageData data)
+	public override void ReportUsage(UsageData data)
 	{
-		foreach (var usage in MorestachioExpression.InferExpressionUsage(data))
-		{
-			yield return usage;
-		}
-
-		foreach (var usage in base.Usage(data))
-		{
-			yield return usage;
-		}
+		data.Add(MorestachioExpression.GetInferedExpressionUsage(data));
+		base.ReportUsage(data);
 	}
 }

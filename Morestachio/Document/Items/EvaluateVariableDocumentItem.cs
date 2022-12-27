@@ -133,17 +133,9 @@ public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase, ISupport
 	}
 
 	/// <inheritdoc />
-	public override IEnumerable<string> Usage(UsageData data)
+	public override void ReportUsage(UsageData data)
 	{
-		var exp = MorestachioExpression.InferExpressionUsage(data).ToArray();
-		var mainExp = exp.FirstOrDefault();
-
-		foreach (var part in exp)
-		{
-			yield return part;
-		}
-
-		data.VariableSource[Value] = mainExp;
+		data.PushVariable(Value, MorestachioExpression.GetInferedExpressionUsage(data));
 	}
 }
 

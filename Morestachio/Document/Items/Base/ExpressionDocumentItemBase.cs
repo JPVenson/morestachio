@@ -61,12 +61,10 @@ public abstract class ExpressionDocumentItemBase
 	}
 
 	/// <inheritdoc />
-	public virtual IEnumerable<string> Usage(UsageData data)
+	public virtual void ReportUsage(UsageData data)
 	{
-		foreach (var usage in MorestachioExpression.InferExpressionUsage(data))
-		{
-			yield return usage;
-		}
+		var inferedExpressionUsage = MorestachioExpression.GetInferedExpressionUsage(data);
+		inferedExpressionUsage?.Parent?.AddDependent(inferedExpressionUsage);
 	}
 
 	/// <inheritdoc />

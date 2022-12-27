@@ -178,11 +178,11 @@ public abstract class BlockDocumentItemBase : DocumentItemBase,
 	}
 
 	/// <inheritdoc />
-	public virtual IEnumerable<string> Usage(UsageData data)
+	public virtual void ReportUsage(UsageData data)
 	{
-		foreach (var reportUsage in Children.OfType<IReportUsage>().SelectMany(f => f.Usage(data)))
+		foreach (var reportUsage in Children.OfType<IReportUsage>())
 		{
-			yield return reportUsage;
+			reportUsage.ReportUsage(data);
 		}
 	}
 }

@@ -256,9 +256,12 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 		CheckForInlineTagLineBreakAtEnd(documentItem);
 		StringBuilder.Append("}}");
 
-		if (documentItem is IBlockDocumentItem blockItem && blockItem.Children.Any())
+		if (documentItem is IBlockDocumentItem blockItem)
 		{
-			VisitChildren(documentItem);
+			if (blockItem.Children.Any())
+			{
+				VisitChildren(documentItem);
+			}
 
 			StringBuilder.Append("{{");
 			CheckForInlineBlockLineBreakAtStart(blockItem);

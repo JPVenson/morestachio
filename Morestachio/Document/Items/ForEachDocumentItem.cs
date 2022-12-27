@@ -194,25 +194,18 @@ public class ForEachDocumentItem : BlockExpressionDocumentItemBase, ISupportCust
 	}
 
 	/// <inheritdoc />
-	public override IEnumerable<string> Usage(UsageData data)
+	public override void ReportUsage(UsageData data)
 	{
-		var path = MorestachioExpression.InferExpressionUsage(data).ToArray();
-		var mainPath = path.FirstOrDefault();
-		if (mainPath != null)
+		var dataScope = MorestachioExpression.GetInferedExpressionUsage(data);
+		var arrScope = new UsageDataItem(string.Empty, UsageDataItemTypes.ArrayAccess, dataScope);
+		data.PushVariable(ItemVariableName, arrScope);
+		//as foreach is also used too plain loop constants, add it as a used path too.
+		data.Add(arrScope);
+		foreach (var usage in Children.OfType<IReportUsage>())
 		{
-			mainPath = mainPath.TrimEnd('.') + ".[].";
-			data.ScopeTo(mainPath);
+			usage.ReportUsage(data);
 		}
 
-		foreach (var usage in path)
-		{
-			yield return usage;
-		}
-
-		foreach (var usage in Children.OfType<IReportUsage>().SelectMany(f => f.Usage(data)))
-		{
-			yield return usage;
-		}
-		data.PopScope(mainPath);
+		data.PopVariable(ItemVariableName);
 	}
 }

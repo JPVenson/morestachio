@@ -79,25 +79,14 @@ public class ExpressionScopeDocumentItem : BlockExpressionDocumentItemBase, ISup
 	}
 
 	/// <inheritdoc />
-	public override IEnumerable<string> Usage(UsageData data)
+	public override void ReportUsage(UsageData data)
 	{
-		var path = MorestachioExpression.InferExpressionUsage(data).ToArray();
-		var mainPath = path.FirstOrDefault();
-		if (mainPath != null)
+		var inferedExpressionUsage = MorestachioExpression.GetInferedExpressionUsage(data);
+		data.AddAndScopeTo(inferedExpressionUsage);
+		foreach (var usage in Children.OfType<IReportUsage>())
 		{
-			mainPath = mainPath.TrimEnd('.') + ".";
-			data.ScopeTo(mainPath);
+			usage.ReportUsage(data);
 		}
-
-		foreach (var usage in path)
-		{
-			yield return usage;
-		}
-
-		foreach (var usage in Children.OfType<IReportUsage>().SelectMany(f => f.Usage(data)))
-		{
-			yield return usage;
-		}
-		data.PopScope(mainPath);
+		data.PopScope(inferedExpressionUsage);
 	}
 }

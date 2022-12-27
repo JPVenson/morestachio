@@ -117,9 +117,8 @@ public class AliasDocumentItem : ValueDocumentItemBase,
 	}
 
 	/// <inheritdoc />
-	public IEnumerable<string> Usage(UsageData data)
+	public void ReportUsage(UsageData data)
 	{
-		data.VariableSource[Value] = data.CurrentPath;
-		yield break;
+		data.PushVariable(Value, data.CurrentPath);
 	}
 }

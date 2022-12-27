@@ -26,10 +26,10 @@ namespace Morestachio.Tests
 			var template = @"{{data.propertyA}}";
 			var morestachioDocumentInfo = await ParserFixture.CreateWithOptionsStream(template, _options);
 			var dataAccessAnalyzer = new DataAccessAnalyzer(morestachioDocumentInfo.Document);
-			var usage = dataAccessAnalyzer.GetUsageFromDeclared();
+			var usage = dataAccessAnalyzer.GetUsageFromDeclared()?.AsText();
 
 			Assert.That(usage, Is.Not.Null);
-			Assert.That(usage.UsedProperties, Has.One.Items.EqualTo("data.propertyA"));
+			Assert.That(usage, Has.One.Items.EqualTo("data.propertyA"));
 		}
 
 		[Test]
@@ -38,11 +38,11 @@ namespace Morestachio.Tests
 			var template = @"{{data.propertyA}}{{source.propertyB}}";
 			var morestachioDocumentInfo = await ParserFixture.CreateWithOptionsStream(template, _options);
 			var dataAccessAnalyzer = new DataAccessAnalyzer(morestachioDocumentInfo.Document);
-			var usage = dataAccessAnalyzer.GetUsageFromDeclared();
+			var usage = dataAccessAnalyzer.GetUsageFromDeclared()?.AsText();
 
 			Assert.That(usage, Is.Not.Null);
-			Assert.That(usage.UsedProperties, Has.One.Items.EqualTo("data.propertyA"));
-			Assert.That(usage.UsedProperties, Has.One.Items.EqualTo("source.propertyB"));
+			Assert.That(usage, Has.One.Items.EqualTo("data.propertyA"));
+			Assert.That(usage, Has.One.Items.EqualTo("source.propertyB"));
 		}
 
 		[Test]
@@ -51,11 +51,11 @@ namespace Morestachio.Tests
 			var template = @"{{data.propertyA}}{{data.propertyB}}";
 			var morestachioDocumentInfo = await ParserFixture.CreateWithOptionsStream(template, _options);
 			var dataAccessAnalyzer = new DataAccessAnalyzer(morestachioDocumentInfo.Document);
-			var usage = dataAccessAnalyzer.GetUsageFromDeclared();
+			var usage = dataAccessAnalyzer.GetUsageFromDeclared()?.AsText();
 
 			Assert.That(usage, Is.Not.Null);
-			Assert.That(usage.UsedProperties, Has.One.Items.EqualTo("data.propertyA"));
-			Assert.That(usage.UsedProperties, Has.One.Items.EqualTo("data.propertyB"));
+			Assert.That(usage, Has.One.Items.EqualTo("data.propertyA"));
+			Assert.That(usage, Has.One.Items.EqualTo("data.propertyB"));
 		}
 
 		[Test]
@@ -64,11 +64,11 @@ namespace Morestachio.Tests
 			var template = @"{{#SCOPE data}}{{propertyA}}{{propertyB}}{{/SCOPE}}";
 			var morestachioDocumentInfo = await ParserFixture.CreateWithOptionsStream(template, _options);
 			var dataAccessAnalyzer = new DataAccessAnalyzer(morestachioDocumentInfo.Document);
-			var usage = dataAccessAnalyzer.GetUsageFromDeclared();
+			var usage = dataAccessAnalyzer.GetUsageFromDeclared()?.AsText();
 
 			Assert.That(usage, Is.Not.Null);
-			Assert.That(usage.UsedProperties, Has.One.Items.EqualTo("data.propertyA"));
-			Assert.That(usage.UsedProperties, Has.One.Items.EqualTo("data.propertyB"));
+			Assert.That(usage, Has.One.Items.EqualTo("data.propertyA"));
+			Assert.That(usage, Has.One.Items.EqualTo("data.propertyB"));
 		}
 
 		[Test]
@@ -77,11 +77,11 @@ namespace Morestachio.Tests
 			var template = @"{{#EACH data}}{{propertyA}}{{propertyB}}{{/EACH}}";
 			var morestachioDocumentInfo = await ParserFixture.CreateWithOptionsStream(template, _options);
 			var dataAccessAnalyzer = new DataAccessAnalyzer(morestachioDocumentInfo.Document);
-			var usage = dataAccessAnalyzer.GetUsageFromDeclared();
+			var usage = dataAccessAnalyzer.GetUsageFromDeclared()?.AsText();
 
 			Assert.That(usage, Is.Not.Null);
-			Assert.That(usage.UsedProperties, Has.One.Items.EqualTo("data.[].propertyA"));
-			Assert.That(usage.UsedProperties, Has.One.Items.EqualTo("data.[].propertyB"));
+			Assert.That(usage, Has.One.Items.EqualTo("data.[].propertyA"));
+			Assert.That(usage, Has.One.Items.EqualTo("data.[].propertyB"));
 		}
 
 		[Test]
@@ -90,37 +90,49 @@ namespace Morestachio.Tests
 			var template = @"{{#VAR va = data}}{{va.propertyA}}";
 			var morestachioDocumentInfo = await ParserFixture.CreateWithOptionsStream(template, _options);
 			var dataAccessAnalyzer = new DataAccessAnalyzer(morestachioDocumentInfo.Document);
-			var usage = dataAccessAnalyzer.GetUsageFromDeclared();
+			var usage = dataAccessAnalyzer.GetUsageFromDeclared()?.AsText();
 
 			Assert.That(usage, Is.Not.Null);
-			Assert.That(usage.UsedProperties, Has.One.Items.EqualTo("data.propertyA"));
+			Assert.That(usage, Has.One.Items.EqualTo("data.propertyA"));
 		}
 
 		[Test]
 		public async Task CanInferMultipleExpressionEachAliasUsage()
 		{
-			var template = @"{{#EACH data AS item}}{{item.propertyA}}{{item.propertyB}}{{/EACH}}";
+			var template = @"{{#FOREACH item IN data}}{{item.propertyA}}{{item.propertyB}}{{/FOREACH}}";
 			var morestachioDocumentInfo = await ParserFixture.CreateWithOptionsStream(template, _options);
 			var dataAccessAnalyzer = new DataAccessAnalyzer(morestachioDocumentInfo.Document);
-			var usage = dataAccessAnalyzer.GetUsageFromDeclared();
+			var usage = dataAccessAnalyzer.GetUsageFromDeclared()?.AsText();
 
 			Assert.That(usage, Is.Not.Null);
-			Assert.That(usage.UsedProperties, Has.One.Items.EqualTo("data.[].propertyA"));
-			Assert.That(usage.UsedProperties, Has.One.Items.EqualTo("data.[].propertyB"));
+			Assert.That(usage, Has.One.Items.EqualTo("data.[].propertyA"));
+			Assert.That(usage, Has.One.Items.EqualTo("data.[].propertyB"));
 		}
 
 		[Test]
 		public async Task CanInferMultipleExpressionEachInScopeAliasUsage()
 		{
-			var template = @"{{#EACH data AS item}}{{#SCOPE item.VAL}}{{item.propertyA}}{{item.propertyB}}{{/SCOPE}}{{/EACH}}";
+			var template = @"{{#FOREACH item IN data}}{{#SCOPE item.VAL}}{{item.propertyA}}{{item.propertyB}}{{/SCOPE}}{{/FOREACH}}";
 			var morestachioDocumentInfo = await ParserFixture.CreateWithOptionsStream(template, _options);
 			var dataAccessAnalyzer = new DataAccessAnalyzer(morestachioDocumentInfo.Document);
-			var usage = dataAccessAnalyzer.GetUsageFromDeclared();
+			var usage = dataAccessAnalyzer.GetUsageFromDeclared()?.AsText();
 
 			Assert.That(usage, Is.Not.Null);
-			Assert.That(usage.UsedProperties, Has.One.Items.EqualTo("data.[].VAL"));
-			Assert.That(usage.UsedProperties, Has.One.Items.EqualTo("data.[].propertyA"));
-			Assert.That(usage.UsedProperties, Has.One.Items.EqualTo("data.[].propertyB"));
+			Assert.That(usage, Has.One.Items.EqualTo("data.[].VAL"));
+			Assert.That(usage, Has.One.Items.EqualTo("data.[].propertyA"));
+			Assert.That(usage, Has.One.Items.EqualTo("data.[].propertyB"));
+		}
+
+		[Test]
+		public async Task CanInferPlainForEachLoopUsage()
+		{
+			var template = @"{{#FOREACH item IN data}}{{/FOREACH}}";
+			var morestachioDocumentInfo = await ParserFixture.CreateWithOptionsStream(template, _options);
+			var dataAccessAnalyzer = new DataAccessAnalyzer(morestachioDocumentInfo.Document);
+			var usage = dataAccessAnalyzer.GetUsageFromDeclared()?.AsText();
+
+			Assert.That(usage, Is.Not.Null);
+			Assert.That(usage, Has.One.Items.EqualTo("data.[]"));
 		}
 
 		[Test]
@@ -129,12 +141,12 @@ namespace Morestachio.Tests
 			var template = @"{{data.propertyA}}{{data.propertyB}}{{#VAR val = 'test'}}{{val.Length}}";
 			var morestachioDocumentInfo = await ParserFixture.CreateWithOptionsStream(template, _options);
 			var dataAccessAnalyzer = new DataAccessAnalyzer(morestachioDocumentInfo.Document);
-			var usage = dataAccessAnalyzer.GetUsageFromDeclared();
+			var usage = dataAccessAnalyzer.GetUsageFromDeclared()?.AsText();
 
 			Assert.That(usage, Is.Not.Null);
-			Assert.That(usage.UsedProperties, Has.Exactly(2).Items);
-			Assert.That(usage.UsedProperties, Has.One.Items.EqualTo("data.propertyA"));
-			Assert.That(usage.UsedProperties, Has.One.Items.EqualTo("data.propertyB"));
+			Assert.That(usage, Has.Exactly(2).Items);
+			Assert.That(usage, Has.One.Items.EqualTo("data.propertyA"));
+			Assert.That(usage, Has.One.Items.EqualTo("data.propertyB"));
 		}
 
 		[Test]
@@ -143,13 +155,13 @@ namespace Morestachio.Tests
 			var template = @"{{data.propertyA.Function(data.propertyB, 'str', 123.ToString(data.strValue))}}";
 			var morestachioDocumentInfo = await ParserFixture.CreateWithOptionsStream(template, _options);
 			var dataAccessAnalyzer = new DataAccessAnalyzer(morestachioDocumentInfo.Document);
-			var usage = dataAccessAnalyzer.GetUsageFromDeclared();
+			var usage = dataAccessAnalyzer.GetUsageFromDeclared()?.AsText();
 
 			Assert.That(usage, Is.Not.Null);
-			Assert.That(usage.UsedProperties, Has.Exactly(3).Items);
-			Assert.That(usage.UsedProperties, Has.One.Items.EqualTo("data.propertyA"));
-			Assert.That(usage.UsedProperties, Has.One.Items.EqualTo("data.propertyB"));
-			Assert.That(usage.UsedProperties, Has.One.Items.EqualTo("data.strValue"));
+			Assert.That(usage, Has.Exactly(3).Items);
+			Assert.That(usage, Has.One.Items.EqualTo("data.propertyA"));
+			Assert.That(usage, Has.One.Items.EqualTo("data.propertyB"));
+			Assert.That(usage, Has.One.Items.EqualTo("data.strValue"));
 		}
 	}
 }

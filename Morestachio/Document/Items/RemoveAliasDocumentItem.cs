@@ -15,7 +15,7 @@ namespace Morestachio.Document.Items;
 ///		Removes the alias from the scope
 /// </summary>
 [Serializable]
-public class RemoveAliasDocumentItem : ValueDocumentItemBase, ISupportCustomAsyncCompilation
+public class RemoveAliasDocumentItem : ValueDocumentItemBase, ISupportCustomAsyncCompilation, IReportUsage
 {
 	/// <summary>
 	///		Used for XML Serialization
@@ -98,5 +98,11 @@ public class RemoveAliasDocumentItem : ValueDocumentItemBase, ISupportCustomAsyn
 	public override void Accept(IDocumentItemVisitor visitor)
 	{
 		visitor.Visit(this);
+	}
+
+	/// <inheritdoc />
+	public void ReportUsage(UsageData data)
+	{
+		data.PopVariable(Value);
 	}
 }

@@ -9,5 +9,5 @@ public interface IReportUsage
 	///		Gets all paths that will called
 	/// </summary>
 	/// <returns></returns>
-	IEnumerable<string> Usage(UsageData data);
+	void ReportUsage(UsageData data);
 }
