@@ -3,10 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using System.Xml.XPath;
 using Morestachio.Document;
+using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Formatter.Framework.Converter;
 using Morestachio.Framework.Context;
 using Morestachio.Framework.Context.Resolver;
+using Morestachio.Helper;
 
 namespace Morestachio.System.Xml.Linq
 {
@@ -23,7 +26,71 @@ namespace Morestachio.System.Xml.Linq
 		public static IParserOptionsBuilder WithXmlDocumentValueResolver(this IParserOptionsBuilder optionsBuilder)
 		{
 			return optionsBuilder.WithValueResolver(new XmlDocumentValueResolver())
-								.WithValueConverter(new XmlDocumentFassadeValueConverter());
+				.WithValueConverter(new XmlDocumentFassadeValueConverter())
+				.WithFormatters(typeof(XPathFormatter))
+				.WithFormatters(typeof(XContainerSelectorFormatter));
+		}
+	}
+
+	/// <summary>
+	///		Contains methods for accessing an <see cref="XElement"/>.
+	/// </summary>
+	[MorestachioExtensionSetup("Must be added via Nuget package 'Morestachio.System.Xml.Linq' and added via 'ParserOptionsBuilder.WithXmlDocumentValueResolver()'")]
+	public static class XContainerSelectorFormatter
+	{
+		[MorestachioFormatter("[MethodName]", "Gets an attribute value or null")]
+		public static string GetAttribute(XElement element, string name)
+		{
+			return element.Attribute(name)?.Value;
+		}
+
+		[MorestachioFormatter("[MethodName]", "Return true if there is an attribute on that element, otherwise false.")]
+		public static bool HasAttribute(XElement element, string name)
+		{
+			return element.Attribute(name) is not null;
+		}
+
+		[MorestachioFormatter("[MethodName]", "Returns the child element with this name or null if there is no child element with a matching name")]
+		public static XContainer GetElement(XContainer element, string name)
+		{
+			return element.Element(name);
+		}
+
+		[MorestachioFormatter("[MethodName]", "Returns the child elements of this container.")]
+		public static IEnumerable<XContainer> GetElements(XContainer element)
+		{
+			return element.Elements();
+		}
+
+		[MorestachioFormatter("[MethodName]", "Returns the child elements of this container that match the name passed in.")]
+		public static IEnumerable<XContainer> GetElements(XContainer element, string name)
+		{
+			return element.Elements(name);
+		}
+	}
+
+	/// <summary>
+	///		Allows access to an <see cref="XContainer"/> via XPath syntax.
+	/// </summary>
+	[MorestachioExtensionSetup("Must be added via Nuget package 'Morestachio.System.Xml.Linq' and added via 'ParserOptionsBuilder.WithXmlDocumentValueResolver()'")]
+	public static class XPathFormatter
+	{
+		[MorestachioFormatter("[MethodName]", "Evaluates an XPath expression")]
+		public static object Evaluate(XContainer container, string expression)
+		{
+			return container.XPathEvaluate(expression);
+		}
+
+		[MorestachioFormatter("[MethodName]", "Select an XElement using a XPath expression")]
+		public static XElement SelectElement(XContainer container, string expression)
+		{
+			return container.XPathSelectElement(expression);
+		}
+
+		[MorestachioFormatter("[MethodName]", "Select a set of XElement using a XPath expression")]
+		public static IEnumerable<XElement> SelectElements(XContainer container, string expression)
+		{
+			return container.XPathSelectElements(expression);
 		}
 	}
 
@@ -69,7 +136,7 @@ namespace Morestachio.System.Xml.Linq
 			ScopeData scopeData
 		)
 		{
-			if (!(value is XContainer container))
+			if (value is not XContainer container)
 			{
 				return value;
 			}
@@ -81,12 +148,7 @@ namespace Morestachio.System.Xml.Linq
 				return new XmlElementListFassade(container, hasChild);
 			}
 
-			if (hasChild.Any())
-			{
-				return new XmlElementFassade(hasChild[0]);
-			}
-
-			return value;
+			return hasChild.Length == 1 ? new XmlElementFassade(hasChild[0]) : value;
 		}
 
 		/// <inheritdoc />
