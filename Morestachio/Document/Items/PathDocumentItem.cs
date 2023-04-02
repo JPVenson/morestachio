@@ -30,7 +30,7 @@ public class PathDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncC
 	/// <inheritdoc />
 	public PathDocumentItem(TextRange location,  IMorestachioExpression value, bool escapeValue,
 							IEnumerable<ITokenOption> tagCreationOptions) 
-		: base(location, value,tagCreationOptions)
+		: base(location, value, tagCreationOptions)
 	{
 		EscapeValue = escapeValue;
 	}
@@ -70,15 +70,16 @@ public class PathDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncC
 	///   <c>true</c> if [escape value]; otherwise, <c>false</c>.
 	/// </value>
 	public bool EscapeValue { get; private set; }
-
-	private static string HtmlEncodeString(string context)
-	{
-		return WebUtility.HtmlEncode(context);
-	}
+	
 #if Span
 	private static ReadOnlySpan<char> HtmlEncodeString(ReadOnlySpan<char> context)
 	{
 		return WebUtility.HtmlEncode(context.ToString()).AsSpan();
+	}
+#else
+	private static string HtmlEncodeString(string context)
+	{
+		return WebUtility.HtmlEncode(context);
 	}
 #endif
 

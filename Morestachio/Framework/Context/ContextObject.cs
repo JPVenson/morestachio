@@ -485,6 +485,8 @@ public class ContextObject
 			ReadOnlyMemory<char> roSpan => roSpan.Span,
 			string str => str.AsSpan(),
 			null => (scopeData.GetVariable(this, "$null")?.InternalValue?.ToString() ?? scopeData._parserOptions.Null).AsSpan(),
+			IMorestachioRender renderable => renderable.RenderToString(),
+			IMorestachioRenderAsync asyncRenderable => asyncRenderable.RenderToString().GetAwaiter().GetResult(),
 			_ => InternalValue.ToString().AsSpan()
 		};
 	}
@@ -500,6 +502,8 @@ public class ContextObject
 		{
 			string str => str,
 			null => (scopeData.GetVariable(this, "$null")?.InternalValue?.ToString() ?? scopeData._parserOptions.Null),
+			IMorestachioRender renderable => renderable.RenderToString(),
+			IMorestachioRenderAsync asyncRenderable => asyncRenderable.RenderToString().GetAwaiter().GetResult(),
 			_ => InternalValue.ToString()
 		};
 	}
