@@ -485,7 +485,7 @@ public class ContextObject
 			ReadOnlyMemory<char> roSpan => roSpan.Span,
 			string str => str.AsSpan(),
 			null => (scopeData.GetVariable(this, "$null")?.InternalValue?.ToString() ?? scopeData._parserOptions.Null).AsSpan(),
-			var _ => InternalValue.ToString().AsSpan()
+			_ => InternalValue.ToString().AsSpan()
 		};
 	}
 #else
@@ -496,13 +496,12 @@ public class ContextObject
 	/// <returns></returns>
 	public virtual string RenderToString(ScopeData scopeData)
 	{
-		if (InternalValue is string str)
+		return InternalValue switch
 		{
-			return str;
-		}
-
-		return (InternalValue?.ToString() ??
-			scopeData.GetVariable(this, "$null")?.InternalValue?.ToString() ?? scopeData._parserOptions.Null);
+			string str => str,
+			null => (scopeData.GetVariable(this, "$null")?.InternalValue?.ToString() ?? scopeData._parserOptions.Null),
+			_ => InternalValue.ToString()
+		};
 	}
 #endif
 
