@@ -29,19 +29,19 @@ Found a bug? open a [Bug](https://github.com/JPVenson/morestachio/issues/new?ass
 
 #### What's this for?
 
-*Morestachio* allows you to create simple text-based templates that are fast and safe to render. It is optimized for WebServers and offers a high degree of customization with its Formatter syntax.
+*Morestachio* allows you to create simple text-based templates that are fast and safe to render. It is optimized for WebServers and offers a high degree of customization with its formatter syntax.
 
 #### Morestachio Playground:
-Try it out, without consequenses. The Morestachio Online editor allows you to create templates within your browser:
+Try it out, without consequenses. The Morestachio online editor allows you to create templates within your browser:
 [Editor](https://morestachio.jean-pierre-bachmann.dev/)
 
 #### How to use Morestachio:
 
 ```csharp
-// Your Template
+// Your template
 var sourceTemplate = "Dear {{name}}, this is definitely a personalized note to you. Very truly yours, {{sender}}";
 
-// Parse the Template into the Document Tree. 
+// Parse the template into the document tree. 
 var document = await ParserOptionsBuilder
    .New() //creates a new builder that inherts all default values
    .WithTemplate(sourceTemplate) //sets the template for that builder
@@ -56,10 +56,14 @@ IDictionary model = new Dictionary<string, object>();
 model["name"] = "John";
 model["sender"] = "Sally";
 //or with any other object
-var model = new {name= "John", sender= "Sally"};
+var model = new { name= "John", sender= "Sally" };
 
-// Combine the model with the template to get content:
-var content = document.CreateRenderer().RenderAndStringify(model); // Dear John, this is definitely a personalized note to you. Very truly yours, Sally
+//create an object based renderer or a compiled renderer
+//the renderer is reusable and ThreadSave
+var renderer = document.CreateRenderer();
+
+// Render the template with your model and get the result as a string
+var content = renderer.RenderAndStringify(model); // Dear John, this is definitely a personalized note to you. Very truly yours, Sally
 ```
 
 
