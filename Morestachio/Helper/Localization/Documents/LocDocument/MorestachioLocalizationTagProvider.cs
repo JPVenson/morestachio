@@ -32,15 +32,18 @@ public class MorestachioLocalizationTagProvider : TagDocumentItemProviderBase
 			= ExpressionParser.ParseExpression(locToken, token.TokenizerContext, token.Location.RangeStart);
 		var tokenOptions = new List<ITokenOption>();
 
-		locToken = locToken.Substring(locExpression.SourceBoundary.RangeEnd.Index)
-			.Trim(Tokenizer.GetWhitespaceDelimiters());
-
-		if (locToken.StartsWith("#CULTURE ", StringComparison.OrdinalIgnoreCase))
+		if (locToken.Length > locExpression.SourceBoundary.RangeEnd.Index)
 		{
-			locToken = locToken.Substring("#CULTURE ".Length);
-			tokenOptions.Add(new TokenOption("Culture", ExpressionParser
-				.ParseExpression(locToken, token.TokenizerContext, token.Location.RangeEnd)
-				.Expression));
+			locToken = locToken.Substring(locExpression.SourceBoundary.RangeEnd.Index)
+				.Trim(Tokenizer.GetWhitespaceDelimiters());
+
+			if (locToken.StartsWith("#CULTURE ", StringComparison.OrdinalIgnoreCase))
+			{
+				locToken = locToken.Substring("#CULTURE ".Length);
+				tokenOptions.Add(new TokenOption("Culture", ExpressionParser
+					.ParseExpression(locToken, token.TokenizerContext, token.Location.RangeEnd)
+					.Expression));
+			}
 		}
 
 		yield return new TokenPair(OpenTag.Trim(),

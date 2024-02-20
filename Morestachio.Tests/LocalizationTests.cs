@@ -110,6 +110,58 @@ namespace Morestachio.Tests
 		}
 
 		[Test]
+		public async Task TestCanLocalizeDataFromSubObject()
+		{
+			var data = new Dictionary<string, object>
+			{
+				{
+					"testKey", new Dictionary<string, object>()
+					{
+						{ "subkey", "test" }
+					}
+				}
+			};
+			var translationResult = "TestFixture";
+			var template = "{{#LOC testKey.subkey}}";
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, parserOptions =>
+			{
+				return parserOptions.WithLocalizationService(() =>
+					{
+						return new MorestachioLocalizationService()
+							.AddResource(new MemoryTranslationResource()
+								.Add("test", CultureInfo.GetCultureInfo("EN-US"), translationResult + " en-US")
+								.Add("test", CultureInfo.GetCultureInfo("DE-DE"), translationResult + " de-DE"))
+							.Load(new[]
+							{
+								CultureInfo.GetCultureInfo("EN-US"),
+								CultureInfo.GetCultureInfo("DE-DE")
+							});
+					})
+					.WithCultureInfo(CultureInfo.GetCultureInfo("EN-US"));
+			});
+			Assert.That(result, Is.EqualTo(translationResult + " en-US"));
+
+			result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, parserOptions =>
+			{
+				return parserOptions.WithLocalizationService(() =>
+					{
+						return new MorestachioLocalizationService()
+							.AddResource(new MemoryTranslationResource()
+								.Add("test", CultureInfo.GetCultureInfo("EN-US"), translationResult + " en-US")
+								.Add("test", CultureInfo.GetCultureInfo("DE-DE"), translationResult + " de-DE"))
+							.Load(new[]
+							{
+								CultureInfo.GetCultureInfo("EN-US"),
+								CultureInfo.GetCultureInfo("DE-DE")
+							});
+					})
+					.WithCultureInfo(CultureInfo.GetCultureInfo("DE-DE"));
+			});
+			Assert.That(result, Is.EqualTo(translationResult + " de-DE"));
+		}
+
+		[Test]
 		public async Task TestCanLocalizeDataWithArguments()
 		{
 			var template = "{{#LOCP 'WelcomeText'}}" +
