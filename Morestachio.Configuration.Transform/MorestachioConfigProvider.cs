@@ -22,6 +22,7 @@ namespace Morestachio.Configuration.Transform
 				value = MorestachioConfig.CheckAndTransformValue(key, value, _options).Value;
 				return true;
 			}
+
 			return false;
 		}
 

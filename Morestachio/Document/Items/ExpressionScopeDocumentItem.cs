@@ -27,18 +27,17 @@ public class ExpressionScopeDocumentItem : BlockExpressionDocumentItemBase, ISup
 	/// </summary>
 	internal ExpressionScopeDocumentItem()
 	{
-
 	}
 
 	/// <inheritdoc />
 	public ExpressionScopeDocumentItem(TextRange location,
 										IMorestachioExpression value,
-										IEnumerable<ITokenOption> tagCreationOptions) : base(location, value, tagCreationOptions)
+										IEnumerable<ITokenOption> tagCreationOptions) : base(location, value,
+		tagCreationOptions)
 	{
 	}
 
 	/// <inheritdoc />
-		
 	protected ExpressionScopeDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
 	}
@@ -53,17 +52,22 @@ public class ExpressionScopeDocumentItem : BlockExpressionDocumentItemBase, ISup
 		return async (stream, context, scopeData) =>
 		{
 			var c = await expression(context, scopeData).ConfigureAwait(false);
+
 			if (c.Exists())
 			{
 				await children(stream, c, scopeData).ConfigureAwait(false);
 			}
 		};
 	}
+
 	/// <inheritdoc />
-	public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+	public override async ItemExecutionPromise Render(IByteCounterStream outputStream,
+													ContextObject context,
+													ScopeData scopeData)
 	{
 		//var c = await context.GetContextForPath(Value, scopeData);
 		var c = await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false);
+
 		if (c.Exists())
 		{
 			return Children.WithScope(c);
@@ -83,10 +87,12 @@ public class ExpressionScopeDocumentItem : BlockExpressionDocumentItemBase, ISup
 	{
 		var inferedExpressionUsage = MorestachioExpression.GetInferedExpressionUsage(data);
 		data.AddAndScopeTo(inferedExpressionUsage);
+
 		foreach (var usage in Children.OfType<IReportUsage>())
 		{
 			usage.ReportUsage(data);
 		}
+
 		data.PopScope(inferedExpressionUsage);
 	}
 }

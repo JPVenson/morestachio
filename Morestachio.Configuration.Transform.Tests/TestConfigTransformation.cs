@@ -18,10 +18,12 @@ namespace Morestachio.Configuration.Transform.Tests
 			_useBuildTime = useBuildTime;
 		}
 
-		public IMorestachioConfigurationBuilder CreateConfig(Func<IConfigurationBuilder, IConfigurationBuilder> builderConfig = null)
+		public IMorestachioConfigurationBuilder CreateConfig(
+			Func<IConfigurationBuilder, IConfigurationBuilder> builderConfig = null)
 		{
 			IConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
 			configurationBuilder = builderConfig != null ? builderConfig(configurationBuilder) : configurationBuilder;
+
 			if (_useBuildTime)
 			{
 				return configurationBuilder.UseBuildtimeMorestachio();
@@ -80,7 +82,6 @@ namespace Morestachio.Configuration.Transform.Tests
 	},
 	""expA_mEx"": ""mex{{Cores * 3}}""
 }")))
-
 				.UseValues(null, new Dictionary<string, object>()
 				{
 					{ "Cores", 5 }

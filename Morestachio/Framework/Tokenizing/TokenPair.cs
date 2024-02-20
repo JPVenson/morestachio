@@ -53,6 +53,7 @@ public readonly struct TokenPair
 		Type = type;
 		MorestachioExpression = expression;
 		var tokenOps = tokenOptions?.ToArray();
+
 		if (tokenOps?.Length > 0)
 		{
 			TokenOptions = tokenOps;
@@ -61,7 +62,7 @@ public readonly struct TokenPair
 		{
 			TokenOptions = null;
 		}
-			
+
 		IsEmbeddedToken = isEmbeddedToken;
 		TokenRange = tokenRange;
 		Value = value;
@@ -126,7 +127,7 @@ public readonly struct TokenPair
 	/// <summary>
 	///		What is the Value of this token
 	/// </summary>
-		
+
 	public string Value { get; }
 
 	/// <summary>
@@ -157,6 +158,7 @@ public readonly struct TokenPair
 		{
 			return val;
 		}
+
 		return getDefault();
 	}
 
@@ -171,7 +173,7 @@ public readonly struct TokenPair
 		return (TokenOptions.FirstOrDefault(e => e.Name.Equals(name))?.Value as IEnumerable<T>)?.ToArray();
 	}
 
-		
+
 	private class TokenPairDebuggerProxy
 	{
 		private readonly TokenPair _pair;
@@ -207,8 +209,8 @@ public readonly struct TokenPair
 			{
 				return $"{Type} {_pair.MorestachioExpression}";
 			}
+
 			return $"{Type} {Value}";
 		}
 	}
-
 }

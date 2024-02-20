@@ -40,13 +40,12 @@ public sealed class MorestachioDocument : BlockDocumentItemBase,
 	///		Used for XML Serialization
 	/// </summary>
 	public MorestachioDocument(TextRange location,
-								IEnumerable<ITokenOption> tagCreationOptions) : base(location,tagCreationOptions)
+								IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
 	{
 		MorestachioVersion = GetMorestachioVersion();
 	}
 
 	/// <inheritdoc />
-		
 	public MorestachioDocument(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
 		MorestachioVersion = info.GetValue(nameof(MorestachioVersion), typeof(Version)) as Version;
@@ -70,7 +69,7 @@ public sealed class MorestachioDocument : BlockDocumentItemBase,
 	protected override void DeSerializeXmlHeaderCore(XmlReader reader)
 	{
 		base.DeSerializeXmlHeaderCore(reader);
-		
+
 		var versionAttribute = reader.GetAttribute(nameof(MorestachioVersion));
 
 		if (!Version.TryParse(versionAttribute, out var version))
@@ -93,14 +92,12 @@ public sealed class MorestachioDocument : BlockDocumentItemBase,
 	public CompilationAsync Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
 	{
 		var compilation = compiler.Compile(Children, parserOptions);
-		return async (stream, context, data) =>
-		{
-			await compilation(stream, context, data).ConfigureAwait(false);
-		};
+		return async (stream, context, data) => { await compilation(stream, context, data).ConfigureAwait(false); };
 	}
 
 	/// <inheritdoc />
-	public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
+	public override ItemExecutionPromise Render(IByteCounterStream outputStream,
+												ContextObject context,
 												ScopeData scopeData)
 	{
 		return Children.WithScope(context).ToPromise();
@@ -121,7 +118,8 @@ public sealed class MorestachioDocument : BlockDocumentItemBase,
 	{
 		//we do NOT use a recursive loop to avoid stack overflows. 
 
-		var processStack = new Stack<DocumentItemExecution>(); //deep search. create a stack to go deeper into the tree without loosing work left on other branches
+		var processStack
+			= new Stack<DocumentItemExecution>(); //deep search. create a stack to go deeper into the tree without loosing work left on other branches
 
 		foreach (var documentItem in documentItems)
 		{
@@ -132,11 +130,15 @@ public sealed class MorestachioDocument : BlockDocumentItemBase,
 			}
 
 			processStack.Push(new DocumentItemExecution(documentItem, context));
+
 			while (processStack.Any() && ContinueBuilding(outputStream, scopeData))
 			{
-				var currentDocumentItem = processStack.Pop();//take the current branch
-				var next = await currentDocumentItem.DocumentItem.Render(outputStream, currentDocumentItem.ContextObject, scopeData).ConfigureAwait(false);
-				foreach (var item in next.Reverse()) //we have to reverse the list as the logical first item returned must be the last inserted to be the next that pops out
+				var currentDocumentItem = processStack.Pop(); //take the current branch
+				var next = await currentDocumentItem.DocumentItem
+					.Render(outputStream, currentDocumentItem.ContextObject, scopeData).ConfigureAwait(false);
+
+				foreach (var item in
+						next.Reverse()) //we have to reverse the list as the logical first item returned must be the last inserted to be the next that pops out
 				{
 					processStack.Push(item);
 				}

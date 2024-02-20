@@ -12,7 +12,6 @@ public class ExpressionStringConstPart : IEquatable<ExpressionStringConstPart>, 
 {
 	internal ExpressionStringConstPart()
 	{
-			
 	}
 
 	/// <summary>

@@ -18,11 +18,14 @@ public class FormatterArgumentType : IEquatable<FormatterArgumentType>
 		Type = value;
 		InternalValue = null;
 	}
-		
+
 	/// <summary>
 	///		Is used to declare a formatter argument
 	/// </summary>
-	public FormatterArgumentType(int index, string name, ref object value, IMorestachioExpression expression)
+	public FormatterArgumentType(int index,
+								string name,
+								ref object value,
+								IMorestachioExpression expression)
 	{
 		Index = index;
 		Name = name;

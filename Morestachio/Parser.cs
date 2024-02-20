@@ -53,7 +53,8 @@ namespace Morestachio
 			var tokenzierContext = new TokenzierContext(new List<int>(), parsingOptions.CultureInfo);
 			var tokenizerResult = await Tokenizer.Tokenize(parsingOptions, tokenzierContext).ConfigureAwait(false);
 
-			parsingOptions.Logger?.LogError(LoggingFormatter.ParserEventId, $"Template Parsed. {string.Join("\r\n", tokenzierContext.Errors.Select(f => f.AsFormatted()))}");
+			parsingOptions.Logger?.LogError(LoggingFormatter.ParserEventId,
+				$"Template Parsed. {string.Join("\r\n", tokenzierContext.Errors.Select(f => f.AsFormatted()))}");
 			//if there are any errors do not parse the template
 			var documentInfo = new MorestachioDocumentInfo(parsingOptions,
 				tokenzierContext.Errors.Any() ? null : Parse(tokenizerResult, parsingOptions), tokenzierContext.Errors);
@@ -79,7 +80,6 @@ namespace Morestachio
 		/// <returns></returns>
 		public static IDocumentItem Parse(TokenizerResult tokenizerResult, ParserOptions options)
 		{
-
 			var buildStack = new Stack<DocumentScope>();
 			//this is the scope id that determines a scope that is using let or alias variables
 			int variableScope = 1;
@@ -99,7 +99,8 @@ namespace Morestachio
 
 					var customDocumentItemProvider =
 						options.CustomDocumentItemProviders.FindTokenProvider(currentToken, options, tokenOptions);
-					var nestedDocument = customDocumentItemProvider?.Parse(currentToken, options, buildStack, getScope, tokenOptions);
+					var nestedDocument
+						= customDocumentItemProvider?.Parse(currentToken, options, buildStack, getScope, tokenOptions);
 
 					if (nestedDocument != null)
 					{
@@ -112,27 +113,30 @@ namespace Morestachio
 					{
 						case TokenType.Content:
 						{
-							var contentDocumentItem = new ContentDocumentItem(currentToken.TokenRange, currentToken.Value, GetPublicOptions(currentToken));
+							var contentDocumentItem = new ContentDocumentItem(currentToken.TokenRange,
+								currentToken.Value, GetPublicOptions(currentToken));
 							AddOrThrow(currentDocumentItem.Document, contentDocumentItem);
 
 							if (tokenizerResult.Previous.HasValue)
 							{
 								if (tokenizerResult.Previous.Value.FindOption<bool>("Embedded.TrimTailing"))
 								{
-									AddOrThrow(contentDocumentItem, new TextEditDocumentItem(tokenizerResult.Previous.Value.TokenRange, new TrimLineBreakTextOperation()
-									{
-										LineBreaks = 0,
-										LineBreakTrimDirection = LineBreakTrimDirection.Begin
-									}, EmbeddedInstructionOrigin.Previous, GetPublicOptions(currentToken)));
+									AddOrThrow(contentDocumentItem, new TextEditDocumentItem(
+										tokenizerResult.Previous.Value.TokenRange, new TrimLineBreakTextOperation()
+										{
+											LineBreaks = 0,
+											LineBreakTrimDirection = LineBreakTrimDirection.Begin
+										}, EmbeddedInstructionOrigin.Previous, GetPublicOptions(currentToken)));
 								}
 
 								if (tokenizerResult.Previous.Value.FindOption<bool>("Embedded.TrimAllTailing"))
 								{
-									AddOrThrow(contentDocumentItem, new TextEditDocumentItem(tokenizerResult.Previous.Value.TokenRange, new TrimLineBreakTextOperation()
-									{
-										LineBreaks = -1,
-										LineBreakTrimDirection = LineBreakTrimDirection.Begin
-									}, EmbeddedInstructionOrigin.Previous, GetPublicOptions(currentToken)));
+									AddOrThrow(contentDocumentItem, new TextEditDocumentItem(
+										tokenizerResult.Previous.Value.TokenRange, new TrimLineBreakTextOperation()
+										{
+											LineBreaks = -1,
+											LineBreakTrimDirection = LineBreakTrimDirection.Begin
+										}, EmbeddedInstructionOrigin.Previous, GetPublicOptions(currentToken)));
 								}
 							}
 
@@ -140,20 +144,22 @@ namespace Morestachio
 							{
 								if (tokenizerResult.Next.Value.FindOption<bool>("Embedded.TrimLeading"))
 								{
-									AddOrThrow(contentDocumentItem, new TextEditDocumentItem(tokenizerResult.Next.Value.TokenRange, new TrimLineBreakTextOperation()
-									{
-										LineBreaks = 0,
-										LineBreakTrimDirection = LineBreakTrimDirection.End
-									}, EmbeddedInstructionOrigin.Next, GetPublicOptions(currentToken)));
+									AddOrThrow(contentDocumentItem, new TextEditDocumentItem(
+										tokenizerResult.Next.Value.TokenRange, new TrimLineBreakTextOperation()
+										{
+											LineBreaks = 0,
+											LineBreakTrimDirection = LineBreakTrimDirection.End
+										}, EmbeddedInstructionOrigin.Next, GetPublicOptions(currentToken)));
 								}
 
 								if (tokenizerResult.Next.Value.FindOption<bool>("Embedded.TrimAllLeading"))
 								{
-									AddOrThrow(contentDocumentItem, new TextEditDocumentItem(tokenizerResult.Next.Value.TokenRange, new TrimLineBreakTextOperation()
-									{
-										LineBreaks = -1,
-										LineBreakTrimDirection = LineBreakTrimDirection.End
-									}, EmbeddedInstructionOrigin.Next, GetPublicOptions(currentToken)));
+									AddOrThrow(contentDocumentItem, new TextEditDocumentItem(
+										tokenizerResult.Next.Value.TokenRange, new TrimLineBreakTextOperation()
+										{
+											LineBreaks = -1,
+											LineBreakTrimDirection = LineBreakTrimDirection.End
+										}, EmbeddedInstructionOrigin.Next, GetPublicOptions(currentToken)));
 								}
 							}
 
@@ -186,7 +192,8 @@ namespace Morestachio
 						}
 						case TokenType.Else:
 						{
-							var nestedDocument = new ElseExpressionScopeDocumentItem(currentToken.TokenRange, GetPublicOptions(currentToken));
+							var nestedDocument = new ElseExpressionScopeDocumentItem(currentToken.TokenRange,
+								GetPublicOptions(currentToken));
 							buildStack.Push(new DocumentScope(nestedDocument, getScope));
 
 							if (currentDocumentItem.Document is IfExpressionScopeDocumentItem ifDocument)
@@ -214,7 +221,8 @@ namespace Morestachio
 						}
 						case TokenType.CollectionOpen:
 						{
-							var nestedDocument = new EachDocumentItem(currentToken.TokenRange, currentToken.MorestachioExpression, GetPublicOptions(currentToken));
+							var nestedDocument = new EachDocumentItem(currentToken.TokenRange,
+								currentToken.MorestachioExpression, GetPublicOptions(currentToken));
 							buildStack.Push(new DocumentScope(nestedDocument, getScope));
 							AddOrThrow(currentDocumentItem.Document, nestedDocument);
 
@@ -243,7 +251,8 @@ namespace Morestachio
 						}
 						case TokenType.SwitchCaseOpen:
 						{
-							var nestedDocument = new SwitchCaseDocumentItem(currentToken.TokenRange, currentToken.MorestachioExpression, GetPublicOptions(currentToken));
+							var nestedDocument = new SwitchCaseDocumentItem(currentToken.TokenRange,
+								currentToken.MorestachioExpression, GetPublicOptions(currentToken));
 							buildStack.Push(new DocumentScope(nestedDocument, getScope));
 							AddOrThrow(currentDocumentItem.Document, nestedDocument);
 
@@ -251,7 +260,8 @@ namespace Morestachio
 						}
 						case TokenType.SwitchDefaultOpen:
 						{
-							var nestedDocument = new SwitchDefaultDocumentItem(currentToken.TokenRange, GetPublicOptions(currentToken));
+							var nestedDocument = new SwitchDefaultDocumentItem(currentToken.TokenRange,
+								GetPublicOptions(currentToken));
 							buildStack.Push(new DocumentScope(nestedDocument, getScope));
 							AddOrThrow(currentDocumentItem.Document, nestedDocument);
 
@@ -259,7 +269,8 @@ namespace Morestachio
 						}
 						case TokenType.WhileLoopOpen:
 						{
-							var nestedDocument = new WhileLoopDocumentItem(currentToken.TokenRange, currentToken.MorestachioExpression, GetPublicOptions(currentToken));
+							var nestedDocument = new WhileLoopDocumentItem(currentToken.TokenRange,
+								currentToken.MorestachioExpression, GetPublicOptions(currentToken));
 							buildStack.Push(new DocumentScope(nestedDocument, getScope));
 							AddOrThrow(currentDocumentItem.Document, nestedDocument);
 
@@ -267,7 +278,8 @@ namespace Morestachio
 						}
 						case TokenType.DoLoopOpen:
 						{
-							var nestedDocument = new DoLoopDocumentItem(currentToken.TokenRange, currentToken.MorestachioExpression, GetPublicOptions(currentToken));
+							var nestedDocument = new DoLoopDocumentItem(currentToken.TokenRange,
+								currentToken.MorestachioExpression, GetPublicOptions(currentToken));
 							buildStack.Push(new DocumentScope(nestedDocument, getScope));
 							AddOrThrow(currentDocumentItem.Document, nestedDocument);
 
@@ -275,7 +287,8 @@ namespace Morestachio
 						}
 						case TokenType.ElementOpen:
 						{
-							var nestedDocument = new ExpressionScopeDocumentItem(currentToken.TokenRange, currentToken.MorestachioExpression, GetPublicOptions(currentToken));
+							var nestedDocument = new ExpressionScopeDocumentItem(currentToken.TokenRange,
+								currentToken.MorestachioExpression, GetPublicOptions(currentToken));
 							buildStack.Push(new DocumentScope(nestedDocument, getScope));
 							AddOrThrow(currentDocumentItem.Document, nestedDocument);
 
@@ -283,7 +296,8 @@ namespace Morestachio
 						}
 						case TokenType.RepeatLoopOpen:
 						{
-							var nestedDocument = new RepeatDocumentItem(currentToken.TokenRange, currentToken.MorestachioExpression, GetPublicOptions(currentToken));
+							var nestedDocument = new RepeatDocumentItem(currentToken.TokenRange,
+								currentToken.MorestachioExpression, GetPublicOptions(currentToken));
 							buildStack.Push(new DocumentScope(nestedDocument, getScope));
 							AddOrThrow(currentDocumentItem.Document, nestedDocument);
 
@@ -341,14 +355,16 @@ namespace Morestachio
 						}
 						case TokenType.RenderPartial:
 #pragma warning disable CS0618
-							AddOrThrow(currentDocumentItem.Document, new RenderPartialDocumentItem(currentToken.TokenRange,
+							AddOrThrow(currentDocumentItem.Document, new RenderPartialDocumentItem(
+								currentToken.TokenRange,
 #pragma warning restore CS0618
 								currentToken.Value,
 								currentToken.MorestachioExpression, GetPublicOptions(currentToken)));
 
 							break;
 						case TokenType.ImportPartial:
-							AddOrThrow(currentDocumentItem.Document, new ImportPartialDocumentItem(currentToken.TokenRange,
+							AddOrThrow(currentDocumentItem.Document, new ImportPartialDocumentItem(
+								currentToken.TokenRange,
 								currentToken.MorestachioExpression,
 								currentToken.FindOption<IMorestachioExpression>("Context"),
 								GetPublicOptions(currentToken)));
@@ -383,7 +399,8 @@ namespace Morestachio
 						{
 							EvaluateVariableDocumentItem nestedDocument;
 
-							var isolationParent = buildStack.FirstOrDefault(e => e.Document is IsolationScopeDocumentItem doc &&
+							var isolationParent = buildStack.FirstOrDefault(e =>
+								e.Document is IsolationScopeDocumentItem doc &&
 								doc.Isolation.HasFlag(IsolationOptions.VariableIsolation));
 
 							if (isolationParent != null)
@@ -469,7 +486,8 @@ namespace Morestachio
 							break;
 						case TokenType.NoPrintOpen:
 						{
-							var nestedDocument = new NoPrintDocumentItem(currentToken.TokenRange, GetPublicOptions(currentToken));
+							var nestedDocument = new NoPrintDocumentItem(currentToken.TokenRange,
+								GetPublicOptions(currentToken));
 							AddOrThrow(currentDocumentItem.Document, nestedDocument);
 							buildStack.Push(new DocumentScope(nestedDocument, getScope));
 
@@ -494,8 +512,10 @@ namespace Morestachio
 							var tokenOptions = GetPublicOptions(currentToken);
 
 							var customDocumentItemProvider =
-								options.CustomDocumentItemProviders.FindTokenProvider(currentToken, options, tokenOptions);
-							var nestedDocument = customDocumentItemProvider?.Parse(currentToken, options, buildStack, getScope, tokenOptions);
+								options.CustomDocumentItemProviders.FindTokenProvider(currentToken, options,
+									tokenOptions);
+							var nestedDocument = customDocumentItemProvider?.Parse(currentToken, options, buildStack,
+								getScope, tokenOptions);
 
 							if (nestedDocument != null)
 							{
@@ -528,9 +548,12 @@ namespace Morestachio
 			return buildStack.Pop().Document;
 		}
 
-		private static void CloseScope(Stack<DocumentScope> documentScopes, in TokenPair currentToken, DocumentScope currentDocumentItem)
+		private static void CloseScope(Stack<DocumentScope> documentScopes,
+										in TokenPair currentToken,
+										DocumentScope currentDocumentItem)
 		{
 			DocumentScope scope = documentScopes.Peek();
+
 			if (!(scope.Document is IBlockDocumentItem blockDocument))
 			{
 				throw new InvalidOperationException(
@@ -565,7 +588,8 @@ namespace Morestachio
 				return;
 			}
 
-			throw new MorestachioParserException($"Internal parsing error. Tried to add '{child}' to '{document}' which is not a {typeof(IBlockDocumentItem)}");
+			throw new MorestachioParserException(
+				$"Internal parsing error. Tried to add '{child}' to '{document}' which is not a {typeof(IBlockDocumentItem)}");
 		}
 
 		private static IEnumerable<ITokenOption> GetPublicOptions(TokenPair token)

@@ -19,7 +19,7 @@ public static class EncodingConstant
 	{
 		get { return new Encoding(NetEncoding.ASCII); }
 	}
-		
+
 	/// <summary>Gets an encoding for the UTF-16 format that uses the big endian byte order.</summary>
 	/// <returns>An encoding object for the UTF-16 format that uses the big endian byte order.</returns>
 	[Description("Gets an encoding for the UTF-16 format that uses the big endian byte order.")]
@@ -27,7 +27,7 @@ public static class EncodingConstant
 	{
 		get { return new Encoding(NetEncoding.BigEndianUnicode); }
 	}
-		
+
 	/// <summary>Gets an encoding for the operating system's current ANSI code page.</summary>
 	/// <returns>An encoding for the operating system's current ANSI code page.</returns>
 	[Description("Gets an encoding for the operating system's current ANSI code page.")]
@@ -35,7 +35,7 @@ public static class EncodingConstant
 	{
 		get { return new Encoding(NetEncoding.Default); }
 	}
-		
+
 	/// <summary>Gets an encoding for the UTF-16 format using the little endian byte order.</summary>
 	/// <returns>An encoding for the UTF-16 format using the little endian byte order.</returns>
 	[Description("Gets an encoding for the UTF-16 format using the little endian byte order.")]
@@ -43,7 +43,7 @@ public static class EncodingConstant
 	{
 		get { return new Encoding(NetEncoding.Unicode); }
 	}
-		
+
 	/// <summary>Gets an encoding for the UTF-32 format using the little endian byte order.</summary>
 	/// <returns>An  encoding object for the UTF-32 format using the little endian byte order.</returns>
 	[Description("Gets an encoding for the UTF-32 format using the little endian byte order.")]
@@ -51,16 +51,17 @@ public static class EncodingConstant
 	{
 		get { return new Encoding(NetEncoding.UTF32); }
 	}
-		
+
 	/// <summary>Gets an encoding for the UTF-7 format.</summary>
 	/// <returns>An encoding for the UTF-7 format.</returns>
 	[Description("Gets an encoding for the UTF-7 format.")]
-	[Obsolete("'Encoding.UTF7' is obsolete: 'The UTF-7 encoding is insecure and should not be used. Consider using UTF-8 instead.'")]
+	[Obsolete(
+		"'Encoding.UTF7' is obsolete: 'The UTF-7 encoding is insecure and should not be used. Consider using UTF-8 instead.'")]
 	public static Encoding UTF7
 	{
 		get { return new Encoding(NetEncoding.UTF7); }
 	}
-		
+
 	/// <summary>Gets an encoding for the UTF-8 format.</summary>
 	/// <returns>An encoding for the UTF-8 format.</returns>
 	[Description("Gets an encoding for the UTF-8 format.")]
@@ -87,7 +88,7 @@ public static class EncodingConstant
 		return new Encoding(NetEncoding.GetEncoding(name));
 	}
 }
-	
+
 /// <summary>
 ///		Wraps an System.Text.Encoding for access from Morestachio
 /// </summary>
@@ -103,40 +104,47 @@ public class Encoding : NetEncoding
 	{
 		_encoding = encoding;
 	}
-	
+
 	/// <inheritdoc />
-	[MorestachioFormatter("[MethodName]", "When overridden in a derived class, calculates the number of bytes produced by encoding the characters in the specified string.")]
+	[MorestachioFormatter("[MethodName]",
+		"When overridden in a derived class, calculates the number of bytes produced by encoding the characters in the specified string.")]
 	public override int GetByteCount(string s)
 	{
 		return base.GetByteCount(s);
 	}
-	
+
 	/// <inheritdoc />
-	[MorestachioFormatter("[MethodName]", "When overridden in a derived class, encodes all the characters in the specified string into a sequence of bytes.")]
+	[MorestachioFormatter("[MethodName]",
+		"When overridden in a derived class, encodes all the characters in the specified string into a sequence of bytes.")]
 	public override byte[] GetBytes(string s)
 	{
 		return base.GetBytes(s);
 	}
-	
+
 	/// <inheritdoc />
-	[MorestachioFormatter("[MethodName]", "When overridden in a derived class, decodes all the bytes in the specified byte array into a string.")]
+	[MorestachioFormatter("[MethodName]",
+		"When overridden in a derived class, decodes all the bytes in the specified byte array into a string.")]
 	public override string GetString(byte[] bytes)
 	{
 		return base.GetString(bytes);
 	}
-	
+
 	/// <inheritdoc />
 	public override int GetByteCount(char[] chars, int index, int count)
 	{
 		return _encoding.GetByteCount(chars, index, count);
 	}
-	
+
 	/// <inheritdoc />
-	public override int GetBytes(char[] chars, int charIndex, int charCount, byte[] bytes, int byteIndex)
+	public override int GetBytes(char[] chars,
+								int charIndex,
+								int charCount,
+								byte[] bytes,
+								int byteIndex)
 	{
 		return _encoding.GetBytes(chars, charIndex, charCount, bytes, byteIndex);
 	}
-	
+
 	/// <inheritdoc />
 	public override int GetCharCount(byte[] bytes, int index, int count)
 	{
@@ -144,17 +152,21 @@ public class Encoding : NetEncoding
 	}
 
 	/// <inheritdoc />
-	public override int GetChars(byte[] bytes, int byteIndex, int byteCount, char[] chars, int charIndex)
+	public override int GetChars(byte[] bytes,
+								int byteIndex,
+								int byteCount,
+								char[] chars,
+								int charIndex)
 	{
 		return _encoding.GetChars(bytes, byteIndex, byteCount, chars, charIndex);
 	}
-	
+
 	/// <inheritdoc />
 	public override int GetMaxByteCount(int charCount)
 	{
 		return _encoding.GetMaxByteCount(charCount);
 	}
-	
+
 	/// <inheritdoc />
 	public override int GetMaxCharCount(int byteCount)
 	{

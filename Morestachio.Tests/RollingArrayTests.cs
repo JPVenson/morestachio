@@ -8,7 +8,6 @@ namespace Morestachio.Tests
 	{
 		public RollingArrayTests()
 		{
-			
 		}
 
 		[Test]
@@ -90,11 +89,11 @@ namespace Morestachio.Tests
 			rollingArray.Add('d');
 			Assert.That(new string(rollingArray.ToArray()), Is.EqualTo("old"));
 		}
-		
+
 		[Test]
 		public void TestCanCheckForStartToken()
 		{
-			var expected = new char[] {'{', '{'};
+			var expected = new char[] { '{', '{' };
 			var rollingArray = new RollingArray<char>(3);
 			rollingArray.Add('A');
 			Assert.That(rollingArray.EndsWith(expected), Is.False);
@@ -107,11 +106,11 @@ namespace Morestachio.Tests
 			rollingArray.Add('C');
 			Assert.That(rollingArray.EndsWith(expected), Is.False);
 		}
-		
+
 		[Test]
 		public void TestCanCheckForEndToken()
 		{
-			var expected = new char[] {'}', '}'};
+			var expected = new char[] { '}', '}' };
 			var rollingArray = new RollingArray<char>(4);
 			rollingArray.Add('A');
 			Assert.That(rollingArray.EndsWith(expected), Is.False);

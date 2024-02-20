@@ -20,7 +20,6 @@ public class ElseIfExpressionScopeDocumentItem : IfExpressionScopeDocumentItem, 
 	/// </summary>
 	internal ElseIfExpressionScopeDocumentItem()
 	{
-
 	}
 
 	/// <summary>
@@ -28,13 +27,12 @@ public class ElseIfExpressionScopeDocumentItem : IfExpressionScopeDocumentItem, 
 	/// </summary>
 	internal ElseIfExpressionScopeDocumentItem(TextRange location,
 												IMorestachioExpression expression,
-												IEnumerable<ITokenOption> tagCreationOptions) : base(location, expression, tagCreationOptions, false)
+												IEnumerable<ITokenOption> tagCreationOptions) : base(location,
+		expression, tagCreationOptions, false)
 	{
-
 	}
 
 	/// <inheritdoc />
-
 	protected ElseIfExpressionScopeDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
 	}

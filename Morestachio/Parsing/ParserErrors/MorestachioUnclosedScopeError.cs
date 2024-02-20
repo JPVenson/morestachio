@@ -11,11 +11,10 @@ public class MorestachioUnclosedScopeError : MorestachioErrorBase
 	/// </summary>
 	protected MorestachioUnclosedScopeError()
 	{
-		
 	}
 
 	/// <inheritdoc />
-	protected MorestachioUnclosedScopeError(SerializationInfo info, StreamingContext c) 
+	protected MorestachioUnclosedScopeError(SerializationInfo info, StreamingContext c)
 		: base(info, c)
 	{
 	}
@@ -37,6 +36,7 @@ public class MorestachioUnclosedScopeError : MorestachioErrorBase
 										string helpText,
 										TextRange location)
 	{
-		return $"line:char '{location}' - An '{tokenOccured}' block is being opened, but no corresponding opening element '{syntaxExpected}' was detected.{helpText}";
+		return
+			$"line:char '{location}' - An '{tokenOccured}' block is being opened, but no corresponding opening element '{syntaxExpected}' was detected.{helpText}";
 	}
 }

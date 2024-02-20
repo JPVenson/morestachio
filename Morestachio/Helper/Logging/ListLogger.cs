@@ -12,7 +12,10 @@ public class ListLogger : List<ILogger>, ILogger
 
 	/// <inheritdoc />
 	[Obsolete("The data argument is obsolete and should be embedded into the message by the caller.")]
-	public void Log(string logLevel, string eventId, string message, IDictionary<string, object> data)
+	public void Log(string logLevel,
+					string eventId,
+					string message,
+					IDictionary<string, object> data)
 	{
 		if (!Enabled)
 		{

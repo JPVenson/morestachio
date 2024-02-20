@@ -16,7 +16,6 @@ namespace Morestachio.Tests
 	{
 		public StringExpressionTests()
 		{
-
 		}
 
 		public static ContextObject StringTestContext()
@@ -35,21 +34,25 @@ namespace Morestachio.Tests
 			var expressionString = (result as MorestachioExpressionString);
 			Assert.That(expressionString.Location.ToString(), Is.EqualTo("0:0:0|6:0:6"));
 			Assert.That(expressionString.StringParts.Count, Is.EqualTo(1));
-			Assert.That((await expressionString.GetValue(StringTestContext(), new ScopeData(ParserFixture.TestBuilder().Build()))).Value, Is.EqualTo("test"));
+			Assert.That(
+				(await expressionString.GetValue(StringTestContext(),
+					new ScopeData(ParserFixture.TestBuilder().Build()))).Value, Is.EqualTo("test"));
 		}
 
 		[Test]
 		public async Task CanNotParseUnclosedString()
 		{
 			var text = "\"";
-			var result = await ExpressionParser.EvaluateExpression(text, new ParserOptions(), null, TokenzierContext.FromText(text));
+			var result = await ExpressionParser.EvaluateExpression(text, new ParserOptions(), null,
+				TokenzierContext.FromText(text));
 			Assert.That(result, Is.Null);
 		}
 
 		[Test]
 		public async Task CanParseStringWithEscaptedChars()
 		{
-			var text = "\"a string, with a comma, and other {[]}{§$%& stuff. also a escaped \\\" and \\\\\" and so on\"";
+			var text
+				= "\"a string, with a comma, and other {[]}{§$%& stuff. also a escaped \\\" and \\\\\" and so on\"";
 			var result = ExpressionParser.ParseExpression(text, out var context, CultureInfo.CurrentCulture);
 			Assert.That(context.Errors, Is.Empty, () => context.Errors.Select(f => f.GetException().ToString())
 				.Aggregate((e, f) => e + "\r\n-------------" + f));
@@ -58,13 +61,17 @@ namespace Morestachio.Tests
 			var expressionString = (result as MorestachioExpressionString);
 			Assert.That(expressionString.Location.ToString(), Is.EqualTo("0:0:0|88:0:88"));
 			Assert.That(expressionString.StringParts.Count, Is.EqualTo(1));
-			Assert.That((await expressionString.GetValue(StringTestContext(), new ScopeData(ParserFixture.TestBuilder().Build()))).Value, Is.EqualTo("a string, with a comma, and other {[]}{§$%& stuff. also a escaped \" and \\\" and so on"));
+			Assert.That(
+				(await expressionString.GetValue(StringTestContext(),
+					new ScopeData(ParserFixture.TestBuilder().Build()))).Value,
+				Is.EqualTo("a string, with a comma, and other {[]}{§$%& stuff. also a escaped \" and \\\" and so on"));
 		}
 
 		[Test]
 		public void TestSubstringFormatter()
 		{
-			Assert.That(Morestachio.Formatter.Predefined.StringFormatter.Substring("ABCDEFGHIJ", 3, 20), Is.EqualTo("DEFGHIJ"));
+			Assert.That(Morestachio.Formatter.Predefined.StringFormatter.Substring("ABCDEFGHIJ", 3, 20),
+				Is.EqualTo("DEFGHIJ"));
 		}
 	}
 }

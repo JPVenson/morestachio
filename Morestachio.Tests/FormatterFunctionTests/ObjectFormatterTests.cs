@@ -66,7 +66,8 @@ namespace Morestachio.Tests.FormatterFunctionTests
 					Female = "FEMALE"
 				}
 			};
-			var result = await CallFormatter<IDictionary<string, object>>("new([Name]\"Test\", [Age] 57, [Gender] Genders.Male)", data);
+			var result = await CallFormatter<IDictionary<string, object>>(
+				"new([Name]\"Test\", [Age] 57, [Gender] Genders.Male)", data);
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result["Name"], Is.EqualTo("Test"));
 			Assert.That(result["Age"], Is.EqualTo(57));
@@ -126,7 +127,7 @@ namespace Morestachio.Tests.FormatterFunctionTests
 				right = rightObject
 			});
 			Assert.That(result, Is.Not.Null);
-			
+
 			var expected = ObjectFormatter.Combine(leftObject, rightObject);
 
 			foreach (var item in result)
@@ -149,7 +150,8 @@ namespace Morestachio.Tests.FormatterFunctionTests
 			var template = @"{{#VAR result = " + expression + "}}";
 
 			await ParserFixture.CreateAndParseWithOptions(template, source,
-				ParserOptionTypes.NoRerenderingTest | ParserOptionTypes.UseOnDemandCompile, e => { return e.WithValueResolver(new FieldValueResolver()); },
+				ParserOptionTypes.NoRerenderingTest | ParserOptionTypes.UseOnDemandCompile,
+				e => { return e.WithValueResolver(new FieldValueResolver()); },
 				e => { e.CaptureVariables = true; },
 				e =>
 				{

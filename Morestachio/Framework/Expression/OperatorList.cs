@@ -29,10 +29,7 @@ internal class OperatorList : IReadOnlyDictionary<OperatorTypes, MorestachioOper
 
 	public int Count
 	{
-		get
-		{
-			return Operators.Count;
-		}
+		get { return Operators.Count; }
 	}
 
 	public bool ContainsKey(OperatorTypes key)
@@ -52,17 +49,11 @@ internal class OperatorList : IReadOnlyDictionary<OperatorTypes, MorestachioOper
 
 	public IEnumerable<OperatorTypes> Keys
 	{
-		get
-		{
-			return Operators.Keys;
-		}
+		get { return Operators.Keys; }
 	}
 
 	public IEnumerable<MorestachioOperator> Values
 	{
-		get
-		{
-			return Operators.Values;
-		}
+		get { return Operators.Values; }
 	}
 }

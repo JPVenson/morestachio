@@ -56,6 +56,7 @@ public readonly struct Number :
 		{
 			fullNumber = nr._value;
 		}
+
 		_value = fullNumber;
 	}
 
@@ -176,6 +177,7 @@ public readonly struct Number :
 				nrType == typeof(double) ||
 				nrType == typeof(float);
 		}
+
 		return number is decimal or double or float;
 	}
 
@@ -211,14 +213,14 @@ public readonly struct Number :
 	/// </summary>
 	public static readonly Type[] CsFrameworkIntegralTypes = new[]
 	{
-		typeof(ulong    ),
-		typeof(long     ),
-		typeof(uint     ),
-		typeof(int      ),
-		typeof(ushort   ),
-		typeof(short        ),
-		typeof(byte     ),
-		typeof(sbyte        )
+		typeof(ulong),
+		typeof(long),
+		typeof(uint),
+		typeof(int),
+		typeof(ushort),
+		typeof(short),
+		typeof(byte),
+		typeof(sbyte)
 	};
 
 	/// <summary>
@@ -226,9 +228,9 @@ public readonly struct Number :
 	/// </summary>
 	public static readonly Type[] CsFrameworkFloatingPointNumberTypes = new[]
 	{
-		typeof(decimal  ),
-		typeof(double   ),
-		typeof(float    )
+		typeof(decimal),
+		typeof(double),
+		typeof(float)
 	};
 
 	/// <summary>
@@ -244,10 +246,12 @@ public readonly struct Number :
 		{
 			return typeof(decimal);
 		}
+
 		if (numberLeft._value is double || numberRight._value is double)
 		{
 			return typeof(double);
 		}
+
 		if (numberLeft._value is float || numberRight._value is float)
 		{
 			return typeof(float);
@@ -258,38 +262,47 @@ public readonly struct Number :
 		{
 			return typeof(ulong);
 		}
+
 		if (numberLeft._value is long || numberRight._value is long)
 		{
 			return typeof(long);
 		}
+
 		if (numberLeft._value is uint || numberRight._value is uint)
 		{
 			return typeof(uint);
 		}
+
 		if (numberLeft._value is int || numberRight._value is int)
 		{
 			return typeof(int);
 		}
+
 		if (numberLeft._value is ushort || numberRight._value is ushort)
 		{
 			return typeof(ushort);
 		}
+
 		if (numberLeft._value is short || numberRight._value is short)
 		{
 			return typeof(short);
 		}
+
 		if (numberLeft._value is byte || numberRight._value is byte)
 		{
 			return typeof(byte);
 		}
+
 		if (numberLeft._value is sbyte || numberRight._value is sbyte)
 		{
 			return typeof(sbyte);
 		}
+
 		throw new InvalidOperationException("Cannot determinate the numbers type");
 	}
 
 	#region MorestachioFormatter
+
 #pragma warning disable CS1591
 
 	/// <summary>
@@ -331,13 +344,14 @@ public readonly struct Number :
 		{
 			case ulong or long:
 				return new Number(number.ToDecimal(null));
-			case uint or int: 
+			case uint or int:
 				return new Number(number.ToDouble(null));
-			case short or ushort: 
+			case short or ushort:
 				return new Number(number.ToSingle(null));
-			case byte or sbyte: 
+			case byte or sbyte:
 				return new Number(number.ToSingle(null));
 		}
+
 		return new Number(number.ToDecimal(null));
 	}
 
@@ -391,6 +405,7 @@ public readonly struct Number :
 	{
 		return left.ShiftRight(right);
 	}
+
 	[MorestachioFormatter("SmallerAs", "Checks if the source number is smaller as the other number")]
 	[MorestachioFormatter("SmallerThan", "Checks if the source number is smaller as the other number")]
 	[MorestachioFormatter("LessThen", "Checks if the source number is smaller as the other number")]
@@ -448,7 +463,8 @@ public readonly struct Number :
 		return left.Abs();
 	}
 
-	[MorestachioFormatter("Round", "Rounds a double-precision floating-point value to a specified number of fractional digits.")]
+	[MorestachioFormatter("Round",
+		"Rounds a double-precision floating-point value to a specified number of fractional digits.")]
 	public static Number Round(Number left, Number right)
 	{
 		return left.Round(right);
@@ -493,13 +509,15 @@ public readonly struct Number :
 		return left.IsNaN();
 	}
 
-	[MorestachioFormatter("[MethodName]", "Returns the largest integral value less than or equal to the specified decimal number.")]
+	[MorestachioFormatter("[MethodName]",
+		"Returns the largest integral value less than or equal to the specified decimal number.")]
 	public static Number Floor(Number left)
 	{
 		return left.Floor();
 	}
 
-	[MorestachioFormatter("[MethodName]", "Returns the smallest integral value that is greater than or equal to the specified decimal number.")]
+	[MorestachioFormatter("[MethodName]",
+		"Returns the smallest integral value that is greater than or equal to the specified decimal number.")]
 	public static Number Ceiling(Number left)
 	{
 		return left.Ceiling();
@@ -572,7 +590,7 @@ public readonly struct Number :
 	}
 
 	private static readonly string[] SizeSuffixes =
-		{"b", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
+		{ "b", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
 
 	[MorestachioFormatter("ToBytes", "Format a number to it's equivalent in bytes.")]
 	public static string ToBytes(Number value, [ExternalData] ParserOptions parserOptions, Number? decimalPlaces = null)
@@ -615,7 +633,6 @@ public readonly struct Number :
 		return string.Format(formatProvider, "{0:n" + precisionValue + "} {1}",
 			adjustedSize,
 			SizeSuffixes[mag]);
-
 	}
 
 	[MorestachioGlobalFormatter("ParseNumber", "Parses a string into a number. Returns NaN if invalid")]
@@ -630,6 +647,7 @@ public readonly struct Number :
 	}
 
 #pragma warning restore CS1591
+
 	#endregion
 
 	/// <summary>
@@ -812,6 +830,7 @@ public readonly struct Number :
 		{
 			return Math.Truncate(ToDecimal(null));
 		}
+
 		return Math.Truncate(ToDouble(null));
 	}
 
@@ -825,6 +844,7 @@ public readonly struct Number :
 		{
 			return Math.Ceiling(ToDecimal(null));
 		}
+
 		return Math.Ceiling(ToDouble(null));
 	}
 
@@ -838,6 +858,7 @@ public readonly struct Number :
 		{
 			return Math.Floor(ToDecimal(null));
 		}
+
 		return Math.Floor(ToDouble(null));
 	}
 
@@ -848,46 +869,57 @@ public readonly struct Number :
 	public Number Negate()
 	{
 		var targetType = _value.GetType();
+
 		if (targetType == typeof(decimal))
 		{
 			return new Number(-ToDecimal(null));
 		}
+
 		if (targetType == typeof(double))
 		{
 			return new Number(-ToDouble(null));
 		}
+
 		if (targetType == typeof(float))
 		{
 			return new Number(-ToSingle(null));
 		}
+
 		if (targetType == typeof(long))
 		{
 			return new Number(-ToInt64(null));
 		}
+
 		if (targetType == typeof(uint))
 		{
 			return new Number(-ToDouble(null));
 		}
+
 		if (targetType == typeof(int))
 		{
 			return new Number(-ToInt32(null));
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return new Number(-ToUInt16(null));
 		}
+
 		if (targetType == typeof(short))
 		{
 			return new Number(-ToInt16(null));
 		}
+
 		if (targetType == typeof(byte))
 		{
 			return new Number(-ToByte(null));
 		}
+
 		if (targetType == typeof(sbyte))
 		{
 			return new Number(-ToSByte(null));
 		}
+
 		throw new InvalidCastException($"Cannot get the absolute value for {_value} ({_value.GetType()})");
 	}
 
@@ -898,46 +930,57 @@ public readonly struct Number :
 	public Number Abs()
 	{
 		var targetType = _value.GetType();
+
 		if (targetType == typeof(decimal))
 		{
 			return new Number(Math.Abs(ToDecimal(null)));
 		}
+
 		if (targetType == typeof(double))
 		{
 			return new Number(Math.Abs(ToDouble(null)));
 		}
+
 		if (targetType == typeof(float))
 		{
 			return new Number(Math.Abs(ToSingle(null)));
 		}
+
 		if (targetType == typeof(long))
 		{
 			return new Number(Math.Abs(ToInt64(null)));
 		}
+
 		if (targetType == typeof(uint))
 		{
 			return new Number(Math.Abs(ToDouble(null)));
 		}
+
 		if (targetType == typeof(int))
 		{
 			return new Number(Math.Abs(ToInt32(null)));
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return new Number(Math.Abs(ToUInt16(null)));
 		}
+
 		if (targetType == typeof(short))
 		{
 			return new Number(Math.Abs(ToInt16(null)));
 		}
+
 		if (targetType == typeof(byte))
 		{
 			return new Number(Math.Abs(ToByte(null)));
 		}
+
 		if (targetType == typeof(sbyte))
 		{
 			return new Number(Math.Abs(ToSByte(null)));
 		}
+
 		throw new InvalidCastException($"Cannot get the absolute value for {_value} ({_value.GetType()})");
 	}
 
@@ -960,6 +1003,7 @@ public readonly struct Number :
 		{
 			return Math.Round(_value.ToDecimal(null), other.ToInt32(null), mode);
 		}
+
 		return Math.Round(_value.ToDouble(null), other.ToInt32(null), mode);
 	}
 
@@ -971,51 +1015,64 @@ public readonly struct Number :
 	public Number Add(Number other)
 	{
 		var targetType = GetOperationTargetType(this, other);
+
 		if (targetType == typeof(decimal))
 		{
 			return new Number(ToDecimal(null) + other.ToDecimal(null));
 		}
+
 		if (targetType == typeof(double))
 		{
 			return new Number(ToDouble(null) + other.ToDouble(null));
 		}
+
 		if (targetType == typeof(float))
 		{
 			return new Number(ToSingle(null) + other.ToSingle(null));
 		}
+
 		if (targetType == typeof(ulong))
 		{
 			return new Number(ToUInt64(null) + other.ToUInt64(null));
 		}
+
 		if (targetType == typeof(long))
 		{
 			return new Number(ToInt64(null) + other.ToInt64(null));
 		}
+
 		if (targetType == typeof(uint))
 		{
 			return new Number(ToUInt32(null) + other.ToUInt32(null));
 		}
+
 		if (targetType == typeof(int))
 		{
 			return new Number(ToInt32(null) + other.ToInt32(null));
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return new Number(ToUInt16(null) + other.ToUInt16(null));
 		}
+
 		if (targetType == typeof(short))
 		{
 			return new Number(ToInt16(null) + other.ToInt16(null));
 		}
+
 		if (targetType == typeof(byte))
 		{
 			return new Number(ToByte(null) + other.ToByte(null));
 		}
+
 		if (targetType == typeof(sbyte))
 		{
 			return new Number(ToSByte(null) + other.ToSByte(null));
 		}
-		throw new InvalidCastException($"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
+
+		throw new InvalidCastException(
+			$"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
 	}
 
 	/// <summary>
@@ -1026,51 +1083,64 @@ public readonly struct Number :
 	public Number Subtract(Number other)
 	{
 		var targetType = GetOperationTargetType(this, other);
+
 		if (targetType == typeof(decimal))
 		{
 			return new Number(ToDecimal(null) - other.ToDecimal(null));
 		}
+
 		if (targetType == typeof(double))
 		{
 			return new Number(ToDouble(null) - other.ToDouble(null));
 		}
+
 		if (targetType == typeof(float))
 		{
 			return new Number(ToSingle(null) - other.ToSingle(null));
 		}
+
 		if (targetType == typeof(ulong))
 		{
 			return new Number(ToUInt64(null) - other.ToUInt64(null));
 		}
+
 		if (targetType == typeof(long))
 		{
 			return new Number(ToInt64(null) - other.ToInt64(null));
 		}
+
 		if (targetType == typeof(uint))
 		{
 			return new Number(ToUInt32(null) - other.ToUInt32(null));
 		}
+
 		if (targetType == typeof(int))
 		{
 			return new Number(ToInt32(null) - other.ToInt32(null));
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return new Number(ToUInt16(null) - other.ToUInt16(null));
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return new Number(ToInt16(null) - other.ToInt16(null));
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return new Number(ToByte(null) - other.ToByte(null));
 		}
+
 		if (targetType == typeof(sbyte))
 		{
 			return new Number(ToSByte(null) - other.ToSByte(null));
 		}
-		throw new InvalidCastException($"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
+
+		throw new InvalidCastException(
+			$"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
 	}
 
 	/// <summary>
@@ -1081,51 +1151,64 @@ public readonly struct Number :
 	public Number Multiply(Number other)
 	{
 		var targetType = GetOperationTargetType(this, other);
+
 		if (targetType == typeof(decimal))
 		{
 			return new Number(ToDecimal(null) * other.ToDecimal(null));
 		}
+
 		if (targetType == typeof(double))
 		{
 			return new Number(ToDouble(null) * other.ToDouble(null));
 		}
+
 		if (targetType == typeof(float))
 		{
 			return new Number(ToSingle(null) * other.ToSingle(null));
 		}
+
 		if (targetType == typeof(ulong))
 		{
 			return new Number(ToUInt64(null) * other.ToUInt64(null));
 		}
+
 		if (targetType == typeof(long))
 		{
 			return new Number(ToInt64(null) * other.ToInt64(null));
 		}
+
 		if (targetType == typeof(uint))
 		{
 			return new Number(ToUInt32(null) * other.ToUInt32(null));
 		}
+
 		if (targetType == typeof(int))
 		{
 			return new Number(ToInt32(null) * other.ToInt32(null));
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return new Number(ToUInt16(null) * other.ToUInt16(null));
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return new Number(ToInt16(null) * other.ToInt16(null));
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return new Number(ToByte(null) * other.ToByte(null));
 		}
+
 		if (targetType == typeof(sbyte))
 		{
 			return new Number(ToSByte(null) * other.ToSByte(null));
 		}
-		throw new InvalidCastException($"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
+
+		throw new InvalidCastException(
+			$"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
 	}
 
 	/// <summary>
@@ -1136,51 +1219,64 @@ public readonly struct Number :
 	public Number Divide(Number other)
 	{
 		var targetType = GetOperationTargetType(this, other);
+
 		if (targetType == typeof(decimal))
 		{
 			return new Number(ToDecimal(null) / other.ToDecimal(null));
 		}
+
 		if (targetType == typeof(double))
 		{
 			return new Number(ToDouble(null) / other.ToDouble(null));
 		}
+
 		if (targetType == typeof(float))
 		{
 			return new Number(ToSingle(null) / other.ToSingle(null));
 		}
+
 		if (targetType == typeof(ulong))
 		{
 			return new Number(ToUInt64(null) / other.ToUInt64(null));
 		}
+
 		if (targetType == typeof(long))
 		{
 			return new Number(ToInt64(null) / other.ToInt64(null));
 		}
+
 		if (targetType == typeof(uint))
 		{
 			return new Number(ToUInt32(null) / other.ToUInt32(null));
 		}
+
 		if (targetType == typeof(int))
 		{
 			return new Number(ToInt32(null) / other.ToInt32(null));
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return new Number(ToUInt16(null) / other.ToUInt16(null));
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return new Number(ToInt16(null) / other.ToInt16(null));
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return new Number(ToByte(null) / other.ToByte(null));
 		}
+
 		if (targetType == typeof(sbyte))
 		{
 			return new Number(ToSByte(null) / other.ToSByte(null));
 		}
-		throw new InvalidCastException($"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
+
+		throw new InvalidCastException(
+			$"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
 	}
 
 	/// <summary>
@@ -1191,51 +1287,64 @@ public readonly struct Number :
 	public Number Modulo(Number other)
 	{
 		var targetType = GetOperationTargetType(this, other);
+
 		if (targetType == typeof(decimal))
 		{
 			return new Number(ToDecimal(null) % other.ToDecimal(null));
 		}
+
 		if (targetType == typeof(double))
 		{
 			return new Number(ToDouble(null) % other.ToDouble(null));
 		}
+
 		if (targetType == typeof(float))
 		{
 			return new Number(ToSingle(null) % other.ToSingle(null));
 		}
+
 		if (targetType == typeof(ulong))
 		{
 			return new Number(ToUInt64(null) % other.ToUInt64(null));
 		}
+
 		if (targetType == typeof(long))
 		{
 			return new Number(ToInt64(null) % other.ToInt64(null));
 		}
+
 		if (targetType == typeof(uint))
 		{
 			return new Number(ToUInt32(null) % other.ToUInt32(null));
 		}
+
 		if (targetType == typeof(int))
 		{
 			return new Number(ToInt32(null) % other.ToInt32(null));
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return new Number(ToUInt16(null) % other.ToUInt16(null));
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return new Number(ToInt16(null) % other.ToInt16(null));
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return new Number(ToByte(null) % other.ToByte(null));
 		}
+
 		if (targetType == typeof(sbyte))
 		{
 			return new Number(ToSByte(null) % other.ToSByte(null));
 		}
-		throw new InvalidCastException($"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
+
+		throw new InvalidCastException(
+			$"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
 	}
 
 	/// <summary>
@@ -1246,39 +1355,49 @@ public readonly struct Number :
 	public Number ShiftRight(Number other)
 	{
 		var targetType = GetOperationTargetType(this, other);
+
 		if (targetType == typeof(ulong))
 		{
 			return new Number(ToUInt64(null) >> other.ToInt32(null));
 		}
+
 		if (targetType == typeof(long))
 		{
 			return new Number(ToInt64(null) >> other.ToInt32(null));
 		}
+
 		if (targetType == typeof(uint))
 		{
 			return new Number(ToUInt32(null) >> other.ToInt32(null));
 		}
+
 		if (targetType == typeof(int))
 		{
 			return new Number(ToInt32(null) >> other.ToInt32(null));
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return new Number(ToUInt16(null) >> other.ToInt32(null));
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return new Number(ToInt16(null) >> other.ToInt32(null));
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return new Number(ToByte(null) >> other.ToInt32(null));
 		}
+
 		if (targetType == typeof(sbyte))
 		{
 			return new Number(ToSByte(null) >> other.ToInt32(null));
 		}
-		throw new InvalidCastException($"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
+
+		throw new InvalidCastException(
+			$"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
 	}
 
 	/// <summary>
@@ -1289,39 +1408,49 @@ public readonly struct Number :
 	public Number ShiftLeft(Number other)
 	{
 		var targetType = GetOperationTargetType(this, other);
+
 		if (targetType == typeof(ulong))
 		{
 			return new Number(ToUInt64(null) << other.ToInt32(null));
 		}
+
 		if (targetType == typeof(long))
 		{
 			return new Number(ToInt64(null) << other.ToInt32(null));
 		}
+
 		if (targetType == typeof(uint))
 		{
 			return new Number(ToUInt32(null) << other.ToInt32(null));
 		}
+
 		if (targetType == typeof(int))
 		{
 			return new Number(ToInt32(null) << other.ToInt32(null));
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return new Number(ToUInt16(null) << other.ToInt32(null));
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return new Number(ToInt16(null) << other.ToInt32(null));
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return new Number(ToByte(null) << other.ToInt32(null));
 		}
+
 		if (targetType == typeof(sbyte))
 		{
 			return new Number(ToSByte(null) << other.ToInt32(null));
 		}
-		throw new InvalidCastException($"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
+
+		throw new InvalidCastException(
+			$"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
 	}
 
 	/// <summary>
@@ -1332,51 +1461,64 @@ public readonly struct Number :
 	public bool GreaterThen(Number other)
 	{
 		var targetType = GetOperationTargetType(this, other);
+
 		if (targetType == typeof(decimal))
 		{
 			return ToDecimal(null) > other.ToDecimal(null);
 		}
+
 		if (targetType == typeof(double))
 		{
 			return ToDouble(null) > other.ToDouble(null);
 		}
+
 		if (targetType == typeof(float))
 		{
 			return ToSingle(null) > other.ToSingle(null);
 		}
+
 		if (targetType == typeof(ulong))
 		{
 			return ToUInt64(null) > other.ToUInt64(null);
 		}
+
 		if (targetType == typeof(long))
 		{
 			return ToInt64(null) > other.ToInt64(null);
 		}
+
 		if (targetType == typeof(uint))
 		{
 			return ToUInt32(null) > other.ToUInt32(null);
 		}
+
 		if (targetType == typeof(int))
 		{
 			return ToInt32(null) > other.ToInt32(null);
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return ToUInt16(null) > other.ToUInt16(null);
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return ToInt16(null) > other.ToInt16(null);
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return ToByte(null) > other.ToByte(null);
 		}
+
 		if (targetType == typeof(sbyte))
 		{
 			return ToSByte(null) > other.ToSByte(null);
 		}
-		throw new InvalidCastException($"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
+
+		throw new InvalidCastException(
+			$"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
 	}
 
 	/// <summary>
@@ -1387,51 +1529,64 @@ public readonly struct Number :
 	public bool LessThen(Number other)
 	{
 		var targetType = GetOperationTargetType(this, other);
+
 		if (targetType == typeof(decimal))
 		{
 			return ToDecimal(null) < other.ToDecimal(null);
 		}
+
 		if (targetType == typeof(double))
 		{
 			return ToDouble(null) < other.ToDouble(null);
 		}
+
 		if (targetType == typeof(float))
 		{
 			return ToSingle(null) < other.ToSingle(null);
 		}
+
 		if (targetType == typeof(ulong))
 		{
 			return ToUInt64(null) < other.ToUInt64(null);
 		}
+
 		if (targetType == typeof(long))
 		{
 			return ToInt64(null) < other.ToInt64(null);
 		}
+
 		if (targetType == typeof(uint))
 		{
 			return ToUInt32(null) < other.ToUInt32(null);
 		}
+
 		if (targetType == typeof(int))
 		{
 			return ToInt32(null) < other.ToInt32(null);
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return ToUInt16(null) < other.ToUInt16(null);
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return ToInt16(null) < other.ToInt16(null);
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return ToByte(null) < other.ToByte(null);
 		}
+
 		if (targetType == typeof(sbyte))
 		{
 			return ToSByte(null) < other.ToSByte(null);
 		}
-		throw new InvalidCastException($"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
+
+		throw new InvalidCastException(
+			$"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
 	}
 
 	/// <summary>
@@ -1462,53 +1617,65 @@ public readonly struct Number :
 		}
 
 		var targetType = _value.GetType();
+
 		if (targetType == typeof(decimal))
 		{
 			return ToDecimal(null) == other.ToDecimal(null);
 		}
+
 		if (targetType == typeof(double))
 		{
 			return ToDouble(null) == other.ToDouble(null);
 		}
+
 		if (targetType == typeof(float))
 		{
 			return ToSingle(null) == other.ToSingle(null);
 		}
+
 		if (targetType == typeof(ulong))
 		{
 			return ToUInt64(null) == other.ToUInt64(null);
 		}
+
 		if (targetType == typeof(long))
 		{
 			return ToInt64(null) == other.ToInt64(null);
 		}
+
 		if (targetType == typeof(uint))
 		{
 			return ToUInt32(null) == other.ToUInt32(null);
 		}
+
 		if (targetType == typeof(int))
 		{
 			return ToInt32(null) == other.ToInt32(null);
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return ToUInt16(null) == other.ToUInt16(null);
 		}
+
 		if (targetType == typeof(short))
 		{
 			return ToInt16(null) == other.ToInt16(null);
 		}
+
 		if (targetType == typeof(byte))
 		{
 			return ToByte(null) == other.ToByte(null);
 		}
+
 		if (targetType == typeof(sbyte))
 		{
 			return ToSByte(null) == other.ToSByte(null);
 		}
 
 		return false;
-		throw new InvalidCastException($"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
+		throw new InvalidCastException(
+			$"Cannot convert {other._value} ({other._value.GetType()}) or {_value} ({_value.GetType()}) to a numeric type");
 	}
 
 	/// <summary>
@@ -1521,17 +1688,39 @@ public readonly struct Number :
 	{
 		switch (convertable)
 		{
-			case ulong noulong: number = new Number(noulong); return true;
-			case long nolong: number = new Number(nolong); return true;
-			case uint nouint: number = new Number(nouint); return true;
-			case int noint: number = new Number(noint); return true;
-			case ushort noushort: number = new Number(noushort); return true;
-			case short noshort: number = new Number(noshort); return true;
-			case byte nobyte: number = new Number(nobyte); return true;
-			case sbyte nosbyte: number = new Number(nosbyte); return true;
-			case decimal nodecimal: number = new Number(nodecimal); return true;
-			case double nodouble: number = new Number(nodouble); return true;
-			case float nofloat: number = new Number(nofloat); return true;
+			case ulong noulong:
+				number = new Number(noulong);
+				return true;
+			case long nolong:
+				number = new Number(nolong);
+				return true;
+			case uint nouint:
+				number = new Number(nouint);
+				return true;
+			case int noint:
+				number = new Number(noint);
+				return true;
+			case ushort noushort:
+				number = new Number(noushort);
+				return true;
+			case short noshort:
+				number = new Number(noshort);
+				return true;
+			case byte nobyte:
+				number = new Number(nobyte);
+				return true;
+			case sbyte nosbyte:
+				number = new Number(nosbyte);
+				return true;
+			case decimal nodecimal:
+				number = new Number(nodecimal);
+				return true;
+			case double nodouble:
+				number = new Number(nodouble);
+				return true;
+			case float nofloat:
+				number = new Number(nofloat);
+				return true;
 		}
 
 		number = null;
@@ -1569,6 +1758,7 @@ public readonly struct Number :
 			if (input.EndsWith("u", StringComparison.CurrentCultureIgnoreCase))
 			{
 				input = input.TrimEnd('u', 'U');
+
 				//its an unsigned number
 				//evaluate of which type it is
 				if (uint.TryParse(input, NumberStyles.Integer, culture, out var uIntVal))
@@ -1576,16 +1766,19 @@ public readonly struct Number :
 					number = new Number(uIntVal);
 					return true;
 				}
+
 				if (ushort.TryParse(input, NumberStyles.Integer, culture, out var ushortVal))
 				{
 					number = new Number(ushortVal);
 					return true;
 				}
+
 				if (ulong.TryParse(input, NumberStyles.Integer, culture, out var uLongVal))
 				{
 					number = new Number(uLongVal);
 					return true;
 				}
+
 				if (byte.TryParse(input, NumberStyles.Integer, culture, out var byteVal))
 				{
 					number = new Number(byteVal);
@@ -1599,6 +1792,7 @@ public readonly struct Number :
 			if (input.EndsWith("m", StringComparison.CurrentCultureIgnoreCase))
 			{
 				input = input.TrimEnd('m', 'M');
+
 				//its an unsigned number
 				//evaluate of which type it is
 				if (decimal.TryParse(input, NumberStyles.Number, culture, out var uIntVal))
@@ -1617,6 +1811,7 @@ public readonly struct Number :
 				if (input.EndsWith("ul", StringComparison.OrdinalIgnoreCase))
 				{
 					input = input.TrimEnd('u', 'U', 'l', 'L');
+
 					//its unsigned
 					if (ulong.TryParse(input, NumberStyles.Integer, culture, out var uLongVal))
 					{
@@ -1627,7 +1822,9 @@ public readonly struct Number :
 					number = default;
 					return false;
 				}
+
 				input = input.TrimEnd('l', 'L');
+
 				//its signed
 				if (long.TryParse(input, NumberStyles.Integer, culture, out var explLongVal))
 				{
@@ -1643,6 +1840,7 @@ public readonly struct Number :
 			{
 				//its an float
 				input = input.TrimEnd('f', 'F');
+
 				if (float.TryParse(input, NumberStyles.Float | NumberStyles.AllowThousands, culture, out var floatVal))
 				{
 					number = new Number(floatVal);
@@ -1657,7 +1855,9 @@ public readonly struct Number :
 			{
 				//its an float
 				input = input.TrimEnd('d', 'D');
-				if (double.TryParse(input, NumberStyles.Float | NumberStyles.AllowThousands, culture, out var doubleVal))
+
+				if (double.TryParse(input, NumberStyles.Float | NumberStyles.AllowThousands, culture,
+						out var doubleVal))
 				{
 					number = new Number(doubleVal);
 					return true;
@@ -1671,6 +1871,7 @@ public readonly struct Number :
 		if (input.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
 		{
 			input = input.TrimStart('0', 'x', 'X');
+
 			if (int.TryParse(input, NumberStyles.HexNumber, culture, out var hexIntVal))
 			{
 				number = new Number(hexIntVal);
@@ -1680,12 +1881,14 @@ public readonly struct Number :
 			number = default;
 			return false;
 		}
+
 		//we start with parsing an int as its the default for any number in msbuild
 		if (int.TryParse(input, NumberStyles.Integer, culture, out var intVal))
 		{
 			number = new Number(intVal);
 			return true;
 		}
+
 		//if its bigger then an int it is most likely an long
 		if (long.TryParse(input, NumberStyles.Integer, culture, out var longVal))
 		{
@@ -1708,16 +1911,19 @@ public readonly struct Number :
 			number = new Number(impliDoubleVal);
 			return true;
 		}
+
 		if (sbyte.TryParse(input, NumberStyles.Integer, culture, out var sByteVal))
 		{
 			number = new Number(sByteVal);
 			return true;
 		}
+
 		if (ushort.TryParse(input, NumberStyles.Integer, culture, out var shortVal))
 		{
 			number = new Number(shortVal);
 			return true;
 		}
+
 		if (decimal.TryParse(input, NumberStyles.Number, culture, out var decimalVal))
 		{
 			number = new Number(decimalVal);
@@ -1735,46 +1941,57 @@ public readonly struct Number :
 	public string AsParsableString()
 	{
 		var targetType = _value.GetType();
+
 		if (targetType == typeof(decimal))
 		{
 			return _value + "M";
 		}
+
 		if (targetType == typeof(double))
 		{
 			return _value + "D";
 		}
+
 		if (targetType == typeof(float))
 		{
 			return _value + "F";
 		}
+
 		if (targetType == typeof(ulong))
 		{
 			return _value + "UL";
 		}
+
 		if (targetType == typeof(long))
 		{
 			return _value + "L";
 		}
+
 		if (targetType == typeof(uint))
 		{
 			return _value + "U";
 		}
+
 		if (targetType == typeof(int))
 		{
 			return _value.ToString(null);
 		}
+
 		if (targetType == typeof(ushort))
 		{
 			return _value.ToString(null) + "U";
 		}
+
 		if (targetType == typeof(short))
 		{
 			return _value.ToString(null);
 		}
+
 		if (targetType == typeof(byte))
 		{
 			return "0x" + _value;
 		}
+
 		if (targetType == typeof(sbyte))
 		{
 			return "0x" + _value + "u";
@@ -1957,6 +2174,7 @@ public readonly struct Number :
 		{
 			return realVal;
 		}
+
 		return _value.ToChar(provider);
 	}
 
@@ -1967,6 +2185,7 @@ public readonly struct Number :
 		{
 			return realVal;
 		}
+
 		return _value.ToSByte(provider);
 	}
 
@@ -1977,6 +2196,7 @@ public readonly struct Number :
 		{
 			return realVal;
 		}
+
 		return _value.ToByte(provider);
 	}
 
@@ -1987,6 +2207,7 @@ public readonly struct Number :
 		{
 			return realVal;
 		}
+
 		return _value.ToInt16(provider);
 	}
 
@@ -1997,6 +2218,7 @@ public readonly struct Number :
 		{
 			return realVal;
 		}
+
 		return _value.ToUInt16(provider);
 	}
 
@@ -2007,6 +2229,7 @@ public readonly struct Number :
 		{
 			return realVal;
 		}
+
 		return _value.ToInt32(provider);
 	}
 
@@ -2017,6 +2240,7 @@ public readonly struct Number :
 		{
 			return realVal;
 		}
+
 		return _value.ToUInt32(provider);
 	}
 
@@ -2027,6 +2251,7 @@ public readonly struct Number :
 		{
 			return realVal;
 		}
+
 		return _value.ToInt64(provider);
 	}
 
@@ -2037,6 +2262,7 @@ public readonly struct Number :
 		{
 			return realVal;
 		}
+
 		return _value.ToUInt64(provider);
 	}
 
@@ -2047,6 +2273,7 @@ public readonly struct Number :
 		{
 			return realVal;
 		}
+
 		return _value.ToSingle(provider);
 	}
 
@@ -2057,6 +2284,7 @@ public readonly struct Number :
 		{
 			return realVal;
 		}
+
 		return _value.ToDouble(provider);
 	}
 
@@ -2067,6 +2295,7 @@ public readonly struct Number :
 		{
 			return realVal;
 		}
+
 		return _value.ToDecimal(provider);
 	}
 
@@ -2077,6 +2306,7 @@ public readonly struct Number :
 		{
 			return realVal;
 		}
+
 		return _value.ToDateTime(provider);
 	}
 
@@ -2146,7 +2376,7 @@ public readonly struct Number :
 	public static Number operator -(Number a) => a * -1;
 	public static Number operator --(Number a) => a.Subtract(1);
 	public static Number operator <<(Number a, int b) => a.ShiftLeft(b);
-	public static Number operator >>(Number a, int b) => a.ShiftRight(b);
+	public static Number operator >> (Number a, int b) => a.ShiftRight(b);
 	public static bool operator ==(Number a, Number b) => a.Equals(b);
 	public static bool operator !=(Number a, Number b) => !a.Equals(b);
 	public static bool operator <(Number a, Number b) => a.LessThen(b);

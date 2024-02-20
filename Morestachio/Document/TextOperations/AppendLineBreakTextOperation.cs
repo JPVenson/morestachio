@@ -65,7 +65,6 @@ public class AppendLineBreakTextOperation : ITextOperation
 	}
 
 
-
 	/// <inheritdoc />
 	public void GetObjectData(SerializationInfo info, StreamingContext context)
 	{

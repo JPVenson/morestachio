@@ -14,7 +14,10 @@ internal class CustomDocumentList : SealableList<CustomDocumentItemProvider>, IC
 	{
 		return this.FirstOrDefault(e => e.ShouldTokenize(token));
 	}
-	public virtual CustomDocumentItemProvider FindTokenProvider(TokenPair currentToken, ParserOptions options, IEnumerable<ITokenOption> tokenOptions)
+
+	public virtual CustomDocumentItemProvider FindTokenProvider(TokenPair currentToken,
+																ParserOptions options,
+																IEnumerable<ITokenOption> tokenOptions)
 	{
 		return this.FirstOrDefault(e => e.ShouldParse(currentToken, options, tokenOptions));
 	}
@@ -33,5 +36,7 @@ public interface ICustomDocumentList : ISealed, IList<CustomDocumentItemProvider
 	/// <summary>
 	///		Searches for a provider that can parse a token
 	/// </summary>
-	CustomDocumentItemProvider FindTokenProvider(TokenPair currentToken, ParserOptions options, IEnumerable<ITokenOption> tokenOptions);
+	CustomDocumentItemProvider FindTokenProvider(TokenPair currentToken,
+												ParserOptions options,
+												IEnumerable<ITokenOption> tokenOptions);
 }

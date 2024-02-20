@@ -67,19 +67,19 @@
 //	{
 //		return Snipped.Equals(other.Snipped) && Line == other.Line && Character == other.Character;
 //	}
-		
+
 //	/// <inheritdoc />
 //	public bool Equals(TextRange other)
 //	{
 //		return Line == other.Line && Character == other.Character;
 //	}
-		
+
 //	/// <inheritdoc />
 //	public override bool Equals(object obj)
 //	{
 //		return obj is TextRangeExtended other && Equals(other);
 //	}
-		
+
 //	/// <inheritdoc />
 //	public override int GetHashCode()
 //	{
@@ -89,3 +89,4 @@
 //		}
 //	}
 //}
+

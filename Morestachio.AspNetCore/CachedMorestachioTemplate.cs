@@ -17,7 +17,7 @@ namespace Morestachio.AspNetCore
 
 		public bool CacheData { get; set; }
 		private IMorestachioDataCache<object, MorestachioDataCache.DataCacheKey> _dataCache;
-		
+
 		public override async ValueTask<IRenderer> GetTemplate(HttpContext context)
 		{
 			if (CacheTemplate)
@@ -33,7 +33,8 @@ namespace Morestachio.AspNetCore
 			if (CacheData)
 			{
 				return _dataCache
-					.GetCache(new MorestachioDataCache.DataCacheKey(context.Request.Path, context.Request.Query.ToArray()), 
+					.GetCache(
+						new MorestachioDataCache.DataCacheKey(context.Request.Path, context.Request.Query.ToArray()),
 						async key => await base.GetData(context));
 			}
 

@@ -176,7 +176,8 @@ public static class LinqFormatter
 		return sourceCollection.Max();
 	}
 
-	[MorestachioFormatter("Aggregate", "Joins the element of a list separated by a delimiter string and return the concatenated string.")]
+	[MorestachioFormatter("Aggregate",
+		"Joins the element of a list separated by a delimiter string and return the concatenated string.")]
 	public static string Aggregate<T>(IEnumerable<T> sourceCollection, string delimiter)
 	{
 		return string.Join(delimiter, sourceCollection.Select(f => f.ToString()));
@@ -193,6 +194,7 @@ public static class LinqFormatter
 	public static IEnumerable<List<T>> Partition<T>(IEnumerable<T> source, Number size)
 	{
 		IList<T> target;
+
 		if (source is IList<T>)
 		{
 			target = source as IList<T>;
@@ -252,12 +254,13 @@ public static class LinqFormatter
 		return items.Select(expression.AsFunc<T, TE>()).ToArray();
 	}
 
-	[MorestachioFormatter("SelectMany", "Selects a list of items from the collection based on the predicate and flattens them")]
+	[MorestachioFormatter("SelectMany",
+		"Selects a list of items from the collection based on the predicate and flattens them")]
 	public static IEnumerable<TE> SelectMany<T, TE>(IEnumerable<T> items, MorestachioTemplateExpression expression)
 	{
 		return items.SelectMany(expression.AsFunc<T, IEnumerable<TE>>()).ToArray();
 	}
-	
+
 	[MorestachioFormatter("OrderBy", "Orders the list descending")]
 	public static IEnumerable<T> OrderBy<T>(IEnumerable<T> items, MorestachioTemplateExpression expression)
 	{
@@ -283,7 +286,8 @@ public static class LinqFormatter
 	}
 
 	[MorestachioFormatter("GroupBy", "Groups a list")]
-	public static IEnumerable<IGrouping<TE, T>> GroupBy<T, TE>(IEnumerable<T> items, MorestachioTemplateExpression expression)
+	public static IEnumerable<IGrouping<TE, T>> GroupBy<T, TE>(IEnumerable<T> items,
+																MorestachioTemplateExpression expression)
 	{
 		return items.GroupBy(expression.AsFunc<T, TE>()).ToArray();
 	}

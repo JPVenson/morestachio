@@ -62,7 +62,8 @@ public class EachDocumentItem : BlockExpressionDocumentItemBase, ISupportCustomA
 			await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false)
 			, scopeData, async itemContext =>
 			{
-				await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, itemContext, scopeData).ConfigureAwait(false);
+				await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, itemContext, scopeData)
+					.ConfigureAwait(false);
 				//contexts.AddRange(Children.WithScope(itemContext));
 			}).ConfigureAwait(false);
 		return Enumerable.Empty<DocumentItemExecution>();
@@ -90,11 +91,11 @@ public class EachDocumentItem : BlockExpressionDocumentItemBase, ISupportCustomA
 				parent = parent.Parent;
 			}
 
-			throw new IndexedParseException(Location, 
+			throw new IndexedParseException(Location,
 				string.Format(
 					"{1}'{0}' is used like an array by the template, but is a scalar value or object in your model." +
 					" Complete Expression until Error:{2}",
-					MorestachioExpression.AsStringExpression(), 
+					MorestachioExpression.AsStringExpression(),
 					Location,
 					(path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 		}
@@ -206,11 +207,14 @@ public class EachDocumentItem : BlockExpressionDocumentItemBase, ISupportCustomA
 	public override void ReportUsage(UsageData data)
 	{
 		var dataScope = data.AddAndScopeTo(MorestachioExpression.GetInferedExpressionUsage(data));
-		var arrScope = data.AddAndScopeTo(new UsageDataItem(string.Empty, UsageDataItemTypes.ArrayAccess, data.CurrentPath));
+		var arrScope
+			= data.AddAndScopeTo(new UsageDataItem(string.Empty, UsageDataItemTypes.ArrayAccess, data.CurrentPath));
+
 		foreach (var usage in Children.OfType<IReportUsage>())
 		{
 			usage.ReportUsage(data);
 		}
+
 		data.PopScope(arrScope);
 		data.PopScope(dataScope);
 	}

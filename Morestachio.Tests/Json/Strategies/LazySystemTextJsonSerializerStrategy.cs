@@ -1,5 +1,4 @@
-﻿
-#if LastestNet
+﻿#if LastestNet
 using System.Text.Json;
 using Morestachio.System.Text.Json;
 

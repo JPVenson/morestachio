@@ -11,7 +11,8 @@ public class MorestachioParentPathExpressionBuilder : MorestachioExpressionBuild
 {
 	private readonly MorestachioExpression _morestachioExpression;
 
-	internal MorestachioParentPathExpressionBuilder(IList<IMorestachioExpression> expressionParts, in int column,
+	internal MorestachioParentPathExpressionBuilder(IList<IMorestachioExpression> expressionParts,
+													in int column,
 													MorestachioExpression morestachioExpression)
 	{
 		_morestachioExpression = morestachioExpression;

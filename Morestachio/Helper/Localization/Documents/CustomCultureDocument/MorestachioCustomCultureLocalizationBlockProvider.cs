@@ -34,11 +34,14 @@ public class MorestachioCustomCultureLocalizationBlockProvider : BlockDocumentIt
 	public override IEnumerable<TokenPair> Tokenize(TokenInfo token, ParserOptions options)
 	{
 		var trim = token.Token;
+
 		if (trim.StartsWith(TagOpen, StringComparison.OrdinalIgnoreCase))
 		{
 			yield return new TokenPair(TagOpen.Trim(), token.Location,
-				ExpressionParser.ParseExpression(trim.Remove(0, OpenTag.Length).Trim(), token.TokenizerContext).Expression);
+				ExpressionParser.ParseExpression(trim.Remove(0, OpenTag.Length).Trim(), token.TokenizerContext)
+					.Expression);
 		}
+
 		if (string.Equals(trim, TagClose, StringComparison.OrdinalIgnoreCase))
 		{
 			yield return new TokenPair(TagClose, trim, token.Location);
@@ -46,8 +49,11 @@ public class MorestachioCustomCultureLocalizationBlockProvider : BlockDocumentIt
 	}
 
 	/// <inheritdoc />
-	public override IBlockDocumentItem CreateDocumentItem(string tag, string value, TokenPair token,
-														ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions)
+	public override IBlockDocumentItem CreateDocumentItem(string tag,
+														string value,
+														TokenPair token,
+														ParserOptions options,
+														IEnumerable<ITokenOption> tagCreationOptions)
 	{
 		return new MorestachioCustomCultureLocalizationDocumentItem(token.TokenRange,
 			token.MorestachioExpression,

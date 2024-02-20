@@ -14,8 +14,8 @@ public static class TextRangeSerializationHelper
 		var text = reader.GetAttribute(name);
 
 		var ranges = text.Split('|')
-						.Select(f => f.Split(':').ToArray())
-						.ToArray();
+			.Select(f => f.Split(':').ToArray())
+			.ToArray();
 
 		return new TextRange(BuildIndex(ranges[0]), BuildIndex(ranges[1]));
 	}
@@ -82,7 +82,6 @@ public static class TextRangeSerializationHelper
 	{
 		public TextIndexFassade()
 		{
-
 		}
 
 		public TextIndexFassade(SerializationInfo serializationInfo, StreamingContext context)
@@ -91,6 +90,7 @@ public static class TextRangeSerializationHelper
 			Row = serializationInfo.GetInt32(nameof(Row));
 			Column = serializationInfo.GetInt32(nameof(Column));
 		}
+
 		public int Index { get; set; }
 		public int Row { get; set; }
 		public int Column { get; set; }
@@ -114,7 +114,10 @@ public static class TextRangeSerializationHelper
 		return info.GetValueOrDefault<TextRangeFassade>(c, name ?? nameof(TextRange))?.AsRange() ?? default;
 	}
 
-	public static void WriteTextRangeToBinary(string name, SerializationInfo info, StreamingContext context, TextRange textRange)
+	public static void WriteTextRangeToBinary(string name,
+											SerializationInfo info,
+											StreamingContext context,
+											TextRange textRange)
 	{
 		var textRangeFassade = new TextRangeFassade()
 		{

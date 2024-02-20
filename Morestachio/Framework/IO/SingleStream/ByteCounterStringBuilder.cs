@@ -46,7 +46,6 @@ public class ByteCounterStringBuilder : IByteCounterStream
 	/// <inheritdoc />
 	public void Dispose()
 	{
-
 	}
 
 	/// <inheritdoc />
@@ -57,6 +56,7 @@ public class ByteCounterStringBuilder : IByteCounterStream
 
 	/// <inheritdoc />
 	public long BytesWritten { get; private set; }
+
 	/// <inheritdoc />
 	public bool ReachedLimit { get; private set; }
 
@@ -77,6 +77,7 @@ public class ByteCounterStringBuilder : IByteCounterStream
 		}
 
 		var sourceCount = BytesWritten;
+
 		if (sourceCount >= Options.MaxSize - 1)
 		{
 			ReachedLimit = true;
@@ -87,6 +88,7 @@ public class ByteCounterStringBuilder : IByteCounterStream
 		var bl = Options.Encoding.GetByteCount(content);
 
 		var overflow = sourceCount + bl - Options.MaxSize;
+
 		if (overflow <= 0)
 		{
 			BytesWritten += bl;
@@ -130,6 +132,7 @@ public class ByteCounterStringBuilder : IByteCounterStream
 		var cl = Options.Encoding.GetByteCount(contentOrNull);
 
 		var overflow = sourceCount + cl - Options.MaxSize;
+
 		if (overflow <= 0)
 		{
 			BytesWritten += cl;

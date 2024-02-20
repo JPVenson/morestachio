@@ -25,6 +25,7 @@ public class MorestachioErrorCollection : ICollection<IMorestachioError>
 	public string GetErrorText()
 	{
 		var sb = new StringBuilder();
+
 		foreach (var err in this)
 		{
 			err.Format(sb);
@@ -33,19 +34,19 @@ public class MorestachioErrorCollection : ICollection<IMorestachioError>
 
 		return sb.ToString();
 	}
-		
+
 	/// <inheritdoc />
 	public IEnumerator<IMorestachioError> GetEnumerator()
 	{
 		return _base.GetEnumerator();
 	}
-		
+
 	/// <inheritdoc />
 	IEnumerator IEnumerable.GetEnumerator()
 	{
-		return ((IEnumerable) _base).GetEnumerator();
+		return ((IEnumerable)_base).GetEnumerator();
 	}
-		
+
 	/// <inheritdoc />
 	public void Add(IMorestachioError item)
 	{
@@ -54,37 +55,37 @@ public class MorestachioErrorCollection : ICollection<IMorestachioError>
 		//#endif
 		_base.Add(item);
 	}
-		
+
 	/// <inheritdoc />
 	public void Clear()
 	{
 		_base.Clear();
 	}
-		
+
 	/// <inheritdoc />
 	public bool Contains(IMorestachioError item)
 	{
 		return _base.Contains(item);
 	}
-		
+
 	/// <inheritdoc />
 	public void CopyTo(IMorestachioError[] array, int arrayIndex)
 	{
 		_base.CopyTo(array, arrayIndex);
 	}
-		
+
 	/// <inheritdoc />
 	public bool Remove(IMorestachioError item)
 	{
 		return _base.Remove(item);
 	}
-		
+
 	/// <inheritdoc />
 	public int Count
 	{
 		get { return _base.Count; }
 	}
-		
+
 	/// <inheritdoc />
 	public bool IsReadOnly
 	{

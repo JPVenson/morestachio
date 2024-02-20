@@ -27,7 +27,8 @@ namespace Morestachio.Tests.FormatterFunctionTests
 			var template = @"{{#VAR result = " + expression + "}}";
 
 			await ParserFixture.CreateAndParseWithOptions(template, source,
-				ParserOptionTypes.NoRerenderingTest | ParserOptionTypes.UseOnDemandCompile, e => { return e.WithValueResolver(new FieldValueResolver()); },
+				ParserOptionTypes.NoRerenderingTest | ParserOptionTypes.UseOnDemandCompile,
+				e => { return e.WithValueResolver(new FieldValueResolver()); },
 				e => { e.CaptureVariables = true; },
 				e =>
 				{

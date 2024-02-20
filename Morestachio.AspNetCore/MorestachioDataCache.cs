@@ -38,7 +38,8 @@ namespace Morestachio.AspNetCore
 			public override int GetHashCode()
 			{
 				return HashCode.Combine(Path, Query.Any()
-					? Query.Select(f => HashCode.Combine(f.Key, f.Value)).Aggregate((e, f) => e + f) : 0);
+					? Query.Select(f => HashCode.Combine(f.Key, f.Value)).Aggregate((e, f) => e + f)
+					: 0);
 			}
 		}
 

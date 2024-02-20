@@ -20,12 +20,14 @@ internal class PathTokenizer
 	}
 
 	private PathPartsCollection PathParts { get; set; }
+
 	internal class PathPartsCollection
 	{
 		public PathPartsCollection()
 		{
 			_parts = new List<KeyValuePair<string, PathType>>();
 		}
+
 		private IList<KeyValuePair<string, PathType>> _parts;
 
 		public KeyValuePair<string, PathType>? Last
@@ -70,11 +72,14 @@ internal class PathTokenizer
 			{
 				_many = true;
 			}
+
 			_any = true;
+
 			if (_last != null)
 			{
 				_parts.Add(_last.Value);
 			}
+
 			_last = new KeyValuePair<string, PathType>(value, part);
 		}
 
@@ -167,11 +172,13 @@ internal class PathTokenizer
 
 					return false;
 				}
+
 				errProducer = null;
 				PathParts.Add(null, PathType.ParentSelector);
 				_currentPart.Clear();
 				return true;
 			}
+
 			var errText = _currentPart.ToString();
 			errProducer = (range) => new InvalidPathSyntaxError(range,
 				errText,
@@ -191,7 +198,7 @@ internal class PathTokenizer
 
 				return false;
 			}
-				
+
 			errProducer = null;
 			PathParts.Add(null, PathType.RootSelector);
 			_currentPart.Clear();
@@ -202,10 +209,12 @@ internal class PathTokenizer
 		if (c == '?')
 		{
 			errProducer = null;
+
 			if (!LastCharWasDelimiter)
 			{
 				return false;
 			}
+
 			PathParts.Add(null, PathType.ObjectSelector);
 			_currentPart.Clear();
 			return true;
@@ -217,6 +226,7 @@ internal class PathTokenizer
 			//so ignore the dot
 			_currentPart.Clear();
 		}
+
 		LastCharWasDelimiter = c == '.';
 
 		if (_currentPart.Length > 0 && !PartEquals('.') && c == '.')
@@ -225,14 +235,14 @@ internal class PathTokenizer
 			{
 				return false;
 			}
-				
+
 			_currentPart.Clear();
 		}
 		else
 		{
 			_currentPart.Append(c);
 		}
-			
+
 		errProducer = null;
 		return true;
 	}
@@ -241,6 +251,7 @@ internal class PathTokenizer
 	{
 		errProducer = null;
 		var checkPathPart = CheckPathPart();
+
 		if (checkPathPart != -1)
 		{
 			var text = _currentPart.ToString();
@@ -263,6 +274,7 @@ internal class PathTokenizer
 
 				return false;
 			}
+
 			PathParts.Add(null, PathType.Null);
 			return true;
 		}
@@ -279,6 +291,7 @@ internal class PathTokenizer
 
 				return false;
 			}
+
 			PathParts.Add(null, PathType.ThisPath);
 			return true;
 		}
@@ -295,6 +308,7 @@ internal class PathTokenizer
 
 				return false;
 			}
+
 			PathParts.Add(null, PathType.SelfAssignment);
 			return true;
 		}
@@ -315,21 +329,25 @@ internal class PathTokenizer
 			PathParts.Add(_currentPart.ToString(), PathType.Boolean);
 			return true;
 		}
+
 		if (PartEquals("../"))
 		{
 			PathParts.Add(null, PathType.ParentSelector);
 			return true;
 		}
+
 		if (PartEquals('~'))
 		{
 			PathParts.Add(null, PathType.RootSelector);
 			return true;
 		}
+
 		if (PartEquals('?'))
 		{
 			PathParts.Add(null, PathType.ObjectSelector);
 			return true;
 		}
+
 		PathParts.Add(_currentPart.ToString(), PathType.DataPath);
 		return true;
 	}
@@ -337,6 +355,7 @@ internal class PathTokenizer
 	private int CheckPathPart()
 	{
 		var offset = 0;
+
 		if (PartStartsWith('$') && !PartEquals('$'))
 		{
 			offset = 1;
@@ -348,6 +367,7 @@ internal class PathTokenizer
 			{
 				return -1;
 			}
+
 			if (PartEquals('.', offset))
 			{
 				return -1;
@@ -355,10 +375,12 @@ internal class PathTokenizer
 
 			return 0;
 		}
+
 		if (PartEquals('~', offset))
 		{
 			return -1;
 		}
+
 		if (PartEquals('?', offset))
 		{
 			return -1;
@@ -396,6 +418,7 @@ internal class PathTokenizer
 			PathParts.Add(last.Value.Key, last.Value.Value);
 			return string.Empty;
 		}
+
 		return last.Value.Key;
 	}
 
@@ -409,6 +432,7 @@ internal class PathTokenizer
 	{
 		var last = CompileCurrent(context, index);
 		StringBuilderCache.Release(_currentPart);
+
 		if (last == null)
 		{
 			return PathParts.GetList();
@@ -418,6 +442,7 @@ internal class PathTokenizer
 		{
 			PathParts.Add(last.Value.Key, last.Value.Value);
 		}
+
 		return PathParts.GetList();
 	}
 
@@ -464,7 +489,7 @@ internal class PathTokenizer
 			_currentPart.Clear();
 			return pathPartsLast;
 		}
-			
+
 		var errText = _currentPart.ToString();
 		context.Errors.Add(
 			new InvalidPathSyntaxError(TextRange.Range(context, index, 1),

@@ -24,9 +24,12 @@ public class PropertyMorestachioExpressionBuilder : MorestachioExpressionBuilder
 	/// <param name="functionName"></param>
 	/// <param name="arguments"></param>
 	/// <returns></returns>
-	public PropertyMorestachioExpressionBuilder Call(string functionName, Func<MorestachioArgumentExpressionBuilder, MorestachioArgumentExpressionBuilder> arguments = null)
+	public PropertyMorestachioExpressionBuilder Call(string functionName,
+													Func<MorestachioArgumentExpressionBuilder,
+														MorestachioArgumentExpressionBuilder> arguments = null)
 	{
 		MorestachioExpression targetExpression;
+
 		if (ExpressionParts.LastOrDefault() is MorestachioExpression exp && exp.FormatterName == null)
 		{
 			exp.FormatterName = functionName;

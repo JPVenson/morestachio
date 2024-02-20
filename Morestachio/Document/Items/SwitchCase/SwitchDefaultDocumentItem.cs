@@ -21,7 +21,6 @@ public class SwitchDefaultDocumentItem : BlockDocumentItemBase
 	/// </summary>
 	internal SwitchDefaultDocumentItem()
 	{
-
 	}
 
 	/// <summary>
@@ -30,20 +29,21 @@ public class SwitchDefaultDocumentItem : BlockDocumentItemBase
 	public SwitchDefaultDocumentItem(TextRange location,
 									IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
 	{
-
 	}
-		
+
 	/// <inheritdoc />
 	protected SwitchDefaultDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
 	}
-		
+
 	/// <inheritdoc />
-	public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+	public override ItemExecutionPromise Render(IByteCounterStream outputStream,
+												ContextObject context,
+												ScopeData scopeData)
 	{
 		return Children.WithScope(context).ToPromise();
 	}
-		
+
 	/// <inheritdoc />
 	public override void Accept(IDocumentItemVisitor visitor)
 	{

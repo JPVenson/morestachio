@@ -11,7 +11,8 @@ namespace Morestachio.Configuration.Transform
 		/// </summary>
 		/// <param name="section"></param>
 		/// <param name="options"></param>
-		public MorestachioConfigSection(IConfigurationSection section, MorestachioConfigOptions options) : base(section, options)
+		public MorestachioConfigSection(IConfigurationSection section, MorestachioConfigOptions options) : base(section,
+			options)
 		{
 			_section = section;
 		}

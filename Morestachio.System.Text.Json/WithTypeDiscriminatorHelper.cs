@@ -36,7 +36,10 @@ public static class WithTypeDiscriminatorHelper<TObject>
 	/// <param name="produceAbsoluteType"></param>
 	/// <returns></returns>
 	/// <exception cref="JsonException"></exception>
-	public static TObject Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options, Func<string, Type> produceAbsoluteType)
+	public static TObject Read(ref Utf8JsonReader reader,
+								Type typeToConvert,
+								JsonSerializerOptions options,
+								Func<string, Type> produceAbsoluteType)
 	{
 		var serializationInfo = GetSerializationInfoFromJson(ref reader, options);
 		var typeName = serializationInfo.serializationInfo.GetString(TypePropertyName);
@@ -58,7 +61,9 @@ public static class WithTypeDiscriminatorHelper<TObject>
 	/// <param name="serializationInfo"></param>
 	/// <param name="documentType"></param>
 	/// <returns></returns>
-	public static TObject ConstructFromSerializationInfo((SerializationInfo serializationInfo, StreamingContext streamingContext) serializationInfo, Type documentType)
+	public static TObject ConstructFromSerializationInfo(
+		(SerializationInfo serializationInfo, StreamingContext streamingContext) serializationInfo,
+		Type documentType)
 	{
 		var parameter = new object[]
 		{
@@ -77,7 +82,8 @@ public static class WithTypeDiscriminatorHelper<TObject>
 
 		if (ctor == null)
 		{
-			throw new JsonException($"To deserialize {documentType} the object must have a public or protected constructor that takes an {typeof(SerializationInfo)} and {typeof(StreamingContext)}");
+			throw new JsonException(
+				$"To deserialize {documentType} the object must have a public or protected constructor that takes an {typeof(SerializationInfo)} and {typeof(StreamingContext)}");
 		}
 
 		return (TObject)ctor.Invoke(parameter);
@@ -90,7 +96,9 @@ public static class WithTypeDiscriminatorHelper<TObject>
 	/// <param name="options"></param>
 	/// <returns></returns>
 	/// <exception cref="JsonException"></exception>
-	public static (SerializationInfo serializationInfo, StreamingContext streamingContext) GetSerializationInfoFromJson(ref Utf8JsonReader reader, JsonSerializerOptions options)
+	public static (SerializationInfo serializationInfo, StreamingContext streamingContext) GetSerializationInfoFromJson(
+		ref Utf8JsonReader reader,
+		JsonSerializerOptions options)
 	{
 		var jsonTypeFormatter = new JsonTypeFormatter(options);
 		var serializationInfo = new SerializationInfo(typeof(object), jsonTypeFormatter);
@@ -113,12 +121,15 @@ public static class WithTypeDiscriminatorHelper<TObject>
 			{
 				throw new JsonException("Expected to read a property name but got null");
 			}
+
 			reader.Read();
 			var value = JsonElement.ParseValue(ref reader);
 			serializationInfo.AddValue(name, value);
 		}
 
-		return (serializationInfo, new StreamingContext(StreamingContextStates.All, new MorestachioSerializationContext(jsonTypeFormatter)));
+		return (serializationInfo,
+				new StreamingContext(StreamingContextStates.All,
+					new MorestachioSerializationContext(jsonTypeFormatter)));
 	}
 
 	/// <summary>
@@ -150,6 +161,7 @@ public static class WithTypeDiscriminatorHelper<TObject>
 		{
 			throw new JsonException($"Expected type '{typeof(TObject)}' to implement '{typeof(ISerializable)}'");
 		}
+
 		var serializationInfo = new SerializationInfo(value.GetType(), new FormatterConverter());
 		serializable.GetObjectData(serializationInfo, new StreamingContext());
 		var values = serializationInfo.GetEnumerator();
@@ -158,7 +170,7 @@ public static class WithTypeDiscriminatorHelper<TObject>
 		{
 			var current = values.Current;
 
-			if (current.Value is null || current.Value is IList { Count: 0 } or Array { Length: 0 } 
+			if (current.Value is null || current.Value is IList { Count: 0 } or Array { Length: 0 }
 				&& options.DefaultIgnoreCondition is not JsonIgnoreCondition.Never)
 			{
 				continue;

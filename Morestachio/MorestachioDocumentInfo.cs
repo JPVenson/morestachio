@@ -23,10 +23,11 @@ public class MorestachioDocumentInfo
 	public MorestachioDocumentInfo(ParserOptions options, IDocumentItem document)
 		: this(options, document ?? throw new ArgumentNullException(nameof(document)), null)
 	{
-
 	}
 
-	internal MorestachioDocumentInfo(ParserOptions options, IDocumentItem document, IEnumerable<IMorestachioError> errors)
+	internal MorestachioDocumentInfo(ParserOptions options,
+									IDocumentItem document,
+									IEnumerable<IMorestachioError> errors)
 	{
 		ParserOptions = options ?? throw new ArgumentNullException(nameof(options));
 		Document = document;
@@ -63,8 +64,11 @@ public class MorestachioDocumentInfo
 	{
 		if (Errors.Any())
 		{
-			throw new AggregateException("You cannot access this Template as there are one or more Errors. See Inner Exception for more infos.", Errors.Select(e => e.GetException())).Flatten();
+			throw new AggregateException(
+				"You cannot access this Template as there are one or more Errors. See Inner Exception for more infos.",
+				Errors.Select(e => e.GetException())).Flatten();
 		}
+
 		return new MorestachioDocumentFluentApi(this);
 	}
 
@@ -76,8 +80,11 @@ public class MorestachioDocumentInfo
 	{
 		if (Errors.Any())
 		{
-			throw new AggregateException("You cannot Render this Template as there are one or more Errors. See Inner Exception for more infos.", Errors.Select(e => e.GetException())).Flatten();
+			throw new AggregateException(
+				"You cannot Render this Template as there are one or more Errors. See Inner Exception for more infos.",
+				Errors.Select(e => e.GetException())).Flatten();
 		}
+
 		return new Renderer(Document, ParserOptions, CaptureVariables);
 	}
 
@@ -89,8 +96,11 @@ public class MorestachioDocumentInfo
 	{
 		if (Errors.Any())
 		{
-			throw new AggregateException("You cannot Render this Template as there are one or more Errors. See Inner Exception for more infos.", Errors.Select(e => e.GetException())).Flatten();
+			throw new AggregateException(
+				"You cannot Render this Template as there are one or more Errors. See Inner Exception for more infos.",
+				Errors.Select(e => e.GetException())).Flatten();
 		}
+
 		return new CompiledRenderer(Document, ParserOptions, CaptureVariables, compiler ?? new DocumentCompiler());
 	}
 

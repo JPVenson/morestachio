@@ -34,7 +34,7 @@ namespace Morestachio.Benchmark.PerfMethodCall
 		{
 			var argsParam = Expression.Parameter(typeof(object[]), "args");
 			var instParam = Expression.Parameter(typeof(object), "instance");
-			
+
 			var parameterInfos = method.GetParameters();
 
 			Expression body = Expression.Call(Expression.Convert(instParam, method.DeclaringType), method,
@@ -46,7 +46,7 @@ namespace Morestachio.Benchmark.PerfMethodCall
 			{
 				body = body.Reduce();
 			}
-			
+
 			return Expression.Lambda<Func<object, object[], object>>(body, true, instParam, argsParam).Compile();
 		}
 

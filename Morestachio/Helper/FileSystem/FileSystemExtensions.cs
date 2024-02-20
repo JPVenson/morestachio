@@ -10,15 +10,16 @@ public static class FileSystemExtensions
 	/// </summary>
 	/// <param name="options"></param>
 	/// <param name="config"></param>
-	public static IParserOptionsBuilder WithFileSystem(this IParserOptionsBuilder options, Func<FileSystemService> config)
+	public static IParserOptionsBuilder WithFileSystem(this IParserOptionsBuilder options,
+														Func<FileSystemService> config)
 	{
 		var fs = config();
 
 		return options
-				.WithConstant("FileSystem", fs)
-				.WithService(fs)
-				.WithFormatters<FileSystemService>()
-				.WithFormatters<FileSystemFileService>();
+			.WithConstant("FileSystem", fs)
+			.WithService(fs)
+			.WithFormatters<FileSystemService>()
+			.WithFormatters<FileSystemFileService>();
 	}
 
 	/// <summary>

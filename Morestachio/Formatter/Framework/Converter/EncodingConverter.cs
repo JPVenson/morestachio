@@ -15,7 +15,7 @@ public class EncodingConverter : IFormatterValueConverter
 		return (sourceType == typeof(string) || sourceType == typeof(Encoding))
 			&& requestedType == typeof(Encoding);
 	}
-		
+
 	/// <inheritdoc />
 	public object Convert(object value, Type requestedType)
 	{

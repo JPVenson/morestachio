@@ -24,13 +24,16 @@ namespace Morestachio.Tests
 		{
 			_opts = opts;
 		}
-		
-		[Test]	
+
+		[Test]
 		[TestCase(true, true, "&&", true && true)]
 		[TestCase(true, true, "||", true || true)]
 		[TestCase(true, false, "||", true || false)]
 		[TestCase(true, false, "&&", true && false)]
-		public async Task CanUseBooleanOperationsOnData(object realData, object templateData, string operation, object expected)
+		public async Task CanUseBooleanOperationsOnData(object realData,
+														object templateData,
+														string operation,
+														object expected)
 		{
 			var template = $"{{{{data {operation} templateData}}}}";
 			var data = new

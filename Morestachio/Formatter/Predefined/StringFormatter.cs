@@ -40,7 +40,8 @@ public static class StringFormatter
 		return source;
 	}
 
-	[MorestachioFormatter("CapitalizeWords", "Converts the first character of each word in the passed string to a upper case character.")]
+	[MorestachioFormatter("CapitalizeWords",
+		"Converts the first character of each word in the passed string to a upper case character.")]
 	public static string CapitalizeWords(string source)
 	{
 		return source.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
@@ -48,7 +49,8 @@ public static class StringFormatter
 			.Aggregate((e, f) => e + " " + f);
 	}
 
-	[MorestachioFormatter("Contains", "Returns a boolean indicating whether the input string contains the specified string value.")]
+	[MorestachioFormatter("Contains",
+		"Returns a boolean indicating whether the input string contains the specified string value.")]
 	public static bool Contains(string source, string target)
 	{
 		return source.Contains(target);
@@ -66,13 +68,15 @@ public static class StringFormatter
 		return source.ToUpper(options.CultureInfo);
 	}
 
-	[MorestachioFormatter("EndsWith", "Returns a boolean indicating whether the input string ends with the specified string value.")]
+	[MorestachioFormatter("EndsWith",
+		"Returns a boolean indicating whether the input string ends with the specified string value.")]
 	public static bool EndsWith(string source, string target)
 	{
 		return source.EndsWith(target);
 	}
 
-	[MorestachioFormatter("StartsWith", "Returns a boolean indicating whether the input string starts with the specified string value.")]
+	[MorestachioFormatter("StartsWith",
+		"Returns a boolean indicating whether the input string starts with the specified string value.")]
 	public static bool StartsWith(string source, string target)
 	{
 		return source.StartsWith(target);
@@ -114,7 +118,8 @@ public static class StringFormatter
 		return source.Replace(search, with);
 	}
 
-	[MorestachioFormatter("Substring", "The slice returns a substring, starting at the specified index. An optional second parameter can be passed to specify the length of the substring. If no second parameter is given, a substring with the remaining characters will be returned.")]
+	[MorestachioFormatter("Substring",
+		"The slice returns a substring, starting at the specified index. An optional second parameter can be passed to specify the length of the substring. If no second parameter is given, a substring with the remaining characters will be returned.")]
 	public static string Substring(string source, int start, int count)
 	{
 		if (start > source.Length)
@@ -126,10 +131,12 @@ public static class StringFormatter
 		{
 			count = source.Length - start;
 		}
+
 		return source.Substring(start, count);
 	}
 
-	[MorestachioFormatter("Substring", "The slice returns a substring, starting at the specified index. An optional second parameter can be passed to specify the length of the substring. If no second parameter is given, a substring with the remaining characters will be returned.")]
+	[MorestachioFormatter("Substring",
+		"The slice returns a substring, starting at the specified index. An optional second parameter can be passed to specify the length of the substring. If no second parameter is given, a substring with the remaining characters will be returned.")]
 	public static string Substring(string source, int start)
 	{
 		if (start > source.Length)
@@ -154,54 +161,62 @@ public static class StringFormatter
 	}
 
 #if Span
-		
-		[MorestachioFormatter("Truncate", "Truncates a string down to the number of characters passed as the first parameter. An ellipsis (...) is appended to the truncated string and is included in the character count")]
-		public static ReadOnlyMemory<char> Truncate(ReadOnlyMemory<char> source, int length, string ellipsis = "...")
+
+	[MorestachioFormatter("Truncate",
+		"Truncates a string down to the number of characters passed as the first parameter. An ellipsis (...) is appended to the truncated string and is included in the character count")]
+	public static ReadOnlyMemory<char> Truncate(ReadOnlyMemory<char> source, int length, string ellipsis = "...")
+	{
+		if (source.IsEmpty)
 		{
-			if (source.IsEmpty)
-			{
-				return ReadOnlyMemory<char>.Empty;
-			}
-			ellipsis = ellipsis ?? "...";
-			int lMinusTruncate = length - ellipsis.Length;
-			if (source.Length > length)
-			{
-				var builder = new ValueStringBuilder(length + ellipsis.Length);
-				builder.Append(source[..(lMinusTruncate < 0 ? 0 : lMinusTruncate)].Span);
-				builder.Append(ellipsis);
-				return builder.AsMemory();
-			}
-			return source;
+			return ReadOnlyMemory<char>.Empty;
 		}
+
+		ellipsis = ellipsis ?? "...";
+		int lMinusTruncate = length - ellipsis.Length;
+
+		if (source.Length > length)
+		{
+			var builder = new ValueStringBuilder(length + ellipsis.Length);
+			builder.Append(source[..(lMinusTruncate < 0 ? 0 : lMinusTruncate)].Span);
+			builder.Append(ellipsis);
+			return builder.AsMemory();
+		}
+
+		return source;
+	}
 #endif
 
-	[MorestachioFormatter("Truncate", "Truncates a string down to the number of characters passed as the first parameter. An ellipsis (...) is appended to the truncated string and is included in the character count")]
+	[MorestachioFormatter("Truncate",
+		"Truncates a string down to the number of characters passed as the first parameter. An ellipsis (...) is appended to the truncated string and is included in the character count")]
 	public static string Truncate(string source, int length, string ellipsis = "...")
 	{
 		ellipsis = ellipsis ?? "...";
+
 		if (string.IsNullOrEmpty(source))
 		{
 			return string.Empty;
 		}
+
 		int lMinusTruncate = length - ellipsis.Length;
+
 		if (source.Length > length)
 		{
 #if Span
-				var builder = new ValueStringBuilder(length + ellipsis.Length);
-				builder.Append(source[..(lMinusTruncate < 0 ? 0 : lMinusTruncate)]);
-				builder.Append(ellipsis);
-				return builder.ToString();
+			var builder = new ValueStringBuilder(length + ellipsis.Length);
+			builder.Append(source[..(lMinusTruncate < 0 ? 0 : lMinusTruncate)]);
+			builder.Append(ellipsis);
+			return builder.ToString();
 #else
 			var builder = StringBuilderCache.Acquire(length + ellipsis.Length);
 			builder.Append(source, 0, lMinusTruncate < 0 ? 0 : lMinusTruncate);
 			builder.Append(ellipsis);
 			source = StringBuilderCache.GetStringAndRelease(builder);
 #endif
-
 		}
+
 		return source;
 	}
-		
+
 
 	[MorestachioFormatter("PadLeft", "Pads a string with leading spaces to a specified total length.")]
 	public static string PadLeft(string source, int width)
@@ -215,13 +230,15 @@ public static class StringFormatter
 		return source.PadRight(width);
 	}
 
-	[MorestachioFormatter("ToBase64", "Encodes a string to its Base64 representation the encoding will be the same as the template")]
+	[MorestachioFormatter("ToBase64",
+		"Encodes a string to its Base64 representation the encoding will be the same as the template")]
 	public static string ToBase64(string source, [ExternalData] ParserOptions options)
 	{
 		return Convert.ToBase64String(options.Encoding.GetBytes(source ?? string.Empty));
 	}
 
-	[MorestachioFormatter("FromBase64", "Decodes a string from its Base64 representation the decoding is expected be the same as the template")]
+	[MorestachioFormatter("FromBase64",
+		"Decodes a string from its Base64 representation the decoding is expected be the same as the template")]
 	public static string FromBase64(string source, [ExternalData] ParserOptions options)
 	{
 		return options.Encoding.GetString(Convert.FromBase64String(source));

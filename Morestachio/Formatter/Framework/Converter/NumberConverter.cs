@@ -12,7 +12,7 @@ public class NumberConverter : IFormatterValueConverter
 	///		The Instance of this Converter
 	/// </summary>
 	public static readonly IFormatterValueConverter Instance = new NumberConverter();
-		
+
 	/// <inheritdoc />
 	public bool CanConvert(Type sourceType, Type requestedType)
 	{
@@ -24,6 +24,7 @@ public class NumberConverter : IFormatterValueConverter
 				return true;
 			}
 		}
+
 		if (requestedType == typeof(Number))
 		{
 			if (Number.IsFloatingPointNumber(sourceType) ||

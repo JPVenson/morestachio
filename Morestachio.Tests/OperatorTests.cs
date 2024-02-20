@@ -26,14 +26,14 @@ namespace Morestachio.Tests
 			var template = "{{A ?? B}}";
 			var data = new Dictionary<string, object>()
 			{
-				{"A", "VALA"},
-				{"B", "VALB"},
+				{ "A", "VALA" },
+				{ "B", "VALB" },
 			};
 			Assert.That(await ParserFixture.CreateAndParseWithOptions(template, data, _opts), Is.EqualTo(data["A"]));
 			data = new Dictionary<string, object>()
 			{
-				{"A", null},
-				{"B", "VALB"},
+				{ "A", null },
+				{ "B", "VALB" },
 			};
 			Assert.That(await ParserFixture.CreateAndParseWithOptions(template, data, _opts), Is.EqualTo(data["B"]));
 		}
@@ -44,14 +44,14 @@ namespace Morestachio.Tests
 			var template = "{{((A) ?? (B))}}";
 			var data = new Dictionary<string, object>()
 			{
-				{"A", "VALA"},
-				{"B", "VALB"},
+				{ "A", "VALA" },
+				{ "B", "VALB" },
 			};
 			Assert.That(await ParserFixture.CreateAndParseWithOptions(template, data, _opts), Is.EqualTo(data["A"]));
 			data = new Dictionary<string, object>()
 			{
-				{"A", null},
-				{"B", "VALB"},
+				{ "A", null },
+				{ "B", "VALB" },
 			};
 			Assert.That(await ParserFixture.CreateAndParseWithOptions(template, data, _opts), Is.EqualTo(data["B"]));
 		}
@@ -62,8 +62,8 @@ namespace Morestachio.Tests
 			var template = "{{(!A && B).ToString().ToLower()}}";
 			var data = new Dictionary<string, object>()
 			{
-				{"A", false},
-				{"B", true},
+				{ "A", false },
+				{ "B", true },
 			};
 			Assert.That(await ParserFixture.CreateAndParseWithOptions(template, data, _opts), Is.EqualTo("true"));
 		}
@@ -76,10 +76,12 @@ namespace Morestachio.Tests
 		public void TestLambdaCanBeParsed(string expressionText, bool expectError = false)
 		{
 			var exp = ExpressionParser.ParseExpression(expressionText, out var ctx);
+
 			if (expectError)
 			{
 				Assert.That(ctx.Errors.Count, Is.GreaterThan(0));
 			}
+
 			Assert.That(ctx.Errors.Count, Is.EqualTo(0));
 			Assert.That(exp, Is.Not.Null);
 

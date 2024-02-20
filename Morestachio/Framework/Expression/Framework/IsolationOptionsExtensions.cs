@@ -16,6 +16,7 @@ public static class IsolationOptionsExtensions
 	{
 		return (value & flag) != 0;
 	}
+
 	/// <summary>
 	/// 
 	/// </summary>

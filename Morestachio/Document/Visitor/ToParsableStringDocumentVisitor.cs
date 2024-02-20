@@ -46,16 +46,19 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 	{
 		foreach (var textEditDocumentItem in documentItem.Children.OfType<TextEditDocumentItem>()
 					.Where(e => e.EmbeddedInstructionOrigin == EmbeddedInstructionOrigin.Self)
-					.Where(e => e.Operation is TrimLineBreakTextOperation trimOp && trimOp.LineBreakTrimDirection == LineBreakTrimDirection.Begin )
+					.Where(e => e.Operation is TrimLineBreakTextOperation trimOp &&
+						trimOp.LineBreakTrimDirection == LineBreakTrimDirection.Begin)
 				)
 		{
 			Visit(textEditDocumentItem);
 		}
+
 		StringBuilder.Append(documentItem.Value);
-			
+
 		foreach (var textEditDocumentItem in documentItem.Children.OfType<TextEditDocumentItem>()
 					.Where(e => e.EmbeddedInstructionOrigin == EmbeddedInstructionOrigin.Self)
-					.Where(e => e.Operation is TrimLineBreakTextOperation trimOp && trimOp.LineBreakTrimDirection == LineBreakTrimDirection.End)
+					.Where(e => e.Operation is TrimLineBreakTextOperation trimOp &&
+						trimOp.LineBreakTrimDirection == LineBreakTrimDirection.End)
 				)
 		{
 			Visit(textEditDocumentItem);
@@ -85,59 +88,71 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 	/// <param name="documentItem"></param>
 	public void CheckForInlineTagLineBreakAtStart(IDocumentItem documentItem)
 	{
-		if (documentItem.TagCreationOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimLeading")?.Value is bool valSingle && valSingle)
+		if (documentItem.TagCreationOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimLeading")?.Value is bool
+				valSingle && valSingle)
 		{
 			StringBuilder.Append("-| ");
 		}
-		if (documentItem.TagCreationOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimAllLeading")?.Value is bool valAll && valAll)
+
+		if (documentItem.TagCreationOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimAllLeading")?.Value is bool
+				valAll && valAll)
 		{
 			StringBuilder.Append("--| ");
 		}
 	}
-		
+
 	/// <summary>
 	///		Checks for embedded LineBreak operations
 	/// </summary>
 	/// <param name="documentItem"></param>
 	public void CheckForInlineTagLineBreakAtEnd(IDocumentItem documentItem)
 	{
-		if (documentItem.TagCreationOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimTailing")?.Value is bool valSingle && valSingle)
+		if (documentItem.TagCreationOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimTailing")?.Value is bool
+				valSingle && valSingle)
 		{
 			StringBuilder.Append(" |-");
 		}
-		if (documentItem.TagCreationOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimAllTailing")?.Value is bool valAll && valAll)
+
+		if (documentItem.TagCreationOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimAllTailing")?.Value is bool
+				valAll && valAll)
 		{
 			StringBuilder.Append(" |--");
 		}
 	}
-		
+
 	/// <summary>
 	///		Checks for embedded LineBreak operations
 	/// </summary>
 	/// <param name="documentItem"></param>
 	public void CheckForInlineBlockLineBreakAtStart(IBlockDocumentItem documentItem)
 	{
-		if (documentItem.BlockClosingOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimLeading")?.Value is bool valSingle && valSingle)
+		if (documentItem.BlockClosingOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimLeading")?.Value is bool
+				valSingle && valSingle)
 		{
 			StringBuilder.Append("-| ");
 		}
-		if (documentItem.BlockClosingOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimAllLeading")?.Value is bool valAll && valAll)
+
+		if (documentItem.BlockClosingOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimAllLeading")?.Value is bool
+				valAll && valAll)
 		{
 			StringBuilder.Append("--| ");
 		}
 	}
-		
+
 	/// <summary>
 	///		Checks for embedded LineBreak operations
 	/// </summary>
 	/// <param name="documentItem"></param>
 	public void CheckForInlineBlockLineBreakAtEnd(IBlockDocumentItem documentItem)
 	{
-		if (documentItem.BlockClosingOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimTailing")?.Value is bool valSingle && valSingle)
+		if (documentItem.BlockClosingOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimTailing")?.Value is bool
+				valSingle && valSingle)
 		{
 			StringBuilder.Append(" |-");
 		}
-		if (documentItem.BlockClosingOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimAllTailing")?.Value is bool valAll && valAll)
+
+		if (documentItem.BlockClosingOptions?.FirstOrDefault(e => e.Name == "Embedded.TrimAllTailing")?.Value is bool
+				valAll && valAll)
 		{
 			StringBuilder.Append(" |--");
 		}
@@ -151,6 +166,7 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 		StringBuilder.Append(tag);
 		StringBuilder.Append(documentItem.MorestachioExpression.AsStringExpression());
 		var aliasDocumentItem = documentItem.Children.FirstOrDefault() as AliasDocumentItem;
+
 		if (!(aliasDocumentItem is null))
 		{
 			StringBuilder.Append(" AS ");
@@ -180,6 +196,7 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 	public void Visit(BlockExpressionDocumentItemBase documentItem, string tag, string cmdChar = "#")
 	{
 		RenderExpressionTagHead(documentItem, tag, cmdChar);
+
 		if (documentItem.Children.Any())
 		{
 			VisitChildren(documentItem);
@@ -288,7 +305,7 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 	{
 		Visit(documentItem, "VAR");
 	}
-		
+
 	private void Visit(EvaluateVariableDocumentItem documentItem, string tokenName)
 	{
 		StringBuilder.Append("{{");
@@ -330,6 +347,7 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 		StringBuilder.Append(documentItem.MorestachioExpression.AsStringExpression());
 		var children = documentItem.Children.ToList();
 		var aliasDocumentItem = children.FirstOrDefault() as AliasDocumentItem;
+
 		if (!(aliasDocumentItem is null))
 		{
 			StringBuilder.Append(" AS ");
@@ -345,6 +363,7 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 
 			StringBuilder.Append("{{/");
 			CheckForInlineBlockLineBreakAtStart(documentItem);
+
 			if (!(aliasDocumentItem is null))
 			{
 				StringBuilder.Append(aliasDocumentItem.Value);
@@ -353,6 +372,7 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 			{
 				StringBuilder.Append(documentItem.MorestachioExpression.AsStringExpression());
 			}
+
 			CheckForInlineBlockLineBreakAtEnd(documentItem);
 			StringBuilder.Append("}}");
 		}
@@ -391,6 +411,7 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 		CheckForInlineTagLineBreakAtStart(documentItem);
 		StringBuilder.Append("#SWITCH ");
 		StringBuilder.Append(documentItem.MorestachioExpression.AsStringExpression());
+
 		if (documentItem.ScopeToValue)
 		{
 			StringBuilder.Append(" #SCOPE");
@@ -460,11 +481,13 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 		CheckForInlineTagLineBreakAtStart(documentItem);
 		StringBuilder.Append("#INCLUDE ");
 		StringBuilder.Append(documentItem.Value);
+
 		if (documentItem.Context != null)
 		{
 			StringBuilder.Append(" WITH ");
 			StringBuilder.Append(documentItem.Context.AsStringExpression());
 		}
+
 		CheckForInlineTagLineBreakAtEnd(documentItem);
 		StringBuilder.Append("}}");
 	}
@@ -476,11 +499,13 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 		CheckForInlineTagLineBreakAtStart(documentItem);
 		StringBuilder.Append("#IMPORT ");
 		StringBuilder.Append(documentItem.MorestachioExpression.AsStringExpression());
+
 		if (documentItem.Context != null)
 		{
 			StringBuilder.Append(" #WITH ");
 			StringBuilder.Append(documentItem.Context.AsStringExpression());
 		}
+
 		CheckForInlineTagLineBreakAtEnd(documentItem);
 		StringBuilder.Append("}}");
 	}
@@ -495,17 +520,19 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 	{
 		Visit(documentItem, "WHILE ");
 	}
-		
+
 	/// <inheritdoc />
 	public void Visit(IsolationScopeDocumentItem documentItem)
 	{
 		StringBuilder.Append("{{");
 		CheckForInlineTagLineBreakAtStart(documentItem);
 		StringBuilder.Append("#ISOLATE");
+
 		if (documentItem.Isolation.HasFlag(IsolationOptions.VariableIsolation))
 		{
 			StringBuilder.Append(" #VARIABLES");
 		}
+
 		if (documentItem.Isolation.HasFlag(IsolationOptions.ScopeIsolation))
 		{
 			StringBuilder.Append(" #SCOPE ");
@@ -566,6 +593,7 @@ public class ToParsableStringDocumentVisitor : IDocumentItemVisitor
 				{
 					StringBuilder.Append("{{#TNLS}}");
 				}
+
 				break;
 			default:
 				throw new ArgumentOutOfRangeException();

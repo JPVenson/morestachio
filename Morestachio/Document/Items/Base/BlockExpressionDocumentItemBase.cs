@@ -13,7 +13,8 @@ namespace Morestachio.Document.Items.Base;
 ///     A common base class for emitting a single string value for a Block.
 /// </summary>
 [Serializable]
-public abstract class BlockExpressionDocumentItemBase : BlockDocumentItemBase, IEquatable<BlockExpressionDocumentItemBase>
+public abstract class BlockExpressionDocumentItemBase : BlockDocumentItemBase,
+														IEquatable<BlockExpressionDocumentItemBase>
 {
 	internal BlockExpressionDocumentItemBase()
 	{

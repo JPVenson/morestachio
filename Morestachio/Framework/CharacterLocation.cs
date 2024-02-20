@@ -131,13 +131,13 @@
 //	{
 //		return Line == other.Line && Character == other.Character && Index == other.Index;
 //	}
-		
+
 //	/// <inheritdoc />
 //	public override bool Equals(object obj)
 //	{
 //		return obj is TextRange other && Equals(other);
 //	}
-		
+
 //	/// <inheritdoc />
 //	public override int GetHashCode()
 //	{
@@ -147,3 +147,4 @@
 //		}
 //	}
 //}
+

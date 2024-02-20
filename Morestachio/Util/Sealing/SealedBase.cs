@@ -17,10 +17,11 @@ public abstract class SealedBase : ISealed
 	{
 		if (IsSealed)
 		{
-			throw new InvalidOperationException($"This instance of '{GetType().Name}' is sealed and cannot be modified anymore");
+			throw new InvalidOperationException(
+				$"This instance of '{GetType().Name}' is sealed and cannot be modified anymore");
 		}
 	}
-		
+
 	/// <inheritdoc />
 	public virtual void Seal()
 	{

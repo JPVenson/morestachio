@@ -46,6 +46,7 @@ public class JsonTypeFormatter : IFormatterConverter
 		{
 			return token.Value<bool>();
 		}
+
 		throw new JsonException($"Could not convert {value} to {typeof(bool)}");
 	}
 
@@ -56,6 +57,7 @@ public class JsonTypeFormatter : IFormatterConverter
 		{
 			return token.Value<byte>();
 		}
+
 		throw new JsonException($"Could not convert {value} to {typeof(byte)}");
 	}
 
@@ -66,6 +68,7 @@ public class JsonTypeFormatter : IFormatterConverter
 		{
 			return token.Value<char>();
 		}
+
 		throw new JsonException($"Could not convert {value} to {typeof(char)}");
 	}
 
@@ -76,6 +79,7 @@ public class JsonTypeFormatter : IFormatterConverter
 		{
 			return token.Value<DateTime>();
 		}
+
 		throw new JsonException($"Could not convert {value} to {typeof(DateTime)}");
 	}
 
@@ -86,6 +90,7 @@ public class JsonTypeFormatter : IFormatterConverter
 		{
 			return token.Value<decimal>();
 		}
+
 		throw new JsonException($"Could not convert {value} to {typeof(decimal)}");
 	}
 
@@ -96,6 +101,7 @@ public class JsonTypeFormatter : IFormatterConverter
 		{
 			return token.Value<double>();
 		}
+
 		throw new JsonException($"Could not convert {value} to {typeof(double)}");
 	}
 
@@ -106,6 +112,7 @@ public class JsonTypeFormatter : IFormatterConverter
 		{
 			return token.Value<short>();
 		}
+
 		throw new JsonException($"Could not convert {value} to {typeof(short)}");
 	}
 
@@ -116,6 +123,7 @@ public class JsonTypeFormatter : IFormatterConverter
 		{
 			return token.Value<int>();
 		}
+
 		throw new JsonException($"Could not convert {value} to {typeof(int)}");
 	}
 
@@ -126,6 +134,7 @@ public class JsonTypeFormatter : IFormatterConverter
 		{
 			return token.Value<long>();
 		}
+
 		throw new JsonException($"Could not convert {value} to {typeof(long)}");
 	}
 
@@ -136,6 +145,7 @@ public class JsonTypeFormatter : IFormatterConverter
 		{
 			return token.Value<sbyte>();
 		}
+
 		throw new JsonException($"Could not convert {value} to {typeof(sbyte)}");
 	}
 
@@ -146,6 +156,7 @@ public class JsonTypeFormatter : IFormatterConverter
 		{
 			return token.Value<float>();
 		}
+
 		throw new JsonException($"Could not convert {value} to {typeof(float)}");
 	}
 
@@ -156,6 +167,7 @@ public class JsonTypeFormatter : IFormatterConverter
 		{
 			return token.Value<string>();
 		}
+
 		throw new JsonException($"Could not convert {value} to {typeof(string)}");
 	}
 
@@ -166,6 +178,7 @@ public class JsonTypeFormatter : IFormatterConverter
 		{
 			return token.Value<ushort>();
 		}
+
 		throw new JsonException($"Could not convert {value} to {typeof(ushort)}");
 	}
 
@@ -176,6 +189,7 @@ public class JsonTypeFormatter : IFormatterConverter
 		{
 			return token.Value<uint>();
 		}
+
 		throw new JsonException($"Could not convert {value} to {typeof(uint)}");
 	}
 
@@ -186,6 +200,7 @@ public class JsonTypeFormatter : IFormatterConverter
 		{
 			return token.Value<ulong>();
 		}
+
 		throw new JsonException($"Could not convert {value} to {typeof(ulong)}");
 	}
 }

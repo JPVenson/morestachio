@@ -23,13 +23,13 @@ public static class MorestachioLocalizationServiceExtensions
 		var service = getService();
 
 		return builder
-				.AddCustomDocument(new MorestachioLocalizationTagProvider())
-				.AddCustomDocument(new MorestachioCustomCultureLocalizationBlockProvider())
-				.AddCustomDocument(new MorestachioLocalizationBlockProvider())
-				.AddCustomDocument(new MorestachioLocalizationParamTagProvider())
-				.WithService(service)
-				.WithFormatters<IMorestachioLocalizationService>()
-				.WithFormatters(typeof(LocalizationFormatter))
-				.WithFormatters(service.GetType());
+			.AddCustomDocument(new MorestachioLocalizationTagProvider())
+			.AddCustomDocument(new MorestachioCustomCultureLocalizationBlockProvider())
+			.AddCustomDocument(new MorestachioLocalizationBlockProvider())
+			.AddCustomDocument(new MorestachioLocalizationParamTagProvider())
+			.WithService(service)
+			.WithFormatters<IMorestachioLocalizationService>()
+			.WithFormatters(typeof(LocalizationFormatter))
+			.WithFormatters(service.GetType());
 	}
 }

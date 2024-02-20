@@ -34,13 +34,13 @@ namespace Morestachio.Tests
 		}
 
 		[MorestachioFormatter("optional", "XXX")]
-		public static string Optional(string originalObject, [Optional]int optional)
+		public static string Optional(string originalObject, [Optional] int optional)
 		{
 			return "OPTIONAL " + originalObject;
 		}
 
 		[MorestachioFormatter("rest", "XXX")]
-		public static string Rest(string originalObject, [RestParameter]object[] rest)
+		public static string Rest(string originalObject, [RestParameter] object[] rest)
 		{
 			return "ORIGINAL: " + originalObject + " REST:" + rest.Select(f => f.ToString()).Aggregate((e, f) => e + f);
 		}

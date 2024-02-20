@@ -85,17 +85,20 @@ public class MorestachioLocalizationService : IMorestachioLocalizationService
 	public async Task<TextResourceEntity?> GetEntryOrLoad(string key, CultureInfo culture = null)
 	{
 		var entry = GetEntryOrNull(key, culture);
+
 		if (entry != null)
 		{
 			return entry;
 		}
 
 		var transformKey = TransformKey(key);
+
 		foreach (var translationResource in TranslationResources)
 		{
-			if (await translationResource.GetTranslation(transformKey, culture, out var translation).ConfigureAwait(false))
+			if (await translationResource.GetTranslation(transformKey, culture, out var translation)
+					.ConfigureAwait(false))
 			{
-				return new TextResourceEntity(culture,transformKey,translation, key.Split('/')[0]);
+				return new TextResourceEntity(culture, transformKey, translation, key.Split('/')[0]);
 			}
 		}
 
@@ -109,9 +112,11 @@ public class MorestachioLocalizationService : IMorestachioLocalizationService
 	public object GetTranslationOrNull(string key, CultureInfo culture = null, params object[] arguments)
 	{
 		var translationOrNull = GetEntryOrNull(key, culture)?.Text;
+
 		if (translationOrNull != null && arguments.Any())
 		{
 			var strTranslation = translationOrNull.ToString() ?? string.Empty;
+
 			for (int i = 0; i < arguments.Length; i++)
 			{
 				strTranslation = strTranslation.Replace("{" + i + "}", arguments[i].ToString());
@@ -119,6 +124,7 @@ public class MorestachioLocalizationService : IMorestachioLocalizationService
 
 			translationOrNull = strTranslation;
 		}
+
 		return translationOrNull;
 	}
 
@@ -131,12 +137,15 @@ public class MorestachioLocalizationService : IMorestachioLocalizationService
 	{
 		var loaderExceptions = new List<Exception>();
 		var textResources = new Dictionary<string, List<TextResourceEntity>>();
+
 		foreach (var culture in cultures)
 		{
 			var resourcesOfCulture = new Dictionary<string, object>();
+
 			foreach (var translationResource in TranslationResources)
 			{
 				var translationKeys = translationResource.Get(culture);
+
 				foreach (var translationKey in translationKeys)
 				{
 					resourcesOfCulture[TransformKey(translationKey.Key)] = translationKey.Value;
@@ -144,6 +153,7 @@ public class MorestachioLocalizationService : IMorestachioLocalizationService
 			}
 
 			var localResources = new List<TextResourceEntity>();
+
 			foreach (var textResource in resourcesOfCulture)
 			{
 				var key = textResource.Key;
@@ -155,10 +165,12 @@ public class MorestachioLocalizationService : IMorestachioLocalizationService
 				.Select(localResource =>
 				{
 					var txt = localResource.Text;
+
 					if (transformReferences)
 					{
 						txt = TransformText(localResource, localResources, loaderExceptions);
 					}
+
 					return new TextResourceEntity(
 						localResource.Lang,
 						localResource.Key,
@@ -170,6 +182,7 @@ public class MorestachioLocalizationService : IMorestachioLocalizationService
 			foreach (var group in transformedResources.GroupBy(e => e.Page))
 			{
 				List<TextResourceEntity> cache;
+
 				if (!textResources.ContainsKey(group.Key))
 				{
 					textResources[group.Key] = cache = new List<TextResourceEntity>();
@@ -178,6 +191,7 @@ public class MorestachioLocalizationService : IMorestachioLocalizationService
 				{
 					cache = textResources[group.Key];
 				}
+
 				cache.AddRange(group.ToArray());
 			}
 		}
@@ -216,21 +230,26 @@ public class MorestachioLocalizationService : IMorestachioLocalizationService
 			var transformationResource = fromResources.FirstOrDefault(e =>
 				e.Lang == textResourceEntity.Lang &&
 				e.Key.Equals(textPart.ToUpper().Trim('{', '}')));
+
 			if (transformationResource.Key == null)
 			{
-				loaderExceptions.Add(new InvalidOperationException($"{textResourceEntity.Lang.Name}: The requested Transformation in '{textResourceEntity.Key.ToUpper()}' for '{match.Value}' could not found"));
+				loaderExceptions.Add(new InvalidOperationException(
+					$"{textResourceEntity.Lang.Name}: The requested Transformation in '{textResourceEntity.Key.ToUpper()}' for '{match.Value}' could not found"));
 				return "";
 			}
 
 			if (transformationChain.Contains(transformationResource.Key))
 			{
-				loaderExceptions.Add(new InvalidOperationException($"{textResourceEntity.Lang.Name}: Endless requsion detected for: " + transformationChain.Aggregate((e, f) => e + " | " + f)));
+				loaderExceptions.Add(new InvalidOperationException(
+					$"{textResourceEntity.Lang.Name}: Endless requsion detected for: " +
+					transformationChain.Aggregate((e, f) => e + " | " + f)));
 				return "";
 			}
 
 			transformationChain.Push(transformationResource.Key);
 
-			var textReplacement = TransformText(transformationResource, fromResources, loaderExceptions, transformationChain);
+			var textReplacement = TransformText(transformationResource, fromResources, loaderExceptions,
+				transformationChain);
 
 			transformationChain.Pop();
 

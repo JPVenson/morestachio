@@ -12,7 +12,6 @@ namespace Morestachio.Tests
 	{
 		public ParserValidationTests()
 		{
-			
 		}
 
 		[Test]

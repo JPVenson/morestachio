@@ -21,7 +21,8 @@ public interface IDocumentItem
 	/// <param name="context">The context.</param>
 	/// <param name="scopeData">The scope data.</param>
 	/// <returns></returns>
-	ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
+	ItemExecutionPromise Render(IByteCounterStream outputStream,
+								ContextObject context,
 								ScopeData scopeData);
 
 	/// <summary>

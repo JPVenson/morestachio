@@ -28,10 +28,12 @@ namespace Morestachio.Tests.PerfTests
 			var iterrations = 500_000F;
 			var a = 0;
 			sw.Start();
+
 			for (int i = 0; i < iterrations; i++)
 			{
 				a += 1;
 			}
+
 			sw.Stop();
 			var csAdd = sw.Elapsed;
 			sw.Reset();
@@ -39,16 +41,18 @@ namespace Morestachio.Tests.PerfTests
 			Number b = 0;
 			Number c = 1;
 			sw.Start();
+
 			for (int i = 0; i < iterrations; i++)
 			{
 				b += c;
 			}
+
 			sw.Stop();
 			var nrAdd = sw.Elapsed;
 
 			Console.WriteLine($"C# calls took '{csAdd}'({csAdd.Ticks / iterrations}) " +
-							  $"and Number took '{nrAdd}'({nrAdd.Ticks / iterrations}) that is " +
-							  $"'{(nrAdd.Ticks / (float)csAdd.Ticks) * 100}'% of baseline");
+				$"and Number took '{nrAdd}'({nrAdd.Ticks / iterrations}) that is " +
+				$"'{(nrAdd.Ticks / (float)csAdd.Ticks) * 100}'% of baseline");
 		}
 
 		[Test]
@@ -58,23 +62,26 @@ namespace Morestachio.Tests.PerfTests
 		[TestCase("Expression Width", 20, 1, 0, 30000)]
 		[TestCase("Expression Width", 10, 1, 10, 30000)]
 		[TestCase("Expression Width", 20, 1, 10, 30000)]
-
 		[TestCase("Expression Depth", 1, 10, 0, 30000)]
 		[TestCase("Expression Depth", 1, 20, 0, 30000)]
 		[TestCase("Expression Depth", 1, 10, 10, 30000)]
 		[TestCase("Expression Depth", 1, 20, 10, 30000)]
-
 		[TestCase("Expression Depth and Width", 10, 10, 0, 30000)]
 		[TestCase("Expression Depth and Width", 10, 20, 0, 30000)]
 		[TestCase("Expression Depth and Width", 10, 20, 0, 30000)]
 		[TestCase("Expression Depth and Width", 20, 10, 0, 30000)]
 		[TestCase("Expression Depth and Width", 20, 20, 0, 30000)]
-		public async Task TestExpressionRuns(string variation, int width, int depth, int noArguments, int runs)
+		public async Task TestExpressionRuns(string variation,
+											int width,
+											int depth,
+											int noArguments,
+											int runs)
 		{
 			var expression = ConstructExpression("", width, depth, noArguments);
 			ExpressionParser.ParseExpression("data", TokenzierContext.FromText("data"));
 
 			var data = new Dictionary<string, object>();
+
 			for (int i = 0; i < width; i++)
 			{
 				data["data"] = new Dictionary<string, object>();
@@ -84,6 +91,7 @@ namespace Morestachio.Tests.PerfTests
 			var totalTime = Stopwatch.StartNew();
 			var parseTime = Stopwatch.StartNew();
 			IMorestachioExpression morestachioExpression = null;
+
 			for (var i = 0; i < runs; i++)
 			{
 				morestachioExpression = ExpressionParser.ParseExpression(expression.Item1,
@@ -92,6 +100,7 @@ namespace Morestachio.Tests.PerfTests
 
 			parseTime.Stop();
 			var executeTime = Stopwatch.StartNew();
+
 			for (int i = 0; i < runs; i++)
 			{
 				var parserOptions = ParserOptionsDefaultBuilder.BuildDefault().Build();
@@ -99,25 +108,31 @@ namespace Morestachio.Tests.PerfTests
 				{
 				}, new ScopeData(parserOptions));
 			}
+
 			executeTime.Stop();
 			totalTime.Stop();
-			PerformanceCounter.PerformanceCounters.Add(new PerformanceCounter.ExpressionPerformanceCounterEntity(variation)
-			{
-				TimePerRun = new TimeSpan(parseTime.ElapsedTicks / runs),
-				RunOver = runs,
-				Width = width,
-				Depth = depth,
-				NoArguments = noArguments,
-				ParseTime = parseTime.Elapsed,
-				TotalTime = totalTime.Elapsed,
-				ExecuteTime = executeTime.Elapsed
-			});
+			PerformanceCounter.PerformanceCounters.Add(
+				new PerformanceCounter.ExpressionPerformanceCounterEntity(variation)
+				{
+					TimePerRun = new TimeSpan(parseTime.ElapsedTicks / runs),
+					RunOver = runs,
+					Width = width,
+					Depth = depth,
+					NoArguments = noArguments,
+					ParseTime = parseTime.Elapsed,
+					TotalTime = totalTime.Elapsed,
+					ExecuteTime = executeTime.Elapsed
+				});
 		}
 
-		private Tuple<string, Dictionary<string, object>> ConstructExpression(string exp, int width, int depth, int noArguments)
+		private Tuple<string, Dictionary<string, object>> ConstructExpression(string exp,
+																			int width,
+																			int depth,
+																			int noArguments)
 		{
 			var widthExp = "";
 			var data = new Dictionary<string, object>();
+
 			for (int j = 0; j < width; j++)
 			{
 				widthExp += ".data";
@@ -128,6 +143,7 @@ namespace Morestachio.Tests.PerfTests
 			exp += "(";
 
 			var argExp = "";
+
 			for (int j = 0; j < noArguments; j++)
 			{
 				argExp += ",arg";
@@ -149,16 +165,21 @@ namespace Morestachio.Tests.PerfTests
 		[Test()]
 		[Explicit]
 		[TestCase("Model Depth", 100, 30000, 10, 5000)]
-		public async Task TestTokenizerTime(string variation, int modelDepth, int sizeOfTemplate, int inserts, int runs)
+		public async Task TestTokenizerTime(string variation,
+											int modelDepth,
+											int sizeOfTemplate,
+											int inserts,
+											int runs)
 		{
 			var model = ConstructModelAndPath(modelDepth);
 			var baseTemplate = Enumerable.Range(1, 5)
 				.Aggregate("", (seed, current) => seed += " {{" + model.Item2 + "}}\r\n");
+
 			while (baseTemplate.Length <= sizeOfTemplate)
 			{
 				baseTemplate += model.Item2;
 			}
-			
+
 			var options = ParserFixture.TestBuilder()
 				.WithTemplate(baseTemplate)
 				.WithTargetStream(Stream.Null)
@@ -177,7 +198,8 @@ namespace Morestachio.Tests.PerfTests
 				//tokenizingTime.Stop();
 			}
 
-			Console.WriteLine($"Tokenizing time: {tokenizingTime.Elapsed:c}; Matching time: {stringMatchingTime.Elapsed:c}");
+			Console.WriteLine(
+				$"Tokenizing time: {tokenizingTime.Elapsed:c}; Matching time: {stringMatchingTime.Elapsed:c}");
 		}
 
 		[Test()]
@@ -195,11 +217,16 @@ namespace Morestachio.Tests.PerfTests
 		[TestCase("Template Size", 5, 30000, 10, 5000)]
 		[TestCase("Template Size", 5, 50000, 10, 5000)]
 		[TestCase("Template Size", 5, 100000, 10, 5000)]
-		public async Task TestRuns(string variation, int modelDepth, int sizeOfTemplate, int inserts, int runs)
+		public async Task TestRuns(string variation,
+									int modelDepth,
+									int sizeOfTemplate,
+									int inserts,
+									int runs)
 		{
 			var model = ConstructModelAndPath(modelDepth);
 			var baseTemplate = Enumerable.Range(1, 5)
 				.Aggregate("", (seed, current) => seed += " {{" + model.Item2 + "}}");
+
 			while (baseTemplate.Length <= sizeOfTemplate)
 			{
 				baseTemplate += model.Item2 + "\r\n";
@@ -221,7 +248,7 @@ namespace Morestachio.Tests.PerfTests
 			(await compRenderer.RenderAsync(new object())).Stream.Dispose();
 
 			var totalTime = Stopwatch.StartNew();
-			
+
 			var options = ParserFixture.TestBuilder()
 				.WithTemplate(baseTemplate)
 				.WithTargetStream(Stream.Null)
@@ -242,6 +269,7 @@ namespace Morestachio.Tests.PerfTests
 			}
 
 			var parseTime = Stopwatch.StartNew();
+
 			for (var i = 0; i < runs; i++)
 			{
 				var tempOptions = ParserFixture.TestBuilder()
@@ -265,6 +293,7 @@ namespace Morestachio.Tests.PerfTests
 			totalTime.Stop();
 
 			var compileTime = Stopwatch.StartNew();
+
 			for (var i = 0; i < runs; i++)
 			{
 				template.CreateCompiledRenderer();
@@ -273,6 +302,7 @@ namespace Morestachio.Tests.PerfTests
 			compileTime.Stop();
 
 			var compiledRenderTime = Stopwatch.StartNew();
+
 			for (var i = 0; i < runs; i++)
 			{
 				var morestachioDocumentResult = await compRenderer.RenderAsync(model.Item1, CancellationToken.None);
@@ -284,8 +314,8 @@ namespace Morestachio.Tests.PerfTests
 			var modelPerformanceCounterEntity = new PerformanceCounter.ModelPerformanceCounterEntity(variation)
 			{
 				TimePerRun = new TimeSpan((tokenizingTime.ElapsedTicks / runs) +
-										  (parseTime.ElapsedTicks / runs) +
-										  (renderTime.ElapsedTicks / runs)),
+					(parseTime.ElapsedTicks / runs) +
+					(renderTime.ElapsedTicks / runs)),
 				RunOver = runs,
 				ModelDepth = modelDepth,
 				SubstitutionCount = inserts,
@@ -303,7 +333,9 @@ namespace Morestachio.Tests.PerfTests
 			//Console.WriteLine(modelPerformanceCounterEntity.PrintAsCsv(" | "));
 		}
 
-		public static Tuple<Dictionary<string, object>, string> ConstructModelAndPath(int modelDepth, string path = null)
+		public static Tuple<Dictionary<string, object>, string> ConstructModelAndPath(
+			int modelDepth,
+			string path = null)
 		{
 			path = "D380C66729254CA2BAECA9ABFF90EA1C";
 			var model = new Dictionary<string, object>();

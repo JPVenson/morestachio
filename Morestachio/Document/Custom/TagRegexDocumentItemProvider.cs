@@ -23,9 +23,13 @@ public class TagRegexDocumentItemProvider : TagRegexDocumentItemProviderBase
 	}
 
 	/// <inheritdoc />
-	public override IDocumentItem CreateDocumentItem(string tagKeyword, string value, TokenPair token,
-													ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions)
+	public override IDocumentItem CreateDocumentItem(string tagKeyword,
+													string value,
+													TokenPair token,
+													ParserOptions options,
+													IEnumerable<ITokenOption> tagCreationOptions)
 	{
-		return new TagDocumentItemProvider.TagDocumentItem(token.TokenRange, _action, tagKeyword, value, tagCreationOptions);
+		return new TagDocumentItemProvider.TagDocumentItem(token.TokenRange, _action, tagKeyword, value,
+			tagCreationOptions);
 	}
 }

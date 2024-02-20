@@ -27,7 +27,9 @@ public class MorestachioTemplateExpression
 	/// <param name="expression"></param>
 	/// <param name="contextObject"></param>
 	/// <param name="scopeData"></param>
-	public MorestachioTemplateExpression(MorestachioLambdaExpression expression, ContextObject contextObject, ScopeData scopeData)
+	public MorestachioTemplateExpression(MorestachioLambdaExpression expression,
+										ContextObject contextObject,
+										ScopeData scopeData)
 	{
 		_expression = expression;
 		_contextObject = contextObject;
@@ -36,7 +38,8 @@ public class MorestachioTemplateExpression
 
 	private void AssertParameterCount(int parameters)
 	{
-		if ((_expression.Parameters is MorestachioBracketExpression listOfParams && listOfParams.Expressions.Count != parameters)
+		if ((_expression.Parameters is MorestachioBracketExpression listOfParams &&
+				listOfParams.Expressions.Count != parameters)
 			|| (!(_expression.Parameters is MorestachioExpression) && parameters > 1))
 		{
 			ThrowNotMatchingParameters();
@@ -66,17 +69,20 @@ public class MorestachioTemplateExpression
 	private void AddArguments(params object[] args)
 	{
 		var parameter = Parameter().ToArray();
+
 		for (var index = 0; index < parameter.Length; index++)
 		{
 			var morestachioExpression = parameter[index];
 			var value = args[index];
-			_scopeData.AddVariable(morestachioExpression.PathParts.Current.Key, (s) => s.ParserOptions.CreateContextObject("", value), 0);
+			_scopeData.AddVariable(morestachioExpression.PathParts.Current.Key,
+				(s) => s.ParserOptions.CreateContextObject("", value), 0);
 		}
 	}
 
 	private void RemoveArguments()
 	{
 		var parameter = Parameter().ToArray();
+
 		for (var index = 0; index < parameter.Length; index++)
 		{
 			var morestachioExpression = parameter[index];
@@ -233,7 +239,10 @@ public class MorestachioTemplateExpression
 	public Func<T0, T1, T2, T3, TResult> AsFunc<T0, T1, T2, T3, TResult>()
 	{
 		AssertParameterCount(4);
-		return (arg1, arg2, arg3, arg4) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4);
 			var clone = _contextObject.CloneForEdit();
@@ -249,7 +258,11 @@ public class MorestachioTemplateExpression
 	public Func<T0, T1, T2, T3, T4, TResult> AsFunc<T0, T1, T2, T3, T4, TResult>()
 	{
 		AssertParameterCount(5);
-		return (arg1, arg2, arg3, arg4, arg5) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4,
+				arg5) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5);
 			var clone = _contextObject.CloneForEdit();
@@ -265,7 +278,12 @@ public class MorestachioTemplateExpression
 	public Func<T0, T1, T2, T3, T4, T5, TResult> AsFunc<T0, T1, T2, T3, T4, T5, TResult>()
 	{
 		AssertParameterCount(6);
-		return (arg1, arg2, arg3, arg4, arg5, arg6) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4,
+				arg5,
+				arg6) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6);
 			var clone = _contextObject.CloneForEdit();
@@ -281,7 +299,13 @@ public class MorestachioTemplateExpression
 	public Func<T0, T1, T2, T3, T4, T5, T6, TResult> AsFunc<T0, T1, T2, T3, T4, T5, T6, TResult>()
 	{
 		AssertParameterCount(7);
-		return (arg1, arg2, arg3, arg4, arg5, arg6, arg7) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4,
+				arg5,
+				arg6,
+				arg7) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 			var clone = _contextObject.CloneForEdit();
@@ -297,7 +321,14 @@ public class MorestachioTemplateExpression
 	public Func<T0, T1, T2, T3, T4, T5, T6, T7, TResult> AsFunc<T0, T1, T2, T3, T4, T5, T6, T7, TResult>()
 	{
 		AssertParameterCount(8);
-		return (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4,
+				arg5,
+				arg6,
+				arg7,
+				arg8) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 			var clone = _contextObject.CloneForEdit();
@@ -313,7 +344,15 @@ public class MorestachioTemplateExpression
 	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, TResult> AsFunc<T0, T1, T2, T3, T4, T5, T6, T7, T8, TResult>()
 	{
 		AssertParameterCount(9);
-		return (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4,
+				arg5,
+				arg6,
+				arg7,
+				arg8,
+				arg9) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 			var clone = _contextObject.CloneForEdit();
@@ -326,10 +365,20 @@ public class MorestachioTemplateExpression
 	/// <summary>
 	///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
 	/// </summary>
-	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> AsFunc<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>()
+	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>
+		AsFunc<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>()
 	{
 		AssertParameterCount(10);
-		return (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4,
+				arg5,
+				arg6,
+				arg7,
+				arg8,
+				arg9,
+				arg10) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 			var clone = _contextObject.CloneForEdit();
@@ -342,10 +391,21 @@ public class MorestachioTemplateExpression
 	/// <summary>
 	///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
 	/// </summary>
-	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> AsFunc<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>()
+	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> AsFunc<
+		T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>()
 	{
 		AssertParameterCount(11);
-		return (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4,
+				arg5,
+				arg6,
+				arg7,
+				arg8,
+				arg9,
+				arg10,
+				arg11) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
 			var clone = _contextObject.CloneForEdit();
@@ -358,10 +418,22 @@ public class MorestachioTemplateExpression
 	/// <summary>
 	///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
 	/// </summary>
-	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult> AsFunc<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>()
+	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult> AsFunc<
+		T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>()
 	{
 		AssertParameterCount(12);
-		return (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4,
+				arg5,
+				arg6,
+				arg7,
+				arg8,
+				arg9,
+				arg10,
+				arg11,
+				arg12) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12);
 			var clone = _contextObject.CloneForEdit();
@@ -374,10 +446,23 @@ public class MorestachioTemplateExpression
 	/// <summary>
 	///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
 	/// </summary>
-	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult> AsFunc<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>()
+	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult> AsFunc<
+		T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>()
 	{
 		AssertParameterCount(13);
-		return (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4,
+				arg5,
+				arg6,
+				arg7,
+				arg8,
+				arg9,
+				arg10,
+				arg11,
+				arg12,
+				arg13) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13);
 			var clone = _contextObject.CloneForEdit();
@@ -390,10 +475,24 @@ public class MorestachioTemplateExpression
 	/// <summary>
 	///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
 	/// </summary>
-	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult> AsFunc<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>()
+	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult> AsFunc<
+		T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>()
 	{
 		AssertParameterCount(14);
-		return (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4,
+				arg5,
+				arg6,
+				arg7,
+				arg8,
+				arg9,
+				arg10,
+				arg11,
+				arg12,
+				arg13,
+				arg14) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14);
 			var clone = _contextObject.CloneForEdit();
@@ -406,12 +505,28 @@ public class MorestachioTemplateExpression
 	/// <summary>
 	///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
 	/// </summary>
-	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult> AsFunc<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>()
+	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult> AsFunc<
+		T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>()
 	{
 		AssertParameterCount(15);
-		return (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4,
+				arg5,
+				arg6,
+				arg7,
+				arg8,
+				arg9,
+				arg10,
+				arg11,
+				arg12,
+				arg13,
+				arg14,
+				arg15) =>
 		{
-			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15);
+			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14,
+				arg15);
 			var clone = _contextObject.CloneForEdit();
 			var result = (TResult)((_expression.Expression.GetValue(clone, _scopeData)).Await().Value);
 			RemoveArguments();
@@ -422,12 +537,29 @@ public class MorestachioTemplateExpression
 	/// <summary>
 	///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
 	/// </summary>
-	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult> AsFunc<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>()
+	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult> AsFunc<
+		T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>()
 	{
 		AssertParameterCount(16);
-		return (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4,
+				arg5,
+				arg6,
+				arg7,
+				arg8,
+				arg9,
+				arg10,
+				arg11,
+				arg12,
+				arg13,
+				arg14,
+				arg15,
+				arg16) =>
 		{
-			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16);
+			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15,
+				arg16);
 			var clone = _contextObject.CloneForEdit();
 			var result = (TResult)((_expression.Expression.GetValue(clone, _scopeData)).Await().Value);
 			RemoveArguments();
@@ -446,7 +578,8 @@ public class MorestachioTemplateExpression
 		{
 			AddArguments(arg1);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false))
+				.Value);
 			RemoveArguments();
 			return result;
 		};
@@ -462,7 +595,8 @@ public class MorestachioTemplateExpression
 		{
 			AddArguments(arg1, arg2);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false))
+				.Value);
 			RemoveArguments();
 			return result;
 		};
@@ -478,7 +612,8 @@ public class MorestachioTemplateExpression
 		{
 			AddArguments(arg1, arg2, arg3);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false))
+				.Value);
 			RemoveArguments();
 			return result;
 		};
@@ -490,11 +625,15 @@ public class MorestachioTemplateExpression
 	public Func<T0, T1, T2, T3, Task<TResult>> AsAsyncFunc<T0, T1, T2, T3, TResult>()
 	{
 		AssertParameterCount(4);
-		return async (arg1, arg2, arg3, arg4) =>
+		return async (arg1,
+					arg2,
+					arg3,
+					arg4) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false))
+				.Value);
 			RemoveArguments();
 			return result;
 		};
@@ -506,11 +645,16 @@ public class MorestachioTemplateExpression
 	public Func<T0, T1, T2, T3, T4, Task<TResult>> AsAsyncFunc<T0, T1, T2, T3, T4, TResult>()
 	{
 		AssertParameterCount(5);
-		return async (arg1, arg2, arg3, arg4, arg5) =>
+		return async (arg1,
+					arg2,
+					arg3,
+					arg4,
+					arg5) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false))
+				.Value);
 			RemoveArguments();
 			return result;
 		};
@@ -522,11 +666,17 @@ public class MorestachioTemplateExpression
 	public Func<T0, T1, T2, T3, T4, T5, Task<TResult>> AsAsyncFunc<T0, T1, T2, T3, T4, T5, TResult>()
 	{
 		AssertParameterCount(6);
-		return async (arg1, arg2, arg3, arg4, arg5, arg6) =>
+		return async (arg1,
+					arg2,
+					arg3,
+					arg4,
+					arg5,
+					arg6) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false))
+				.Value);
 			RemoveArguments();
 			return result;
 		};
@@ -538,11 +688,18 @@ public class MorestachioTemplateExpression
 	public Func<T0, T1, T2, T3, T4, T5, T6, Task<TResult>> AsAsyncFunc<T0, T1, T2, T3, T4, T5, T6, TResult>()
 	{
 		AssertParameterCount(7);
-		return async (arg1, arg2, arg3, arg4, arg5, arg6, arg7) =>
+		return async (arg1,
+					arg2,
+					arg3,
+					arg4,
+					arg5,
+					arg6,
+					arg7) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false))
+				.Value);
 			RemoveArguments();
 			return result;
 		};
@@ -554,11 +711,19 @@ public class MorestachioTemplateExpression
 	public Func<T0, T1, T2, T3, T4, T5, T6, T7, Task<TResult>> AsAsyncFunc<T0, T1, T2, T3, T4, T5, T6, T7, TResult>()
 	{
 		AssertParameterCount(8);
-		return async (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) =>
+		return async (arg1,
+					arg2,
+					arg3,
+					arg4,
+					arg5,
+					arg6,
+					arg7,
+					arg8) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false))
+				.Value);
 			RemoveArguments();
 			return result;
 		};
@@ -567,14 +732,24 @@ public class MorestachioTemplateExpression
 	/// <summary>
 	///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
 	/// </summary>
-	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, Task<TResult>> AsAsyncFunc<T0, T1, T2, T3, T4, T5, T6, T7, T8, TResult>()
+	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, Task<TResult>> AsAsyncFunc<
+		T0, T1, T2, T3, T4, T5, T6, T7, T8, TResult>()
 	{
 		AssertParameterCount(9);
-		return async (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) =>
+		return async (arg1,
+					arg2,
+					arg3,
+					arg4,
+					arg5,
+					arg6,
+					arg7,
+					arg8,
+					arg9) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false))
+				.Value);
 			RemoveArguments();
 			return result;
 		};
@@ -583,14 +758,25 @@ public class MorestachioTemplateExpression
 	/// <summary>
 	///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
 	/// </summary>
-	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, Task<TResult>> AsAsyncFunc<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>()
+	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, Task<TResult>> AsAsyncFunc<
+		T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>()
 	{
 		AssertParameterCount(10);
-		return async (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10) =>
+		return async (arg1,
+					arg2,
+					arg3,
+					arg4,
+					arg5,
+					arg6,
+					arg7,
+					arg8,
+					arg9,
+					arg10) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false))
+				.Value);
 			RemoveArguments();
 			return result;
 		};
@@ -599,14 +785,26 @@ public class MorestachioTemplateExpression
 	/// <summary>
 	///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
 	/// </summary>
-	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Task<TResult>> AsAsyncFunc<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>()
+	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Task<TResult>> AsAsyncFunc<
+		T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>()
 	{
 		AssertParameterCount(11);
-		return async (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11) =>
+		return async (arg1,
+					arg2,
+					arg3,
+					arg4,
+					arg5,
+					arg6,
+					arg7,
+					arg8,
+					arg9,
+					arg10,
+					arg11) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false))
+				.Value);
 			RemoveArguments();
 			return result;
 		};
@@ -615,14 +813,27 @@ public class MorestachioTemplateExpression
 	/// <summary>
 	///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
 	/// </summary>
-	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Task<TResult>> AsAsyncFunc<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>()
+	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Task<TResult>> AsAsyncFunc<
+		T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>()
 	{
 		AssertParameterCount(12);
-		return async (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12) =>
+		return async (arg1,
+					arg2,
+					arg3,
+					arg4,
+					arg5,
+					arg6,
+					arg7,
+					arg8,
+					arg9,
+					arg10,
+					arg11,
+					arg12) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false))
+				.Value);
 			RemoveArguments();
 			return result;
 		};
@@ -631,14 +842,28 @@ public class MorestachioTemplateExpression
 	/// <summary>
 	///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
 	/// </summary>
-	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, Task<TResult>> AsAsyncFunc<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>()
+	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, Task<TResult>> AsAsyncFunc<
+		T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>()
 	{
 		AssertParameterCount(13);
-		return async (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13) =>
+		return async (arg1,
+					arg2,
+					arg3,
+					arg4,
+					arg5,
+					arg6,
+					arg7,
+					arg8,
+					arg9,
+					arg10,
+					arg11,
+					arg12,
+					arg13) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false))
+				.Value);
 			RemoveArguments();
 			return result;
 		};
@@ -647,14 +872,29 @@ public class MorestachioTemplateExpression
 	/// <summary>
 	///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
 	/// </summary>
-	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, Task<TResult>> AsAsyncFunc<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>()
+	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, Task<TResult>> AsAsyncFunc<
+		T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>()
 	{
 		AssertParameterCount(14);
-		return async (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14) =>
+		return async (arg1,
+					arg2,
+					arg3,
+					arg4,
+					arg5,
+					arg6,
+					arg7,
+					arg8,
+					arg9,
+					arg10,
+					arg11,
+					arg12,
+					arg13,
+					arg14) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false))
+				.Value);
 			RemoveArguments();
 			return result;
 		};
@@ -663,14 +903,31 @@ public class MorestachioTemplateExpression
 	/// <summary>
 	///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
 	/// </summary>
-	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, Task<TResult>> AsAsyncFunc<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>()
+	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, Task<TResult>> AsAsyncFunc<
+		T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>()
 	{
 		AssertParameterCount(15);
-		return async (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15) =>
+		return async (arg1,
+					arg2,
+					arg3,
+					arg4,
+					arg5,
+					arg6,
+					arg7,
+					arg8,
+					arg9,
+					arg10,
+					arg11,
+					arg12,
+					arg13,
+					arg14,
+					arg15) =>
 		{
-			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15);
+			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14,
+				arg15);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false))
+				.Value);
 			RemoveArguments();
 			return result;
 		};
@@ -679,14 +936,32 @@ public class MorestachioTemplateExpression
 	/// <summary>
 	///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
 	/// </summary>
-	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, Task<TResult>> AsAsyncFunc<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>()
+	public Func<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, Task<TResult>> AsAsyncFunc<
+		T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>()
 	{
 		AssertParameterCount(16);
-		return async (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16) =>
+		return async (arg1,
+					arg2,
+					arg3,
+					arg4,
+					arg5,
+					arg6,
+					arg7,
+					arg8,
+					arg9,
+					arg10,
+					arg11,
+					arg12,
+					arg13,
+					arg14,
+					arg15,
+					arg16) =>
 		{
-			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16);
+			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15,
+				arg16);
 			var clone = _contextObject.CloneForEdit();
-			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false)).Value);
+			var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData).ConfigureAwait(false))
+				.Value);
 			RemoveArguments();
 			return result;
 		};
@@ -743,7 +1018,10 @@ public class MorestachioTemplateExpression
 	public Action<T0, T1, T2, T3> AsAction<T0, T1, T2, T3>()
 	{
 		AssertParameterCount(3);
-		return (arg1, arg2, arg3, arg4) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4);
 			var clone = _contextObject.CloneForEdit();
@@ -758,7 +1036,11 @@ public class MorestachioTemplateExpression
 	public Action<T0, T1, T2, T3, T4> AsAction<T0, T1, T2, T3, T4>()
 	{
 		AssertParameterCount(4);
-		return (arg1, arg2, arg3, arg4, arg5) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4,
+				arg5) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5);
 			var clone = _contextObject.CloneForEdit();
@@ -773,7 +1055,12 @@ public class MorestachioTemplateExpression
 	public Action<T0, T1, T2, T3, T4, T5> AsAction<T0, T1, T2, T3, T4, T5>()
 	{
 		AssertParameterCount(5);
-		return (arg1, arg2, arg3, arg4, arg5, arg6) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4,
+				arg5,
+				arg6) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6);
 			var clone = _contextObject.CloneForEdit();
@@ -788,7 +1075,13 @@ public class MorestachioTemplateExpression
 	public Action<T0, T1, T2, T3, T4, T5, T6> AsAction<T0, T1, T2, T3, T4, T5, T6>()
 	{
 		AssertParameterCount(6);
-		return (arg1, arg2, arg3, arg4, arg5, arg6, arg7) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4,
+				arg5,
+				arg6,
+				arg7) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 			var clone = _contextObject.CloneForEdit();
@@ -803,7 +1096,14 @@ public class MorestachioTemplateExpression
 	public Action<T0, T1, T2, T3, T4, T5, T6, T7> AsAction<T0, T1, T2, T3, T4, T5, T6, T7>()
 	{
 		AssertParameterCount(7);
-		return (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4,
+				arg5,
+				arg6,
+				arg7,
+				arg8) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 			var clone = _contextObject.CloneForEdit();
@@ -818,7 +1118,15 @@ public class MorestachioTemplateExpression
 	public Action<T0, T1, T2, T3, T4, T5, T6, T7, T8> AsAction<T0, T1, T2, T3, T4, T5, T6, T7, T8>()
 	{
 		AssertParameterCount(8);
-		return (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4,
+				arg5,
+				arg6,
+				arg7,
+				arg8,
+				arg9) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 			var clone = _contextObject.CloneForEdit();
@@ -833,7 +1141,16 @@ public class MorestachioTemplateExpression
 	public Action<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> AsAction<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>()
 	{
 		AssertParameterCount(9);
-		return (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4,
+				arg5,
+				arg6,
+				arg7,
+				arg8,
+				arg9,
+				arg10) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 			var clone = _contextObject.CloneForEdit();
@@ -848,7 +1165,17 @@ public class MorestachioTemplateExpression
 	public Action<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> AsAction<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>()
 	{
 		AssertParameterCount(10);
-		return (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4,
+				arg5,
+				arg6,
+				arg7,
+				arg8,
+				arg9,
+				arg10,
+				arg11) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
 			var clone = _contextObject.CloneForEdit();
@@ -860,10 +1187,22 @@ public class MorestachioTemplateExpression
 	/// <summary>
 	///		Creates a new c# Delegate that invokes the morestachio expression
 	/// </summary>
-	public Action<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> AsAction<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>()
+	public Action<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> AsAction<
+		T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>()
 	{
 		AssertParameterCount(11);
-		return (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4,
+				arg5,
+				arg6,
+				arg7,
+				arg8,
+				arg9,
+				arg10,
+				arg11,
+				arg12) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12);
 			var clone = _contextObject.CloneForEdit();
@@ -875,10 +1214,23 @@ public class MorestachioTemplateExpression
 	/// <summary>
 	///		Creates a new c# Delegate that invokes the morestachio expression
 	/// </summary>
-	public Action<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> AsAction<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>()
+	public Action<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> AsAction<
+		T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>()
 	{
 		AssertParameterCount(12);
-		return (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4,
+				arg5,
+				arg6,
+				arg7,
+				arg8,
+				arg9,
+				arg10,
+				arg11,
+				arg12,
+				arg13) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13);
 			var clone = _contextObject.CloneForEdit();
@@ -890,10 +1242,24 @@ public class MorestachioTemplateExpression
 	/// <summary>
 	///		Creates a new c# Delegate that invokes the morestachio expression
 	/// </summary>
-	public Action<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> AsAction<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>()
+	public Action<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> AsAction<
+		T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>()
 	{
 		AssertParameterCount(13);
-		return (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4,
+				arg5,
+				arg6,
+				arg7,
+				arg8,
+				arg9,
+				arg10,
+				arg11,
+				arg12,
+				arg13,
+				arg14) =>
 		{
 			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14);
 			var clone = _contextObject.CloneForEdit();
@@ -905,12 +1271,28 @@ public class MorestachioTemplateExpression
 	/// <summary>
 	///		Creates a new c# Delegate that invokes the morestachio expression
 	/// </summary>
-	public Action<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> AsAction<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>()
+	public Action<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> AsAction<
+		T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>()
 	{
 		AssertParameterCount(14);
-		return (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4,
+				arg5,
+				arg6,
+				arg7,
+				arg8,
+				arg9,
+				arg10,
+				arg11,
+				arg12,
+				arg13,
+				arg14,
+				arg15) =>
 		{
-			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15);
+			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14,
+				arg15);
 			var clone = _contextObject.CloneForEdit();
 			_expression.Expression.GetValue(clone, _scopeData).Await();
 			RemoveArguments();
@@ -920,19 +1302,34 @@ public class MorestachioTemplateExpression
 	/// <summary>
 	///		Creates a new c# Delegate that invokes the morestachio expression
 	/// </summary>
-	public Action<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> AsAction<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>()
+	public Action<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> AsAction<
+		T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>()
 	{
 		AssertParameterCount(15);
-		return (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16) =>
+		return (arg1,
+				arg2,
+				arg3,
+				arg4,
+				arg5,
+				arg6,
+				arg7,
+				arg8,
+				arg9,
+				arg10,
+				arg11,
+				arg12,
+				arg13,
+				arg14,
+				arg15,
+				arg16) =>
 		{
-			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16);
+			AddArguments(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15,
+				arg16);
 			var clone = _contextObject.CloneForEdit();
 			_expression.Expression.GetValue(clone, _scopeData).Await();
 			RemoveArguments();
 		};
 	}
-
-
 
 	#endregion
 

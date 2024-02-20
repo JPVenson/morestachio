@@ -60,7 +60,8 @@ namespace Morestachio.Tests
 					}
 				}
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatters(typeof(ParserFixture.NumberFormatter)); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options,
+				options => { return options.WithFormatters(typeof(ParserFixture.NumberFormatter)); });
 			Assert.That(result, Is.EqualTo("123"));
 		}
 
@@ -93,7 +94,8 @@ namespace Morestachio.Tests
 
 			var template =
 				@"{{#DECLARE TestPartial}}{{self.Test}}{{/DECLARE}}{{#IMPORT 'TestPartial' #WITH Data.ElementAt(1)}}";
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatters(typeof(ParserFixture.NumberFormatter)); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options,
+				options => { return options.WithFormatters(typeof(ParserFixture.NumberFormatter)); });
 			Assert.That(result, Is.EqualTo("2"));
 		}
 
@@ -130,14 +132,14 @@ namespace Morestachio.Tests
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options =>
 			{
 				return options.WithFormatters(typeof(DynamicLinq))
-							.WithFormatter(new Func<object, string, object>((sourceObject, name) =>
-							{
-								return new Dictionary<string, object>
-								{
-									{ "ExportedValue", sourceObject },
-									{ "XNAME", name }
-								};
-							}), "Self");
+					.WithFormatter(new Func<object, string, object>((sourceObject, name) =>
+					{
+						return new Dictionary<string, object>
+						{
+							{ "ExportedValue", sourceObject },
+							{ "XNAME", name }
+						};
+					}), "Self");
 			});
 			Assert.That(result, Is.EqualTo("2"));
 		}
@@ -237,7 +239,8 @@ namespace Morestachio.Tests
 
 			Assert.That(async () => await parsedTemplate.CreateRenderer().RenderAndStringifyAsync(data),
 				Throws.Exception.TypeOf<MorestachioStackOverflowException>());
-			SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document, parsingOptions);
+			SerializerTest.AssertDocumentItemIsSameAsTemplate(parsingOptions.Template, parsedTemplate.Document,
+				parsingOptions);
 		}
 
 		[Test]
@@ -260,14 +263,16 @@ namespace Morestachio.Tests
 			//Print TestPartial
 			var template =
 				@"{{#declare TestPartial}}{{$recursion}}{{#SCOPE $recursion.Self() as rec}}{{#IMPORT 'TestPartial'}}{{/SCOPE}}{{/declare}}{{#IMPORT 'TestPartial'}}";
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatter<int, bool>(e => { return e < 9; }, "Self"); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options,
+				options => { return options.WithFormatter<int, bool>(e => { return e < 9; }, "Self"); });
 			Assert.That(result, Is.EqualTo("123456789"));
 		}
 
 		[Test]
 		public async Task ParserCanLoadFileStore()
 		{
-			var tempPath = Path.Combine(Path.GetTempPath(), "MorestachioTesting", Environment.Version.ToString(), _options.GetHashCode().ToString());
+			var tempPath = Path.Combine(Path.GetTempPath(), "MorestachioTesting", Environment.Version.ToString(),
+				_options.GetHashCode().ToString());
 			Directory.CreateDirectory(tempPath);
 
 			var data = new Dictionary<string, object>
@@ -283,9 +288,11 @@ namespace Morestachio.Tests
 			try
 			{
 				File.WriteAllText(Path.Combine(tempPath, "content.html"), "Hello World", ParserFixture.DefaultEncoding);
-				File.WriteAllText(Path.Combine(tempPath, "instruction.html"), "Hello mr {{data.name}}", ParserFixture.DefaultEncoding);
+				File.WriteAllText(Path.Combine(tempPath, "instruction.html"), "Hello mr {{data.name}}",
+					ParserFixture.DefaultEncoding);
 				Directory.CreateDirectory(Path.Combine(tempPath, "sub"));
-				File.WriteAllText(Path.Combine(tempPath, "sub", "base.html"), "Sub Path", ParserFixture.DefaultEncoding);
+				File.WriteAllText(Path.Combine(tempPath, "sub", "base.html"), "Sub Path",
+					ParserFixture.DefaultEncoding);
 
 				var template =
 					@"Blank
@@ -293,7 +300,12 @@ namespace Morestachio.Tests
 {{#IMPORT 'File/instruction'}}
 {{#IMPORT 'File/base'}}
 ";
-				var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options => { return options.WithPartialsStore(new FileSystemPartialStore(tempPath, "*.html", true, true, "File/")); });
+				var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options,
+					options =>
+					{
+						return options.WithPartialsStore(new FileSystemPartialStore(tempPath, "*.html", true, true,
+							"File/"));
+					});
 
 				Assert.That(result, Is.EqualTo(@"Blank
 Hello World

@@ -8,5 +8,4 @@ namespace Morestachio.Document.Contracts;
 /// </summary>
 public interface IMorestachioDocument : IDocumentItem, IXmlSerializable, ISerializable
 {
-
 }

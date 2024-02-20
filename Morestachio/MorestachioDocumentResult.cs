@@ -10,7 +10,7 @@ namespace Morestachio;
 /// </summary>
 public class MorestachioDocumentResult
 {
-	internal MorestachioDocumentResult(IByteCounterStream stream, 
+	internal MorestachioDocumentResult(IByteCounterStream stream,
 										PerformanceProfiler profiler,
 										IDictionary<string, object> variables)
 	{
@@ -19,7 +19,7 @@ public class MorestachioDocumentResult
 		CapturedVariables = variables;
 	}
 
-	internal MorestachioDocumentResult(IByteCounterStream stream, 
+	internal MorestachioDocumentResult(IByteCounterStream stream,
 										PerformanceProfiler profiler)
 	{
 		Stream = stream;

@@ -42,10 +42,11 @@ public class ScopeData : IDisposable
 	private void AddConstants(ParserOptions parserOptions)
 	{
 		var constants = parserOptions.Formatters.Constants;
-			
+
 		foreach (var @constValue in constants)
 		{
 			var value = @constValue.Value;
+
 			if (value is Type type)
 			{
 				value = new Static(type);
@@ -54,7 +55,7 @@ public class ScopeData : IDisposable
 			AddVariable(@constValue.Key, (scope) => scope.ParserOptions.CreateContextObject(@constValue.Key, value));
 		}
 	}
-		
+
 	private class ServiceUiWrapper : IMorestachioPropertyResolver
 	{
 		private readonly IDictionary<Type, object> _services;
@@ -66,7 +67,8 @@ public class ScopeData : IDisposable
 
 		public bool TryGetValue(string name, out object found)
 		{
-			found = _services.FirstOrDefault(e => e.Key.GetCustomAttribute<ServiceNameAttribute>()?.Name == name || e.Key.Name == name).Value;
+			found = _services.FirstOrDefault(e =>
+				e.Key.GetCustomAttribute<ServiceNameAttribute>()?.Name == name || e.Key.Name == name).Value;
 			return found != null;
 		}
 	}
@@ -92,6 +94,7 @@ public class ScopeData : IDisposable
 			AddVariable(keyValuePair.Key, (scopeData, context) =>
 			{
 				ContextCollection coll = null;
+
 				if (context is ContextCollection)
 				{
 					coll = context as ContextCollection;
@@ -99,16 +102,19 @@ public class ScopeData : IDisposable
 				else
 				{
 					var ctx = context;
+
 					while (ctx != null && ctx is not ContextCollection)
 					{
 						ctx = ctx.Parent;
 					}
+
 					coll = ctx as ContextCollection;
 				}
 
 				if (coll != null)
 				{
-					return scopeData.ParserOptions.CreateContextObject(keyValuePair.Key, keyValuePair.Value(coll), context);
+					return scopeData.ParserOptions.CreateContextObject(keyValuePair.Key, keyValuePair.Value(coll),
+						context);
 				}
 
 				return null;
@@ -127,6 +133,7 @@ public class ScopeData : IDisposable
 	}
 
 	internal readonly bool IsOutputLimited;
+
 	/// <summary>
 	///		The Run specific stop token
 	/// </summary>
@@ -181,6 +188,7 @@ public class ScopeData : IDisposable
 		{
 			return fncC(this, contextObject);
 		}
+
 		throw new InvalidOperationException("Cannot evaluate the variable or factory: " + variableValue);
 	}
 
@@ -268,7 +276,7 @@ public class ScopeData : IDisposable
 	///		If it contains an IDisposable it will be disposed after the execution is finished.
 	/// </summary>
 	public IDictionary<string, object> CustomData { get; set; }
-		
+
 	internal PerformanceProfiler Profiler { get; set; }
 
 	/// <inheritdoc />
@@ -278,6 +286,7 @@ public class ScopeData : IDisposable
 		{
 			disposable.Dispose();
 		}
+
 		foreach (var disposable in Variables.Values.OfType<IDisposable>())
 		{
 			disposable.Dispose();

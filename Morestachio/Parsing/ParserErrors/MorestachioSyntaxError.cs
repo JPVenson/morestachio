@@ -11,7 +11,6 @@ public class MorestachioSyntaxError : MorestachioErrorBase
 	/// </summary>
 	protected MorestachioSyntaxError()
 	{
-		
 	}
 
 	/// <summary>
@@ -19,7 +18,7 @@ public class MorestachioSyntaxError : MorestachioErrorBase
 	/// </summary>
 	/// <param name="info"></param>
 	/// <param name="c"></param>
-	protected MorestachioSyntaxError(SerializationInfo info, StreamingContext c) 
+	protected MorestachioSyntaxError(SerializationInfo info, StreamingContext c)
 		: base(info, c)
 	{
 	}

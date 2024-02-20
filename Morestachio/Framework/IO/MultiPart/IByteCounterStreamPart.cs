@@ -23,7 +23,7 @@ public interface IByteCounterStreamPart : IDisposable
 	/// 		Writes the Content into the underlying Stream when the limit is not exceeded
 	///  </summary>
 #if Span
-		void Write(ReadOnlySpan<char> content);
+	void Write(ReadOnlySpan<char> content);
 #else
 	void Write(string content);
 #endif

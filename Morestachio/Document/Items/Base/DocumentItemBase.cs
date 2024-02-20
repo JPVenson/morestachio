@@ -62,6 +62,7 @@ public abstract class DocumentItemBase : IMorestachioDocument,
 		{
 			return false;
 		}
+
 		if (Equals(TagCreationOptions, other.TagCreationOptions))
 		{
 			return true;
@@ -137,6 +138,7 @@ public abstract class DocumentItemBase : IMorestachioDocument,
 		AssertElement(reader, serializedMarkerName);
 		DeSerializeXmlHeaderCore(reader);
 		DeSerializeXmlBodyCore(reader);
+
 		if (reader.NodeType == XmlNodeType.EndElement && reader.Name.Equals(serializedMarkerName))
 		{
 			//there are no children and we have reached the end of the document
@@ -231,7 +233,9 @@ public abstract class DocumentItemBase : IMorestachioDocument,
 		unchecked
 		{
 			int hashCode = Location.GetHashCode();
-			hashCode = (hashCode * 397) ^ (TagCreationOptions.Any() ? TagCreationOptions.Select(f => f.GetHashCode()).Aggregate((e, f) => e ^ f) : 0);
+			hashCode = (hashCode * 397) ^ (TagCreationOptions.Any()
+				? TagCreationOptions.Select(f => f.GetHashCode()).Aggregate((e, f) => e ^ f)
+				: 0);
 			return hashCode;
 		}
 	}

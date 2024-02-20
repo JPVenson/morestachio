@@ -20,7 +20,7 @@ namespace Morestachio.Formatter.Predefined
 		{
 			return When(condition, outputTrue, null);
 		}
-		
+
 		/// <summary>
 		/// </summary>
 		[MorestachioFormatter("When", "Prints the argument when the source value is true. Otherwise null.")]

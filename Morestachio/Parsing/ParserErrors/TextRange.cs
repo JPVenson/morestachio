@@ -58,14 +58,21 @@ public readonly struct TextRange : ISerializable
 		return new TextRange(TextIndex.GetIndex(lines, index), TextIndex.GetIndex(lines, index + length));
 	}
 
-	internal static TextRange Range(TokenzierContext context, int index, int length, TextRange within)
+	internal static TextRange Range(TokenzierContext context,
+									int index,
+									int length,
+									TextRange within)
 	{
 		return Range(context.Lines, index, length, within);
 	}
 
-	internal static TextRange Range(List<int> lines, int index, int length, TextRange within)
+	internal static TextRange Range(List<int> lines,
+									int index,
+									int length,
+									TextRange within)
 	{
-		return new TextRange(TextIndex.GetIndex(lines, within.RangeStart.Index + index), TextIndex.GetIndex(lines, within.RangeStart.Index + index + length));
+		return new TextRange(TextIndex.GetIndex(lines, within.RangeStart.Index + index),
+			TextIndex.GetIndex(lines, within.RangeStart.Index + index + length));
 	}
 
 	internal static TextRange RangeIndex(TokenzierContext context, int startIndex, int endIndex)
@@ -78,14 +85,21 @@ public readonly struct TextRange : ISerializable
 		return new TextRange(TextIndex.GetIndex(lines, startIndex), TextIndex.GetIndex(lines, endIndex));
 	}
 
-	internal static TextRange RangeIndex(TokenzierContext context, int startIndex, int endIndex, TextRange within)
+	internal static TextRange RangeIndex(TokenzierContext context,
+										int startIndex,
+										int endIndex,
+										TextRange within)
 	{
 		return RangeIndex(context.Lines, startIndex, endIndex, within);
 	}
 
-	internal static TextRange RangeIndex(List<int> lines, int startIndex, int endIndex, TextRange within)
+	internal static TextRange RangeIndex(List<int> lines,
+										int startIndex,
+										int endIndex,
+										TextRange within)
 	{
-		return new TextRange(TextIndex.GetIndex(lines, within.RangeStart.Index + startIndex), TextIndex.GetIndex(lines, within.RangeStart.Index + endIndex));
+		return new TextRange(TextIndex.GetIndex(lines, within.RangeStart.Index + startIndex),
+			TextIndex.GetIndex(lines, within.RangeStart.Index + endIndex));
 	}
 
 	/// <inheritdoc />
@@ -109,7 +123,7 @@ public readonly struct TextRange : ISerializable
 	/// </summary>
 	public bool Includes(TextIndex index)
 	{
-		return 
+		return
 			RangeStart.Index <= index.Index &&
 			RangeEnd.Index >= index.Index;
 	}
@@ -119,7 +133,7 @@ public readonly struct TextRange : ISerializable
 	/// </summary>
 	public bool Includes(TextRange range)
 	{
-		return Includes(range.RangeStart) 
+		return Includes(range.RangeStart)
 			&& Includes(range.RangeEnd);
 	}
 
@@ -129,34 +143,35 @@ public readonly struct TextRange : ISerializable
 	public bool Intercepts(TextRange range)
 	{
 		/*
-		 * 1st check is parameters range end in range
-		 *	   rs			 re
-		 *		|------------|
-		 * |---------|
-		 *r.rs		r.re
-		 *
-		 * 2nd check if start is contained in range
-		 *	   rs			 re
-		 *		|------------|
-		 *				|---------|
-		 *				r.rs	  r.re
-		 * 1st and 2nd check also catch total inclusion as range.start is included in range
-		 *	   rs			 re
-		 *		|------------|
-		 *		  |--------|
-		 *        r.rs	   r.re
-		 * 3nd check check for outer inclusion
-		 *	   rs			 re
-		 *		|------------|
-		 *	|---------------------|
-		 *  r.rs				  r.re
-		 */
+		* 1st check is parameters range end in range
+		*	   rs			 re
+		*		|------------|
+		* |---------|
+		*r.rs		r.re
+		*
+		* 2nd check if start is contained in range
+		*	   rs			 re
+		*		|------------|
+		*				|---------|
+		*				r.rs	  r.re
+		* 1st and 2nd check also catch total inclusion as range.start is included in range
+		*	   rs			 re
+		*		|------------|
+		*		  |--------|
+		*        r.rs	   r.re
+		* 3nd check check for outer inclusion
+		*	   rs			 re
+		*		|------------|
+		*	|---------------------|
+		*  r.rs				  r.re
+		*/
 
 		return Includes(range.RangeStart)
 			|| Includes(range.RangeEnd)
 			|| range.Includes(RangeStart);
 	}
 }
+
 /// <summary>
 ///		Defines a range of characters within an template
 /// </summary>
@@ -221,8 +236,10 @@ public readonly struct TextIndex : IComparable<TextIndex>, ISerializable
 	public TextIndex(SerializationInfo serializationInfo, StreamingContext context)
 	{
 		Index = serializationInfo.GetInt32(nameof(Index));
-		Row = serializationInfo.GetInt32(nameof(Row));;
-		Column = serializationInfo.GetInt32(nameof(Column));;
+		Row = serializationInfo.GetInt32(nameof(Row));
+		;
+		Column = serializationInfo.GetInt32(nameof(Column));
+		;
 	}
 
 	/// <inheritdoc />

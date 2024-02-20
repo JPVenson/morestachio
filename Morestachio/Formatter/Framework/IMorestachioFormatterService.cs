@@ -28,7 +28,7 @@ public interface IMorestachioFormatterService : ISealed
 	///     Allows all parameters that are objects to be null
 	/// </summary>
 	bool AllParametersAllDefaultValue { get; set; }
-		
+
 	/// <summary>
 	///     Defines the list of all formatter value converters
 	/// </summary>

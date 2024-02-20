@@ -20,13 +20,19 @@ public static class JsonSerializationExtensions
 	/// </summary>
 	/// <param name="jsonSerializerOptions"></param>
 	/// <returns></returns>
-	public static JsonSerializerSettings AddMorestachioSerializationExtensions(this JsonSerializerSettings jsonSerializerOptions)
+	public static JsonSerializerSettings AddMorestachioSerializationExtensions(
+		this JsonSerializerSettings jsonSerializerOptions)
 	{
-		jsonSerializerOptions.Converters.Add(new ObjectWithTypeDiscriminatorConverter<IMorestachioExpression>(ExpressionSerializationHelper.ExpressionTypeLookup));
-		jsonSerializerOptions.Converters.Add(new ObjectWithTypeDiscriminatorConverter<IMorestachioError>(ErrorSerializationHelper.ErrorTypeLookup));
-		jsonSerializerOptions.Converters.Add(new ObjectWithTypeDiscriminatorConverter<IDocumentItem>(SerializationHelper.GetDocumentItemType, SerializationHelper.GetDocumentItemName));
+		jsonSerializerOptions.Converters.Add(
+			new ObjectWithTypeDiscriminatorConverter<IMorestachioExpression>(ExpressionSerializationHelper
+				.ExpressionTypeLookup));
+		jsonSerializerOptions.Converters.Add(
+			new ObjectWithTypeDiscriminatorConverter<IMorestachioError>(ErrorSerializationHelper.ErrorTypeLookup));
+		jsonSerializerOptions.Converters.Add(
+			new ObjectWithTypeDiscriminatorConverter<IDocumentItem>(SerializationHelper.GetDocumentItemType,
+				SerializationHelper.GetDocumentItemName));
 		jsonSerializerOptions.Converters.Add(new SerializableConverter());
-		
+
 		return jsonSerializerOptions;
 	}
 }

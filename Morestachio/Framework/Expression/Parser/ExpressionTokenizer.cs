@@ -33,6 +33,7 @@ public class ExpressionTokenizer
 		{
 			//remember to reset the index by 1 to account for the increment part of the for loop that will add one
 			var c = text[cursorIndex];
+
 			if (c == '(')
 			{
 				queue.Enqueue(new ExpressionValueToken(ExpressionTokenType.Bracket,
@@ -42,12 +43,13 @@ public class ExpressionTokenizer
 			}
 			else if (c == ')')
 			{
-				if (queue.Count == 0)//a closing bracket without any leading brackets is invalid
+				if (queue.Count == 0) //a closing bracket without any leading brackets is invalid
 				{
 					queue.SyntaxError(context, TextRange.Range(context, textIndex.Index + cursorIndex, 1, range),
 						"A closing bracket cannot lead an expression");
 					break;
 				}
+
 				queue.Enqueue(new ExpressionValueToken(ExpressionTokenType.Bracket,
 					")",
 					TextRange.Range(context, textIndex.Index + cursorIndex, 1, range)));
@@ -55,6 +57,7 @@ public class ExpressionTokenizer
 			else if (c == ',')
 			{
 				var last = queue.TryPeek();
+
 				if (last == null)
 				{
 					queue.SyntaxError(context, TextRange.Range(context, textIndex.Index + cursorIndex, 1, range),
@@ -109,19 +112,21 @@ public class ExpressionTokenizer
 			}
 			else
 			{
-				queue.SyntaxError(context, TextRange.Range(context, textIndex.Index + cursorIndex, 1, range), "Unknown character detected");
+				queue.SyntaxError(context, TextRange.Range(context, textIndex.Index + cursorIndex, 1, range),
+					"Unknown character detected");
 				break;
 			}
 		}
+
 		//the returning index should only refer to the index within the given text
 		return (queue, TextIndex.GetIndex(context, cursorIndex));
 	}
 
-	private static IExpressionToken TokenizeString(string textPart, 
-													int index, 
-													TextIndex textIndex, 
-													out int consumed, 
-													string text, 
+	private static IExpressionToken TokenizeString(string textPart,
+													int index,
+													TextIndex textIndex,
+													out int consumed,
+													string text,
 													TokenzierContext context)
 	{
 		var delimiter = textPart[index];
@@ -131,13 +136,16 @@ public class ExpressionTokenizer
 
 		var endDelimiterFound = false;
 		var isEscapeChar = false;
+
 		for (; index < text.Length; index++)
 		{
 			consumed++;
 			var c = text[index];
+
 			if (isEscapeChar)
 			{
 				stringContents.Append(c);
+
 				if (c == delimiter)
 				{
 					isEscapeChar = false;
@@ -164,8 +172,8 @@ public class ExpressionTokenizer
 
 		if (!endDelimiterFound)
 		{
-			context.Errors.Add(new MorestachioSyntaxError(TextRange.Range(context, textIndex.Index + index, 1), 
-				"string", 
+			context.Errors.Add(new MorestachioSyntaxError(TextRange.Range(context, textIndex.Index + index, 1),
+				"string",
 				text[text.Length - 1].ToString(),
 				"expected to find " + delimiter));
 		}
@@ -186,10 +194,12 @@ public class ExpressionTokenizer
 		var expressionContents = StringBuilderCache.Acquire();
 		consumed = 1;
 		index++;
+
 		for (int i = index; i < textPart.Length; i++)
 		{
 			consumed++;
 			var c = text[i];
+
 			if (Tokenizer.IsWhiteSpaceDelimiter(c))
 			{
 				continue;
@@ -198,16 +208,17 @@ public class ExpressionTokenizer
 			if (c == ']')
 			{
 				return new ExpressionValueToken(ExpressionTokenType.Argument,
-					StringBuilderCache.GetStringAndRelease(expressionContents), 
+					StringBuilderCache.GetStringAndRelease(expressionContents),
 					TextRange.Range(context, index - consumed + textIndex.Index, consumed));
 			}
 
 			expressionContents.Append(c);
 		}
 
-		context.Errors.Add(new MorestachioSyntaxError(TextRange.Range(context, index - consumed + textIndex.Index, consumed),
-			"argument", 
-			text[text.Length - 1].ToString(), 
+		context.Errors.Add(new MorestachioSyntaxError(
+			TextRange.Range(context, index - consumed + textIndex.Index, consumed),
+			"argument",
+			text[text.Length - 1].ToString(),
 			"expected an expression after argument name declaration"));
 
 		return null;
@@ -224,6 +235,7 @@ public class ExpressionTokenizer
 		var opText = textPart[index].ToString();
 		consumed = 1;
 		index++;
+
 		if (index < textPart.Length)
 		{
 			opText += textPart[index];
@@ -245,16 +257,18 @@ public class ExpressionTokenizer
 		}
 
 		var op = MorestachioOperator.Yield().FirstOrDefault(e => e.OperatorText.Equals(opText));
+
 		if (op == null)
 		{
 			context.Errors.Add(new MorestachioSyntaxError(
 				TextRange.Range(context, textIndex.Index + index, consumed + 1),
-				"Operator", 
+				"Operator",
 				opText,
 				"",
 				"Could not find expected operator"));
 			return null;
 		}
+
 		return new OperatorToken(op.OperatorType, TextRange.Range(context, textIndex.Index + index, consumed));
 	}
 
@@ -268,10 +282,11 @@ public class ExpressionTokenizer
 	{
 		var pathTokenizer = new PathTokenizer();
 		var sourceIndex = index;
-			
+
 		for (; index < textPart.Length; index++)
 		{
 			var c = text[index];
+
 			if (Tokenizer.IsWhiteSpaceDelimiter(c))
 			{
 				continue;
@@ -281,7 +296,8 @@ public class ExpressionTokenizer
 			{
 				if (!Tokenizer.IsExpressionPathChar(c) || Tokenizer.IsOperationChar(c))
 				{
-					if (c is '(' or ')' || Tokenizer.IsPathDelimiterChar(c) || Tokenizer.IsEndOfExpression(c) || Tokenizer.IsOperationChar(c))
+					if (c is '(' or ')' || Tokenizer.IsPathDelimiterChar(c) || Tokenizer.IsEndOfExpression(c) ||
+						Tokenizer.IsOperationChar(c))
 						//the only char that can follow on a expression is ether an bracket or an argument seperator or an operator
 					{
 						//consume everything before that current char!
@@ -315,10 +331,12 @@ public class ExpressionTokenizer
 		consumed = 0;
 		var isFloatingNumber = false;
 		var nrText = StringBuilderCache.Acquire();
+
 		for (; index < textPart.Length; index++)
 		{
 			consumed++;
 			var c = textPart[index];
+
 			if (c == CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator[0])
 			{
 				if (isFloatingNumber)
@@ -329,7 +347,8 @@ public class ExpressionTokenizer
 
 				if (index + 1 > textPart.Length)
 				{
-					context.Errors.Add(new MorestachioSyntaxError(TextRange.Range(context, textIndex.Index + index + 1, consumed),
+					context.Errors.Add(new MorestachioSyntaxError(
+						TextRange.Range(context, textIndex.Index + index + 1, consumed),
 						"",
 						textPart,
 						"Could not parse the given number"));
@@ -343,7 +362,8 @@ public class ExpressionTokenizer
 
 				isFloatingNumber = true;
 			}
-			else if (Tokenizer.IsEndOfFormatterArgument(c) || Tokenizer.IsWhiteSpaceDelimiter(c) || Tokenizer.IsEndOfExpression(c))
+			else if (Tokenizer.IsEndOfFormatterArgument(c) || Tokenizer.IsWhiteSpaceDelimiter(c) ||
+					Tokenizer.IsEndOfExpression(c))
 			{
 				consumed--;
 				break;
@@ -353,6 +373,7 @@ public class ExpressionTokenizer
 		}
 
 		textPart = StringBuilderCache.GetStringAndRelease(nrText);
+
 		if (Number.TryParse(textPart, CultureInfo.InvariantCulture, out var nr))
 		{
 			return new NumberToken(nr, TextRange.Range(context, textIndex.Index + index + 1, consumed));

@@ -15,8 +15,8 @@ namespace Morestachio.Document.Items.Base;
 /// <summary>
 ///		Defines a Document item that contains an opening tag and an closing tag
 /// </summary>
-public abstract class BlockDocumentItemBase : DocumentItemBase, 
-											IBlockDocumentItem, 
+public abstract class BlockDocumentItemBase : DocumentItemBase,
+											IBlockDocumentItem,
 											IEquatable<BlockDocumentItemBase>,
 											IReportUsage
 {
@@ -45,6 +45,7 @@ public abstract class BlockDocumentItemBase : DocumentItemBase,
 		BlockClosingOptions = info.GetValueOrDefault<ITokenOption[]>(c, nameof(BlockClosingOptions), () => null);
 		BlockLocation = TextRangeSerializationHelper.ReadTextRange(nameof(BlockLocation), info, c);
 	}
+
 	/// <inheritdoc />
 	protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
 	{
@@ -65,9 +66,11 @@ public abstract class BlockDocumentItemBase : DocumentItemBase,
 	protected override void SerializeXmlBodyCore(XmlWriter writer)
 	{
 		base.SerializeXmlBodyCore(writer);
+
 		if (Children.Any())
 		{
 			writer.WriteStartElement(nameof(Children));
+
 			foreach (var documentItem in Children)
 			{
 				documentItem.SerializeToXml(writer);
@@ -90,9 +93,11 @@ public abstract class BlockDocumentItemBase : DocumentItemBase,
 	protected override void DeSerializeXmlBodyCore(XmlReader reader)
 	{
 		base.DeSerializeXmlBodyCore(reader);
+
 		if (reader.Name == nameof(Children))
 		{
 			reader.ReadStartElement(); //nameof(Children)
+
 			while (!reader.Name.Equals(nameof(Children)) && reader.NodeType != XmlNodeType.EndElement)
 			{
 				var child = SerializationHelper.CreateDocumentItemInstance(reader.Name);
@@ -106,9 +111,10 @@ public abstract class BlockDocumentItemBase : DocumentItemBase,
 
 			reader.ReadEndElement(); //nameof(Children)
 		}
+
 		BlockClosingOptions = reader.ReadOptions(nameof(BlockClosingOptions));
 	}
-	
+
 	/// <inheritdoc />
 	public IList<IDocumentItem> Children { get; internal set; }
 
@@ -171,8 +177,11 @@ public abstract class BlockDocumentItemBase : DocumentItemBase,
 		{
 			int hashCode = base.GetHashCode();
 			hashCode = (hashCode * 397) ^ BlockLocation.GetHashCode();
-			hashCode = (hashCode * 397) ^ (Children.Any() ? Children.Select(f => f.GetHashCode()).Aggregate((e, f) => e ^ f) : 0);
-			hashCode = (hashCode * 397) ^ (BlockClosingOptions.Any() ? BlockClosingOptions.Select(f => f.GetHashCode()).Aggregate((e, f) => e ^ f) : 0);
+			hashCode = (hashCode * 397) ^
+				(Children.Any() ? Children.Select(f => f.GetHashCode()).Aggregate((e, f) => e ^ f) : 0);
+			hashCode = (hashCode * 397) ^ (BlockClosingOptions.Any()
+				? BlockClosingOptions.Select(f => f.GetHashCode()).Aggregate((e, f) => e ^ f)
+				: 0);
 			return hashCode;
 		}
 	}

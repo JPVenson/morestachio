@@ -11,11 +11,9 @@ namespace Morestachio.Framework.Expression.Visitors;
 /// <summary>
 ///     Allows building of strings in a interlaced and colored way
 /// </summary>
-public class StringBuilderInterlaced<TColor> : IStringBuilderInterlaced<TColor>, ICollection 
+public class StringBuilderInterlaced<TColor> : IStringBuilderInterlaced<TColor>, ICollection
 	where TColor : class, new()
 {
-		
-
 	private readonly List<ITextWithColor<TColor>> _source;
 	private readonly string _interlacedText;
 	private TColor _color;
@@ -30,7 +28,7 @@ public class StringBuilderInterlaced<TColor> : IStringBuilderInterlaced<TColor>,
 		_source = new List<ITextWithColor<TColor>>();
 		SyncRoot = new object();
 	}
-		
+
 	/// <summary>
 	///     Sets the color for all Folloring Text parts
 	/// </summary>
@@ -72,6 +70,7 @@ public class StringBuilderInterlaced<TColor> : IStringBuilderInterlaced<TColor>,
 		{
 			_interlacedLevel--;
 		}
+
 		return this;
 	}
 
@@ -87,10 +86,12 @@ public class StringBuilderInterlaced<TColor> : IStringBuilderInterlaced<TColor>,
 	private void ApplyLevel()
 	{
 		var text = "";
+
 		for (var i = 0; i < _interlacedLevel; i++)
 		{
 			text += _interlacedText;
 		}
+
 		Add(new ColoredString(text));
 	}
 
@@ -169,6 +170,7 @@ public class StringBuilderInterlaced<TColor> : IStringBuilderInterlaced<TColor>,
 		{
 			Add(textWithColor);
 		}
+
 		return this;
 	}
 
@@ -265,7 +267,9 @@ public class StringBuilderInterlaced<TColor> : IStringBuilderInterlaced<TColor>,
 	/// <param name="color">The color.</param>
 	/// <param name="values">The values.</param>
 	/// <returns></returns>
-	public virtual IStringBuilderInterlaced<TColor> AppendLine(string value, TColor color = null, params object[] values)
+	public virtual IStringBuilderInterlaced<TColor> AppendLine(string value,
+																TColor color = null,
+																params object[] values)
 	{
 		Append(string.Format(value, values) + Environment.NewLine, color);
 		return this;
@@ -278,7 +282,10 @@ public class StringBuilderInterlaced<TColor> : IStringBuilderInterlaced<TColor>,
 	/// <param name="color">The color.</param>
 	/// <param name="values">The values.</param>
 	/// <returns></returns>
-	public virtual IStringBuilderInterlaced<TColor> AppendInterlacedLine(string value, TColor color = null, params object[] values)
+	public virtual IStringBuilderInterlaced<TColor> AppendInterlacedLine(
+		string value,
+		TColor color = null,
+		params object[] values)
 	{
 		return AppendInterlacedLine(string.Format(value, values), color);
 	}
@@ -290,7 +297,9 @@ public class StringBuilderInterlaced<TColor> : IStringBuilderInterlaced<TColor>,
 	/// <param name="color">The color.</param>
 	/// <param name="values">The values.</param>
 	/// <returns></returns>
-	public virtual IStringBuilderInterlaced<TColor> AppendInterlaced(string value, TColor color = null, params object[] values)
+	public virtual IStringBuilderInterlaced<TColor> AppendInterlaced(string value,
+																	TColor color = null,
+																	params object[] values)
 	{
 		return AppendInterlaced(string.Format(value, values), color);
 	}
@@ -305,11 +314,13 @@ public class StringBuilderInterlaced<TColor> : IStringBuilderInterlaced<TColor>,
 	{
 		TColor color = null;
 		var sb = new StringBuilder();
+
 		lock (SyncRoot)
 		{
 			foreach (var coloredString in _source)
 			{
 				var nColor = coloredString.Color;
+
 				if (nColor != color && sb.Length > 0)
 				{
 					//write buffer to output
@@ -317,11 +328,14 @@ public class StringBuilderInterlaced<TColor> : IStringBuilderInterlaced<TColor>,
 					{
 						changeColor(color);
 					}
+
 					output.Write(sb.ToString());
+
 					if (color != null)
 					{
 						changeColorBack();
 					}
+
 					sb.Clear();
 				}
 
@@ -334,7 +348,9 @@ public class StringBuilderInterlaced<TColor> : IStringBuilderInterlaced<TColor>,
 		{
 			changeColor(color);
 		}
+
 		output.Write(sb.ToString());
+
 		if (color != null)
 		{
 			changeColorBack();
@@ -381,10 +397,12 @@ public class StringBuilderInterlaced<TColor> : IStringBuilderInterlaced<TColor>,
 	{
 		throw new NotImplementedException();
 	}
+
 	/// <summary>
 	/// return the Count of all Text-String elements
 	/// </summary>
 	public int Count { get; private set; }
+
 	/// <summary>
 	/// Returns the internal String length
 	/// </summary>
@@ -422,18 +440,12 @@ public class StringBuilderInterlaced<TColor> : IStringBuilderInterlaced<TColor>,
 
 		public TColor Color
 		{
-			get
-			{
-				return _color;
-			}
+			get { return _color; }
 		}
 
 		public string Text
 		{
-			get
-			{
-				return _text;
-			}
+			get { return _text; }
 		}
 	}
 }

@@ -13,13 +13,17 @@ public class BlockRegexDocumentItemProvider : BlockRegexDocumentItemProviderBase
 	private readonly BlockDocumentProviderFunction _action;
 
 	/// <inheritdoc />
-	public BlockRegexDocumentItemProvider(Regex tagOpen, Regex tagClose, BlockDocumentProviderFunction action) : base(tagOpen, tagClose)
+	public BlockRegexDocumentItemProvider(Regex tagOpen, Regex tagClose, BlockDocumentProviderFunction action) : base(
+		tagOpen, tagClose)
 	{
 		_action = action;
 	}
-		
+
 	/// <inheritdoc />
-	public override IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token, ParserOptions options,
+	public override IDocumentItem CreateDocumentItem(string tag,
+													string value,
+													TokenPair token,
+													ParserOptions options,
 													IEnumerable<ITokenOption> tagCreationOptions)
 	{
 		return new BlockDocumentItemProvider.BlockDocumentItem(token.TokenRange, _action, value,

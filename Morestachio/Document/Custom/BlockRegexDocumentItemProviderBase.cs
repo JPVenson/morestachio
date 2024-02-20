@@ -17,7 +17,7 @@ public abstract class BlockRegexDocumentItemProviderBase : CustomDocumentItemPro
 	/// </summary>
 	protected readonly Regex TagOpen;
 
-		
+
 	/// <summary>
 	///		Defines the closing tag
 	/// </summary>
@@ -37,18 +37,23 @@ public abstract class BlockRegexDocumentItemProviderBase : CustomDocumentItemPro
 	/// <summary>
 	///		Will be called to produce an Document item that must be executed
 	/// </summary>
-	public abstract IDocumentItem CreateDocumentItem(string tag, string value, TokenPair token,
-													ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions);
+	public abstract IDocumentItem CreateDocumentItem(string tag,
+													string value,
+													TokenPair token,
+													ParserOptions options,
+													IEnumerable<ITokenOption> tagCreationOptions);
 
 	/// <inheritdoc />
 	public override IEnumerable<TokenPair> Tokenize(TokenInfo token, ParserOptions options)
 	{
 		var trim = token.Token;
+
 		if (TagOpen.IsMatch(trim))
 		{
 			var match = TagOpen.Match(trim);
 			yield return new TokenPair(match.Value, trim, token.Location);
 		}
+
 		if (TagClose.IsMatch(trim))
 		{
 			var match = TagClose.Match(trim);
@@ -57,7 +62,9 @@ public abstract class BlockRegexDocumentItemProviderBase : CustomDocumentItemPro
 	}
 
 	/// <inheritdoc />
-	public override bool ShouldParse(TokenPair token, ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions)
+	public override bool ShouldParse(TokenPair token,
+									ParserOptions options,
+									IEnumerable<ITokenOption> tagCreationOptions)
 	{
 		if (!(token.Type is string blockType))
 		{
@@ -68,21 +75,26 @@ public abstract class BlockRegexDocumentItemProviderBase : CustomDocumentItemPro
 	}
 
 	/// <inheritdoc />
-	public override IDocumentItem Parse(TokenPair token, ParserOptions options, Stack<DocumentScope> buildStack,
-										Func<int> getScope, IEnumerable<ITokenOption> tagCreationOptions)
+	public override IDocumentItem Parse(TokenPair token,
+										ParserOptions options,
+										Stack<DocumentScope> buildStack,
+										Func<int> getScope,
+										IEnumerable<ITokenOption> tagCreationOptions)
 	{
 		if (TagOpen.IsMatch((string)token.Type))
 		{
-			var tagDocumentItem = CreateDocumentItem((string)token.Type, 
+			var tagDocumentItem = CreateDocumentItem((string)token.Type,
 				token.Value?.Remove(0, ((string)token.Type).Length).Trim(),
 				token, options, tagCreationOptions);
 			buildStack.Push(new DocumentScope(tagDocumentItem, getScope));
 			return tagDocumentItem;
 		}
+
 		if (TagClose.IsMatch((string)token.Type))
 		{
 			buildStack.Pop();
 		}
+
 		return null;
 	}
 

@@ -15,7 +15,9 @@ public class SerializableConverterFactory : JsonConverterFactory
 	///		The shared Instance.
 	/// </summary>
 	public static readonly JsonConverterFactory Instance = new SerializableConverterFactory();
+
 	private static readonly ConcurrentDictionary<Type, JsonConverter> _cache = new();
+
 	/// <inheritdoc />
 	public override bool CanConvert(Type typeToConvert)
 	{
@@ -35,21 +37,24 @@ public class SerializableConverterFactory : JsonConverterFactory
 		return converter;
 	}
 
-	private class SerializableConverter<TSerializable> : JsonConverter<TSerializable> where TSerializable : ISerializable
+	private class SerializableConverter<TSerializable> : JsonConverter<TSerializable>
+		where TSerializable : ISerializable
 	{
 		/// <inheritdoc />
 		public override bool CanConvert(Type typeToConvert)
 		{
-			return !typeToConvert.IsInterface 
+			return !typeToConvert.IsInterface
 				&& typeof(ISerializable).IsAssignableFrom(typeToConvert);
 		}
 
 		/// <inheritdoc />
 		public override TSerializable Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 		{
-			var serializationInfo = WithTypeDiscriminatorHelper<TSerializable>.GetSerializationInfoFromJson(ref reader, options);
+			var serializationInfo
+				= WithTypeDiscriminatorHelper<TSerializable>.GetSerializationInfoFromJson(ref reader, options);
 			serializationInfo.serializationInfo.SetType(typeToConvert);
-			return WithTypeDiscriminatorHelper<TSerializable>.ConstructFromSerializationInfo(serializationInfo, typeToConvert);
+			return WithTypeDiscriminatorHelper<TSerializable>.ConstructFromSerializationInfo(serializationInfo,
+				typeToConvert);
 		}
 
 		/// <inheritdoc />

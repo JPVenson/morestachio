@@ -21,17 +21,18 @@ public class InvertedExpressionScopeDocumentItem : BlockExpressionDocumentItemBa
 	/// <summary>
 	///		Used for XML Serialization
 	/// </summary>
-	internal InvertedExpressionScopeDocumentItem() 
+	internal InvertedExpressionScopeDocumentItem()
 	{
-
 	}
 
 	/// <inheritdoc />
-	public InvertedExpressionScopeDocumentItem(TextRange location, IMorestachioExpression value,
-												IEnumerable<ITokenOption> tagCreationOptions) : base(location, value,tagCreationOptions)
+	public InvertedExpressionScopeDocumentItem(TextRange location,
+												IMorestachioExpression value,
+												IEnumerable<ITokenOption> tagCreationOptions) : base(location, value,
+		tagCreationOptions)
 	{
 	}
-		
+
 	/// <inheritdoc />
 	protected InvertedExpressionScopeDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
@@ -48,24 +49,30 @@ public class InvertedExpressionScopeDocumentItem : BlockExpressionDocumentItemBa
 		return async (stream, context, scopeData) =>
 		{
 			var c = await expression(context, scopeData).ConfigureAwait(false);
+
 			if (!c.Exists())
 			{
 				await children(stream, c, scopeData).ConfigureAwait(false);
 			}
 		};
 	}
-		
+
 	/// <inheritdoc />
-	public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+	public override async ItemExecutionPromise Render(IByteCounterStream outputStream,
+													ContextObject context,
+													ScopeData scopeData)
 	{
 		//var c = await context.GetContextForPath(Value, scopeData);
 		var c = await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false);
+
 		if (!c.Exists())
 		{
 			return Children.WithScope(c);
 		}
+
 		return Enumerable.Empty<DocumentItemExecution>();
 	}
+
 	/// <inheritdoc />
 	public override void Accept(IDocumentItemVisitor visitor)
 	{

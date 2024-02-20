@@ -5,7 +5,6 @@ namespace Morestachio.Benchmark.PerfRendering
 {
 	public class BenchPerfHarnessDictionary : BenchPerfHarness
 	{
-
 		public override object GetData()
 		{
 			var productsDict = new Dictionary<string, object>();
@@ -15,6 +14,7 @@ namespace Morestachio.Benchmark.PerfRendering
 			productsDict.Add("Products", prodList);
 
 			var lorem = Lorem.AsMemory();
+
 			for (int i = 0; i < ProductCount; i++)
 			{
 				prodList.Add(new Dictionary<string, object>()

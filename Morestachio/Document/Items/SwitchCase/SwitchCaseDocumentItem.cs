@@ -22,24 +22,25 @@ public class SwitchCaseDocumentItem : BlockExpressionDocumentItemBase
 	/// </summary>
 	internal SwitchCaseDocumentItem()
 	{
-
 	}
 
 	/// <inheritdoc />
-	public SwitchCaseDocumentItem(TextRange location, 
+	public SwitchCaseDocumentItem(TextRange location,
 								IMorestachioExpression value,
-								IEnumerable<ITokenOption> tagCreationOptions) : base(location, value, tagCreationOptions)
+								IEnumerable<ITokenOption> tagCreationOptions) : base(location, value,
+		tagCreationOptions)
 	{
 	}
 
 	/// <inheritdoc />
-		
 	protected SwitchCaseDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
 	}
 
 	/// <inheritdoc />
-	public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+	public override ItemExecutionPromise Render(IByteCounterStream outputStream,
+												ContextObject context,
+												ScopeData scopeData)
 	{
 		return Children.WithScope(context).ToPromise();
 	}

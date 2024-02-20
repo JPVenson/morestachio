@@ -3,7 +3,10 @@
 	<PropertyGroup>
 		<!--netcoreapp2.0; is not supported via nunit? I dont care much as quite old and not much usage anymore-->
 		<TargetFrameworks>$(SupportedFrameworks)</TargetFrameworks>
-		<IsValueTask Condition="'$(TargetFramework)' == 'net5.0' or '$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0' or '$(TargetFramework)' == 'net8.0'">Enabled</IsValueTask>
+		<IsValueTask
+			Condition="'$(TargetFramework)' == 'net5.0' or '$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0' or '$(TargetFramework)' == 'net8.0'">
+			Enabled
+		</IsValueTask>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -36,6 +39,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Update="Microsoft.SourceLink.GitHub" Version="8.0.0" />
+		<PackageReference Update="Microsoft.SourceLink.GitHub" Version="8.0.0" />
 	</ItemGroup>
 </Project>

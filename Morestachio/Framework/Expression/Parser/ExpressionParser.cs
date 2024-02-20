@@ -103,7 +103,8 @@ public static class ExpressionParser
 
 				context.Errors.Add(new MorestachioSyntaxError(
 					tokenMatch.Range,
-					strVarType, "", strVarType + "name", "Invalid character detected. Expected only spaces or letters."));
+					strVarType, "", strVarType + "name",
+					"Invalid character detected. Expected only spaces or letters."));
 
 				return default;
 			}
@@ -129,9 +130,9 @@ public static class ExpressionParser
 			return default;
 		}
 
-		return new TokenPair(type, 
-			variableName, 
-			tokenMatch.Range, 
+		return new TokenPair(type,
+			variableName,
+			tokenMatch.Range,
 			ParseExpression(expression, context, tokenMatch.Range.RangeStart)
 				.Expression,
 			options);
@@ -199,7 +200,8 @@ public static class ExpressionParser
 	/// </summary>
 	public static ObjectPromise EvaluateExpression(string expressionText)
 	{
-		return EvaluateExpression(expressionText, ParserOptionsDefaultBuilder.GetDefaults().Build(), new Dictionary<string, object>());
+		return EvaluateExpression(expressionText, ParserOptionsDefaultBuilder.GetDefaults().Build(),
+			new Dictionary<string, object>());
 	}
 
 	/// <summary>
@@ -276,7 +278,8 @@ public static class ExpressionParser
 	{
 		if (text.Length == 0)
 		{
-			context.Errors.Add(new MorestachioSyntaxError(new TextRange(index, textBoundary.RangeEnd.Add(context, index)),
+			context.Errors.Add(new MorestachioSyntaxError(
+				new TextRange(index, textBoundary.RangeEnd.Add(context, index)),
 				"", "", "", "expected ether an path expression or an string value"));
 
 			return default;
@@ -291,7 +294,8 @@ public static class ExpressionParser
 
 		tokenize.Item1.Reset();
 		var morestachioExpression = ParseExpressionRoot(tokenize.Item1, context);
-		return new ExpressionParserResult(morestachioExpression, TextRange.RangeIndex(context, index.Index, tokenize.Item2.Index));
+		return new ExpressionParserResult(morestachioExpression,
+			TextRange.RangeIndex(context, index.Index, tokenize.Item2.Index));
 	}
 
 	/// <summary>
@@ -330,7 +334,8 @@ public static class ExpressionParser
 					return true;
 				default:
 					tokens.SyntaxError(context,
-						token.Location, "Expected an expression, opening bracket, number, string or operator but got an argument name or argument seperator instead.");
+						token.Location,
+						"Expected an expression, opening bracket, number, string or operator but got an argument name or argument seperator instead.");
 
 					return false;
 			}
@@ -421,7 +426,8 @@ public static class ExpressionParser
 			var leftExpression = parentBracket.Expressions.Last();
 			ValidateArgumentItemOrList(leftExpression, tokens, context, token);
 			parentBracket.Expressions.Remove(leftExpression);
-			parentBracket.Expressions.Add(lambdaExpression = new MorestachioLambdaExpression(leftExpression, leftExpression.Location));
+			parentBracket.Expressions.Add(lambdaExpression
+				= new MorestachioLambdaExpression(leftExpression, leftExpression.Location));
 		}
 		else if (topParent is MorestachioExpression exp)
 		{
@@ -435,12 +441,14 @@ public static class ExpressionParser
 
 			var argExp = exp.Formats.Last().MorestachioExpression;
 			ValidateArgumentItemOrList(argExp, tokens, context, token);
-			exp.Formats.Last().MorestachioExpression = lambdaExpression = new MorestachioLambdaExpression(argExp, argExp.Location);
+			exp.Formats.Last().MorestachioExpression
+				= lambdaExpression = new MorestachioLambdaExpression(argExp, argExp.Location);
 		}
 		else
 		{
 			tokens.SyntaxError(context,
-				token.Location, "Invalid use of a Lambda expression. A Lambda expression can only be used as an argument for an Formatter");
+				token.Location,
+				"Invalid use of a Lambda expression. A Lambda expression can only be used as an argument for an Formatter");
 
 			return;
 		}
@@ -453,10 +461,7 @@ public static class ExpressionParser
 			return;
 		}
 
-		var operatRightExpression = ParseAnyExpression(tokens, context, subToken =>
-		{
-			return condition(subToken);
-		});
+		var operatRightExpression = ParseAnyExpression(tokens, context, subToken => { return condition(subToken); });
 		lambdaExpression.Expression = operatRightExpression;
 	}
 
@@ -470,33 +475,35 @@ public static class ExpressionParser
 		switch (argument)
 		{
 			case MorestachioBracketExpression bracket:
+			{
+				foreach (var morestachioExpression in bracket.Expressions)
 				{
-					foreach (var morestachioExpression in bracket.Expressions)
+					if (morestachioExpression is MorestachioExpression exp)
 					{
-						if (morestachioExpression is MorestachioExpression exp)
-						{
-							ValidateArgumentItem(exp, tokens, context, token);
-						}
-						else
-						{
-							tokens.SyntaxError(context,
-								token.Location, $"The argument {morestachioExpression.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
-						}
+						ValidateArgumentItem(exp, tokens, context, token);
 					}
-
-					break;
+					else
+					{
+						tokens.SyntaxError(context,
+							token.Location,
+							$"The argument {morestachioExpression.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
+					}
 				}
+
+				break;
+			}
 			case MorestachioExpression exp:
 				ValidateArgumentItem(exp, tokens, context, token);
 
 				break;
 			default:
-				{
-					tokens.SyntaxError(context,
-						token.Location, $"The argument {argument.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
+			{
+				tokens.SyntaxError(context,
+					token.Location,
+					$"The argument {argument.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
 
-					break;
-				}
+				break;
+			}
 		}
 	}
 
@@ -516,7 +523,8 @@ public static class ExpressionParser
 		}
 
 		tokens.SyntaxError(context,
-			token.Location, $"The argument {argument.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
+			token.Location,
+			$"The argument {argument.AsStringExpression()} is not in the correct format only single names without special characters and without path are supported");
 	}
 
 	private static void ParseAndAddOperator(
@@ -547,7 +555,8 @@ public static class ExpressionParser
 
 				var leftExpression = parentBracket.Expressions.Last();
 				parentBracket.Expressions.Remove(leftExpression);
-				parentBracket.Expressions.Add(operat = new MorestachioOperatorExpression(op, leftExpression, leftExpression.Location));
+				parentBracket.Expressions.Add(operat
+					= new MorestachioOperatorExpression(op, leftExpression, leftExpression.Location));
 			}
 			else if (topParent is MorestachioExpression exp)
 			{
@@ -587,10 +596,8 @@ public static class ExpressionParser
 					return;
 				}
 
-				var operatRightExpression = ParseAnyExpression(tokens, context, subToken =>
-				{
-					return condition(subToken) && subToken.TokenType != ExpressionTokenType.Operator;
-				});
+				var operatRightExpression = ParseAnyExpression(tokens, context,
+					subToken => { return condition(subToken) && subToken.TokenType != ExpressionTokenType.Operator; });
 				operat.RightExpression = operatRightExpression;
 			}
 		}
@@ -600,10 +607,8 @@ public static class ExpressionParser
 			//it can only accept one argument
 			var operatorExp = new MorestachioOperatorExpression(op, null, token.Location);
 			AddToParent(operatorExp, topParent);
-			operatorExp.LeftExpression = ParseAnyExpression(tokens, context, subToken =>
-			{
-				return condition(subToken) && subToken.TokenType != ExpressionTokenType.Operator;
-			});
+			operatorExp.LeftExpression = ParseAnyExpression(tokens, context,
+				subToken => { return condition(subToken) && subToken.TokenType != ExpressionTokenType.Operator; });
 		}
 	}
 
@@ -631,7 +636,8 @@ public static class ExpressionParser
 
 		bool SubCondition(IExpressionToken subToken)
 		{
-			return !(subToken.TokenType == ExpressionTokenType.Bracket && ((ExpressionValueToken)subToken).Value == ")");
+			return !(subToken.TokenType == ExpressionTokenType.Bracket &&
+				((ExpressionValueToken)subToken).Value == ")");
 		}
 
 		tokens.PeekLoop(SubCondition, subToken =>
@@ -643,7 +649,8 @@ public static class ExpressionParser
 				return;
 			}
 
-			exp.Add(ParseAnyExpression(tokens, context, expToken => SubCondition(expToken) && expToken.TokenType != ExpressionTokenType.ArgumentSeperator));
+			exp.Add(ParseAnyExpression(tokens, context,
+				expToken => SubCondition(expToken) && expToken.TokenType != ExpressionTokenType.ArgumentSeperator));
 		});
 
 		tokens.TryDequeue(() =>
@@ -681,7 +688,8 @@ public static class ExpressionParser
 		}
 		else
 		{
-			throw new MorestachioParserException($"Internal Parser error. Tried to add '{expression.GetType()}' to '{topParent.GetType()}'");
+			throw new MorestachioParserException(
+				$"Internal Parser error. Tried to add '{expression.GetType()}' to '{topParent.GetType()}'");
 		}
 	}
 
@@ -707,7 +715,8 @@ public static class ExpressionParser
 
 			bool Condition(IExpressionToken innerToken)
 			{
-				return !(innerToken.TokenType == ExpressionTokenType.Bracket && ((ExpressionValueToken)innerToken).Value == ")");
+				return !(innerToken.TokenType == ExpressionTokenType.Bracket &&
+					((ExpressionValueToken)innerToken).Value == ")");
 			}
 
 			tokens.PeekLoop(Condition, subToken =>
@@ -720,17 +729,19 @@ public static class ExpressionParser
 					argumentName = ((ExpressionValueToken)subToken).Value;
 				}
 
-				var anyElse = ParseAnyExpression(tokens, context, innerToken =>
-				{
-					return Condition(innerToken) && innerToken.TokenType != ExpressionTokenType.ArgumentSeperator;
-				});
+				var anyElse = ParseAnyExpression(tokens, context,
+					innerToken =>
+					{
+						return Condition(innerToken) && innerToken.TokenType != ExpressionTokenType.ArgumentSeperator;
+					});
 				expression.Formats.Add(new ExpressionArgument(anyElse.Location, anyElse, argumentName));
 				next = tokens.TryPeek();
 
 				if (next == null)
 				{
 					tokens.SyntaxError(context,
-						token.Location, "Unexpected end of expression. Expected ether a argument seperator ',' or a closing bracket ')'");
+						token.Location,
+						"Unexpected end of expression. Expected ether a argument seperator ',' or a closing bracket ')'");
 				}
 
 				if (next?.TokenType != ExpressionTokenType.ArgumentSeperator)
@@ -746,10 +757,7 @@ public static class ExpressionParser
 				return true;
 			});
 
-			tokens.TryDequeue(() =>
-			{
-				tokens.SyntaxError(context, token.Location, "Expected a )");
-			});
+			tokens.TryDequeue(() => { tokens.SyntaxError(context, token.Location, "Expected a )"); });
 		}
 		else
 		{

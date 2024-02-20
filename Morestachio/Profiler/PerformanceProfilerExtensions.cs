@@ -20,7 +20,8 @@ internal static class PerformanceProfilerExtensions
 		return profiler?.Begin(name) ?? _instance;
 	}
 
-	public static PerformanceProfiler.PerformanceKey AddOrGet(this HashSet<PerformanceProfiler.PerformanceKey> profiler, PerformanceProfiler.PerformanceKey key)
+	public static PerformanceProfiler.PerformanceKey AddOrGet(this HashSet<PerformanceProfiler.PerformanceKey> profiler,
+															PerformanceProfiler.PerformanceKey key)
 	{
 		if (profiler.Contains(key))
 		{

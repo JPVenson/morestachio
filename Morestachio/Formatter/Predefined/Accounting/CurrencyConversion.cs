@@ -43,12 +43,14 @@ public readonly struct CurrencyConversion : IComparable<CurrencyConversion>, IEq
 	public int CompareTo(CurrencyConversion other)
 	{
 		var fromCurrencyComparison = FromCurrency.CompareTo(other.FromCurrency);
+
 		if (fromCurrencyComparison != 0)
 		{
 			return fromCurrencyComparison;
 		}
 
 		var toCurrencyComparison = ToCurrency.CompareTo(other.ToCurrency);
+
 		if (toCurrencyComparison != 0)
 		{
 			return toCurrencyComparison;

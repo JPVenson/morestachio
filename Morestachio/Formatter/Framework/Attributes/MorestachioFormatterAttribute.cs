@@ -25,7 +25,7 @@ public class MorestachioFormatterAttribute : Attribute, IMorestachioFormatterDes
 
 	/// <inheritdoc />
 	public bool IsSourceObjectAware { get; set; }
-		
+
 	/// <inheritdoc />
 	public string Name { get; private set; }
 
@@ -34,7 +34,7 @@ public class MorestachioFormatterAttribute : Attribute, IMorestachioFormatterDes
 
 	/// <inheritdoc />
 	public string ReturnHint { get; set; }
-		
+
 	/// <inheritdoc />
 	public Type OutputType { get; set; }
 
@@ -52,6 +52,7 @@ public class MorestachioFormatterAttribute : Attribute, IMorestachioFormatterDes
 	public virtual bool ValidateFormatterName(MethodInfo method)
 	{
 		var name = GetFormatterName(method);
+
 		if (string.IsNullOrWhiteSpace(name))
 		{
 			return false;
@@ -96,6 +97,7 @@ public class MorestachioFormatterAttribute : Attribute, IMorestachioFormatterDes
 		}
 
 		var sourceValue = arguments.FirstOrDefault(e => e.IsSourceObject);
+
 		if (sourceValue != null)
 		{
 			//if we have a source value in the arguments reduce the index of all following 

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 #if ValueTask
 using StringArrayPromise = System.Threading.Tasks.ValueTask<string[]>;
+
 #else
 using StringArrayPromise = System.Threading.Tasks.Task<string[]>;
 #endif
@@ -34,12 +35,13 @@ namespace Morestachio.Framework
 
 		/// <inheritdoc />
 		public bool IsSealed { get; private set; }
-		
+
 		/// <inheritdoc />
 		public void Seal()
 		{
 			IsSealed = true;
 			PartialsStores = new ReadOnlyCollection<IPartialsStore>(PartialsStores);
+
 			foreach (var partialsStore in PartialsStores)
 			{
 				partialsStore.Seal();
@@ -51,13 +53,13 @@ namespace Morestachio.Framework
 		{
 			throw new System.NotImplementedException();
 		}
-		
+
 		/// <inheritdoc />
 		public string[] GetNames(ParserOptions parserOptions)
 		{
 			throw new System.NotImplementedException();
 		}
-		
+
 		/// <inheritdoc />
 		public async MorestachioDocumentInfoPromise GetPartialAsync(string name, ParserOptions parserOptions)
 		{
@@ -73,7 +75,7 @@ namespace Morestachio.Framework
 
 			return null;
 		}
-		
+
 		/// <inheritdoc />
 		public async StringArrayPromise GetNamesAsync(ParserOptions parserOptions)
 		{
@@ -83,9 +85,11 @@ namespace Morestachio.Framework
 			}
 
 			_knownPartials = new Dictionary<string, IPartialsStore>();
+
 			foreach (var partialsStore in PartialsStores)
 			{
 				string[] names = null;
+
 				if (partialsStore is IAsyncPartialsStore asyncPartialsStore)
 				{
 					names = await asyncPartialsStore.GetNamesAsync(parserOptions).ConfigureAwait(false);
@@ -100,6 +104,7 @@ namespace Morestachio.Framework
 					_knownPartials[name] = partialsStore;
 				}
 			}
+
 			return _knownPartials.Keys.ToArray();
 		}
 	}

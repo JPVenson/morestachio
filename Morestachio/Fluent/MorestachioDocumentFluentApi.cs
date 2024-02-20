@@ -31,11 +31,13 @@ public class MorestachioDocumentFluentApi
 	/// <param name="parent"></param>
 	/// <param name="document"></param>
 	/// <returns></returns>
-	public static MorestachioNode CreateNodes(MorestachioNode parent, IDocumentItem document, out List<MorestachioNode> nodes)
+	public static MorestachioNode CreateNodes(MorestachioNode parent,
+											IDocumentItem document,
+											out List<MorestachioNode> nodes)
 	{
 		var nodesList = new List<MorestachioNode>();
 		var stack = new Stack<Tuple<MorestachioNode, IDocumentItem>>();
-		
+
 		void PushNode(MorestachioNode node)
 		{
 			nodesList.Add(node);
@@ -60,6 +62,7 @@ public class MorestachioDocumentFluentApi
 		}
 
 		var prevNode = rootNode;
+
 		foreach (var morestachioNode in nodesList.Skip(1))
 		{
 			prevNode.Next = morestachioNode;
@@ -90,7 +93,8 @@ public class MorestachioDocumentFluentApi
 	/// </summary>
 	/// <param name="action"></param>
 	/// <returns></returns>
-	public MorestachioDocumentFluentApi IfSuccess(Func<MorestachioDocumentFluentApi, MorestachioDocumentFluentApi> action)
+	public MorestachioDocumentFluentApi IfSuccess(
+		Func<MorestachioDocumentFluentApi, MorestachioDocumentFluentApi> action)
 	{
 		if (Context.OperationStatus)
 		{
@@ -105,7 +109,8 @@ public class MorestachioDocumentFluentApi
 	/// </summary>
 	/// <param name="action"></param>
 	/// <returns></returns>
-	public MorestachioDocumentFluentApi IfNotSuccess(Func<MorestachioDocumentFluentApi, MorestachioDocumentFluentApi> action)
+	public MorestachioDocumentFluentApi IfNotSuccess(
+		Func<MorestachioDocumentFluentApi, MorestachioDocumentFluentApi> action)
 	{
 		if (!Context.OperationStatus)
 		{
@@ -186,6 +191,7 @@ public class MorestachioDocumentFluentApi
 			Context.OperationStatus = true;
 			modifyAction(item);
 		}
+
 		Context.OperationStatus = false;
 		return this;
 	}
@@ -207,12 +213,15 @@ public class MorestachioDocumentFluentApi
 	public MorestachioDocumentFluentApi Remove()
 	{
 		var currentNodeParent = Context.CurrentNode;
+
 		if (currentNodeParent == null)
 		{
 			Context.OperationStatus = false;
 			return this;
 		}
+
 		Context.OperationStatus = true;
+
 		if (currentNodeParent.Previous != null)
 		{
 			currentNodeParent.Previous.Next = currentNodeParent.Next;
@@ -224,7 +233,7 @@ public class MorestachioDocumentFluentApi
 		}
 
 		currentNodeParent.Leafs.Remove(currentNodeParent);
-		((IBlockDocumentItem) currentNodeParent.Item).Children.Remove(Context.CurrentNode.Item);
+		((IBlockDocumentItem)currentNodeParent.Item).Children.Remove(Context.CurrentNode.Item);
 		Context.CurrentNode = currentNodeParent.Previous;
 		return this;
 	}
@@ -247,7 +256,8 @@ public class MorestachioDocumentFluentApi
 	///		Adds the result of the item function to the current <see cref="IDocumentItem"/> and creates the necessary nodes in the tree and sets the <see cref="FluentApiContext.CurrentNode"/> to the created element
 	/// </summary>
 	/// <returns></returns>
-	public MorestachioDocumentFluentApi AddChildAndEnter(Func<MorestachioExpressionBuilderBaseRootApi, IDocumentItem> item)
+	public MorestachioDocumentFluentApi AddChildAndEnter(
+		Func<MorestachioExpressionBuilderBaseRootApi, IDocumentItem> item)
 	{
 		Context.CurrentNode = AddChildInternal(item);
 		return this;
@@ -317,7 +327,7 @@ public class MorestachioDocumentFluentApi
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
 	/// <returns></returns>
-	public MorestachioDocumentFluentApi FindNext<T>( Func<T, bool> condition) where T : IDocumentItem
+	public MorestachioDocumentFluentApi FindNext<T>(Func<T, bool> condition) where T : IDocumentItem
 	{
 		return SearchForward(f => f is T e && condition(e));
 	}
@@ -327,7 +337,7 @@ public class MorestachioDocumentFluentApi
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
 	/// <returns></returns>
-	public MorestachioDocumentFluentApi FindPrevious<T>( Func<T, bool> condition) where T : IDocumentItem
+	public MorestachioDocumentFluentApi FindPrevious<T>(Func<T, bool> condition) where T : IDocumentItem
 	{
 		return SearchBackward(f => f is T e && condition(e));
 	}
@@ -384,6 +394,7 @@ public class MorestachioDocumentFluentApi
 	public MorestachioDocumentFluentApi Child<T>(Func<T, bool> condition)
 	{
 		var fod = Context.CurrentNode.Leafs.FirstOrDefault(f => f is T e && condition(e));
+
 		if (fod == null)
 		{
 			Context.OperationStatus = false;
@@ -420,6 +431,7 @@ public class MorestachioDocumentFluentApi
 	public MorestachioDocumentFluentApi FindParent(Func<IDocumentItem, bool> condition)
 	{
 		var node = Context.CurrentNode;
+
 		while (node != null && !condition(node.Item))
 		{
 			node = Context.CurrentNode.Ancestor;
@@ -447,6 +459,7 @@ public class MorestachioDocumentFluentApi
 	public MorestachioDocumentFluentApi SearchBackward(Func<IDocumentItem, bool> condition, bool includeCurrent = true)
 	{
 		var node = includeCurrent ? Context.CurrentNode : Context.CurrentNode.Ancestor;
+
 		while (node != null)
 		{
 			if (condition(node.Item))
@@ -455,6 +468,7 @@ public class MorestachioDocumentFluentApi
 				Context.OperationStatus = true;
 				return this;
 			}
+
 			node = node.Previous;
 		}
 
@@ -477,6 +491,7 @@ public class MorestachioDocumentFluentApi
 	public MorestachioDocumentFluentApi SearchForward(Func<IDocumentItem, bool> condition, bool includeCurrent = false)
 	{
 		var node = includeCurrent ? Context.CurrentNode : Context.CurrentNode.Next;
+
 		while (node != null)
 		{
 			if (condition(node.Item))
@@ -485,8 +500,10 @@ public class MorestachioDocumentFluentApi
 				Context.OperationStatus = true;
 				return this;
 			}
+
 			node = node.Next;
 		}
+
 		Context.OperationStatus = false;
 		return this;
 	}

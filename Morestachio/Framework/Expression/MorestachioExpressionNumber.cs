@@ -19,7 +19,6 @@ public class MorestachioExpressionNumber : IMorestachioExpression
 {
 	internal MorestachioExpressionNumber()
 	{
-
 	}
 
 	/// <summary>
@@ -178,18 +177,12 @@ public class MorestachioExpressionNumber : IMorestachioExpression
 
 		public string Expression
 		{
-			get
-			{
-				return _exp.AsStringExpression();
-			}
+			get { return _exp.AsStringExpression(); }
 		}
 
 		public string DbgView
 		{
-			get
-			{
-				return _exp.AsDebugExpression();
-			}
+			get { return _exp.AsDebugExpression(); }
 		}
 
 		public TextRange Location

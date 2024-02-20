@@ -12,6 +12,7 @@ public enum IsolationOptions
 	///		No Isolation
 	/// </summary>
 	None = 1 << 0,
+
 	/// <summary>
 	///		Variables cannot be overwritten
 	/// </summary>

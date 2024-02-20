@@ -24,14 +24,14 @@ public class DefaultPartialsStore : IPartialsStore
 
 	/// <inheritdoc />
 	public bool IsSealed { get; private set; }
-		
+
 	/// <inheritdoc />
 	public void Seal()
 	{
 		IsSealed = true;
 		Partials = new ReadOnlyDictionary<string, MorestachioDocumentInfo>(Partials);
 	}
-		
+
 	/// <inheritdoc />
 	public MorestachioDocumentInfo GetPartial(string name, ParserOptions parserOptions)
 	{
@@ -42,7 +42,7 @@ public class DefaultPartialsStore : IPartialsStore
 
 		return null;
 	}
-		
+
 	/// <inheritdoc />
 	public string[] GetNames(ParserOptions parserOptions)
 	{

@@ -16,7 +16,7 @@ public static class ParserOptionsBuilderExtensions
 	{
 		return Parser.ParseWithOptionsAsync(builder.Build());
 	}
-	
+
 	/// <summary>
 	///		Builds the underlying ParserOptions and Parses the template
 	/// </summary>

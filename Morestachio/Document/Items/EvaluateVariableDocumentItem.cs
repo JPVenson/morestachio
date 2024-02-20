@@ -22,10 +22,8 @@ namespace Morestachio.Document.Items;
 [Serializable]
 public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncCompilation
 {
-
 	internal EvaluateVariableDocumentItem()
 	{
-
 	}
 
 	/// <summary>
@@ -50,7 +48,9 @@ public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase, ISupport
 	/// </summary>
 	/// <param name="value"></param>
 	/// <param name="morestachioExpression"></param>
-	public EvaluateVariableDocumentItem(TextRange location, string value, IMorestachioExpression morestachioExpression,
+	public EvaluateVariableDocumentItem(TextRange location,
+										string value,
+										IMorestachioExpression morestachioExpression,
 										IEnumerable<ITokenOption> tagCreationOptions)
 		: base(location, morestachioExpression, tagCreationOptions)
 	{
@@ -87,11 +87,13 @@ public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase, ISupport
 		base.DeSerializeXmlHeaderCore(reader);
 		Value = reader.GetAttribute(nameof(Value));
 		var varScope = reader.GetAttribute(nameof(IdVariableScope));
+
 		if (!int.TryParse(varScope, out var intVarScope))
 		{
 			throw new XmlException($"Error while serializing '{nameof(EvaluateVariableDocumentItem)}'." +
 				$" The value for '{nameof(IdVariableScope)}' is expected to be an integer.");
 		}
+
 		IdVariableScope = intVarScope;
 	}
 
@@ -109,7 +111,9 @@ public class EvaluateVariableDocumentItem : ExpressionDocumentItemBase, ISupport
 	}
 
 	/// <inheritdoc />
-	public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+	public override async ItemExecutionPromise Render(IByteCounterStream outputStream,
+													ContextObject context,
+													ScopeData scopeData)
 	{
 		context = await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false);
 		scopeData.AddVariable(Value, context, IdVariableScope);
@@ -147,7 +151,6 @@ public class EvaluateLetVariableDocumentItem : EvaluateVariableDocumentItem
 {
 	internal EvaluateLetVariableDocumentItem()
 	{
-
 	}
 
 	/// <summary>
@@ -164,11 +167,10 @@ public class EvaluateLetVariableDocumentItem : EvaluateVariableDocumentItem
 		: base(location, value, morestachioExpression, idVariableScope, tagCreationOptions)
 	{
 	}
-		
+
 	/// <inheritdoc />
 	protected EvaluateLetVariableDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
-
 	}
 
 	/// <inheritdoc />

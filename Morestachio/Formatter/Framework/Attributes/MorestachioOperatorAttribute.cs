@@ -10,7 +10,7 @@ namespace Morestachio.Formatter.Framework.Attributes;
 public class MorestachioOperatorAttribute : MorestachioFormatterAttribute
 {
 	/// <inheritdoc />
-	public MorestachioOperatorAttribute(OperatorTypes name, string description) 
+	public MorestachioOperatorAttribute(OperatorTypes name, string description)
 		: base("op_" + name.ToString(), description)
 	{
 		OperatorType = name;
@@ -27,12 +27,13 @@ public class MorestachioOperatorAttribute : MorestachioFormatterAttribute
 	{
 		return MorestachioOperator.Operators.ContainsKey(OperatorType);
 	}
-		
+
 	/// <inheritdoc />
 	public override void ValidateFormatter(MethodInfo method)
 	{
 		base.ValidateFormatter(method);
 		var multiFormatterInfos = base.GetParameters(method);
+
 		if (multiFormatterInfos.Length < 1 || multiFormatterInfos.Length > 2)
 		{
 			throw new InvalidOperationException(

@@ -58,6 +58,7 @@ public class MorestachioLambdaExpression : IMorestachioExpression
 	public void ReadXml(XmlReader reader)
 	{
 		Location = TextRangeSerializationHelper.ReadTextRangeFromXml(reader, "Location");
+
 		if (reader.IsEmptyElement)
 		{
 			return;
@@ -100,14 +101,16 @@ public class MorestachioLambdaExpression : IMorestachioExpression
 	/// <inheritdoc />
 	public ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
 	{
-		return scopeData.ParserOptions.CreateContextObject(".", new MorestachioTemplateExpression(this, contextObject, scopeData)).ToPromise();
+		return scopeData.ParserOptions
+			.CreateContextObject(".", new MorestachioTemplateExpression(this, contextObject, scopeData)).ToPromise();
 	}
 
 	/// <param name="parserOptions"></param>
 	/// <inheritdoc />
 	public CompiledExpression Compile(ParserOptions parserOptions)
 	{
-		return (contextObject, scopeData) => scopeData.ParserOptions.CreateContextObject(".", new MorestachioTemplateExpression(this, contextObject, scopeData)).ToPromise();
+		return (contextObject, scopeData) => scopeData.ParserOptions
+			.CreateContextObject(".", new MorestachioTemplateExpression(this, contextObject, scopeData)).ToPromise();
 	}
 
 	/// <inheritdoc />
@@ -139,18 +142,12 @@ public class MorestachioLambdaExpression : IMorestachioExpression
 
 		public string Expression
 		{
-			get
-			{
-				return _exp.AsStringExpression();
-			}
+			get { return _exp.AsStringExpression(); }
 		}
 
 		public string DbgView
 		{
-			get
-			{
-				return _exp.AsDebugExpression();
-			}
+			get { return _exp.AsDebugExpression(); }
 		}
 
 		public TextRange Location
@@ -180,7 +177,8 @@ public class MorestachioLambdaExpression : IMorestachioExpression
 			return true;
 		}
 
-		return Location.Equals(other.Location) && Equals(Expression, other.Expression) && Equals(Parameters, other.Parameters);
+		return Location.Equals(other.Location) && Equals(Expression, other.Expression) &&
+			Equals(Parameters, other.Parameters);
 	}
 
 

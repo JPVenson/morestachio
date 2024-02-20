@@ -13,41 +13,44 @@ public class ByteCounterFactory
 	///		ctor
 	/// </summary>
 	public ByteCounterFactory(Func<ParserOptions, IByteCounterStream> output,
-							Func<ParserOptions, IByteCounterStream> tempStream, 
+							Func<ParserOptions, IByteCounterStream> tempStream,
 							Func<ParserOptions, IByteCounterStream> getByteCounterStream)
 	{
 		Output = output ?? GetDefaultTempStream();
 		TempStream = tempStream ?? GetDefaultTempStream();
 		GetByteCounterStream = getByteCounterStream ?? GetDefaultByteCounter(GetDefaultStream);
 	}
-		
+
 	/// <summary>
 	///		ctor
 	/// </summary>
 	public ByteCounterFactory(Func<ParserOptions, IByteCounterStream> output,
-							Func<ParserOptions, IByteCounterStream> tempStream) 
+							Func<ParserOptions, IByteCounterStream> tempStream)
 		: this(output, tempStream, GetDefaultByteCounter(GetDefaultStream))
 	{
 	}
-		
+
 	/// <summary>
 	///		ctor
 	/// </summary>
-	public ByteCounterFactory(Func<ParserOptions, IByteCounterStream> output) : this(GetDefaultTempStream(), GetDefaultTempStream(), output)
+	public ByteCounterFactory(Func<ParserOptions, IByteCounterStream> output) : this(GetDefaultTempStream(),
+		GetDefaultTempStream(), output)
 	{
 	}
-		
+
 	/// <summary>
 	///		ctor
 	/// </summary>
-	public ByteCounterFactory(Func<Stream> output) : this(GetDefaultTempStream(), GetDefaultTempStream(), GetDefaultByteCounter(output ?? GetDefaultStream))
+	public ByteCounterFactory(Func<Stream> output) : this(GetDefaultTempStream(), GetDefaultTempStream(),
+		GetDefaultByteCounter(output ?? GetDefaultStream))
 	{
 	}
-		
+
 	/// <summary>
 	///		ctor
 	/// </summary>
-	public ByteCounterFactory() : this(GetDefaultTempStream(), GetDefaultTempStream(), GetDefaultByteCounter(GetDefaultStream))
+	public ByteCounterFactory() : this(GetDefaultTempStream(), GetDefaultTempStream(),
+		GetDefaultByteCounter(GetDefaultStream))
 	{
 	}
 
@@ -68,7 +71,8 @@ public class ByteCounterFactory
 			return null;
 		}
 
-		return (ParserOptions options) => new ByteCounterStream(targetStream(), MorestachioDocumentInfo.BufferSize, true, options);
+		return (ParserOptions options) =>
+			new ByteCounterStream(targetStream(), MorestachioDocumentInfo.BufferSize, true, options);
 	}
 
 	/// <summary>

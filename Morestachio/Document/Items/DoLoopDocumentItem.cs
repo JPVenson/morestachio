@@ -24,9 +24,8 @@ public class DoLoopDocumentItem : BlockExpressionDocumentItemBase, ISupportCusto
 	/// <summary>
 	///		Used for XML Serialization
 	/// </summary>
-	internal DoLoopDocumentItem() 
+	internal DoLoopDocumentItem()
 	{
-
 	}
 
 	/// <summary>
@@ -38,12 +37,10 @@ public class DoLoopDocumentItem : BlockExpressionDocumentItemBase, ISupportCusto
 							IEnumerable<ITokenOption> tagCreationOptions) : base(location, value, tagCreationOptions)
 	{
 	}
-		
+
 	/// <inheritdoc />
-		
 	protected DoLoopDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
-
 	}
 
 	/// <param name="compiler"></param>
@@ -54,27 +51,34 @@ public class DoLoopDocumentItem : BlockExpressionDocumentItemBase, ISupportCusto
 		var children = compiler.Compile(Children, parserOptions);
 		return async (stream, context, scopeData) =>
 		{
-			await CoreAction(stream, context, scopeData, async (streamInner, o, data) =>
-			{
-				await children(streamInner, o, data).ConfigureAwait(false);
-			}).ConfigureAwait(false);
+			await CoreAction(stream, context, scopeData,
+					async (streamInner, o, data) => { await children(streamInner, o, data).ConfigureAwait(false); })
+				.ConfigureAwait(false);
 		};
 	}
-		
+
 	/// <inheritdoc />
-	public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+	public override async ItemExecutionPromise Render(IByteCounterStream outputStream,
+													ContextObject context,
+													ScopeData scopeData)
 	{
-		await CoreAction(outputStream, context, scopeData, async (stream, o, data) =>
-		{
-			await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, o, scopeData).ConfigureAwait(false);
-		}).ConfigureAwait(false);
+		await CoreAction(outputStream, context, scopeData,
+			async (stream, o, data) =>
+			{
+				await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, o, scopeData)
+					.ConfigureAwait(false);
+			}).ConfigureAwait(false);
 		return Array.Empty<DocumentItemExecution>();
 	}
-		
+
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private async Task CoreAction(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData, CompilationAsync action)
+	private async Task CoreAction(IByteCounterStream outputStream,
+								ContextObject context,
+								ScopeData scopeData,
+								CompilationAsync action)
 	{
 		var index = 0;
+
 		while (ContinueBuilding(outputStream, scopeData))
 		{
 			var collectionContext = new ContextCollection(index++, false, context.Key,
@@ -95,5 +99,4 @@ public class DoLoopDocumentItem : BlockExpressionDocumentItemBase, ISupportCusto
 	{
 		visitor.Visit(this);
 	}
-
 }

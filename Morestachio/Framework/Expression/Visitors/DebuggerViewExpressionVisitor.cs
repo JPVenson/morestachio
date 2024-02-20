@@ -33,9 +33,11 @@ public class DebuggerViewExpressionVisitor : IMorestachioExpressionVisitor
 	private void WriteSingleExpression(MorestachioExpression expression)
 	{
 		var expressionPathParts = expression.PathParts.ToArray();
+
 		for (var index = 0; index < expressionPathParts.Length; index++)
 		{
 			var expressionPathPart = expressionPathParts[index];
+
 			switch (expressionPathPart.Value)
 			{
 				case PathType.DataPath:
@@ -63,10 +65,12 @@ public class DebuggerViewExpressionVisitor : IMorestachioExpressionVisitor
 					break;
 				case PathType.ThisPath:
 					StringBuilder.Append("this");
+
 					if (index != expressionPathParts.Length - 1)
 					{
 						StringBuilder.Append(".");
 					}
+
 					break;
 				case PathType.ObjectSelector:
 					StringBuilder.Append("?");
@@ -79,6 +83,7 @@ public class DebuggerViewExpressionVisitor : IMorestachioExpressionVisitor
 		if (expression.FormatterName != null)
 		{
 			StringBuilder.Append("} => ");
+
 			if (expression.FormatterName == string.Empty)
 			{
 				StringBuilder.Append("[None]");
@@ -94,11 +99,13 @@ public class DebuggerViewExpressionVisitor : IMorestachioExpressionVisitor
 			if (expression.Formats.Any())
 			{
 				StringBuilder.Up().AppendLine().AppendInterlaced();
+
 				for (var index = 0; index < expression.Formats.Count; index++)
 				{
 					//StringBuilder.Up();
 					var expressionArgument = expression.Formats[index];
 					Visit(expressionArgument);
+
 					if (index != expression.Formats.Count - 1)
 					{
 						StringBuilder.Append(", ")
@@ -130,10 +137,7 @@ public class DebuggerViewExpressionVisitor : IMorestachioExpressionVisitor
 	/// </summary>
 	public string Text
 	{
-		get
-		{
-			return StringBuilder.ToString();
-		}
+		get { return StringBuilder.ToString(); }
 	}
 
 	/// <inheritdoc />
@@ -143,10 +147,12 @@ public class DebuggerViewExpressionVisitor : IMorestachioExpressionVisitor
 			.AppendLine("Exp[")
 			.Up()
 			.AppendInterlaced();
+
 		for (var index = 0; index < expression.Expressions.Count; index++)
 		{
 			var expressionExpression = expression.Expressions[index];
 			this.Visit(expressionExpression);
+
 			if (index != expression.Expressions.Count - 1)
 			{
 				StringBuilder.AppendLine(",").AppendInterlaced();
@@ -179,10 +185,12 @@ public class DebuggerViewExpressionVisitor : IMorestachioExpressionVisitor
 			.AppendLine("Exp[")
 			.Up()
 			.AppendInterlaced();
+
 		for (var index = 0; index < expression.Expressions.Count; index++)
 		{
 			var expressionExpression = expression.Expressions[index];
 			this.Visit(expressionExpression);
+
 			if (index != expression.Expressions.Count - 1)
 			{
 				StringBuilder.AppendLine(",").AppendInterlaced();
@@ -204,12 +212,14 @@ public class DebuggerViewExpressionVisitor : IMorestachioExpressionVisitor
 	{
 		StringBuilder.Append("String(");
 		StringBuilder.Append(expression.Delimiter.ToString());
+
 		foreach (var expressionStringConstPart in expression.StringParts)
 		{
 			StringBuilder.Append("const(");
 			StringBuilder.Append(expressionStringConstPart.PartText);
 			StringBuilder.Append(")");
 		}
+
 		StringBuilder.Append(expression.Delimiter.ToString());
 		StringBuilder.Append(")");
 	}
@@ -240,7 +250,7 @@ public class DebuggerViewExpressionVisitor : IMorestachioExpressionVisitor
 	public void Visit(MorestachioOperatorExpression expression)
 	{
 		StringBuilder
-			.Append("op(" + expression.Operator.OperatorText + ")") 
+			.Append("op(" + expression.Operator.OperatorText + ")")
 			.AppendLine("{")
 			.Up()
 			.AppendInterlacedLine("Left")
@@ -264,9 +274,10 @@ public class DebuggerViewExpressionVisitor : IMorestachioExpressionVisitor
 			this.Visit(expression.RightExpression);
 			StringBuilder.Down().AppendLine().AppendInterlaced("}");
 		}
+
 		StringBuilder.Down().AppendLine().AppendInterlaced("}");
 	}
-		
+
 
 	/// <inheritdoc />
 	public void Visit(MorestachioLambdaExpression expression)

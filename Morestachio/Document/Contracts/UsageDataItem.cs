@@ -99,6 +99,7 @@ public record UsageDataItem
 	public UsageDataItem AddDependent(UsageDataItem dependent)
 	{
 		var entry = Dependents.FirstOrDefault(e => e.Path == dependent.Path);
+
 		if (entry is null)
 		{
 			Dependents.Add(dependent);

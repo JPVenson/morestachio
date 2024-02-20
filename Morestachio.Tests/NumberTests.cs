@@ -24,7 +24,6 @@ namespace Morestachio.Tests
 		[TestCase(-1, 1, "-1{SEP}0 b")]
 		[TestCase(-1, 0, "-1 b")]
 		[TestCase(-0, 0, "0 b")]
-
 		[TestCase(1024L * 1024L * 1024L * 1024L, 1, "1{SEP}0 TB")]
 		[TestCase(1024L * 1024L * 1024L * 1024L, 0, "1 TB")]
 		[TestCase(1024L * 1024L * 1024L * 1024L * -1, 1, "-1{SEP}0 TB")]
@@ -183,7 +182,10 @@ namespace Morestachio.Tests
 		[TestCase(0x5, "5", "Add", "10")]
 		[TestCase(5F, "5", "Add", "10")]
 		[TestCase(5D, "5", "Add", "10")]
-		public async Task CanUseNumberFunctionsOnData(object realData, string templateData, string operation, string expected)
+		public async Task CanUseNumberFunctionsOnData(object realData,
+													string templateData,
+													string operation,
+													string expected)
 		{
 			var template = $"{{{{data.{operation}({templateData})}}}}";
 			var data = new
@@ -202,7 +204,6 @@ namespace Morestachio.Tests
 		[TestCase(0x5, 5, "+", 0x5 + 5)]
 		[TestCase(5F, 5, "+", 5F + 5)]
 		[TestCase(5D, 5, "+", 5D + 5)]
-
 		[TestCase(5L, 5, "-", 5L - 5)]
 		[TestCase(5UL, 5, "-", 5UL - 5)]
 		[TestCase(5, 5, "-", 5 - 5)]
@@ -210,7 +211,6 @@ namespace Morestachio.Tests
 		[TestCase(0x5, 5, "-", 0x5 - 5)]
 		[TestCase(5F, 5, "-", 5F - 5)]
 		[TestCase(5D, 5, "-", 5D - 5)]
-
 		[TestCase(5L, 5, "/", 5L / 5)]
 		[TestCase(5UL, 5, "/", 5UL / 5)]
 		[TestCase(5, 5, "/", 5 / 5)]
@@ -218,7 +218,6 @@ namespace Morestachio.Tests
 		[TestCase(0x5, 5, "/", 0x5 / 5)]
 		[TestCase(5F, 5, "/", 5F / 5)]
 		[TestCase(5D, 5, "/", 5D / 5)]
-
 		[TestCase(5L, 5, "*", 5L * 5)]
 		[TestCase(5UL, 5, "*", 5UL * 5)]
 		[TestCase(5, 5, "*", 5 * 5)]
@@ -226,7 +225,6 @@ namespace Morestachio.Tests
 		[TestCase(0x5, 5, "*", 0x5 * 5)]
 		[TestCase(5F, 5, "*", 5F * 5)]
 		[TestCase(5D, 5, "*", 5D * 5)]
-
 		[TestCase(5L, 5, "<", 5L < 5)]
 		[TestCase(5UL, 5, "<", 5UL < 5)]
 		[TestCase(5, 5, "<", 5 < 5)]
@@ -234,7 +232,10 @@ namespace Morestachio.Tests
 		[TestCase(0x5, 5, "<", 0x5 < 5)]
 		[TestCase(5F, 5, "<", 5F < 5)]
 		[TestCase(5D, 5, "<", 5D < 5)]
-		public async Task CanUseNumberOperationsOnData(object realData, object templateData, string operation, object expected)
+		public async Task CanUseNumberOperationsOnData(object realData,
+														object templateData,
+														string operation,
+														object expected)
 		{
 			var template = $"{{{{data {operation} templateData}}}}";
 			var data = new

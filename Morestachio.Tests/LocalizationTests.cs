@@ -24,39 +24,40 @@ namespace Morestachio.Tests
 			var translationResult = "TestFixture";
 			var template = "{{#LOC 'test'}}";
 
-			var result = await ParserFixture.CreateAndParseWithOptions(template, new object(), _options, parserOptions =>
-			{
-				return parserOptions.WithLocalizationService(() =>
-									{
-										return new MorestachioLocalizationService()
-												.AddResource(new MemoryTranslationResource()
-															.Add("test", CultureInfo.GetCultureInfo("EN-US"), translationResult + " en-US")
-															.Add("test", CultureInfo.GetCultureInfo("DE-DE"), translationResult + " de-DE"))
-												.Load(new[]
-												{
-													CultureInfo.GetCultureInfo("EN-US"),
-													CultureInfo.GetCultureInfo("DE-DE")
-												});
-									})
-									.WithCultureInfo(CultureInfo.GetCultureInfo("EN-US"));
-			});
+			var result = await ParserFixture.CreateAndParseWithOptions(template, new object(), _options,
+				parserOptions =>
+				{
+					return parserOptions.WithLocalizationService(() =>
+						{
+							return new MorestachioLocalizationService()
+								.AddResource(new MemoryTranslationResource()
+									.Add("test", CultureInfo.GetCultureInfo("EN-US"), translationResult + " en-US")
+									.Add("test", CultureInfo.GetCultureInfo("DE-DE"), translationResult + " de-DE"))
+								.Load(new[]
+								{
+									CultureInfo.GetCultureInfo("EN-US"),
+									CultureInfo.GetCultureInfo("DE-DE")
+								});
+						})
+						.WithCultureInfo(CultureInfo.GetCultureInfo("EN-US"));
+				});
 			Assert.That(result, Is.EqualTo(translationResult + " " + "en-US"));
 
 			result = await ParserFixture.CreateAndParseWithOptions(template, new object(), _options, parserOptions =>
 			{
 				return parserOptions.WithLocalizationService(() =>
-									{
-										return new MorestachioLocalizationService()
-												.AddResource(new MemoryTranslationResource()
-															.Add("test", CultureInfo.GetCultureInfo("EN-US"), translationResult + " en-US")
-															.Add("test", CultureInfo.GetCultureInfo("DE-DE"), translationResult + " de-DE"))
-												.Load(new[]
-												{
-													CultureInfo.GetCultureInfo("EN-US"),
-													CultureInfo.GetCultureInfo("DE-DE")
-												});
-									})
-									.WithCultureInfo(CultureInfo.GetCultureInfo("DE-DE"));
+					{
+						return new MorestachioLocalizationService()
+							.AddResource(new MemoryTranslationResource()
+								.Add("test", CultureInfo.GetCultureInfo("EN-US"), translationResult + " en-US")
+								.Add("test", CultureInfo.GetCultureInfo("DE-DE"), translationResult + " de-DE"))
+							.Load(new[]
+							{
+								CultureInfo.GetCultureInfo("EN-US"),
+								CultureInfo.GetCultureInfo("DE-DE")
+							});
+					})
+					.WithCultureInfo(CultureInfo.GetCultureInfo("DE-DE"));
 			});
 			Assert.That(result, Is.EqualTo(translationResult + " " + "de-DE"));
 		}
@@ -74,36 +75,36 @@ namespace Morestachio.Tests
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, parserOptions =>
 			{
 				return parserOptions.WithLocalizationService(() =>
-									{
-										return new MorestachioLocalizationService()
-												.AddResource(new MemoryTranslationResource()
-															.Add("test", CultureInfo.GetCultureInfo("EN-US"), translationResult + " en-US")
-															.Add("test", CultureInfo.GetCultureInfo("DE-DE"), translationResult + " de-DE"))
-												.Load(new[]
-												{
-													CultureInfo.GetCultureInfo("EN-US"),
-													CultureInfo.GetCultureInfo("DE-DE")
-												});
-									})
-									.WithCultureInfo(CultureInfo.GetCultureInfo("EN-US"));
+					{
+						return new MorestachioLocalizationService()
+							.AddResource(new MemoryTranslationResource()
+								.Add("test", CultureInfo.GetCultureInfo("EN-US"), translationResult + " en-US")
+								.Add("test", CultureInfo.GetCultureInfo("DE-DE"), translationResult + " de-DE"))
+							.Load(new[]
+							{
+								CultureInfo.GetCultureInfo("EN-US"),
+								CultureInfo.GetCultureInfo("DE-DE")
+							});
+					})
+					.WithCultureInfo(CultureInfo.GetCultureInfo("EN-US"));
 			});
 			Assert.That(result, Is.EqualTo(translationResult + " en-US"));
 
 			result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, parserOptions =>
 			{
 				return parserOptions.WithLocalizationService(() =>
-									{
-										return new MorestachioLocalizationService()
-												.AddResource(new MemoryTranslationResource()
-															.Add("test", CultureInfo.GetCultureInfo("EN-US"), translationResult + " en-US")
-															.Add("test", CultureInfo.GetCultureInfo("DE-DE"), translationResult + " de-DE"))
-												.Load(new[]
-												{
-													CultureInfo.GetCultureInfo("EN-US"),
-													CultureInfo.GetCultureInfo("DE-DE")
-												});
-									})
-									.WithCultureInfo(CultureInfo.GetCultureInfo("DE-DE"));
+					{
+						return new MorestachioLocalizationService()
+							.AddResource(new MemoryTranslationResource()
+								.Add("test", CultureInfo.GetCultureInfo("EN-US"), translationResult + " en-US")
+								.Add("test", CultureInfo.GetCultureInfo("DE-DE"), translationResult + " de-DE"))
+							.Load(new[]
+							{
+								CultureInfo.GetCultureInfo("EN-US"),
+								CultureInfo.GetCultureInfo("DE-DE")
+							});
+					})
+					.WithCultureInfo(CultureInfo.GetCultureInfo("DE-DE"));
 			});
 			Assert.That(result, Is.EqualTo(translationResult + " de-DE"));
 		}
@@ -120,42 +121,42 @@ namespace Morestachio.Tests
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, parserOptions =>
 			{
 				return parserOptions.WithLocalizationService(() =>
-									{
-										return new MorestachioLocalizationService()
-												.AddResource(new MemoryTranslationResource()
-															.Add("WelcomeText", CultureInfo.GetCultureInfo("EN-US"), "Hello{0} {1}")
-															.Add("WelcomeText", CultureInfo.GetCultureInfo("DE-DE"), "Hallo{0} {1}")
-															.Add("WelcomeDefine", CultureInfo.GetCultureInfo("EN-US"), "World")
-															.Add("WelcomeDefine", CultureInfo.GetCultureInfo("DE-DE"), "Welt")
-													)
-												.Load(new[]
-												{
-													CultureInfo.GetCultureInfo("EN-US"),
-													CultureInfo.GetCultureInfo("DE-DE")
-												});
-									})
-									.WithCultureInfo(CultureInfo.GetCultureInfo("EN-US"));
+					{
+						return new MorestachioLocalizationService()
+							.AddResource(new MemoryTranslationResource()
+									.Add("WelcomeText", CultureInfo.GetCultureInfo("EN-US"), "Hello{0} {1}")
+									.Add("WelcomeText", CultureInfo.GetCultureInfo("DE-DE"), "Hallo{0} {1}")
+									.Add("WelcomeDefine", CultureInfo.GetCultureInfo("EN-US"), "World")
+									.Add("WelcomeDefine", CultureInfo.GetCultureInfo("DE-DE"), "Welt")
+								)
+							.Load(new[]
+							{
+								CultureInfo.GetCultureInfo("EN-US"),
+								CultureInfo.GetCultureInfo("DE-DE")
+							});
+					})
+					.WithCultureInfo(CultureInfo.GetCultureInfo("EN-US"));
 			});
 			Assert.That(result, Is.EqualTo("Hello, World"));
 
 			result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, parserOptions =>
 			{
 				return parserOptions.WithLocalizationService(() =>
-									{
-										return new MorestachioLocalizationService()
-												.AddResource(new MemoryTranslationResource()
-															.Add("WelcomeText", CultureInfo.GetCultureInfo("EN-US"), "Hello{0} {1}")
-															.Add("WelcomeText", CultureInfo.GetCultureInfo("DE-DE"), "Hallo{0} {1}")
-															.Add("WelcomeDefine", CultureInfo.GetCultureInfo("EN-US"), "World")
-															.Add("WelcomeDefine", CultureInfo.GetCultureInfo("DE-DE"), "Welt")
-													)
-												.Load(new[]
-												{
-													CultureInfo.GetCultureInfo("EN-US"),
-													CultureInfo.GetCultureInfo("DE-DE")
-												});
-									})
-									.WithCultureInfo(CultureInfo.GetCultureInfo("DE-DE"));
+					{
+						return new MorestachioLocalizationService()
+							.AddResource(new MemoryTranslationResource()
+									.Add("WelcomeText", CultureInfo.GetCultureInfo("EN-US"), "Hello{0} {1}")
+									.Add("WelcomeText", CultureInfo.GetCultureInfo("DE-DE"), "Hallo{0} {1}")
+									.Add("WelcomeDefine", CultureInfo.GetCultureInfo("EN-US"), "World")
+									.Add("WelcomeDefine", CultureInfo.GetCultureInfo("DE-DE"), "Welt")
+								)
+							.Load(new[]
+							{
+								CultureInfo.GetCultureInfo("EN-US"),
+								CultureInfo.GetCultureInfo("DE-DE")
+							});
+					})
+					.WithCultureInfo(CultureInfo.GetCultureInfo("DE-DE"));
 			});
 			Assert.That(result, Is.EqualTo("Hallo, Welt"));
 		}
@@ -180,22 +181,22 @@ namespace Morestachio.Tests
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, parserOptions =>
 			{
 				return parserOptions.WithLocalizationService(() =>
-									{
-										var morestachioLocalizationService = new MorestachioLocalizationService()
-																			.AddResource(new MemoryTranslationResource()
-																						.Add("Texts.Welcome", CultureInfo.GetCultureInfo("EN-US"), "Welcome")
-																						.Add("Texts.Welcome", CultureInfo.GetCultureInfo("DE-DE"), "Moin")
-																						.Add("Texts.Welcome", CultureInfo.GetCultureInfo("DE-AT"), "Grützli"))
-																			.Load(new[]
-																			{
-																				CultureInfo.GetCultureInfo("EN-US"),
-																				CultureInfo.GetCultureInfo("DE-DE"),
-																				CultureInfo.GetCultureInfo("DE-AT")
-																			});
+					{
+						var morestachioLocalizationService = new MorestachioLocalizationService()
+							.AddResource(new MemoryTranslationResource()
+								.Add("Texts.Welcome", CultureInfo.GetCultureInfo("EN-US"), "Welcome")
+								.Add("Texts.Welcome", CultureInfo.GetCultureInfo("DE-DE"), "Moin")
+								.Add("Texts.Welcome", CultureInfo.GetCultureInfo("DE-AT"), "Grützli"))
+							.Load(new[]
+							{
+								CultureInfo.GetCultureInfo("EN-US"),
+								CultureInfo.GetCultureInfo("DE-DE"),
+								CultureInfo.GetCultureInfo("DE-AT")
+							});
 
-										return morestachioLocalizationService;
-									})
-									.WithCultureInfo(CultureInfo.GetCultureInfo("EN-US"));
+						return morestachioLocalizationService;
+					})
+					.WithCultureInfo(CultureInfo.GetCultureInfo("EN-US"));
 			});
 			Assert.That(result, Is.EqualTo("Welcome Grützli Welcome Moin Grützli Moin"));
 		}
@@ -220,20 +221,20 @@ namespace Morestachio.Tests
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, parserOptions =>
 			{
 				return parserOptions.WithLocalizationService(() =>
-									{
-										return new MorestachioLocalizationService()
-												.AddResource(new MemoryTranslationResource()
-															.Add("Texts.Welcome", CultureInfo.GetCultureInfo("EN-US"), "Welcome")
-															.Add("Texts.Welcome", CultureInfo.GetCultureInfo("DE-DE"), "Moin")
-															.Add("Texts.Welcome", CultureInfo.GetCultureInfo("DE-AT"), "Grützli"))
-												.Load(new[]
-												{
-													CultureInfo.GetCultureInfo("EN-US"),
-													CultureInfo.GetCultureInfo("DE-DE"),
-													CultureInfo.GetCultureInfo("DE-AT")
-												});
-									})
-									.WithCultureInfo(CultureInfo.GetCultureInfo("EN-US"));
+					{
+						return new MorestachioLocalizationService()
+							.AddResource(new MemoryTranslationResource()
+								.Add("Texts.Welcome", CultureInfo.GetCultureInfo("EN-US"), "Welcome")
+								.Add("Texts.Welcome", CultureInfo.GetCultureInfo("DE-DE"), "Moin")
+								.Add("Texts.Welcome", CultureInfo.GetCultureInfo("DE-AT"), "Grützli"))
+							.Load(new[]
+							{
+								CultureInfo.GetCultureInfo("EN-US"),
+								CultureInfo.GetCultureInfo("DE-DE"),
+								CultureInfo.GetCultureInfo("DE-AT")
+							});
+					})
+					.WithCultureInfo(CultureInfo.GetCultureInfo("EN-US"));
 			});
 			Assert.That(result, Is.EqualTo("Welcome Grützli Welcome Moin Grützli Welcome"));
 		}

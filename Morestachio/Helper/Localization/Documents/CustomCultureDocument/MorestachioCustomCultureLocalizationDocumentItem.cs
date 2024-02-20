@@ -19,23 +19,23 @@ namespace Morestachio.Helper.Localization.Documents.CustomCultureDocument;
 /// </summary>
 [System.Serializable]
 public class MorestachioCustomCultureLocalizationDocumentItem : BlockExpressionDocumentItemBase,
-																ToParsableStringDocumentVisitor.IStringVisitor, 
+																ToParsableStringDocumentVisitor.IStringVisitor,
 																ISupportCustomAsyncCompilation
 {
 	internal MorestachioCustomCultureLocalizationDocumentItem()
 	{
-
 	}
 
 	/// <inheritdoc />
-	protected MorestachioCustomCultureLocalizationDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
+	protected MorestachioCustomCultureLocalizationDocumentItem(SerializationInfo info, StreamingContext c) : base(info,
+		c)
 	{
 	}
 
 	/// <inheritdoc />
 	public MorestachioCustomCultureLocalizationDocumentItem(TextRange location,
 															IMorestachioExpression expression,
-															IEnumerable<ITokenOption> tagCreationOptions) 
+															IEnumerable<ITokenOption> tagCreationOptions)
 		: base(location, expression, tagCreationOptions)
 	{
 	}
@@ -57,6 +57,7 @@ public class MorestachioCustomCultureLocalizationDocumentItem : BlockExpressionD
 		return async (outputStream, context, scopeData) =>
 		{
 			var oldCulture = scopeData.ParserOptions.CultureInfo;
+
 			if (scopeData.CustomData.TryGetValue(LocalizationCultureKey, out var customCulture) &&
 				customCulture is CultureInfo culInfo)
 			{
@@ -66,6 +67,7 @@ public class MorestachioCustomCultureLocalizationDocumentItem : BlockExpressionD
 			var expValue = (await expression(context, scopeData).ConfigureAwait(false));
 
 			CultureInfo requestedCulture;
+
 			if (expValue.Value is CultureInfo culture)
 			{
 				requestedCulture = culture;
@@ -80,11 +82,16 @@ public class MorestachioCustomCultureLocalizationDocumentItem : BlockExpressionD
 			scopeData.CustomData[LocalizationCultureKey] = oldCulture;
 		};
 	}
+
 	/// <inheritdoc />
-	public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+	public override async ItemExecutionPromise Render(IByteCounterStream outputStream,
+													ContextObject context,
+													ScopeData scopeData)
 	{
 		var oldCulture = scopeData.ParserOptions.CultureInfo;
-		if (scopeData.CustomData.TryGetValue(LocalizationCultureKey, out var customCulture) && customCulture is CultureInfo culInfo)
+
+		if (scopeData.CustomData.TryGetValue(LocalizationCultureKey, out var customCulture) &&
+			customCulture is CultureInfo culInfo)
 		{
 			oldCulture = culInfo;
 		}
@@ -92,6 +99,7 @@ public class MorestachioCustomCultureLocalizationDocumentItem : BlockExpressionD
 		var expValue = (await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false));
 
 		CultureInfo requestedCulture;
+
 		if (expValue.Value is CultureInfo culture)
 		{
 			requestedCulture = culture;
@@ -119,18 +127,21 @@ public class MorestachioCustomCultureLocalizationDocumentItem : BlockExpressionD
 		/// <inheritdoc />
 		public ResetCultureDocumentItem()
 		{
-
 		}
 
 		/// <inheritdoc />
-		public ResetCultureDocumentItem(TextRange location, CultureInfo culture,
-										IEnumerable<ITokenOption> tagCreationOptions) : base(location, (IEnumerable<ITokenOption>) tagCreationOptions)
+		public ResetCultureDocumentItem(TextRange location,
+										CultureInfo culture,
+										IEnumerable<ITokenOption> tagCreationOptions) : base(location,
+			(IEnumerable<ITokenOption>)tagCreationOptions)
 		{
 			_culture = culture;
 		}
 
 		/// <inheritdoc />
-		public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+		public override ItemExecutionPromise Render(IByteCounterStream outputStream,
+													ContextObject context,
+													ScopeData scopeData)
 		{
 			scopeData.CustomData[LocalizationCultureKey] = _culture;
 			return Enumerable.Empty<DocumentItemExecution>().ToPromise();
@@ -152,7 +163,8 @@ public class MorestachioCustomCultureLocalizationDocumentItem : BlockExpressionD
 	/// <inheritdoc />
 	public void Render(ToParsableStringDocumentVisitor visitor)
 	{
-		visitor.StringBuilder.Append("{{" + MorestachioCustomCultureLocalizationBlockProvider.OpenTag + MorestachioExpression.AsStringExpression() + "}}");
+		visitor.StringBuilder.Append("{{" + MorestachioCustomCultureLocalizationBlockProvider.OpenTag +
+			MorestachioExpression.AsStringExpression() + "}}");
 		visitor.VisitChildren(this);
 		visitor.StringBuilder.Append("{{" + MorestachioCustomCultureLocalizationBlockProvider.CloseTag + "}}");
 	}

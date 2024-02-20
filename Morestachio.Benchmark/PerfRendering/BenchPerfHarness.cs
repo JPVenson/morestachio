@@ -14,24 +14,25 @@ namespace Morestachio.Benchmark.PerfRendering
 	{
 		private IRenderer _templateCompiled;
 		private object _data;
-		
+
 		public virtual async Task Setup()
 		{
 			_templateCompiled = (await ParserOptionsBuilder.New()
-															.WithTemplate(GetTemplate)
-															.WithDisableContentEscaping(true)
-															.BuildAndParseAsync())
+					.WithTemplate(GetTemplate)
+					.WithDisableContentEscaping(true)
+					.BuildAndParseAsync())
 				.CreateCompiledRenderer(new DocumentCompiler());
 			_data = GetData();
 
 			var bench = await Bench();
+
 			//Console.WriteLine(bench);
 			if (string.IsNullOrWhiteSpace(bench))
 			{
 				throw new InvalidOperationException("Result does not equal expected value");
 			}
 		}
-		
+
 		public virtual async ValueTask<string> Bench()
 		{
 			//var output = new ByteCounterTextWriter(new StringWriter(CultureInfo.InvariantCulture), _templateCompiled.ParserOptions);
@@ -40,7 +41,8 @@ namespace Morestachio.Benchmark.PerfRendering
 			return output.ToString();
 		}
 
-		public const string Lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
+		public const string Lorem
+			= "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
 
 		public abstract object GetData();
 

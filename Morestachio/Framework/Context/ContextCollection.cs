@@ -14,11 +14,11 @@ public class ContextCollection : ContextObject
 	/// </summary>
 	/// <param name="index">the current index of the item inside the collection</param>
 	/// <param name="last">true if its the last item</param>
-	public ContextCollection(long index, 
-							bool last, 
-							string key, 
+	public ContextCollection(long index,
+							bool last,
+							string key,
 							ContextObject parent,
-							object value) 
+							object value)
 		: base(key, parent, value)
 	{
 		Index = index;
@@ -43,9 +43,12 @@ public class ContextCollection : ContextObject
 	{
 		yield return new KeyValuePair<string, Func<ContextCollection, object>>("$first", context => context.Index == 0);
 		yield return new KeyValuePair<string, Func<ContextCollection, object>>("$index", context => context.Index);
-		yield return new KeyValuePair<string, Func<ContextCollection, object>>("$middel", context => context.Index != 0 && !context.Last);
+		yield return new KeyValuePair<string, Func<ContextCollection, object>>("$middel",
+			context => context.Index != 0 && !context.Last);
 		yield return new KeyValuePair<string, Func<ContextCollection, object>>("$last", context => context.Last);
-		yield return new KeyValuePair<string, Func<ContextCollection, object>>("$odd", context => context.Index % 2 != 0);
-		yield return new KeyValuePair<string, Func<ContextCollection, object>>("$even", context => context.Index % 2 == 0);
+		yield return new KeyValuePair<string, Func<ContextCollection, object>>("$odd",
+			context => context.Index % 2 != 0);
+		yield return new KeyValuePair<string, Func<ContextCollection, object>>("$even",
+			context => context.Index % 2 == 0);
 	}
 }

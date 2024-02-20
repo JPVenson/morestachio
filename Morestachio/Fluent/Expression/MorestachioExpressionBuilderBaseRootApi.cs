@@ -16,7 +16,6 @@ public class MorestachioExpressionBuilderBaseRootApi : MorestachioExpressionBuil
 {
 	internal MorestachioExpressionBuilderBaseRootApi()
 	{
-			
 	}
 
 	/// <summary>
@@ -26,7 +25,8 @@ public class MorestachioExpressionBuilderBaseRootApi : MorestachioExpressionBuil
 	/// <returns></returns>
 	public MorestachioExpressionBuilder Parse(string expression)
 	{
-		var expressionParserResult = ExpressionParser.ParseExpression(expression, TokenzierContext.FromText(expression));
+		var expressionParserResult
+			= ExpressionParser.ParseExpression(expression, TokenzierContext.FromText(expression));
 		ExpressionParts.Add(expressionParserResult.Expression);
 		Column += expressionParserResult.SourceBoundary.RangeEnd.Index;
 		return this;
@@ -71,7 +71,7 @@ public class MorestachioExpressionBuilderBaseRootApi : MorestachioExpressionBuil
 		{
 			new KeyValuePair<string, PathType>(null, PathType.Null)
 		});
-			
+
 		ExpressionParts.Add(morestachioExpression);
 		return this;
 	}

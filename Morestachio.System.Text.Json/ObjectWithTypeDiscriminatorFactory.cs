@@ -54,7 +54,7 @@ namespace Morestachio.System.Text.Json
 		/// <summary>
 		///		Defines a converter that will add a <see cref="WithTypeDiscriminatorHelper{TObject}.TypePropertyName"/> to serialize the <see cref="IDocumentItem"/>
 		/// </summary>
-		public class ObjectWithTypeDiscriminatorConverter : JsonConverter<TInterface> 
+		public class ObjectWithTypeDiscriminatorConverter : JsonConverter<TInterface>
 		{
 			private readonly Func<string, Type> _lookupType;
 			private readonly Func<Type, string> _keyLookup;
@@ -72,7 +72,9 @@ namespace Morestachio.System.Text.Json
 			}
 
 			/// <inheritdoc />
-			public override TInterface Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+			public override TInterface Read(ref Utf8JsonReader reader,
+											Type typeToConvert,
+											JsonSerializerOptions options)
 			{
 				return WithTypeDiscriminatorHelper<TInterface>.Read(ref reader, typeToConvert, options, _lookupType);
 			}

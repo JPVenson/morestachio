@@ -11,6 +11,7 @@ public enum PartialStackOverflowBehavior
 	///		Throw a <see cref="MorestachioStackOverflowException"/>
 	/// </summary>
 	FailWithException,
+
 	/// <summary>
 	///		Do nothing and skip further calls
 	/// </summary>

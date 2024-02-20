@@ -8,7 +8,6 @@ namespace Morestachio.TemplateContainers;
 /// </summary>
 public class StringTemplateResource : TemplateResource
 {
-
 	/// <summary>
 	///		Creates a new String based resource
 	/// </summary>
@@ -19,6 +18,7 @@ public class StringTemplateResource : TemplateResource
 	}
 
 	private readonly string _template;
+
 	/// <inheritdoc />
 	public override int IndexOf(string token, int startIndex)
 	{

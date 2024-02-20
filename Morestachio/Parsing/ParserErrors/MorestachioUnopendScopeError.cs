@@ -11,11 +11,10 @@ public class MorestachioUnopendScopeError : MorestachioErrorBase
 	/// </summary>
 	protected MorestachioUnopendScopeError()
 	{
-		
 	}
 
 	/// <inheritdoc />
-	protected MorestachioUnopendScopeError(SerializationInfo info, StreamingContext c) 
+	protected MorestachioUnopendScopeError(SerializationInfo info, StreamingContext c)
 		: base(info, c)
 	{
 	}
@@ -24,19 +23,20 @@ public class MorestachioUnopendScopeError : MorestachioErrorBase
 	/// Initializes a new instance of the <see cref="MorestachioSyntaxError"/> class.
 	/// </summary>
 	/// <param name="location">The location.</param>
-	public MorestachioUnopendScopeError(TextRange location, 
-										string tokenOccured, 
-										string syntaxExpected, 
+	public MorestachioUnopendScopeError(TextRange location,
+										string tokenOccured,
+										string syntaxExpected,
 										string extra = null)
 		: base(location, FormatHelpText(tokenOccured, syntaxExpected, extra, location))
 	{
 	}
 
-	private static string FormatHelpText(string tokenOccured, 
-										string syntaxExpected, 
+	private static string FormatHelpText(string tokenOccured,
+										string syntaxExpected,
 										string extra,
 										TextRange location)
 	{
-		return $"line:char '{location}' - An '{tokenOccured}' block is being closed, but no corresponding opening element '{syntaxExpected}' was detected.{extra}";
+		return
+			$"line:char '{location}' - An '{tokenOccured}' block is being closed, but no corresponding opening element '{syntaxExpected}' was detected.{extra}";
 	}
 }

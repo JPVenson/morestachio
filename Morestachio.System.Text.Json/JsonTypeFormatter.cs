@@ -35,6 +35,7 @@ public class JsonTypeFormatter : IFormatterConverter
 	public object Convert(object value, TypeCode typeCode)
 	{
 		throw new NotImplementedException();
+
 		if (value is JsonElement element)
 		{
 			return element.ToString();
@@ -45,166 +46,166 @@ public class JsonTypeFormatter : IFormatterConverter
 
 	/// <inheritdoc />
 	public bool ToBoolean(object value)
-	{			
+	{
 		if (value is JsonElement element)
 		{
 			return element.GetBoolean();
 		}
-			
+
 		throw new NotImplementedException();
 	}
 
 	/// <inheritdoc />
 	public byte ToByte(object value)
-	{		
+	{
 		if (value is JsonElement element)
 		{
 			return element.GetByte();
 		}
-			
+
 		throw new NotImplementedException();
 	}
 
 	/// <inheritdoc />
 	public char ToChar(object value)
-	{		
+	{
 		if (value is JsonElement element)
 		{
 			return element.GetString()[0];
 		}
-			
+
 		throw new NotImplementedException();
 	}
 
 	/// <inheritdoc />
 	public DateTime ToDateTime(object value)
-	{		
+	{
 		if (value is JsonElement element)
 		{
 			return element.GetDateTime();
 		}
-			
+
 		throw new NotImplementedException();
 	}
 
 	/// <inheritdoc />
 	public decimal ToDecimal(object value)
-	{		
+	{
 		if (value is JsonElement element)
 		{
 			return element.GetDecimal();
 		}
-			
+
 		throw new NotImplementedException();
 	}
 
 	/// <inheritdoc />
 	public double ToDouble(object value)
-	{		
+	{
 		if (value is JsonElement element)
 		{
 			return element.GetDouble();
 		}
-			
+
 		throw new NotImplementedException();
 	}
 
 	/// <inheritdoc />
 	public short ToInt16(object value)
-	{		
+	{
 		if (value is JsonElement element)
 		{
 			return element.GetInt16();
 		}
-			
+
 		throw new NotImplementedException();
 	}
 
 	/// <inheritdoc />
 	public int ToInt32(object value)
-	{		
+	{
 		if (value is JsonElement element)
 		{
 			return element.GetInt32();
 		}
-			
+
 		throw new NotImplementedException();
 	}
 
 	/// <inheritdoc />
 	public long ToInt64(object value)
-	{		
+	{
 		if (value is JsonElement element)
 		{
 			return element.GetInt64();
 		}
-			
+
 		throw new NotImplementedException();
 	}
 
 	/// <inheritdoc />
 	public sbyte ToSByte(object value)
-	{		
+	{
 		if (value is JsonElement element)
 		{
 			return element.GetSByte();
 		}
-			
+
 		throw new NotImplementedException();
 	}
 
 	/// <inheritdoc />
 	public float ToSingle(object value)
-	{		
+	{
 		if (value is JsonElement element)
 		{
 			return element.GetSingle();
 		}
-			
+
 		throw new NotImplementedException();
 	}
 
 	/// <inheritdoc />
 	public string ToString(object value)
-	{		
+	{
 		if (value is JsonElement element)
 		{
 			return element.GetString();
 		}
-			
+
 		throw new NotImplementedException();
 	}
 
 	/// <inheritdoc />
 	public ushort ToUInt16(object value)
-	{		
+	{
 		if (value is JsonElement element)
 		{
 			return element.GetUInt16();
 		}
-			
+
 		throw new NotImplementedException();
 	}
 
 	/// <inheritdoc />
 	public uint ToUInt32(object value)
-	{		
+	{
 		if (value is JsonElement element)
 		{
 			return element.GetUInt32();
 		}
-			
+
 		throw new NotImplementedException();
 	}
 
 	/// <inheritdoc />
 	public ulong ToUInt64(object value)
-	{		
+	{
 		if (value is JsonElement element)
 		{
 			return element.GetUInt64();
 		}
-			
+
 		throw new NotImplementedException();
 	}
 }

@@ -120,14 +120,14 @@ public class Renderer : IRenderer
 				scopeData.Variables.Clear();
 			}
 		}
-			
+
 		if (CaptureVariables)
 		{
 			return new MorestachioDocumentResult(byteCounterStream,
 				profiler,
 				scopeData.Variables
-						.Where(e => !e.Key.StartsWith('$'))
-						.ToDictionary(e => e.Key, e => scopeData.GetFromVariable(null, e.Value)?.Value));
+					.Where(e => !e.Key.StartsWith('$'))
+					.ToDictionary(e => e.Key, e => scopeData.GetFromVariable(null, e.Value)?.Value));
 		}
 
 		return new MorestachioDocumentResult(byteCounterStream,

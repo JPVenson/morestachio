@@ -66,8 +66,10 @@ public class UsageData
 	{
 		if (_scopes.Pop() != currentExpectedPath)
 		{
-			throw new InvalidOperationException($"Popped an unexpected scope while evaluating the usage. The document might be malformed or custom document item does not properly implement {nameof(IReportUsage)}");
+			throw new InvalidOperationException(
+				$"Popped an unexpected scope while evaluating the usage. The document might be malformed or custom document item does not properly implement {nameof(IReportUsage)}");
 		}
+
 		return this;
 	}
 
@@ -87,6 +89,7 @@ public class UsageData
 		{
 			VariableSource[variableName] = scope = new Stack<UsageDataItem>();
 		}
+
 		scope.Push(value);
 	}
 

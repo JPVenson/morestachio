@@ -46,10 +46,7 @@ namespace Morestachio.Configuration.Transform
 		/// <inheritdoc />
 		public string this[string key]
 		{
-			get
-			{
-				return CheckAndTransformValue(key, Config[key], Options).Value;
-			}
+			get { return CheckAndTransformValue(key, Config[key], Options).Value; }
 			set { Config[key] = value; }
 		}
 
@@ -57,7 +54,10 @@ namespace Morestachio.Configuration.Transform
 		///		Checks if a key matches the <see cref="MorestachioConfigOptions.TransformCondition"/> and converts it
 		/// </summary>
 		/// <returns></returns>
-		public static KeyValuePair<string, string> CheckAndTransformValue(string key, string value, MorestachioConfigOptions options)
+		public static KeyValuePair<string, string> CheckAndTransformValue(
+			string key,
+			string value,
+			MorestachioConfigOptions options)
 		{
 			if (options.TransformCondition(new KeyValuePair<string, string>(key, value)))
 			{
@@ -71,12 +71,13 @@ namespace Morestachio.Configuration.Transform
 		///		Transforms the value by using <see cref="Options"/>
 		/// </summary>
 		/// <returns></returns>
-		public static KeyValuePair<string, string> TransformValue(KeyValuePair<string, string> keyValue, 
+		public static KeyValuePair<string, string> TransformValue(KeyValuePair<string, string> keyValue,
 																MorestachioConfigOptions options)
 		{
 			keyValue = options.PreTransform(keyValue);
 			var parserOptions = options.ParserOptions().Build();
 			var values = new Dictionary<string, object>();
+
 			if (options.Values.TryGetValue(string.Empty, out var rootValues))
 			{
 				foreach (var rootValue in rootValues)
@@ -86,10 +87,12 @@ namespace Morestachio.Configuration.Transform
 			}
 
 			IList<string> keyPaths = new List<string>();
+
 			foreach (var keyPathPart in keyValue.Key.Split(':'))
 			{
 				keyPaths.Add(keyPathPart);
 				var keyPath = string.Join(":", keyPaths);
+
 				if (options.Values.TryGetValue(keyPath, out var specificValues))
 				{
 					foreach (var specificValue in specificValues)
@@ -98,8 +101,10 @@ namespace Morestachio.Configuration.Transform
 					}
 				}
 			}
+
 			var valueTask = ExpressionParser.EvaluateExpression(keyValue.Value, parserOptions, values);
 			string result;
+
 			if (valueTask.IsCompleted)
 			{
 				result = valueTask.Result?.ToString();

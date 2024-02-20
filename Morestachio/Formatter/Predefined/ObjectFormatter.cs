@@ -36,6 +36,7 @@ public static class ObjectFormatter
 	public static string ToXml(object source, [ExternalData] ParserOptions options)
 	{
 		var xmlSerializer = new XmlSerializer(source.GetType());
+
 		using (var xmlStream = new MemoryStream())
 		{
 			xmlSerializer.Serialize(xmlStream, source);
@@ -76,19 +77,22 @@ public static class ObjectFormatter
 		}
 	}
 
-	[MorestachioGlobalFormatter("new", "Creates a new object from given parameters with names. Example: {{new([Name]\"Test\", [Age] 57, [Gender] Genders.Male)}}")]
+	[MorestachioGlobalFormatter("new",
+		"Creates a new object from given parameters with names. Example: {{new([Name]\"Test\", [Age] 57, [Gender] Genders.Male)}}")]
 	public static object New([RestParameter] FormatterParameterList values)
 	{
 		return new Dictionary<string, object>(values.Parameters.ToDictionary(e => e.ParameterName, e => e.Value));
 	}
 
 	[MorestachioFormatter("Call", "Calls a formatter by dynamically providing name and arguments")]
-	public static async Task<object> Call(object source, string formatterName,
+	public static async Task<object> Call(object source,
+										string formatterName,
 										[ExternalData] ParserOptions options,
 										[ExternalData] ScopeData scopeData,
 										[RestParameter] params object[] arguments)
 	{
-		var argumentTypes = arguments.Select((item, index) => new FormatterArgumentType(index, null, ref item, null)).ToArray();
+		var argumentTypes = arguments.Select((item, index) => new FormatterArgumentType(index, null, ref item, null))
+			.ToArray();
 		var formatterMatch = options.Formatters.PrepareCallMostMatchingFormatter(
 			ref source,
 			source.GetType(),
@@ -101,7 +105,10 @@ public static class ObjectFormatter
 	}
 
 	[MorestachioFormatter("Get", "Gets a specific property from an object or IDictionary")]
-	public static object Get(object source, string propertyName, [ExternalData] ParserOptions options, [ExternalData] ScopeData scopeData)
+	public static object Get(object source,
+							string propertyName,
+							[ExternalData] ParserOptions options,
+							[ExternalData] ScopeData scopeData)
 	{
 		if (options.ValueResolver?.CanResolve(source.GetType(), source, propertyName, null, scopeData) == true)
 		{
@@ -136,10 +143,12 @@ public static class ObjectFormatter
 		return source.GetType().GetProperty(propertyName)?.GetValue(source);
 	}
 
-	[MorestachioFormatter("Combine", "Combines two objects together were the other one overwrites any value from the source in the new object")]
+	[MorestachioFormatter("Combine",
+		"Combines two objects together were the other one overwrites any value from the source in the new object")]
 	public static IDictionary<T, TE> Combine<T, TE>(IDictionary<T, TE> source, IDictionary<T, TE> other)
 	{
 		var newSource = new Dictionary<T, TE>(source);
+
 		foreach (var o in other)
 		{
 			newSource[o.Key] = o.Value;
@@ -202,6 +211,7 @@ public static class ObjectFormatter
 				if (inType.IsGenericType)
 				{
 					var isNullable = Nullable.GetUnderlyingType(inType) != null;
+
 					if (!isNullable)
 					{
 						stringBuilder.Append($"{inType.Name.Substring(0, inType.Name.IndexOf('`'))}<");
@@ -211,6 +221,7 @@ public static class ObjectFormatter
 					{
 						var genericArgument = inType.GetGenericArguments()[index];
 						VisitType(genericArgument, stringBuilder);
+
 						if (index + 1 < inType.GetGenericArguments().Length)
 						{
 							stringBuilder.Append(", ");
@@ -233,7 +244,6 @@ public static class ObjectFormatter
 				}
 			}
 		}
-
 
 
 		var sb = new StringBuilder();

@@ -21,22 +21,20 @@ public class RepeatDocumentItem : BlockExpressionDocumentItemBase, ISupportCusto
 {
 	internal RepeatDocumentItem()
 	{
-			
 	}
 
 	/// <summary>
 	///		Creates a new repeat document item
 	/// </summary>
-	public RepeatDocumentItem(TextRange location, IMorestachioExpression value,
-							IEnumerable<ITokenOption> tagCreationOptions) : base(location, value,tagCreationOptions)
+	public RepeatDocumentItem(TextRange location,
+							IMorestachioExpression value,
+							IEnumerable<ITokenOption> tagCreationOptions) : base(location, value, tagCreationOptions)
 	{
 	}
 
 	/// <inheritdoc />
-		
 	protected RepeatDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
-
 	}
 
 	/// <param name="compiler"></param>
@@ -59,6 +57,7 @@ public class RepeatDocumentItem : BlockExpressionDocumentItemBase, ISupportCusto
 			{
 				var path = new Stack<string>();
 				var parent = context.Parent;
+
 				while (parent != null)
 				{
 					path.Push(parent.Key);
@@ -69,12 +68,13 @@ public class RepeatDocumentItem : BlockExpressionDocumentItemBase, ISupportCusto
 					string.Format(
 						"{1}'{0}' is expected to return a integral number but did not." +
 						" Complete Expression until Error:{2}",
-						MorestachioExpression.AsStringExpression(), 
+						MorestachioExpression.AsStringExpression(),
 						base.Location,
 						(path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 			}
 
 			var nr = c.Value is Number value ? value : new Number(c.Value as IConvertible);
+
 			for (int i = 0; i < nr; i++)
 			{
 				var contextCollection = new ContextCollection(i, i + 1 == nr, $"[{i}]", context, context.Value);
@@ -82,9 +82,11 @@ public class RepeatDocumentItem : BlockExpressionDocumentItemBase, ISupportCusto
 			}
 		};
 	}
-		
+
 	/// <inheritdoc />
-	public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+	public override async ItemExecutionPromise Render(IByteCounterStream outputStream,
+													ContextObject context,
+													ScopeData scopeData)
 	{
 		var c = await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false);
 
@@ -92,26 +94,30 @@ public class RepeatDocumentItem : BlockExpressionDocumentItemBase, ISupportCusto
 		{
 			return Array.Empty<DocumentItemExecution>();
 		}
-		
+
 		if (c.Value is not Number && !(Number.IsIntegralNumber(c.Value)))
 		{
 			var path = new Stack<string>();
 			var parent = context.Parent;
+
 			while (parent != null)
 			{
 				path.Push(parent.Key);
 				parent = parent.Parent;
 			}
 
-			throw new IndexedParseException(Location, 
-				string.Format("{1}'{0}' is expected to return a integral number but did not." + " Complete Expression until Error:{2}",
+			throw new IndexedParseException(Location,
+				string.Format(
+					"{1}'{0}' is expected to return a integral number but did not." +
+					" Complete Expression until Error:{2}",
 					MorestachioExpression.AsStringExpression(),
 					Location,
 					(path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 		}
-		
+
 		var nr = c.Value is Number value ? value : new Number(c.Value as IConvertible);
 		var scopes = new List<DocumentItemExecution>();
+
 		for (int i = 0; i < nr; i++)
 		{
 			var contextCollection = new ContextCollection(i, i + 1 == nr, $"[{i}]", context, context.Value);

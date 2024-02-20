@@ -13,7 +13,8 @@ public static class ParserOptionsDefaultPartialStoreExtensions
 	/// <summary>
 	///		Adds a new Named constant
 	/// </summary>
-	public static IParserOptionsBuilder WithDefaultPartialStore(this IParserOptionsBuilder builder, Func<DefaultPartialsStore, DefaultPartialsStore> config)
+	public static IParserOptionsBuilder WithDefaultPartialStore(this IParserOptionsBuilder builder,
+																Func<DefaultPartialsStore, DefaultPartialsStore> config)
 	{
 		return builder.WithPartialsStore(() => config(new DefaultPartialsStore()));
 	}
@@ -40,7 +41,8 @@ public static class ParserOptionsDefaultPartialStoreExtensions
 																	bool ignoreFileStructure,
 																	string namePrefix = null)
 	{
-		return builder.WithPartialsStore(() => new FileSystemPartialStore(directoryPath, searchPattern, ignoreExtension, ignoreFileStructure, namePrefix));
+		return builder.WithPartialsStore(() =>
+			new FileSystemPartialStore(directoryPath, searchPattern, ignoreExtension, ignoreFileStructure, namePrefix));
 	}
 }
 
@@ -102,7 +104,7 @@ public static class ParserOptionsBuilderFormatterExtensions
 	///		Adds a new Service
 	/// </summary>
 	public static IParserOptionsBuilder WithService<TServiceType, TServiceInstance>(this IParserOptionsBuilder builder,
-																					TServiceInstance value)
+		TServiceInstance value)
 		where TServiceInstance : class, TServiceType
 	{
 		return builder.WithConfig(c =>
@@ -116,7 +118,7 @@ public static class ParserOptionsBuilderFormatterExtensions
 	///		Adds a new Service
 	/// </summary>
 	public static IParserOptionsBuilder WithService<TServiceType, TServiceInstance>(this IParserOptionsBuilder builder,
-																					Func<TServiceInstance> value)
+		Func<TServiceInstance> value)
 		where TServiceInstance : class, TServiceType
 	{
 		return builder.WithConfig(c =>
@@ -154,7 +156,8 @@ public static class ParserOptionsBuilderFormatterExtensions
 	/// <summary>
 	///		Adds formatters from an type
 	/// </summary>
-	public static IParserOptionsBuilder WithValueConverter(this IParserOptionsBuilder builder, IFormatterValueConverter valueConverter)
+	public static IParserOptionsBuilder WithValueConverter(this IParserOptionsBuilder builder,
+															IFormatterValueConverter valueConverter)
 	{
 		return builder.WithConfig(c =>
 		{
@@ -190,7 +193,9 @@ public static class ParserOptionsBuilderFormatterExtensions
 	/// <summary>
 	///		Adds an formatter
 	/// </summary>
-	public static IParserOptionsBuilder WithFormatter(this IParserOptionsBuilder builder, Delegate @delegate, string name)
+	public static IParserOptionsBuilder WithFormatter(this IParserOptionsBuilder builder,
+													Delegate @delegate,
+													string name)
 	{
 		return builder.WithConfig(c =>
 		{
@@ -202,7 +207,9 @@ public static class ParserOptionsBuilderFormatterExtensions
 	/// <summary>
 	///		Adds an formatter
 	/// </summary>
-	public static IParserOptionsBuilder WithGlobalFormatter(this IParserOptionsBuilder builder, Delegate @delegate, string name)
+	public static IParserOptionsBuilder WithGlobalFormatter(this IParserOptionsBuilder builder,
+															Delegate @delegate,
+															string name)
 	{
 		return builder.WithConfig(c =>
 		{
@@ -224,7 +231,9 @@ public static class ParserOptionsBuilderFormatterExtensions
 	/// <summary>
 	///		Adds a new Function to the list of formatters
 	/// </summary>
-	public static IParserOptionsBuilder WithFormatter<T>(this IParserOptionsBuilder builder, Action<T> function, string name)
+	public static IParserOptionsBuilder WithFormatter<T>(this IParserOptionsBuilder builder,
+														Action<T> function,
+														string name)
 	{
 		return builder.WithFormatter((Delegate)function, name);
 	}
@@ -232,7 +241,9 @@ public static class ParserOptionsBuilderFormatterExtensions
 	/// <summary>
 	///		Adds a new Function to the list of formatters
 	/// </summary>
-	public static IParserOptionsBuilder WithFormatter<T, T1>(this IParserOptionsBuilder builder, Action<T, T1> function, string name)
+	public static IParserOptionsBuilder WithFormatter<T, T1>(this IParserOptionsBuilder builder,
+															Action<T, T1> function,
+															string name)
 	{
 		return builder.WithFormatter((Delegate)function, name);
 	}
@@ -240,7 +251,9 @@ public static class ParserOptionsBuilderFormatterExtensions
 	/// <summary>
 	///		Adds a new Function to the list of formatters
 	/// </summary>
-	public static IParserOptionsBuilder WithFormatter<T, T1, T2>(this IParserOptionsBuilder builder, Action<T, T1, T2> function, string name)
+	public static IParserOptionsBuilder WithFormatter<T, T1, T2>(this IParserOptionsBuilder builder,
+																Action<T, T1, T2> function,
+																string name)
 	{
 		return builder.WithFormatter((Delegate)function, name);
 	}
@@ -248,7 +261,9 @@ public static class ParserOptionsBuilderFormatterExtensions
 	/// <summary>
 	///		Adds a new Function to the list of formatters
 	/// </summary>
-	public static IParserOptionsBuilder WithFormatter<T, T1, T2, T3>(this IParserOptionsBuilder builder, Action<T, T1, T2, T3> function, string name)
+	public static IParserOptionsBuilder WithFormatter<T, T1, T2, T3>(this IParserOptionsBuilder builder,
+																	Action<T, T1, T2, T3> function,
+																	string name)
 	{
 		return builder.WithFormatter((Delegate)function, name);
 	}
@@ -256,7 +271,10 @@ public static class ParserOptionsBuilderFormatterExtensions
 	/// <summary>
 	///		Adds a new Function to the list of formatters
 	/// </summary>
-	public static IParserOptionsBuilder WithFormatter<T, T1, T2, T3, T4>(this IParserOptionsBuilder builder, Action<T, T1, T2, T3, T4> function, string name)
+	public static IParserOptionsBuilder WithFormatter<T, T1, T2, T3, T4>(
+		this IParserOptionsBuilder builder,
+		Action<T, T1, T2, T3, T4> function,
+		string name)
 	{
 		return builder.WithFormatter((Delegate)function, name);
 	}
@@ -268,7 +286,9 @@ public static class ParserOptionsBuilderFormatterExtensions
 	/// <summary>
 	///		Adds a new Function to the list of formatters
 	/// </summary>
-	public static IParserOptionsBuilder WithFormatter<T>(this IParserOptionsBuilder builder, Func<T> function, string name)
+	public static IParserOptionsBuilder WithFormatter<T>(this IParserOptionsBuilder builder,
+														Func<T> function,
+														string name)
 	{
 		return builder.WithFormatter((Delegate)function, name);
 	}
@@ -276,7 +296,9 @@ public static class ParserOptionsBuilderFormatterExtensions
 	/// <summary>
 	///		Adds a new Function to the list of formatters
 	/// </summary>
-	public static IParserOptionsBuilder WithFormatter<T, T1>(this IParserOptionsBuilder builder, Func<T, T1> function, string name)
+	public static IParserOptionsBuilder WithFormatter<T, T1>(this IParserOptionsBuilder builder,
+															Func<T, T1> function,
+															string name)
 	{
 		return builder.WithFormatter((Delegate)function, name);
 	}
@@ -284,7 +306,9 @@ public static class ParserOptionsBuilderFormatterExtensions
 	/// <summary>
 	///		Adds a new Function to the list of formatters
 	/// </summary>
-	public static IParserOptionsBuilder WithFormatter<T, T1, T2>(this IParserOptionsBuilder builder, Func<T, T1, T2> function, string name)
+	public static IParserOptionsBuilder WithFormatter<T, T1, T2>(this IParserOptionsBuilder builder,
+																Func<T, T1, T2> function,
+																string name)
 	{
 		return builder.WithFormatter((Delegate)function, name);
 	}
@@ -292,7 +316,9 @@ public static class ParserOptionsBuilderFormatterExtensions
 	/// <summary>
 	///		Adds a new Function to the list of formatters
 	/// </summary>
-	public static IParserOptionsBuilder WithFormatter<T, T1, T2, T3>(this IParserOptionsBuilder builder, Func<T, T1, T2, T3> function, string name)
+	public static IParserOptionsBuilder WithFormatter<T, T1, T2, T3>(this IParserOptionsBuilder builder,
+																	Func<T, T1, T2, T3> function,
+																	string name)
 	{
 		return builder.WithFormatter((Delegate)function, name);
 	}
@@ -300,7 +326,10 @@ public static class ParserOptionsBuilderFormatterExtensions
 	/// <summary>
 	///		Adds a new Function to the list of formatters
 	/// </summary>
-	public static IParserOptionsBuilder WithFormatter<T, T1, T2, T3, T4>(this IParserOptionsBuilder builder, Func<T, T1, T2, T3, T4> function, string name)
+	public static IParserOptionsBuilder WithFormatter<T, T1, T2, T3, T4>(
+		this IParserOptionsBuilder builder,
+		Func<T, T1, T2, T3, T4> function,
+		string name)
 	{
 		return builder.WithFormatter((Delegate)function, name);
 	}
@@ -312,7 +341,9 @@ public static class ParserOptionsBuilderFormatterExtensions
 	/// <summary>
 	///		Adds a new Function to the list of formatters
 	/// </summary>
-	public static IParserOptionsBuilder WithGlobalFormatter(this IParserOptionsBuilder builder, Action function, string name)
+	public static IParserOptionsBuilder WithGlobalFormatter(this IParserOptionsBuilder builder,
+															Action function,
+															string name)
 	{
 		return builder.WithGlobalFormatter((Delegate)function, name);
 	}
@@ -320,7 +351,9 @@ public static class ParserOptionsBuilderFormatterExtensions
 	/// <summary>
 	///		Adds a new Function to the list of formatters
 	/// </summary>
-	public static IParserOptionsBuilder WithGlobalFormatter<T>(this IParserOptionsBuilder builder, Action<T> function, string name)
+	public static IParserOptionsBuilder WithGlobalFormatter<T>(this IParserOptionsBuilder builder,
+																Action<T> function,
+																string name)
 	{
 		return builder.WithGlobalFormatter((Delegate)function, name);
 	}
@@ -328,7 +361,9 @@ public static class ParserOptionsBuilderFormatterExtensions
 	/// <summary>
 	///		Adds a new Function to the list of formatters
 	/// </summary>
-	public static IParserOptionsBuilder WithGlobalFormatter<T, T1>(this IParserOptionsBuilder builder, Action<T, T1> function, string name)
+	public static IParserOptionsBuilder WithGlobalFormatter<T, T1>(this IParserOptionsBuilder builder,
+																	Action<T, T1> function,
+																	string name)
 	{
 		return builder.WithGlobalFormatter((Delegate)function, name);
 	}
@@ -336,7 +371,9 @@ public static class ParserOptionsBuilderFormatterExtensions
 	/// <summary>
 	///		Adds a new Function to the list of formatters
 	/// </summary>
-	public static IParserOptionsBuilder WithGlobalFormatter<T, T1, T2>(this IParserOptionsBuilder builder, Action<T, T1, T2> function, string name)
+	public static IParserOptionsBuilder WithGlobalFormatter<T, T1, T2>(this IParserOptionsBuilder builder,
+																		Action<T, T1, T2> function,
+																		string name)
 	{
 		return builder.WithGlobalFormatter((Delegate)function, name);
 	}
@@ -344,7 +381,10 @@ public static class ParserOptionsBuilderFormatterExtensions
 	/// <summary>
 	///		Adds a new Function to the list of formatters
 	/// </summary>
-	public static IParserOptionsBuilder WithGlobalFormatter<T, T1, T2, T3>(this IParserOptionsBuilder builder, Action<T, T1, T2, T3> function, string name)
+	public static IParserOptionsBuilder WithGlobalFormatter<T, T1, T2, T3>(
+		this IParserOptionsBuilder builder,
+		Action<T, T1, T2, T3> function,
+		string name)
 	{
 		return builder.WithGlobalFormatter((Delegate)function, name);
 	}
@@ -352,7 +392,10 @@ public static class ParserOptionsBuilderFormatterExtensions
 	/// <summary>
 	///		Adds a new Function to the list of formatters
 	/// </summary>
-	public static IParserOptionsBuilder WithGlobalFormatter<T, T1, T2, T3, T4>(this IParserOptionsBuilder builder, Action<T, T1, T2, T3, T4> function, string name)
+	public static IParserOptionsBuilder WithGlobalFormatter<T, T1, T2, T3, T4>(
+		this IParserOptionsBuilder builder,
+		Action<T, T1, T2, T3, T4> function,
+		string name)
 	{
 		return builder.WithGlobalFormatter((Delegate)function, name);
 	}
@@ -364,7 +407,9 @@ public static class ParserOptionsBuilderFormatterExtensions
 	/// <summary>
 	///		Adds a new Function to the list of formatters
 	/// </summary>
-	public static IParserOptionsBuilder WithGlobalFormatter<T>(this IParserOptionsBuilder builder, Func<T> function, string name)
+	public static IParserOptionsBuilder WithGlobalFormatter<T>(this IParserOptionsBuilder builder,
+																Func<T> function,
+																string name)
 	{
 		return builder.WithGlobalFormatter((Delegate)function, name);
 	}
@@ -372,7 +417,9 @@ public static class ParserOptionsBuilderFormatterExtensions
 	/// <summary>
 	///		Adds a new Function to the list of formatters
 	/// </summary>
-	public static IParserOptionsBuilder WithGlobalFormatter<T, T1>(this IParserOptionsBuilder builder, Func<T, T1> function, string name)
+	public static IParserOptionsBuilder WithGlobalFormatter<T, T1>(this IParserOptionsBuilder builder,
+																	Func<T, T1> function,
+																	string name)
 	{
 		return builder.WithGlobalFormatter((Delegate)function, name);
 	}
@@ -380,7 +427,9 @@ public static class ParserOptionsBuilderFormatterExtensions
 	/// <summary>
 	///		Adds a new Function to the list of formatters
 	/// </summary>
-	public static IParserOptionsBuilder WithGlobalFormatter<T, T1, T2>(this IParserOptionsBuilder builder, Func<T, T1, T2> function, string name)
+	public static IParserOptionsBuilder WithGlobalFormatter<T, T1, T2>(this IParserOptionsBuilder builder,
+																		Func<T, T1, T2> function,
+																		string name)
 	{
 		return builder.WithGlobalFormatter((Delegate)function, name);
 	}
@@ -388,7 +437,10 @@ public static class ParserOptionsBuilderFormatterExtensions
 	/// <summary>
 	///		Adds a new Function to the list of formatters
 	/// </summary>
-	public static IParserOptionsBuilder WithGlobalFormatter<T, T1, T2, T3>(this IParserOptionsBuilder builder, Func<T, T1, T2, T3> function, string name)
+	public static IParserOptionsBuilder WithGlobalFormatter<T, T1, T2, T3>(
+		this IParserOptionsBuilder builder,
+		Func<T, T1, T2, T3> function,
+		string name)
 	{
 		return builder.WithGlobalFormatter((Delegate)function, name);
 	}
@@ -396,7 +448,10 @@ public static class ParserOptionsBuilderFormatterExtensions
 	/// <summary>
 	///		Adds a new Function to the list of formatters
 	/// </summary>
-	public static IParserOptionsBuilder WithGlobalFormatter<T, T1, T2, T3, T4>(this IParserOptionsBuilder builder, Func<T, T1, T2, T3, T4> function, string name)
+	public static IParserOptionsBuilder WithGlobalFormatter<T, T1, T2, T3, T4>(
+		this IParserOptionsBuilder builder,
+		Func<T, T1, T2, T3, T4> function,
+		string name)
 	{
 		return builder.WithGlobalFormatter((Delegate)function, name);
 	}

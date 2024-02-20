@@ -96,10 +96,12 @@ namespace Morestachio.Tests
 					"data", collection
 				}
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatter(new Func<long, long>(value => value + 1), "PlusOne"); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options,
+				options => { return options.WithFormatter(new Func<long, long>(value => value + 1), "PlusOne"); });
 
 			Assert.That(result,
-				Is.EqualTo(Enumerable.Range(1, collection.Length).Select(e => e.ToString()).Aggregate((e, f) => e + "," + f) + ","));
+				Is.EqualTo(Enumerable.Range(1, collection.Length).Select(e => e.ToString())
+					.Aggregate((e, f) => e + "," + f) + ","));
 		}
 
 		[Test]
@@ -114,10 +116,12 @@ namespace Morestachio.Tests
 					"data", collection
 				}
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatters(typeof(DynamicLinq)); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options,
+				options => { return options.WithFormatters(typeof(DynamicLinq)); });
 
 			Assert.That(result,
-				Is.EqualTo(collection.OrderBy(e => e).Select(e => e.ToString()).Aggregate((e, f) => e + "," + f) + ","));
+				Is.EqualTo(collection.OrderBy(e => e).Select(e => e.ToString()).Aggregate((e, f) => e + "," + f) +
+					","));
 		}
 
 		[Test]
@@ -132,7 +136,8 @@ namespace Morestachio.Tests
 					"data", collection
 				}
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, options => { return options.WithFormatters(typeof(DynamicLinq)); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options,
+				options => { return options.WithFormatters(typeof(DynamicLinq)); });
 
 			var resultLeftExpressionOrdered =
 				collection.OrderBy(e => e).Select(e => e.ToString()).Aggregate((e, f) => e + "," + f) + ",";

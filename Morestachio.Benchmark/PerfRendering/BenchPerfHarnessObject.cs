@@ -11,6 +11,7 @@ namespace Morestachio.Benchmark.PerfRendering
 
 			var items = new List<object>();
 			var lorem = Lorem.AsMemory();
+
 			for (int i = 0; i < ProductCount; i++)
 			{
 				items.Add(new

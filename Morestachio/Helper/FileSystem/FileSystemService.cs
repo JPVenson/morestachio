@@ -47,5 +47,4 @@ public class FileSystemService
 	///		File specific methods for use with the $services collection
 	/// </summary>
 	public FileSystemFileService File { get; private set; }
-	
 }

@@ -12,7 +12,7 @@ public class GenericTypeConverter : IFormatterValueConverter
 	///		As this Converter can be reuused it should be
 	/// </summary>
 	public static readonly IFormatterValueConverter Instance = new GenericTypeConverter();
-		
+
 	/// <inheritdoc />
 	public bool CanConvert(Type sourceType, Type requestedType)
 	{
@@ -32,6 +32,7 @@ public class GenericTypeConverter : IFormatterValueConverter
 		{
 			return null;
 		}
+
 		var typeConverter = TypeDescriptor.GetConverter(value.GetType());
 		return typeConverter.ConvertTo(value, requestedType);
 	}

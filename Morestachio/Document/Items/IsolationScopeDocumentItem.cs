@@ -23,11 +23,11 @@ public class IsolationScopeDocumentItem : BlockDocumentItemBase, ISupportCustomA
 	/// <inheritdoc />
 	public IsolationScopeDocumentItem()
 	{
-
 	}
 
 	/// <inheritdoc />
-	public IsolationScopeDocumentItem(TextRange location, IsolationOptions isolationOptions,
+	public IsolationScopeDocumentItem(TextRange location,
+									IsolationOptions isolationOptions,
 									IMorestachioExpression morestachioExpression,
 									IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
 	{
@@ -58,6 +58,7 @@ public class IsolationScopeDocumentItem : BlockDocumentItemBase, ISupportCustomA
 	protected override void SerializeXmlHeaderCore(XmlWriter writer)
 	{
 		base.SerializeXmlHeaderCore(writer);
+
 		foreach (var flag in Isolation.GetFlags())
 		{
 			writer.WriteAttributeString(flag.ToString(), "true");
@@ -118,7 +119,9 @@ public class IsolationScopeDocumentItem : BlockDocumentItemBase, ISupportCustomA
 	public IMorestachioExpression ScopeIsolationExpression { get; private set; }
 
 	/// <inheritdoc />
-	public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+	public override async ItemExecutionPromise Render(IByteCounterStream outputStream,
+													ContextObject context,
+													ScopeData scopeData)
 	{
 		if (ScopeIsolationExpression != null)
 		{
@@ -141,6 +144,7 @@ public class IsolationScopeDocumentItem : BlockDocumentItemBase, ISupportCustomA
 	public CompilationAsync Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
 	{
 		var children = compiler.Compile(Children, parserOptions);
+
 		if (ScopeIsolationExpression != null)
 		{
 			var compiledExpression = ScopeIsolationExpression.Compile(parserOptions);

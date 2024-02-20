@@ -9,31 +9,32 @@ public interface IMorestachioExpressionVisitor
 	///		Visits an Expression
 	/// </summary>
 	void Visit(MorestachioExpression expression);
-		
+
 	/// <summary>
 	///		Visits an Expression List
 	/// </summary>
 	void Visit(MorestachioArgumentExpressionList expression);
+
 	/// <summary>
 	///		Visits an Bracket enclosing one expression
 	/// </summary>
 	void Visit(MorestachioBracketExpression expression);
-		
+
 	/// <summary>
 	///		Visits an Expression List
 	/// </summary>
 	void Visit(MorestachioMultiPartExpressionList expression);
-		
+
 	/// <summary>
 	///		Visits an Expression String
 	/// </summary>
 	void Visit(MorestachioExpressionString expression);
-		
+
 	/// <summary>
 	///		Visits an Expression Argument
 	/// </summary>
 	void Visit(ExpressionArgument expression);
-		
+
 	/// <summary>
 	///		Visits an Expression Number
 	/// </summary>
@@ -63,7 +64,7 @@ public class MorestachioExpressionVisitorBase : IMorestachioExpressionVisitor
 			this.Visit(expressionArgument);
 		}
 	}
-		
+
 	/// <inheritdoc />
 	public virtual void Visit(MorestachioArgumentExpressionList expression)
 	{
@@ -72,7 +73,7 @@ public class MorestachioExpressionVisitorBase : IMorestachioExpressionVisitor
 			this.Visit(expressionArgument);
 		}
 	}
-		
+
 	/// <inheritdoc />
 	public virtual void Visit(MorestachioBracketExpression expression)
 	{
@@ -81,7 +82,7 @@ public class MorestachioExpressionVisitorBase : IMorestachioExpressionVisitor
 			this.Visit(expressionArgument);
 		}
 	}
-		
+
 	/// <inheritdoc />
 	public virtual void Visit(MorestachioMultiPartExpressionList expression)
 	{
@@ -90,33 +91,34 @@ public class MorestachioExpressionVisitorBase : IMorestachioExpressionVisitor
 			this.Visit(expressionArgument);
 		}
 	}
-		
+
 	/// <inheritdoc />
 	public virtual void Visit(MorestachioExpressionString expression)
 	{
 	}
-		
+
 	/// <inheritdoc />
 	public virtual void Visit(ExpressionArgument expression)
 	{
 		this.Visit(expression.MorestachioExpression);
 	}
-		
+
 	/// <inheritdoc />
 	public virtual void Visit(MorestachioExpressionNumber expression)
 	{
 	}
-		
+
 	/// <inheritdoc />
 	public virtual void Visit(MorestachioOperatorExpression expression)
 	{
 		this.Visit(expression.LeftExpression);
+
 		if (expression.RightExpression != null)
 		{
 			this.Visit(expression.RightExpression);
 		}
 	}
-		
+
 	/// <inheritdoc />
 	public virtual void Visit(MorestachioLambdaExpression expression)
 	{

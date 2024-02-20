@@ -27,7 +27,8 @@ public class TrimLineBreakTextOperation : ITextOperation
 	protected TrimLineBreakTextOperation(SerializationInfo info, StreamingContext c) : this()
 	{
 		LineBreaks = info.GetInt32(nameof(LineBreaks));
-		LineBreakTrimDirection = (LineBreakTrimDirection)info.GetValue(nameof(LineBreakTrimDirection), typeof(LineBreakTrimDirection));
+		LineBreakTrimDirection
+			= (LineBreakTrimDirection)info.GetValue(nameof(LineBreakTrimDirection), typeof(LineBreakTrimDirection));
 	}
 
 	/// <inheritdoc />
@@ -47,7 +48,8 @@ public class TrimLineBreakTextOperation : ITextOperation
 	public void ReadXml(XmlReader reader)
 	{
 		LineBreaks = int.Parse(reader.GetAttribute(nameof(LineBreaks)));
-		LineBreakTrimDirection = (LineBreakTrimDirection)Enum.Parse(typeof(LineBreakTrimDirection), reader.GetAttribute(nameof(LineBreakTrimDirection)));
+		LineBreakTrimDirection = (LineBreakTrimDirection)Enum.Parse(typeof(LineBreakTrimDirection),
+			reader.GetAttribute(nameof(LineBreakTrimDirection)));
 	}
 
 	/// <inheritdoc />
@@ -88,70 +90,88 @@ public class TrimLineBreakTextOperation : ITextOperation
 	public string Apply(string value)
 	{
 		var breaksFound = 0;
+
 		if (LineBreaks == 0 && LineBreakTrimDirection.HasFlagFast(LineBreakTrimDirection.Begin))
 		{
 			for (int i = 0; i < value.Length; i++)
 			{
 				var c = value[i];
+
 				if (c == '\t')
 				{
 					continue;
 				}
+
 				if (c == ' ')
 				{
 					continue;
 				}
+
 				if (c == '\r' || c == '\n')
 				{
 					c = value[i + 1];
+
 					if (c == '\r' || c == '\n')
 					{
 						i++;
 					}
+
 					return value.Substring(i + 1);
 				}
+
 				return value.Substring(i);
 			}
 
 			return value;
 		}
+
 		if (LineBreaks == 0 && LineBreakTrimDirection.HasFlagFast(LineBreakTrimDirection.End))
 		{
 			for (int i = value.Length - 1; i > 0; i--)
 			{
 				var c = value[i];
+
 				if (c == '\t')
 				{
 					continue;
 				}
+
 				if (c == ' ')
 				{
 					continue;
 				}
+
 				if (c == '\r' || c == '\n')
 				{
 					c = value[i - 1];
 					i--;
+
 					if (c == '\r' || c == '\n')
 					{
 						i--;
 					}
 				}
+
 				return value.Substring(0, i + 1);
 			}
+
 			return value;
 		}
+
 		if (LineBreaks == -1 && LineBreakTrimDirection.HasFlagFast(LineBreakTrimDirection.Begin))
 		{
 			return value.TrimStart(Tokenizer.GetWhitespaceDelimiters());
 		}
+
 		if (LineBreaks == -1 && LineBreakTrimDirection.HasFlagFast(LineBreakTrimDirection.End))
 		{
 			return value.TrimEnd(Tokenizer.GetWhitespaceDelimiters());
 		}
+
 		for (int i = 0; i < value.Length; i++)
 		{
 			var c = value[i];
+
 			if (Tokenizer.IsWhiteSpaceDelimiter(c))
 			{
 				if (LineBreaks == ++breaksFound)
@@ -169,6 +189,7 @@ public class TrimLineBreakTextOperation : ITextOperation
 				return value.Substring(i);
 			}
 		}
+
 		return string.Empty;
 	}
 }

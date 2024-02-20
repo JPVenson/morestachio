@@ -21,13 +21,11 @@ namespace Morestachio.Document.Items
 	public class NoPrintDocumentItem : BlockDocumentItemBase,
 										ISupportCustomAsyncCompilation
 	{
-
 		/// <summary>
 		///		Used for XML Serialization
 		/// </summary>
-		internal NoPrintDocumentItem() 
+		internal NoPrintDocumentItem()
 		{
-
 		}
 
 		/// <summary>
@@ -37,18 +35,20 @@ namespace Morestachio.Document.Items
 									IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
 		{
 		}
-		
+
 		/// <inheritdoc />
-		
 		protected NoPrintDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 		{
-
 		}
 
 		/// <inheritdoc />
-		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+		public override async ItemExecutionPromise Render(IByteCounterStream outputStream,
+														ContextObject context,
+														ScopeData scopeData)
 		{
-			await MorestachioDocument.ProcessItemsAndChildren(Children, new NullStream(scopeData.ParserOptions), context, scopeData).ConfigureAwait(false);
+			await MorestachioDocument
+				.ProcessItemsAndChildren(Children, new NullStream(scopeData.ParserOptions), context, scopeData)
+				.ConfigureAwait(false);
 			return Enumerable.Empty<DocumentItemExecution>();
 		}
 
@@ -63,7 +63,8 @@ namespace Morestachio.Document.Items
 		{
 			var children = compiler.Compile(Children, parserOptions);
 
-			return (stream, context, scopeData) => children(new NullStream(scopeData.ParserOptions), context, scopeData);
+			return (stream, context, scopeData) =>
+				children(new NullStream(scopeData.ParserOptions), context, scopeData);
 		}
 	}
 }

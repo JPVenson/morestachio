@@ -34,10 +34,7 @@ namespace Morestachio.Configuration.Transform
 		/// <inheritdoc />
 		public IList<IConfigurationSource> Sources
 		{
-			get
-			{
-				return _builder.Sources;
-			}
+			get { return _builder.Sources; }
 		}
 
 		/// <summary>

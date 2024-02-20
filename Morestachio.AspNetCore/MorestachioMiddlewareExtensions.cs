@@ -10,8 +10,8 @@ namespace Morestachio.AspNetCore
 {
 	public static class MorestachioMiddlewareExtensions
 	{
-		public static IApplicationBuilder UseMorestachio(this IApplicationBuilder app, 
-			MorestachioMiddlewareOptions options)
+		public static IApplicationBuilder UseMorestachio(this IApplicationBuilder app,
+														MorestachioMiddlewareOptions options)
 		{
 			app.UseMiddleware<MorestachioMiddleware>(options);
 			return app;
@@ -26,10 +26,7 @@ namespace Morestachio.AspNetCore
 			Templates = new List<IMorestachioTemplate>();
 		}
 
-		public string Path
-		{
-			get;
-		}
+		public string Path { get; }
 
 		private List<IMorestachioTemplate> Templates { get; set; }
 
@@ -39,7 +36,8 @@ namespace Morestachio.AspNetCore
 			return this;
 		}
 
-		public MorestachioMiddlewareBuilder MapDirectory(string directory, Func<HttpContext, ValueTask<object>> dataFac = null)
+		public MorestachioMiddlewareBuilder MapDirectory(string directory,
+														Func<HttpContext, ValueTask<object>> dataFac = null)
 		{
 			foreach (var enumerateFile in Directory.EnumerateFiles(directory))
 			{

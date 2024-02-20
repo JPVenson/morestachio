@@ -34,8 +34,10 @@ namespace Morestachio.Tests.Json
 ";
 			var template = "{{Data.PropA}}{{PropB}}";
 
-			var document = _jsonSerializerStrategy.Register(ParserFixture.TestBuilder().WithTemplate(template)).BuildAndParse();
-			Assert.That(document.CreateRenderer().RenderAndStringify(_jsonSerializerStrategy.DeSerialize(data)), Is.EqualTo("Test"));
+			var document = _jsonSerializerStrategy.Register(ParserFixture.TestBuilder().WithTemplate(template))
+				.BuildAndParse();
+			Assert.That(document.CreateRenderer().RenderAndStringify(_jsonSerializerStrategy.DeSerialize(data)),
+				Is.EqualTo("Test"));
 		}
 
 		[Test]
@@ -49,8 +51,10 @@ namespace Morestachio.Tests.Json
 }
 ";
 			var template = "{{#each Data.PropA}}{{this}}{{/each}}{{PropB}}";
-			var document = _jsonSerializerStrategy.Register(ParserFixture.TestBuilder().WithTemplate(template)).BuildAndParse();
-			Assert.That(document.CreateRenderer().RenderAndStringify(_jsonSerializerStrategy.DeSerialize(data)), Is.EqualTo("Test"));
+			var document = _jsonSerializerStrategy.Register(ParserFixture.TestBuilder().WithTemplate(template))
+				.BuildAndParse();
+			Assert.That(document.CreateRenderer().RenderAndStringify(_jsonSerializerStrategy.DeSerialize(data)),
+				Is.EqualTo("Test"));
 		}
 
 		[Test]
@@ -64,8 +68,10 @@ namespace Morestachio.Tests.Json
 }
 ";
 			var template = "{{#each Data.PropA.Skip(1)}}{{this}}{{/each}}{{PropB}}";
-			var document = _jsonSerializerStrategy.Register(ParserFixture.TestBuilder().WithTemplate(template)).BuildAndParse();
-			Assert.That(document.CreateRenderer().RenderAndStringify(_jsonSerializerStrategy.DeSerialize(data)), Is.EqualTo("Test"));
+			var document = _jsonSerializerStrategy.Register(ParserFixture.TestBuilder().WithTemplate(template))
+				.BuildAndParse();
+			Assert.That(document.CreateRenderer().RenderAndStringify(_jsonSerializerStrategy.DeSerialize(data)),
+				Is.EqualTo("Test"));
 		}
 	}
 }

@@ -17,8 +17,8 @@ namespace Morestachio.Tests.PerfTests
 	{
 		public interface IPerformanceCounterEntity
 		{
-			string PrintAsCsv(string delimiter, 
-				IDictionary<string, int> fieldSizes);
+			string PrintAsCsv(string delimiter,
+							IDictionary<string, int> fieldSizes);
 		}
 
 		public class ModelPerformanceCounterEntity : IPerformanceCounterEntity
@@ -28,32 +28,19 @@ namespace Morestachio.Tests.PerfTests
 				Name = name;
 			}
 
-			[DisplayName("Variation")]
-			public string Name { get; private set; }
-			[DisplayName("Time/Run")]
-			public TimeSpan TimePerRun { get; set; }
-			[DisplayName("Runs")]
-			public int RunOver { get; set; }
-			[DisplayName("Model Depth")]
-			public int ModelDepth { get; set; }
-			[DisplayName("SubstitutionCount")]
-			public int SubstitutionCount { get; set; }
-			[DisplayName("Template Size(byte)")]
-			public int TemplateSize { get; set; }
-			[DisplayName("Token Match Time")]
-			public TimeSpan TokenMatchTime { get; set; }
-			[DisplayName("TokenizingTime")]
-			public TimeSpan TokenizingTime { get; set; }
-			[DisplayName("ParseTime")]
-			public TimeSpan ParseTime { get; set; }
-			[DisplayName("RenderTime")]
-			public TimeSpan RenderTime { get; set; }
-			[DisplayName("CompilerTime")]
-			public TimeSpan CompilerTime { get; set; }
-			[DisplayName("CompiledRenderTime")]
-			public TimeSpan CompiledRenderTime { get; set; }
-			[DisplayName("Total Time")]
-			public TimeSpan TotalTime { get; set; }
+			[DisplayName("Variation")] public string Name { get; private set; }
+			[DisplayName("Time/Run")] public TimeSpan TimePerRun { get; set; }
+			[DisplayName("Runs")] public int RunOver { get; set; }
+			[DisplayName("Model Depth")] public int ModelDepth { get; set; }
+			[DisplayName("SubstitutionCount")] public int SubstitutionCount { get; set; }
+			[DisplayName("Template Size(byte)")] public int TemplateSize { get; set; }
+			[DisplayName("Token Match Time")] public TimeSpan TokenMatchTime { get; set; }
+			[DisplayName("TokenizingTime")] public TimeSpan TokenizingTime { get; set; }
+			[DisplayName("ParseTime")] public TimeSpan ParseTime { get; set; }
+			[DisplayName("RenderTime")] public TimeSpan RenderTime { get; set; }
+			[DisplayName("CompilerTime")] public TimeSpan CompilerTime { get; set; }
+			[DisplayName("CompiledRenderTime")] public TimeSpan CompiledRenderTime { get; set; }
+			[DisplayName("Total Time")] public TimeSpan TotalTime { get; set; }
 
 
 			private static MemberInfo GetMemberName(Expression expression)
@@ -62,21 +49,25 @@ namespace Morestachio.Tests.PerfTests
 				{
 					throw new ArgumentException("");
 				}
+
 				if (expression is MemberExpression memberExpression)
 				{
 					// Reference type property or field
 					return memberExpression.Member;
 				}
+
 				if (expression is MethodCallExpression methodCall)
 				{
 					return GetMemberName(methodCall.Object);
 				}
+
 				if (expression is UnaryExpression)
 				{
 					// Property, field of method returning value type
 					var unaryExpression = (UnaryExpression)expression;
 					return GetMemberName(unaryExpression);
 				}
+
 				throw new ArgumentException("");
 			}
 
@@ -88,18 +79,21 @@ namespace Morestachio.Tests.PerfTests
 					throw new ArgumentException("");
 					//return methodExpression.Method.Name;
 				}
+
 				return ((MemberExpression)unaryExpression.Operand).Member;
 			}
 
 			private static string MakeHeaderField(IEnumerable<ModelPerformanceCounterEntity> all,
-				Expression<Func<ModelPerformanceCounterEntity, string>> prop,
-				IDictionary<string, int> fieldSizes)
+												Expression<Func<ModelPerformanceCounterEntity, string>> prop,
+												IDictionary<string, int> fieldSizes)
 			{
 				try
 				{
 					var fieldName = GetMemberName(prop.Body).GetCustomAttribute<DisplayNameAttribute>().DisplayName;
-					var maxValue = Math.Max(all.Select(prop.Compile()).Select(f => f.Length).Max() - fieldName.Length, 0);
+					var maxValue = Math.Max(all.Select(prop.Compile()).Select(f => f.Length).Max() - fieldName.Length,
+						0);
 					var spaces = "";
+
 					if (maxValue > 0)
 					{
 						spaces = Enumerable.Repeat(" ", maxValue).Aggregate((e, f) => e + f);
@@ -126,10 +120,12 @@ namespace Morestachio.Tests.PerfTests
 					var value = prop.Compile()(entity);
 					var maxValue = fieldSizes[fieldName] - value.Length;
 					var spaces = "";
+
 					if (maxValue > 0)
 					{
 						spaces = Enumerable.Repeat(" ", maxValue).Aggregate((e, f) => e + f);
 					}
+
 					return $"{value}{spaces}";
 				}
 				catch (Exception e)
@@ -140,14 +136,17 @@ namespace Morestachio.Tests.PerfTests
 			}
 
 			private static string MakeHeaderFieldSeperator(IEnumerable<ModelPerformanceCounterEntity> all,
-				Expression<Func<ModelPerformanceCounterEntity, string>> prop)
+															Expression<Func<ModelPerformanceCounterEntity, string>>
+																prop)
 			{
 				var fieldName = GetMemberName(prop.Body).GetCustomAttribute<DisplayNameAttribute>().DisplayName;
 				var maxValue = Math.Max(all.Select(prop.Compile()).Select(f => f.Length).Max(), fieldName.Length) + 2;
 				return $"{Enumerable.Repeat("-", maxValue).Aggregate((e, f) => e + f)}";
 			}
 
-			public static string Header(string delimiter, IList<ModelPerformanceCounterEntity> all, out IDictionary<string, int> fieldSizes)
+			public static string Header(string delimiter,
+										IList<ModelPerformanceCounterEntity> all,
+										out IDictionary<string, int> fieldSizes)
 			{
 				fieldSizes = new Dictionary<string, int>();
 				return
@@ -182,7 +181,7 @@ namespace Morestachio.Tests.PerfTests
 			}
 
 			public string PrintAsCsv(string delimiter,
-				IDictionary<string, int> fieldSizes)
+									IDictionary<string, int> fieldSizes)
 			{
 				return
 					$"{delimiter} " +
@@ -201,6 +200,7 @@ namespace Morestachio.Tests.PerfTests
 					$"{MakeValueField(this, e => e.TotalTime.ToString("c"), fieldSizes)} {delimiter} ";
 			}
 		}
+
 		public class ExpressionPerformanceCounterEntity : IPerformanceCounterEntity
 		{
 			public ExpressionPerformanceCounterEntity(string name)
@@ -225,7 +225,7 @@ namespace Morestachio.Tests.PerfTests
 			}
 
 			public string PrintAsCsv(string delimiter,
-				IDictionary<string, int> fieldSizes)
+									IDictionary<string, int> fieldSizes)
 			{
 				return
 					$"{Name}{delimiter} {TimePerRun:c}{delimiter} {RunOver}{delimiter} {Width}{delimiter} {Depth}{delimiter} {NoArguments}{delimiter} {ParseTime:c}{delimiter} {ExecuteTime:c}{delimiter} {TotalTime:c}";
@@ -256,20 +256,23 @@ namespace Morestachio.Tests.PerfTests
 			//	totalTime.ElapsedMilliseconds / (double) runs, variation);
 			var delimiter = "|";
 			var perfCounter = PerformanceCounters.OfType<ModelPerformanceCounterEntity>().ToArray();
+
 			if (perfCounter.Any())
 			{
 				output.AppendLine(ModelPerformanceCounterEntity.Header(delimiter, perfCounter, out var fieldSizes));
+
 				foreach (var performanceCounter in perfCounter)
 				{
 					output.AppendLine(performanceCounter.PrintAsCsv(delimiter, fieldSizes));
 				}
 			}
+
 			var expPerCounter = PerformanceCounters.OfType<ExpressionPerformanceCounterEntity>();
 
 			if (expPerCounter.Any())
 			{
-
 				output.AppendLine(ExpressionPerformanceCounterEntity.Header(delimiter));
+
 				foreach (var performanceCounter in expPerCounter)
 				{
 					output.AppendLine("| " + performanceCounter.PrintAsCsv(delimiter, null) + "|");
@@ -278,7 +281,9 @@ namespace Morestachio.Tests.PerfTests
 
 			Console.WriteLine(output.ToString());
 			//TestContext.Progress.WriteLine(output.ToString());
-			File.WriteAllText(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) + @"\MorestachioPerf.md", output.ToString());
+			File.WriteAllText(
+				Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) + @"\MorestachioPerf.md",
+				output.ToString());
 		}
 	}
 }

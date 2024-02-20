@@ -34,7 +34,6 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 	public MorestachioFormatterService(bool useCache = false)
 		: this(useCache, DefaultFormatterService.Default.Value)
 	{
-
 	}
 
 	/// <summary>
@@ -106,7 +105,11 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 	public IFormatterValueConverter DefaultConverter
 	{
 		get { return _defaultConverter; }
-		set { _defaultConverter = value ?? throw new ArgumentNullException("value", "The value of the DefaultConverter may never be null."); }
+		set
+		{
+			_defaultConverter = value ??
+				throw new ArgumentNullException("value", "The value of the DefaultConverter may never be null.");
+		}
 	}
 
 	/// <summary>
@@ -131,11 +134,13 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		{
 			formatters = formatters.Concat(Parent.Filter(filter));
 		}
+
 		return formatters;
 	}
 
 	/// <inheritdoc />
-	public virtual MorestachioFormatterModel Add(MethodInfo method, IMorestachioFormatterDescriptor morestachioFormatterAttribute)
+	public virtual MorestachioFormatterModel Add(MethodInfo method,
+												IMorestachioFormatterDescriptor morestachioFormatterAttribute)
 	{
 		var name = morestachioFormatterAttribute.GetFormatterName(method);
 		var morestachioFormatterModel = ModelFromMethodInfo(method, morestachioFormatterAttribute);
@@ -159,9 +164,9 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 	/// <param name="morestachioFormatterAttribute"></param>
 	/// <returns></returns>
 	public static MorestachioFormatterModel ModelFromMethodInfo(MethodInfo methodInfo,
-																IMorestachioFormatterDescriptor morestachioFormatterAttribute)
+																IMorestachioFormatterDescriptor
+																	morestachioFormatterAttribute)
 	{
-
 		morestachioFormatterAttribute.ValidateFormatter(methodInfo);
 		var arguments = morestachioFormatterAttribute.GetParameters(methodInfo);
 		var name = morestachioFormatterAttribute.GetFormatterName(methodInfo);
@@ -183,7 +188,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 	/// </summary>
 
 	public IDictionary<FormatterCacheCompareKey, FormatterCache> Cache { get; set; }
-	
+
 	/// <inheritdoc />
 	public FormatterCache PrepareCallMostMatchingFormatter(
 		ref object value,
@@ -195,7 +200,8 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 	{
 		if (Cache != null && Cache.TryGetValue(new FormatterCacheCompareKey(type, arguments, name), out var cacheItem))
 		{
-			parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId, $"Provide formatter {name} from cache.");
+			parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId,
+				$"Provide formatter {name} from cache.");
 			return cacheItem;
 		}
 
@@ -215,7 +221,8 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 
 		if (!hasFormatter.Any())
 		{
-			parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId, $"Could not find logger {name} in {GetType()}. Ask Parent {Parent?.GetType()}");
+			parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId,
+				$"Could not find logger {name} in {GetType()}. Ask Parent {Parent?.GetType()}");
 			return Parent?.PrepareCallMostMatchingFormatter(
 				ref value,
 				type,
@@ -246,6 +253,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 			}
 
 			var cache = new FormatterCache(morestachioFormatterModel, tryCompose);
+
 			if (Cache != null)
 			{
 				Cache[new FormatterCacheCompareKey(type, arguments, name)] = cache;
@@ -254,7 +262,8 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 			return cache;
 		}
 
-		parserOptions.Logger?.LogError(LoggingFormatter.FormatterServiceId, $"Could not find logger {name} in {GetType()}.");
+		parserOptions.Logger?.LogError(LoggingFormatter.FormatterServiceId,
+			$"Could not find logger {name} in {GetType()}.");
 		return null;
 	}
 
@@ -268,26 +277,31 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		FormatterArgumentType[] args)
 	{
 		parserOptions.Logger?
-			.LogTrace(LoggingFormatter.FormatterServiceId, $"Execute the formatter {formatter.Model.Name} with arguments. {args.Select(f => string.Join("\t", f.Index, f.Name, f.Type, f.Expression.AsStringExpression(), f.Value))}");
+			.LogTrace(LoggingFormatter.FormatterServiceId,
+				$"Execute the formatter {formatter.Model.Name} with arguments. {args.Select(f => string.Join("\t", f.Index, f.Name, f.Type, f.Expression.AsStringExpression(), f.Value))}");
 
 		if (formatter.Model.LinkFunctionTarget && sourceValue is null)
 		{
 			parserOptions.Logger?
-				.LogError(LoggingFormatter.FormatterServiceId, $"Tried to execute formatter {formatter.Model.Name} but did not provide a reference to execute on.");
+				.LogError(LoggingFormatter.FormatterServiceId,
+					$"Tried to execute formatter {formatter.Model.Name} but did not provide a reference to execute on.");
 			return AsyncHelper.EmptyPromise<object>();
 		}
 
 		var mappedValues = formatter.ValueBuffer;
 
 		var i = 0;
+
 		foreach (var formatterArgumentMap in formatter.TestedTypes.Arguments)
 		{
 			var valueObtainValue = formatterArgumentMap.Value.ObtainValue(sourceValue, args);
+
 			if (formatterArgumentMap.Value.ConverterFunc != null)
 			{
 				var convValue = formatterArgumentMap.Value.ConverterFunc(valueObtainValue);
 				valueObtainValue = convValue ?? valueObtainValue;
 			}
+
 			mappedValues[i++] = valueObtainValue;
 		}
 
@@ -297,8 +311,8 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 			var callerWrapper = formatter.TestedTypes.PrepareInvoke(mappedValues);
 
 			//if this is an instance method use the source type as the target for invoking the method
-			if (formatter.Model.LinkFunctionTarget 
-				&& !callerWrapper.methodInfo.IsStatic 
+			if (formatter.Model.LinkFunctionTarget
+				&& !callerWrapper.methodInfo.IsStatic
 				&& callerWrapper.methodInfo.DeclaringType?.IsInstanceOfType(sourceValue) == true)
 			{
 				functionTarget = sourceValue;
@@ -309,7 +323,9 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		catch (Exception e)
 		{
 			parserOptions.Logger?
-				.LogError(LoggingFormatter.FormatterServiceId, $"Error while executing formatter {formatter.Model.Name}. Handle as {ExceptionHandling}. Exception {e}");
+				.LogError(LoggingFormatter.FormatterServiceId,
+					$"Error while executing formatter {formatter.Model.Name}. Handle as {ExceptionHandling}. Exception {e}");
+
 			if (ExceptionHandling == FormatterServiceExceptionHandling.IgnoreSilently)
 			{
 				return AsyncHelper.EmptyPromise<object>();
@@ -333,18 +349,22 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		ParserOptions parserOptions,
 		string name)
 	{
-		parserOptions.Logger?.LogTrace(LoggingFormatter.FormatterServiceId, $"Lookup formatter for type {typeToFormat} with name {name}. {arguments.Select(f => string.Join("\t", f.Index, f.Name, f.Type, f.Expression.AsStringExpression()))}");
+		parserOptions.Logger?.LogTrace(LoggingFormatter.FormatterServiceId,
+			$"Lookup formatter for type {typeToFormat} with name {name}. {arguments.Select(f => string.Join("\t", f.Index, f.Name, f.Type, f.Expression.AsStringExpression()))}");
 
 		if (!Formatters.TryGetValue(name ?? "{NULL}", out var formatters))
 		{
-			parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId, $"There are no formatters for the name {name}");
+			parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId,
+				$"There are no formatters for the name {name}");
 			return Enumerable.Empty<MorestachioFormatterModel>();
 		}
 
 		var filteredSourceList = new List<KeyValuePair<MorestachioFormatterModel, ulong>>();
+
 		foreach (var formatTemplateElement in formatters)
 		{
-			parserOptions.Logger?.LogTrace(LoggingFormatter.FormatterServiceId, $"Test formatter input type: '{formatTemplateElement.InputType}' on formatter named '{formatTemplateElement.Function.Name}'");
+			parserOptions.Logger?.LogTrace(LoggingFormatter.FormatterServiceId,
+				$"Test formatter input type: '{formatTemplateElement.InputType}' on formatter named '{formatTemplateElement.Function.Name}'");
 
 			//this checks only for source type equality
 			if (formatTemplateElement.InputType != typeToFormat
@@ -371,7 +391,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 			//var mandatoryArguments = formatTemplateElement.MetaData
 			//	.Where(e => !e.IsRestObject && !e.IsOptional && !e.IsSourceObject && !e.IsInjected).ToArray();
 			if (formatTemplateElement.MetaData.MandetoryArguments.Count > arguments.Length)
-			//if there are less arguments excluding rest then parameters
+				//if there are less arguments excluding rest then parameters
 			{
 				parserOptions.Logger?.LogTrace(LoggingFormatter.FormatterServiceId,
 					$"Exclude because formatter has '{formatTemplateElement.MetaData.MandetoryArguments.Count}' parameter and '{formatTemplateElement.MetaData.Count(e => e.IsRestObject)}' rest parameter but needs less or equals'{arguments.Length}'.");
@@ -379,6 +399,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 			}
 
 			ulong score = 1L;
+
 			if (formatTemplateElement.Function.ReturnParameter == null ||
 				formatTemplateElement.Function.ReturnParameter?.ParameterType == typeof(void))
 			{
@@ -395,6 +416,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		if (filteredSourceList.Count > 0)
 		{
 			var formatter = new List<MorestachioFormatterModel>();
+
 			foreach (var formatTemplateElement in filteredSourceList.OrderBy(e => e.Value))
 			{
 				formatter.Add(formatTemplateElement.Key);
@@ -402,6 +424,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 
 			return formatter;
 		}
+
 		parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId, $"No formatter matches");
 		return Enumerable.Empty<MorestachioFormatterModel>();
 	}
@@ -431,6 +454,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 			if (it.IsGenericType)
 			{
 				var genericTypeDefinition = it.GetGenericTypeDefinition();
+
 				if (genericTypeDefinition == genericType)
 				{
 					return true;
@@ -444,6 +468,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		}
 
 		var baseType = givenType.BaseType;
+
 		if (baseType == null)
 		{
 			return false;
@@ -457,11 +482,13 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		var generics = new List<Type>();
 		var arguments = method.GetParameters().Zip(givenTypes, Tuple.Create).ToArray();
 		var genericArguments = method.GetGenericArguments();
+
 		foreach (var genericArgument in genericArguments)
 		{
 			var directlyFromParameter = arguments
 				.Where(e => e.Item1.ParameterType.IsGenericParameter)
 				.FirstOrDefault(e => e.Item1.ParameterType == genericArgument);
+
 			if (directlyFromParameter != null)
 			{
 				//The parameter is a generic type
@@ -469,7 +496,9 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 				continue;
 			}
 
-			var nestedGeneric = arguments.Select(e => GetGenericTypeLookup(e.Item1.ParameterType, e.Item2, genericArgument)).FirstOrDefault();
+			var nestedGeneric = arguments
+				.Select(e => GetGenericTypeLookup(e.Item1.ParameterType, e.Item2, genericArgument)).FirstOrDefault();
+
 			if (nestedGeneric != null)
 			{
 				generics.Add(nestedGeneric);
@@ -477,9 +506,10 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 			}
 
 			var returnGeneric = GetGenericTypeLookup(method.ReturnType, method.ReturnType, genericArgument);
+
 			if (method.ReturnType == genericArgument || returnGeneric != null)
 			{
-				parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId, 
+				parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId,
 					$"Cannot evaluate generic '{genericArgument}' of method '{method}'. Substitute with typeof(object).");
 				generics.Add(typeof(object));
 				continue;
@@ -496,11 +526,14 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		//examine the generic arguments and check that they both declare the same amount of generics
 		var paramGenerics = declaredType.GetGenericArguments();
 		var sourceGenerics = realType.GetGenericArguments();
+
 		if (paramGenerics.Length != sourceGenerics.Length)
 		{
 			//in the special case that we need to assign a IEnumerable from an Array we have make this workaround
 			var genericTypeDefinition = declaredType.GetGenericTypeDefinition();
-			if (genericTypeDefinition == typeof(IEnumerable<>) && realType.IsArray && paramGenerics[0] == genericArgument)
+
+			if (genericTypeDefinition == typeof(IEnumerable<>) && realType.IsArray &&
+				paramGenerics[0] == genericArgument)
 			{
 				return realType.GetElementType();
 			}
@@ -513,6 +546,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		//void Formatter<T>(IItem<T> item)
 		//we always have an object where we can substitute for example an IItem<T> or an instance of Item where it inherts from Item<T>
 		var argument = new Stack<Tuple<Type, Type>>();
+
 		for (var index = 0; index < paramGenerics.Length; index++)
 		{
 			var paramGeneric = paramGenerics[index];
@@ -537,6 +571,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 
 			var innerParamGenerics = arg.Item1.GetGenericArguments();
 			var innerSourceGenerics = arg.Item2.GetGenericArguments();
+
 			if (paramGenerics.Length != sourceGenerics.Length)
 			{
 				return null;
@@ -577,11 +612,13 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		for (var i = 0; i < formatter.MetaData.NonParamsArguments.Count; i++)
 		{
 			var parameter = formatter.MetaData.NonParamsArguments[i];
-			parserOptions.Logger?.LogTrace(LoggingFormatter.FormatterServiceId, $"Match parameter '{parameter.ParameterType}' [{parameter.Name}]");
+			parserOptions.Logger?.LogTrace(LoggingFormatter.FormatterServiceId,
+				$"Match parameter '{parameter.ParameterType}' [{parameter.Name}]");
 
 			//set ether the source object or the value from the given arguments
 
 			FormatterArgumentType match;
+
 			if (parameter.IsSourceObject)
 			{
 				parserOptions.Logger?.LogTrace(LoggingFormatter.FormatterServiceId, "Is Source object");
@@ -598,14 +635,17 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 				{
 					//match by index or name
 					parserOptions.Logger?.LogTrace(LoggingFormatter.FormatterServiceId, "Get the injected service");
+
 					if (services.TryGetService(parameter.ParameterType, out var service))
 					{
 						if (!parameter.ParameterType.IsInstanceOfType(service))
 						{
 							parserOptions.Logger?
-								.LogError(LoggingFormatter.FormatterServiceId, $"Expected service of type '{parameter.ParameterType}' but got '{service}'");
+								.LogError(LoggingFormatter.FormatterServiceId,
+									$"Expected service of type '{parameter.ParameterType}' but got '{service}'");
 							return default;
 						}
+
 						matched[parameter] = new FormatterArgumentMap(i, null)
 						{
 							ObtainValue = (_, _) => service
@@ -615,7 +655,8 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 					else
 					{
 						parserOptions.Logger?
-							.LogError(LoggingFormatter.FormatterServiceId, $"Requested service of type {parameter.ParameterType} is not present");
+							.LogError(LoggingFormatter.FormatterServiceId,
+								$"Requested service of type {parameter.ParameterType} is not present");
 						return default;
 					}
 				}
@@ -630,7 +671,8 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 						index++;
 						return !string.IsNullOrWhiteSpace(e.Name) && e.Name.Equals(parameter.Name);
 					});
-					if (!Equals(match, default(FormatterArgumentType)))//a match by named parameter
+
+					if (!Equals(match, default(FormatterArgumentType))) //a match by named parameter
 					{
 						if (parameter.ParameterType == typeof(IMorestachioExpression))
 						{
@@ -653,7 +695,8 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 						//match by index
 						index = 0;
 						match = templateArguments.FirstOrDefault(_ => index++ == parameter.Index);
-						if (!Equals(match, default(FormatterArgumentType)))//a match by index
+
+						if (!Equals(match, default(FormatterArgumentType))) //a match by index
 						{
 							if (parameter.ParameterType == typeof(IMorestachioExpression))
 							{
@@ -681,7 +724,8 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 							}
 							else
 							{
-								parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId, $"Skip: Could not match the parameter at index '{parameter.Index}' nether by name nor by index");
+								parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId,
+									$"Skip: Could not match the parameter at index '{parameter.Index}' nether by name nor by index");
 								return default;
 							}
 						}
@@ -690,10 +734,12 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 			}
 
 			//check for matching types
-			if (!parameter.IsOptional && !Equals(match, default(FormatterArgumentType)) && parameter.ParameterType != typeof(IMorestachioExpression))
+			if (!parameter.IsOptional && !Equals(match, default(FormatterArgumentType)) &&
+				parameter.ParameterType != typeof(IMorestachioExpression))
 			{
 				var converterFunction =
 					PrepareComposeArgumentValue(parameter, i, services, match.Type, out var success, parserOptions);
+
 				if (!success)
 				{
 					return default;
@@ -716,10 +762,12 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 			methodCallback = objects =>
 			{
 				var types = new Type[objects.Length];
+
 				for (int i = 0; i < types.Length; i++)
 				{
 					types[i] = objects[i]?.GetType();
 				}
+
 				return MakeGenericMethod(method, types, parserOptions);
 			};
 		}
@@ -729,13 +777,15 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		}
 
 		var hasRest = formatter.MetaData.ParamsArgument;
+
 		if (hasRest == null)
 		{
 			return new PrepareFormatterComposingResult(methodCallback, matched);
 		}
 
 
-		parserOptions.Logger?.LogTrace(LoggingFormatter.FormatterServiceId, $"Match Rest argument '{hasRest.ParameterType}'");
+		parserOptions.Logger?.LogTrace(LoggingFormatter.FormatterServiceId,
+			$"Match Rest argument '{hasRest.ParameterType}'");
 		//return default;
 
 		//{{"test", Buffer.X, "1"}}
@@ -762,6 +812,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 				ObtainValue = (_, values) =>
 				{
 					var vals = new FormatterParameter[idxSource.Count];
+
 					for (var index = 0; index < idxSource.Count; index++)
 					{
 						var i = idxSource[index];
@@ -795,6 +846,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 				ObtainValue = (_, values) =>
 				{
 					var vals = new object[idxSource.Count];
+
 					for (var index = 0; index < idxSource.Count; index++)
 					{
 						vals[index] = values[idxSource[index]].Value;
@@ -806,10 +858,12 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 		}
 		else
 		{
-			parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId, $"Skip: Match is Invalid because '{hasRest.ParameterType}' is no supported rest parameter. Only params object[] is supported as an rest parameter");
+			parserOptions.Logger?.LogDebug(LoggingFormatter.FormatterServiceId,
+				$"Skip: Match is Invalid because '{hasRest.ParameterType}' is no supported rest parameter. Only params object[] is supported as an rest parameter");
 			//unknown type in params argument cannot call
 			return default;
 		}
+
 		return new PrepareFormatterComposingResult(methodCallback, matched);
 	}
 
@@ -826,6 +880,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 																		ParserOptions parserOptions)
 	{
 		var parameterParameterType = parameter.ParameterType;
+
 		if (parameterParameterType.IsConstructedGenericType)
 		{
 			//if (givenType == typeof(MorestachioTemplateExpression) && parameterParameterType.BaseType == typeof(MulticastDelegate))
@@ -874,6 +929,7 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 				(givenType == typeof(string)))
 			{
 				success = true;
+
 				if (givenType == typeof(string))
 				{
 					return o => Enum.Parse(parameterParameterType, o.ToString(), true);
@@ -903,7 +959,6 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 			else if (givenType == typeof(IConvertible) &&
 					typeof(IConvertible).IsAssignableFrom(parameterParameterType))
 			{
-
 				success = true;
 				return o =>
 				{
@@ -916,7 +971,8 @@ public class MorestachioFormatterService : SealedBase, IMorestachioFormatterServ
 					catch (Exception ex)
 					{
 						parserOptions.Logger?
-							.LogError(LoggingFormatter.FormatterServiceId, $"Tried to convert {o} into {parameterParameterType} but was not successfully because {ex}");
+							.LogError(LoggingFormatter.FormatterServiceId,
+								$"Tried to convert {o} into {parameterParameterType} but was not successfully because {ex}");
 						//this might just not work
 						return null;
 					}

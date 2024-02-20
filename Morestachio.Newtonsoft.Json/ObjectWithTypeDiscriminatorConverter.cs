@@ -18,7 +18,8 @@ namespace Morestachio.Newtonsoft.Json
 			_keyLookup = s => lookup.First(e => e.Value == s).Key;
 		}
 
-		public ObjectWithTypeDiscriminatorConverter(Func<string, Type> getDocumentItemType, Func<Type, string> getDocumentItemName)
+		public ObjectWithTypeDiscriminatorConverter(Func<string, Type> getDocumentItemType,
+													Func<Type, string> getDocumentItemName)
 		{
 			_typeLookup = getDocumentItemType;
 			_keyLookup = getDocumentItemName;
@@ -42,7 +43,7 @@ namespace Morestachio.Newtonsoft.Json
 			return WithTypeDiscriminatorHelper<TInterface>.Read(reader, objectType, serializer, _typeLookup);
 		}
 	}
-	
+
 	/// <summary>
 	///		Serialization for <see cref="ISerializable"/>
 	/// </summary>
@@ -63,9 +64,11 @@ namespace Morestachio.Newtonsoft.Json
 			JsonSerializer serializer
 		)
 		{
-			var serializationInfo = WithTypeDiscriminatorHelper<ISerializable>.GetSerializationInfoFromJson(reader, serializer);
+			var serializationInfo
+				= WithTypeDiscriminatorHelper<ISerializable>.GetSerializationInfoFromJson(reader, serializer);
 			serializationInfo.serializationInfo.SetType(objectType);
-			return WithTypeDiscriminatorHelper<ISerializable>.ConstructFromSerializationInfo(serializationInfo, objectType);
+			return WithTypeDiscriminatorHelper<ISerializable>.ConstructFromSerializationInfo(serializationInfo,
+				objectType);
 		}
 	}
 }

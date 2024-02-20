@@ -42,19 +42,20 @@ public class ByteCounterTextWriter : IByteCounterStream
 	{
 		Writer.Dispose();
 	}
-		
+
 	/// <inheritdoc />
 	public long BytesWritten { get; private set; }
-		
+
 	/// <inheritdoc />
 	public bool ReachedLimit { get; private set; }
-		
+
 #if Span
 	/// <inheritdoc />
 	public void Write(in ReadOnlyMemory<char> content)
 	{
 		Write(content.Span);
 	}
+
 	/// <inheritdoc />
 	public void Write(in ReadOnlySpan<char> content)
 	{
@@ -63,6 +64,7 @@ public class ByteCounterTextWriter : IByteCounterStream
 			Writer.Write(content);
 			return;
 		}
+
 		var sourceCount = BytesWritten;
 
 		if (sourceCount >= Options.MaxSize - 1)
@@ -75,6 +77,7 @@ public class ByteCounterTextWriter : IByteCounterStream
 		var cl = Options.Encoding.GetByteCount(content);
 
 		var overflow = sourceCount + cl - Options.MaxSize;
+
 		if (overflow <= 0)
 		{
 			BytesWritten += cl;
@@ -118,6 +121,7 @@ public class ByteCounterTextWriter : IByteCounterStream
 		var cl = Options.Encoding.GetByteCount(contentOrNull);
 
 		var overflow = sourceCount + cl - Options.MaxSize;
+
 		if (overflow <= 0)
 		{
 			BytesWritten += cl;

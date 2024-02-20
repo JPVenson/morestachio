@@ -33,19 +33,22 @@ public class MorestachioFormatterModel
 		IsGlobalFormatter = isGlobalFormatter;
 		LinkFunctionTarget = linkFunctionTarget;
 	}
+
 	/// <summary>
 	/// Initializes a new instance of the <see cref="MorestachioFormatterModel"/> class.
 	/// </summary>
-	public MorestachioFormatterModel(string name, string description,
+	public MorestachioFormatterModel(string name,
+									string description,
 									Type inputType,
 									Type outputType,
 									InputDescription[] inputDescription,
 									string output,
 									MethodInfo function,
 									MultiFormatterInfoCollection metaData,
-									bool isGlobalFormatter, 
+									bool isGlobalFormatter,
 									bool linkFunctionTarget)
-		: this(name, description, inputType, inputDescription, output, function, metaData, isGlobalFormatter, linkFunctionTarget)
+		: this(name, description, inputType, inputDescription, output, function, metaData, isGlobalFormatter,
+			linkFunctionTarget)
 	{
 		OutputType = outputType;
 	}

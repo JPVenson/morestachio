@@ -1,11 +1,11 @@
 ﻿{{#DECLARE PartialA |--}}
-	{{--| #IF otherother |--}}
-		{{otherother}}
-		{{--| #ELSE |--}}
-			Invalid Context
-		{{--| /ELSE |--}}
-	{{--| /IF |--}}
+{{--| #IF otherother |--}}
+{{otherother}}
+{{--| #ELSE |--}}
+Invalid Context
+{{--| /ELSE |--}}
+{{--| /IF |--}}
 {{--| /DECLARE |--}}
 This is an partial included: ({{#IMPORT 'PartialA'}}) within the current context.
-<br />
+<br/>
 This is an partial included: ({{#IMPORT 'PartialA' #WITH other}}) with an set context.

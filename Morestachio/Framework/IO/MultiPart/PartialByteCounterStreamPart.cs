@@ -34,7 +34,7 @@
 //		}
 
 //		private StreamWriter BaseWriter { get; set; }
-		
+
 //		/// <inheritdoc />
 //		public void Dispose()
 //		{
@@ -42,13 +42,13 @@
 //			BaseWriter.Flush();
 //			_partialByteCounterStream.Flush();
 //		}
-		
+
 //		/// <inheritdoc />
 //		public Stream BaseStream()
 //		{
 //			return BaseWriter.BaseStream;
 //		}
-		
+
 //		/// <inheritdoc />
 //		public ByteCounterInfo Info { get; set; }
 
@@ -62,7 +62,7 @@
 //			}
 
 //			_state = ByteCounterStreamPartType.Writing;
-			
+
 //			if (Options.MaxSize == 0)
 //			{
 //				BaseWriter.Write(content);
@@ -76,7 +76,7 @@
 
 //			//TODO this is a performance critical operation. As we might deal with variable-length encodings this cannot be compute initial
 //			var cl = Options.Encoding.GetByteCount(content);
-			
+
 //			var overflow = Info.Increment(cl);
 //			if (overflow == cl)
 //			{
@@ -102,7 +102,7 @@
 
 //			content = content ?? Options.Null.ToString();
 //			_state = ByteCounterStreamPartType.Writing;
-			
+
 //			if (Options.MaxSize == 0)
 //			{
 //				BaseWriter.Write(content);
@@ -116,7 +116,7 @@
 
 //			//TODO this is a performance critical operation. As we might deal with variable-length encodings this cannot be compute initial
 //			var cl = Options.Encoding.GetByteCount(content);
-			
+
 //			var overflow = Info.Increment(cl);
 //			if (overflow == cl)
 //			{
@@ -132,7 +132,8 @@
 //			BaseWriter.Write(content.ToCharArray(0, overflow));
 //		}
 //#endif
-		
-		
+
+
 //	}
 //}
+

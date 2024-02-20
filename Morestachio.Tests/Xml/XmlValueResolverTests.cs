@@ -24,10 +24,13 @@ namespace Morestachio.Tests.Xml
 			var template = "{{Root.Data.PropA}}{{Root.PropB}}";
 
 			var document = ParserFixture.TestBuilder()
-										.WithTemplate(template)
-										.WithXmlDocumentValueResolver()
-										.BuildAndParse();
-			Assert.That(document.CreateRenderer().RenderAndStringify(XDocument.Load(new MemoryStream(Encoding.UTF8.GetBytes(data)))), Is.EqualTo("Test"));
+				.WithTemplate(template)
+				.WithXmlDocumentValueResolver()
+				.BuildAndParse();
+			Assert.That(
+				document.CreateRenderer()
+					.RenderAndStringify(XDocument.Load(new MemoryStream(Encoding.UTF8.GetBytes(data)))),
+				Is.EqualTo("Test"));
 		}
 
 		[Test]
@@ -43,10 +46,13 @@ namespace Morestachio.Tests.Xml
 ";
 			var template = "{{#EACH Root.Data.PropA}}{{this}}{{/EACH}}{{Root.PropB}}";
 			var document = ParserFixture.TestBuilder()
-										.WithTemplate(template)
-										.WithXmlDocumentValueResolver()
-										.BuildAndParse();
-			Assert.That(document.CreateRenderer().RenderAndStringify(XDocument.Load(new MemoryStream(Encoding.UTF8.GetBytes(data)))), Is.EqualTo("Test"));
+				.WithTemplate(template)
+				.WithXmlDocumentValueResolver()
+				.BuildAndParse();
+			Assert.That(
+				document.CreateRenderer()
+					.RenderAndStringify(XDocument.Load(new MemoryStream(Encoding.UTF8.GetBytes(data)))),
+				Is.EqualTo("Test"));
 		}
 
 		[Test]
@@ -63,10 +69,13 @@ namespace Morestachio.Tests.Xml
 ";
 			var template = "{{#each Root.Data.PropA.Skip(1)}}{{this}}{{/each}}{{Root.PropB}}";
 			var document = ParserFixture.TestBuilder()
-										.WithTemplate(template)
-										.WithXmlDocumentValueResolver()
-										.BuildAndParse();
-			Assert.That(document.CreateRenderer().RenderAndStringify(XDocument.Load(new MemoryStream(Encoding.UTF8.GetBytes(data)))), Is.EqualTo("Test"));
+				.WithTemplate(template)
+				.WithXmlDocumentValueResolver()
+				.BuildAndParse();
+			Assert.That(
+				document.CreateRenderer()
+					.RenderAndStringify(XDocument.Load(new MemoryStream(Encoding.UTF8.GetBytes(data)))),
+				Is.EqualTo("Test"));
 		}
 	}
 }

@@ -46,7 +46,8 @@ public static class BooleanFormatter
 		return value || values.OfType<bool>().Any(f => f);
 	}
 
-	[MorestachioFormatter("ParseBool", "Parses a boolean from string by checking for the equality of ether '1', 'yes', 'true', 'valid'")]
+	[MorestachioFormatter("ParseBool",
+		"Parses a boolean from string by checking for the equality of ether '1', 'yes', 'true', 'valid'")]
 	public static bool ParseBool([SourceObject] string value)
 	{
 		return value.Equals("true", StringComparison.OrdinalIgnoreCase)

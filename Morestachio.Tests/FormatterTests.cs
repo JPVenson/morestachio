@@ -89,7 +89,7 @@ namespace Morestachio.Tests
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
 				return options.WithFormatters(typeof(DynamicLinq))
-							.WithFormatters(typeof(NumberFormatter));
+					.WithFormatters(typeof(NumberFormatter));
 			});
 			Assert.That(result, Is.EqualTo("2*3=6"));
 		}
@@ -141,7 +141,7 @@ namespace Morestachio.Tests
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
 				return options.WithFormatters(typeof(ExternalDataFormatter))
-							.WithService(new ExternalDataFormatter.ExternalDataService());
+					.WithService(new ExternalDataFormatter.ExternalDataService());
 			});
 			Assert.That(result, Is.EqualTo("123|B6B747D4-02E4-4CBE-8CD2-013B64C1399A"));
 		}
@@ -159,7 +159,7 @@ namespace Morestachio.Tests
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
 				return options.WithFormatters(typeof(ExternalDataFormatter))
-							.WithService(() => new ExternalDataFormatter.ExternalDataService());
+					.WithService(() => new ExternalDataFormatter.ExternalDataService());
 			});
 			Assert.That(result, Is.EqualTo("123|B6B747D4-02E4-4CBE-8CD2-013B64C1399A"));
 		}
@@ -173,7 +173,8 @@ namespace Morestachio.Tests
 			{
 				{ "data", 123 }
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithFormatter(new Func<object, object, int>((e, f) => (int)f), "Self"); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options => { return options.WithFormatter(new Func<object, object, int>((e, f) => (int)f), "Self"); });
 			Assert.That(result, Is.EqualTo("123"));
 		}
 
@@ -204,7 +205,7 @@ namespace Morestachio.Tests
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
 				return options.WithFormatter((int left, int right) => { return left * right; }, "Format")
-							.WithFormatter((int left, string arg) => { return left; }, "Self");
+					.WithFormatter((int left, string arg) => { return left; }, "Self");
 			});
 			Assert.That(result, Is.EqualTo("246"));
 		}
@@ -219,7 +220,12 @@ namespace Morestachio.Tests
 				v = 123,
 				sv = 2
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithFormatter((int left, int right) => { return left * right; }, "add").WithFormatter((int left, string arg) => { return left; }, "r"); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options =>
+				{
+					return options.WithFormatter((int left, int right) => { return left * right; }, "add")
+						.WithFormatter((int left, string arg) => { return left; }, "r");
+				});
 			Assert.That(result, Is.EqualTo("246"));
 		}
 
@@ -236,7 +242,7 @@ namespace Morestachio.Tests
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
 				return options.WithFormatters(typeof(CustomConverterFormatter))
-							.WithValueConverter(new CustomConverterFormatter.TestToExpectedObjectConverter());
+					.WithValueConverter(new CustomConverterFormatter.TestToExpectedObjectConverter());
 			});
 			Assert.That(result, Is.EqualTo("123"));
 		}
@@ -250,7 +256,8 @@ namespace Morestachio.Tests
 			{
 				{ "data", new CustomConverterFormatter.TestObject { No = 123 } }
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithFormatters(typeof(CustomConverterFormatter)); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options => { return options.WithFormatters(typeof(CustomConverterFormatter)); });
 			Assert.That(result, Is.EqualTo("123"));
 		}
 
@@ -263,7 +270,8 @@ namespace Morestachio.Tests
 			{
 				{ "data", 123 }
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithFormatters(typeof(StringFormatter)); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options => { return options.WithFormatters(typeof(StringFormatter)); });
 			Assert.That(result, Is.EqualTo(123.ToString("X2")));
 		}
 
@@ -277,7 +285,8 @@ namespace Morestachio.Tests
 				{ "A", 5 },
 				{ "B", 6 }
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithFormatters(typeof(StringFormatter)); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options => { return options.WithFormatters(typeof(StringFormatter)); });
 			Assert.That(result, Is.EqualTo("12"));
 		}
 
@@ -286,7 +295,8 @@ namespace Morestachio.Tests
 		{
 			var template = "{{data.reverse()}}";
 			var data = new Dictionary<string, object> { { "data", "Test" } };
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithFormatters(typeof(StringFormatter)); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options => { return options.WithFormatters(typeof(StringFormatter)); });
 			Assert.That(result, Is.EqualTo("tseT"));
 		}
 
@@ -313,7 +323,8 @@ namespace Morestachio.Tests
 		{
 			var template = "{{data.rest('other', 'and', 'more')}}";
 			var data = new Dictionary<string, object> { { "data", "Test" } };
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithFormatters(typeof(StringFormatter)); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options => { return options.WithFormatters(typeof(StringFormatter)); });
 			Assert.That(result, Is.EqualTo("ORIGINAL: Test REST:otherandmore"));
 		}
 
@@ -322,7 +333,8 @@ namespace Morestachio.Tests
 		{
 			var template = "{{data.reverseAsync()}}";
 			var data = new Dictionary<string, object> { { "data", "Test" } };
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithFormatters(typeof(StringFormatter)); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options => { return options.WithFormatters(typeof(StringFormatter)); });
 			Assert.That(result, Is.EqualTo("tseT"));
 		}
 
@@ -331,7 +343,8 @@ namespace Morestachio.Tests
 		{
 			var template = "{{data.optional()}}";
 			var data = new Dictionary<string, object> { { "data", "Test" } };
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithFormatters(typeof(StringFormatter)); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options => { return options.WithFormatters(typeof(StringFormatter)); });
 			Assert.That(result, Is.EqualTo("OPTIONAL Test"));
 		}
 
@@ -340,7 +353,8 @@ namespace Morestachio.Tests
 		{
 			var template = "{{data.defaultValue()}}";
 			var data = new Dictionary<string, object> { { "data", "Test" } };
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithFormatters(typeof(StringFormatter)); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options => { return options.WithFormatters(typeof(StringFormatter)); });
 			Assert.That(result, Is.EqualTo("DEFAULT Test"));
 		}
 
@@ -349,7 +363,8 @@ namespace Morestachio.Tests
 		{
 			var template = "{{data.ReverseArg('TEST')}}";
 			var data = new Dictionary<string, object> { { "data", "Test" } };
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithFormatters(typeof(StringFormatter)); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options => { return options.WithFormatters(typeof(StringFormatter)); });
 			Assert.That(result, Is.EqualTo("TEST"));
 		}
 
@@ -358,7 +373,8 @@ namespace Morestachio.Tests
 		{
 			var template = "{{data.fod()}}";
 			var data = new Dictionary<string, object> { { "data", new[] { "TEST", "test" } } };
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithFormatters(typeof(StringFormatter)); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options => { return options.WithFormatters(typeof(StringFormatter)); });
 			Assert.That(result, Is.EqualTo("TEST"));
 		}
 
@@ -367,7 +383,8 @@ namespace Morestachio.Tests
 		{
 			var template = "{{#SCOPE data}}{{ToString('d').fnc()}}{{/SCOPE}}";
 			var data = new Dictionary<string, object> { { "data", DateTime.UtcNow } };
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithFormatter(new Func<string, string>(s => "TEST"), "fnc"); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options => { return options.WithFormatter(new Func<string, string>(s => "TEST"), "fnc"); });
 			Assert.That(result, Is.EqualTo("TEST"));
 		}
 
@@ -394,9 +411,9 @@ namespace Morestachio.Tests
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
 				return options.WithFormatter(
-								new Func<object, object, object, object>((source, tempValue, reference) => reference), "Self")
-							.WithFormatter(
-								new Func<object, object, object>((source, tempValue) => source), "Self");
+						new Func<object, object, object, object>((source, tempValue, reference) => reference), "Self")
+					.WithFormatter(
+						new Func<object, object, object>((source, tempValue) => source), "Self");
 			});
 			Assert.That(result, Is.EqualTo(referenceDataValue));
 		}
@@ -430,9 +447,9 @@ namespace Morestachio.Tests
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
 				return options.WithFormatter(
-								new Func<object, object, object, object>((source, tempValue, reference) => reference), "Format")
-							.WithFormatter(
-								new Func<object, object, object>((source, tempValue) => source), "Format");
+						new Func<object, object, object, object>((source, tempValue, reference) => reference), "Format")
+					.WithFormatter(
+						new Func<object, object, object>((source, tempValue) => source), "Format");
 			});
 			Assert.That(result, Is.EqualTo(expectedValue));
 		}
@@ -446,7 +463,9 @@ namespace Morestachio.Tests
 ()
 }}{{/SCOPE}}";
 			var data = new Dictionary<string, object> { { "data", DateTime.UtcNow } };
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts | ParserOptionTypes.NoRerenderingTest, options => { return options.WithFormatter(new Func<string, string>(s => "TEST"), "Self"); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data,
+				_opts | ParserOptionTypes.NoRerenderingTest,
+				options => { return options.WithFormatter(new Func<string, string>(s => "TEST"), "Self"); });
 			Assert.That(result, Is.EqualTo("TEST"));
 		}
 
@@ -455,7 +474,8 @@ namespace Morestachio.Tests
 		{
 			var template = @"{{#SCOPE data}}{{Self('(d(a))')}}{{/SCOPE}}";
 			var data = new Dictionary<string, object> { { "data", "d" } };
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithFormatter(new Func<string, string, string>((s, s1) => s1), "Self"); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options => { return options.WithFormatter(new Func<string, string, string>((s, s1) => s1), "Self"); });
 			Assert.That(result, Is.EqualTo("(d(a))"));
 		}
 
@@ -463,15 +483,52 @@ namespace Morestachio.Tests
 		public async Task ParserCanFormatMultipleUnnamedWithoutResult()
 		{
 			var formatterResult = "";
-			var template = "{{#SCOPE data}}{{Self('test', 'arg', 'arg, arg', ' spaced ', ' spaced with quote \\' ' , this )}}{{/SCOPE}}";
+			var template
+				= "{{#SCOPE data}}{{Self('test', 'arg', 'arg, arg', ' spaced ', ' spaced with quote \\' ' , this )}}{{/SCOPE}}";
 			var data = new Dictionary<string, object> { { "data", 123123123 } };
 
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts | ParserOptionTypes.NoRerenderingTest, options =>
-			{
-				return options.WithDisableContentEscaping(true)
-							.WithFormatter(new Action<int, string[]>(
-								(self, test) => { Assert.Fail("Should not be invoked"); }), "Self")
-							.WithFormatter(new Action<int, string, string, string, string, string, int>(
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data,
+				_opts | ParserOptionTypes.NoRerenderingTest, options =>
+				{
+					return options.WithDisableContentEscaping(true)
+						.WithFormatter(new Action<int, string[]>(
+							(self, test) => { Assert.Fail("Should not be invoked"); }), "Self")
+						.WithFormatter(new Action<int, string, string, string, string, string, int>(
+							(
+								self,
+								test,
+								arg,
+								argarg,
+								spacedArg,
+								spacedWithQuote,
+								refSelf
+							) =>
+							{
+								formatterResult = string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}", self, test, arg, argarg,
+									spacedArg,
+									spacedWithQuote,
+									refSelf);
+							}), "Self");
+				});
+			Assert.That(result, Is.Empty);
+
+			Assert.That(formatterResult,
+				Is.EqualTo(@"123123123|test|arg|arg, arg| spaced | spaced with quote ' |123123123"));
+		}
+
+		[Test]
+		public async Task ParserCanFormatMultipleUnnamed()
+		{
+			var template
+				= "{{#SCOPE data}}{{Self('test', 'arg', 'arg, arg', ' spaced ', ' spaced with quote \\' ' , this)}}{{/SCOPE}}";
+			var data = new Dictionary<string, object> { { "data", 123123123 } };
+
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data,
+				_opts | ParserOptionTypes.NoRerenderingTest, options =>
+				{
+					return options.WithDisableContentEscaping(true)
+						.WithFormatter(
+							new Func<int, string, string, string, string, string, int, string>(
 								(
 									self,
 									test,
@@ -482,60 +539,29 @@ namespace Morestachio.Tests
 									refSelf
 								) =>
 								{
-									formatterResult = string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}", self, test, arg, argarg,
+									return string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}", self, test, arg, argarg,
 										spacedArg,
 										spacedWithQuote,
 										refSelf);
 								}), "Self");
-			});
-			Assert.That(result, Is.Empty);
-
-			Assert.That(formatterResult,
-				Is.EqualTo(@"123123123|test|arg|arg, arg| spaced | spaced with quote ' |123123123"));
-		}
-
-		[Test]
-		public async Task ParserCanFormatMultipleUnnamed()
-		{
-			var template = "{{#SCOPE data}}{{Self('test', 'arg', 'arg, arg', ' spaced ', ' spaced with quote \\' ' , this)}}{{/SCOPE}}";
-			var data = new Dictionary<string, object> { { "data", 123123123 } };
-
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts | ParserOptionTypes.NoRerenderingTest, options =>
-			{
-				return options.WithDisableContentEscaping(true)
-							.WithFormatter(
-								new Func<int, string, string, string, string, string, int, string>(
-									(
-										self,
-										test,
-										arg,
-										argarg,
-										spacedArg,
-										spacedWithQuote,
-										refSelf
-									) =>
-									{
-										return string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}", self, test, arg, argarg,
-											spacedArg,
-											spacedWithQuote,
-											refSelf);
-									}), "Self");
-			});
+				});
 			Assert.That(result, Is.EqualTo("123123123|test|arg|arg, arg| spaced | spaced with quote ' |123123123"));
 		}
 
 		[Test]
 		public async Task ParserCanFormatMultipleUnnamedParams()
 		{
-			var template = "{{#SCOPE data}}{{Self( 'arg', 'arg, arg', ' spaced ', [testArgument]'test', ' spaced with quote \\' ' , this)}}{{/SCOPE}}";
+			var template
+				= "{{#SCOPE data}}{{Self( 'arg', 'arg, arg', ' spaced ', [testArgument]'test', ' spaced with quote \\' ' , this)}}{{/SCOPE}}";
 			var data = new Dictionary<string, object> { { "data", 123123123 } };
 
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts | ParserOptionTypes.NoRerenderingTest, options =>
-			{
-				return options.WithDisableContentEscaping(true)
-							.WithFormatter(
-								new Func<int, string, object[], string>(UnnamedParamsFormatter), "Self");
-			});
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data,
+				_opts | ParserOptionTypes.NoRerenderingTest, options =>
+				{
+					return options.WithDisableContentEscaping(true)
+						.WithFormatter(
+							new Func<int, string, object[], string>(UnnamedParamsFormatter), "Self");
+				});
 			Assert.That(result, Is.EqualTo("123123123|test|arg|arg, arg| spaced | spaced with quote ' |123123123"));
 		}
 
@@ -547,14 +573,16 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task ParserCanFormatMultipleNamed()
 		{
-			var template = "{{#SCOPE data}}{{Formatter([refSelf] this, 'arg',[Fob]'test', [twoArgs]'arg, arg', [anySpaceArg]' spaced ')}}{{/SCOPE}}";
+			var template
+				= "{{#SCOPE data}}{{Formatter([refSelf] this, 'arg',[Fob]'test', [twoArgs]'arg, arg', [anySpaceArg]' spaced ')}}{{/SCOPE}}";
 			var data = new Dictionary<string, object> { { "data", 123123123 } };
 
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts | ParserOptionTypes.NoRerenderingTest, options =>
-			{
-				return options.WithFormatter(
-					new Func<int, string, string, string, string, int, string>(NamedFormatter), "Formatter");
-			});
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data,
+				_opts | ParserOptionTypes.NoRerenderingTest, options =>
+				{
+					return options.WithFormatter(
+						new Func<int, string, string, string, string, int, string>(NamedFormatter), "Formatter");
+				});
 			Assert.That(result, Is.EqualTo("123123123|test|arg|arg, arg| spaced |123123123"));
 		}
 
@@ -580,12 +608,12 @@ namespace Morestachio.Tests
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
 				return options.WithFormatter(
-								new Func<string, string, string, string>((s, inv, inva) => throw new Exception("A")), "Self")
-							.WithFormatter(new Func<string, string>(s =>
-								throw new Exception("Wrong Ordering")), "Self")
-							.WithFormatter(new Action<string>(s =>
-								throw new Exception("Wrong Return Ordering")), "Self")
-							.WithFormatter(new Func<string, string, string>((s, inv) => inv), "Self");
+						new Func<string, string, string, string>((s, inv, inva) => throw new Exception("A")), "Self")
+					.WithFormatter(new Func<string, string>(s =>
+						throw new Exception("Wrong Ordering")), "Self")
+					.WithFormatter(new Action<string>(s =>
+						throw new Exception("Wrong Return Ordering")), "Self")
+					.WithFormatter(new Func<string, string, string>((s, inv) => inv), "Self");
 			});
 			Assert.That(result, Is.EqualTo("(d(a))"));
 		}
@@ -600,8 +628,8 @@ namespace Morestachio.Tests
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
 				return options.WithFormatter<string, string>(s => s, "Self")
-							.WithFormatter<DateTime, DateTime>(s => s, "Self")
-							.WithFormatter<long, TimeSpan>(s => new TimeSpan(s), "Self");
+					.WithFormatter<DateTime, DateTime>(s => s, "Self")
+					.WithFormatter<long, TimeSpan>(s => new TimeSpan(s), "Self");
 			});
 			Assert.That(result, Is.EqualTo(new TimeSpan(dataValue.TimeOfDay.Ticks).ToString()));
 		}
@@ -675,21 +703,21 @@ namespace Morestachio.Tests
 				options =>
 				{
 					return options.WithFormatter<int, string, string>((sourceValue, testString) =>
-								{
-									Assert.That(testString, Is.EqualTo("d"));
-									formatterCalled = true;
+						{
+							Assert.That(testString, Is.EqualTo("d"));
+							formatterCalled = true;
 
-									return format;
-								}, "Format")
-								.WithFormatter(new Func<DateTime, string, string, string>(
-									(sourceValue, testString2, shouldBed) =>
-									{
-										Assert.That(shouldBed, Is.EqualTo("tt"));
-										Assert.That(testString2, Is.EqualTo(format));
-										formatter2Called = true;
+							return format;
+						}, "Format")
+						.WithFormatter(new Func<DateTime, string, string, string>(
+							(sourceValue, testString2, shouldBed) =>
+							{
+								Assert.That(shouldBed, Is.EqualTo("tt"));
+								Assert.That(testString2, Is.EqualTo(format));
+								formatter2Called = true;
 
-										return sourceValue.ToString(testString2);
-									}), "Format");
+								return sourceValue.ToString(testString2);
+							}), "Format");
 				});
 			Assert.That(formatterCalled, Is.True, "The  formatter was not called");
 			Assert.That(formatter2Called, Is.True, "The Date formatter was not called");
@@ -717,40 +745,40 @@ namespace Morestachio.Tests
 				options =>
 				{
 					return options.WithFormatter<int, string, string>((sourceValue, testString) =>
-								{
-									Assert.That(testString, Is.EqualTo("d"));
-									formatterCalled = true;
+						{
+							Assert.That(testString, Is.EqualTo("d"));
+							formatterCalled = true;
 
-									return format;
-								}, "Format")
-								.WithFormatter(new Func<long, long, string, int>(
-									(sourceValue, testString, f) =>
-									{
-										Assert.That(testString, Is.EqualTo(sourceValue));
-										Assert.That(f, Is.EqualTo("f"));
-										formatterCalled = true;
+							return format;
+						}, "Format")
+						.WithFormatter(new Func<long, long, string, int>(
+							(sourceValue, testString, f) =>
+							{
+								Assert.That(testString, Is.EqualTo(sourceValue));
+								Assert.That(f, Is.EqualTo("f"));
+								formatterCalled = true;
 
-										return (int)sourceValue;
-									}), "Self")
-								.WithFormatter(new Func<DateTime, string, string, string>(
-									(sourceValue, testString2, shouldBed) =>
-									{
-										Assert.That(shouldBed, Is.EqualTo("t"));
-										Assert.That(testString2, Is.EqualTo(format));
-										formatter2Called = true;
+								return (int)sourceValue;
+							}), "Self")
+						.WithFormatter(new Func<DateTime, string, string, string>(
+							(sourceValue, testString2, shouldBed) =>
+							{
+								Assert.That(shouldBed, Is.EqualTo("t"));
+								Assert.That(testString2, Is.EqualTo(format));
+								formatter2Called = true;
 
-										return sourceValue.ToString(testString2);
-									}), "Self")
-								.WithFormatter(new Func<string, string, int, string>(
-									(sourceValue, name, number) =>
-									{
-										Assert.That(sourceValue, Is.EqualTo(dataValue.ToString(format)));
-										Assert.That(name, Is.EqualTo("pl"));
-										Assert.That(number, Is.EqualTo(data["by"]));
-										formatter3Called = true;
+								return sourceValue.ToString(testString2);
+							}), "Self")
+						.WithFormatter(new Func<string, string, int, string>(
+							(sourceValue, name, number) =>
+							{
+								Assert.That(sourceValue, Is.EqualTo(dataValue.ToString(format)));
+								Assert.That(name, Is.EqualTo("pl"));
+								Assert.That(number, Is.EqualTo(data["by"]));
+								formatter3Called = true;
 
-										return sourceValue.PadLeft(number);
-									}), "Self");
+								return sourceValue.PadLeft(number);
+							}), "Self");
 				});
 			Assert.That(formatterCalled, Is.True, "The formatter was not called");
 			Assert.That(formatter2Called, Is.True, "The Date formatter was not called");
@@ -769,7 +797,8 @@ namespace Morestachio.Tests
 				{ "data", "test" },
 				{ "root", "tset" }
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithFormatter(new Func<string, bool>(f => f == "test"), "Self"); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options => { return options.WithFormatter(new Func<string, bool>(f => f == "test"), "Self"); });
 			Assert.That(data.ToString(), Is.EqualTo(result));
 		}
 
@@ -799,7 +828,8 @@ namespace Morestachio.Tests
 					}
 				}
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithFormatter(new Func<string, bool>(f => f == "test"), "Self"); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options => { return options.WithFormatter(new Func<string, bool>(f => f == "test"), "Self"); });
 			Assert.That("TEST", Is.EqualTo(result));
 		}
 
@@ -833,7 +863,7 @@ namespace Morestachio.Tests
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
 				return options.WithFormatter(new Func<IEnumerable<string>, IEnumerable<string>>(f => f), "Self")
-							.WithFormatter(new Func<string, bool>(f => f == "TE"), "Self");
+					.WithFormatter(new Func<string, bool>(f => f == "TE"), "Self");
 			});
 			Assert.That("TE", Is.EqualTo(result));
 		}
@@ -849,7 +879,8 @@ namespace Morestachio.Tests
 				{ "data", "test" },
 				{ "root", "tset" }
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithFormatter(new Func<string, bool>(f => f != "test"), "Self"); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options => { return options.WithFormatter(new Func<string, bool>(f => f != "test"), "Self"); });
 			Assert.That(data.ToString(), Is.EqualTo(result));
 		}
 
@@ -868,19 +899,19 @@ namespace Morestachio.Tests
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
 				return options.WithAllParametersAllDefaultValue(true)
-							.WithFormatter(
-								new Func<string, string, string, string, string>((
-									source,
-									rootArg,
-									argNullConst,
-									argNullValue
-								) =>
-								{
-									Assert.That(argNullConst, Is.Null);
-									Assert.That(argNullValue, Is.Null);
+					.WithFormatter(
+						new Func<string, string, string, string, string>((
+							source,
+							rootArg,
+							argNullConst,
+							argNullValue
+						) =>
+						{
+							Assert.That(argNullConst, Is.Null);
+							Assert.That(argNullValue, Is.Null);
 
-									return rootArg.PadLeft(123);
-								}), "TEST");
+							return rootArg.PadLeft(123);
+						}), "TEST");
 			});
 			Assert.That("tset".PadLeft(123), Is.EqualTo(result));
 		}
@@ -915,7 +946,11 @@ namespace Morestachio.Tests
 				{ "dataA", 1 },
 				{ "dataB", 3 }
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithGlobalFormatter(new Func<int, string>(i => i.ToString("x8")), "ToString"); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options =>
+				{
+					return options.WithGlobalFormatter(new Func<int, string>(i => i.ToString("x8")), "ToString");
+				});
 			Assert.That(result, Is.EqualTo((1 + 3).ToString("X8")));
 		}
 
@@ -930,7 +965,12 @@ namespace Morestachio.Tests
 				{ "dataA", 1 },
 				{ "dataB", 3 }
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithGlobalFormatter(new Func<int, string, string>((nr, txt) => nr.ToString(txt)), "ToString"); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options =>
+				{
+					return options.WithGlobalFormatter(new Func<int, string, string>((nr, txt) => nr.ToString(txt)),
+						"ToString");
+				});
 			Assert.That(result, Is.EqualTo((1 + 3).ToString("X8")));
 		}
 
@@ -948,8 +988,9 @@ namespace Morestachio.Tests
 
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
-				return options.WithGlobalFormatter(new Func<int, string, string>((nr, txt) => nr.ToString(txt)), "ToString")
-							.WithGlobalFormatter(new Func<int, int>(nr => nr), "AsInt");
+				return options
+					.WithGlobalFormatter(new Func<int, string, string>((nr, txt) => nr.ToString(txt)), "ToString")
+					.WithGlobalFormatter(new Func<int, int>(nr => nr), "AsInt");
 			});
 			Assert.That(result, Is.EqualTo((1 + 3).ToString("X8") + (1 + 3).ToString("X4")));
 		}
@@ -965,7 +1006,8 @@ namespace Morestachio.Tests
 				{ "dataA", 1 },
 				{ "dataB", 3 }
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithGlobalFormatter(new Func<string, string>(i => i), "ToString"); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options => { return options.WithGlobalFormatter(new Func<string, string>(i => i), "ToString"); });
 			Assert.That(result, Is.EqualTo("*test"));
 		}
 
@@ -980,7 +1022,8 @@ namespace Morestachio.Tests
 				{ "dataA", "test" },
 				{ "dataB", 3 }
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithGlobalFormatter(new Func<string, string>(i => i), "ToString"); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options => { return options.WithGlobalFormatter(new Func<string, string>(i => i), "ToString"); });
 			Assert.That(result, Is.EqualTo("True"));
 		}
 
@@ -995,7 +1038,11 @@ namespace Morestachio.Tests
 				{ "dataA", 1 },
 				{ "dataB", 3 }
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithGlobalFormatter(new Func<string, string, string>((nr, txt) => nr + txt), "Pad"); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options =>
+				{
+					return options.WithGlobalFormatter(new Func<string, string, string>((nr, txt) => nr + txt), "Pad");
+				});
 			Assert.That(result, Is.EqualTo("testX8"));
 		}
 
@@ -1015,7 +1062,7 @@ namespace Morestachio.Tests
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
 			{
 				return options.WithGlobalFormatter(new Func<string, string, string>((nr, txt) => nr + txt), "ToString")
-							.WithGlobalFormatter(new Func<string, string>(nr => nr), "AsString");
+					.WithGlobalFormatter(new Func<string, string>(nr => nr), "AsString");
 			});
 			Assert.That(result, Is.EqualTo("Te1X8 8stX4"));
 		}
@@ -1031,7 +1078,8 @@ namespace Morestachio.Tests
 				{ "dataA", 1 },
 				{ "dataB", 3 }
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithGlobalFormatter(new Func<string, string>(i => i), "ToString"); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options => { return options.WithGlobalFormatter(new Func<string, string>(i => i), "ToString"); });
 			Assert.That(result, Is.EqualTo("*test*"));
 		}
 
@@ -1047,7 +1095,8 @@ namespace Morestachio.Tests
 				{ "dataB", "test" },
 				{ "dataC", "!*" }
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithGlobalFormatter(new Func<string, string>(i => i), "ToString"); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options => { return options.WithGlobalFormatter(new Func<string, string>(i => i), "ToString"); });
 			Assert.That(result, Is.EqualTo("*test!*"));
 		}
 
@@ -1063,7 +1112,8 @@ namespace Morestachio.Tests
 				{ "dataB", 60 },
 				{ "dataC", 10 }
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithGlobalFormatter(new Func<string, string>(i => i), "ToString"); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options => { return options.WithGlobalFormatter(new Func<string, string>(i => i), "ToString"); });
 			Assert.That(result, Is.EqualTo((50 / 60 + 10).ToString()));
 		}
 
@@ -1079,7 +1129,8 @@ namespace Morestachio.Tests
 				{ "dataB", 60 },
 				{ "dataC", 10 }
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithGlobalFormatter(new Func<string, string>(i => i), "ToString"); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options => { return options.WithGlobalFormatter(new Func<string, string>(i => i), "ToString"); });
 			Assert.That(result, Is.EqualTo(((50 + 2) / 60 + 10).ToString()));
 		}
 
@@ -1095,7 +1146,8 @@ namespace Morestachio.Tests
 				{ "dataB", 60 },
 				{ "dataC", 10 }
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithGlobalFormatter(new Func<string, string>(i => i), "ToString"); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+				options => { return options.WithGlobalFormatter(new Func<string, string>(i => i), "ToString"); });
 			Assert.That(result, Is.EqualTo((60 / (50 + 2) + 10).ToString()));
 		}
 
@@ -1113,10 +1165,8 @@ namespace Morestachio.Tests
 				{
 					{ "FileName", randFileName }
 				};
-				var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options =>
-				{
-					return options.WithFileSystem(() => new FileSystemService(tempDirectory));
-				});
+				var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts,
+					options => { return options.WithFileSystem(() => new FileSystemService(tempDirectory)); });
 				Assert.That(combine, Does.Exist);
 			}
 			finally

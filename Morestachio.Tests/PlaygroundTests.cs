@@ -20,6 +20,7 @@ using NUnit.Framework;
 
 #if ValueTask
 using Promise = System.Threading.Tasks.ValueTask;
+
 #else
 using Promise = System.Threading.Tasks.Task;
 #endif
@@ -32,7 +33,6 @@ namespace Morestachio.Tests
 	{
 		public PlaygroundTests()
 		{
-
 		}
 
 		[Test]
@@ -49,7 +49,8 @@ namespace Morestachio.Tests
 				}
 			};
 
-			var result = await (await Parser.ParseWithOptionsAsync(ParserFixture.TestBuilder().WithTemplate(template).Build())).CreateRenderer()
+			var result = await (await Parser.ParseWithOptionsAsync(ParserFixture.TestBuilder().WithTemplate(template)
+					.Build())).CreateRenderer()
 				.RenderAsync(data, CancellationToken.None);
 
 			Assert.That(result.Stream.Stringify(true, ParserFixture.DefaultEncoding), Is.EqualTo("B"));
@@ -86,13 +87,14 @@ namespace Morestachio.Tests
   {{/each}}
 </ul>
 ";
-		private const string Lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
+
+		private const string Lorem
+			= "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
 
 		public class Product : IMorestachioPropertyResolver
 		{
 			public Product()
 			{
-
 			}
 
 			public Product(string name, float price, string description)
@@ -115,11 +117,13 @@ namespace Morestachio.Tests
 					found = Name;
 					return true;
 				}
+
 				if (name == nameof(Price))
 				{
 					found = Price;
 					return true;
 				}
+
 				if (name == nameof(Description))
 				{
 					found = Description;
@@ -137,6 +141,7 @@ namespace Morestachio.Tests
 			{
 				Watches = new List<TimeSpan>();
 			}
+
 			public Stopwatch Current { get; set; }
 			public List<TimeSpan> Watches { get; set; }
 
@@ -154,34 +159,22 @@ namespace Morestachio.Tests
 
 			public TimeSpan Elapsed
 			{
-				get
-				{
-					return TimeSpan.FromTicks(Watches.Sum(f => f.Ticks));
-				}
+				get { return TimeSpan.FromTicks(Watches.Sum(f => f.Ticks)); }
 			}
 
 			public TimeSpan ElapsedAverage
 			{
-				get
-				{
-					return TimeSpan.FromTicks((long)Watches.Average(f => (decimal)f.Ticks));
-				}
+				get { return TimeSpan.FromTicks((long)Watches.Average(f => (decimal)f.Ticks)); }
 			}
 
 			public TimeSpan ElapsedMin
 			{
-				get
-				{
-					return Watches.Min();
-				}
+				get { return Watches.Min(); }
 			}
 
 			public TimeSpan ElapsedMax
 			{
-				get
-				{
-					return Watches.Max();
-				}
+				get { return Watches.Max(); }
 			}
 		}
 
@@ -199,6 +192,7 @@ namespace Morestachio.Tests
 			var model = PerfHarness.ConstructModelAndPath(modelDepth);
 			var baseTemplate = Enumerable.Range(1, 5)
 				.Aggregate("", (seed, current) => seed += " {{" + model.Item2 + "}}");
+
 			while (baseTemplate.Length <= sizeOfTemplate)
 			{
 				baseTemplate += model.Item2 + "\r\n";
@@ -210,7 +204,7 @@ namespace Morestachio.Tests
 
 			//make sure this class is JIT'd before we start timing.
 			//await Parser.ParseWithOptionsAsync(new ParserOptions("asdf"));
-			
+
 
 			async Task RunTokenizeing()
 			{
@@ -220,7 +214,7 @@ namespace Morestachio.Tests
 				var tokenzierContext = new TokenzierContext(new List<int>(), options.CultureInfo);
 				tokenizerResult = await Tokenizer.Tokenize(options, tokenzierContext);
 			}
-			
+
 			await RunTokenizeing();
 			await RunTokenizeing();
 
@@ -271,7 +265,7 @@ namespace Morestachio.Tests
 
 			//compiledRenderTime.Stop();
 		}
-		#if NET5_0_OR_GREATER
+#if NET5_0_OR_GREATER
 		[Test]
 		//[Explicit]
 		[Repeat(5)]
@@ -298,13 +292,14 @@ namespace Morestachio.Tests
 
 			//	return productsDict;
 			//}
-			
+
 			object GetData()
 			{
 				const int ProductCount = 500;
 
 				var items = new List<object>();
 				var lorem = Lorem.AsMemory();
+
 				for (int i = 0; i < ProductCount; i++)
 				{
 					items.Add(new
@@ -329,6 +324,7 @@ namespace Morestachio.Tests
 			var parsed = await Parser.ParseWithOptionsAsync(parsingOptions);
 			var andStringifyAsync = await parsed.CreateRenderer().RenderAndStringifyAsync(data);
 			var runs = 200;
+
 			for (int i = 0; i < runs / 5; i++)
 			{
 				andStringifyAsync = await parsed.CreateRenderer().RenderAndStringifyAsync(data);
@@ -337,6 +333,7 @@ namespace Morestachio.Tests
 			var compiled = parsed.CreateCompiledRenderer();
 
 			var sw = new Stopwatches();
+
 			for (int i = 0; i < runs; i++)
 			{
 				sw.Start();
@@ -351,13 +348,13 @@ namespace Morestachio.Tests
 
 			var swElapsed = sw.Elapsed;
 			Console.WriteLine("Done in: "
-							  + HumanizeTimespan(swElapsed)
-							  + " thats "
-							  + HumanizeTimespan(sw.ElapsedAverage)
-							  + " per run with lower "
-							  + HumanizeTimespan(sw.ElapsedMin)
-							  + " and high "
-							  + HumanizeTimespan(sw.ElapsedMax));
+				+ HumanizeTimespan(swElapsed)
+				+ " thats "
+				+ HumanizeTimespan(sw.ElapsedAverage)
+				+ " per run with lower "
+				+ HumanizeTimespan(sw.ElapsedMin)
+				+ " and high "
+				+ HumanizeTimespan(sw.ElapsedMax));
 #if NETCOREAPP
 			Console.WriteLine("- Mem: " + Process.GetCurrentProcess().PrivateMemorySize64);
 #endif
@@ -439,6 +436,7 @@ namespace Morestachio.Tests
 		public string HumanizeTimespan(TimeSpan timespan)
 		{
 			var str = new StringBuilder();
+
 			if (timespan.Seconds > 0)
 			{
 				str.Append(timespan.Seconds + " s");
@@ -482,6 +480,7 @@ namespace Morestachio.Tests
 
 			var sw = Stopwatch.StartNew();
 			var runs = 1_000_000;
+
 			for (int i = 0; i < runs; i++)
 			{
 				x += 1;
@@ -596,8 +595,9 @@ namespace Morestachio.Tests
 		}
 {{/REPEAT}}
 ";
-			
-			var result = (await (await Parser.ParseWithOptionsAsync(ParserFixture.TestBuilder().WithTemplate(template).Build()))
+
+			var result = (await (await Parser.ParseWithOptionsAsync(ParserFixture.TestBuilder().WithTemplate(template)
+					.Build()))
 				.CreateRenderer().RenderAndStringifyAsync(null));
 
 			Console.WriteLine(result);

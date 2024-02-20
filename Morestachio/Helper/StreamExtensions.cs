@@ -23,6 +23,7 @@ public static class StreamExtensions
 		try
 		{
 			source.Seek(0, SeekOrigin.Begin);
+
 			if (source is MemoryStream stream)
 			{
 				return encoding.GetString(stream.ToArray());

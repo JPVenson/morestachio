@@ -45,6 +45,7 @@ public class ByteCounterStream : IByteCounterStream
 
 	/// <inheritdoc />
 	public long BytesWritten { get; protected set; }
+
 	/// <inheritdoc />
 	public bool ReachedLimit { get; protected set; }
 
@@ -76,6 +77,7 @@ public class ByteCounterStream : IByteCounterStream
 		var cl = Options.Encoding.GetByteCount(content);
 
 		var overflow = sourceCount + cl - Options.MaxSize;
+
 		if (overflow <= 0)
 		{
 			BytesWritten += cl;
@@ -119,6 +121,7 @@ public class ByteCounterStream : IByteCounterStream
 		var cl = Options.Encoding.GetByteCount(contentOrNull);
 
 		var overflow = sourceCount + cl - Options.MaxSize;
+
 		if (overflow <= 0)
 		{
 			BytesWritten += cl;
@@ -137,7 +140,7 @@ public class ByteCounterStream : IByteCounterStream
 			BaseWriter.Write(contentOrNull);
 		}
 	}
-	
+
 
 	/// <inheritdoc />
 	public ISubByteCounterStream GetSubStream()

@@ -14,7 +14,11 @@ namespace Morestachio.Tests
 		[TestCase(5, 59, WorktimePrecision.Minutes, "01:04", "01.07")]
 		[TestCase(5, 1, WorktimePrecision.Days, "24:05", "24.08")]
 		[TestCase(5, 2, WorktimePrecision.Days, "48:05", "48.08")]
-		public void TestWorktimeCanAddAndFormatAsTime(double value, double toAdd, WorktimePrecision withPrecision, string expectedTime, string expectedDecimal)
+		public void TestWorktimeCanAddAndFormatAsTime(double value,
+													double toAdd,
+													WorktimePrecision withPrecision,
+													string expectedTime,
+													string expectedDecimal)
 		{
 			var wt = new Worktime(value, WorktimePrecision.Minutes);
 			wt = wt.Add(toAdd, withPrecision);
@@ -29,7 +33,11 @@ namespace Morestachio.Tests
 		[TestCase(590, 60, MoneyChargeRate.PerHalfHour, 19, "1404.20¤")]
 		[TestCase(590, 60, MoneyChargeRate.PerDay, 19, "29.25¤")]
 		[TestCase(590, 60, MoneyChargeRate.PerStartedHour, 19, "714.00¤")]
-		public void TestMoneyCanAddAndFormatAsTime(double worktime, double value, MoneyChargeRate chargeRate, double tax, string expected)
+		public void TestMoneyCanAddAndFormatAsTime(double worktime,
+													double value,
+													MoneyChargeRate chargeRate,
+													double tax,
+													string expected)
 		{
 			var wt = new Worktime(worktime, WorktimePrecision.Minutes);
 			var money = Money.Get(wt, value, chargeRate);

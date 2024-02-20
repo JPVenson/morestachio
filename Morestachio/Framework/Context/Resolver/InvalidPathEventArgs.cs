@@ -11,7 +11,10 @@ public class InvalidPathEventArgs : EventArgs
 	/// <summary>
 	/// 
 	/// </summary>
-	public InvalidPathEventArgs(ContextObject sender, IMorestachioExpression expression, string pathPart, Type type)
+	public InvalidPathEventArgs(ContextObject sender,
+								IMorestachioExpression expression,
+								string pathPart,
+								Type type)
 	{
 		Sender = sender;
 		Expression = expression;

@@ -50,10 +50,11 @@ public class ByteCounterInfo
 		}
 
 		var added = Interlocked.Add(ref _bytesWritten, @by);
+
 		if (_maxSize != -1 && _maxSize < added)
 		{
 			_reachedLimit = true;
-			return (int) (added - _maxSize);
+			return (int)(added - _maxSize);
 		}
 
 		return by;

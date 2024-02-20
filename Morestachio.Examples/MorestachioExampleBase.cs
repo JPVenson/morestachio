@@ -62,8 +62,8 @@ public abstract class MorestachioExampleBase
 	///  <param name="shouldEscape">The toggle from UI "Html Escaped" </param>
 	///  <param name="serviceProvider">The runtimes service provider</param>
 	///  <returns></returns>
-	public ValueTask<MorestachioRunResult> Run(string templateText, 
-												Encoding encoding, 
+	public ValueTask<MorestachioRunResult> Run(string templateText,
+												Encoding encoding,
 												bool shouldEscape,
 												IServiceProvider serviceProvider)
 	{
@@ -134,7 +134,8 @@ public abstract class MorestachioExampleBase
 		var renderer = Evaluate(() => CreateRenderer(documentInfo), "Create Render");
 
 		//render the template
-		var result = await EvaluateAsync(async () => (await renderer.RenderAndStringifyAsync(data, CancellationToken.None)), "Render");
+		var result = await EvaluateAsync(
+			async () => (await renderer.RenderAndStringifyAsync(data, CancellationToken.None)), "Render");
 
 		//serialization
 		var jsonResult = Evaluate(() => SerializeToJsonText(documentInfo.Document), "Json Serialization");
@@ -175,12 +176,12 @@ public abstract class MorestachioExampleBase
 	)
 	{
 		return ParserOptionsBuilder.New()
-									.WithTemplate(templateText)
-									.WithEncoding(encoding)
-									.WithDisableContentEscaping(shouldEscape)
-									.WithTimeout(TimeSpan.FromSeconds(5))
-									.WithServiceProvider(serviceProvider)
-									.Build();
+			.WithTemplate(templateText)
+			.WithEncoding(encoding)
+			.WithDisableContentEscaping(shouldEscape)
+			.WithTimeout(TimeSpan.FromSeconds(5))
+			.WithServiceProvider(serviceProvider)
+			.Build();
 	}
 
 	/// <summary>
@@ -207,11 +208,11 @@ public abstract class MorestachioExampleBase
 	protected virtual string SerializeToXmlText(IDocumentItem obj)
 	{
 		var documentItemTypes = typeof(MorestachioDocument).Assembly
-															.GetTypes()
-															.Where(e => e.IsClass)
-															.Where(e => typeof(IDocumentItem)
-																.IsAssignableFrom(e))
-															.ToArray();
+			.GetTypes()
+			.Where(e => e.IsClass)
+			.Where(e => typeof(IDocumentItem)
+				.IsAssignableFrom(e))
+			.ToArray();
 		var xmlSerializer = new XmlSerializer(obj.GetType(), documentItemTypes);
 
 		using (var ms = new MemoryStream())
@@ -229,6 +230,7 @@ public abstract class MorestachioExampleBase
 			using var mStream = new MemoryStream();
 			using var writer = new XmlTextWriter(mStream, Encoding.UTF8);
 			var document = new XmlDocument();
+
 			try
 			{
 				// Load the XmlDocument with the XML.

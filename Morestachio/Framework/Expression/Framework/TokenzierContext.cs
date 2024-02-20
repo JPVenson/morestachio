@@ -86,10 +86,12 @@ public class TokenzierContext
 	///		Gets or sets the option for trimming all leading whitespaces and newlines
 	/// </summary>
 	public bool TrimAllLeading { get; set; }
+
 	/// <summary>
 	///		Gets or sets the option for trimming all tailing whitespaces and newlines
 	/// </summary>
 	public bool TrimTailing { get; set; }
+
 	/// <summary>
 	///		Gets or sets the option for trimming all tailing whitespaces and newlines
 	/// </summary>
@@ -125,11 +127,12 @@ public class TokenzierContext
 	///  <param name="value"></param>
 	///  <param name="parserOptions"></param>
 	///  <returns></returns>
-	public async Promise SetOption(string name, 
-									IMorestachioExpression value, 
+	public async Promise SetOption(string name,
+									IMorestachioExpression value,
 									ParserOptions parserOptions)
 	{
-		var val = (await value.GetValue(new ContextObject(".", null, new object()), new ScopeData(parserOptions)).ConfigureAwait(false))
+		var val = (await value.GetValue(new ContextObject(".", null, new object()), new ScopeData(parserOptions))
+				.ConfigureAwait(false))
 			.Value;
 
 		if (name.Equals("TrimTailing", StringComparison.OrdinalIgnoreCase))
@@ -137,65 +140,83 @@ public class TokenzierContext
 			if (val == null)
 			{
 				Errors.Add(new MorestachioSyntaxError(value.Location,
-					"SET OPTION", 
-					"VALUE", 
+					"SET OPTION",
+					"VALUE",
 					$"The expression returned null for option '{name}' that does not accept a null value"));
 				return;
 			}
+
 			if (!(val is bool valBool))
 			{
 				Errors.Add(new MorestachioSyntaxError(value.Location,
-					"SET OPTION", "VALUE", $"The expression returned '{val.GetType()}' for option '{name}' but expected and value of type '{typeof(bool)}'"));
+					"SET OPTION", "VALUE",
+					$"The expression returned '{val.GetType()}' for option '{name}' but expected and value of type '{typeof(bool)}'"));
 				return;
 			}
+
 			TrimTailing = valBool;
 		}
+
 		if (name.Equals("TrimLeading", StringComparison.OrdinalIgnoreCase))
 		{
 			if (val == null)
 			{
 				Errors.Add(new MorestachioSyntaxError(value.Location,
-					"SET OPTION", "VALUE", $"The expression returned null for option '{name}' that does not accept a null value"));
+					"SET OPTION", "VALUE",
+					$"The expression returned null for option '{name}' that does not accept a null value"));
 				return;
 			}
+
 			if (!(val is bool valBool))
 			{
 				Errors.Add(new MorestachioSyntaxError(value.Location,
-					"SET OPTION", "VALUE", $"The expression returned '{val.GetType()}' for option '{name}' but expected and value of type '{typeof(bool)}'"));
+					"SET OPTION", "VALUE",
+					$"The expression returned '{val.GetType()}' for option '{name}' but expected and value of type '{typeof(bool)}'"));
 				return;
 			}
+
 			TrimLeading = valBool;
 		}
+
 		if (name.Equals("TrimAllTailing", StringComparison.OrdinalIgnoreCase))
 		{
 			if (val == null)
 			{
 				Errors.Add(new MorestachioSyntaxError(value.Location,
-					"SET OPTION", "VALUE", $"The expression returned null for option '{name}' that does not accept a null value"));
+					"SET OPTION", "VALUE",
+					$"The expression returned null for option '{name}' that does not accept a null value"));
 				return;
 			}
+
 			if (!(val is bool valBool))
 			{
 				Errors.Add(new MorestachioSyntaxError(value.Location,
-					"SET OPTION", "VALUE", $"The expression returned '{val.GetType()}' for option '{name}' but expected and value of type '{typeof(bool)}'"));
+					"SET OPTION", "VALUE",
+					$"The expression returned '{val.GetType()}' for option '{name}' but expected and value of type '{typeof(bool)}'"));
 				return;
 			}
+
 			TrimAllTailing = valBool;
 		}
+
 		if (name.Equals("TrimAllLeading", StringComparison.OrdinalIgnoreCase))
 		{
 			if (val == null)
 			{
 				Errors.Add(new MorestachioSyntaxError(value.Location,
-					"SET OPTION", "VALUE", $"The expression returned null for option '{name}' that does not accept a null value"));
+					"SET OPTION", "VALUE",
+					$"The expression returned null for option '{name}' that does not accept a null value"));
 				return;
 			}
+
 			if (!(val is bool valBool))
 			{
 				Errors.Add(new MorestachioSyntaxError(value.Location,
-					"SET OPTION", "VALUE", $"The expression returned '{val.GetType()}' for option '{name}' but expected and value of type '{typeof(bool)}'"));
+					"SET OPTION", "VALUE",
+					$"The expression returned '{val.GetType()}' for option '{name}' but expected and value of type '{typeof(bool)}'"));
 				return;
 			}
+
 			TrimAllLeading = valBool;
 		}
 	}

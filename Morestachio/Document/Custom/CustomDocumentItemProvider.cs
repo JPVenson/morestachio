@@ -110,6 +110,9 @@ public abstract class CustomDocumentItemProvider
 	///  <param name="getScope"></param>
 	///  <param name="tokenOptions"></param>
 	///  <returns></returns>
-	public abstract IDocumentItem Parse(TokenPair token, ParserOptions options, Stack<DocumentScope> buildStack,
-										Func<int> getScope, IEnumerable<ITokenOption> tokenOptions);
+	public abstract IDocumentItem Parse(TokenPair token,
+										ParserOptions options,
+										Stack<DocumentScope> buildStack,
+										Func<int> getScope,
+										IEnumerable<ITokenOption> tokenOptions);
 }

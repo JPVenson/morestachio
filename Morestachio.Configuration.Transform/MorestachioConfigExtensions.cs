@@ -34,7 +34,8 @@ namespace Morestachio.Configuration.Transform
 		/// <param name="builder"></param>
 		/// <param name="options"></param>
 		/// <returns></returns>
-		public static IMorestachioConfigurationBuilder UseOptions(this IMorestachioConfigurationBuilder builder, Func<IParserOptionsBuilder> options)
+		public static IMorestachioConfigurationBuilder UseOptions(this IMorestachioConfigurationBuilder builder,
+																Func<IParserOptionsBuilder> options)
 		{
 			builder.Options.ParserOptions = options;
 			return builder;
@@ -46,7 +47,8 @@ namespace Morestachio.Configuration.Transform
 		/// <param name="builder"></param>
 		/// <param name="discovery"></param>
 		/// <returns></returns>
-		public static IMorestachioConfigurationBuilder UseDiscovery(this IMorestachioConfigurationBuilder builder, Func<KeyValuePair<string, string>, bool> discovery)
+		public static IMorestachioConfigurationBuilder UseDiscovery(this IMorestachioConfigurationBuilder builder,
+																	Func<KeyValuePair<string, string>, bool> discovery)
 		{
 			builder.Options.TransformCondition = discovery;
 			return builder;
@@ -59,7 +61,9 @@ namespace Morestachio.Configuration.Transform
 		/// <param name="key">Can be ether null for all or a key</param>
 		/// <param name="values">To set of key-values that should be passed to the config expression</param>
 		/// <returns></returns>
-		public static IMorestachioConfigurationBuilder UseValues(this IMorestachioConfigurationBuilder builder, string key, IDictionary<string, object> values)
+		public static IMorestachioConfigurationBuilder UseValues(this IMorestachioConfigurationBuilder builder,
+																string key,
+																IDictionary<string, object> values)
 		{
 			key = key ?? string.Empty;
 
@@ -84,7 +88,8 @@ namespace Morestachio.Configuration.Transform
 		/// <param name="key"></param>
 		/// <returns></returns>
 		public static IMorestachioConfigurationBuilder UseEnvironmentVariableValues(
-			this IMorestachioConfigurationBuilder builder, string key)
+			this IMorestachioConfigurationBuilder builder,
+			string key)
 		{
 			var values = Environment.GetEnvironmentVariables()
 				.OfType<DictionaryEntry>()

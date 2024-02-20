@@ -22,12 +22,12 @@ namespace Morestachio.Examples.CustomFormatterExample
 		)
 		{
 			var options = ParserOptionsBuilder.New()
-											.WithTemplate(templateText)
-											.WithEncoding(encoding)
-											.WithDisableContentEscaping(shouldEscape)
-											.WithTimeout(TimeSpan.FromSeconds(5))
-											.WithServiceProvider(serviceProvider)
-											.WithFormatters<DataGeneration>();
+				.WithTemplate(templateText)
+				.WithEncoding(encoding)
+				.WithDisableContentEscaping(shouldEscape)
+				.WithTimeout(TimeSpan.FromSeconds(5))
+				.WithServiceProvider(serviceProvider)
+				.WithFormatters<DataGeneration>();
 
 			return options.Build();
 		}

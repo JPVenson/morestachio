@@ -15,8 +15,10 @@ public readonly struct Currency : IFormattable, IComparable<Currency>, IEquatabl
 	/// <param name="isoName"></param>
 	public Currency(string displayValue, string isoName)
 	{
-		DisplayValue = displayValue ?? throw new ArgumentException("The display name of a currency cannot be null", nameof(displayValue));
-		IsoName = isoName ?? throw new ArgumentException("The ISO 4217 name of a currency cannot be null", nameof(isoName));
+		DisplayValue = displayValue ??
+			throw new ArgumentException("The display name of a currency cannot be null", nameof(displayValue));
+		IsoName = isoName ??
+			throw new ArgumentException("The ISO 4217 name of a currency cannot be null", nameof(isoName));
 	}
 
 	/// <summary>

@@ -39,11 +39,11 @@ namespace Morestachio.AspNetCore
 		public virtual ParserOptions CreateOptions(string template, Encoding encodingFromRequest)
 		{
 			var parserOptions = ParserOptionsBuilder.New()
-													.WithTemplate(template)
-													.WithEncoding(Encoding ?? encodingFromRequest)
-													.WithMaxSize(MaxSize)
-													.WithDisableContentEscaping(DisableContentEscaping)
-													.Build();
+				.WithTemplate(template)
+				.WithEncoding(Encoding ?? encodingFromRequest)
+				.WithMaxSize(MaxSize)
+				.WithDisableContentEscaping(DisableContentEscaping)
+				.Build();
 			parserOptions.Formatters = MorestachioFormatterService ?? parserOptions.Formatters;
 			parserOptions.CultureInfo = Culture ?? parserOptions.CultureInfo;
 			parserOptions.ValueResolver = ValueResolver ?? parserOptions.ValueResolver;
@@ -63,10 +63,11 @@ namespace Morestachio.AspNetCore
 			return await GetTemplateCore(context);
 		}
 
-		public virtual  async ValueTask<object> GetData(HttpContext context)
+		public virtual async ValueTask<object> GetData(HttpContext context)
 		{
 			var data = new AspMorestachioData();
 			data.Data = await GetDataCore(context);
+
 			if (AddHttpContext)
 			{
 				data.Context = context;

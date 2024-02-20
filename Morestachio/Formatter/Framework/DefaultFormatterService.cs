@@ -17,7 +17,8 @@ public static class DefaultFormatterService
 {
 	static DefaultFormatterService()
 	{
-		Default = new Lazy<IMorestachioFormatterService>(BuildDefaultMorestachioFormatterService, LazyThreadSafetyMode.ExecutionAndPublication);
+		Default = new Lazy<IMorestachioFormatterService>(BuildDefaultMorestachioFormatterService,
+			LazyThreadSafetyMode.ExecutionAndPublication);
 	}
 
 	/// <summary>

@@ -19,32 +19,34 @@ public class TrimAllWhitespacesTextOperation : ITextOperation
 		TransientEdit = false;
 		IsModificator = true;
 	}
-		
+
 	/// <inheritdoc />
 	public XmlSchema GetSchema()
 	{
 		throw new NotImplementedException();
 	}
-		
+
 	/// <inheritdoc />
 	public void ReadXml(XmlReader reader)
 	{
 	}
-		
+
 	/// <inheritdoc />
 	public void WriteXml(XmlWriter writer)
 	{
 	}
-		
+
 	/// <inheritdoc />
 	public void GetObjectData(SerializationInfo info, StreamingContext context)
 	{
 	}
-		
+
 	/// <inheritdoc />
 	public TextOperationTypes TextOperationType { get; }
+
 	/// <inheritdoc />
 	public bool TransientEdit { get; }
+
 	/// <inheritdoc />
 	public bool IsModificator { get; }
 
@@ -76,6 +78,7 @@ public class TrimAllWhitespacesTextOperation : ITextOperation
 	{
 		var lines = value.Split('\n');
 		var nLines = new string[lines.Length];
+
 		for (var index = 0; index < lines.Length; index++)
 		{
 			var line = lines[index];

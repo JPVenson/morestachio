@@ -11,7 +11,6 @@ public static class AsyncHelper
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	internal static void Await(this Promise task)
 	{
-
 #if ValueTask
 		if (!task.IsCompleted)
 		{
@@ -32,7 +31,6 @@ public static class AsyncHelper
 #endif
 									task)
 	{
-
 #if ValueTask
 		if (task.IsCompleted)
 		{
@@ -134,10 +132,13 @@ public static class AsyncHelper
 			}
 
 			var taskType = task.GetType();
+
 			if (taskType != typeof(Task))
 			{
 				return typeof(Task<>)
-					.MakeGenericType(taskType.GenericTypeArguments[0])//this must be done for an strange behavior with async's calls in .net core
+					.MakeGenericType(taskType
+						.GenericTypeArguments
+							[0]) //this must be done for an strange behavior with async's calls in .net core
 					.GetProperty(nameof(Task<object>.Result))
 					.GetValue(task);
 			}
@@ -152,15 +153,20 @@ public static class AsyncHelper
 			{
 				await valTask.ConfigureAwait(false);
 			}
+
 			var taskType = valTask.GetType();
+
 			if (taskType != typeof(ValueTask))
 			{
 				return typeof(ValueTask<>)
-					.MakeGenericType(taskType.GenericTypeArguments[0])//this must be done for an strange behavior with async's calls in .net core
+					.MakeGenericType(taskType
+						.GenericTypeArguments
+							[0]) //this must be done for an strange behavior with async's calls in .net core
 					.GetProperty(nameof(ValueTask<object>.Result))
 					.GetValue(valTask);
 			}
 		}
+
 		if (maybeTask is ValueTask<object> objValTask)
 		{
 			return await objValTask.ConfigureAwait(false);

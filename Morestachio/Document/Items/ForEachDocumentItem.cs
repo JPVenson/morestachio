@@ -30,7 +30,6 @@ public class ForEachDocumentItem : BlockExpressionDocumentItemBase, ISupportCust
 	/// </summary>
 	internal ForEachDocumentItem()
 	{
-
 	}
 
 	/// <inheritdoc />
@@ -44,7 +43,6 @@ public class ForEachDocumentItem : BlockExpressionDocumentItemBase, ISupportCust
 	}
 
 	/// <inheritdoc />
-
 	protected ForEachDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
 		ItemVariableName = info.GetString(nameof(ItemVariableName));
@@ -66,24 +64,23 @@ public class ForEachDocumentItem : BlockExpressionDocumentItemBase, ISupportCust
 		{
 			await CoreAction(outputStream, await expression(context, scopeData).ConfigureAwait(false),
 				scopeData,
-				async o =>
-				{
-					await children(outputStream, o, scopeData).ConfigureAwait(false);
-				}).ConfigureAwait(false);
+				async o => { await children(outputStream, o, scopeData).ConfigureAwait(false); }).ConfigureAwait(false);
 		};
 	}
 
 	/// <exception cref="IndexedParseException"></exception>
 	/// <inheritdoc />
-	public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
+	public override async ItemExecutionPromise Render(IByteCounterStream outputStream,
+													ContextObject context,
 													ScopeData scopeData)
 	{
 		await CoreAction(outputStream,
-				await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false), 
-				scopeData, 
+				await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false),
+				scopeData,
 				async itemContext =>
 				{
-					await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, itemContext, scopeData).ConfigureAwait(false);
+					await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, itemContext, scopeData)
+						.ConfigureAwait(false);
 				})
 			.ConfigureAwait(false);
 		return Enumerable.Empty<DocumentItemExecution>();
@@ -104,6 +101,7 @@ public class ForEachDocumentItem : BlockExpressionDocumentItemBase, ISupportCust
 		{
 			var path = new Stack<string>();
 			var parent = context.Parent;
+
 			while (parent != null)
 			{
 				path.Push(parent.Key);
@@ -114,7 +112,7 @@ public class ForEachDocumentItem : BlockExpressionDocumentItemBase, ISupportCust
 				string.Format(
 					"{1}'{0}' is used like an array by the template, but is a scalar value or object in your model." +
 					" Complete Expression until Error:{2}",
-					MorestachioExpression, 
+					MorestachioExpression,
 					Location,
 					(path.Count == 0 ? "Empty" : path.Aggregate((e, f) => e + "\r\n" + f))));
 		}
@@ -129,8 +127,11 @@ public class ForEachDocumentItem : BlockExpressionDocumentItemBase, ISupportCust
 		}
 	}
 
-	private async Promise LoopCollection(IByteCounterStream outputStream, ContextObject parentContext, ScopeData scopeData,
-										Func<ContextObject, Promise> onItem, ICollection value)
+	private async Promise LoopCollection(IByteCounterStream outputStream,
+										ContextObject parentContext,
+										ScopeData scopeData,
+										Func<ContextObject, Promise> onItem,
+										ICollection value)
 	{
 		var index = 0;
 		var innerContext =
@@ -145,6 +146,7 @@ public class ForEachDocumentItem : BlockExpressionDocumentItemBase, ISupportCust
 			{
 				return;
 			}
+
 			innerContext.Index = index;
 			innerContext.Last = index + 1 == value.Count;
 			innerContext.Value = item;
@@ -155,12 +157,16 @@ public class ForEachDocumentItem : BlockExpressionDocumentItemBase, ISupportCust
 		scopeData.RemoveVariable(ItemVariableName, 999999);
 	}
 
-	private async Promise LoopEnumerable(IByteCounterStream outputStream, ContextObject loopContext, ScopeData scopeData,
-										Func<ContextObject, Promise> onItem, IEnumerable value)
+	private async Promise LoopEnumerable(IByteCounterStream outputStream,
+										ContextObject loopContext,
+										ScopeData scopeData,
+										Func<ContextObject, Promise> onItem,
+										IEnumerable value)
 	{
 		//Use this "lookahead" enumeration to allow the $last keyword
 		var index = 0;
 		var enumerator = value.GetEnumerator();
+
 		if (!enumerator.MoveNext())
 		{
 			return;
@@ -201,6 +207,7 @@ public class ForEachDocumentItem : BlockExpressionDocumentItemBase, ISupportCust
 		data.PushVariable(ItemVariableName, arrScope);
 		//as foreach is also used too plain loop constants, add it as a used path too.
 		data.Add(arrScope);
+
 		foreach (var usage in Children.OfType<IReportUsage>())
 		{
 			usage.ReportUsage(data);

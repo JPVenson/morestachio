@@ -24,7 +24,6 @@ public class NullStream : IByteCounterStream
 	/// <inheritdoc />
 	public void Dispose()
 	{
-
 	}
 
 	/// <inheritdoc />
@@ -37,17 +36,16 @@ public class NullStream : IByteCounterStream
 	public void Write(in ReadOnlyMemory<char> content)
 	{
 	}
+
 	/// <inheritdoc />
 	public void Write(in ReadOnlySpan<char> content)
 	{
-
 	}
 #endif
 
 	/// <inheritdoc />
 	public void Write(in string content)
 	{
-
 	}
 
 	/// <inheritdoc />

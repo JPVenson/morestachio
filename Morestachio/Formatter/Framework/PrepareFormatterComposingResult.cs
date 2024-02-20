@@ -77,20 +77,24 @@ public class PrepareFormatterComposingResult : IPrepareFormatterComposingResult
 				parameterInfos.Select<ParameterInfo, Expression>((parameterInfo, index) =>
 				{
 					var val = parameterInfos.Length > index ? arguments[index] : null;
+
 					if (val == null)
 					{
 						return Expression.Default(parameterInfo.ParameterType);
 					}
-					return Expression.Convert(Expression.ArrayAccess(argsParam, Expression.Constant(index)), val.GetType());
+
+					return Expression.Convert(Expression.ArrayAccess(argsParam, Expression.Constant(index)),
+						val.GetType());
 				}));
 
-			if (!method.ReturnParameter.ParameterType.IsClass 
-				&& !method.ReturnParameter.ParameterType.IsInterface 
+			if (!method.ReturnParameter.ParameterType.IsClass
+				&& !method.ReturnParameter.ParameterType.IsInterface
 				&& method.ReturnType != typeof(void))
 			{
 				//if its not a class and not an interface its an struct and we have to box it
 				body = Expression.Convert(body, typeof(object));
 			}
+
 			if (body.CanReduce)
 			{
 				body = body.Reduce();

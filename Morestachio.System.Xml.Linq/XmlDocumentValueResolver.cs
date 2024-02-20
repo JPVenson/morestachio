@@ -35,7 +35,8 @@ namespace Morestachio.System.Xml.Linq
 	/// <summary>
 	///		Contains methods for accessing an <see cref="XElement"/>.
 	/// </summary>
-	[MorestachioExtensionSetup("Must be added via Nuget package 'Morestachio.System.Xml.Linq' and added via 'ParserOptionsBuilder.WithXmlDocumentValueResolver()'")]
+	[MorestachioExtensionSetup(
+		"Must be added via Nuget package 'Morestachio.System.Xml.Linq' and added via 'ParserOptionsBuilder.WithXmlDocumentValueResolver()'")]
 	public static class XContainerSelectorFormatter
 	{
 		[MorestachioFormatter("[MethodName]", "Gets an attribute value or null")]
@@ -50,7 +51,8 @@ namespace Morestachio.System.Xml.Linq
 			return element.Attribute(name) is not null;
 		}
 
-		[MorestachioFormatter("[MethodName]", "Returns the child element with this name or null if there is no child element with a matching name")]
+		[MorestachioFormatter("[MethodName]",
+			"Returns the child element with this name or null if there is no child element with a matching name")]
 		public static XContainer GetElement(XContainer element, string name)
 		{
 			return element.Element(name);
@@ -62,7 +64,8 @@ namespace Morestachio.System.Xml.Linq
 			return element.Elements();
 		}
 
-		[MorestachioFormatter("[MethodName]", "Returns the child elements of this container that match the name passed in.")]
+		[MorestachioFormatter("[MethodName]",
+			"Returns the child elements of this container that match the name passed in.")]
 		public static IEnumerable<XContainer> GetElements(XContainer element, string name)
 		{
 			return element.Elements(name);
@@ -72,7 +75,8 @@ namespace Morestachio.System.Xml.Linq
 	/// <summary>
 	///		Allows access to an <see cref="XContainer"/> via XPath syntax.
 	/// </summary>
-	[MorestachioExtensionSetup("Must be added via Nuget package 'Morestachio.System.Xml.Linq' and added via 'ParserOptionsBuilder.WithXmlDocumentValueResolver()'")]
+	[MorestachioExtensionSetup(
+		"Must be added via Nuget package 'Morestachio.System.Xml.Linq' and added via 'ParserOptionsBuilder.WithXmlDocumentValueResolver()'")]
 	public static class XPathFormatter
 	{
 		[MorestachioFormatter("[MethodName]", "Evaluates an XPath expression")]
@@ -221,6 +225,7 @@ namespace Morestachio.System.Xml.Linq
 			if (hasElement.Length > 0)
 			{
 				found = true;
+
 				if (hasElement.Length > 1)
 				{
 					return new XmlElementListFassade(XContainer, hasElement);
@@ -238,11 +243,11 @@ namespace Morestachio.System.Xml.Linq
 					found = true;
 					return attribute.Value;
 				}
-				
+
 				found = false;
 				return null;
 			}
-			
+
 			found = false;
 			return null;
 		}

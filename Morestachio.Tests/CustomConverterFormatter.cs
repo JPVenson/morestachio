@@ -39,7 +39,8 @@ namespace Morestachio.Tests
 		}
 
 		[MorestachioFormatter("ReturnValueExplicitConverter", "XXX")]
-		public static int ReturnValueA([FormatterValueConverter(typeof(TestToExpectedObjectConverter))]ExpectedObject value)
+		public static int ReturnValueA(
+			[FormatterValueConverter(typeof(TestToExpectedObjectConverter))] ExpectedObject value)
 		{
 			return value.No;
 		}

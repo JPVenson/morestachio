@@ -19,7 +19,7 @@ public class FieldValueResolver : IValueResolver
 	{
 		return type.GetField(path, BindingFlags.Public | BindingFlags.Instance) != null;
 	}
-		
+
 	/// <inheritdoc />
 	public object Resolve(
 		Type type,

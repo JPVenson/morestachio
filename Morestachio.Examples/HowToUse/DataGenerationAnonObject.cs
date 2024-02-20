@@ -9,7 +9,7 @@ namespace Morestachio.Examples.HowToUse
 		{
 			var model = new
 			{
-				name = "John", 
+				name = "John",
 				sender = "Sally"
 			};
 			return model;

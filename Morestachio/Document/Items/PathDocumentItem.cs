@@ -24,19 +24,19 @@ public class PathDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncC
 	/// </summary>
 	internal PathDocumentItem()
 	{
-
 	}
 
 	/// <inheritdoc />
-	public PathDocumentItem(TextRange location,  IMorestachioExpression value, bool escapeValue,
-							IEnumerable<ITokenOption> tagCreationOptions) 
+	public PathDocumentItem(TextRange location,
+							IMorestachioExpression value,
+							bool escapeValue,
+							IEnumerable<ITokenOption> tagCreationOptions)
 		: base(location, value, tagCreationOptions)
 	{
 		EscapeValue = escapeValue;
 	}
 
 	/// <inheritdoc />
-		
 	protected PathDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
 		EscapeValue = info.GetBoolean(nameof(EscapeValue));
@@ -62,7 +62,7 @@ public class PathDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncC
 		base.DeSerializeXmlHeaderCore(reader);
 		EscapeValue = reader.GetAttribute(nameof(EscapeValue)) == bool.TrueString;
 	}
-		
+
 	/// <summary>
 	/// Gets a value indicating whether [escape value].
 	/// </summary>
@@ -70,7 +70,7 @@ public class PathDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncC
 	///   <c>true</c> if [escape value]; otherwise, <c>false</c>.
 	/// </value>
 	public bool EscapeValue { get; private set; }
-	
+
 #if Span
 	private static ReadOnlySpan<char> HtmlEncodeString(ReadOnlySpan<char> context)
 	{
@@ -90,7 +90,7 @@ public class PathDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncC
 	{
 		//var children = compiler.Compile(Children, parserOptions);
 		var expression = MorestachioExpression.Compile(parserOptions);
-			
+
 		//try to locate the value in the context, if it exists, append it.
 		if (EscapeValue && !parserOptions.DisableContentEscaping)
 		{
@@ -107,12 +107,17 @@ public class PathDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncC
 			outputStream.Write(contextObject.RenderToString(scopeData));
 		};
 	}
-		
+
 	/// <inheritdoc />
-	public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+	public override async ItemExecutionPromise Render(IByteCounterStream outputStream,
+													ContextObject context,
+													ScopeData scopeData)
 	{
 		//try to locate the value in the context, if it exists, append it.
-		var contextObject = context != null ? (await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false)) : null;
+		var contextObject = context != null
+			? (await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false))
+			: null;
+
 		if (contextObject != null)
 		{
 			//await contextObject.EnsureValue();
@@ -128,7 +133,7 @@ public class PathDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncC
 
 		return Enumerable.Empty<DocumentItemExecution>();
 	}
-		
+
 	/// <inheritdoc />
 	public bool Equals(PathDocumentItem other)
 	{
@@ -163,7 +168,7 @@ public class PathDocumentItem : ExpressionDocumentItemBase, ISupportCustomAsyncC
 			return false;
 		}
 
-		return Equals((PathDocumentItem) obj);
+		return Equals((PathDocumentItem)obj);
 	}
 
 	/// <inheritdoc />

@@ -51,6 +51,7 @@ public class AggregateDictionary<TKey, TItem> : AggregateCollection<KeyValuePair
 			{
 				return _self[key];
 			}
+
 			return _parent[key];
 		}
 		set { _self[key] = value; }

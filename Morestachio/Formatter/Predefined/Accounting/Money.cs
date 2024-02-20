@@ -51,7 +51,8 @@ public readonly struct Money : IFormattable, IEquatable<Money>
 	}
 
 	[MorestachioGlobalFormatter("Money", "Creates a new Money Object")]
-	public static Money MoneyFactory(Number value, [FormatterValueConverter(typeof(CurrencyTypeConverter))]Currency currency)
+	public static Money MoneyFactory(Number value,
+									[FormatterValueConverter(typeof(CurrencyTypeConverter))] Currency currency)
 	{
 		return new Money(value);
 	}
@@ -63,7 +64,10 @@ public readonly struct Money : IFormattable, IEquatable<Money>
 	}
 
 	[MorestachioFormatter("GetMoney", "Calculates the value of the worktime by taking the rate and chargerate")]
-	public static Money GetMoney([SourceObject] Worktime worktime, double rate, MoneyChargeRate chargeRate, [FormatterValueConverter(typeof(CurrencyTypeConverter))]Currency currency)
+	public static Money GetMoney([SourceObject] Worktime worktime,
+								double rate,
+								MoneyChargeRate chargeRate,
+								[FormatterValueConverter(typeof(CurrencyTypeConverter))] Currency currency)
 	{
 		return Get(worktime, rate, chargeRate, currency);
 	}
@@ -104,7 +108,7 @@ public readonly struct Money : IFormattable, IEquatable<Money>
 	{
 		return new Money(Value / 100 * rate, Currency);
 	}
-	
+
 	/// <summary>
 	///		Adds the value to a new money object and returns it
 	/// </summary>
@@ -113,6 +117,7 @@ public readonly struct Money : IFormattable, IEquatable<Money>
 	public Money Add(Money value)
 	{
 		var currency = Currency;
+
 		if (currency.IsoName == Currency.UnknownCurrency.IsoName)
 		{
 			currency = value.Currency;
@@ -135,6 +140,7 @@ public readonly struct Money : IFormattable, IEquatable<Money>
 	public Money Subtract(Money value)
 	{
 		var currency = Currency;
+
 		if (currency.IsoName == Currency.UnknownCurrency.IsoName)
 		{
 			currency = value.Currency;
@@ -176,7 +182,7 @@ public readonly struct Money : IFormattable, IEquatable<Money>
 	{
 		return Get(worktime, value, chargeRate, Currency.UnknownCurrency);
 	}
-		
+
 	/// <summary>
 	///		Calculates money based on the <see cref="Worktime"/> and the <see cref="MoneyChargeRate"/>
 	/// </summary>
@@ -184,11 +190,15 @@ public readonly struct Money : IFormattable, IEquatable<Money>
 	/// <param name="value"></param>
 	/// <param name="chargeRate"></param>
 	/// <returns></returns>
-	public static Money Get(Worktime worktime, double value, MoneyChargeRate chargeRate, Currency currency)
+	public static Money Get(Worktime worktime,
+							double value,
+							MoneyChargeRate chargeRate,
+							Currency currency)
 	{
 		var minuteWorktime =
 			Worktime.ConvertValue(worktime.TimeWorked, worktime.Precision, WorktimePrecision.Minutes);
 		double val;
+
 		switch (chargeRate)
 		{
 			case MoneyChargeRate.PerMinute:
@@ -209,16 +219,19 @@ public readonly struct Money : IFormattable, IEquatable<Money>
 			case MoneyChargeRate.PerStartedHour:
 				var hours = minuteWorktime / 60;
 				var fraction = hours % 60;
+
 				if (fraction != 0)
 				{
 					hours -= hours % 1;
 					hours += 1;
 				}
+
 				val = hours * value;
 				break;
 			default:
 				throw new ArgumentOutOfRangeException(nameof(chargeRate), chargeRate, null);
 		}
+
 		return new Money(val, currency);
 	}
 
@@ -241,11 +254,14 @@ public readonly struct Money : IFormattable, IEquatable<Money>
 	public static Money Parse(string text, CurrencyHandler handler = null)
 	{
 		var currencies = handler?.Currencies ?? CurrencyHandler.DefaultHandler.Currencies;
-		var currencyByChar = currencies.FirstOrDefault(e => text.StartsWith(e.Value.IsoName) || text.StartsWith(e.Value.DisplayValue)).Value;
+		var currencyByChar = currencies
+			.FirstOrDefault(e => text.StartsWith(e.Value.IsoName) || text.StartsWith(e.Value.DisplayValue)).Value;
+
 		if (currencyByChar.Equals(default))
 		{
-			currencyByChar = currencies.FirstOrDefault(e => text.EndsWith(e.Value.IsoName) || text.EndsWith(e.Value.DisplayValue)).Value;
-				
+			currencyByChar = currencies
+				.FirstOrDefault(e => text.EndsWith(e.Value.IsoName) || text.EndsWith(e.Value.DisplayValue)).Value;
+
 			if (currencyByChar.Equals(default))
 			{
 				return new Money(Number.Parse(text));
@@ -271,13 +287,13 @@ public readonly struct Money : IFormattable, IEquatable<Money>
 	{
 		return Value.Same(other.Value) && Currency.Equals(other.Currency);
 	}
-		
+
 	/// <inheritdoc />
 	public override bool Equals(object obj)
 	{
 		return obj is Money other && Equals(other);
 	}
-		
+
 	/// <inheritdoc />
 	public override int GetHashCode()
 	{

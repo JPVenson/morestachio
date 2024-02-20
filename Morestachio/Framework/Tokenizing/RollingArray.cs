@@ -32,10 +32,7 @@ public class RollingArray<T> : IEnumerable<T>
 	/// </summary>
 	public int Length
 	{
-		get
-		{
-			return Buffer.Length;
-		}
+		get { return Buffer.Length; }
 	}
 
 	/// <summary>
@@ -55,10 +52,7 @@ public class RollingArray<T> : IEnumerable<T>
 	/// <returns></returns>
 	public T this[int index]
 	{
-		get
-		{
-			return Get(index);
-		}
+		get { return Get(index); }
 	}
 
 	/// <summary>
@@ -70,14 +64,16 @@ public class RollingArray<T> : IEnumerable<T>
 	public T Get(int index)
 	{
 		var inx = (_writerIndex % Buffer.Length + 1) + index;
+
 		if (inx >= Buffer.Length)
 		{
 			//in this case we underflow the array length so set it back to the end of the array
 			return Buffer[inx - Buffer.Length];
 		}
+
 		return Buffer[inx];
 	}
-	
+
 	/// <summary>
 	///		Returns the contents of the array
 	/// </summary>
@@ -90,6 +86,7 @@ public class RollingArray<T> : IEnumerable<T>
 		{
 			//if there are less written elements than the size of the buffer, omit those
 			arr = new T[_writerIndex + 1];
+
 			for (int i = 0; i < _writerIndex + 1; i++)
 			{
 				arr[i] = Buffer[i];
@@ -98,6 +95,7 @@ public class RollingArray<T> : IEnumerable<T>
 		else
 		{
 			arr = new T[Buffer.Length];
+
 			for (int i = 0; i < Buffer.Length; i++)
 			{
 				arr[i] = this[i];
@@ -134,6 +132,7 @@ public class RollingArray<T> : IEnumerable<T>
 		{
 			var objA = elements[i];
 			var objB = this[i];
+
 			if (!comparer?.Equals(objA, objB) ?? !Equals(objA, objB))
 			{
 				return false;
@@ -154,10 +153,12 @@ public class RollingArray<T> : IEnumerable<T>
 		{
 			throw new IndexOutOfRangeException("The number of elements exceeds the size of the array");
 		}
+
 		for (int i = 0; i < elements.Length; i++)
 		{
 			var objA = elements[elements.Length - (i + 1)];
 			var objB = this[Buffer.Length - (i + 1)];
+
 			if (!comparer?.Equals(objA, objB) ?? !Equals(objA, objB))
 			{
 				return false;
@@ -189,6 +190,7 @@ public class RollingArray<T> : IEnumerable<T>
 			}
 
 			_index++;
+
 			if (_index > _array.Length)
 			{
 				return false;

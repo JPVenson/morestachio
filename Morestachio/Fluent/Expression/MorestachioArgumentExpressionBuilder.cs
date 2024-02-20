@@ -13,6 +13,7 @@ public class MorestachioArgumentExpressionBuilder
 	{
 		Arguments = new List<KeyValuePair<string, IMorestachioExpression>>();
 	}
+
 	internal List<KeyValuePair<string, IMorestachioExpression>> Arguments { get; set; }
 
 	/// <summary>
@@ -20,9 +21,12 @@ public class MorestachioArgumentExpressionBuilder
 	/// </summary>
 	/// <param name="name"></param>
 	/// <param name="argValue"></param>
-	public MorestachioArgumentExpressionBuilder Argument(string name, Func<MorestachioExpressionBuilderBaseRootApi, MorestachioExpressionBuilder> argValue)
+	public MorestachioArgumentExpressionBuilder Argument(string name,
+														Func<MorestachioExpressionBuilderBaseRootApi,
+															MorestachioExpressionBuilder> argValue)
 	{
-		Arguments.Add(new KeyValuePair<string, IMorestachioExpression>(name, argValue(new MorestachioExpressionBuilderBaseRootApi()).Compile()));
+		Arguments.Add(new KeyValuePair<string, IMorestachioExpression>(name,
+			argValue(new MorestachioExpressionBuilderBaseRootApi()).Compile()));
 		return this;
 	}
 }

@@ -70,6 +70,7 @@ public class PerformanceProfiler
 
 				_stopwatch.Stop();
 				Time = _stopwatch.Elapsed;
+
 				foreach (var performanceKey in _children ?? Enumerable.Empty<PerformanceKey>())
 				{
 					performanceKey.Dispose();

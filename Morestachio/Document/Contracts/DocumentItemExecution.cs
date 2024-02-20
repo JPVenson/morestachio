@@ -25,6 +25,7 @@ public class DocumentItemExecution
 	/// The document item.
 	/// </value>
 	public IDocumentItem DocumentItem { get; }
+
 	/// <summary>
 	/// Gets the context object.
 	/// </summary>

@@ -19,14 +19,17 @@ public class CompiledRenderer : Renderer
 	/// <param name="parserOptions"></param>
 	/// <param name="captureVariables"></param>
 	/// <param name="compiler"></param>
-	public CompiledRenderer(IDocumentItem document, ParserOptions parserOptions, bool captureVariables, IDocumentCompiler compiler) 
+	public CompiledRenderer(IDocumentItem document,
+							ParserOptions parserOptions,
+							bool captureVariables,
+							IDocumentCompiler compiler)
 		: base(document, parserOptions, captureVariables)
 	{
 		_compiler = compiler;
 	}
 
 	private CompilationAsync CompiledDocument { get; set; }
-		
+
 	/// <inheritdoc />
 	public override void PreRender()
 	{
@@ -35,7 +38,7 @@ public class CompiledRenderer : Renderer
 			PreCompile();
 		}
 	}
-		
+
 	/// <summary>
 	///		Compiles the <see cref="Renderer.Document"/> and stores the result
 	/// </summary>
@@ -43,15 +46,16 @@ public class CompiledRenderer : Renderer
 	{
 		CompiledDocument = _compiler.Compile(Document, ParserOptions);
 	}
-		
+
 	/// <inheritdoc />
 	public override async MorestachioDocumentResultPromise RenderAsync(object data,
 																		CancellationToken cancellationToken,
 																		IByteCounterStream targetStream = null)
 	{
-		return await Render(data, cancellationToken, async (stream, context, scopeData) =>
-		{
-			await CompiledDocument(stream, context, scopeData).ConfigureAwait(false);
-		}, targetStream).ConfigureAwait(false);
+		return await Render(data, cancellationToken,
+			async (stream, context, scopeData) =>
+			{
+				await CompiledDocument(stream, context, scopeData).ConfigureAwait(false);
+			}, targetStream).ConfigureAwait(false);
 	}
 }

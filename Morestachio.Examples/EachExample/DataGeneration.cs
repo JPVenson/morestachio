@@ -13,7 +13,8 @@ namespace Morestachio.Examples.EachExample
 			collection.Add("Hello");
 			collection.Add("World");
 
-			var data = new {
+			var data = new
+			{
 				Data = collection
 			};
 

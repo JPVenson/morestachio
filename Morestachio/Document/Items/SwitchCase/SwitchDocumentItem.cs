@@ -23,7 +23,6 @@ public class SwitchDocumentItem : BlockExpressionDocumentItemBase, ISupportCusto
 	/// </summary>
 	internal SwitchDocumentItem()
 	{
-
 	}
 
 	/// <inheritdoc />
@@ -37,7 +36,6 @@ public class SwitchDocumentItem : BlockExpressionDocumentItemBase, ISupportCusto
 	}
 
 	/// <inheritdoc />
-		
 	protected SwitchDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
 		ScopeToValue = info.GetBoolean(nameof(ScopeToValue));
@@ -49,7 +47,9 @@ public class SwitchDocumentItem : BlockExpressionDocumentItemBase, ISupportCusto
 	public bool ScopeToValue { get; private set; }
 
 	/// <inheritdoc />
-	public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+	public override async ItemExecutionPromise Render(IByteCounterStream outputStream,
+													ContextObject context,
+													ScopeData scopeData)
 	{
 		var children = Children.OfType<SwitchCaseDocumentItem>().Cast<IDocumentItem>()
 			.Concat(Children.OfType<SwitchDefaultDocumentItem>())
@@ -59,19 +59,23 @@ public class SwitchDocumentItem : BlockExpressionDocumentItemBase, ISupportCusto
 				{
 					Document = e
 				};
+
 				if (e is SwitchCaseDocumentItem switchCaseItem)
 				{
 					item.Expression = (contextObject, data) =>
 						switchCaseItem.MorestachioExpression.GetValue(contextObject, data);
 				}
+
 				return item;
 			}).ToArray();
 
 		var value = await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false);
+
 		if (ScopeToValue)
 		{
 			context = value;
 		}
+
 		var toBeExecuted = await CoreAction(outputStream, value, scopeData,
 			children).ConfigureAwait(false);
 
@@ -100,10 +104,12 @@ public class SwitchDocumentItem : BlockExpressionDocumentItemBase, ISupportCusto
 		return async (outputStream, context, scopeData) =>
 		{
 			var value = await expression(context, scopeData).ConfigureAwait(false);
+
 			if (ScopeToValue)
 			{
 				context = value;
 			}
+
 			var toBeExecuted = await CoreAction(outputStream, value, scopeData,
 				children).ConfigureAwait(false);
 
@@ -136,9 +142,11 @@ public class SwitchDocumentItem : BlockExpressionDocumentItemBase, ISupportCusto
 		T[] containers) where T : SwitchExecutionContainer
 	{
 		T matchingCase = null;
+
 		foreach (var switchCaseDocumentItem in containers.Where(e => e.Expression != null))
 		{
 			var contextObject = await switchCaseDocumentItem.Expression(context, scopeData).ConfigureAwait(false);
+
 			if (Equals(contextObject.Value, context.Value))
 			{
 				matchingCase = switchCaseDocumentItem;

@@ -20,12 +20,13 @@ public class AesCryptography : IMorestachioCryptographyService
 
 	/// <inheritdoc />
 	public string Name { get; }
-		
+
 	/// <inheritdoc />
 	[MorestachioFormatter("[MethodName]", "Encrypts the byte[] using the password byte[]")]
 	public byte[] Encrypt(byte[] value, byte[] password)
 	{
 		byte[] iv = new byte[16];
+
 		using (Aes aes = Aes.Create())
 		{
 			aes.Key = password;
@@ -35,21 +36,22 @@ public class AesCryptography : IMorestachioCryptographyService
 
 			using (MemoryStream memoryStream = new MemoryStream())
 			{
-				using (CryptoStream cryptoStream = new CryptoStream((Stream)memoryStream, encryptor, CryptoStreamMode.Write))
+				using (CryptoStream cryptoStream
+						= new CryptoStream((Stream)memoryStream, encryptor, CryptoStreamMode.Write))
 				{
 					cryptoStream.Write(value, 0, value.Length);
 					return memoryStream.ToArray();
 				}
 			}
 		}
-
 	}
-		
+
 	/// <inheritdoc />
 	[MorestachioFormatter("[MethodName]", "Decrypts the byte[] using the password byte[]")]
 	public byte[] Decrypt(byte[] value, byte[] password)
 	{
 		byte[] iv = new byte[16];
+
 		using (Aes aes = Aes.Create())
 		{
 			aes.Key = password;
@@ -59,7 +61,8 @@ public class AesCryptography : IMorestachioCryptographyService
 
 			using (MemoryStream memoryStream = new MemoryStream())
 			{
-				using (CryptoStream cryptoStream = new CryptoStream((Stream)memoryStream, encryptor, CryptoStreamMode.Write))
+				using (CryptoStream cryptoStream
+						= new CryptoStream((Stream)memoryStream, encryptor, CryptoStreamMode.Write))
 				{
 					cryptoStream.Write(value, 0, value.Length);
 					return memoryStream.ToArray();

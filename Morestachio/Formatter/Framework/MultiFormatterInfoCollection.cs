@@ -17,9 +17,10 @@ public class MultiFormatterInfoCollection : IReadOnlyList<MultiFormatterInfo>
 		ParamsArgument = _source.FirstOrDefault(e => e.IsRestObject);
 		NonParamsArguments = this.Except(new[]
 		{
-			ParamsArgument, 
+			ParamsArgument,
 		}).ToArray();
-		MandetoryArguments = this.Where(e => !e.IsRestObject && !e.IsOptional && !e.IsSourceObject && !e.IsInjected).ToArray();
+		MandetoryArguments = this.Where(e => !e.IsRestObject && !e.IsOptional && !e.IsSourceObject && !e.IsInjected)
+			.ToArray();
 	}
 
 	/// <inheritdoc />
@@ -53,6 +54,7 @@ public class MultiFormatterInfoCollection : IReadOnlyList<MultiFormatterInfo>
 	public MultiFormatterInfoCollection SetName(string parameterName, string templateParameterName)
 	{
 		var multiFormatterInfo = this.FirstOrDefault(e => e.Name.Equals(parameterName));
+
 		if (multiFormatterInfo == null)
 		{
 			return this;

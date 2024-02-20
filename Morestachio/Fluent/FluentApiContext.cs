@@ -37,7 +37,7 @@ public class FluentApiContext
 	///		Gets or Sets the state of the last executed operation
 	/// </summary>
 	public bool OperationStatus { get; set; }
-		
+
 	/// <summary>
 	///		Creates a new <see cref="FluentApiContext"/> and copies all data from this instance to the new one
 	/// </summary>

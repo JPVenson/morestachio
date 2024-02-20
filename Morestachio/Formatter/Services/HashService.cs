@@ -21,11 +21,30 @@ public class HashService
 		return hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(data));
 	}
 
-	public HashAlgorithm Md5 { get { return MD5.Create(); } }
-	public HashAlgorithm Sha1 { get { return SHA1.Create(); } }
-	public HashAlgorithm Sha256 { get { return SHA256.Create(); } }
-	public HashAlgorithm Sha384 { get { return SHA384.Create(); } }
-	public HashAlgorithm Sha512 { get { return SHA512.Create(); } }
+	public HashAlgorithm Md5
+	{
+		get { return MD5.Create(); }
+	}
+
+	public HashAlgorithm Sha1
+	{
+		get { return SHA1.Create(); }
+	}
+
+	public HashAlgorithm Sha256
+	{
+		get { return SHA256.Create(); }
+	}
+
+	public HashAlgorithm Sha384
+	{
+		get { return SHA384.Create(); }
+	}
+
+	public HashAlgorithm Sha512
+	{
+		get { return SHA512.Create(); }
+	}
 
 	[MorestachioFormatter("[MethodName]", "Hashes the argument with the set HashAlgorithm")]
 	public byte[] HashWith(HashAlgorithm hashAlgorithm, byte[] data)

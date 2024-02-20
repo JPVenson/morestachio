@@ -18,13 +18,15 @@ public static class RandomFormatter
 		return _random.Next();
 	}
 
-	[MorestachioGlobalFormatter("Random", "Gets a non-negative random number where the number is capped by upperBounds")]
+	[MorestachioGlobalFormatter("Random",
+		"Gets a non-negative random number where the number is capped by upperBounds")]
 	public static int Random(int upperBounds)
 	{
 		return _random.Next(upperBounds);
 	}
 
-	[MorestachioGlobalFormatter("Random", "Gets a non-negative random number where the number is capped by upperBounds and lowerBounds")]
+	[MorestachioGlobalFormatter("Random",
+		"Gets a non-negative random number where the number is capped by upperBounds and lowerBounds")]
 	public static int Random(int upperBounds, int lowerBounds)
 	{
 		return _random.Next(lowerBounds, upperBounds);

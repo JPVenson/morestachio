@@ -12,42 +12,41 @@ namespace Morestachio.Framework.Expression;
 [Serializable]
 public class MorestachioMultiPartExpressionList : MorestachioExpressionListBase
 {
-		
 	internal MorestachioMultiPartExpressionList()
 	{
-			
 	}
 
 	/// <inheritdoc />
 	public MorestachioMultiPartExpressionList(TextRange location) : base(location)
 	{
 	}
-		
+
 	/// <inheritdoc />
-	public MorestachioMultiPartExpressionList(IList<IMorestachioExpression> expressions, TextRange location) : base(expressions, location)
+	public MorestachioMultiPartExpressionList(IList<IMorestachioExpression> expressions, TextRange location) : base(
+		expressions, location)
 	{
 	}
-		
+
 	/// <inheritdoc />
 	protected MorestachioMultiPartExpressionList(SerializationInfo info, StreamingContext context) : base(info, context)
 	{
 		EndsWithDelimiter = info.GetBoolean(nameof(EndsWithDelimiter));
 	}
-		
+
 	/// <inheritdoc />
 	public override void GetObjectData(SerializationInfo info, StreamingContext context)
 	{
 		base.GetObjectData(info, context);
 		info.AddValue(nameof(EndsWithDelimiter), EndsWithDelimiter);
 	}
-		
+
 	/// <inheritdoc />
 	public override void ReadXml(XmlReader reader)
 	{
 		EndsWithDelimiter = reader.GetAttribute(nameof(EndsWithDelimiter)) == bool.TrueString;
 		base.ReadXml(reader);
 	}
-		
+
 	/// <inheritdoc />
 	public override void WriteXml(XmlWriter writer)
 	{

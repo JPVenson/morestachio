@@ -27,21 +27,19 @@ public class ContentDocumentItem : BlockValueDocumentItemBase, ISupportCustomCom
 	/// </summary>
 	internal ContentDocumentItem()
 	{
-
 	}
 
 	/// <summary>
 	///		Creates a new ContentDocumentItem that represents some static content
 	/// </summary>
-	public ContentDocumentItem(in TextRange location, 
+	public ContentDocumentItem(in TextRange location,
 								string content,
-								IEnumerable<ITokenOption> tagCreationOptions) 
+								IEnumerable<ITokenOption> tagCreationOptions)
 		: base(location, content, tagCreationOptions)
 	{
 	}
 
 	/// <inheritdoc />
-
 	protected ContentDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
 	}
@@ -52,6 +50,7 @@ public class ContentDocumentItem : BlockValueDocumentItemBase, ISupportCustomCom
 	public Compilation Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
 	{
 		var value = Value;
+
 		foreach (var textEditDocumentItem in Children.OfType<TextEditDocumentItem>())
 		{
 			value = textEditDocumentItem.Operation.Apply(value);
@@ -61,14 +60,11 @@ public class ContentDocumentItem : BlockValueDocumentItemBase, ISupportCustomCom
 		{
 			return null;
 		}
-			
+
 #if Span
 		var memValue = value.AsMemory();
-		return (stream, context, scopeData) =>
-		{
-			stream.Write(memValue);
-		};
-			
+		return (stream, context, scopeData) => { stream.Write(memValue); };
+
 #else
 			return (stream, context, scopeData) =>
 			{
@@ -76,14 +72,15 @@ public class ContentDocumentItem : BlockValueDocumentItemBase, ISupportCustomCom
 			};
 
 #endif
-
 	}
 
 	/// <inheritdoc />
-	public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
+	public override ItemExecutionPromise Render(IByteCounterStream outputStream,
+												ContextObject context,
 												ScopeData scopeData)
 	{
 		var value = Value;
+
 		foreach (var textEditDocumentItem in Children.OfType<TextEditDocumentItem>())
 		{
 			value = textEditDocumentItem.Operation.Apply(value);
@@ -93,6 +90,7 @@ public class ContentDocumentItem : BlockValueDocumentItemBase, ISupportCustomCom
 		{
 			outputStream.Write(value);
 		}
+
 		return Enumerable.Empty<DocumentItemExecution>().ToPromise();
 		//return Children.WithScope(context).ToPromise();
 	}

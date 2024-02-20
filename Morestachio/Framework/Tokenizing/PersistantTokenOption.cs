@@ -63,24 +63,28 @@ public readonly struct PersistantTokenOption : ITokenOption, ISerializable
 	{
 		Name = info.GetString(nameof(Name));
 		var valueType = info.GetValue("ValueType", typeof(Type)) as Type;
+
 		if (valueType == null)
 		{
 			Value = null;
 		}
 		else
 		{
-			Value = info.GetValue(nameof(Value), valueType);	
+			Value = info.GetValue(nameof(Value), valueType);
 		}
+
 		Persistent = true;
 	}
 
 	/// <inheritdoc />
 	public string Name { get; }
+
 	/// <inheritdoc />
 	public object Value { get; }
+
 	/// <inheritdoc />
 	public bool Persistent { get; }
-		
+
 	/// <inheritdoc />
 	public void GetObjectData(SerializationInfo info, StreamingContext context)
 	{
@@ -88,19 +92,19 @@ public readonly struct PersistantTokenOption : ITokenOption, ISerializable
 		info.AddValue("ValueType", Value?.GetType());
 		info.AddValue(nameof(Value), Value);
 	}
-		
+
 	/// <inheritdoc />
 	public bool Equals(ITokenOption other)
 	{
 		return Name == other.Name && Equals(Value, other.Value) && Persistent == other.Persistent;
 	}
-		
+
 	/// <inheritdoc />
 	public override bool Equals(object obj)
 	{
 		return obj is PersistantTokenOption other && Equals(other);
 	}
-		
+
 	/// <inheritdoc />
 	public override int GetHashCode()
 	{

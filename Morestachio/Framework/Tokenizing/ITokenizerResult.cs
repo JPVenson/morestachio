@@ -4,5 +4,4 @@ namespace Morestachio.Framework.Tokenizing;
 
 internal interface ITokenizerResult : IEnumerable<TokenPair>, IEnumerator<TokenPair>
 {
-
 }

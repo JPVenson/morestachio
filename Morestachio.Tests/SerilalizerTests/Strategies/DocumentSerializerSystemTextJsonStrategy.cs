@@ -19,7 +19,7 @@ public class DocumentSerializerSystemTextJsonStrategy : IDocumentSerializerStrat
 			WriteIndented = true
 		}.AddMorestachioSerializationExtensions();
 	}
-	
+
 	public string SerializeDocumentToText(IDocumentItem obj)
 	{
 		return JsonSerializer.Serialize(obj, _serializerOptions);

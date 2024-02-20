@@ -19,7 +19,8 @@ public class MultiValueResolver : List<IValueResolver>, IValueResolver
 		ScopeData scopeData
 	)
 	{
-		return this.First(f => f.CanResolve(type, value, path, context, scopeData)).Resolve(type, value, path, context, scopeData);
+		return this.First(f => f.CanResolve(type, value, path, context, scopeData))
+			.Resolve(type, value, path, context, scopeData);
 	}
 
 	/// <inheritdoc />
@@ -33,7 +34,7 @@ public class MultiValueResolver : List<IValueResolver>, IValueResolver
 	{
 		return this.Any(f => f.CanResolve(type, value, path, context, scopeData));
 	}
-		
+
 	/// <inheritdoc />
 	public bool IsSealed { get; private set; }
 

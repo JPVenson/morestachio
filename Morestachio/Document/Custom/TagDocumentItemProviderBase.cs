@@ -25,28 +25,35 @@ public abstract class TagDocumentItemProviderBase : CustomDocumentItemProvider
 	/// <summary>
 	///		Will be called to produce an Document item that must be executed
 	/// </summary>
-	public abstract IDocumentItem CreateDocumentItem(string tagKeyword, string value, TokenPair token,
-													ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions);
-		
+	public abstract IDocumentItem CreateDocumentItem(string tagKeyword,
+													string value,
+													TokenPair token,
+													ParserOptions options,
+													IEnumerable<ITokenOption> tagCreationOptions);
+
 	/// <inheritdoc />
 	public override IEnumerable<TokenPair> Tokenize(TokenInfo token, ParserOptions options)
 	{
 		yield return new TokenPair(_tagKeyword, token.Token, token.Location);
 	}
-		
+
 	/// <inheritdoc />
 	public override bool ShouldParse(TokenPair token, ParserOptions options, IEnumerable<ITokenOption> tokenOptions)
 	{
 		return token.Type.Equals(_tagKeyword.Trim());
 	}
-		
+
 	/// <inheritdoc />
-	public override IDocumentItem Parse(TokenPair token, ParserOptions options, Stack<DocumentScope> buildStack,
-										Func<int> getScope, IEnumerable<ITokenOption> tokenOptions)
+	public override IDocumentItem Parse(TokenPair token,
+										ParserOptions options,
+										Stack<DocumentScope> buildStack,
+										Func<int> getScope,
+										IEnumerable<ITokenOption> tokenOptions)
 	{
-		return CreateDocumentItem(_tagKeyword, token.Value?.Trim('{', '}').Remove(0, _tagKeyword.Length).Trim(), token, options, tokenOptions);
+		return CreateDocumentItem(_tagKeyword, token.Value?.Trim('{', '}').Remove(0, _tagKeyword.Length).Trim(), token,
+			options, tokenOptions);
 	}
-		
+
 	/// <inheritdoc />
 	public override bool ShouldTokenize(string token)
 	{

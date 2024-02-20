@@ -34,10 +34,8 @@ namespace Morestachio.Runner
 
 		public Program()
 		{
-
 		}
 
-	
 
 		public async Task<int> RootHandler(string[] args)
 		{
@@ -56,22 +54,26 @@ namespace Morestachio.Runner
 				{
 					IsRequired = true
 				},
-				new Option<string>("--source-data-net-type", "if --source-type is NetFunction then it is expected that this is the fully quallified path to the type to be executed"),
-				new Option<string>("--source-data-net-function", "if --source-type is NetFunction then it is expected that this is the path to the method to be executed"),
+				new Option<string>("--source-data-net-type",
+					"if --source-type is NetFunction then it is expected that this is the fully quallified path to the type to be executed"),
+				new Option<string>("--source-data-net-function",
+					"if --source-type is NetFunction then it is expected that this is the path to the method to be executed"),
 				new Option<string>("--template-data", "The path to the template that should be processed")
 				{
 					IsRequired = true
 				},
-				new Option<string>("--target-path", "The full path including the filename where the result should be stored")
-				{
-					IsRequired = true
-				},
-				new Option<string>("--build-log", "If set a log of everything written to the console will be saved at the location and the console will never break")
-				{
-
-				},
+				new Option<string>("--target-path",
+					"The full path including the filename where the result should be stored")
+					{
+						IsRequired = true
+					},
+				new Option<string>("--build-log",
+					"If set a log of everything written to the console will be saved at the location and the console will never break")
+					{
+					},
 			};
-			rootCommand.Handler = CommandHandler.Create<SourceTypes, string, string, string, string, string, string>(Invoke);
+			rootCommand.Handler
+				= CommandHandler.Create<SourceTypes, string, string, string, string, string, string>(Invoke);
 			return rootCommand;
 		}
 
@@ -113,7 +115,8 @@ namespace Morestachio.Runner
 			WriteLine("\t Runner Version: " + typeof(Program).Assembly.GetName().Version);
 			WriteLine("\t Morestachio Version: " + typeof(Parser).Assembly.GetName().Version);
 			WriteLine("\t Morestachio.Linq Version: " + typeof(DynamicLinq).Assembly.GetName().Version);
-			WriteLine("\t Morestachio.Newtonsoft.Json Version: " + typeof(JsonNetValueResolver).Assembly.GetName().Version);
+			WriteLine("\t Morestachio.Newtonsoft.Json Version: " +
+				typeof(JsonNetValueResolver).Assembly.GetName().Version);
 			//Console.WriteLine("\t Usage:");
 			//Console.WriteLine("\t\t Define a --source-type. This can be any of " 
 			//                  + Enum.GetValues(typeof(SourceTypes))
@@ -132,6 +135,7 @@ namespace Morestachio.Runner
 			{
 				Stopwatch = Stopwatch.StartNew();
 			}
+
 			public string Name { get; set; }
 			public Stopwatch Stopwatch { get; set; }
 
@@ -151,21 +155,30 @@ namespace Morestachio.Runner
 			return metric;
 		}
 
-		private async Task<int> Invoke(SourceTypes sourceType, string sourceData, string templateData, string targetPath, string buildLog, string sourceDataNetType, string sourceDataNetFunction)
+		private async Task<int> Invoke(SourceTypes sourceType,
+										string sourceData,
+										string templateData,
+										string targetPath,
+										string buildLog,
+										string sourceDataNetType,
+										string sourceDataNetFunction)
 		{
 			PerformanceMetrics = new Dictionary<string, PerformanceMetric>();
+
 			using (StartMetric("Whole Operation"))
 			{
 				try
 				{
 					DefaultFormatterService.Default.Value.AddFromType(typeof(DynamicLinq));
+
 					if (buildLog != null)
 					{
 						BuildLog = new StreamWriter(new FileStream(buildLog, FileMode.OpenOrCreate));
 					}
 
 					WriteHeader();
-					WriteLine("- Take '" + sourceType + "' from '" + sourceData + "', put it into '" + templateData + "' and store the result at '" + targetPath + "'");
+					WriteLine("- Take '" + sourceType + "' from '" + sourceData + "', put it into '" + templateData +
+						"' and store the result at '" + targetPath + "'");
 
 					if (!File.Exists(sourceData))
 					{
@@ -173,6 +186,7 @@ namespace Morestachio.Runner
 						CloseMessage();
 						return -1;
 					}
+
 					if (!File.Exists(templateData))
 					{
 						WriteErrorLine($"- The template file at '{templateData}' does not exist");
@@ -182,6 +196,7 @@ namespace Morestachio.Runner
 
 					object data = null;
 					IValueResolver resolver = null;
+
 					using (StartMetric("Get Data"))
 					{
 						try
@@ -194,19 +209,25 @@ namespace Morestachio.Runner
 									resolver = new JsonNetValueResolver();
 									break;
 								case SourceTypes.Xml:
-									throw new NotSupportedException("The XML deserialisation is currently not supported");
+									throw new NotSupportedException(
+										"The XML deserialisation is currently not supported");
 								case SourceTypes.NetFunction:
-									Console.WriteLine($"- Load Assembly '{sourceData}', search for type '{sourceDataNetType}'" +
-									                  $" and run public static object {sourceDataNetFunction}(); to obtain data");
+									Console.WriteLine(
+										$"- Load Assembly '{sourceData}', search for type '{sourceDataNetType}'" +
+										$" and run public static object {sourceDataNetFunction}(); to obtain data");
+
 									if (sourceDataNetType == null)
 									{
-										WriteErrorLine("- Expected the --source-data-net-type argument to contain an valid type");
+										WriteErrorLine(
+											"- Expected the --source-data-net-type argument to contain an valid type");
 										CloseMessage();
 										return -1;
 									}
+
 									if (sourceDataNetFunction == null)
 									{
-										WriteErrorLine("- Expected the --source-data-net-function argument to contain an valid type");
+										WriteErrorLine(
+											"- Expected the --source-data-net-function argument to contain an valid type");
 										CloseMessage();
 										return -1;
 									}
@@ -228,7 +249,8 @@ namespace Morestachio.Runner
 
 									if (method == null)
 									{
-										WriteErrorLine($"- The method '{sourceDataNetFunction}' was not found in type '{type}'. Expected to find a public static void Method without parameters.");
+										WriteErrorLine(
+											$"- The method '{sourceDataNetFunction}' was not found in type '{type}'. Expected to find a public static void Method without parameters.");
 										CloseMessage();
 										return -1;
 									}
@@ -251,48 +273,54 @@ namespace Morestachio.Runner
 					}
 
 					string template;
+
 					using (StartMetric("Get Template Content"))
 					{
 						WriteLine($"- Read all contents from file '{templateData}'");
 						template = File.ReadAllText(templateData);
 						WriteLine($"- Read '{template.Length}' chars from file");
 					}
+
 					using (var sourceFs = new FileStream(targetPath, FileMode.Create))
 					{
 						MorestachioDocumentInfo document;
 						WriteLine("- Parse the template");
+
 						using (StartMetric("Parse Template"))
 						{
 							document = await ParserOptionsBuilder
-											.New()
-											.WithTemplate(template)
-											.WithTargetStream(sourceFs)
-											.WithEncoding(Encoding.UTF8)
-											.WithDisableContentEscaping(true)
-											.WithTimeout(TimeSpan.FromMinutes(1))
-											.WithValueResolver(resolver)
-											.BuildAndParseAsync();
+								.New()
+								.WithTemplate(template)
+								.WithTargetStream(sourceFs)
+								.WithEncoding(Encoding.UTF8)
+								.WithDisableContentEscaping(true)
+								.WithTimeout(TimeSpan.FromMinutes(1))
+								.WithValueResolver(resolver)
+								.BuildAndParseAsync();
 						}
-						
+
 						if (document.Errors.Any())
 						{
 							var sb = new StringBuilder();
 							sb.AppendLine("- Template Errors: ");
+
 							foreach (var morestachioError in document.Errors)
 							{
 								morestachioError.Format(sb);
 								sb.AppendLine();
 								sb.AppendLine("----");
 							}
+
 							WriteErrorLine(sb.ToString());
 							CloseMessage();
 							return -1;
 						}
 
 						WriteLine("- Execute the parsed template");
+
 						using (StartMetric("Create Document"))
 						{
-							await document.CreateRenderer().RenderAsync(data);	
+							await document.CreateRenderer().RenderAsync(data);
 						}
 
 						WriteLine("- Done");
@@ -306,12 +334,14 @@ namespace Morestachio.Runner
 			}
 
 			WriteLine("Performance Metrics: ");
+
 			foreach (var performanceMetric in PerformanceMetrics)
 			{
 				WriteLine("\t Name: " + performanceMetric.Key);
 				WriteLine("\t Time: " + performanceMetric.Value.Stopwatch.Elapsed.ToString("g"));
 				Hr();
 			}
+
 			CloseMessage();
 			return 1;
 		}

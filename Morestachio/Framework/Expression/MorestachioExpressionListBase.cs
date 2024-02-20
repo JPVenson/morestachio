@@ -19,7 +19,6 @@ public abstract class MorestachioExpressionListBase : IMorestachioExpression
 {
 	internal MorestachioExpressionListBase()
 	{
-
 	}
 
 	/// <summary>
@@ -58,6 +57,7 @@ public abstract class MorestachioExpressionListBase : IMorestachioExpression
 
 	/// <inheritdoc />
 	public TextRange Location { get; private set; }
+
 	/// <inheritdoc />
 	public async ContextObjectPromise GetValue(ContextObject contextObject, ScopeData scopeData)
 	{
@@ -102,12 +102,15 @@ public abstract class MorestachioExpressionListBase : IMorestachioExpression
 	public virtual void ReadXml(XmlReader reader)
 	{
 		Location = TextRangeSerializationHelper.ReadTextRangeFromXml(reader, "Location");
+
 		if (reader.IsEmptyElement)
 		{
 			return;
 		}
+
 		reader.ReadStartElement();
 		var expression = new List<IMorestachioExpression>();
+
 		while (reader.NodeType == XmlNodeType.Element)
 		{
 			var childTree = reader.ReadSubtree();
@@ -123,6 +126,7 @@ public abstract class MorestachioExpressionListBase : IMorestachioExpression
 	public virtual void WriteXml(XmlWriter writer)
 	{
 		TextRangeSerializationHelper.WriteTextRangeToXml(writer, Location, "Location");
+
 		foreach (var expression in Expressions)
 		{
 			writer.WriteExpressionToXml(expression);
@@ -170,11 +174,13 @@ public abstract class MorestachioExpressionListBase : IMorestachioExpression
 		{
 			var expression = Expressions[index];
 			var otherExp = other.Expressions[index];
+
 			if (!expression.Equals(otherExp))
 			{
 				return false;
 			}
 		}
+
 		return true;
 	}
 
@@ -228,18 +234,12 @@ public abstract class MorestachioExpressionListBase : IMorestachioExpression
 
 		public string Expression
 		{
-			get
-			{
-				return _exp.AsStringExpression();
-			}
+			get { return _exp.AsStringExpression(); }
 		}
 
 		public string DbgView
 		{
-			get
-			{
-				return _exp.AsDebugExpression();
-			}
+			get { return _exp.AsDebugExpression(); }
 		}
 
 		/// <inheritdoc />

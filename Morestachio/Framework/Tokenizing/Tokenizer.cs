@@ -18,7 +18,8 @@ namespace Morestachio.Framework.Tokenizing;
 /// <exception cref="IndexedParseException"></exception>
 public class Tokenizer
 {
-	internal static readonly Regex PartialIncludeRegEx = new("Include (\\w*)( (?:With) )?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+	internal static readonly Regex PartialIncludeRegEx
+		= new("Include (\\w*)( (?:With) )?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
 	private static readonly char[] _whitespaceDelimiters = { '\r', '\n', '\t', ' ' };
 
@@ -159,19 +160,19 @@ public class Tokenizer
 	{
 		return
 			formatChar is '+'
-						or '-'
-						or '*'
-						or '/'
-						or '^'
-						or '%'
-						or '<'
-						or '>'
-						or '='
-						or '!'
-						or '&'
-						or '?'
-						or '!'
-						or '|';
+				or '-'
+				or '*'
+				or '/'
+				or '^'
+				or '%'
+				or '<'
+				or '>'
+				or '='
+				or '!'
+				or '&'
+				or '?'
+				or '!'
+				or '|';
 	}
 
 	/// <summary>
@@ -185,25 +186,25 @@ public class Tokenizer
 	{
 		return
 			operatorText is "+"
-							or "-"
-							or "*"
-							or "/"
-							or "^"
-							or "%"
-							or "<<"
-							or ">>"
-							or "=="
-							or "!="
-							or "<"
-							or "<="
-							or ">"
-							or ">="
-							or "&&"
-							or "||"
-							or "<?"
-							or ">?"
-							or "!"
-							or "??";
+				or "-"
+				or "*"
+				or "/"
+				or "^"
+				or "%"
+				or "<<"
+				or ">>"
+				or "=="
+				or "!="
+				or "<"
+				or "<="
+				or ">"
+				or ">="
+				or "&&"
+				or "||"
+				or "<?"
+				or ">?"
+				or "!"
+				or "??";
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -237,7 +238,8 @@ public class Tokenizer
 
 		if (parserOptions.PartialsStore is IAsyncPartialsStore asyncPartialStore)
 		{
-			partialsNames = new List<string>(await asyncPartialStore.GetNamesAsync(parserOptions).ConfigureAwait(false));
+			partialsNames
+				= new List<string>(await asyncPartialStore.GetNamesAsync(parserOptions).ConfigureAwait(false));
 		}
 		else if (parserOptions.PartialsStore != null)
 		{
@@ -358,7 +360,8 @@ public class Tokenizer
 						{
 							partialsNames.Add(token);
 
-							tokens.Add(new TokenPair(TokenType.PartialDeclarationOpen, token, match.Range, tokenOptions));
+							tokens.Add(
+								new TokenPair(TokenType.PartialDeclarationOpen, token, match.Range, tokenOptions));
 						}
 					}
 					else if (StartsWith(trimmedToken, "#include "))
@@ -392,7 +395,8 @@ public class Tokenizer
 
 							if (!string.IsNullOrWhiteSpace(partialContext))
 							{
-								exp = ExpressionParser.ParseExpression(partialContext, context, match.Range.RangeStart).Expression;
+								exp = ExpressionParser.ParseExpression(partialContext, context, match.Range.RangeStart)
+									.Expression;
 							}
 
 							tokens.Add(new TokenPair(TokenType.RenderPartial, partialName, match.Range,
@@ -403,11 +407,12 @@ public class Tokenizer
 					else if (StartsWith(trimmedToken, "#import "))
 					{
 						var token = trimmedToken.TrimStart('#')
-												.Substring("import".Length)
-												.Trim(GetWhitespaceDelimiters());
+							.Substring("import".Length)
+							.Trim(GetWhitespaceDelimiters());
 						var tokenNameExpression = ExtractExpression(ref token, context, match.Range.RangeStart);
 
-						if (TryParseExpressionOption(ref token, "#WITH", match.Range.RangeStart, context, out var withExpression))
+						if (TryParseExpressionOption(ref token, "#WITH", match.Range.RangeStart, context,
+								out var withExpression))
 						{
 							tokenOptions.Add(new TokenOption("Context", withExpression));
 						}
@@ -427,8 +432,8 @@ public class Tokenizer
 							token = token.Trim();
 
 							tokens.Add(new TokenPair(TokenType.CollectionOpen,
-								token, 
-								match.Range, 
+								token,
+								match.Range,
 								ExpressionParser.ParseExpression(token, context, match.Range.RangeStart).Expression,
 								tokenOptions));
 						}
@@ -480,7 +485,8 @@ public class Tokenizer
 									tokens.Add(new TokenPair(TokenType.ForeachCollectionOpen,
 										token,
 										match.Range,
-										ExpressionParser.ParseExpression(expression, context, match.Range.RangeStart).Expression,
+										ExpressionParser.ParseExpression(expression, context, match.Range.RangeStart)
+											.Expression,
 										tokenOptions));
 								}
 								else
@@ -501,8 +507,8 @@ public class Tokenizer
 							token = token.Trim();
 
 							tokens.Add(new TokenPair(TokenType.WhileLoopOpen,
-								token, 
-								match.Range, 
+								token,
+								match.Range,
 								ExpressionParser.ParseExpression(token, context, match.Range.RangeStart).Expression,
 								tokenOptions));
 						}
@@ -530,8 +536,8 @@ public class Tokenizer
 							token = token.Trim();
 
 							tokens.Add(new TokenPair(TokenType.DoLoopOpen,
-								token, 
-								match.Range, 
+								token,
+								match.Range,
 								ExpressionParser.ParseExpression(token, context, match.Range.RangeStart).Expression,
 								tokenOptions));
 						}
@@ -559,8 +565,8 @@ public class Tokenizer
 							token = token.Trim();
 
 							tokens.Add(new TokenPair(TokenType.RepeatLoopOpen,
-								token, 
-								match.Range, 
+								token,
+								match.Range,
 								ExpressionParser.ParseExpression(token, context, match.Range.RangeStart).Expression,
 								tokenOptions));
 						}
@@ -611,7 +617,7 @@ public class Tokenizer
 					else if (StartsWith(trimmedToken, "#case "))
 					{
 						var token = TrimToken(trimmedToken, "case");
-						
+
 						if (TryParseStringOption(ref token, context, GetAsKeyword(), out _, in match))
 						{
 							context.Errors.Add(new MorestachioSyntaxError(
@@ -626,8 +632,8 @@ public class Tokenizer
 							token = token.Trim();
 
 							tokens.Add(new TokenPair(TokenType.SwitchCaseOpen,
-								token, 
-								match.Range, 
+								token,
+								match.Range,
 								ExpressionParser.ParseExpression(token, context, match.Range.RangeStart).Expression,
 								tokenOptions));
 						}
@@ -639,7 +645,7 @@ public class Tokenizer
 					else if (StartsWith(trimmedToken, "#if "))
 					{
 						var token = TrimToken(trimmedToken, "if");
-						
+
 						if (TryParseStringOption(ref token, context, GetAsKeyword(), out _, in match))
 						{
 							context.Errors.Add(new MorestachioSyntaxError(match.Range, "^if", "AS",
@@ -673,7 +679,7 @@ public class Tokenizer
 							currentScope.TokenType is TokenType.If or TokenType.IfNot or TokenType.ElseIf)
 						{
 							var token = TrimToken(trimmedToken, "elseif");
-							
+
 							if (TryParseStringOption(ref token, context, GetAsKeyword(), out _, in match))
 							{
 								context.Errors.Add(new MorestachioSyntaxError(
@@ -685,7 +691,7 @@ public class Tokenizer
 
 							tokens.Add(new TokenPair(TokenType.ElseIf,
 								match.Range,
-								ExpressionParser.ParseExpression(token, context, match.Range.RangeStart).Expression, 
+								ExpressionParser.ParseExpression(token, context, match.Range.RangeStart).Expression,
 								tokenOptions));
 						}
 						else
@@ -768,10 +774,10 @@ public class Tokenizer
 							tokenOptions));
 						scopestack.Push(new ScopeStackItem(TokenType.IsolationScopeOpen, token, match.Range));
 					}
-					else if (ProcessHashTokenWithoutArgument(parserOptions, context, trimmedToken, tokenValue, scopestack,
+					else if (ProcessHashTokenWithoutArgument(parserOptions, context, trimmedToken, tokenValue,
+								scopestack,
 								match, tokens, tokenOptions))
 					{
-
 					}
 					else if (StartsWith(trimmedToken, "#SET OPTION "))
 					{
@@ -803,8 +809,9 @@ public class Tokenizer
 								{
 									name = token.Substring(0, i - 1).Trim();
 
-									value = ExpressionParser.ParseExpression(token.Substring(i + 1).Trim(), context, match.Range.RangeStart)
-															.Expression;
+									value = ExpressionParser.ParseExpression(token.Substring(i + 1).Trim(), context,
+											match.Range.RangeStart)
+										.Expression;
 
 									break;
 								}
@@ -864,7 +871,7 @@ public class Tokenizer
 
 					tokens.Add(new TokenPair(TokenType.UnescapedSingleValue,
 						token,
-						match.Range, 
+						match.Range,
 						ExpressionParser.ParseExpression(token, context, match.Range.RangeStart).Expression,
 						tokenOptions));
 				}
@@ -889,16 +896,16 @@ public class Tokenizer
 		if (scopestack.Any() || parserOptions.CustomDocumentItemProviders.Any(f => f.ScopeStack.Any()))
 		{
 			foreach (var unclosedScope in scopestack
-										.Concat(parserOptions.CustomDocumentItemProviders.SelectMany(f => f.ScopeStack))
-										.Select(k =>
-										{
-											return new
-											{
-												scope = k.TokenType.ToString(),
-												location = k.Index
-											};
-										})
-										.Reverse())
+						.Concat(parserOptions.CustomDocumentItemProviders.SelectMany(f => f.ScopeStack))
+						.Select(k =>
+						{
+							return new
+							{
+								scope = k.TokenType.ToString(),
+								location = k.Index
+							};
+						})
+						.Reverse())
 			{
 				context.Errors.Add(new MorestachioUnclosedScopeError(unclosedScope.location, unclosedScope.scope, ""));
 			}
@@ -948,10 +955,11 @@ public class Tokenizer
 						"else", "{{#ELSE}}",
 						"Expected the else keyword to be a direct descended of an #if or #elseif"));
 				}
+
 				break;
 			case "#DEFAULT":
 				var token = TrimToken(trimmedToken, "default");
-				
+
 				if (TryParseStringOption(ref token, context, GetAsKeyword(), out _, in match))
 				{
 					context.Errors.Add(new MorestachioSyntaxError(
@@ -973,6 +981,7 @@ public class Tokenizer
 				{
 					context.Errors.Add(new InvalidPathSyntaxError(match.Range, ""));
 				}
+
 				break;
 			case "#NL":
 				tokens.Add(new TokenPair(TokenType.WriteLineBreak, trimmedToken, match.Range,
@@ -1033,7 +1042,7 @@ public class Tokenizer
 
 				tokens.Add(new TokenPair(TokenType.IfNot,
 					token,
-					match.Range, 
+					match.Range,
 					ExpressionParser.ParseExpression(token, context, match.Range.RangeStart).Expression,
 					tokenOptions));
 			}
@@ -1052,8 +1061,8 @@ public class Tokenizer
 				match.Range));
 
 			tokens.Add(new TokenPair(TokenType.InvertedElementOpen,
-				token, 
-				match.Range, 
+				token,
+				match.Range,
 				ExpressionParser.ParseExpression(token, context, match.Range.RangeStart).Expression,
 				tokenOptions));
 
@@ -1082,8 +1091,8 @@ public class Tokenizer
 			tokenOptions.Add(new PersistantTokenOption("Render.LegacyStyle", true));
 
 			tokens.Add(new TokenPair(TokenType.InvertedElementOpen,
-				token, 
-				match.Range, 
+				token,
+				match.Range,
 				ExpressionParser.ParseExpression(token, context, match.Range.RangeStart).Expression,
 				tokenOptions));
 
@@ -1115,7 +1124,8 @@ public class Tokenizer
 		switch (upperToken)
 		{
 			case "/DECLARE":
-				CloseScope(tokenValue, TokenType.PartialDeclarationOpen, TokenType.PartialDeclarationClose, "DECLARE ...", scopeStack,
+				CloseScope(tokenValue, TokenType.PartialDeclarationOpen, TokenType.PartialDeclarationClose,
+					"DECLARE ...", scopeStack,
 					tokens, context, tokenOptions, match);
 				break;
 			case "/EACH":
@@ -1123,7 +1133,8 @@ public class Tokenizer
 					tokens, context, tokenOptions, match);
 				break;
 			case "/FOREACH":
-				CloseScope(tokenValue, TokenType.ForeachCollectionOpen, TokenType.ForeachCollectionClose, "FOREACH ...", scopeStack,
+				CloseScope(tokenValue, TokenType.ForeachCollectionOpen, TokenType.ForeachCollectionClose, "FOREACH ...",
+					scopeStack,
 					tokens, context, tokenOptions, match);
 				break;
 			case "/WHILE":
@@ -1163,11 +1174,13 @@ public class Tokenizer
 					tokens, context, tokenOptions, match);
 				break;
 			case "/SCOPE":
-				CloseScope(tokenValue, TokenType.ElementOpen | TokenType.InvertedElementOpen, TokenType.ElementClose, "SCOPE ...", scopeStack,
+				CloseScope(tokenValue, TokenType.ElementOpen | TokenType.InvertedElementOpen, TokenType.ElementClose,
+					"SCOPE ...", scopeStack,
 					tokens, context, tokenOptions, match);
 				break;
 			case "/ISOLATE":
-				CloseScope(tokenValue, TokenType.IsolationScopeOpen, TokenType.IsolationScopeClose, "ISOLATION ...", scopeStack,
+				CloseScope(tokenValue, TokenType.IsolationScopeOpen, TokenType.IsolationScopeClose, "ISOLATION ...",
+					scopeStack,
 					tokens, context, tokenOptions, match);
 				break;
 			case "/NOPRINT":
@@ -1231,8 +1244,9 @@ public class Tokenizer
 		if (optionIndex != -1)
 		{
 			token = token.Remove(optionIndex, optionName.Length);
-			expression = ExpressionParser.ParseExpression(token, TokenzierContext.FromText(token), index.Add(context, optionIndex))
-										.Expression;
+			expression = ExpressionParser
+				.ParseExpression(token, TokenzierContext.FromText(token), index.Add(context, optionIndex))
+				.Expression;
 
 			return true;
 		}
@@ -1340,7 +1354,9 @@ public class Tokenizer
 		if (customDocumentProvider != null)
 		{
 			var tokenPairs = customDocumentProvider
-				.Tokenize(new CustomDocumentItemProvider.TokenInfo(tokenName, context, scopeStack, tokenOptions, match.Range), parserOptions);
+				.Tokenize(
+					new CustomDocumentItemProvider.TokenInfo(tokenName, context, scopeStack, tokenOptions, match.Range),
+					parserOptions);
 			tokens.AddRange(tokenPairs);
 		}
 		else if (tokenName.StartsWith('#'))
@@ -1380,7 +1396,7 @@ public class Tokenizer
 	)
 	{
 		if (parserOptions.UnmatchedTagBehavior.HasFlagFast(Context.Options.UnmatchedTagBehavior
-																.LogWarning))
+				.LogWarning))
 		{
 			parserOptions.Logger?.LogWarn(LoggingFormatter.TokenizerEventId,
 				$"Unknown Tag '{tokenName}'.",
@@ -1391,14 +1407,14 @@ public class Tokenizer
 		}
 
 		if (parserOptions.UnmatchedTagBehavior.HasFlagFast(Context.Options.UnmatchedTagBehavior
-																.Output))
+				.Output))
 		{
 			tokens.Add(new TokenPair(TokenType.Content, "{{" + tokenName + "}}",
 				match.Range));
 		}
 
 		if (parserOptions.UnmatchedTagBehavior.HasFlagFast(Context.Options.UnmatchedTagBehavior
-																.ThrowError))
+				.ThrowError))
 		{
 			context.Errors.Add(new MorestachioUnopendScopeError(match.Range,
 				"{{" + tokenName + "}}", tokenName,

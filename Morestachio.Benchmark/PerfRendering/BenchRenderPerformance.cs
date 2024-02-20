@@ -10,6 +10,7 @@ namespace Morestachio.Benchmark.PerfRendering
 	{
 		private BenchPerfHarness _dictionaryCall;
 		private BenchPerfHarness _objectCall;
+
 		[GlobalSetup]
 		public async Task Setup()
 		{
@@ -18,7 +19,7 @@ namespace Morestachio.Benchmark.PerfRendering
 			_objectCall = new BenchPerfHarnessObject();
 			await _objectCall.Setup();
 		}
-		
+
 		[Benchmark(Baseline = false, Description = "Call Dictionary")]
 		public ValueTask<string> BenchDictionary()
 		{

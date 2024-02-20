@@ -34,11 +34,14 @@ public class MorestachioLocalizationBlockProvider : BlockDocumentItemProviderBas
 	public override IEnumerable<TokenPair> Tokenize(TokenInfo token, ParserOptions options)
 	{
 		var trim = token.Token;
+
 		if (trim.StartsWith(TagOpen, StringComparison.OrdinalIgnoreCase))
 		{
-			yield return new TokenPair(TagOpen.Trim(), token.Location, 
-				ExpressionParser.ParseExpression(trim.Remove(0, OpenTag.Length).Trim(), token.TokenizerContext, token.Location.RangeStart).Expression);
+			yield return new TokenPair(TagOpen.Trim(), token.Location,
+				ExpressionParser.ParseExpression(trim.Remove(0, OpenTag.Length).Trim(), token.TokenizerContext,
+					token.Location.RangeStart).Expression);
 		}
+
 		if (string.Equals(trim, TagClose, StringComparison.OrdinalIgnoreCase))
 		{
 			yield return new TokenPair(TagClose, trim, token.Location);
@@ -46,9 +49,13 @@ public class MorestachioLocalizationBlockProvider : BlockDocumentItemProviderBas
 	}
 
 	/// <inheritdoc />
-	public override IBlockDocumentItem CreateDocumentItem(string tag, string value, TokenPair token,
-														ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions)
+	public override IBlockDocumentItem CreateDocumentItem(string tag,
+														string value,
+														TokenPair token,
+														ParserOptions options,
+														IEnumerable<ITokenOption> tagCreationOptions)
 	{
-		return new MorestachioLocalizationDocumentItem(token.TokenRange, token.MorestachioExpression, null, tagCreationOptions);
+		return new MorestachioLocalizationDocumentItem(token.TokenRange, token.MorestachioExpression, null,
+			tagCreationOptions);
 	}
 }

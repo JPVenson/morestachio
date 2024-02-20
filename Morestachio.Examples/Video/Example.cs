@@ -30,7 +30,7 @@ namespace Morestachio.Examples.Video
 			//return options.Build();
 			//var options = new ParserOptions(new StringTemplateContainer(template));
 			//options.Formatters.AddSingle(new Func<string, string>(inputSource => " Sir " + inputSource.Trim()), "TrimEx");
-			
+
 			//var documentResult = await Parser.ParseWithOptionsAsync(options);
 
 			//var text = await documentResult.CreateAndStringifyAsync(data);

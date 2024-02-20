@@ -50,9 +50,9 @@ namespace Morestachio.System.Text.Json
 					return ResolveJsonElement(document.RootElement, path);
 				case JsonElement element:
 					return ResolveJsonElement(element, path);
-	
+
 				default:
-					scopeData.ParserOptions.Logger?.LogWarn(nameof(SystemTextJsonResolver), 
+					scopeData.ParserOptions.Logger?.LogWarn(nameof(SystemTextJsonResolver),
 						$"Could not resolve Json object path from type: {(value?.GetType().ToString() ?? "null")}");
 					return value;
 			}

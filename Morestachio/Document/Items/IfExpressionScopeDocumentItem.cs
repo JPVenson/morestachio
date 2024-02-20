@@ -27,7 +27,8 @@ public class IfExpressionScopeDocumentItem : BlockExpressionDocumentItemBase, IS
 	}
 
 	/// <inheritdoc />
-	public IfExpressionScopeDocumentItem(in TextRange location, IMorestachioExpression value,
+	public IfExpressionScopeDocumentItem(in TextRange location,
+										IMorestachioExpression value,
 										IEnumerable<ITokenOption> tagCreationOptions,
 										bool inverted)
 		: base(location, value, tagCreationOptions)
@@ -52,6 +53,7 @@ public class IfExpressionScopeDocumentItem : BlockExpressionDocumentItemBase, IS
 	protected override void SerializeXmlHeaderCore(XmlWriter writer)
 	{
 		base.SerializeXmlHeaderCore(writer);
+
 		if (Inverted)
 		{
 			writer.WriteAttributeString(nameof(Inverted), bool.TrueString);
@@ -64,7 +66,7 @@ public class IfExpressionScopeDocumentItem : BlockExpressionDocumentItemBase, IS
 		base.DeSerializeXmlHeaderCore(reader);
 		Inverted = reader.GetAttribute(nameof(Inverted)) == bool.TrueString;
 	}
-		
+
 	/// <summary>
 	///		Filters <see cref="BlockDocumentItemBase.Children"/> to only return anything before the first else block
 	/// </summary>
@@ -121,11 +123,14 @@ public class IfExpressionScopeDocumentItem : BlockExpressionDocumentItemBase, IS
 		}
 
 		var elseBlocks = GetNestedElseConditions().ToArray();
+
 		if (elseBlocks.Length > 0)
 		{
 			foreach (var documentItem in elseBlocks)
 			{
-				var elseContext = await documentItem.MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false);
+				var elseContext = await documentItem.MorestachioExpression.GetValue(context, scopeData)
+					.ConfigureAwait(false);
+
 				if (elseContext.Exists() != Inverted)
 				{
 					return documentItem.Children
@@ -159,6 +164,7 @@ public class IfExpressionScopeDocumentItem : BlockExpressionDocumentItemBase, IS
 
 		var elseDocument = GetNestedElse();
 		CompilationAsync elseBlock = null;
+
 		if (elseDocument != null)
 		{
 			elseBlock = compiler.Compile(new[] { elseDocument }, parserOptions);
@@ -172,6 +178,7 @@ public class IfExpressionScopeDocumentItem : BlockExpressionDocumentItemBase, IS
 			var c = await expression(context, scopeData).ConfigureAwait(false);
 
 			context = context.IsNaturalContext || context.Parent == null ? context : context.Parent;
+
 			if (c.Exists() != Inverted)
 			{
 				await children(stream, context, scopeData).ConfigureAwait(false);
@@ -181,7 +188,8 @@ public class IfExpressionScopeDocumentItem : BlockExpressionDocumentItemBase, IS
 			{
 				foreach (var ifExecutionContainer in elseChildren)
 				{
-					if ((await ifExecutionContainer.Expression(context, scopeData).ConfigureAwait(false)).Exists() == Inverted)
+					if ((await ifExecutionContainer.Expression(context, scopeData).ConfigureAwait(false)).Exists() ==
+						Inverted)
 					{
 						continue;
 					}

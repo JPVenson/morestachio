@@ -6,6 +6,7 @@ using System.Resources;
 
 #if ValueTask
 using BoolPromise = System.Threading.Tasks.ValueTask<bool>;
+
 #else
 using BoolPromise = System.Threading.Tasks.Task<bool>;
 #endif
@@ -36,7 +37,7 @@ namespace Morestachio.Helper.Localization
 				.Select(f => new KeyValuePair<string, object>(f.Key.ToString(), f.Value))
 				.ToArray();
 		}
-		
+
 		/// <inheritdoc />
 		public BoolPromise GetTranslation(string key, CultureInfo culture, out object translation)
 		{
@@ -45,10 +46,12 @@ namespace Morestachio.Helper.Localization
 				.FirstOrDefault(e => e.Key.Equals(key));
 			translation = firstOrDefault
 				.Value;
+
 			if (Equals(firstOrDefault.Key, key))
 			{
 				return true.ToPromise();
 			}
+
 			return false.ToPromise();
 		}
 	}

@@ -16,7 +16,6 @@ public abstract class MorestachioErrorBase : IMorestachioError
 	/// </summary>
 	protected MorestachioErrorBase()
 	{
-		
 	}
 
 	/// <summary>
@@ -52,7 +51,7 @@ public abstract class MorestachioErrorBase : IMorestachioError
 	{
 		HelpText = reader.GetAttribute(nameof(HelpText));
 		Location = TextRangeSerializationHelper.ReadTextRangeFromXml(reader, "Location");
-		
+
 		if (!reader.IsEmptyElement)
 		{
 			reader.ReadEndElement();

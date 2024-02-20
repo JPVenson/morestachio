@@ -20,10 +20,12 @@ public enum TokenType : long
 	///		Defines the start of a scope that will only be applied if the value of the path is falsy
 	/// </summary>
 	InvertedElementOpen = 1 << 2,
+
 	/// <summary>
 	///		Defines the start of a scope
 	/// </summary>
 	ElementOpen = 1 << 3,
+
 	/// <summary>
 	///		Defines the end of a scope
 	/// </summary>
@@ -33,6 +35,7 @@ public enum TokenType : long
 	///		A comment inside. Will not be printed
 	/// </summary>
 	Comment = 1 << 5,
+
 	/// <summary>
 	///		A comment inside. Will not be printed
 	/// </summary>
@@ -62,7 +65,8 @@ public enum TokenType : long
 	/// <summary>
 	///     Is used to "print" the current formatted value to the output
 	/// </summary>
-	[Obsolete("This TokenType is no longer used.", true)]Print = 1 << 11,
+	[Obsolete("This TokenType is no longer used.", true)]
+	Print = 1 << 11,
 
 	/// <summary>
 	///		A Partial that is inserted into the one or multiple places in the Template
@@ -87,7 +91,8 @@ public enum TokenType : long
 	/// <summary>
 	///		Defines the context an import should be set to
 	/// </summary>
-	[Obsolete("This TokenType is no longer used.", true)] ImportPartialContext = 1 << 16,
+	[Obsolete("This TokenType is no longer used.", true)]
+	ImportPartialContext = 1 << 16,
 
 	/// <summary>
 	///		Defines the current Context as the be accessed by an alias
@@ -108,7 +113,7 @@ public enum TokenType : long
 	///		Defines an case statement. Must be used in conjunction with an enclosing Switch statement.
 	/// </summary>
 	SwitchCaseOpen = 1 << 20,
-		
+
 	/// <summary>
 	///		Defines an default statement. Must be used in conjunction with an enclosing Switch statement.
 	/// </summary>
@@ -123,7 +128,7 @@ public enum TokenType : long
 	///		Defines the end of a switch-case-scope
 	/// </summary>
 	SwitchCaseClose = 1 << 23,
-		
+
 	/// <summary>
 	///		Defines the end of a switch-default-scope
 	/// </summary>
@@ -133,34 +138,42 @@ public enum TokenType : long
 	///		Defines an if. It Works the same as the "#" keyword but does not scope its body to it.
 	/// </summary>
 	If = 1 << 25,
+
 	/// <summary>
 	///		Defines the end of a if-scope
 	/// </summary>
 	IfClose = 1 << 26,
+
 	/// <summary>
 	///		Defines an inverted If. Works the same as the "^" keyword but does not scope its body to it
 	/// </summary>
 	IfNot = 1 << 27,
+
 	/// <summary>
 	///		Defines an Else. An else can only be used when its an direct descendent of an if
 	/// </summary>
 	Else = 1 << 28,
+
 	/// <summary>
 	///		Defines the end of an else-scope
 	/// </summary>
 	ElseClose = 1 << 29,
+
 	/// <summary>
 	///		Defines an if within the Else of an if. An elseif can only be used when its an direct descendent of an if
 	/// </summary>
 	ElseIf = 1 << 30,
+
 	/// <summary>
 	///		Defines the end of an else-scope
 	/// </summary>
 	ElseIfClose = 1L << 31,
+
 	/// <summary>
 	///		Defines the current Context as the be accessed by an alias
 	/// </summary>
 	VariableVar = 1L << 32,
+
 	/// <summary>
 	///		Defines the current Context as the be accessed by an alias
 	/// </summary>
@@ -215,7 +228,7 @@ public enum TokenType : long
 	/////		stops Trimming all occuring \t & \r\n 
 	///// </summary>
 	//StopTrimEverything,
-		
+
 
 	/// <summary>
 	///		The start of a while loop
@@ -251,6 +264,7 @@ public enum TokenType : long
 	///		The start of a NOPRINT block
 	/// </summary>
 	NoPrintOpen = 1L << 49,
+
 	/// <summary>
 	///		The end of a NOPRINT block
 	/// </summary>

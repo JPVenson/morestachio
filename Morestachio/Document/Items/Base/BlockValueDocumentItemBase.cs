@@ -17,13 +17,15 @@ public abstract class BlockValueDocumentItemBase : BlockDocumentItemBase, IEquat
 {
 	internal BlockValueDocumentItemBase()
 	{
-
 	}
+
 	/// <summary>
 	/// 
 	/// </summary>
-	protected BlockValueDocumentItemBase(in TextRange location, string value,
-									IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
+	protected BlockValueDocumentItemBase(in TextRange location,
+										string value,
+										IEnumerable<ITokenOption> tagCreationOptions) : base(location,
+		tagCreationOptions)
 	{
 		Value = value;
 	}
@@ -32,13 +34,13 @@ public abstract class BlockValueDocumentItemBase : BlockDocumentItemBase, IEquat
 	///		A value from the Template
 	/// </summary>
 	public string Value { get; private set; }
-		
+
 	/// <inheritdoc />
 	protected BlockValueDocumentItemBase(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
 		Value = info.GetValueOrDefault<string>(c, nameof(Value));
 	}
-		
+
 	/// <inheritdoc />
 	protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
 	{
@@ -50,10 +52,12 @@ public abstract class BlockValueDocumentItemBase : BlockDocumentItemBase, IEquat
 	protected override void SerializeXmlBodyCore(XmlWriter writer)
 	{
 		base.SerializeXmlBodyCore(writer);
+
 		if (string.IsNullOrEmpty(Value))
 		{
 			return;
 		}
+
 		writer.WriteStartElement(nameof(Value));
 		writer.WriteAttributeString("xml", "space", null, "preserve");
 		writer.WriteString(Value);
@@ -71,12 +75,14 @@ public abstract class BlockValueDocumentItemBase : BlockDocumentItemBase, IEquat
 			{
 				reader.ReadStartElement();
 			}
+
 			if (reader.Name == nameof(Value))
 			{
 				if (reader.IsEmptyElement)
 				{
 					return;
 				}
+
 				Value = reader.ReadString();
 				reader.ReadEndElement();
 			}
@@ -101,14 +107,14 @@ public abstract class BlockValueDocumentItemBase : BlockDocumentItemBase, IEquat
 			return false;
 		}
 
-		if(string.IsNullOrEmpty(Value) && string.IsNullOrEmpty(other.Value))
+		if (string.IsNullOrEmpty(Value) && string.IsNullOrEmpty(other.Value))
 		{
 			return true;
 		}
 
 		return Value == other.Value;
 	}
-		
+
 	/// <inheritdoc />
 	public override bool Equals(object obj)
 	{

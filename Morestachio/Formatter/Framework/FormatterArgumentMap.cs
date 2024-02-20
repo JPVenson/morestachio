@@ -29,7 +29,7 @@ public class FormatterArgumentMap
 	/// <summary>
 	///		If set, the function to convert the value obtained from <see cref="ObtainValue"/>
 	/// </summary>
-		
+
 	public Func<object, object> ConverterFunc { get; set; }
 
 	/// <summary>

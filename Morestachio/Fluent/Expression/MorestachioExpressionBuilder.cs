@@ -31,18 +31,22 @@ public class MorestachioExpressionBuilder
 	{
 		var parts = property.Split('.');
 		var pathParts = new PathTokenizer.PathPartsCollection();
+
 		foreach (var part in parts)
 		{
 			for (var index = 0; index < part.Length; index++)
 			{
 				var pathPartChar = part[index];
+
 				if (!Tokenizer.IsSingleExpressionPathChar(pathPartChar) && pathPartChar != '$')
 				{
 					throw new InvalidOperationException("The property " + part + " contains invalid chars at " + index);
 				}
 			}
+
 			pathParts.Add(part, PathType.DataPath);
 		}
+
 		Column += property.Length;
 
 		if (ExpressionParts.LastOrDefault() is MorestachioExpression exp && exp.FormatterName == null)
@@ -64,23 +68,24 @@ public class MorestachioExpressionBuilder
 	/// </summary>
 	/// <returns></returns>
 	public IMorestachioExpression SelectObjectAsList()
-	{	
+	{
 		if (ExpressionParts.LastOrDefault() is MorestachioExpression exp && exp.FormatterName == null)
 		{
-			exp.PathParts = exp.PathParts.Expand(new []
+			exp.PathParts = exp.PathParts.Expand(new[]
 			{
-				new KeyValuePair<string, PathType>(null, PathType.ObjectSelector), 
+				new KeyValuePair<string, PathType>(null, PathType.ObjectSelector),
 			});
 		}
 		else
 		{
 			var morestachioExpression = new MorestachioExpression(TextRange.Unknown);
-			morestachioExpression.PathParts = new Traversable(new []
+			morestachioExpression.PathParts = new Traversable(new[]
 			{
-				new KeyValuePair<string, PathType>(null, PathType.ObjectSelector), 
+				new KeyValuePair<string, PathType>(null, PathType.ObjectSelector),
 			});
 			ExpressionParts.Add(morestachioExpression);
 		}
+
 		return Compile();
 	}
 

@@ -38,7 +38,8 @@ public class ExpressionArgument : IEquatable<ExpressionArgument>, IMorestachioEx
 	protected ExpressionArgument(SerializationInfo info, StreamingContext context)
 	{
 		Name = info.GetValueOrDefault<string>(context, nameof(Name));
-		MorestachioExpression = info.GetValue(nameof(MorestachioExpression), typeof(IMorestachioExpression)) as IMorestachioExpression;
+		MorestachioExpression
+			= info.GetValue(nameof(MorestachioExpression), typeof(IMorestachioExpression)) as IMorestachioExpression;
 		Location = TextRangeSerializationHelper.ReadTextRange(nameof(Location), info, context);
 	}
 
@@ -96,13 +97,13 @@ public class ExpressionArgument : IEquatable<ExpressionArgument>, IMorestachioEx
 	{
 		visitor.Visit(this);
 	}
-		
+
 	/// <inheritdoc />
 	public bool IsCompileTimeEval()
 	{
 		return MorestachioExpression.IsCompileTimeEval();
 	}
-		
+
 	/// <inheritdoc />
 	public object GetCompileTimeValue()
 	{
@@ -142,7 +143,7 @@ public class ExpressionArgument : IEquatable<ExpressionArgument>, IMorestachioEx
 		{
 			writer.WriteAttributeString(nameof(Name), Name);
 		}
-		
+
 		TextRangeSerializationHelper.WriteTextRangeToXml(writer, Location, "Location");
 		writer.WriteExpressionToXml(MorestachioExpression);
 	}
@@ -150,7 +151,7 @@ public class ExpressionArgument : IEquatable<ExpressionArgument>, IMorestachioEx
 	/// <inheritdoc />
 	public bool Equals(IMorestachioExpression other)
 	{
-		return Equals((object) other);
+		return Equals((object)other);
 	}
 
 	/// <inheritdoc />
@@ -171,7 +172,7 @@ public class ExpressionArgument : IEquatable<ExpressionArgument>, IMorestachioEx
 			return false;
 		}
 
-		return Equals((ExpressionArgument) obj);
+		return Equals((ExpressionArgument)obj);
 	}
 
 	/// <inheritdoc />

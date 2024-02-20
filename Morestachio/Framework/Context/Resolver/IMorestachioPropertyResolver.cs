@@ -20,7 +20,7 @@ public interface IMorestachioPropertyResolver
 /// <summary>
 ///		Adds properties to an internal lookup for fast resolving
 /// </summary>
-public abstract class MorestachioPropertyListResolver 
+public abstract class MorestachioPropertyListResolver
 	: IMorestachioPropertyResolver
 {
 	/// <summary>

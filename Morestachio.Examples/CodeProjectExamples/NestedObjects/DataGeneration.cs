@@ -9,7 +9,7 @@ namespace Morestachio.Examples.CodeProjectExamples.NestedObjects
 		public override object GetData()
 		{
 			var subData = new Dictionary<string, object>();
-			subData["name"] = "John"; 
+			subData["name"] = "John";
 			subData["sender"] = "Sally";
 
 			var data = new Dictionary<string, object>();

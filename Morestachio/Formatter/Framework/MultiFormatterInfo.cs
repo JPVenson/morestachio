@@ -11,10 +11,10 @@ public class MultiFormatterInfo
 	/// <summary>
 	/// Initializes a new instance of the <see cref="MultiFormatterInfo"/> class.
 	/// </summary>
-	public MultiFormatterInfo(Type type, 
-							string name, 
-							bool isOptional, 
-							int index, 
+	public MultiFormatterInfo(Type type,
+							string name,
+							bool isOptional,
+							int index,
 							bool isRestObject)
 	{
 		ParameterType = type ?? throw new ArgumentNullException(nameof(type));

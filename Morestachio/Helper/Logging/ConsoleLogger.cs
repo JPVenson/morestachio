@@ -69,7 +69,7 @@ public class ConsoleLogger : ILogger
 		{
 			coloringValue = coloringDefault;
 		}
-		
+
 		try
 		{
 			if (coloringValue.HasValue)

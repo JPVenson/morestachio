@@ -16,9 +16,11 @@ public sealed class FormatterValueConverterAttribute : Attribute
 	public FormatterValueConverterAttribute(Type converterType)
 	{
 		ConverterType = converterType;
+
 		if (!typeof(IFormatterValueConverter).IsAssignableFrom(converterType))
 		{
-			throw new InvalidOperationException($"The given formatter '{ConverterType}' does not implement {nameof(IFormatterValueConverter)}");
+			throw new InvalidOperationException(
+				$"The given formatter '{ConverterType}' does not implement {nameof(IFormatterValueConverter)}");
 		}
 	}
 

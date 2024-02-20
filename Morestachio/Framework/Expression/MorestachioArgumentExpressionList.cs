@@ -11,22 +11,21 @@ namespace Morestachio.Framework.Expression;
 [Serializable]
 public class MorestachioArgumentExpressionList : MorestachioExpressionListBase
 {
-		
 	internal MorestachioArgumentExpressionList()
 	{
-			
 	}
-		
+
 	/// <inheritdoc />
 	public MorestachioArgumentExpressionList(TextRange location) : base(location)
 	{
 	}
 
 	/// <inheritdoc />
-	public MorestachioArgumentExpressionList(IList<IMorestachioExpression> expressions, TextRange location) : base(expressions, location)
+	public MorestachioArgumentExpressionList(IList<IMorestachioExpression> expressions, TextRange location) : base(
+		expressions, location)
 	{
 	}
-		
+
 	/// <inheritdoc />
 	protected MorestachioArgumentExpressionList(SerializationInfo info, StreamingContext context) : base(info, context)
 	{

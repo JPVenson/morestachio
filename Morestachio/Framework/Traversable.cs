@@ -28,6 +28,7 @@ public class Traversable //: IEnumerator<KeyValuePair<string, PathType>>
 	{
 		var node = this;
 		var values = parts.ToArray();
+
 		if (values.Length == 0)
 		{
 			return;
@@ -70,6 +71,7 @@ public class Traversable //: IEnumerator<KeyValuePair<string, PathType>>
 
 		var list = new KeyValuePair<string, PathType>[Count + 1];
 		var node = this;
+
 		for (int i = 0; i < list.Length; i++)
 		{
 			list[i] = node.Current;
@@ -82,11 +84,7 @@ public class Traversable //: IEnumerator<KeyValuePair<string, PathType>>
 	/// <summary>
 	/// 
 	/// </summary>
-	public int Count
-	{
-		get;
-		private set;
-	}
+	public int Count { get; private set; }
 
 	private static KeyValuePair<string, PathType> _noNode = default;
 
@@ -135,11 +133,7 @@ public class Traversable //: IEnumerator<KeyValuePair<string, PathType>>
 	/// <summary>
 	///		Gets if the current node has a value
 	/// </summary>
-	public bool HasValue
-	{
-		get;
-		private set;
-	}
+	public bool HasValue { get; private set; }
 
 	/// <summary>
 	///		Expands the current node by creating a new Traversable and attaching the parameter to it

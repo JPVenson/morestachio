@@ -31,10 +31,7 @@ public abstract class TemplateResource
 	/// <summary>
 	///		Returns a single character at index
 	/// </summary>
-	public abstract char this[int index]
-	{
-		get;
-	}
+	public abstract char this[int index] { get; }
 
 	/// <summary>
 	///		Returns the whole length of the resource in characters

@@ -1,5 +1,4 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Xml;
@@ -20,7 +19,7 @@ namespace Morestachio.Document.Items;
 ///		Creates an alias 
 /// </summary>
 [Serializable]
-public class AliasDocumentItem : ValueDocumentItemBase, 
+public class AliasDocumentItem : ValueDocumentItemBase,
 								ISupportCustomAsyncCompilation,
 								IReportUsage
 {
@@ -29,7 +28,6 @@ public class AliasDocumentItem : ValueDocumentItemBase,
 	/// </summary>
 	internal AliasDocumentItem()
 	{
-
 	}
 
 	/// <summary>
@@ -46,7 +44,6 @@ public class AliasDocumentItem : ValueDocumentItemBase,
 	}
 
 	/// <inheritdoc />
-		
 	protected AliasDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
 		IdVariableScope = info.GetInt32(nameof(IdVariableScope));
@@ -70,21 +67,23 @@ public class AliasDocumentItem : ValueDocumentItemBase,
 	protected override void DeSerializeXmlHeaderCore(XmlReader reader)
 	{
 		base.DeSerializeXmlHeaderCore(reader);
-		
+
 		var varScope = reader.GetAttribute(nameof(IdVariableScope));
+
 		if (!int.TryParse(varScope, out var intVarScope))
 		{
 			throw new XmlException($"Error while serializing '{nameof(AliasDocumentItem)}'. " +
 				$"The value for '{nameof(IdVariableScope)}' is expected to be an integer.");
 		}
+
 		IdVariableScope = intVarScope;
 	}
-	
+
 	/// <param name="compiler"></param>
 	/// <param name="parserOptions"></param>
 	/// <inheritdoc />
 	public CompilationAsync Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
-	{			
+	{
 		return (stream, context, scopeData) =>
 		{
 			CoreAction(context, scopeData);
@@ -93,12 +92,14 @@ public class AliasDocumentItem : ValueDocumentItemBase,
 	}
 
 	/// <inheritdoc />
-	public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+	public override ItemExecutionPromise Render(IByteCounterStream outputStream,
+												ContextObject context,
+												ScopeData scopeData)
 	{
 		CoreAction(context, scopeData);
 		return Enumerable.Empty<DocumentItemExecution>().ToPromise();
 	}
-		
+
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	private void CoreAction(ContextObject context, ScopeData scopeData)
 	{

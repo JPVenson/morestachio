@@ -20,16 +20,16 @@ internal class CachedReflectionTypeFallbackResolver : IFallbackValueResolver
 
 	/// <inheritdoc />
 	public object Resolve(ContextObject source,
-						string path, 
+						string path,
 						ScopeData scopeData,
 						IMorestachioExpression morestachioExpression)
 	{
 		var sourceValue = source.InternalValue;
 		var type = sourceValue.GetType();
-			
+
 		var typeCache = _cache.GetOrAdd(type, (key) => new TypeCache(key.GetTypeInfo()));
 		var propertyInfo = typeCache._members.GetOrAdd(path, (key) => typeCache._type.GetProperty(key));
-			
+
 		if (propertyInfo != null)
 		{
 			return propertyInfo.GetValue(sourceValue);

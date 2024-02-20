@@ -34,13 +34,13 @@
 //	{
 //		return Snipped == other.Snipped && Line == other.Line && Character == other.Character;
 //	}
-		
+
 //	/// <inheritdoc />
 //	public override bool Equals(object obj)
 //	{
 //		return obj is CharacterSnippedLocation other && Equals(other);
 //	}
-		
+
 //	/// <inheritdoc />
 //	public override int GetHashCode()
 //	{
@@ -53,3 +53,4 @@
 //		}
 //	}
 //}
+

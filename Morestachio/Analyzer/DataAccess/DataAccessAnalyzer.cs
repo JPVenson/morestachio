@@ -70,6 +70,7 @@ public class UsageResult
 		lookupStack.Push(UseTree);
 
 		UsageDataItem current;
+
 		while (lookupStack.Any())
 		{
 			current = lookupStack.Pop();
@@ -77,6 +78,7 @@ public class UsageResult
 			if (current.Dependents.Count == 0)
 			{
 				var formatItem = FormatItem(current);
+
 				if (!string.IsNullOrWhiteSpace(formatItem))
 				{
 					hashMap.Add(formatItem);
@@ -88,6 +90,7 @@ public class UsageResult
 				lookupStack.Push(currentDependent);
 			}
 		}
+
 		return hashMap.ToArray();
 	}
 
@@ -126,7 +129,7 @@ internal class DataAccessExpressionVisitor : MorestachioExpressionVisitorBase
 	{
 		_usageData = usageData;
 	}
-		
+
 	public override void Visit(MorestachioExpression expression)
 	{
 		var source = _usageData.CurrentPath with { };
@@ -136,16 +139,20 @@ internal class DataAccessExpressionVisitor : MorestachioExpressionVisitorBase
 		if (pathParts.Any())
 		{
 			var index = 0;
+
 			if (_usageData.VariableSource.TryGetValue(pathParts[0].Key, out var variable))
 			{
 				var variableItem = variable.Peek();
+
 				if (variableItem is null)
 				{
 					return;
 				}
+
 				source = variableItem with { };
 				index = 1;
 			}
+
 			for (; index < pathParts.Length; index++)
 			{
 				var pathPart = pathParts[index];
@@ -159,13 +166,15 @@ internal class DataAccessExpressionVisitor : MorestachioExpressionVisitorBase
 						source = source.Parent;
 						break;
 					case PathType.DataPath:
-						source = source.AddDependent(new UsageDataItem(pathPart.Key, UsageDataItemTypes.DataPath, source));
+						source = source.AddDependent(new UsageDataItem(pathPart.Key, UsageDataItemTypes.DataPath,
+							source));
 						break;
 				}
 			}
 		}
 
 		UsageDataItem = source;
+
 		foreach (var expressionArgument in expression.Formats)
 		{
 			Visit(expressionArgument);

@@ -127,16 +127,18 @@ namespace Morestachio.Runner.MDoc
 
 		public static IDictionary<string, object> GetMorestachioFormatterDocumentation(string filter = null)
 		{
-			FormatterData EnumerateFormatters(IGrouping<Type, MorestachioFormatterModel> formatterServiceFormatter, bool includeInstanceMethods)
+			FormatterData EnumerateFormatters(IGrouping<Type, MorestachioFormatterModel> formatterServiceFormatter,
+											bool includeInstanceMethods)
 			{
 				var formatter = new FormatterData();
 				formatter.DeclaringType = formatterServiceFormatter.Key;
 
 				var methods = new List<FormatterData.FormatterMethod>();
 				formatter.Methods = methods;
+
 				foreach (var formatterMethod in formatterServiceFormatter
-					.Where(e => e.LinkFunctionTarget == includeInstanceMethods)
-					.GroupBy(e => e.Function))
+							.Where(e => e.LinkFunctionTarget == includeInstanceMethods)
+							.GroupBy(e => e.Function))
 				{
 					foreach (var morestachioFormatterModel in formatterMethod.GroupBy(e => e.IsGlobalFormatter))
 					{
@@ -144,12 +146,15 @@ namespace Morestachio.Runner.MDoc
 						methodMeta.MethodName = formatterMethod.Key.Name;
 
 						var methodFunctions = new List<FormatterData.FormatterMethod.MethodFunction>();
+
 						foreach (var fncGrouped in morestachioFormatterModel)
 						{
 							var function = new FormatterData.FormatterMethod.MethodFunction();
-							function.FormatterName = string.IsNullOrWhiteSpace(fncGrouped.Name) ? "{Null}" : fncGrouped.Name;
+							function.FormatterName
+								= string.IsNullOrWhiteSpace(fncGrouped.Name) ? "{Null}" : fncGrouped.Name;
 							var mOperator = MorestachioOperator.Operators
 								.FirstOrDefault(f => ("op_" + f.Key.ToString()) == function.FormatterName).Value;
+
 							if (mOperator != null)
 							{
 								function.FormatterName = mOperator.OperatorText;
@@ -167,6 +172,7 @@ namespace Morestachio.Runner.MDoc
 						var parameters = new List<FormatterData.FormatterMethod.MethodParameter>();
 						var metaData = morestachioFormatterModel.First();
 						methodMeta.Returns = metaData.Function.ReturnType;
+
 						foreach (var inputDescription in metaData.MetaData)
 						{
 							var paramter = new FormatterData.FormatterMethod.MethodParameter();
@@ -188,11 +194,11 @@ namespace Morestachio.Runner.MDoc
 			}
 
 			ServicePropertyType EnumerateObject(Type csType,
-				IDictionary<string, IList<MorestachioFormatterModel>> formatters,
-				ICollection<ServicePropertyType> servicePropertyTypes)
+												IDictionary<string, IList<MorestachioFormatterModel>> formatters,
+												ICollection<ServicePropertyType> servicePropertyTypes)
 			{
-
 				var any = servicePropertyTypes.FirstOrDefault(f => f.Type == csType);
+
 				if (any != null)
 				{
 					return any;
@@ -201,14 +207,15 @@ namespace Morestachio.Runner.MDoc
 				if (csType.Namespace?.StartsWith("Morestachio") is false && servicePropertyTypes.Any())
 				{
 					var genericsType = csType.GetGenericArguments();
+
 					foreach (var type1 in genericsType)
 					{
 						EnumerateObject(type1, formatters, servicePropertyTypes);
 					}
 
-					if (csType.GetInterface("IEnumerable`1") != null 
-					    && csType != typeof(string)
-					    && (csType.GetInterface("IDictionary`2") == null && csType.Name != "IDictionary`2"))
+					if (csType.GetInterface("IEnumerable`1") != null
+						&& csType != typeof(string)
+						&& (csType.GetInterface("IDictionary`2") == null && csType.Name != "IDictionary`2"))
 					{
 						return new ServicePropertyType()
 						{
@@ -230,13 +237,15 @@ namespace Morestachio.Runner.MDoc
 				type.Description = csType.GetCustomAttribute<MorestachioExtensionSetupAttribute>()?.Description;
 
 				servicePropertyTypes.Add(type);
+
 				foreach (var formatterServiceFormatter in formatters
-					.SelectMany(f => f.Value)
-					.Where(e => e.LinkFunctionTarget)
-					.Where(e => e.Function.DeclaringType == csType)
-					.GroupBy(e => e.Function.DeclaringType))
+							.SelectMany(f => f.Value)
+							.Where(e => e.LinkFunctionTarget)
+							.Where(e => e.Function.DeclaringType == csType)
+							.GroupBy(e => e.Function.DeclaringType))
 				{
 					type.Formatter = EnumerateFormatters(formatterServiceFormatter, true);
+
 					foreach (var formatterMethod in type.Formatter.Methods)
 					{
 						foreach (var formatterMethodParameter in formatterMethod.Parameters)
@@ -265,9 +274,9 @@ namespace Morestachio.Runner.MDoc
 			values["FormatterData"] = formatterTypes;
 
 			var parserOptions = ParserOptionsBuilder.New()
-													.WithLocalizationService(() => new MorestachioLocalizationService())
-													.WithFileSystem(() => new FileSystemService())
-													.Build();
+				.WithLocalizationService(() => new MorestachioLocalizationService())
+				.WithFileSystem(() => new FileSystemService())
+				.Build();
 
 			var formatterService = parserOptions.Formatters as MorestachioFormatterService;
 
@@ -278,13 +287,14 @@ namespace Morestachio.Runner.MDoc
 				DefaultFormatterService.Default.Value.Constants);
 
 			foreach (var formatterServiceFormatter in sourceFormatters
-				.SelectMany(f => f.Value)
-				.Where(e => filter == null || e.Name.Contains(filter))
-				.GroupBy(e => e.Function.DeclaringType))
+						.SelectMany(f => f.Value)
+						.Where(e => filter == null || e.Name.Contains(filter))
+						.GroupBy(e => e.Function.DeclaringType))
 			{
 				var data = EnumerateFormatters(formatterServiceFormatter, false);
 				data.Description = data.DeclaringType.GetCustomAttribute<MorestachioExtensionSetupAttribute>()
 					?.Description;
+
 				if (data.Methods.Any())
 				{
 					formatterTypes.Add(data);
@@ -293,45 +303,57 @@ namespace Morestachio.Runner.MDoc
 
 			var services = new List<ServiceData>();
 			values["ServiceData"] = services;
+
 			foreach (var service in sourceServices)
 			{
 				var serviceData = new ServiceData();
-				serviceData.ServiceName = service.Key.GetCustomAttribute<ServiceNameAttribute>()?.Name ?? service.Key.Name;
+				serviceData.ServiceName
+					= service.Key.GetCustomAttribute<ServiceNameAttribute>()?.Name ?? service.Key.Name;
+
 				if (filter != null && !serviceData.ServiceName.Contains(filter))
 				{
 					continue;
 				}
+
 				serviceData.Types = new HashSet<ServicePropertyType>();
-				serviceData.Description = service.Key.GetCustomAttribute<MorestachioExtensionSetupAttribute>()?.Description;
+				serviceData.Description
+					= service.Key.GetCustomAttribute<MorestachioExtensionSetupAttribute>()?.Description;
 				EnumerateObject(service.Key, sourceFormatters, serviceData.Types);
 				services.Add(serviceData);
 			}
 
 			var constants = new List<ServiceData>();
 			values["ConstData"] = constants;
+
 			foreach (var service in sourceConstants)
 			{
 				var serviceData = new ServiceData();
 				serviceData.ServiceName = service.Key;
+
 				if (filter != null && !serviceData.ServiceName.Contains(filter))
 				{
 					continue;
 				}
+
 				serviceData.Types = new HashSet<ServicePropertyType>();
+
 				if (service.Value is Static typeAccessor)
 				{
-					serviceData.Description = typeAccessor.Type.GetCustomAttribute<MorestachioExtensionSetupAttribute>()?.Description;
+					serviceData.Description = typeAccessor.Type.GetCustomAttribute<MorestachioExtensionSetupAttribute>()
+						?.Description;
 					EnumerateObject(typeAccessor.Type, sourceFormatters, serviceData.Types);
 				}
 				else if (service.Value is Type staticType)
 				{
-					serviceData.Description = staticType.GetCustomAttribute<MorestachioExtensionSetupAttribute>()?.Description;
+					serviceData.Description
+						= staticType.GetCustomAttribute<MorestachioExtensionSetupAttribute>()?.Description;
 					EnumerateObject(staticType, sourceFormatters, serviceData.Types);
 				}
 				else
 				{
 					var csType = service.Value.GetType();
-					serviceData.Description = csType.GetCustomAttribute<MorestachioExtensionSetupAttribute>()?.Description;
+					serviceData.Description
+						= csType.GetCustomAttribute<MorestachioExtensionSetupAttribute>()?.Description;
 					EnumerateObject(csType, sourceFormatters, serviceData.Types);
 				}
 

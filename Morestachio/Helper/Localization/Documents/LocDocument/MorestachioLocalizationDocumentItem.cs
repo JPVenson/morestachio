@@ -22,19 +22,19 @@ namespace Morestachio.Helper.Localization.Documents.LocDocument;
 /// </summary>
 [System.Serializable]
 public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
-													ToParsableStringDocumentVisitor.IStringVisitor, IEquatable<MorestachioLocalizationDocumentItem>
+													ToParsableStringDocumentVisitor.IStringVisitor,
+													IEquatable<MorestachioLocalizationDocumentItem>
 {
-
 	internal MorestachioLocalizationDocumentItem()
 	{
-
 	}
 
 	/// <inheritdoc />
 	public MorestachioLocalizationDocumentItem(TextRange location,
 												IMorestachioExpression value,
 												IMorestachioExpression explicitCulture,
-												IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
+												IEnumerable<ITokenOption> tagCreationOptions) : base(location,
+		tagCreationOptions)
 	{
 		ExplicitCulture = explicitCulture;
 		MorestachioExpression = value;
@@ -49,7 +49,7 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 	/// <summary>
 	///		If set gets the explicitly declared culture for this translation
 	/// </summary>
-		
+
 	public IMorestachioExpression ExplicitCulture { get; private set; }
 
 	/// <summary>
@@ -65,6 +65,7 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 		var service =
 			scopeData.ParserOptions.Formatters.Services.GetService(typeof(IMorestachioLocalizationService)) as
 				IMorestachioLocalizationService;
+
 		if (service == null)
 		{
 			outputStream.Write("IMorestachioLocalizationService not registered");
@@ -76,7 +77,9 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 		return Enumerable.Empty<DocumentItemExecution>();
 	}
 
-	private async ObjectPromise GetTranslation(ContextObject context, ScopeData scopeData, IMorestachioLocalizationService service)
+	private async ObjectPromise GetTranslation(ContextObject context,
+												ScopeData scopeData,
+												IMorestachioLocalizationService service)
 	{
 		var valueContext = await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false);
 		var culture = scopeData.ParserOptions.CultureInfo;
@@ -84,6 +87,7 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 		if (ExplicitCulture != null)
 		{
 			var cultureValue = (await ExplicitCulture.GetValue(context, scopeData).ConfigureAwait(false)).Value;
+
 			if (cultureValue is CultureInfo cul)
 			{
 				culture = cul;
@@ -95,13 +99,14 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 		}
 		else
 		{
-			if (scopeData.CustomData.TryGetValue(MorestachioCustomCultureLocalizationDocumentItem.LocalizationCultureKey,
+			if (scopeData.CustomData.TryGetValue(
+					MorestachioCustomCultureLocalizationDocumentItem.LocalizationCultureKey,
 					out var customCulture) && customCulture is CultureInfo culInfo)
 			{
 				culture = culInfo;
-			}	
+			}
 		}
-			
+
 		var args = Children
 			.OfType<MorestachioLocalizationParameterDocumentItem>()
 			.Cast<BlockExpressionDocumentItemBase>()
@@ -111,10 +116,12 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 			.Concat(Children
 				.OfType<MorestachioLocalizationDocumentItem>()
 				.Select(f =>
-					new Func<ObjectPromise>(async () => await f.GetTranslation(context, scopeData, service).ConfigureAwait(false))))
+					new Func<ObjectPromise>(async () =>
+						await f.GetTranslation(context, scopeData, service).ConfigureAwait(false))))
 			.ToArray();
 
 		var arguments = new object[args.Length];
+
 		for (var index = 0; index < args.Length; index++)
 		{
 			var parameters = args[index];
@@ -134,6 +141,7 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 	public void Render(ToParsableStringDocumentVisitor visitor)
 	{
 		visitor.StringBuilder.Append("{{");
+
 		if (Children.Any())
 		{
 			visitor.StringBuilder.Append(MorestachioLocalizationBlockProvider.OpenTag);
@@ -142,13 +150,15 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 		{
 			visitor.StringBuilder.Append(MorestachioLocalizationTagProvider.OpenTag);
 		}
-			
+
 		visitor.StringBuilder.Append(MorestachioExpression.AsStringExpression());
+
 		if (ExplicitCulture != null)
 		{
 			visitor.StringBuilder.Append(" #CULTURE ");
 			visitor.StringBuilder.Append(ExplicitCulture.AsStringExpression());
 		}
+
 		visitor.StringBuilder.Append("}}");
 
 		if (!Children.Any())
@@ -174,6 +184,7 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 		{
 			return;
 		}
+
 		writer.WriteStartElement("ExplicitCulture");
 		writer.WriteExpressionToXml(ExplicitCulture);
 		writer.WriteEndElement();
@@ -188,10 +199,12 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 		{
 			reader.ReadStartElement(); //Path
 		}
+
 		var subTree = reader.ReadSubtree();
 		subTree.ReadStartElement();
 		MorestachioExpression = subTree.ParseExpressionFromKind();
 		reader.Skip();
+
 		//reader.ReadEndElement();//Path
 		if (reader.Name == nameof(ExplicitCulture))
 		{
@@ -203,14 +216,14 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 			reader.ReadEndElement(); //nameof(ExplicitCulture)
 		}
 	}
-		
+
 	/// <inheritdoc />
 	protected override void SerializeBinaryCore(SerializationInfo info, StreamingContext context)
 	{
 		info.AddValue(nameof(ExplicitCulture), ExplicitCulture);
 		base.SerializeBinaryCore(info, context);
 	}
-		
+
 	/// <inheritdoc />
 	public bool Equals(MorestachioLocalizationDocumentItem other)
 	{
@@ -226,7 +239,7 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 
 		return base.Equals(other) && Equals(ExplicitCulture, other.ExplicitCulture);
 	}
-		
+
 	/// <inheritdoc />
 	public override bool Equals(object obj)
 	{
@@ -245,9 +258,9 @@ public class MorestachioLocalizationDocumentItem : BlockDocumentItemBase,
 			return false;
 		}
 
-		return Equals((MorestachioLocalizationDocumentItem) obj);
+		return Equals((MorestachioLocalizationDocumentItem)obj);
 	}
-		
+
 	/// <inheritdoc />
 	public override int GetHashCode()
 	{

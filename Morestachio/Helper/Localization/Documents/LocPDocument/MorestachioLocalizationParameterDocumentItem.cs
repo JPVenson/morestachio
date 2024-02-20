@@ -20,12 +20,12 @@ public class MorestachioLocalizationParameterDocumentItem : BlockExpressionDocum
 {
 	internal MorestachioLocalizationParameterDocumentItem()
 	{
-
 	}
 
 	/// <inheritdoc />
-	public MorestachioLocalizationParameterDocumentItem(TextRange location, IMorestachioExpression value,
-														IEnumerable<ITokenOption> tagCreationOptions) 
+	public MorestachioLocalizationParameterDocumentItem(TextRange location,
+														IMorestachioExpression value,
+														IEnumerable<ITokenOption> tagCreationOptions)
 		: base(location, value, tagCreationOptions)
 	{
 	}
@@ -53,6 +53,7 @@ public class MorestachioLocalizationParameterDocumentItem : BlockExpressionDocum
 	/// <inheritdoc />
 	public void Render(ToParsableStringDocumentVisitor visitor)
 	{
-		visitor.StringBuilder.Append("{{" + MorestachioLocalizationParamTagProvider.OpenTag + MorestachioExpression.AsStringExpression() + "}}");
+		visitor.StringBuilder.Append("{{" + MorestachioLocalizationParamTagProvider.OpenTag +
+			MorestachioExpression.AsStringExpression() + "}}");
 	}
 }

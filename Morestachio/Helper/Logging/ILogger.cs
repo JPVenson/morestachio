@@ -18,7 +18,10 @@ public interface ILogger
 	/// </summary>
 	[MorestachioFormatter("Log", "Logs an specific event")]
 	[Obsolete("The data argument is obsolete and should be embedded into the message by the caller.")]
-	void Log(string logLevel, string eventId, string message, IDictionary<string, object> data);
+	void Log(string logLevel,
+			string eventId,
+			string message,
+			IDictionary<string, object> data);
 
 	/// <summary>
 	///		Logs an Specific event

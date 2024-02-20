@@ -20,7 +20,7 @@ public class ExpressionTokens
 		SourceExpression = sourceExpression;
 		_buffer = new IExpressionToken[_growSize];
 	}
-		
+
 	private int _head;
 	private int _size;
 	private const int _growSize = 25;
@@ -65,20 +65,17 @@ public class ExpressionTokens
 	{
 		return _buffer[_head];
 	}
-		
+
 	internal int Count
 	{
-		get
-		{
-			return _size - _head;
-		}
+		get { return _size - _head; }
 	}
 
 	/// <summary>
 	///		Contains the original expression in its string form
 	/// </summary>
 	public string SourceExpression { get; }
-		
+
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	internal void Loop(
 		Func<IExpressionToken, bool> condition,
@@ -89,7 +86,7 @@ public class ExpressionTokens
 			action(Dequeue());
 		}
 	}
-		
+
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	internal void PeekLoop(
 		Func<IExpressionToken, bool> condition,
@@ -97,6 +94,7 @@ public class ExpressionTokens
 	{
 		IExpressionToken peek;
 		IExpressionToken oldPeek = default;
+
 		while (Count > 0
 				&& condition(peek = Peek()))
 		{
@@ -104,11 +102,12 @@ public class ExpressionTokens
 			{
 				throw new Exception();
 			}
+
 			action(peek);
 			oldPeek = peek;
 		}
 	}
-		
+
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	internal void Loop(
 		Func<IExpressionToken, bool> condition,
@@ -122,7 +121,7 @@ public class ExpressionTokens
 			}
 		}
 	}
-		
+
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	internal void PeekLoop(
 		Func<IExpressionToken, bool> condition,
@@ -130,6 +129,7 @@ public class ExpressionTokens
 	{
 		IExpressionToken peek;
 		IExpressionToken oldPeek = default;
+
 		while (Count > 0
 				&& condition(peek = Peek()))
 		{
@@ -142,6 +142,7 @@ public class ExpressionTokens
 			{
 				break;
 			}
+
 			oldPeek = peek;
 		}
 	}

@@ -12,7 +12,7 @@ namespace Morestachio.Tests.SerilalizerTests;
 #endif
 [TestFixture(typeof(DocumentSerializerBinaryStrategy))]
 public class ErrorSerializerTest
-{	
+{
 	public ErrorSerializerTest(Type strategy)
 	{
 		DocumentSerializerStrategy = Activator.CreateInstance(strategy) as IDocumentSerializerStrategy;

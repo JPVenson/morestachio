@@ -15,29 +15,30 @@ public static class SerializationHelper
 	static SerializationHelper()
 	{
 		DocumentItems = typeof(DocumentExtensions)
-						.Assembly
-						.GetTypes()
-						.Where(e => e.IsClass && !e.IsAbstract)
-						.Where(e => typeof(IDocumentItem).IsAssignableFrom(e))
-						.Where(e => e.GetCustomAttribute<SerializableAttribute>(false) != null)
-						.ToDictionary(e => e, type =>
-						{
-							var ctor = type.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance,
-								null, Type.EmptyTypes, null);
+			.Assembly
+			.GetTypes()
+			.Where(e => e.IsClass && !e.IsAbstract)
+			.Where(e => typeof(IDocumentItem).IsAssignableFrom(e))
+			.Where(e => e.GetCustomAttribute<SerializableAttribute>(false) != null)
+			.ToDictionary(e => e, type =>
+			{
+				var ctor = type.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance,
+					null, Type.EmptyTypes, null);
 
-							if (ctor == null)
-							{
-								ctor = type.GetConstructor(BindingFlags.Public | BindingFlags.Instance,
-									null, Type.EmptyTypes, null);
-							}
+				if (ctor == null)
+				{
+					ctor = type.GetConstructor(BindingFlags.Public | BindingFlags.Instance,
+						null, Type.EmptyTypes, null);
+				}
 
-							if (ctor == null)
-							{
-								throw new InvalidOperationException("There is no ether public or private constructor that has no parameter for " + type.Name);
-							}
+				if (ctor == null)
+				{
+					throw new InvalidOperationException(
+						"There is no ether public or private constructor that has no parameter for " + type.Name);
+				}
 
-							return new Func<IDocumentItem>(() => ctor.Invoke(null) as IDocumentItem);
-						});
+				return new Func<IDocumentItem>(() => ctor.Invoke(null) as IDocumentItem);
+			});
 	}
 
 	internal static IDictionary<Type, Func<IDocumentItem>> DocumentItems { get; private set; }
@@ -70,10 +71,10 @@ public static class SerializationHelper
 		if (docItem.Key == null)
 		{
 			var type = AppDomain.CurrentDomain
-								.GetAssemblies()
-								.SelectMany(f => f.GetTypes().Where(e => e.IsAssignableFrom(typeof(IDocumentItem))))
-								.Where(e => e.IsClass)
-								.FirstOrDefault(e => TestTypeName(e, name));
+				.GetAssemblies()
+				.SelectMany(f => f.GetTypes().Where(e => e.IsAssignableFrom(typeof(IDocumentItem))))
+				.Where(e => e.IsClass)
+				.FirstOrDefault(e => TestTypeName(e, name));
 
 			if (type != null)
 			{
@@ -88,10 +89,12 @@ public static class SerializationHelper
 
 				if (ctor == null)
 				{
-					throw new InvalidOperationException("There is no ether public or private constructor that has no parameter");
+					throw new InvalidOperationException(
+						"There is no ether public or private constructor that has no parameter");
 				}
 
-				docItem = new KeyValuePair<Type, Func<IDocumentItem>>(type, DocumentItems[type] = () => ctor.Invoke(null) as IDocumentItem);
+				docItem = new KeyValuePair<Type, Func<IDocumentItem>>(type,
+					DocumentItems[type] = () => ctor.Invoke(null) as IDocumentItem);
 			}
 			else
 			{
@@ -132,7 +135,8 @@ public static class DocumentExtensions
 	/// <summary>
 	///		Wraps the Document items with an scope they should be executed with
 	/// </summary>
-	public static IEnumerable<DocumentItemExecution> WithScope(this IEnumerable<IDocumentItem> items, ContextObject contextObject)
+	public static IEnumerable<DocumentItemExecution> WithScope(this IEnumerable<IDocumentItem> items,
+																ContextObject contextObject)
 	{
 		return items.Select(e => new DocumentItemExecution(e, contextObject));
 	}

@@ -42,27 +42,30 @@ namespace Morestachio.Newtonsoft.Json
 			return ResolveJObject(value, path, context, scopeData);
 		}
 
-		public static object ResolveJObject(object value, string path, ContextObject contextObject,
+		public static object ResolveJObject(object value,
+											string path,
+											ContextObject contextObject,
 											ScopeData scopeData)
 		{
 			switch (value)
 			{
 				case JObject jValue:
-					{
-						var val = jValue.Value<object>(path);
-						if (val is JToken jToken)
-						{
-							return EvalJToken(jToken);
-						}
+				{
+					var val = jValue.Value<object>(path);
 
-						return val;
+					if (val is JToken jToken)
+					{
+						return EvalJToken(jToken);
 					}
+
+					return val;
+				}
 				case JValue jVal:
 					return jVal.Value;
 				case JArray jArr:
 					return EvalJToken(jArr);
 				default:
-					scopeData.ParserOptions.Logger?.LogWarn(nameof(JsonNetValueResolver), 
+					scopeData.ParserOptions.Logger?.LogWarn(nameof(JsonNetValueResolver),
 						$"Could not resolve Json object path from type: {(value?.GetType().ToString() ?? "null")}");
 					return value;
 			}
@@ -82,6 +85,7 @@ namespace Morestachio.Newtonsoft.Json
 		public static IDictionary<string, object> EvalJObject(JObject obj)
 		{
 			var dict = (IDictionary<string, object>)new ExpandoObject();
+
 			foreach (var property in obj.Properties())
 			{
 				dict[property.Name] = EvalJToken(property.Value);
@@ -93,6 +97,7 @@ namespace Morestachio.Newtonsoft.Json
 		private static IEnumerable<object> EvalJArray(JArray jArr)
 		{
 			var arrElements = new List<object>();
+
 			foreach (var jToken in jArr)
 			{
 				arrElements.Add(EvalJToken(jToken));
@@ -114,6 +119,7 @@ namespace Morestachio.Newtonsoft.Json
 		}
 
 		public bool IsSealed { get; private set; }
+
 		public void Seal()
 		{
 			IsSealed = true;

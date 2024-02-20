@@ -52,21 +52,24 @@ public static class PathFormatter
 	}
 
 	/// <summary>Returns the file name of the specified path string without the extension.</summary>
-	[MorestachioFormatter("GetFileNameWithoutExtension", "Returns the file name of the specified path string without the extension.")]
+	[MorestachioFormatter("GetFileNameWithoutExtension",
+		"Returns the file name of the specified path string without the extension.")]
 	public static string GetFileNameWithoutExtension(string path)
 	{
 		return Path.GetFileNameWithoutExtension(path);
 	}
 
 	/// <summary>Gets an array containing the characters that are not allowed in file names.</summary>
-	[MorestachioFormatter("GetInvalidFileNameChars", "Gets an array containing the characters that are not allowed in file names.")]
+	[MorestachioFormatter("GetInvalidFileNameChars",
+		"Gets an array containing the characters that are not allowed in file names.")]
 	public static char[] GetInvalidFileNameChars()
 	{
 		return Path.GetInvalidFileNameChars();
 	}
 
 	/// <summary>Gets an array containing the characters that are not allowed in path names</summary>
-	[MorestachioFormatter("GetInvalidPathChars", "Gets an array containing the characters that are not allowed in path names")]
+	[MorestachioFormatter("GetInvalidPathChars",
+		"Gets an array containing the characters that are not allowed in path names")]
 	public static char[] GetInvalidPathChars()
 	{
 		return Path.GetInvalidPathChars();

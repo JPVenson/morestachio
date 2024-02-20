@@ -4,7 +4,6 @@ namespace Morestachio.Formatter.Framework;
 
 public interface IPrepareFormatterComposingResult
 {
-
 	/// <summary>
 	///     The list of arguments for the <see cref="MethodInfo" />
 	/// </summary>

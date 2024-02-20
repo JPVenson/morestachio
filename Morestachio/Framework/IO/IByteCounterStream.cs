@@ -31,6 +31,7 @@ public interface IByteCounterStream : IDisposable
 	/// </summary>
 	/// <param name="content"></param>
 	void Write(in ReadOnlyMemory<char> content);
+
 	/// <summary>
 	///		Writes the Content into the underlying Stream when the limit is not exceeded
 	/// </summary>

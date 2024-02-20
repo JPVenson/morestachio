@@ -25,21 +25,24 @@ public class SerializerTest
 
 	public IDocumentSerializerStrategy DocumentSerializerStrategy { get; private set; }
 
-	public static void AssertDocumentItemIsSameAsTemplate(ITemplateContainer textContainer, 
-														IDocumentItem documentItem, 
+	public static void AssertDocumentItemIsSameAsTemplate(ITemplateContainer textContainer,
+														IDocumentItem documentItem,
 														ParserOptions options)
 	{
 		var text = ((textContainer as StringTemplateContainer).Template as StringTemplateResource).ToString();
 		AssertDocumentItemIsSameAsTemplate(text, documentItem, options);
 	}
 
-	public static void AssertDocumentItemIsSameAsTemplate(string text, IDocumentItem documentItem, ParserOptions options)
+	public static void AssertDocumentItemIsSameAsTemplate(string text,
+														IDocumentItem documentItem,
+														ParserOptions options)
 	{
 		var visitor = new ToParsableStringDocumentVisitor(options);
 		visitor.Visit(documentItem as MorestachioDocument);
 
 		var format = visitor.StringBuilder.ToString();
 		Assert.That(text, Is.EqualTo(format).IgnoreCase);
+
 		if (!format.Equals(text))
 		{
 			if (!format.Equals(text, StringComparison.OrdinalIgnoreCase))
@@ -276,25 +279,21 @@ public class SerializerTest
 			"{{#LocCulture 'de-AT'}}" +
 			"{{#loc 'Texts.Welcome'}} " +
 			"{{/LocCulture}}" +
-
 			"{{#loc 'Texts.Welcome'}} " +
-
 			"{{#LocCulture 'de-DE'}}" +
 			"{{#loc 'Texts.Welcome'}} " +
-
 			"{{#LocCulture 'de-AT'}}" +
 			"{{#loc 'Texts.Welcome'}} " +
 			"{{/LocCulture}}" +
-
 			"{{#loc 'Texts.Welcome'}}" +
 			"{{/LocCulture}}" +
 			"{{#LOCP 'test'}}" +
 			"{{#LOCPARAM 'ParamA'}}" +
 			"{{/LOCP}}";
 		var options = ParserFixture.TestBuilder()
-									.WithTemplate(template)
-									.WithLocalizationService(() => new MorestachioLocalizationService())
-									.Build();
+			.WithTemplate(template)
+			.WithLocalizationService(() => new MorestachioLocalizationService())
+			.Build();
 
 		var morestachioDocumentInfo = Parser.ParseWithOptions(options);
 		Assert.That(morestachioDocumentInfo.Errors, Is.Empty);

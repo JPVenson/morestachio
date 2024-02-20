@@ -21,32 +21,35 @@ public class RenderPartialDoneDocumentItem : ValueDocumentItemBase, ISupportCust
 	/// </summary>
 	internal RenderPartialDoneDocumentItem()
 	{
-
 	}
 
 	/// <inheritdoc />
-	public RenderPartialDoneDocumentItem(TextRange location,  string partialName,
-										IEnumerable<ITokenOption> tagCreationOptions) : base(location, partialName,tagCreationOptions)
+	public RenderPartialDoneDocumentItem(TextRange location,
+										string partialName,
+										IEnumerable<ITokenOption> tagCreationOptions) : base(location, partialName,
+		tagCreationOptions)
 	{
 	}
-		
+
 	/// <inheritdoc />
-		
 	protected RenderPartialDoneDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
 	}
-		
+
 	/// <inheritdoc />
-	public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+	public override ItemExecutionPromise Render(IByteCounterStream outputStream,
+												ContextObject context,
+												ScopeData scopeData)
 	{
 		CoreAction(scopeData);
 		return Enumerable.Empty<DocumentItemExecution>().ToPromise();
 	}
-		
+
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	private static void CoreAction(ScopeData scopeData)
 	{
 		scopeData.PartialDepth.Pop();
+
 		if (!scopeData.PartialDepth.Any())
 		{
 			scopeData.RemoveVariable("$name", 0);

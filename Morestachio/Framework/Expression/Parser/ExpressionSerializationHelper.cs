@@ -46,9 +46,10 @@ public static class ExpressionSerializationHelper
 
 		if (ctor == null)
 		{
-			throw new InvalidOperationException("There is no ether public or private constructor that has no parameter for " + type.Name);
+			throw new InvalidOperationException(
+				"There is no ether public or private constructor that has no parameter for " + type.Name);
 		}
-		
+
 		exp = ctor.Invoke(null) as IMorestachioExpression;
 		exp.ReadXml(reader);
 

@@ -15,7 +15,6 @@ public class ToParsableStringExpressionVisitor : IMorestachioExpressionVisitor
 	/// </summary>
 	public ToParsableStringExpressionVisitor() : this(new StringBuilder())
 	{
-		
 	}
 
 	/// <summary>
@@ -41,9 +40,11 @@ public class ToParsableStringExpressionVisitor : IMorestachioExpressionVisitor
 	{
 		var isSelfAssignment = false;
 		var expressionPathParts = expression.PathParts.ToArray();
+
 		for (var index = 0; index < expressionPathParts.Length; index++)
 		{
 			var expressionPathPart = expressionPathParts[index];
+
 			switch (expressionPathPart.Value)
 			{
 				case PathType.DataPath:
@@ -55,6 +56,7 @@ public class ToParsableStringExpressionVisitor : IMorestachioExpressionVisitor
 					{
 						StringBuilder.Append(".");
 					}
+
 					break;
 				case PathType.Null:
 					StringBuilder.Append("null");
@@ -71,10 +73,12 @@ public class ToParsableStringExpressionVisitor : IMorestachioExpressionVisitor
 					break;
 				case PathType.ThisPath:
 					StringBuilder.Append("this");
+
 					if (index != expressionPathParts.Length - 1)
 					{
 						StringBuilder.Append(".");
 					}
+
 					break;
 				case PathType.ObjectSelector:
 					StringBuilder.Append("?");
@@ -83,12 +87,14 @@ public class ToParsableStringExpressionVisitor : IMorestachioExpressionVisitor
 					throw new ArgumentOutOfRangeException();
 			}
 		}
+
 		if (expression.FormatterName != null)
 		{
 			if (!isSelfAssignment && expressionPathParts.Length != 0)
 			{
 				StringBuilder.Append(".");
 			}
+
 			StringBuilder.Append(expression.FormatterName);
 			StringBuilder.Append("(");
 
@@ -98,12 +104,14 @@ public class ToParsableStringExpressionVisitor : IMorestachioExpressionVisitor
 				{
 					var expressionArgument = expression.Formats[index];
 					Visit(expressionArgument);
+
 					if (index != expression.Formats.Count - 1)
 					{
 						StringBuilder.Append(", ");
 					}
 				}
 			}
+
 			StringBuilder.Append(")");
 		}
 
@@ -122,7 +130,7 @@ public class ToParsableStringExpressionVisitor : IMorestachioExpressionVisitor
 			this.Visit(expressionExpression);
 		}
 	}
-		
+
 	/// <inheritdoc />
 	public void Visit(MorestachioBracketExpression expression)
 	{
@@ -137,11 +145,13 @@ public class ToParsableStringExpressionVisitor : IMorestachioExpressionVisitor
 		for (var index = 0; index < expression.Expressions.Count; index++)
 		{
 			var expressionExpression = expression.Expressions[index];
+
 			if (index > 0)
 			{
 				if (expressionExpression is MorestachioExpression exp)
 				{
 					var c = exp.PathParts.Current.Value;
+
 					if (c != PathType.SelfAssignment)
 					{
 						StringBuilder.Append(".");
@@ -174,11 +184,14 @@ public class ToParsableStringExpressionVisitor : IMorestachioExpressionVisitor
 	public void Visit(MorestachioExpressionString expression)
 	{
 		StringBuilder.Append(expression.Delimiter);
+
 		foreach (var expressionStringConstPart in expression.StringParts)
 		{
-			var str = expressionStringConstPart.PartText.Replace(expression.Delimiter.ToString(), "\\" + expression.Delimiter);
+			var str = expressionStringConstPart.PartText.Replace(expression.Delimiter.ToString(),
+				"\\" + expression.Delimiter);
 			StringBuilder.Append(str);
 		}
+
 		StringBuilder.Append(expression.Delimiter);
 	}
 
@@ -209,6 +222,7 @@ public class ToParsableStringExpressionVisitor : IMorestachioExpressionVisitor
 			this.Visit(expression.LeftExpression);
 			StringBuilder.Append(" ");
 			StringBuilder.Append(expression.Operator.OperatorText);
+
 			if (expression.RightExpression != null)
 			{
 				StringBuilder.Append(" ");
@@ -235,6 +249,7 @@ public class ToParsableStringExpressionVisitor : IMorestachioExpressionVisitor
 	public void Visit(MorestachioLambdaExpression expression)
 	{
 		StringBuilder.Append("(");
+
 		if (expression.Parameters is MorestachioExpression exp)
 		{
 			this.Visit(exp);
@@ -245,12 +260,14 @@ public class ToParsableStringExpressionVisitor : IMorestachioExpressionVisitor
 			{
 				var arg = argList.Expressions[index];
 				this.Visit(arg);
+
 				if (index + 1 < argList.Expressions.Count)
 				{
 					StringBuilder.Append(", ");
 				}
 			}
 		}
+
 		StringBuilder.Append(") => ");
 		this.Visit(expression.Expression);
 	}

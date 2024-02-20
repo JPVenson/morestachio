@@ -112,7 +112,8 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task CanInferMultipleExpressionEachInScopeAliasUsage()
 		{
-			var template = @"{{#FOREACH item IN data}}{{#SCOPE item.VAL}}{{item.propertyA}}{{item.propertyB}}{{/SCOPE}}{{/FOREACH}}";
+			var template
+				= @"{{#FOREACH item IN data}}{{#SCOPE item.VAL}}{{item.propertyA}}{{item.propertyB}}{{/SCOPE}}{{/FOREACH}}";
 			var morestachioDocumentInfo = await ParserFixture.CreateWithOptionsStream(template, _options);
 			var dataAccessAnalyzer = new DataAccessAnalyzer(morestachioDocumentInfo.Document);
 			var usage = dataAccessAnalyzer.GetUsageFromDeclared()?.AsText();

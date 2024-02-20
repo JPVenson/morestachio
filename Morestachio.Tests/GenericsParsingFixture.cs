@@ -38,7 +38,7 @@ namespace Morestachio.Tests
 				methodName,
 				parserOptions,
 				new ScopeData(parserOptions));
-			
+
 			morestachioFormatterService.Execute(cache, this, parserOptions, types);
 			Assert.That(Result, Is.EqualTo(expected));
 			Result = null;
@@ -150,7 +150,8 @@ namespace Morestachio.Tests
 				e => result = e);
 
 			Assert.That(result.CapturedVariables, Contains.Key("result"));
-			Assert.That(result.CapturedVariables["result"], Is.AssignableTo(typeof(IEnumerable<IGrouping<object, Item>>)));
+			Assert.That(result.CapturedVariables["result"],
+				Is.AssignableTo(typeof(IEnumerable<IGrouping<object, Item>>)));
 			var varResult = result.CapturedVariables["result"] as IEnumerable<IGrouping<object, Item>>;
 			Assert.That(varResult.Count(), Is.EqualTo(2));
 		}

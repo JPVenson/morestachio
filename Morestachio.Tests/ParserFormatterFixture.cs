@@ -33,10 +33,11 @@ namespace Morestachio.Tests
 				}
 			}).Stream.Stringify(true, ParserFixture.DefaultEncoding);
 			Assert.That(report,
-				Is.EqualTo(collection.OrderBy(e => e).Select(e => e.ToString()).Aggregate((e, f) => e + "," + f) + ","));
+				Is.EqualTo(collection.OrderBy(e => e).Select(e => e.ToString()).Aggregate((e, f) => e + "," + f) +
+					","));
 			Console.WriteLine(report);
 		}
-		
+
 #if NET7
 		public object ToValStr(object source, ReadOnlyMemory<char> var)
 		{

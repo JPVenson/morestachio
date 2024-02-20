@@ -9,8 +9,11 @@ namespace Morestachio.Formatter.Predefined;
 public static class HtmlFormatter
 #pragma warning restore 1591
 {
-	private const string RegexMatchHtml = @"<script.*?</script>|<!--.*?-->|<style.*?</style>|<(?:[^>=]|='[^']*'|=""[^""]*""|=[^'""][^\s>]*)*>";
-	private static readonly Regex HtmlTagRegEx = new Regex(RegexMatchHtml, RegexOptions.IgnoreCase | RegexOptions.Singleline);
+	private const string RegexMatchHtml
+		= @"<script.*?</script>|<!--.*?-->|<style.*?</style>|<(?:[^>=]|='[^']*'|=""[^""]*""|=[^'""][^\s>]*)*>";
+
+	private static readonly Regex HtmlTagRegEx
+		= new Regex(RegexMatchHtml, RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
 	/// <summary>
 	///		Removes any HTML tags from the input string
@@ -40,21 +43,26 @@ public static class HtmlFormatter
 		{
 			return text;
 		}
+
 		return WebUtility.HtmlEncode(text);
 	}
+
 	/// <summary>
 	///		Converts a string that has been HTML-encoded for HTTP transmission into a decoded string.
 	/// </summary>
 	/// <param name="text"></param>
 	/// <returns></returns>
-	[MorestachioFormatter("HtmlDecode", "Converts a string that has been HTML-encoded for HTTP transmission into a decoded string.")]
-	[MorestachioGlobalFormatter("HtmlDecode", "Converts a string that has been HTML-encoded for HTTP transmission into a decoded string.")]
+	[MorestachioFormatter("HtmlDecode",
+		"Converts a string that has been HTML-encoded for HTTP transmission into a decoded string.")]
+	[MorestachioGlobalFormatter("HtmlDecode",
+		"Converts a string that has been HTML-encoded for HTTP transmission into a decoded string.")]
 	public static string HtmlDecode(string text)
 	{
 		if (string.IsNullOrEmpty(text))
 		{
 			return text;
 		}
+
 		return WebUtility.HtmlDecode(text);
 	}
 
@@ -71,6 +79,7 @@ public static class HtmlFormatter
 		{
 			return text;
 		}
+
 		return Uri.EscapeDataString(text);
 	}
 
@@ -87,6 +96,7 @@ public static class HtmlFormatter
 		{
 			return text;
 		}
+
 		return Uri.EscapeDataString(text);
 	}
 }

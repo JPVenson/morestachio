@@ -19,6 +19,7 @@ public class InputDescription
 		OutputType = outputType;
 		Example = example;
 	}
+
 	/// <summary>
 	/// Gets the description.
 	/// </summary>
@@ -26,6 +27,7 @@ public class InputDescription
 	/// The description.
 	/// </value>
 	public string Description { get; private set; }
+
 	/// <summary>
 	/// Gets the example.
 	/// </summary>
@@ -33,6 +35,7 @@ public class InputDescription
 	/// The example.
 	/// </value>
 	public string Example { get; private set; }
+
 	/// <summary>
 	/// Gets the type of the output if its not the same as the function returns.
 	/// </summary>

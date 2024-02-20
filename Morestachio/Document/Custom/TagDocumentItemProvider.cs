@@ -36,7 +36,6 @@ public class TagDocumentItemProvider : TagDocumentItemProviderBase
 		/// <inheritdoc />
 		public TagDocumentItem()
 		{
-
 		}
 
 		/// <inheritdoc />
@@ -44,7 +43,8 @@ public class TagDocumentItemProvider : TagDocumentItemProviderBase
 								TagDocumentProviderFunction action,
 								string tagKeyword,
 								string value,
-								IEnumerable<ITokenOption> tagCreationOptions) : base(location, value, tagCreationOptions)
+								IEnumerable<ITokenOption> tagCreationOptions) : base(location, value,
+			tagCreationOptions)
 		{
 			_action = action;
 			TagKeyword = tagKeyword;
@@ -56,7 +56,9 @@ public class TagDocumentItemProvider : TagDocumentItemProviderBase
 		public string TagKeyword { get; private set; }
 
 		/// <inheritdoc />
-		public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+		public override async ItemExecutionPromise Render(IByteCounterStream outputStream,
+														ContextObject context,
+														ScopeData scopeData)
 		{
 			await _action(outputStream, context, scopeData, Value, TagKeyword).ConfigureAwait(false);
 			return Array.Empty<DocumentItemExecution>();
@@ -74,19 +76,24 @@ public class TagDocumentItemProvider : TagDocumentItemProviderBase
 			visitor.StringBuilder.Append("{{");
 			visitor.CheckForInlineTagLineBreakAtStart(this);
 			visitor.StringBuilder.Append(TagKeyword);
+
 			if (!string.IsNullOrWhiteSpace(Value))
 			{
 				visitor.StringBuilder.Append(" ");
 				visitor.StringBuilder.Append(Value);
 			}
+
 			visitor.CheckForInlineTagLineBreakAtEnd(this);
 			visitor.StringBuilder.Append("}}");
 		}
 	}
 
 	/// <inheritdoc />
-	public override IDocumentItem CreateDocumentItem(string tagKeyword, string value, TokenPair token,
-													ParserOptions options, IEnumerable<ITokenOption> tagCreationOptions)
+	public override IDocumentItem CreateDocumentItem(string tagKeyword,
+													string value,
+													TokenPair token,
+													ParserOptions options,
+													IEnumerable<ITokenOption> tagCreationOptions)
 	{
 		return new TagDocumentItem(token.TokenRange, _action, tagKeyword, value, tagCreationOptions);
 	}

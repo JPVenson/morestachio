@@ -23,8 +23,8 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 	/// </summary>
 	public MorestachioOperatorExpression()
 	{
-
 	}
+
 	/// <summary>
 	///		The Operator that will be called
 	/// </summary>
@@ -62,7 +62,9 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 	/// </summary>
 	/// <param name="operator"></param>
 	/// <param name="location"></param>
-	public MorestachioOperatorExpression(MorestachioOperator @operator, IMorestachioExpression leftExpression, TextRange location)
+	public MorestachioOperatorExpression(MorestachioOperator @operator,
+										IMorestachioExpression leftExpression,
+										TextRange location)
 	{
 		Operator = @operator;
 		Location = location;
@@ -93,6 +95,7 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 		reader.ReadStartElement();
 		var leftSubTree = reader.ReadSubtree();
 		LeftExpression = leftSubTree.ParseExpressionFromKind();
+
 		if (reader.Name == nameof(RightExpression))
 		{
 			var rightSubtree = reader.ReadSubtree();
@@ -107,12 +110,13 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 		TextRangeSerializationHelper.WriteTextRangeToXml(writer, Location, "Location");
 		writer.WriteStartElement(nameof(LeftExpression));
 		writer.WriteExpressionToXml(LeftExpression);
-		writer.WriteEndElement();//LeftExpression
+		writer.WriteEndElement(); //LeftExpression
+
 		if (RightExpression != null)
 		{
 			writer.WriteStartElement(nameof(RightExpression));
 			writer.WriteExpressionToXml(RightExpression);
-			writer.WriteEndElement();//RightExpression
+			writer.WriteEndElement(); //RightExpression
 		}
 	}
 
@@ -178,11 +182,14 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 	{
 		var leftValue = await LeftExpression.GetValue(contextObject, scopeData).ConfigureAwait(false);
 		FormatterArgumentType[] arguments;
+
 		if (RightExpression != null)
 		{
 			arguments = new[]
 			{
-				new FormatterArgumentType(0, null, ref (await RightExpression.GetValue(contextObject, scopeData).ConfigureAwait(false)).Value, RightExpression)
+				new FormatterArgumentType(0, null,
+					ref (await RightExpression.GetValue(contextObject, scopeData).ConfigureAwait(false)).Value,
+					RightExpression)
 			};
 		}
 		else
@@ -200,10 +207,11 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 			arguments,
 			scopeData);
 
-		if (Cache != null/* && !Equals(Cache.Value, default(FormatterCache))*/)
+		if (Cache != null /* && !Equals(Cache.Value, default(FormatterCache))*/)
 		{
 			return scopeData.ParserOptions.CreateContextObject(".",
-				await scopeData.ParserOptions.Formatters.Execute(Cache, leftValue.Value, scopeData.ParserOptions, arguments).ConfigureAwait(false),
+				await scopeData.ParserOptions.Formatters
+					.Execute(Cache, leftValue.Value, scopeData.ParserOptions, arguments).ConfigureAwait(false),
 				contextObject.Parent);
 		}
 
@@ -226,7 +234,8 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 			var arguments = right != null
 				? new FormatterArgumentType[]
 				{
-					new(0, null, ref (await right(contextObject, scopeData).ConfigureAwait(false)).Value, RightExpression),
+					new(0, null, ref (await right(contextObject, scopeData).ConfigureAwait(false)).Value,
+						RightExpression),
 				}
 				: Array.Empty<FormatterArgumentType>();
 
@@ -240,7 +249,8 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 			if (Cache != null /*&& !Equals(Cache.Value, default(FormatterCache))*/)
 			{
 				return scopeData.ParserOptions.CreateContextObject(".",
-					await scopeData.ParserOptions.Formatters.Execute(Cache, leftValue.Value, scopeData.ParserOptions, arguments).ConfigureAwait(false),
+					await scopeData.ParserOptions.Formatters
+						.Execute(Cache, leftValue.Value, scopeData.ParserOptions, arguments).ConfigureAwait(false),
 					contextObject.Parent);
 			}
 
@@ -281,18 +291,12 @@ public class MorestachioOperatorExpression : IMorestachioExpression
 
 		public string Expression
 		{
-			get
-			{
-				return _exp.AsStringExpression();
-			}
+			get { return _exp.AsStringExpression(); }
 		}
 
 		public string DbgView
 		{
-			get
-			{
-				return _exp.AsDebugExpression();
-			}
+			get { return _exp.AsDebugExpression(); }
 		}
 
 		public TextRange Location

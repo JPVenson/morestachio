@@ -31,7 +31,6 @@ public class TextEditDocumentItem : DocumentItemBase, ISupportCustomCompilation
 
 	internal TextEditDocumentItem()
 	{
-
 	}
 
 	/// <summary>
@@ -48,10 +47,11 @@ public class TextEditDocumentItem : DocumentItemBase, ISupportCustomCompilation
 	}
 
 	/// <inheritdoc />
-		
 	protected TextEditDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
-		EmbeddedInstructionOrigin = (EmbeddedInstructionOrigin)info.GetValue(nameof(EmbeddedInstructionOrigin), typeof(EmbeddedInstructionOrigin));
+		EmbeddedInstructionOrigin
+			= (EmbeddedInstructionOrigin)info.GetValue(nameof(EmbeddedInstructionOrigin),
+				typeof(EmbeddedInstructionOrigin));
 		Operation = info.GetValue(nameof(Operation), typeof(ITextOperation)) as ITextOperation;
 	}
 
@@ -60,10 +60,7 @@ public class TextEditDocumentItem : DocumentItemBase, ISupportCustomCompilation
 	/// <inheritdoc />
 	public Compilation Compile(IDocumentCompiler compiler, ParserOptions parserOptions)
 	{
-		return (outputStream, context, scopeData) =>
-		{
-			CoreAction(outputStream, scopeData);
-		};
+		return (outputStream, context, scopeData) => { CoreAction(outputStream, scopeData); };
 	}
 
 	/// <inheritdoc />
@@ -112,16 +109,19 @@ public class TextEditDocumentItem : DocumentItemBase, ISupportCustomCompilation
 	protected override void DeSerializeXmlBodyCore(XmlReader reader)
 	{
 		base.DeSerializeXmlBodyCore(reader);
-		
+
 		reader.ReadStartElement(); //<TextOperation>
 		AssertElement(reader, "TextOperation");
 		var embeddedState = reader.GetAttribute(nameof(EmbeddedInstructionOrigin));
+
 		if (!string.IsNullOrEmpty(embeddedState))
 		{
-			EmbeddedInstructionOrigin = (EmbeddedInstructionOrigin)Enum.Parse(typeof(EmbeddedInstructionOrigin), embeddedState);
+			EmbeddedInstructionOrigin
+				= (EmbeddedInstructionOrigin)Enum.Parse(typeof(EmbeddedInstructionOrigin), embeddedState);
 		}
 
 		var attribute = reader.GetAttribute(nameof(ITextOperation.TextOperationType));
+
 		switch (attribute)
 		{
 			case "LineBreak":
@@ -137,7 +137,7 @@ public class TextEditDocumentItem : DocumentItemBase, ISupportCustomCompilation
 		Operation.ReadXml(reader);
 		reader.ReadEndElement(); //</TextOperation>
 	}
-	
+
 
 	/// <inheritdoc />
 	public override void Accept(IDocumentItemVisitor visitor)

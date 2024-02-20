@@ -23,7 +23,7 @@ public class MorestachioDefaultRollingArray : RollingArray<char>
 			throw new IndexOutOfRangeException("The number of elements exceeds the size of the array");
 		}
 
-		return elements[elements.Length - 1] == Get(Buffer.Length - 1) 
+		return elements[elements.Length - 1] == Get(Buffer.Length - 1)
 			&& elements[elements.Length - 2] == Get(Buffer.Length - 2);
 	}
 }

@@ -6,7 +6,8 @@ using Morestachio.Formatter.Framework;
 using Morestachio.Framework.Context.Resolver;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
-using PathPartElement = System.Collections.Generic.KeyValuePair<string, Morestachio.Framework.Expression.Framework.PathType>;
+using PathPartElement
+	= System.Collections.Generic.KeyValuePair<string, Morestachio.Framework.Expression.Framework.PathType>;
 
 namespace Morestachio.Framework.Context;
 
@@ -210,13 +211,13 @@ public class ContextObject
 			case PathType.ObjectSelector:
 				return ExecuteObjectSelector(elements.Current.Key, scopeData);
 			case PathType.Boolean when elements.Current.Key is "true" or "false":
-				{
-					var booleanContext =
-						scopeData._parserOptions.CreateContextObject(".", elements.Current.Key == "true", this);
-					booleanContext.IsNaturalContext = IsNaturalContext;
+			{
+				var booleanContext =
+					scopeData._parserOptions.CreateContextObject(".", elements.Current.Key == "true", this);
+				booleanContext.IsNaturalContext = IsNaturalContext;
 
-					return booleanContext;
-				}
+				return booleanContext;
+			}
 			case PathType.Boolean:
 				return this;
 			case PathType.Null:
@@ -245,24 +246,26 @@ public class ContextObject
 				var type = InternalValue.GetType();
 
 				innerContext = scopeData._parserOptions.CreateContextObject(key, type
-																				.GetTypeInfo()
-																				.GetProperties(BindingFlags.Instance | BindingFlags.Public)
-																				.Where(e => !e.IsSpecialName && !e.GetIndexParameters().Any() && e.CanRead)
-																				.Select(e =>
-																				{
-																					object value;
+						.GetTypeInfo()
+						.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+						.Where(e => !e.IsSpecialName && !e.GetIndexParameters().Any() && e.CanRead)
+						.Select(e =>
+						{
+							object value;
 
-																					if (scopeData._parserOptions.ValueResolver?.CanResolve(type, InternalValue, e.Name, null, scopeData) == true)
-																					{
-																						value = scopeData._parserOptions.ValueResolver.Resolve(type, InternalValue, e.Name, null, scopeData);
-																					}
-																					else
-																					{
-																						value = e.GetValue(Value);
-																					}
+							if (scopeData._parserOptions.ValueResolver?.CanResolve(type, InternalValue, e.Name, null,
+									scopeData) == true)
+							{
+								value = scopeData._parserOptions.ValueResolver.Resolve(type, InternalValue, e.Name,
+									null, scopeData);
+							}
+							else
+							{
+								value = e.GetValue(Value);
+							}
 
-																					return new KeyValuePair<string, object>(e.Name, value);
-																				}),
+							return new KeyValuePair<string, object>(e.Name, value);
+						}),
 					this);
 			}
 		}
@@ -326,29 +329,30 @@ public class ContextObject
 		switch (InternalValue)
 		{
 			case IMorestachioPropertyResolver cResolver:
+			{
+				if (!cResolver.TryGetValue(key, out var o))
 				{
-					if (!cResolver.TryGetValue(key, out var o))
-					{
-						scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
-							key, InternalValue?.GetType()));
-					}
-
-					return scopeData._parserOptions.CreateContextObject(key, o, this);
+					scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression,
+						key, InternalValue?.GetType()));
 				}
+
+				return scopeData._parserOptions.CreateContextObject(key, o, this);
+			}
 			case ICustomTypeDescriptor descriptor:
+			{
+				var propertyDescriptor = descriptor.GetProperties().Find(key, false);
+
+				if (propertyDescriptor != null)
 				{
-					var propertyDescriptor = descriptor.GetProperties().Find(key, false);
-
-					if (propertyDescriptor != null)
-					{
-						return scopeData._parserOptions.CreateContextObject(key, propertyDescriptor.GetValue(InternalValue), this);
-					}
-
-					scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression, key,
-						InternalValue?.GetType()));
-
-					return scopeData._parserOptions.CreateContextObject(key, null, this);
+					return scopeData._parserOptions.CreateContextObject(key, propertyDescriptor.GetValue(InternalValue),
+						this);
 				}
+
+				scopeData._parserOptions.OnUnresolvedPath(new InvalidPathEventArgs(this, morestachioExpression, key,
+					InternalValue?.GetType()));
+
+				return scopeData._parserOptions.CreateContextObject(key, null, this);
+			}
 			case DynamicObject dynObject when dynObject.TryGetMember(new DynamicObjectBinder(key, false), out var val):
 				return scopeData._parserOptions.CreateContextObject(key, val, this);
 			case DynamicObject:
@@ -484,7 +488,8 @@ public class ContextObject
 		{
 			ReadOnlyMemory<char> roSpan => roSpan.Span,
 			string str => str.AsSpan(),
-			null => (scopeData.GetVariable(this, "$null")?.InternalValue?.ToString() ?? scopeData._parserOptions.Null).AsSpan(),
+			null => (scopeData.GetVariable(this, "$null")?.InternalValue?.ToString() ?? scopeData._parserOptions.Null)
+				.AsSpan(),
 			IMorestachioRender renderable => renderable.RenderToString(),
 			IMorestachioRenderAsync asyncRenderable => asyncRenderable.RenderToString().GetAwaiter().GetResult(),
 			_ => InternalValue.ToString().AsSpan()
@@ -526,7 +531,8 @@ public class ContextObject
 		}
 
 		//call formatters that are given by the Options for this run
-		return scopeData._parserOptions.Formatters.PrepareCallMostMatchingFormatter(ref value, type, arguments, name, scopeData._parserOptions, scopeData);
+		return scopeData._parserOptions.Formatters.PrepareCallMostMatchingFormatter(ref value, type, arguments, name,
+			scopeData._parserOptions, scopeData);
 	}
 
 	/// <summary>

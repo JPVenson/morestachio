@@ -8,57 +8,69 @@ namespace Morestachio.Framework.Expression.Visitors;
 ///		Provides Methods for Building a String with partial colored parts
 /// </summary>
 /// <typeparam name="TColor"></typeparam>
-public interface IStringBuilderInterlaced<TColor> : IEnumerable<string>, IEnumerable<ITextWithColor<TColor>> where TColor : class, new()
+public interface IStringBuilderInterlaced<TColor> : IEnumerable<string>, IEnumerable<ITextWithColor<TColor>>
+	where TColor : class, new()
 {
 	/// <summary>
 	///		Appends the string to the buffer
 	/// </summary>
 	IStringBuilderInterlaced<TColor> Append(string value, params object[] values);
+
 	/// <summary>
 	///		Appends the string to the buffer and assosiates a color with it
 	/// </summary>
 	IStringBuilderInterlaced<TColor> Append(string value, TColor color = null);
+
 	/// <summary>
 	///		Appends the string to the buffer and assosiates a color with it
 	/// </summary>
 	IStringBuilderInterlaced<TColor> Append(string value, TColor color = null, params object[] values);
+
 	/// <summary>
 	///		Appends the string with intents to the buffer
 	/// </summary>
 	IStringBuilderInterlaced<TColor> AppendInterlaced(string value, params object[] values);
+
 	/// <summary>
 	///		Appends the string with intents to the buffer and assosiates a color with it
 	/// </summary>
 	IStringBuilderInterlaced<TColor> AppendInterlaced(string value, TColor color = null);
+
 	/// <summary>
 	///		Appends the string with intents to the buffer and assosiates a color with it
 	/// </summary>
 	IStringBuilderInterlaced<TColor> AppendInterlaced(string value, TColor color = null, params object[] values);
-		
+
 	/// <summary>
 	///		Appends the intents to the buffer
 	/// </summary>
 	IStringBuilderInterlaced<TColor> AppendInterlaced();
+
 	/// <summary>
 	///		Appends the string with intents and a linebreak to the buffer
 	/// </summary>
 	IStringBuilderInterlaced<TColor> AppendInterlacedLine(string value, params object[] values);
+
 	/// <summary>
 	///		Appends the string with intents and a linebreak to the buffer and assosiates a color with it
 	/// </summary>
 	IStringBuilderInterlaced<TColor> AppendInterlacedLine(string value, TColor color = null);
+
 	/// <summary>
 	///		Appends the string with intents and a linebreak to the buffer and assosiates a color with it
 	/// </summary>
 	IStringBuilderInterlaced<TColor> AppendInterlacedLine(string value, TColor color = null, params object[] values);
+
 	/// <summary>
 	///		Appends a linebreak and appends the intents
 	/// </summary>
 	IStringBuilderInterlaced<TColor> AppendInterlacedLine();
+
 	/// <summary>
 	///		Adds a Linebreak
 	/// </summary>
 	IStringBuilderInterlaced<TColor> AppendLine();
+
 	/// <summary>
 	///		Appends the string and a linebreak to the buffer
 	/// </summary>
@@ -68,6 +80,7 @@ public interface IStringBuilderInterlaced<TColor> : IEnumerable<string>, IEnumer
 	///		Appends the string and a linebreak to the buffer and assosiates a color with it
 	/// </summary>
 	IStringBuilderInterlaced<TColor> AppendLine(string value, TColor color = null);
+
 	/// <summary>
 	///		Appends the string and a linebreak to the buffer and assosiates a color with it
 	/// </summary>
@@ -79,22 +92,26 @@ public interface IStringBuilderInterlaced<TColor> : IEnumerable<string>, IEnumer
 	/// <param name="color"></param>
 	/// <returns></returns>
 	IStringBuilderInterlaced<TColor> Color(TColor color);
+
 	/// <summary>
 	///		Decreases the current line Intent
 	/// </summary>
 	/// <returns></returns>
 	IStringBuilderInterlaced<TColor> Down();
+
 	/// <summary>
 	///		Adds another <c>IStringBuilderInterlaced&lt;TColor&gt;</c>
 	/// </summary>
 	/// <param name="writer"></param>
 	/// <returns></returns>
 	IStringBuilderInterlaced<TColor> Insert(IStringBuilderInterlaced<TColor> writer);
+
 	/// <summary>
 	///		Adds another <c>IStringBuilderInterlaced&lt;TColor&gt;</c>
 	/// </summary>
 	/// <returns></returns>
 	IStringBuilderInterlaced<TColor> Insert(Action<IStringBuilderInterlaced<TColor>> del);
+
 	/// <summary>
 	///		Clears the interal color
 	/// </summary>
@@ -106,6 +123,7 @@ public interface IStringBuilderInterlaced<TColor> : IEnumerable<string>, IEnumer
 	/// </summary>
 	/// <returns></returns>
 	string ToString();
+
 	/// <summary>
 	///		Increses the current line Intent
 	/// </summary>

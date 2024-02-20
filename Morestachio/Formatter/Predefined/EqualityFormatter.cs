@@ -19,12 +19,13 @@ public static class EqualityFormatter
 	[MorestachioFormatter("Equals", "Checks if two objects are equal")]
 	[MorestachioGlobalFormatter("Equals", "Checks if two objects are equal")]
 	[MorestachioOperator(OperatorTypes.Equals, "Checks if two objects are equal")]
-	public static bool IsEquals([SourceObject]object source, object target)
+	public static bool IsEquals([SourceObject] object source, object target)
 	{
 		if ((source == null && target == null))
 		{
 			return true;
 		}
+
 		if (source == null || target == null)
 		{
 			return false;
@@ -34,7 +35,7 @@ public static class EqualityFormatter
 		{
 			return conv.ToType(target.GetType(), null)?.Equals(target) == true;
 		}
-			
+
 		if (target is IConvertible conv2)
 		{
 			return conv2.ToType(source.GetType(), null)?.Equals(source) == true;
@@ -49,7 +50,7 @@ public static class EqualityFormatter
 	}
 
 	[MorestachioOperator(OperatorTypes.UnEquals, "Checks if two objects are not equal")]
-	public static bool IsNotEquals([SourceObject]object source, object target)
+	public static bool IsNotEquals([SourceObject] object source, object target)
 	{
 		return !Equals(source, target);
 	}
@@ -62,14 +63,17 @@ public static class EqualityFormatter
 	/// <returns></returns>
 	[MorestachioFormatter("ReferenceEquals", "Checks if two objects are the same")]
 	[MorestachioGlobalFormatter("ReferenceEquals", "Checks if two objects are the same")]
-	public static bool IsReferenceEquals([SourceObject]object source, object target)
+	public static bool IsReferenceEquals([SourceObject] object source, object target)
 	{
 		return ReferenceEquals(source, target);
 	}
-		
-	[MorestachioOperator(OperatorTypes.NullCoalescing, "returns the value of its left-hand operand if it isn't null; otherwise, it evaluates the right-hand operand and returns its result")]
-	[MorestachioFormatter("NullCoalescing", "returns the value of its left-hand operand if it isn't null; otherwise, it evaluates the right-hand operand and returns its result")]
-	[MorestachioGlobalFormatter("NullCoalescing", "returns the value of its left-hand operand if it isn't null; otherwise, it evaluates the right-hand operand and returns its result")]
+
+	[MorestachioOperator(OperatorTypes.NullCoalescing,
+		"returns the value of its left-hand operand if it isn't null; otherwise, it evaluates the right-hand operand and returns its result")]
+	[MorestachioFormatter("NullCoalescing",
+		"returns the value of its left-hand operand if it isn't null; otherwise, it evaluates the right-hand operand and returns its result")]
+	[MorestachioGlobalFormatter("NullCoalescing",
+		"returns the value of its left-hand operand if it isn't null; otherwise, it evaluates the right-hand operand and returns its result")]
 	public static object NullCoalescing(object left, object right)
 	{
 		return left ?? right;

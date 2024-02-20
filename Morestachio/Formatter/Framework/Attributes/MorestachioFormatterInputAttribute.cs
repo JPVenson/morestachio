@@ -13,6 +13,7 @@ public sealed class MorestachioFormatterInputAttribute : Attribute
 	///		Shortly describes of what the input argument consists
 	/// </summary>
 	public string Description { get; }
+
 	/// <summary>
 	/// Gets or sets the example.
 	/// </summary>
@@ -20,6 +21,7 @@ public sealed class MorestachioFormatterInputAttribute : Attribute
 	/// The example.
 	/// </value>
 	public string Example { get; set; }
+
 	/// <summary>
 	///		If used will the input return any subtype of the used type by the formatter.
 	/// <example>

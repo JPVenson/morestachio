@@ -24,11 +24,12 @@ public class Static : IMorestachioPropertyResolver
 	{
 		Type = type;
 	}
-		
+
 	/// <inheritdoc />
 	public bool TryGetValue(string name, out object found)
 	{
 		var property = Type.GetProperty(name, BindingFlags.Static | BindingFlags.Public);
+
 		if (property == null || !property.CanRead)
 		{
 			found = null;
@@ -39,7 +40,7 @@ public class Static : IMorestachioPropertyResolver
 		return true;
 	}
 }
-	
+
 /// <inheritdoc />
 public class Static<T> : Static
 {

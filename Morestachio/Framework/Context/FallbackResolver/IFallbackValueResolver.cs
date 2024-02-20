@@ -17,7 +17,7 @@ public interface IFallbackValueResolver
 	/// </summary>
 	/// <returns></returns>
 	object Resolve(ContextObject source,
-					string path, 
+					string path,
 					ScopeData scopeData,
 					IMorestachioExpression morestachioExpression);
 }

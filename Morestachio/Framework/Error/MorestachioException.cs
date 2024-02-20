@@ -11,7 +11,7 @@ public class MorestachioException : Exception
 	///     Ctor
 	/// </summary>
 	/// <param name="message"></param>
-	public MorestachioException(string message) 
+	public MorestachioException(string message)
 		: base(message)
 	{
 	}

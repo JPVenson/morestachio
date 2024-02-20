@@ -32,7 +32,8 @@ public class IndexedParseException : MorestachioException
 public class UnresolvedPathException : MorestachioException
 {
 	/// <inheritdoc />
-	public UnresolvedPathException(InvalidPathEventArgs pathEventArgs) : base("Could not obtain path in a strict document.")
+	public UnresolvedPathException(InvalidPathEventArgs pathEventArgs) : base(
+		"Could not obtain path in a strict document.")
 	{
 		PathEventArgs = pathEventArgs;
 	}

@@ -38,7 +38,8 @@ namespace Morestachio.Tests
 			{
 				{ "Data", dataValue }
 			};
-			var result = await ParserFixture.CreateAndParseWithOptionsStream(template, data, _options, options => { return options.WithMaxSize(maxSize); });
+			var result = await ParserFixture.CreateAndParseWithOptionsStream(template, data, _options,
+				options => { return options.WithMaxSize(maxSize); });
 			Assert.That(result.BytesWritten, Is.EqualTo(maxSize));
 		}
 
@@ -65,7 +66,8 @@ namespace Morestachio.Tests
 			{
 				{ "Data", dataValue }
 			};
-			var result = await ParserFixture.CreateAndParseWithOptionsStream(template, data, _options, options => { return options.WithMaxSize(maxSize); });
+			var result = await ParserFixture.CreateAndParseWithOptionsStream(template, data, _options,
+				options => { return options.WithMaxSize(maxSize); });
 			Assert.That(result.BytesWritten, Is.EqualTo(maxSize).Or.EqualTo(maxSize - 1));
 		}
 
@@ -124,7 +126,8 @@ namespace Morestachio.Tests
 
 			var template = @"as{{!stu
 			ff}}df";
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest);
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data,
+				_options | ParserOptionTypes.NoRerenderingTest);
 			Assert.That(result, Is.EqualTo("asdf"));
 		}
 
@@ -135,7 +138,8 @@ namespace Morestachio.Tests
 
 			var template = @"as{{!stu
 			ff}}df";
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, e => { return e.WithTokenizeComments(true); });
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options,
+				e => { return e.WithTokenizeComments(true); });
 			Assert.That(result, Is.EqualTo("asdf"));
 		}
 
@@ -144,7 +148,8 @@ namespace Morestachio.Tests
 		{
 			var data = new Dictionary<string, object>();
 			var template = @"A{{!}}ZZZ{{/!}}B{{!}} {{123}} {{'{{'}} {{'}} }} {{/!}}C";
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest);
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data,
+				_options | ParserOptionTypes.NoRerenderingTest);
 			Assert.That(result, Is.EqualTo("ABC"));
 		}
 
@@ -153,7 +158,8 @@ namespace Morestachio.Tests
 		{
 			var data = new Dictionary<string, object>();
 			var template = @"A{{!?}}ZZZ{{/!?}}B{{!?}} {{123}} {{'{{'}} {{'}} }} {{/!?}}C {{!= angularjs}}";
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest);
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data,
+				_options | ParserOptionTypes.NoRerenderingTest);
 			Assert.That(result, Is.EqualTo("AZZZB {{123}} {{'{{'}} {{'}} }} C {{ angularjs}}"));
 		}
 
@@ -162,7 +168,8 @@ namespace Morestachio.Tests
 		{
 			var data = new Dictionary<string, object>();
 			var template = @"{{!?}} Dies ist ein Escaped block with {{Some}} {{Invalid {{/!?}}";
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest);
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data,
+				_options | ParserOptionTypes.NoRerenderingTest);
 			Assert.That(result, Is.EqualTo(" Dies ist ein Escaped block with {{Some}} {{Invalid "));
 		}
 
@@ -225,15 +232,15 @@ namespace Morestachio.Tests
 								{ "last_name", "Smith" },
 								{
 									"products", Enumerable.Range(0, 3)
-														.Select(k =>
-														{
-															var r = new Dictionary<string, object>();
-															r["name"] = "name " + k;
-															r["version"] = "version " + k;
+										.Select(k =>
+										{
+											var r = new Dictionary<string, object>();
+											r["name"] = "name " + k;
+											r["version"] = "version " + k;
 
-															return r;
-														})
-														.ToArray()
+											return r;
+										})
+										.ToArray()
 								}
 							}
 						}
@@ -264,15 +271,15 @@ namespace Morestachio.Tests
 								{ "last_name", "Smith" },
 								{
 									"products", Enumerable.Range(0, 3)
-														.Select(k =>
-														{
-															var r = new Dictionary<string, object>();
-															r["name"] = "name " + k;
-															r["version"] = "version " + k;
+										.Select(k =>
+										{
+											var r = new Dictionary<string, object>();
+											r["name"] = "name " + k;
+											r["version"] = "version " + k;
 
-															return r;
-														})
-														.ToArray()
+											return r;
+										})
+										.ToArray()
 								}
 							}
 						}
@@ -471,7 +478,8 @@ This is an partial included: ({{#IMPORT 'PartialA' #WITH other}}) with an set co
 				{ "data", "false" },
 				{ "root", "true" }
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest);
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data,
+				_options | ParserOptionTypes.NoRerenderingTest);
 			Assert.That(result, Is.EqualTo(data["data"]));
 		}
 
@@ -486,7 +494,8 @@ This is an partial included: ({{#IMPORT 'PartialA' #WITH other}}) with an set co
 				{ "data", "false" },
 				{ "root", "true" }
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest);
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data,
+				_options | ParserOptionTypes.NoRerenderingTest);
 			Assert.That(result, Is.EqualTo(data["root"]));
 		}
 
@@ -505,8 +514,8 @@ This is an partial included: ({{#IMPORT 'PartialA' #WITH other}}) with an set co
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options, null, info =>
 			{
 				Assert.That(info.Errors
-								.OfType<MorestachioSyntaxError>()
-								.FirstOrDefault(e => e.Location.ToString() == "35:0:35|43:0:43"), Is.Not.Null);
+					.OfType<MorestachioSyntaxError>()
+					.FirstOrDefault(e => e.Location.ToString() == "35:0:35|43:0:43"), Is.Not.Null);
 			});
 		}
 
@@ -617,7 +626,8 @@ This is an partial included: ({{#IMPORT 'PartialA' #WITH other}}) with an set co
 					"data", value
 				}
 			};
-			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options | ParserOptionTypes.NoRerenderingTest);
+			var result = await ParserFixture.CreateAndParseWithOptions(template, data,
+				_options | ParserOptionTypes.NoRerenderingTest);
 			Assert.That(result, Is.EqualTo(value.Select(e => e.ToString()).Aggregate((e, f) => e + "" + f)));
 		}
 

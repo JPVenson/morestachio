@@ -22,9 +22,11 @@ public static class ListExtensions
 		}
 
 		var fodType = toBeAdded.First().GetType();
+
 		if (toBeAdded.All(e => e.GetType() == fodType))
 		{
 			var instance = Activator.CreateInstance(typeof(List<>).MakeGenericType(fodType)) as IList;
+
 			foreach (var o in toBeAdded)
 			{
 				instance.Add(o);
@@ -68,6 +70,7 @@ public static class ListExtensions
 		{
 			sourceCollection.Insert(index, item);
 		}
+
 		return sourceCollection;
 	}
 
@@ -78,7 +81,8 @@ public static class ListExtensions
 		return sourceCollection;
 	}
 
-	[MorestachioGlobalFormatter("ToList", "Gets any number of elements and returns a new list containing those elements")]
+	[MorestachioGlobalFormatter("ToList",
+		"Gets any number of elements and returns a new list containing those elements")]
 	public static IList<T> ToList<T>(params object[] items)
 	{
 		var itemsList = new List<T>();

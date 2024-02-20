@@ -14,7 +14,7 @@ namespace Morestachio.Tests.SerilalizerTests.Strategies
 		public DocumentSerializerXmlStrategy()
 		{
 		}
-		
+
 		public string SerializeDocumentToText(IDocumentItem obj)
 		{
 			var inheritedTypes = typeof(MorestachioDocument).Assembly.GetTypes().Where(e => e.IsClass)

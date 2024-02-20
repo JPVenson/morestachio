@@ -22,7 +22,6 @@ public class RemoveAliasDocumentItem : ValueDocumentItemBase, ISupportCustomAsyn
 	/// </summary>
 	internal RemoveAliasDocumentItem()
 	{
-
 	}
 
 	/// <summary>
@@ -30,15 +29,16 @@ public class RemoveAliasDocumentItem : ValueDocumentItemBase, ISupportCustomAsyn
 	/// </summary>
 	/// <param name="aliasName"></param>
 	/// <param name="scopeVariableScopeNumber"></param>
-	public RemoveAliasDocumentItem(TextRange location,  string aliasName, int scopeVariableScopeNumber,
-									IEnumerable<ITokenOption> tagCreationOptions) 
-		: base(location, aliasName,tagCreationOptions)
+	public RemoveAliasDocumentItem(TextRange location,
+									string aliasName,
+									int scopeVariableScopeNumber,
+									IEnumerable<ITokenOption> tagCreationOptions)
+		: base(location, aliasName, tagCreationOptions)
 	{
 		IdVariableScope = scopeVariableScopeNumber;
 	}
-		
+
 	/// <inheritdoc />
-		
 	protected RemoveAliasDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
 		IdVariableScope = info.GetInt32(nameof(IdVariableScope));
@@ -63,11 +63,13 @@ public class RemoveAliasDocumentItem : ValueDocumentItemBase, ISupportCustomAsyn
 	{
 		base.DeSerializeXmlHeaderCore(reader);
 		var varScope = reader.GetAttribute(nameof(IdVariableScope));
+
 		if (!int.TryParse(varScope, out var intVarScope))
 		{
 			throw new XmlException($"Error while serializing '{nameof(AliasDocumentItem)}'. " +
 				$"The value for '{nameof(IdVariableScope)}' is expected to be an integer.");
 		}
+
 		IdVariableScope = intVarScope;
 	}
 
@@ -84,16 +86,19 @@ public class RemoveAliasDocumentItem : ValueDocumentItemBase, ISupportCustomAsyn
 	}
 
 	/// <inheritdoc />
-	public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+	public override ItemExecutionPromise Render(IByteCounterStream outputStream,
+												ContextObject context,
+												ScopeData scopeData)
 	{
 		scopeData.RemoveVariable(Value, IdVariableScope);
 		return Enumerable.Empty<DocumentItemExecution>().ToPromise();
 	}
-		
+
 	/// <summary>
 	///		Gets or Sets the Scope of the variable that should be removed
 	/// </summary>
 	public int IdVariableScope { get; private set; }
+
 	/// <inheritdoc />
 	public override void Accept(IDocumentItemVisitor visitor)
 	{

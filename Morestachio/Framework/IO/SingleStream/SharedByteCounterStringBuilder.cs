@@ -31,15 +31,15 @@ public class SharedByteCounterStringBuilder : ByteCounterStringBuilder
 	/// <inheritdoc />
 	public SharedByteCounterStringBuilder(ParserOptions options) : base(Acquire(2024), options)
 	{
-
 	}
-	
+
 	/// <inheritdoc />
 	public override string ToString()
 	{
 		if (StringBuilder == null)
 		{
-			throw new NotSupportedException("This Shared Builder can only be enumerated once. you have to store the text yourself.");
+			throw new NotSupportedException(
+				"This Shared Builder can only be enumerated once. you have to store the text yourself.");
 		}
 
 		var builder = StringBuilder;

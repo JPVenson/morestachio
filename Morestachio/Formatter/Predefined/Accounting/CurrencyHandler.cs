@@ -43,7 +43,7 @@ public class CurrencyHandler
 	/// <summary>
 	/// 
 	/// </summary>
-	public CurrencyHandler() 
+	public CurrencyHandler()
 		: this(() => new Dictionary<string, Currency>())
 	{
 	}
@@ -96,7 +96,8 @@ public class CurrencyHandler
 	/// <param name="one"></param>
 	/// <param name="toCurrency"></param>
 	/// <returns></returns>
-	[MorestachioFormatter("Convert", "Converts a money object using an currency and the current known conversion factors")]
+	[MorestachioFormatter("Convert",
+		"Converts a money object using an currency and the current known conversion factors")]
 	public Money Convert(Money one, Currency toCurrency)
 	{
 		if (one.Currency.Equals(Currency.UnknownCurrency))
@@ -108,19 +109,21 @@ public class CurrencyHandler
 		{
 			throw new InvalidOperationException("Cannot convert an known currency to an unknown one");
 		}
-			
+
 		var factorInfo = ConversionFactors.FirstOrDefault(e => e.ConversionEquals(one.Currency, toCurrency));
-			
+
 		if (factorInfo.Equals(default))
 		{
 			throw new InvalidOperationException("Cannot convert an known currency to an unknown one");
 		}
 
 		var factor = factorInfo.Factor;
+
 		if (!factorInfo.FromCurrency.Equals(one.Currency))
 		{
-			factor *= -1;//invert the factor if the conversion is switched
+			factor *= -1; //invert the factor if the conversion is switched
 		}
+
 		return new Money(one.Value * factor, toCurrency);
 	}
 }

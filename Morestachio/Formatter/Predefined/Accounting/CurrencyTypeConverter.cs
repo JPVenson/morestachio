@@ -13,7 +13,7 @@ public class CurrencyTypeConverter : IFormatterValueConverter
 	{
 		return sourceType == typeof(string) && requestedType == typeof(Currency);
 	}
-		
+
 	/// <inheritdoc />
 	public object Convert(object value, Type requestedType)
 	{
@@ -21,6 +21,7 @@ public class CurrencyTypeConverter : IFormatterValueConverter
 		{
 			return currency;
 		}
+
 		return Currency.UnknownCurrency;
 	}
 }

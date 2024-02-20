@@ -12,16 +12,15 @@ public class InvalidPathSyntaxError : MorestachioErrorBase
 	/// <inheritdoc />
 	protected InvalidPathSyntaxError()
 	{
-		
 	}
 
 	/// <inheritdoc />
-	protected InvalidPathSyntaxError(SerializationInfo info, StreamingContext c) 
+	protected InvalidPathSyntaxError(SerializationInfo info, StreamingContext c)
 		: base(info, c)
 	{
 		Token = info.GetString(nameof(Token));
 	}
-	
+
 	/// <inheritdoc />
 	public InvalidPathSyntaxError(TextRange location, string token, string helpText = null)
 		: base(location, FormatHelpText(location, token, helpText))
@@ -35,6 +34,7 @@ public class InvalidPathSyntaxError : MorestachioErrorBase
 	{
 		var helpText =
 			$"line:char '{location}' - The path '{token}' is not valid. Please see documentation for examples of valid paths.";
+
 		if (userHelpText != null)
 		{
 			helpText += "\r\n" + userHelpText;
@@ -50,7 +50,7 @@ public class InvalidPathSyntaxError : MorestachioErrorBase
 	/// The token.
 	/// </value>
 	public string Token { get; private set; }
-	
+
 	/// <inheritdoc />
 	public override void ReadXml(XmlReader reader)
 	{
@@ -75,6 +75,7 @@ public class InvalidPathSyntaxError : MorestachioErrorBase
 	/// <inheritdoc />
 	public override bool Equals(IMorestachioError other)
 	{
-		return base.Equals(other) && (other is InvalidPathSyntaxError invalidPathSyntaxError) && invalidPathSyntaxError.Token.Equals(Token);
+		return base.Equals(other) && (other is InvalidPathSyntaxError invalidPathSyntaxError) &&
+			invalidPathSyntaxError.Token.Equals(Token);
 	}
 }

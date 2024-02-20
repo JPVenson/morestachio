@@ -40,8 +40,10 @@ public class OrdinalCharComparer : IEqualityComparer<char>
 			{
 				return ((int)x) == ((int)y);
 			}
+
 			return ((int)x) == ((int)char.ToUpper(y));
 		}
+
 		if (char.IsUpper(y))
 		{
 			return ((int)char.ToUpper(x)) == ((int)y);

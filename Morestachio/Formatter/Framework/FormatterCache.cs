@@ -17,7 +17,6 @@ public class FormatterCache
 
 	private FormatterCache()
 	{
-
 	}
 
 	internal readonly object[] ValueBuffer;

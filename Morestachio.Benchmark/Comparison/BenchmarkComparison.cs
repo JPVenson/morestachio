@@ -19,7 +19,7 @@ using Scriban.Runtime;
 
 namespace Morestachio.Benchmark.Comparison
 {
- /// <summary>
+	/// <summary>
 	/// A benchmark for template parsers.
 	/// </summary>
 	[MemoryDiagnoser]
@@ -29,7 +29,11 @@ namespace Morestachio.Benchmark.Comparison
 		{
 			// Due to issue https://github.com/rexm/Handlebars.Net/issues/105 cannot do the same as others, so
 			// working around this here
-			HandlebarsDotNet.Handlebars.RegisterHelper("truncate", (output, options, context, arguments) => {
+			HandlebarsDotNet.Handlebars.RegisterHelper("truncate", (output,
+																	options,
+																	context,
+																	arguments) =>
+			{
 				output.Write(StringFormatter.Truncate((string)context["description"], 15));
 			});
 		}
@@ -96,6 +100,7 @@ namespace Morestachio.Benchmark.Comparison
   }
 </ul>
 ";
+
 		[Benchmark(Description = "Scriban - Parser")]
 		public Template TestScriban()
 		{
@@ -106,10 +111,10 @@ namespace Morestachio.Benchmark.Comparison
 		public MorestachioDocumentInfo TestMorestachio()
 		{
 			return ParserOptionsBuilder.New()
-										.WithTemplate(TextTemplateMorestachio)
-										.BuildAndParse();
+				.WithTemplate(TextTemplateMorestachio)
+				.BuildAndParse();
 		}
-		
+
 		[Benchmark(Description = "DotLiquid - Parser")]
 		public DotLiquid.Template TestDotLiquid()
 		{
@@ -119,7 +124,8 @@ namespace Morestachio.Benchmark.Comparison
 		[Benchmark(Description = "Stubble - Parser")]
 		public Stubble.Core.Tokens.MustacheTemplate TestStubble()
 		{
-			return new Stubble.Core.Settings.RendererSettingsBuilder().BuildSettings().Parser.Parse(TextTemplateMustache);
+			return new Stubble.Core.Settings.RendererSettingsBuilder().BuildSettings().Parser
+				.Parse(TextTemplateMustache);
 		}
 
 		[Benchmark(Description = "Nustache - Parser")]
@@ -154,6 +160,7 @@ namespace Morestachio.Benchmark.Comparison
 			{
 				ThrowError();
 			}
+
 			return template;
 		}
 	}
@@ -173,7 +180,8 @@ namespace Morestachio.Benchmark.Comparison
 		private readonly Cottle.IDocument _cottleTemplate;
 		private readonly Fluid.IFluidTemplate _fluidTemplate;
 
-		private const string Lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
+		private const string Lorem
+			= "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
 
 		private readonly List<Product> _products;
 		private readonly List<ScriptObject> _scribanProducts;
@@ -216,13 +224,16 @@ namespace Morestachio.Benchmark.Comparison
 				var product = new Product("Name" + i, i, Lorem);
 				_products.Add(product);
 
-				var hash = new Hash() { ["name"] = product.Name, ["price"] = product.Price, ["description"] = product.Description };
+				var hash = new Hash()
+					{ ["name"] = product.Name, ["price"] = product.Price, ["description"] = product.Description };
 				_dotLiquidProducts.Add(hash);
 
-				var obj = new ScriptObject {["name"] = product.Name, ["price"] = product.Price, ["description"] = product.Description};
+				var obj = new ScriptObject
+					{ ["name"] = product.Name, ["price"] = product.Price, ["description"] = product.Description };
 				_scribanProducts.Add(obj);
 
-				var value = new Dictionary<Cottle.Value, Cottle.Value> {["name"] = product.Name, ["price"] = product.Price, ["description"] = product.Description};
+				var value = new Dictionary<Cottle.Value, Cottle.Value>
+					{ ["name"] = product.Name, ["price"] = product.Price, ["description"] = product.Description };
 				cottleProducts.Add(value);
 
 				var morestachioData = new Dictionary<string, object>()
@@ -243,8 +254,9 @@ namespace Morestachio.Benchmark.Comparison
 			// For Cottle, we match the behavior of Scriban that is accessing the Truncate function via an reflection invoke
 			// In Scriban, we could also have a direct Truncate function, but it is much less practical in terms of declaration
 			_cottleStringStore = new Dictionary<Cottle.Value, Cottle.Value>();
-			_cottleStringStore["truncate"] = Cottle.Value.FromFunction(Function.Create((source, values, output) => StringFunctions.Truncate(values[0].AsString, Convert.ToInt32(values[1].AsNumber)), 2));
-			
+			_cottleStringStore["truncate"] = Cottle.Value.FromFunction(Function.Create(
+				(source, values, output) =>
+					StringFunctions.Truncate(values[0].AsString, Convert.ToInt32(values[1].AsNumber)), 2));
 		}
 
 		//[Benchmark(Description = "Scriban")]
@@ -293,7 +305,8 @@ namespace Morestachio.Benchmark.Comparison
 			var renderer = new Stubble.Core.StubbleVisitorRenderer();
 			var props = new Dictionary<string, object> { ["products"] = _dotLiquidProducts };
 			int i = 0;
-			props["truncate"] = new Func<string, object>((str) => Scriban.Functions.StringFunctions.Truncate(renderer.Render(str, _dotLiquidProducts[i++]), 15));
+			props["truncate"] = new Func<string, object>((str) =>
+				Scriban.Functions.StringFunctions.Truncate(renderer.Render(str, _dotLiquidProducts[i++]), 15));
 			return renderer.Render(BenchParsers.TextTemplateMustache, props);
 		}
 
@@ -304,7 +317,9 @@ namespace Morestachio.Benchmark.Comparison
 			return Nustache.Core.Render.StringToString(BenchParsers.TextTemplateMustache, new
 			{
 				products = _dotLiquidProducts,
-				truncate = new Func<string, object>((str) => Scriban.Functions.StringFunctions.Truncate(Nustache.Core.Render.StringToString(str, _dotLiquidProducts[i++]), 15))
+				truncate = new Func<string, object>((str) =>
+					Scriban.Functions.StringFunctions.Truncate(
+						Nustache.Core.Render.StringToString(str, _dotLiquidProducts[i++]), 15))
 			});
 		}
 
@@ -326,7 +341,7 @@ namespace Morestachio.Benchmark.Comparison
 				["string"] = _cottleStringStore,
 				["products"] = _cottleProducts
 			});
-			
+
 			return _cottleTemplate.Render(builtin);
 		}
 

@@ -27,7 +27,7 @@ public static class LocalizationFormatter
 	{
 		return localizationService.GetTranslationOrNull(key, parserOptions.CultureInfo, arguments);
 	}
-		
+
 	/// <summary>
 	/// 
 	/// </summary>
@@ -36,10 +36,15 @@ public static class LocalizationFormatter
 	/// <param name="plural"></param>
 	/// <param name="includeCount"></param>
 	/// <returns></returns>
-	[MorestachioGlobalFormatter("Inflect", "Returns either the singular or plural inflection of a word based on the given count")]
-	public static string Inflect(Number count, string singular, string plural, bool includeCount)
+	[MorestachioGlobalFormatter("Inflect",
+		"Returns either the singular or plural inflection of a word based on the given count")]
+	public static string Inflect(Number count,
+								string singular,
+								string plural,
+								bool includeCount)
 	{
 		var word = (count > 1 || count == 0) ? plural : singular;
+
 		if (includeCount)
 		{
 			return count + " " + word;

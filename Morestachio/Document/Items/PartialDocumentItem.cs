@@ -15,23 +15,23 @@ namespace Morestachio.Document.Items;
 ///		Contains the Declaration of a Partial item
 /// </summary>
 [Serializable]
-public class PartialDocumentItem : BlockDocumentItemBase, IEquatable<PartialDocumentItem>, ISupportCustomAsyncCompilation
+public class PartialDocumentItem : BlockDocumentItemBase, IEquatable<PartialDocumentItem>,
+									ISupportCustomAsyncCompilation
 {
 	/// <summary>
 	///		Used for XML Serialization
 	/// </summary>
 	internal PartialDocumentItem()
 	{
-
 	}
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="PartialDocumentItem"/> class.
 	/// </summary>
 	/// <param name="partialName">The partial name.</param>
-	public PartialDocumentItem(TextRange location,  
-								string partialName,  
-								IEnumerable<ITokenOption> tagCreationOptions) 
+	public PartialDocumentItem(TextRange location,
+								string partialName,
+								IEnumerable<ITokenOption> tagCreationOptions)
 		: base(location, tagCreationOptions)
 	{
 		PartialName = partialName;
@@ -41,7 +41,7 @@ public class PartialDocumentItem : BlockDocumentItemBase, IEquatable<PartialDocu
 	///		The name of this partial
 	/// </summary>
 	public string PartialName { get; private set; }
-		
+
 	/// <inheritdoc />
 	protected PartialDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
@@ -83,7 +83,8 @@ public class PartialDocumentItem : BlockDocumentItemBase, IEquatable<PartialDocu
 	}
 
 	/// <inheritdoc />
-	public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context,
+	public override ItemExecutionPromise Render(IByteCounterStream outputStream,
+												ContextObject context,
 												ScopeData scopeData)
 	{
 		scopeData.Partials[PartialName] = new MorestachioDocument(Location, Enumerable.Empty<ITokenOption>())

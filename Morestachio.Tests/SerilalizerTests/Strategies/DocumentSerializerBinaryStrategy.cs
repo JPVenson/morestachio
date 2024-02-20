@@ -13,10 +13,11 @@ namespace Morestachio.Tests.SerilalizerTests.Strategies
 		{
 			//BinarySerializer.TypeFormat = FormatterTypeStyle.TypesWhenNeeded;
 		}
-		
+
 		public string SerializeDocumentToText(IDocumentItem obj)
 		{
 			var binarySerializer = new DataContractSerializer(obj.GetType());
+
 			using (var ms = new MemoryStream())
 			{
 				binarySerializer.WriteObject(ms, obj);
@@ -27,6 +28,7 @@ namespace Morestachio.Tests.SerilalizerTests.Strategies
 		public IDocumentItem DeSerializeDocumentToText(string text, Type expectedType)
 		{
 			var binarySerializer = new DataContractSerializer(expectedType);
+
 			using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(text)))
 			{
 				return binarySerializer.ReadObject(ms) as IDocumentItem;
@@ -37,6 +39,7 @@ namespace Morestachio.Tests.SerilalizerTests.Strategies
 		public string SerializeErrorToText(IMorestachioError obj)
 		{
 			var BinarySerializer = new DataContractSerializer(obj.GetType());
+
 			using (var ms = new MemoryStream())
 			{
 				BinarySerializer.WriteObject(ms, obj);
@@ -48,6 +51,7 @@ namespace Morestachio.Tests.SerilalizerTests.Strategies
 		public IMorestachioError DeSerializeErrorToText(string text, Type expectedType)
 		{
 			var binarySerializer = new DataContractSerializer(expectedType);
+
 			using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(text)))
 			{
 				return binarySerializer.ReadObject(ms) as IMorestachioError;

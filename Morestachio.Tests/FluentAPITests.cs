@@ -12,7 +12,6 @@ namespace Morestachio.Tests
 	{
 		public FluentAPITests()
 		{
-
 		}
 
 		private MorestachioDocumentInfo GenerateTemplate(string template)
@@ -51,12 +50,9 @@ namespace Morestachio.Tests
 				.AddPath((builder) => builder.Parse("test"))
 				.AddContent("content")
 				.AddIfAndEnter(builder => builder.Parse("test"))
-					.AddContent("data")
+				.AddContent("data")
 				.Parent()
-				.RenderTree(f =>
-				{
-					apiTemplate = f;
-				});
+				.RenderTree(f => { apiTemplate = f; });
 			Assert.That(template, Is.EqualTo(apiTemplate).IgnoreCase);
 		}
 
@@ -68,23 +64,20 @@ namespace Morestachio.Tests
 			var api = GenerateTemplate("")
 				.Fluent()
 				.AddPath((builder) =>
-					builder
-						.Property("test")
-						.Property("data")
-						.Call("format", argumentBuilder =>
-							argumentBuilder
-								.Argument(null, f => f.Property("argA"))
-								.Argument("delta", f => f.Number(123))
-								.Argument(null, f => f.Null())
-								.Argument(null, f => f.GoToRoot().Property("test.data"))
-							)
+						builder
+							.Property("test")
+							.Property("data")
+							.Call("format", argumentBuilder =>
+									argumentBuilder
+										.Argument(null, f => f.Property("argA"))
+										.Argument("delta", f => f.Number(123))
+										.Argument(null, f => f.Null())
+										.Argument(null, f => f.GoToRoot().Property("test.data"))
+								)
 					)
 				.AddContent("content")
 				.Root()
-				.RenderTree(f =>
-				{
-					apiTemplate = f;
-				});
+				.RenderTree(f => { apiTemplate = f; });
 
 			Assert.That(template, Is.EqualTo(apiTemplate).IgnoreCase);
 		}

@@ -38,15 +38,18 @@ public class AggregateCollection<T> : ICollection<T>
 		public bool MoveNext()
 		{
 			var moveNext = _current.MoveNext();
+
 			if (!moveNext)
 			{
 				if (_current == _parent)
 				{
 					return false;
 				}
+
 				_current = _parent;
 				return _current.MoveNext();
 			}
+
 			return true;
 		}
 

@@ -19,7 +19,8 @@ internal class SealableList<T> : IList<T>, ISealed
 	{
 		if (IsSealed)
 		{
-			throw new InvalidOperationException("This instance of ParserOptions is sealed and cannot be modified anymore");
+			throw new InvalidOperationException(
+				"This instance of ParserOptions is sealed and cannot be modified anymore");
 		}
 	}
 

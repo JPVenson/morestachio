@@ -16,7 +16,7 @@ public interface ITokenOption : IEquatable<ITokenOption>
 	///		The value of the Option
 	/// </summary>
 	object Value { get; }
-		
+
 	/// <summary>
 	///		Marks this Option as Persistent. It will be included in the DocumentItems list of TokenOptions.
 	/// </summary>

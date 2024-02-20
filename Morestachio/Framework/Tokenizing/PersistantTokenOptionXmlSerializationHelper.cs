@@ -12,6 +12,7 @@ internal static class PersistantTokenOptionXmlSerializationHelper
 	public static void WriteOptions(this XmlWriter writer, IEnumerable<ITokenOption> options, string elementName)
 	{
 		var tagOptions = options?.OfType<PersistantTokenOption>().ToArray();
+
 		if (tagOptions != null && tagOptions.Length > 0)
 		{
 			writer.WriteStartElement(elementName);
@@ -21,7 +22,7 @@ internal static class PersistantTokenOptionXmlSerializationHelper
 				writer.WriteXml(tokenOption);
 			}
 
-			writer.WriteEndElement();//elementName
+			writer.WriteEndElement(); //elementName
 		}
 	}
 
@@ -29,14 +30,15 @@ internal static class PersistantTokenOptionXmlSerializationHelper
 	{
 		if (reader.NodeType == XmlNodeType.Element && reader.Name.Equals(elementName))
 		{
-			reader.ReadStartElement();//elementName
+			reader.ReadStartElement(); //elementName
 			var options = new List<ITokenOption>();
+
 			while (reader.NodeType == XmlNodeType.Element && reader.Name.Equals("Option"))
 			{
 				options.Add(reader.ReadXmlOption());
 			}
 
-			reader.ReadEndElement();//elementName
+			reader.ReadEndElement(); //elementName
 			return options.ToArray();
 		}
 
@@ -63,7 +65,8 @@ internal static class PersistantTokenOptionXmlSerializationHelper
 				var expression = reader.ParseExpressionFromKind();
 				return new PersistantTokenOption(name, expression);
 			default:
-				throw new InvalidOperationException($"Cannot deserialize the token option with the name '{name}' and value(string) '{value}' to the type '{type}' as there is no conversion known");
+				throw new InvalidOperationException(
+					$"Cannot deserialize the token option with the name '{name}' and value(string) '{value}' to the type '{type}' as there is no conversion known");
 		}
 	}
 
@@ -71,6 +74,7 @@ internal static class PersistantTokenOptionXmlSerializationHelper
 	{
 		writer.WriteStartElement("Option");
 		writer.WriteAttributeString("Name", token.Name);
+
 		if (token.Value != null)
 		{
 			if (token.Value is string)
@@ -100,9 +104,11 @@ internal static class PersistantTokenOptionXmlSerializationHelper
 			}
 			else
 			{
-				throw new InvalidOperationException($"Cannot serialize the object of value: {token.Value}:{token.Value?.GetType()} for the TokenOption: {token.Name}");	
+				throw new InvalidOperationException(
+					$"Cannot serialize the object of value: {token.Value}:{token.Value?.GetType()} for the TokenOption: {token.Name}");
 			}
 		}
+
 		writer.WriteEndElement(); //Option
 	}
 }

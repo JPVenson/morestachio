@@ -56,7 +56,8 @@ public class MicrosoftLoggerAdapter : ILogger
 			return;
 		}
 
-		_logger.Log(ParseLogLevel(logLevel), new EventId(_eventId, eventId), new LogEntry(message, data), null, FormatMessage);
+		_logger.Log(ParseLogLevel(logLevel), new EventId(_eventId, eventId), new LogEntry(message, data), null,
+			FormatMessage);
 	}
 
 	/// <inheritdoc />
@@ -67,7 +68,8 @@ public class MicrosoftLoggerAdapter : ILogger
 			return;
 		}
 
-		_logger.Log(ParseLogLevel(logLevel), new EventId(_eventId, eventId), new LogEntry(message, null), null, FormatMessage);
+		_logger.Log(ParseLogLevel(logLevel), new EventId(_eventId, eventId), new LogEntry(message, null), null,
+			FormatMessage);
 	}
 
 	private string FormatMessage(LogEntry entry, Exception arg2)

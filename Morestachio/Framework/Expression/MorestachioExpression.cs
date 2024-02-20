@@ -37,10 +37,12 @@ public class MorestachioExpression : IMorestachioExpression
 	/// <param name="context"></param>
 	protected MorestachioExpression(SerializationInfo info, StreamingContext context)
 	{
-		PathParts = new Traversable(info.GetValue(nameof(PathParts), typeof(KeyValuePair<string, PathType>[])) as KeyValuePair<string, PathType>[]);
+		PathParts = new Traversable(
+			info.GetValue(nameof(PathParts), typeof(KeyValuePair<string, PathType>[])) as KeyValuePair<string, PathType>
+				[]);
 		Formats = info.GetValueOrEmpty<IMorestachioExpression>(context, nameof(Formats))
-					.OfType<ExpressionArgument>()
-					.ToArray();
+			.OfType<ExpressionArgument>()
+			.ToArray();
 		FormatterName = info.GetValueOrDefault<string>(context, nameof(FormatterName));
 		Location = TextRangeSerializationHelper.ReadTextRange(nameof(Location), info, context);
 		EndsWithDelimiter = info.GetValueOrDefault<bool>(context, nameof(EndsWithDelimiter));
@@ -68,16 +70,17 @@ public class MorestachioExpression : IMorestachioExpression
 		Location = TextRangeSerializationHelper.ReadTextRangeFromXml(reader, "Location");
 		EndsWithDelimiter = reader.GetAttribute(nameof(EndsWithDelimiter)) == bool.TrueString;
 		var pathParts = new List<KeyValuePair<string, PathType>>();
-		reader.ReadStartElement();//Path
+		reader.ReadStartElement(); //Path
 
 		if (reader.Name == "Path")
 		{
-			reader.ReadStartElement();//Any SubPath
+			reader.ReadStartElement(); //Any SubPath
 
 			while (reader.Name != "Path" && reader.NodeType != XmlNodeType.EndElement)
 			{
 				var partName = reader.Name;
 				string partValue = null;
+
 				if (reader.IsEmptyElement)
 				{
 					reader.ReadStartElement();
@@ -86,14 +89,20 @@ public class MorestachioExpression : IMorestachioExpression
 				{
 					partValue = reader.ReadElementContentAsString();
 				}
-				pathParts.Add(new KeyValuePair<string, PathType>(partValue, (PathType)Enum.Parse(typeof(PathType), partName)));
+
+				pathParts.Add(new KeyValuePair<string, PathType>(partValue,
+					(PathType)Enum.Parse(typeof(PathType), partName)));
 			}
-			reader.ReadEndElement();//</Path>
+
+			reader.ReadEndElement(); //</Path>
 		}
+
 		PathParts = new Traversable(pathParts);
+
 		if (reader.Name == "Format" && reader.NodeType == XmlNodeType.Element)
 		{
 			FormatterName = reader.GetAttribute(nameof(FormatterName));
+
 			if (reader.IsEmptyElement)
 			{
 				reader.ReadStartElement();
@@ -101,6 +110,7 @@ public class MorestachioExpression : IMorestachioExpression
 			else
 			{
 				reader.ReadStartElement(); //<Argument>
+
 				while (reader.Name == "Argument" && reader.NodeType != XmlNodeType.EndElement)
 				{
 					var formatSubTree = reader.ReadSubtree();
@@ -114,9 +124,11 @@ public class MorestachioExpression : IMorestachioExpression
 					reader.Skip();
 					reader.ReadEndElement();
 				}
-				reader.ReadEndElement();//</Format>
+
+				reader.ReadEndElement(); //</Format>
 			}
 		}
+
 		reader.ReadEndElement();
 	}
 
@@ -124,6 +136,7 @@ public class MorestachioExpression : IMorestachioExpression
 	public void WriteXml(XmlWriter writer)
 	{
 		TextRangeSerializationHelper.WriteTextRangeToXml(writer, Location, "Location");
+
 		if (EndsWithDelimiter)
 		{
 			writer.WriteAttributeString(nameof(EndsWithDelimiter), bool.TrueString);
@@ -132,23 +145,28 @@ public class MorestachioExpression : IMorestachioExpression
 		if (PathParts.Any())
 		{
 			writer.WriteStartElement("Path");
+
 			foreach (var pathPart in PathParts.ToArray())
 			{
 				writer.WriteElementString(pathPart.Value.ToString(), pathPart.Key);
 			}
-			writer.WriteEndElement();//</Path>
+
+			writer.WriteEndElement(); //</Path>
 		}
+
 		if (FormatterName != null)
 		{
 			writer.WriteStartElement("Format");
 			writer.WriteAttributeString(nameof(FormatterName), FormatterName);
+
 			foreach (var expressionArgument in Formats)
 			{
 				writer.WriteStartElement("Argument");
 				expressionArgument.WriteXml(writer);
-				writer.WriteEndElement();//</Argument>
+				writer.WriteEndElement(); //</Argument>
 			}
-			writer.WriteEndElement();//</Format>
+
+			writer.WriteEndElement(); //</Format>
 		}
 	}
 
@@ -190,6 +208,7 @@ public class MorestachioExpression : IMorestachioExpression
 		{
 			return (contextObject, _) => contextObject.ToPromise();
 		}
+
 		if (!PathParts.HasValue && expressionArguments.Length == 1 && FormatterName == "")
 		{
 			//this enables the usage of brackets. A formatter that has no name and one argument e.g ".(data + 1)" or "(data + 1)" should be considered a bracket
@@ -210,15 +229,18 @@ public class MorestachioExpression : IMorestachioExpression
 		{
 			var pathQueue = new Func<ContextObject, ScopeData, IMorestachioExpression, ContextObject>[pathParts.Length];
 			var idx = 0;
+
 			if (pathParts.Length > 0)
 			{
 				ref var keyValuePair = ref pathParts[0];
+
 				if (keyValuePair.Value == PathType.DataPath)
 				{
 					var key = keyValuePair.Key;
 					pathQueue[idx++] = ((context, scopeData, expression) =>
 					{
-						return scopeData.GetVariable(context, key) ?? context.ExecuteDataPath(key, expression, scopeData);
+						return scopeData.GetVariable(context, key) ??
+							context.ExecuteDataPath(key, expression, scopeData);
 					});
 				}
 			}
@@ -227,6 +249,7 @@ public class MorestachioExpression : IMorestachioExpression
 			{
 				ref var pathPart = ref pathParts[idx];
 				var key = pathPart.Key;
+
 				switch (pathPart.Value)
 				{
 					case PathType.DataPath:
@@ -236,10 +259,7 @@ public class MorestachioExpression : IMorestachioExpression
 						});
 						break;
 					case PathType.RootSelector:
-						pathQueue[idx++] = ((contextObject, _, _) =>
-						{
-							return contextObject.ExecuteRootSelector();
-						});
+						pathQueue[idx++] = ((contextObject, _, _) => { return contextObject.ExecuteRootSelector(); });
 						break;
 					case PathType.ParentSelector:
 						pathQueue[idx++] = ((contextObject, _, _) =>
@@ -306,6 +326,7 @@ public class MorestachioExpression : IMorestachioExpression
 		var formatsCompiled = new (ExpressionArgument argument, object value)[expressionArguments.Length];
 
 		bool allConstants = true;
+
 		for (int i = 0; i < formatsCompiled.Length; i++)
 		{
 			ref var f = ref expressionArguments[i];
@@ -337,11 +358,11 @@ public class MorestachioExpression : IMorestachioExpression
 				var ctx = scopeData.ParserOptions.CreateContextObject("", contextObject.Value,
 					contextObject);
 				contextObject = contextObject.FindNextNaturalContextObject();
-				cache = await 
-					CallFormatter(allConstants, 
-						formatsCompiled, 
-						contextObject, 
-						scopeData, 
+				cache = await
+					CallFormatter(allConstants,
+						formatsCompiled,
+						contextObject,
+						scopeData,
 						arguments,
 						ctx,
 						cache).ConfigureAwait(false);
@@ -352,11 +373,11 @@ public class MorestachioExpression : IMorestachioExpression
 		return async (contextObject, scopeData) =>
 		{
 			var ctx = getContext(contextObject, scopeData, this);
-			cache = await 
-				CallFormatter(allConstants, 
-					formatsCompiled, 
-					contextObject, 
-					scopeData, 
+			cache = await
+				CallFormatter(allConstants,
+					formatsCompiled,
+					contextObject,
+					scopeData,
 					arguments,
 					ctx,
 					cache).ConfigureAwait(false);
@@ -390,7 +411,7 @@ public class MorestachioExpression : IMorestachioExpression
 					value = formatterArgument.value;
 				}
 
-				arguments[index] = new FormatterArgumentType(index, 
+				arguments[index] = new FormatterArgumentType(index,
 					formatterArgument.argument.Name,
 					ref value,
 					formatterArgument.argument.MorestachioExpression);
@@ -406,7 +427,8 @@ public class MorestachioExpression : IMorestachioExpression
 
 		if (cache != null)
 		{
-			outputContext.InternalValue = await scopeData.ParserOptions.Formatters.Execute(cache, outputContext.Value, scopeData.ParserOptions, arguments).ConfigureAwait(false);
+			outputContext.InternalValue = await scopeData.ParserOptions.Formatters
+				.Execute(cache, outputContext.Value, scopeData.ParserOptions, arguments).ConfigureAwait(false);
 			outputContext.MakeSyntetic();
 		}
 
@@ -423,6 +445,7 @@ public class MorestachioExpression : IMorestachioExpression
 		}
 
 		var contextForPath = contextObject.GetContextForPath(PathParts, scopeData, this);
+
 		if (!Formats.Any() && FormatterName == null)
 		{
 			return contextForPath;
@@ -435,11 +458,14 @@ public class MorestachioExpression : IMorestachioExpression
 
 		var arguments = new FormatterArgumentType[Formats.Count];
 		var naturalValue = contextObject.FindNextNaturalContextObject();
+
 		for (var index = 0; index < Formats.Count; index++)
 		{
 			var formatterArgument = Formats[index];
-			var value = await formatterArgument.MorestachioExpression.GetValue(naturalValue, scopeData).ConfigureAwait(false);
-			arguments[index] = new FormatterArgumentType(index, formatterArgument.Name, ref value.Value, formatterArgument.MorestachioExpression);
+			var value = await formatterArgument.MorestachioExpression.GetValue(naturalValue, scopeData)
+				.ConfigureAwait(false);
+			arguments[index] = new FormatterArgumentType(index, formatterArgument.Name, ref value.Value,
+				formatterArgument.MorestachioExpression);
 		}
 		//contextForPath.Value = await contextForPath.Format(FormatterName, argList, scopeData);
 
@@ -452,9 +478,11 @@ public class MorestachioExpression : IMorestachioExpression
 
 		if (Cache != null)
 		{
-			contextForPath.InternalValue = await scopeData.ParserOptions.Formatters.Execute(Cache, contextForPath.Value, scopeData.ParserOptions, arguments).ConfigureAwait(false);
+			contextForPath.InternalValue = await scopeData.ParserOptions.Formatters
+				.Execute(Cache, contextForPath.Value, scopeData.ParserOptions, arguments).ConfigureAwait(false);
 			contextForPath.MakeSyntetic();
 		}
+
 		return contextForPath;
 	}
 
@@ -495,6 +523,7 @@ public class MorestachioExpression : IMorestachioExpression
 		{
 			return null;
 		}
+
 		if (PathParts.Count == 1)
 		{
 			if (PathParts.Current.Value == PathType.Boolean)
@@ -518,6 +547,7 @@ public class MorestachioExpression : IMorestachioExpression
 		{
 			return false;
 		}
+
 		if (other.Formats.Count != Formats.Count)
 		{
 			return false;
@@ -535,6 +565,7 @@ public class MorestachioExpression : IMorestachioExpression
 
 		var parts = PathParts.ToArray();
 		var otherParts = other.PathParts.ToArray();
+
 		if (parts.Length != otherParts.Length || Formats.Count != other.Formats.Count)
 		{
 			return false;
@@ -544,6 +575,7 @@ public class MorestachioExpression : IMorestachioExpression
 		{
 			var thisPart = parts[index];
 			var thatPart = otherParts[index];
+
 			if (thatPart.Value != thisPart.Value || thatPart.Key != thisPart.Key)
 			{
 				return false;
@@ -554,6 +586,7 @@ public class MorestachioExpression : IMorestachioExpression
 		{
 			var thisArgument = Formats[index];
 			var thatArgument = other.Formats[index];
+
 			if (!thisArgument.Equals(thatArgument))
 			{
 				return false;
@@ -629,18 +662,12 @@ public class MorestachioExpression : IMorestachioExpression
 
 		public string Expression
 		{
-			get
-			{
-				return _exp.AsStringExpression();
-			}
+			get { return _exp.AsStringExpression(); }
 		}
 
 		public string DbgView
 		{
-			get
-			{
-				return _exp.AsDebugExpression();
-			}
+			get { return _exp.AsDebugExpression(); }
 		}
 
 		/// <inheritdoc />

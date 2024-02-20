@@ -12,6 +12,7 @@ public enum LineBreakTrimDirection
 	///		Default none
 	/// </summary>
 	None = 0,
+
 	/// <summary>
 	///		Should trim all linebreaks at the start of the next content
 	/// </summary>

@@ -12,7 +12,7 @@ namespace Morestachio.AspNetCore
 		}
 
 		private IDictionary<string, object> _extValues;
-		
+
 		public object Data
 		{
 			get { return _extValues[nameof(Data)]; }
@@ -32,7 +32,7 @@ namespace Morestachio.AspNetCore
 
 		IEnumerator IEnumerable.GetEnumerator()
 		{
-			return ((IEnumerable) _extValues).GetEnumerator();
+			return ((IEnumerable)_extValues).GetEnumerator();
 		}
 
 		public void Add(KeyValuePair<string, object> item)

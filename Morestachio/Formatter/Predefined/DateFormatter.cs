@@ -42,27 +42,31 @@ public static class DateFormatter
 	public static int WeekOfDate(DateTime time, [ExternalData] ParserOptions parserOptions)
 	{
 		return parserOptions.CultureInfo.Calendar
-			.GetWeekOfYear(time, 
+			.GetWeekOfYear(time,
 				parserOptions.CultureInfo.DateTimeFormat.CalendarWeekRule,
 				parserOptions.CultureInfo.DateTimeFormat.FirstDayOfWeek);
 	}
-		
+
 	[MorestachioFormatter("Add", "Adds the TimeSpan to the given DateTime")]
 	[MorestachioOperator(OperatorTypes.Add, "Adds the TimeSpan to the given DateTime")]
-	public static DateTime Add([SourceObject]DateTime dateTime, TimeSpan timespan)
+	public static DateTime Add([SourceObject] DateTime dateTime, TimeSpan timespan)
 	{
 		return dateTime.Add(timespan);
 	}
 
-	[MorestachioFormatter("ToDateTime", "Converts the string representation of a date and time to its DateTime equivalent.")]
-	[MorestachioGlobalFormatter("DateTime", "Converts the string representation of a date and time to its DateTime equivalent.")]
+	[MorestachioFormatter("ToDateTime",
+		"Converts the string representation of a date and time to its DateTime equivalent.")]
+	[MorestachioGlobalFormatter("DateTime",
+		"Converts the string representation of a date and time to its DateTime equivalent.")]
 	public static DateTime Parse(string text, [ExternalData] ParserOptions parserOptions)
 	{
 		return DateTime.Parse(text, parserOptions.CultureInfo);
 	}
 
-	[MorestachioFormatter("ToExactDateTime", "Converts the string representation of a date and time to its DateTime equivalent using the specified format and culture-specific format information. The format of the string representation must match the specified format exactly.")]
-	[MorestachioGlobalFormatter("ExactDateTime", "Converts the string representation of a date and time to its DateTime equivalent using the specified format and culture-specific format information. The format of the string representation must match the specified format exactly.")]
+	[MorestachioFormatter("ToExactDateTime",
+		"Converts the string representation of a date and time to its DateTime equivalent using the specified format and culture-specific format information. The format of the string representation must match the specified format exactly.")]
+	[MorestachioGlobalFormatter("ExactDateTime",
+		"Converts the string representation of a date and time to its DateTime equivalent using the specified format and culture-specific format information. The format of the string representation must match the specified format exactly.")]
 	public static DateTime ParseExact(string text, string format)
 	{
 		return DateTime.ParseExact(text, format, null);
@@ -70,20 +74,24 @@ public static class DateFormatter
 
 	[MorestachioFormatter("Add", "Adds the TimeSpan to the given DateTime")]
 	[MorestachioOperator(OperatorTypes.Add, "Adds the TimeSpan to the given DateTime")]
-	public static DateTimeOffset Add([SourceObject]DateTimeOffset dateTime, TimeSpan timespan)
+	public static DateTimeOffset Add([SourceObject] DateTimeOffset dateTime, TimeSpan timespan)
 	{
 		return dateTime.Add(timespan);
 	}
 
-	[MorestachioFormatter("ToDateTimeOffset", "Converts the string representation of a date and time to its DateTime equivalent.")]
-	[MorestachioGlobalFormatter("DateTimeOffset", "Converts the string representation of a date and time to its DateTime equivalent.")]
+	[MorestachioFormatter("ToDateTimeOffset",
+		"Converts the string representation of a date and time to its DateTime equivalent.")]
+	[MorestachioGlobalFormatter("DateTimeOffset",
+		"Converts the string representation of a date and time to its DateTime equivalent.")]
 	public static DateTimeOffset ParseDateTimeOffset(string text, [ExternalData] ParserOptions parserOptions)
 	{
 		return DateTimeOffset.Parse(text, parserOptions.CultureInfo);
 	}
 
-	[MorestachioFormatter("ToExactDateTimeOffset", "Converts the string representation of a date and time to its DateTime equivalent using the specified format and culture-specific format information. The format of the string representation must match the specified format exactly.")]
-	[MorestachioGlobalFormatter("ExactDateTimeOffset", "Converts the string representation of a date and time to its DateTime equivalent using the specified format and culture-specific format information. The format of the string representation must match the specified format exactly.")]
+	[MorestachioFormatter("ToExactDateTimeOffset",
+		"Converts the string representation of a date and time to its DateTime equivalent using the specified format and culture-specific format information. The format of the string representation must match the specified format exactly.")]
+	[MorestachioGlobalFormatter("ExactDateTimeOffset",
+		"Converts the string representation of a date and time to its DateTime equivalent using the specified format and culture-specific format information. The format of the string representation must match the specified format exactly.")]
 	public static DateTimeOffset ParseExactDateTimeOffset(string text, string format)
 	{
 		return DateTimeOffset.ParseExact(text, format, null);

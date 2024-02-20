@@ -41,7 +41,8 @@ public class MorestachioExpressionString : IMorestachioExpression
 	/// <param name="context"></param>
 	protected MorestachioExpressionString(SerializationInfo info, StreamingContext context)
 	{
-		StringParts = (ExpressionStringConstPart[])info.GetValue(nameof(StringParts), typeof(ExpressionStringConstPart[]));
+		StringParts = (ExpressionStringConstPart[])info.GetValue(nameof(StringParts),
+			typeof(ExpressionStringConstPart[]));
 
 		Location = TextRangeSerializationHelper.ReadTextRange(nameof(Location), info, context);
 		Delimiter = info.GetChar(nameof(Delimiter));
@@ -57,11 +58,14 @@ public class MorestachioExpressionString : IMorestachioExpression
 	public void ReadXml(XmlReader reader)
 	{
 		Location = TextRangeSerializationHelper.ReadTextRangeFromXml(reader, "Location");
+
 		if (reader.IsEmptyElement)
 		{
 			return;
 		}
+
 		reader.ReadStartElement();
+
 		while (reader.Name == nameof(ExpressionStringConstPart) && reader.NodeType != XmlNodeType.EndElement)
 		{
 			var strLocation = TextRangeSerializationHelper.ReadTextRangeFromXml(reader, "Location");
@@ -78,6 +82,7 @@ public class MorestachioExpressionString : IMorestachioExpression
 	public void WriteXml(XmlWriter writer)
 	{
 		TextRangeSerializationHelper.WriteTextRangeToXml(writer, Location, "Location");
+
 		foreach (var expressionStringConstPart in StringParts.Where(e => !(e.PartText is null)))
 		{
 			writer.WriteStartElement(expressionStringConstPart.GetType().Name);
@@ -167,6 +172,7 @@ public class MorestachioExpressionString : IMorestachioExpression
 		{
 			var leftStrPart = StringParts[index];
 			var rightStrPart = other.StringParts[index];
+
 			if (!leftStrPart.Equals(rightStrPart))
 			{
 				return false;
@@ -175,6 +181,7 @@ public class MorestachioExpressionString : IMorestachioExpression
 
 		return true;
 	}
+
 	/// <inheritdoc />
 	public override bool Equals(object obj)
 	{
@@ -195,6 +202,7 @@ public class MorestachioExpressionString : IMorestachioExpression
 
 		return Equals((MorestachioExpressionString)obj);
 	}
+
 	/// <inheritdoc />
 	public override int GetHashCode()
 	{
@@ -218,18 +226,12 @@ public class MorestachioExpressionString : IMorestachioExpression
 
 		public string Expression
 		{
-			get
-			{
-				return _exp.AsStringExpression();
-			}
+			get { return _exp.AsStringExpression(); }
 		}
 
 		public string DbgView
 		{
-			get
-			{
-				return _exp.AsDebugExpression();
-			}
+			get { return _exp.AsDebugExpression(); }
 		}
 
 		public TextRange Location

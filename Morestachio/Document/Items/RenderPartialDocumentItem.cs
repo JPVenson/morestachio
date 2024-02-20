@@ -25,19 +25,19 @@ public class RenderPartialDocumentItem : ValueDocumentItemBase
 	/// </summary>
 	internal RenderPartialDocumentItem()
 	{
-
 	}
 
 	/// <inheritdoc />
-	public RenderPartialDocumentItem(TextRange location,  string value,  IMorestachioExpression context,
+	public RenderPartialDocumentItem(TextRange location,
+									string value,
+									IMorestachioExpression context,
 									IEnumerable<ITokenOption> tagCreationOptions)
-		: base(location, value,tagCreationOptions)
+		: base(location, value, tagCreationOptions)
 	{
 		Context = context;
 	}
 
 	/// <inheritdoc />
-		
 	protected RenderPartialDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
 		Context = info.GetValue(nameof(Context), typeof(IMorestachioExpression)) as IMorestachioExpression;
@@ -59,6 +59,7 @@ public class RenderPartialDocumentItem : ValueDocumentItemBase
 	protected override void SerializeXmlBodyCore(XmlWriter writer)
 	{
 		base.SerializeXmlBodyCore(writer);
+
 		if (Context != null)
 		{
 			writer.WriteStartElement("With");
@@ -71,6 +72,7 @@ public class RenderPartialDocumentItem : ValueDocumentItemBase
 	protected override void DeSerializeXmlBodyCore(XmlReader reader)
 	{
 		base.DeSerializeXmlBodyCore(reader);
+
 		if (reader.Name == "With")
 		{
 			reader.ReadStartElement();
@@ -89,6 +91,7 @@ public class RenderPartialDocumentItem : ValueDocumentItemBase
 	{
 		string partialName = Value;
 		scopeData.PartialDepth.Push(new Tuple<string, int>(partialName, scopeData.PartialDepth.Count));
+
 		if (scopeData.PartialDepth.Count >= scopeData.ParserOptions.PartialStackSize)
 		{
 			switch (scopeData.ParserOptions.StackOverflowBehavior)
@@ -99,7 +102,7 @@ public class RenderPartialDocumentItem : ValueDocumentItemBase
 						{
 							Data =
 							{
-								{"Callstack", scopeData.PartialDepth}
+								{ "Callstack", scopeData.PartialDepth }
 							}
 						};
 				case PartialStackOverflowBehavior.FailSilent:
@@ -134,20 +137,24 @@ public class RenderPartialDocumentItem : ValueDocumentItemBase
 		if (scopeData.ParserOptions.PartialsStore != null)
 		{
 			MorestachioDocumentInfo partialFromStore;
+
 			if (scopeData.ParserOptions.PartialsStore is IAsyncPartialsStore asyncPs)
 			{
-				partialFromStore = await asyncPs.GetPartialAsync(partialName, scopeData.ParserOptions).ConfigureAwait(false);
+				partialFromStore = await asyncPs.GetPartialAsync(partialName, scopeData.ParserOptions)
+					.ConfigureAwait(false);
 			}
 			else
 			{
-				partialFromStore = scopeData.ParserOptions.PartialsStore.GetPartial(partialName, scopeData.ParserOptions);
+				partialFromStore
+					= scopeData.ParserOptions.PartialsStore.GetPartial(partialName, scopeData.ParserOptions);
 			}
 
 			if (partialFromStore != null)
 			{
 				if (partialFromStore.Errors.Any())
 				{
-					throw new MorestachioRuntimeException($"The partial named '{partialName}' obtained from external partial store contains one or more errors");
+					throw new MorestachioRuntimeException(
+						$"The partial named '{partialName}' obtained from external partial store contains one or more errors");
 				}
 
 				return new[]
@@ -159,8 +166,10 @@ public class RenderPartialDocumentItem : ValueDocumentItemBase
 		}
 
 
-		throw new MorestachioRuntimeException($"Could not obtain a partial named '{partialName}' from the template nor the Partial store");
+		throw new MorestachioRuntimeException(
+			$"Could not obtain a partial named '{partialName}' from the template nor the Partial store");
 	}
+
 	/// <inheritdoc />
 	public override void Accept(IDocumentItemVisitor visitor)
 	{

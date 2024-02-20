@@ -14,7 +14,10 @@ public readonly struct TextResourceEntity
 	/// <param name="key"></param>
 	/// <param name="text"></param>
 	/// <param name="page"></param>
-	public TextResourceEntity(CultureInfo lang, string key, object text, string page)
+	public TextResourceEntity(CultureInfo lang,
+							string key,
+							object text,
+							string page)
 	{
 		Lang = lang;
 		Key = key;

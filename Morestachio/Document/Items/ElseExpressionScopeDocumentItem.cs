@@ -25,26 +25,26 @@ public class ElseExpressionScopeDocumentItem : BlockDocumentItemBase, ISupportCu
 	/// </summary>
 	internal ElseExpressionScopeDocumentItem()
 	{
-
 	}
 
 	/// <summary>
 	///		Used for XML Serialization
 	/// </summary>
 	internal ElseExpressionScopeDocumentItem(TextRange location,
-											IEnumerable<ITokenOption> tagCreationOptions) : base(location, tagCreationOptions)
+											IEnumerable<ITokenOption> tagCreationOptions) : base(location,
+		tagCreationOptions)
 	{
-
 	}
 
 	/// <inheritdoc />
-
 	protected ElseExpressionScopeDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
 	}
 
 	/// <inheritdoc />
-	public override ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+	public override ItemExecutionPromise Render(IByteCounterStream outputStream,
+												ContextObject context,
+												ScopeData scopeData)
 	{
 		return Children.WithScope(context).ToPromise();
 	}

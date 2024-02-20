@@ -7,13 +7,13 @@ namespace Morestachio.Document.TextOperations;
 /// <summary>
 ///		The base interface for all TextOperations
 /// </summary>
-public interface ITextOperation: IXmlSerializable, ISerializable
+public interface ITextOperation : IXmlSerializable, ISerializable
 {
 	/// <summary>
 	///		The kind of text operation
 	/// </summary>
 	TextOperationTypes TextOperationType { get; }
-		
+
 	/// <summary>
 	///		Should this text edit only applied once or until it is explicitly removed from the stack
 	/// </summary>
@@ -30,5 +30,4 @@ public interface ITextOperation: IXmlSerializable, ISerializable
 	/// <param name="value"></param>
 	/// <returns></returns>
 	string Apply(string value);
-
 }

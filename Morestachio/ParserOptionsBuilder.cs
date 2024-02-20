@@ -13,7 +13,6 @@ using Morestachio.TemplateContainers;
 
 namespace Morestachio;
 
-
 /// <summary>
 ///		Allows the fluid creation of a <see cref="ParserOptions"/> object
 /// </summary>
@@ -22,7 +21,6 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	private ParserOptionsBuilder()
 		: this(new Dictionary<string, Func<ParserOptions, ParserOptions>>())
 	{
-
 	}
 
 	/// <summary>
@@ -125,7 +123,8 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	/// <inheritdoc />
 	public IParserOptionsBuilder WithTemplate(string value)
 	{
-		return WithValue(nameof(ParserOptions.Template), options => options.Template = new StringTemplateContainer(value));
+		return WithValue(nameof(ParserOptions.Template),
+			options => options.Template = new StringTemplateContainer(value));
 	}
 
 	/// <inheritdoc />
@@ -231,7 +230,8 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	/// <inheritdoc />
 	public IParserOptionsBuilder WithUnmatchedFormatterBehavior(UnmatchedFormatterBehavior value)
 	{
-		return WithValue(nameof(ParserOptions.UnmatchedFormatterBehavior), options => options.UnmatchedFormatterBehavior = value);
+		return WithValue(nameof(ParserOptions.UnmatchedFormatterBehavior),
+			options => options.UnmatchedFormatterBehavior = value);
 	}
 
 	/// <inheritdoc />
@@ -249,7 +249,8 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	/// <inheritdoc />
 	public IParserOptionsBuilder WithDisableContentEscaping(bool value)
 	{
-		return WithValue(nameof(ParserOptions.DisableContentEscaping), options => options.DisableContentEscaping = value);
+		return WithValue(nameof(ParserOptions.DisableContentEscaping),
+			options => options.DisableContentEscaping = value);
 	}
 
 	/// <inheritdoc />
@@ -267,19 +268,22 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	/// <inheritdoc />
 	public IParserOptionsBuilder WithTargetStream(Func<IByteCounterStream> value)
 	{
-		return WithValue(nameof(ParserOptions.StreamFactory), options => options.StreamFactory = new ByteCounterFactory((opt) => value()));
+		return WithValue(nameof(ParserOptions.StreamFactory),
+			options => options.StreamFactory = new ByteCounterFactory((opt) => value()));
 	}
 
 	/// <inheritdoc />
 	public IParserOptionsBuilder WithTargetStream(Func<ParserOptions, IByteCounterStream> value)
 	{
-		return WithValue(nameof(ParserOptions.StreamFactory), options => options.StreamFactory = new ByteCounterFactory(value));
+		return WithValue(nameof(ParserOptions.StreamFactory),
+			options => options.StreamFactory = new ByteCounterFactory(value));
 	}
 
 	/// <inheritdoc />
 	public IParserOptionsBuilder WithTargetStream(Func<Stream> value)
 	{
-		return WithValue(nameof(ParserOptions.StreamFactory), options => options.StreamFactory = new ByteCounterFactory(value));
+		return WithValue(nameof(ParserOptions.StreamFactory),
+			options => options.StreamFactory = new ByteCounterFactory(value));
 	}
 
 	/// <inheritdoc />
@@ -313,13 +317,15 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	/// <inheritdoc />
 	public IParserOptionsBuilder WithHandleDictionaryAsObject(bool value)
 	{
-		return WithValue(nameof(ParserOptions.HandleDictionaryAsObject), options => options.HandleDictionaryAsObject = value);
+		return WithValue(nameof(ParserOptions.HandleDictionaryAsObject),
+			options => options.HandleDictionaryAsObject = value);
 	}
 
 	/// <inheritdoc />
 	public IParserOptionsBuilder WithTemplate(Func<string> value)
 	{
-		return WithValue(nameof(ParserOptions.Template), options => options.Template = new StringTemplateContainer(value()));
+		return WithValue(nameof(ParserOptions.Template),
+			options => options.Template = new StringTemplateContainer(value()));
 	}
 
 	/// <inheritdoc />
@@ -363,7 +369,8 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	/// <inheritdoc />
 	public IParserOptionsBuilder AddCustomDocument(Func<CustomDocumentItemProvider> value)
 	{
-		return WithValue(nameof(ParserOptions.CustomDocumentItemProviders), options => options.CustomDocumentItemProviders.Add(value()));
+		return WithValue(nameof(ParserOptions.CustomDocumentItemProviders),
+			options => options.CustomDocumentItemProviders.Add(value()));
 	}
 
 	/// <inheritdoc />
@@ -389,7 +396,8 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	/// <inheritdoc />
 	public IParserOptionsBuilder WithFallbackValueResolver(Func<IFallbackValueResolver> value)
 	{
-		return WithValue(nameof(ParserOptions.FallbackValueResolver), options => options.FallbackValueResolver = value());
+		return WithValue(nameof(ParserOptions.FallbackValueResolver),
+			options => options.FallbackValueResolver = value());
 	}
 
 	/// <inheritdoc />
@@ -419,13 +427,15 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	/// <inheritdoc />
 	public IParserOptionsBuilder WithStackOverflowBehavior(Func<PartialStackOverflowBehavior> value)
 	{
-		return WithValue(nameof(ParserOptions.StackOverflowBehavior), options => options.StackOverflowBehavior = value());
+		return WithValue(nameof(ParserOptions.StackOverflowBehavior),
+			options => options.StackOverflowBehavior = value());
 	}
 
 	/// <inheritdoc />
 	public IParserOptionsBuilder WithUnmatchedFormatterBehavior(Func<UnmatchedFormatterBehavior> value)
 	{
-		return WithValue(nameof(ParserOptions.UnmatchedFormatterBehavior), options => options.UnmatchedFormatterBehavior = value());
+		return WithValue(nameof(ParserOptions.UnmatchedFormatterBehavior),
+			options => options.UnmatchedFormatterBehavior = value());
 	}
 
 	/// <inheritdoc />
@@ -443,7 +453,8 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	/// <inheritdoc />
 	public IParserOptionsBuilder WithDisableContentEscaping(Func<bool> value)
 	{
-		return WithValue(nameof(ParserOptions.DisableContentEscaping), options => options.DisableContentEscaping = value());
+		return WithValue(nameof(ParserOptions.DisableContentEscaping),
+			options => options.DisableContentEscaping = value());
 	}
 
 	/// <inheritdoc />
@@ -461,13 +472,15 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	/// <inheritdoc />
 	public IParserOptionsBuilder WithTargetStream(IByteCounterStream value)
 	{
-		return WithValue(nameof(ParserOptions.StreamFactory), options => options.StreamFactory = new ByteCounterFactory((opt) => value));
+		return WithValue(nameof(ParserOptions.StreamFactory),
+			options => options.StreamFactory = new ByteCounterFactory((opt) => value));
 	}
 
 	/// <inheritdoc />
 	public IParserOptionsBuilder WithTargetStream(Stream value)
 	{
-		return WithValue(nameof(ParserOptions.StreamFactory), options => options.StreamFactory = new ByteCounterFactory(() => value));
+		return WithValue(nameof(ParserOptions.StreamFactory),
+			options => options.StreamFactory = new ByteCounterFactory(() => value));
 	}
 
 	/// <inheritdoc />
@@ -505,7 +518,8 @@ public class ParserOptionsBuilder : IParserOptionsBuilder
 	/// <inheritdoc />
 	public IParserOptionsBuilder WithHandleDictionaryAsObject(Func<bool> value)
 	{
-		return WithValue(nameof(ParserOptions.HandleDictionaryAsObject), options => options.HandleDictionaryAsObject = value());
+		return WithValue(nameof(ParserOptions.HandleDictionaryAsObject),
+			options => options.HandleDictionaryAsObject = value());
 	}
 
 	/// <inheritdoc />

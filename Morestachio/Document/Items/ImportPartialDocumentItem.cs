@@ -27,7 +27,6 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 	/// </summary>
 	internal ImportPartialDocumentItem()
 	{
-
 	}
 
 	/// <inheritdoc />
@@ -35,13 +34,12 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 									IMorestachioExpression value,
 									IMorestachioExpression context,
 									IEnumerable<ITokenOption> tagCreationOptions)
-		: base(location, value,tagCreationOptions)
+		: base(location, value, tagCreationOptions)
 	{
 		Context = context;
 	}
 
 	/// <inheritdoc />
-		
 	protected ImportPartialDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
 		Context = info.GetValueOrDefault<IMorestachioExpression>(c, nameof(Context));
@@ -63,6 +61,7 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 	protected override void SerializeXmlBodyCore(XmlWriter writer)
 	{
 		base.SerializeXmlBodyCore(writer);
+
 		if (Context != null)
 		{
 			writer.WriteStartElement("With");
@@ -75,6 +74,7 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 	protected override void DeSerializeXmlBodyCore(XmlReader reader)
 	{
 		base.DeSerializeXmlBodyCore(reader);
+
 		if (reader.Name == "With")
 		{
 			reader.ReadStartElement();
@@ -85,7 +85,7 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 			reader.ReadEndElement();
 		}
 	}
-	
+
 	private async CoreActionPromise CoreAction(
 		ContextObject context,
 		ScopeData scopeData,
@@ -93,6 +93,7 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 		string partialName)
 	{
 		scopeData.PartialDepth.Push(new Tuple<string, int>(partialName, scopeData.PartialDepth.Count));
+
 		if (scopeData.PartialDepth.Count >= scopeData.ParserOptions.PartialStackSize)
 		{
 			switch (scopeData.ParserOptions.StackOverflowBehavior)
@@ -103,7 +104,7 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 						{
 							Data =
 							{
-								{"Callstack", scopeData.PartialDepth}
+								{ "Callstack", scopeData.PartialDepth }
 							}
 						};
 				case PartialStackOverflowBehavior.FailSilent:
@@ -114,9 +115,11 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 		}
 
 		scopeData.AddVariable("$name",
-			(scope) => scopeData.ParserOptions.CreateContextObject("$name", scope.PartialDepth.Peek().Item1, context), 0);
+			(scope) => scopeData.ParserOptions.CreateContextObject("$name", scope.PartialDepth.Peek().Item1, context),
+			0);
 
 		var cnxt = context;
+
 		if (Context != null)
 		{
 			cnxt = (await Context.GetValue(context, scopeData).ConfigureAwait(false));
@@ -135,27 +138,32 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 		if (scopeData.ParserOptions.PartialsStore != null)
 		{
 			MorestachioDocumentInfo partialFromStore;
+
 			if (scopeData.ParserOptions.PartialsStore is IAsyncPartialsStore asyncPs)
 			{
-				partialFromStore = await asyncPs.GetPartialAsync(partialName, scopeData.ParserOptions).ConfigureAwait(false);
+				partialFromStore = await asyncPs.GetPartialAsync(partialName, scopeData.ParserOptions)
+					.ConfigureAwait(false);
 			}
 			else
 			{
-				partialFromStore = scopeData.ParserOptions.PartialsStore.GetPartial(partialName, scopeData.ParserOptions);
+				partialFromStore
+					= scopeData.ParserOptions.PartialsStore.GetPartial(partialName, scopeData.ParserOptions);
 			}
 
 			if (partialFromStore != null)
 			{
 				if (partialFromStore.Errors.Any())
 				{
-					throw new MorestachioRuntimeException($"The partial named '{partialName}' obtained from external partial store contains one or more errors");
+					throw new MorestachioRuntimeException(
+						$"The partial named '{partialName}' obtained from external partial store contains one or more errors");
 				}
 
 				return Tuple.Create(partialFromStore.Document, cnxt);
 			}
 		}
 
-		throw new MorestachioRuntimeException($"Could not obtain a partial named '{partialName}' from the template nor the Partial store");
+		throw new MorestachioRuntimeException(
+			$"Could not obtain a partial named '{partialName}' from the template nor the Partial store");
 	}
 
 	/// <param name="compiler"></param>
@@ -167,11 +175,13 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 		var expression = MorestachioExpression.Compile(parserOptions);
 		return async (stream, context, scopeData) =>
 		{
-			var partialName = (await expression(context, scopeData).ConfigureAwait(false)).RenderToString(scopeData).ToString();
+			var partialName = (await expression(context, scopeData).ConfigureAwait(false)).RenderToString(scopeData)
+				.ToString();
 
 			if (partialName == null)
 			{
-				throw new MorestachioRuntimeException($"Get partial requested by the expression: '{MorestachioExpression.ToString()}' returned null and is therefor not valid");
+				throw new MorestachioRuntimeException(
+					$"Get partial requested by the expression: '{MorestachioExpression.ToString()}' returned null and is therefor not valid");
 			}
 
 			var toExecute = await CoreAction(context, scopeData, async (pn, cnxt) =>
@@ -185,6 +195,7 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 
 				return false;
 			}, partialName).ConfigureAwait(false);
+
 			if (toExecute != null)
 			{
 				await compiler.Compile(new IDocumentItem[]
@@ -204,11 +215,13 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 		Tuple<IDocumentItem, ContextObject> action = null;
 		Tuple<IDocumentItem, ContextObject> actiona = null;
 
-		var partialName = (await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false)).RenderToString(scopeData).ToString();
+		var partialName = (await MorestachioExpression.GetValue(context, scopeData).ConfigureAwait(false))
+			.RenderToString(scopeData).ToString();
 
 		if (partialName == null)
 		{
-			throw new MorestachioRuntimeException($"Get partial requested by the expression: '{MorestachioExpression.ToString()}' returned null and is therefor not valid");
+			throw new MorestachioRuntimeException(
+				$"Get partial requested by the expression: '{MorestachioExpression.ToString()}' returned null and is therefor not valid");
 		}
 
 		action = await CoreAction(context, scopeData, (pn, cnxt) =>
@@ -222,6 +235,7 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 			return false.ToPromise();
 		}, partialName).ConfigureAwait(false);
 		action = action ?? actiona;
+
 		if (action != null)
 		{
 			return new[]
@@ -230,6 +244,7 @@ public class ImportPartialDocumentItem : ExpressionDocumentItemBase, ISupportCus
 				new DocumentItemExecution(new RenderPartialDoneDocumentItem(), action.Item2),
 			};
 		}
+
 		return Enumerable.Empty<DocumentItemExecution>();
 	}
 

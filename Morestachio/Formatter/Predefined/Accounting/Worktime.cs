@@ -48,6 +48,7 @@ public readonly struct Worktime : IFormattable
 									WorktimePrecision toPrecision)
 	{
 		var secounds = GetTimeInSeconds(value, fromPrecision);
+
 		switch (toPrecision)
 		{
 			case WorktimePrecision.Seconds:
@@ -96,47 +97,48 @@ public readonly struct Worktime : IFormattable
 	[MorestachioGlobalFormatter("WorktimeFromTimespan", "Creates a new Worktime Object based on the Timespan")]
 	public static Worktime WorktimeFactory(TimeSpan timespan)
 	{
-		return new Worktime().AddSeconds((long) timespan.TotalSeconds);
+		return new Worktime().AddSeconds((long)timespan.TotalSeconds);
 	}
 
 	[MorestachioFormatter("Add", "Adds both worktimes together")]
-	public static Worktime Add([SourceObject]Worktime worktime, Worktime other)
+	public static Worktime Add([SourceObject] Worktime worktime, Worktime other)
 	{
 		return worktime.Add(other.TimeWorked, other.Precision);
 	}
 
 	[MorestachioFormatter("AddSeconds", "Adds the given amount of Seconds to the worktime")]
-	public static Worktime AddSeconds([SourceObject]Worktime worktime, Number number)
+	public static Worktime AddSeconds([SourceObject] Worktime worktime, Number number)
 	{
 		return worktime.AddSeconds(number.ToInt64(null));
 	}
 
 	[MorestachioFormatter("AddMinutes", "Adds the given amount of Minutes to the worktime")]
-	public static Worktime AddMinutes([SourceObject]Worktime worktime, Number number)
+	public static Worktime AddMinutes([SourceObject] Worktime worktime, Number number)
 	{
 		return worktime.AddMinutes(number.ToInt64(null));
 	}
 
 	[MorestachioFormatter("AddHours", "Adds the given amount of Hours to the worktime")]
-	public static Worktime AddHours([SourceObject]Worktime worktime, Number number)
+	public static Worktime AddHours([SourceObject] Worktime worktime, Number number)
 	{
 		return worktime.AddHours(number.ToInt64(null));
 	}
 
 	[MorestachioFormatter("AddDays", "Adds the given amount of Days to the worktime")]
-	public static Worktime AddDays([SourceObject]Worktime worktime, Number number)
+	public static Worktime AddDays([SourceObject] Worktime worktime, Number number)
 	{
 		return worktime.AddDays(number.ToInt64(null));
 	}
 
 	[MorestachioFormatter("AddWeeks", "Adds the given amount of Weeks to the worktime")]
-	public static Worktime AddWeeks([SourceObject]Worktime worktime, Number number)
+	public static Worktime AddWeeks([SourceObject] Worktime worktime, Number number)
 	{
 		return worktime.AddWeeks(number.ToInt64(null));
 	}
 
-	[MorestachioFormatter("AddMonths", "Adds the given amount of Months to the worktime. As all months have different days you have to specify which month to start with.")]
-	public static Worktime AddMonths([SourceObject]Worktime worktime, Number number, DateTime startingWith)
+	[MorestachioFormatter("AddMonths",
+		"Adds the given amount of Months to the worktime. As all months have different days you have to specify which month to start with.")]
+	public static Worktime AddMonths([SourceObject] Worktime worktime, Number number, DateTime startingWith)
 	{
 		return worktime.AddMonths(number.ToInt32(null), startingWith);
 	}
@@ -216,11 +218,13 @@ public readonly struct Worktime : IFormattable
 		var writeDecimal = format == "d";
 
 		var ts = TimeSpan.FromSeconds(GetTimeInSeconds(TimeWorked, Precision));
+
 		if (writeDecimal)
 		{
 			return Math.Round(ts.TotalMinutes / 60, 2).ToString("00.00", formatProvider);
 		}
 
-		return (Math.Abs(ts.TotalHours)).ToString("00", formatProvider) + ":" + ts.Minutes.ToString("00", formatProvider);
+		return (Math.Abs(ts.TotalHours)).ToString("00", formatProvider) + ":" +
+			ts.Minutes.ToString("00", formatProvider);
 	}
 }

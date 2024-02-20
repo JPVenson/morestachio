@@ -1999,7 +1999,9 @@ Static
 				}
 			};
 
-			Assert.That(async () => await CreateAndParseWithOptions(template, data, _options, builder => builder.WithStrictExecution(true)), 
+			Assert.That(
+				async () => await CreateAndParseWithOptions(template, data, _options,
+					builder => builder.WithStrictExecution(true)),
 				Throws.Exception.TypeOf<UnresolvedPathException>());
 		}
 

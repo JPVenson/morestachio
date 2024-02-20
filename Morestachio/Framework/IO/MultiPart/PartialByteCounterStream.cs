@@ -49,7 +49,7 @@
 //			Partials.Add(partialByteCounterStreamPart);
 //			return partialByteCounterStreamPart;
 //		}
-		
+
 //		/// <inheritdoc />
 //		public void Dispose()
 //		{
@@ -129,3 +129,4 @@
 //		}
 //	}
 //}
+

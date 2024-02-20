@@ -21,38 +21,40 @@ public class WhileLoopDocumentItem : BlockExpressionDocumentItemBase, ISupportCu
 	/// </summary>
 	internal WhileLoopDocumentItem()
 	{
-
 	}
 
 	/// <inheritdoc />
 	public WhileLoopDocumentItem(TextRange location,
 								IMorestachioExpression value,
-								IEnumerable<ITokenOption> tagCreationOptions) : base(location, value, tagCreationOptions)
+								IEnumerable<ITokenOption> tagCreationOptions) : base(location, value,
+		tagCreationOptions)
 	{
-
 	}
 
 	/// <inheritdoc />
-		
 	protected WhileLoopDocumentItem(SerializationInfo info, StreamingContext c) : base(info, c)
 	{
-
 	}
 
 	/// <inheritdoc />
-	public override async ItemExecutionPromise Render(IByteCounterStream outputStream, ContextObject context, ScopeData scopeData)
+	public override async ItemExecutionPromise Render(IByteCounterStream outputStream,
+													ContextObject context,
+													ScopeData scopeData)
 	{
 		var index = 0;
 
 		var collectionContext = new ContextCollection(index, false, context.Key, context.Parent,
 			context.Value);
 
-		while (ContinueBuilding(outputStream, scopeData) && (await MorestachioExpression.GetValue(collectionContext, scopeData).ConfigureAwait(false)).Exists())
+		while (ContinueBuilding(outputStream, scopeData) &&
+				(await MorestachioExpression.GetValue(collectionContext, scopeData).ConfigureAwait(false)).Exists())
 		{
 			//TODO get a way how to execute this on the caller
-			await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, collectionContext, scopeData).ConfigureAwait(false);
+			await MorestachioDocument.ProcessItemsAndChildren(Children, outputStream, collectionContext, scopeData)
+				.ConfigureAwait(false);
 			collectionContext = new ContextCollection(++index, false, context.Key, context.Parent, context.Value);
 		}
+
 		return Enumerable.Empty<DocumentItemExecution>();
 	}
 
