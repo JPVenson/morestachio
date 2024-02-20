@@ -800,7 +800,7 @@ namespace Morestachio.Tests
 				}
 			};
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithFormatter(new Func<string, bool>(f => f == "test"), "Self"); });
-			Assert.AreEqual("TEST", result);
+			Assert.That("TEST", Is.EqualTo(result));
 		}
 
 		[Test]
@@ -835,7 +835,7 @@ namespace Morestachio.Tests
 				return options.WithFormatter(new Func<IEnumerable<string>, IEnumerable<string>>(f => f), "Self")
 							.WithFormatter(new Func<string, bool>(f => f == "TE"), "Self");
 			});
-			Assert.AreEqual("TE", result);
+			Assert.That("TE", Is.EqualTo(result));
 		}
 
 		[Test]
@@ -850,7 +850,7 @@ namespace Morestachio.Tests
 				{ "root", "tset" }
 			};
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _opts, options => { return options.WithFormatter(new Func<string, bool>(f => f != "test"), "Self"); });
-			Assert.AreEqual(data.ToString(), result);
+			Assert.That(data.ToString(), Is.EqualTo(result));
 		}
 
 		[Test]
@@ -882,7 +882,7 @@ namespace Morestachio.Tests
 									return rootArg.PadLeft(123);
 								}), "TEST");
 			});
-			Assert.AreEqual("tset".PadLeft(123), result);
+			Assert.That("tset".PadLeft(123), Is.EqualTo(result));
 		}
 
 		[Test]
@@ -1117,7 +1117,7 @@ namespace Morestachio.Tests
 				{
 					return options.WithFileSystem(() => new FileSystemService(tempDirectory));
 				});
-				FileAssert.Exists(combine);
+				Assert.That(combine, Does.Exist);
 			}
 			finally
 			{

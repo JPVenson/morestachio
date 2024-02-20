@@ -1,6 +1,8 @@
-﻿using Morestachio.Document.Items;
+﻿using Microsoft.SqlServer.Server;
+using Morestachio.Document.Items;
 using Morestachio.Fluent;
 using NUnit.Framework;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Morestachio.Tests
 {
@@ -55,7 +57,7 @@ namespace Morestachio.Tests
 				{
 					apiTemplate = f;
 				});
-			StringAssert.AreEqualIgnoringCase(template, apiTemplate);
+			Assert.That(template, Is.EqualTo(apiTemplate).IgnoreCase);
 		}
 
 		[Test]
@@ -83,8 +85,8 @@ namespace Morestachio.Tests
 				{
 					apiTemplate = f;
 				});
-			
-			StringAssert.AreEqualIgnoringCase(template, apiTemplate);
+
+			Assert.That(template, Is.EqualTo(apiTemplate).IgnoreCase);
 		}
 	}
 }

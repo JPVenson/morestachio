@@ -15,6 +15,7 @@ using Morestachio.Formatter.Framework.Attributes;
 using Morestachio.Formatter.Predefined;
 using Morestachio.Framework;
 using Morestachio.Framework.Context.Resolver;
+using Morestachio.Framework.Error;
 using Morestachio.Framework.Expression;
 using Morestachio.Framework.Expression.Framework;
 using Morestachio.Framework.Expression.Parser;
@@ -849,7 +850,7 @@ namespace Morestachio.Tests
 					return options.WithFormatters(typeof(DynamicLinq))
 						.WithFormatters(typeof(FormatterTests.NumberFormatter));
 				});
-			Assert.AreEqual("2 = 2 = 2", result);
+			Assert.That(result, Is.EqualTo("2 = 2 = 2"));
 		}
 
 		[Test]
@@ -1984,6 +1985,22 @@ Static
 			});
 			Assert.That(result, Is.EqualTo(@""));
 			Assert.That(data.Called, Is.True);
+		}
+
+		[Test]
+		public async Task TestStrictMode()
+		{
+			var template = @"{{data.InvalidPath}}";
+			var data = new
+			{
+				data = new
+				{
+					validPath = true
+				}
+			};
+
+			Assert.That(async () => await CreateAndParseWithOptions(template, data, _options, builder => builder.WithStrictExecution(true)), 
+				Throws.Exception.TypeOf<UnresolvedPathException>());
 		}
 
 		private class BoundExpressionFormatter

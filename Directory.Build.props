@@ -21,6 +21,8 @@
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+
+        <SupportedFrameworks>net462;net47;net471;net472;net6.0;net7.0;net8.0;</SupportedFrameworks>
     </PropertyGroup>
 
     <!--Enable Deterministic Builds-->

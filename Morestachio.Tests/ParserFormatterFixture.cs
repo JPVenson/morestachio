@@ -37,7 +37,7 @@ namespace Morestachio.Tests
 			Console.WriteLine(report);
 		}
 		
-#if NET5_0_OR_GREATER
+#if NET7
 		public object ToValStr(object source, ReadOnlyMemory<char> var)
 		{
 			return source.ToString();

@@ -39,7 +39,7 @@ public class SerializerTest
 		visitor.Visit(documentItem as MorestachioDocument);
 
 		var format = visitor.StringBuilder.ToString();
-		StringAssert.AreEqualIgnoringCase(text, format);
+		Assert.That(text, Is.EqualTo(format).IgnoreCase);
 		if (!format.Equals(text))
 		{
 			if (!format.Equals(text, StringComparison.OrdinalIgnoreCase))

@@ -32,7 +32,7 @@ namespace Morestachio.Tests.FormatterFunctionTests
 				}
 			};
 			var result = await CallFormatter<string>("this.ToXml()", data);
-			Assert.IsNotNull(result);
+			Assert.That(result, Is.Not.Null);
 			var expected = ObjectFormatter.ToXml(data, new ParserOptions { Encoding = ParserFixture.DefaultEncoding });
 			Assert.That(result, Is.EqualTo(expected));
 		}
@@ -51,7 +51,7 @@ namespace Morestachio.Tests.FormatterFunctionTests
 				}
 			};
 			var result = await CallFormatter<object>("this.AsObject().Genders.Male", data);
-			Assert.IsNotNull(result);
+			Assert.That(result, Is.Not.Null);
 			Assert.That("MALE", Is.EqualTo(result));
 		}
 
@@ -67,7 +67,7 @@ namespace Morestachio.Tests.FormatterFunctionTests
 				}
 			};
 			var result = await CallFormatter<IDictionary<string, object>>("new([Name]\"Test\", [Age] 57, [Gender] Genders.Male)", data);
-			Assert.IsNotNull(result);
+			Assert.That(result, Is.Not.Null);
 			Assert.That(result["Name"], Is.EqualTo("Test"));
 			Assert.That(result["Age"], Is.EqualTo(57));
 			Assert.That(result["Gender"], Is.EqualTo(data.Genders.Male));
@@ -85,7 +85,7 @@ namespace Morestachio.Tests.FormatterFunctionTests
 				}
 			};
 			var result = await CallFormatter<string>("this.Call('ToXml')", data);
-			Assert.IsNotNull(result);
+			Assert.That(result, Is.Not.Null);
 			var expected = ObjectFormatter.ToXml(data, new ParserOptions { Encoding = ParserFixture.DefaultEncoding });
 			Assert.That(result, Is.EqualTo(expected));
 		}
@@ -102,7 +102,7 @@ namespace Morestachio.Tests.FormatterFunctionTests
 				}
 			};
 			var result = await CallFormatter<string>("this.Get('GenderDatas').First().Get('Id')", data);
-			Assert.IsNotNull(result);
+			Assert.That(result, Is.Not.Null);
 			var expected = ObjectFormatter.ToXml(data, new ParserOptions { Encoding = ParserFixture.DefaultEncoding });
 			Assert.That(result, Is.EqualTo("MALE"));
 		}
@@ -125,7 +125,8 @@ namespace Morestachio.Tests.FormatterFunctionTests
 				left = leftObject,
 				right = rightObject
 			});
-			Assert.IsNotNull(result);
+			Assert.That(result, Is.Not.Null);
+			
 			var expected = ObjectFormatter.Combine(leftObject, rightObject);
 
 			foreach (var item in result)

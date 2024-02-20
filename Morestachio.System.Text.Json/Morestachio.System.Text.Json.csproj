@@ -9,10 +9,14 @@
     <Import Project="../AfterDirectory.Build.props"></Import>
 
     <ItemGroup>
-      <PackageReference Include="System.Text.Json" Version="6.0.4" />
+      <PackageReference Include="System.Text.Json" Version="8.0.2" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Morestachio\Morestachio.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Update="Microsoft.SourceLink.GitHub" Version="8.0.0" />
     </ItemGroup>
 </Project>
