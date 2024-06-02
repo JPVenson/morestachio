@@ -23,13 +23,13 @@ public static class ObjectFormatter
 	[MorestachioFormatter("ToString", "Formats a value according to the structure set by the argument")]
 	public static string Formattable(IFormattable source, string argument, [ExternalData] ParserOptions options)
 	{
-		return source.ToString(argument, options.CultureInfo);
+		return source?.ToString(argument, options.CultureInfo);
 	}
 
 	[MorestachioFormatter("ToString", "Formats the value according to the build in rules for that object")]
 	public static string Formattable(object source)
 	{
-		return source.ToString();
+		return source?.ToString();
 	}
 
 	[MorestachioFormatter("ToXml", null)]
