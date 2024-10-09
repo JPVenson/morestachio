@@ -25,7 +25,7 @@
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(IsValueTask)' == 'Enabled'">
-		<PackageReference Include="System.Text.Json" Version="8.0.4" />
+		<PackageReference Include="System.Text.Json" Version="8.0.5" />
 		<ProjectReference Include="..\Morestachio.System.Text.Json\Morestachio.System.Text.Json.csproj" />
 	</ItemGroup>
 
