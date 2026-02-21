@@ -1803,7 +1803,7 @@ Test{{#NL}}";
 			var result = await CreateAndParseWithOptions(template, data, _options,
 				options => { return options.WithFormatters(typeof(EqualityFormatter)); });
 
-			Assert.That(result, Is.EqualTo("Test\n"));
+			Assert.That(result, Is.EqualTo($"Test{Environment.NewLine}"));
 		}
 
 		[Test]
