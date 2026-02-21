@@ -42,7 +42,9 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task CanNotParseUnclosedString()
 		{
-			var text = "\"";
+			var text = """
+                "
+                """;
 			var result = await ExpressionParser.EvaluateExpression(text, new ParserOptions(), null,
 				TokenzierContext.FromText(text));
 			Assert.That(result, Is.Null);
@@ -52,7 +54,9 @@ namespace Morestachio.Tests
 		public async Task CanParseStringWithEscaptedChars()
 		{
 			var text
-				= "\"a string, with a comma, and other {[]}{§$%& stuff. also a escaped \\\" and \\\\\" and so on\"";
+				= """
+    "a string, with a comma, and other {[]}{§$%& stuff. also a escaped \" and \\" and so on"
+    """;
 			var result = ExpressionParser.ParseExpression(text, out var context, CultureInfo.CurrentCulture);
 			Assert.That(context.Errors, Is.Empty, () => context.Errors.Select(f => f.GetException().ToString())
 				.Aggregate((e, f) => e + "\r\n-------------" + f));

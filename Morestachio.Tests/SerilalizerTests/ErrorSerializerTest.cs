@@ -31,7 +31,9 @@ public class ErrorSerializerTest
 			return $"Object left is: \r\n" +
 				$"\"{text}\" \r\n" +
 				$"and right ist \r\n" +
-				$"\"{deserializedText}\"" +
+				$"""
+				"{deserializedText}"
+				""" +
 				$"";
 		});
 

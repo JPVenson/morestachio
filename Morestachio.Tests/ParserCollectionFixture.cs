@@ -40,7 +40,9 @@ namespace Morestachio.Tests
 
 			Assert.That(result, Is.EqualTo($"{nameof(EveryObjectTest.TestA)}:\"Du\"," +
 				$"{nameof(EveryObjectTest.TestB)}:\"Hast\"," +
-				$"{nameof(EveryObjectTest.ObjectTest)}:\"\""));
+				$"""
+				{nameof(EveryObjectTest.ObjectTest)}:""
+				"""));
 		}
 
 		[Test]
@@ -58,7 +60,9 @@ namespace Morestachio.Tests
 
 			Assert.That(result, Is.EqualTo($"{nameof(EveryObjectTest.TestA)}:\"Du\"," +
 				$"{nameof(EveryObjectTest.TestB)}:\"Hast\"," +
-				$"{nameof(EveryObjectTest.ObjectTest)}:\"\""));
+				$"""
+				{nameof(EveryObjectTest.ObjectTest)}:""
+				"""));
 		}
 
 		[Test]
@@ -81,7 +85,9 @@ namespace Morestachio.Tests
 
 			Assert.That(result, Is.EqualTo($"{nameof(EveryObjectTest.TestA)}:\"Du\"," +
 				$"{nameof(EveryObjectTest.TestB)}:\"Hast\"," +
-				$"{nameof(EveryObjectTest.ObjectTest)}:\"\""));
+				$"""
+				{nameof(EveryObjectTest.ObjectTest)}:""
+				"""));
 		}
 
 		[Test]

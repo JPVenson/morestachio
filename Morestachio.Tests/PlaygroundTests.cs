@@ -76,17 +76,19 @@ namespace Morestachio.Tests
 			Console.WriteLine(value);
 		}
 
-		public const string TextTemplateMorestachio = @"
-<ul id='products'>
-  {{#each Products}}
-	<li>
-	  <h2>{{Name}}</h2>
-		   Only {{Price}}
-		   {{Description.Truncate(15)}}
-	</li>
-  {{/each}}
-</ul>
-";
+		public const string TextTemplateMorestachio = """
+
+            <ul id='products'>
+              {{#each Products}}
+            	<li>
+            	  <h2>{{Name}}</h2>
+            		   Only {{Price}}
+            		   {{Description.Truncate(15)}}
+            	</li>
+              {{/each}}
+            </ul>
+
+            """;
 
 		private const string Lorem
 			= "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
@@ -503,98 +505,100 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task GenerateExpressions()
 		{
-			var template = @"
+			var template = """
 
-		/// <summary>
-		///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
-		/// </summary>
-		public Func<TResult> AsFunc<TResult>()
-		{
-			AssertParameterCount(0);
-			return () =>
-			{
-				var clone = _contextObject.CloneForEdit();
-				return (TResult)_expression.Expression.GetValue(clone, _scopeData).Await().Value;
-			};
-		}
 
-		/// <summary>
-		///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
-		/// </summary>
-		public Func<Task<TResult>> AsAsyncFunc<TResult>()
-		{
-			AssertParameterCount(0);
-			return async () =>
-			{
-				var clone = _contextObject.CloneForEdit();
-				return (TResult)((await _expression.Expression.GetValue(clone, _scopeData)).Value);
-			};
-		}
-{{#REPEAT 16}}{{#LET nr = $index + 1}}
-		/// <summary>
-		///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
-		/// </summary>
-		public Func<{{#REPEAT nr}}T{{$index}}, {{/REPEAT}}TResult> AsFunc<{{#REPEAT nr}}T{{$index}}, {{/REPEAT}}TResult>()
-		{
-			AssertParameterCount({{nr}});
-			return ({{#REPEAT nr - 1}}arg{{$index + 1}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}}) =>
-			{
-				AddArguments({{#REPEAT nr - 1}}arg{{$index + 1}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}});
-				var clone = _contextObject.CloneForEdit();
-				var result = (TResult)((_expression.Expression.GetValue(clone, _scopeData)).Await().Value);
-				RemoveArguments();
-				return result;
-			};
-		}
-{{/REPEAT}}
-{{#REPEAT 16}}{{#LET nr = $index + 1}}
-		/// <summary>
-		///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
-		/// </summary>
-		public Func<{{#REPEAT nr}}T{{$index}}, {{/REPEAT}}Task<TResult>> AsAsyncFunc<{{#REPEAT nr}}T{{$index}}, {{/REPEAT}}TResult>()
-		{
-			AssertParameterCount({{nr}});
-			return async ({{#REPEAT nr - 1}}arg{{$index + 1}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}}) =>
-			{
-				AddArguments({{#REPEAT nr - 1}}arg{{$index + 1}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}});
-				var clone = _contextObject.CloneForEdit();
-				var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData)).Value);
-				RemoveArguments();
-				return result;
-			};
-		}
-{{/REPEAT}}
-		/// <summary>
-		///		Creates a new c# Delegate that invokes the morestachio expression
-		/// </summary>
-		public Action<T> AsAction<T>()
-		{
-			AssertParameterCount(1);
-			return arg1 =>
-			{
-				AddArguments(arg1);
-				var clone = _contextObject.CloneForEdit();
-				_expression.Expression.GetValue(clone, _scopeData).Await();
-				RemoveArguments();
-			};
-		}
-{{#REPEAT 15}}{{#LET nr = $index + 2}}
-		/// <summary>
-		///		Creates a new c# Delegate that invokes the morestachio expression
-		/// </summary>
-		public Action<{{#REPEAT nr - 1}}T{{$index}}, {{/REPEAT}}T{{$index + 1}}> AsAction<{{#REPEAT nr - 1}}T{{$index}}, {{/REPEAT}}T{{$index + 1}}>()
-		{
-			AssertParameterCount({{$index + 1}});
-			return ({{#REPEAT nr - 1}}arg{{$index + 1}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}}) =>
-			{
-				AddArguments({{#REPEAT nr - 1}}arg{{$index + 1}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}});
-				var clone = _contextObject.CloneForEdit();
-				_expression.Expression.GetValue(clone, _scopeData).Await();
-				RemoveArguments();
-			};
-		}
-{{/REPEAT}}
-";
+                		/// <summary>
+                		///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
+                		/// </summary>
+                		public Func<TResult> AsFunc<TResult>()
+                		{
+                			AssertParameterCount(0);
+                			return () =>
+                			{
+                				var clone = _contextObject.CloneForEdit();
+                				return (TResult)_expression.Expression.GetValue(clone, _scopeData).Await().Value;
+                			};
+                		}
+
+                		/// <summary>
+                		///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
+                		/// </summary>
+                		public Func<Task<TResult>> AsAsyncFunc<TResult>()
+                		{
+                			AssertParameterCount(0);
+                			return async () =>
+                			{
+                				var clone = _contextObject.CloneForEdit();
+                				return (TResult)((await _expression.Expression.GetValue(clone, _scopeData)).Value);
+                			};
+                		}
+                {{#REPEAT 16}}{{#LET nr = $index + 1}}
+                		/// <summary>
+                		///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
+                		/// </summary>
+                		public Func<{{#REPEAT nr}}T{{$index}}, {{/REPEAT}}TResult> AsFunc<{{#REPEAT nr}}T{{$index}}, {{/REPEAT}}TResult>()
+                		{
+                			AssertParameterCount({{nr}});
+                			return ({{#REPEAT nr - 1}}arg{{$index + 1}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}}) =>
+                			{
+                				AddArguments({{#REPEAT nr - 1}}arg{{$index + 1}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}});
+                				var clone = _contextObject.CloneForEdit();
+                				var result = (TResult)((_expression.Expression.GetValue(clone, _scopeData)).Await().Value);
+                				RemoveArguments();
+                				return result;
+                			};
+                		}
+                {{/REPEAT}}
+                {{#REPEAT 16}}{{#LET nr = $index + 1}}
+                		/// <summary>
+                		///		Creates a new c# Delegate that invokes the morestachio expression and returns its value cast into the TResult
+                		/// </summary>
+                		public Func<{{#REPEAT nr}}T{{$index}}, {{/REPEAT}}Task<TResult>> AsAsyncFunc<{{#REPEAT nr}}T{{$index}}, {{/REPEAT}}TResult>()
+                		{
+                			AssertParameterCount({{nr}});
+                			return async ({{#REPEAT nr - 1}}arg{{$index + 1}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}}) =>
+                			{
+                				AddArguments({{#REPEAT nr - 1}}arg{{$index + 1}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}});
+                				var clone = _contextObject.CloneForEdit();
+                				var result = (TResult)((await _expression.Expression.GetValue(clone, _scopeData)).Value);
+                				RemoveArguments();
+                				return result;
+                			};
+                		}
+                {{/REPEAT}}
+                		/// <summary>
+                		///		Creates a new c# Delegate that invokes the morestachio expression
+                		/// </summary>
+                		public Action<T> AsAction<T>()
+                		{
+                			AssertParameterCount(1);
+                			return arg1 =>
+                			{
+                				AddArguments(arg1);
+                				var clone = _contextObject.CloneForEdit();
+                				_expression.Expression.GetValue(clone, _scopeData).Await();
+                				RemoveArguments();
+                			};
+                		}
+                {{#REPEAT 15}}{{#LET nr = $index + 2}}
+                		/// <summary>
+                		///		Creates a new c# Delegate that invokes the morestachio expression
+                		/// </summary>
+                		public Action<{{#REPEAT nr - 1}}T{{$index}}, {{/REPEAT}}T{{$index + 1}}> AsAction<{{#REPEAT nr - 1}}T{{$index}}, {{/REPEAT}}T{{$index + 1}}>()
+                		{
+                			AssertParameterCount({{$index + 1}});
+                			return ({{#REPEAT nr - 1}}arg{{$index + 1}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}}) =>
+                			{
+                				AddArguments({{#REPEAT nr - 1}}arg{{$index + 1}}{{#IF $last == false}}, {{/IF}}{{/REPEAT}}arg{{nr}});
+                				var clone = _contextObject.CloneForEdit();
+                				_expression.Expression.GetValue(clone, _scopeData).Await();
+                				RemoveArguments();
+                			};
+                		}
+                {{/REPEAT}}
+
+                """;
 
 			var result = (await (await Parser.ParseWithOptionsAsync(ParserFixture.TestBuilder().WithTemplate(template)
 					.Build()))

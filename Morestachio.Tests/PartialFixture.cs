@@ -295,11 +295,13 @@ namespace Morestachio.Tests
 					ParserFixture.DefaultEncoding);
 
 				var template =
-					@"Blank
-{{#IMPORT 'File/content'}}
-{{#IMPORT 'File/instruction'}}
-{{#IMPORT 'File/base'}}
-";
+					"""
+					Blank
+					{{#IMPORT 'File/content'}}
+					{{#IMPORT 'File/instruction'}}
+					{{#IMPORT 'File/base'}}
+
+					""";
 				var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options,
 					options =>
 					{
@@ -307,11 +309,13 @@ namespace Morestachio.Tests
 							"File/"));
 					});
 
-				Assert.That(result, Is.EqualTo(@"Blank
-Hello World
-Hello mr Bond
-Sub Path
-"));
+				Assert.That(result, Is.EqualTo("""
+                    Blank
+                    Hello World
+                    Hello mr Bond
+                    Sub Path
+
+                    """));
 			}
 			finally
 			{

@@ -124,8 +124,10 @@ namespace Morestachio.Tests
 		{
 			var data = new Dictionary<string, object>();
 
-			var template = @"as{{!stu
-			ff}}df";
+			var template = """
+                as{{!stu
+                			ff}}df
+                """;
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data,
 				_options | ParserOptionTypes.NoRerenderingTest);
 			Assert.That(result, Is.EqualTo("asdf"));
@@ -136,8 +138,10 @@ namespace Morestachio.Tests
 		{
 			var data = new Dictionary<string, object>();
 
-			var template = @"as{{!stu
-			ff}}df";
+			var template = """
+                as{{!stu
+                			ff}}df
+                """;
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data, _options,
 				e => { return e.WithTokenizeComments(true); });
 			Assert.That(result, Is.EqualTo("asdf"));
@@ -387,22 +391,24 @@ namespace Morestachio.Tests
 		public async Task TemplateIfElseIfElseMultipleTailingElse()
 		{
 			var template =
-				@"
-{{--| #IF data == 'ABC'}}
-	{{data}}
-	{{#ELSEIF data == 'a'}}
-		{{data}}
-	{{/ELSEIF}}
-	{{#ELSEIF data == 'c'}}
-		{{data}}
-	{{/ELSEIF}}
-	{{#ELSEIF data == 'true'}}
-		{{data}}
-	{{/ELSEIF}}
-	{{#ELSE}}
-		{{--| root |--}}
-	{{/ELSE}}
-{{/IF}}";
+				"""
+
+				{{--| #IF data == 'ABC'}}
+					{{data}}
+					{{#ELSEIF data == 'a'}}
+						{{data}}
+					{{/ELSEIF}}
+					{{#ELSEIF data == 'c'}}
+						{{data}}
+					{{/ELSEIF}}
+					{{#ELSEIF data == 'true'}}
+						{{data}}
+					{{/ELSEIF}}
+					{{#ELSE}}
+						{{--| root |--}}
+					{{/ELSE}}
+				{{/IF}}
+				""";
 
 			var data = new Dictionary<string, object>
 			{
@@ -417,17 +423,19 @@ namespace Morestachio.Tests
 		public async Task TemplatePartialCanTrim()
 		{
 			var template =
-				@"
-{{--| #DECLARE PartialA |--}}
-	{{#IF otherother |--}}
-		{{otherother}}
-		{{--| #ELSE |--}}
-			Invalid Context
-		{{--| /ELSE |--}}
-	{{--| /IF |--}}
-{{--| /DECLARE |--}}
-This is an partial included: ({{#IMPORT 'PartialA'}}) within the current context.<br/>
-This is an partial included: ({{#IMPORT 'PartialA' #WITH other}}) with an set context.";
+				"""
+
+				{{--| #DECLARE PartialA |--}}
+					{{#IF otherother |--}}
+						{{otherother}}
+						{{--| #ELSE |--}}
+							Invalid Context
+						{{--| /ELSE |--}}
+					{{--| /IF |--}}
+				{{--| /DECLARE |--}}
+				This is an partial included: ({{#IMPORT 'PartialA'}}) within the current context.<br/>
+				This is an partial included: ({{#IMPORT 'PartialA' #WITH other}}) with an set context.
+				""";
 			var subData = new Dictionary<string, object>();
 			subData["otherother"] = "Test";
 			var data = new Dictionary<string, object>();
@@ -578,12 +586,14 @@ This is an partial included: ({{#IMPORT 'PartialA' #WITH other}}) with an set co
 		public async Task TemplateCanRenderDefaultSwitchCase()
 		{
 			var template =
-				@"{{#SWITCH data}}
-				{{#CASE 'tset'}}FAIL{{/CASE}}
-				{{#CASE 123}}FAIL{{/CASE}}
-				{{#CASE root}}FAIL{{/CASE}}
-				{{#DEFAULT}}SUCCESS{{/DEFAULT}}
-				{{/SWITCH}}";
+				"""
+				{{#SWITCH data}}
+								{{#CASE 'tset'}}FAIL{{/CASE}}
+								{{#CASE 123}}FAIL{{/CASE}}
+								{{#CASE root}}FAIL{{/CASE}}
+								{{#DEFAULT}}SUCCESS{{/DEFAULT}}
+								{{/SWITCH}}
+				""";
 
 			var data = new Dictionary<string, object>
 			{

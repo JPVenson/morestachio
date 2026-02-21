@@ -25,13 +25,15 @@ namespace Morestachio.Tests.Json
 		[Test]
 		public void TestValueResolverCanGetProperty()
 		{
-			var data = @"{
-	""Data"": {
-		""PropA"": ""Te"",
-	},
-	""PropB"": ""st""
-}
-";
+			var data = """
+                {
+                	"Data": {
+                		"PropA": "Te",
+                	},
+                	"PropB": "st"
+                }
+
+                """;
 			var template = "{{Data.PropA}}{{PropB}}";
 
 			var document = _jsonSerializerStrategy.Register(ParserFixture.TestBuilder().WithTemplate(template))
@@ -43,13 +45,15 @@ namespace Morestachio.Tests.Json
 		[Test]
 		public void TestValueResolverCanGetPropertyList()
 		{
-			var data = @"{
-	""Data"": {
-		""PropA"": [""T"",""e""],
-	},
-	""PropB"": ""st""
-}
-";
+			var data = """
+                {
+                	"Data": {
+                		"PropA": ["T","e"],
+                	},
+                	"PropB": "st"
+                }
+
+                """;
 			var template = "{{#each Data.PropA}}{{this}}{{/each}}{{PropB}}";
 			var document = _jsonSerializerStrategy.Register(ParserFixture.TestBuilder().WithTemplate(template))
 				.BuildAndParse();
@@ -60,13 +64,15 @@ namespace Morestachio.Tests.Json
 		[Test]
 		public void TestValueResolverCanGetPropertyListAndFormat()
 		{
-			var data = @"{
-	""Data"": {
-		""PropA"": [""E"", ""T"",""e""],
-	},
-	""PropB"": ""st""
-}
-";
+			var data = """
+                {
+                	"Data": {
+                		"PropA": ["E", "T","e"],
+                	},
+                	"PropB": "st"
+                }
+
+                """;
 			var template = "{{#each Data.PropA.Skip(1)}}{{this}}{{/each}}{{PropB}}";
 			var document = _jsonSerializerStrategy.Register(ParserFixture.TestBuilder().WithTemplate(template))
 				.BuildAndParse();

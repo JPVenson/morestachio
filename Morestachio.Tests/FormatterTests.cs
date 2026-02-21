@@ -457,11 +457,13 @@ namespace Morestachio.Tests
 		[Test]
 		public async Task ParserCanChainFormatWithLineBreak()
 		{
-			var template = @"{{#SCOPE data}}{{this
-	. ToString (   'd'  )
-																. Self
-()
-}}{{/SCOPE}}";
+			var template = """
+                {{#SCOPE data}}{{this
+                	. ToString (   'd'  )
+                																. Self
+                ()
+                }}{{/SCOPE}}
+                """;
 			var data = new Dictionary<string, object> { { "data", DateTime.UtcNow } };
 			var result = await ParserFixture.CreateAndParseWithOptions(template, data,
 				_opts | ParserOptionTypes.NoRerenderingTest,
