@@ -2,13 +2,13 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>Net5.0</TargetFramework>
+        <TargetFramework>Net10.0</TargetFramework>
         <PackageTags>Formatter, C#, Engine, NetStandard, Morestachio</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+        <PackageReference Include="System.CommandLine" Version="3.0.0-preview.1.26104.118" />
     </ItemGroup>
 
     <ItemGroup>

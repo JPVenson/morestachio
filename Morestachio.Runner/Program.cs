@@ -39,7 +39,8 @@ namespace Morestachio.Runner
 
 		public async Task<int> RootHandler(string[] args)
 		{
-			return await GetCommands().InvokeAsync(args);
+			return -1;
+			// return await GetCommands().(args);
 		}
 
 		public RootCommand GetCommands()
@@ -47,12 +48,12 @@ namespace Morestachio.Runner
 			var rootCommand = new RootCommand()
 			{
 				new Option<SourceTypes>("--source-type", "The Data string related to the --source-type")
-				{
-					IsRequired = true
+				{					
+					Required = true
 				},
 				new Option<string>("--source-data", "The Data string related to the --source-type")
 				{
-					IsRequired = true
+					Required = true
 				},
 				new Option<string>("--source-data-net-type",
 					"if --source-type is NetFunction then it is expected that this is the fully quallified path to the type to be executed"),
@@ -60,20 +61,19 @@ namespace Morestachio.Runner
 					"if --source-type is NetFunction then it is expected that this is the path to the method to be executed"),
 				new Option<string>("--template-data", "The path to the template that should be processed")
 				{
-					IsRequired = true
+					Required = true
 				},
 				new Option<string>("--target-path",
 					"The full path including the filename where the result should be stored")
 					{
-						IsRequired = true
+						Required = true
 					},
 				new Option<string>("--build-log",
 					"If set a log of everything written to the console will be saved at the location and the console will never break")
 					{
 					},
-			};
-			rootCommand.Handler
-				= CommandHandler.Create<SourceTypes, string, string, string, string, string, string>(Invoke);
+			};			
+			rootCommand.SetAction(Invoke);
 			return rootCommand;
 		}
 
@@ -153,6 +153,12 @@ namespace Morestachio.Runner
 			};
 			PerformanceMetrics[name] = metric;
 			return metric;
+		}
+
+		private async Task<int> Invoke(ParseResult parseResult)
+		{
+			return -1;
+			// return Invoke(parseResult.Tokens[0])
 		}
 
 		private async Task<int> Invoke(SourceTypes sourceType,
