@@ -198,3 +198,4 @@ FakesAssemblies/
 #ignore built nuget packages.
 *.nupkg
 /nuget.config
+.devcontainer/devcontainer-lock.json
